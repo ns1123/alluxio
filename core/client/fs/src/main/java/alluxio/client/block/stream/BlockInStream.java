@@ -17,237 +17,334 @@ import alluxio.Seekable;
 import alluxio.client.BoundedStream;
 import alluxio.client.Locatable;
 import alluxio.client.PositionedReadable;
-import alluxio.client.block.AlluxioBlockStore;
-import alluxio.client.block.BlockWorkerClient;
-import alluxio.client.block.options.LockBlockOptions;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.InStreamOptions;
-import alluxio.client.resource.LockBlockResource;
+import alluxio.exception.PreconditionMessage;
+import alluxio.exception.status.NotFoundException;
+import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.util.CommonUtils;
+import alluxio.util.io.BufferUtils;
 import alluxio.util.network.NettyUtils;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.wire.LockBlockResult;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.Closer;
 
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Provides a stream API to read a block from Alluxio. An instance extending this class can be
- * obtained by calling {@link AlluxioBlockStore#getInStream}. Multiple
- * {@link BlockInStream}s can be opened for a block.
- *
- * This class provides the same methods as a Java {@link InputStream} with additional methods from
- * Alluxio Stream interfaces.
- *
- * Block lock ownership:
- * The read lock of the block is acquired when the stream is created and released when the
- * stream is closed.
+ * Provides an {@link InputStream} implementation that is based on {@link PacketReader}s to
+ * stream data packet by packet.
  */
 @NotThreadSafe
-public class BlockInStream extends FilterInputStream implements BoundedStream, Seekable,
+public class BlockInStream extends InputStream implements BoundedStream, Seekable,
     PositionedReadable, Locatable {
-  /** Helper to manage closeables. */
-  private final Closer mCloser;
-  private final BlockWorkerClient mBlockWorkerClient;
+  /** The id of the block or UFS file to which this instream provides access. */
+  private final long mId;
+  /** The size in bytes of the block. */
+  private final long mLength;
+
+  private final byte[] mSingleByte = new byte[1];
   private final boolean mLocal;
-  private final PacketInStream mInputStream;
+  private final WorkerNetAddress mAddress;
+
+  /** Current position of the stream, relative to the start of the block. */
+  private long mPos = 0;
+  /** The current packet. */
+  private DataBuffer mCurrentPacket;
+
+  private PacketReader mPacketReader;
+  private PacketReader.Factory mPacketReaderFactory;
+
+  private boolean mClosed = false;
+  private boolean mEOF = false;
 
   /**
-   * Creates an instance of {@link BlockInStream} that reads from local file directly.
+   * Creates an {@link BlockInStream} that reads from a local block.
    *
-   * @param blockId the block ID
-   * @param blockSize the block size
-   * @param workerNetAddress the worker network address
    * @param context the file system context
-   * @param options the options
-   * @return the {@link BlockInStream} created
+   * @param blockId the block ID
+   * @param blockSize the block size in bytes
+   * @param address the Alluxio worker address
+   * @param openUfsBlockOptions the options to open a UFS block, set to null if this is block is
+   *        not persisted in UFS
+   * @param options the in stream options
+   * @return the {@link InputStream} object
    */
-  // TODO(peis): Use options idiom (ALLUXIO-2579).
-  public static BlockInStream createShortCircuitBlockInStream(long blockId, long blockSize,
-      WorkerNetAddress workerNetAddress, FileSystemContext context, InStreamOptions options)
-          throws IOException {
-    Closer closer = Closer.create();
-    try {
-      BlockWorkerClient blockWorkerClient =
-          closer.register(context.createBlockWorkerClient(workerNetAddress));
-      // ALLUXIO CS ADD
-      blockWorkerClient.setCapabilityNonRPC(options.getCapabilityFetcher());
-      // ALLUXIO CS END
-      LockBlockResource lockBlockResource =
-          closer.register(blockWorkerClient.lockBlock(blockId, LockBlockOptions.defaults()));
-      PacketInStream inStream = closer.register(PacketInStream
-          .createLocalPacketInStream(lockBlockResource.getResult().getBlockPath(), blockId,
-              blockSize, options));
-      blockWorkerClient.accessBlock(blockId);
-      return new BlockInStream(inStream, blockWorkerClient, closer, options);
-    } catch (Throwable t) {
-      throw CommonUtils.closeAndRethrow(closer, t);
+  public static BlockInStream create(FileSystemContext context, long blockId, long blockSize,
+      WorkerNetAddress address, Protocol.OpenUfsBlockOptions openUfsBlockOptions,
+      InStreamOptions options) throws IOException {
+    if (CommonUtils.isLocalHost(address) && Configuration
+        .getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED) && !NettyUtils
+        .isDomainSocketSupported(address)) {
+      try {
+        return createLocalBlockInStream(context, address, blockId, blockSize, options);
+      } catch (NotFoundException e) {
+        // Failed to do short circuit read because the block is not available in Alluxio.
+        // We will try to read from UFS via netty. So this exception is ignored.
+      }
     }
+    Protocol.ReadRequest.Builder builder = Protocol.ReadRequest.newBuilder().setBlockId(blockId)
+        .setPromote(options.getAlluxioStorageType().isPromote());
+    // ALLUXIO CS ADD
+    if (options.getCapabilityFetcher() != null) {
+      builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
+    }
+    // ALLUXIO CS END
+    if (openUfsBlockOptions != null) {
+      builder.setOpenUfsBlockOptions(openUfsBlockOptions);
+    }
+
+    return createNettyBlockInStream(context, address, builder.buildPartial(), blockSize, options);
   }
 
   /**
-   * Creates an instance of remote {@link BlockInStream} that reads from a remote worker.
+   * Creates a {@link BlockInStream} to read from a local file.
    *
-   * @param blockId the block ID
-   * @param blockSize the block size
-   * @param workerNetAddress the worker network address
    * @param context the file system context
-   * @param options the options
+   * @param address the network address of the netty data server
+   * @param blockId the block ID
+   * @param length the block length
+   * @param options the in stream options
    * @return the {@link BlockInStream} created
    */
-  // TODO(peis): Use options idiom (ALLUXIO-2579).
-  public static BlockInStream createNettyBlockInStream(long blockId, long blockSize,
-      WorkerNetAddress workerNetAddress, FileSystemContext context, InStreamOptions options)
-          throws IOException {
-    Closer closer = Closer.create();
-    try {
-      BlockWorkerClient blockWorkerClient =
-          closer.register(context.createBlockWorkerClient(workerNetAddress));
-      // ALLUXIO CS ADD
-      blockWorkerClient.setCapabilityNonRPC(options.getCapabilityFetcher());
-      // ALLUXIO CS END
-      LockBlockResource lockBlockResource =
-          closer.register(blockWorkerClient.lockBlock(blockId, LockBlockOptions.defaults()));
-      PacketInStream inStream = closer.register(PacketInStream
-          .createNettyPacketInStream(context, workerNetAddress, blockId,
-              lockBlockResource.getResult().getLockId(), blockWorkerClient.getSessionId(),
-              blockSize, false, Protocol.RequestType.ALLUXIO_BLOCK, options));
-      blockWorkerClient.accessBlock(blockId);
-      return new BlockInStream(inStream, blockWorkerClient, closer, options);
-    } catch (Throwable t) {
-      throw CommonUtils.closeAndRethrow(closer, t);
+  private static BlockInStream createLocalBlockInStream(FileSystemContext context,
+      WorkerNetAddress address, long blockId, long length, InStreamOptions options)
+      throws IOException {
+    long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_READER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
     }
+    // ALLUXIO CS END
+    return new BlockInStream(
+        new LocalFilePacketReader.Factory(context, address, blockId, packetSize, options), address,
+        blockId, length);
+  }
+
+  /**
+   * Creates a {@link BlockInStream} to read from a netty data server.
+   *
+   * @param context the file system context
+   * @param address the address of the netty data server
+   * @param blockSize the block size
+   * @param readRequestPartial the partial read request
+   * @param options the in stream options
+   * @return the {@link BlockInStream} created
+   */
+  private static BlockInStream createNettyBlockInStream(FileSystemContext context,
+      WorkerNetAddress address, Protocol.ReadRequest readRequestPartial, long blockSize,
+      InStreamOptions options) {
+    long packetSize =
+        Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
+    }
+    // ALLUXIO CS END
+    PacketReader.Factory factory = new NettyPacketReader.Factory(context, address,
+        readRequestPartial.toBuilder().setPacketSize(packetSize).buildPartial(), options);
+    return new BlockInStream(factory, address, readRequestPartial.getBlockId(), blockSize);
   }
 
   /**
    * Creates an instance of {@link BlockInStream}.
    *
-   * This method keeps polling the block worker until the block is cached to Alluxio or
-   * it successfully acquires a UFS read token with a timeout.
-   * (1) If the block is cached to Alluxio after polling, it returns {@link BlockInStream}
-   *     to read the block from Alluxio storage.
-   * (2) If a UFS read token is acquired after polling, it returns {@link BlockInStream}
-   *     to read the block from an Alluxio worker that reads the block from UFS.
-   * (3) If the polling times out, an {@link IOException} with cause
-   *     {@link alluxio.exception.UfsBlockAccessTokenUnavailableException} is thrown.
-   *
-   * @param context the file system context
-   * @param ufsPath the UFS path
-   * @param blockId the block ID
-   * @param blockSize the block size
-   * @param blockStart the position at which the block starts in the file
-   * @param mountId the id of the UFS which the mount of this file is mapped to
-   * @param workerNetAddress the worker network address
-   * @param options the options
-   * @return the {@link BlockInStream} created
+   * @param packetReaderFactory the packet reader factory
+   * @param address the worker network address
+   * @param id the ID (either block ID or UFS file ID)
+   * @param length the length
    */
-  // TODO(peis): Use options idiom (ALLUXIO-2579).
-  public static BlockInStream createUfsBlockInStream(FileSystemContext context, String ufsPath,
-      long blockId, long blockSize, long blockStart, long mountId,
-      WorkerNetAddress workerNetAddress, InStreamOptions options) throws IOException {
-    Closer closer = Closer.create();
-    try {
-      BlockWorkerClient blockWorkerClient =
-          closer.register(context.createBlockWorkerClient(workerNetAddress));
-      LockBlockOptions lockBlockOptions =
-          LockBlockOptions.defaults().setUfsPath(ufsPath).setOffset(blockStart)
-              .setBlockSize(blockSize).setMaxUfsReadConcurrency(options.getMaxUfsReadConcurrency())
-              .setMountId(mountId);
+  protected BlockInStream(PacketReader.Factory packetReaderFactory, WorkerNetAddress address,
+      long id, long length) {
+    mPacketReaderFactory = packetReaderFactory;
+    mId = id;
+    mLength = length;
+    mAddress = address;
+    mLocal = CommonUtils.isLocalHost(mAddress);
+  }
 
-      LockBlockResult lockBlockResult =
-          closer.register(blockWorkerClient.lockUfsBlock(blockId, lockBlockOptions)).getResult();
-      PacketInStream inStream;
-      if (lockBlockResult.getLockBlockStatus().blockInAlluxio()) {
-        boolean local = workerNetAddress.getHost().equals(NetworkAddressUtils.getClientHostName());
-        if (local && Configuration.getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED)
-            && !NettyUtils.isDomainSocketSupported(workerNetAddress)) {
-          inStream = closer.register(PacketInStream
-              .createLocalPacketInStream(
-                  lockBlockResult.getBlockPath(), blockId, blockSize, options));
-        } else {
-          inStream = closer.register(PacketInStream
-              .createNettyPacketInStream(context, workerNetAddress, blockId,
-                  lockBlockResult.getLockId(), blockWorkerClient.getSessionId(), blockSize, false,
-                  Protocol.RequestType.ALLUXIO_BLOCK, options));
-        }
-        blockWorkerClient.accessBlock(blockId);
-      } else {
-        Preconditions.checkState(lockBlockResult.getLockBlockStatus().ufsTokenAcquired());
-        inStream = closer.register(PacketInStream
-            .createNettyPacketInStream(context, workerNetAddress, blockId,
-                lockBlockResult.getLockId(), blockWorkerClient.getSessionId(), blockSize,
-                !options.getAlluxioStorageType().isStore(), Protocol.RequestType.UFS_BLOCK,
-                options));
-      }
-      return new BlockInStream(inStream, blockWorkerClient, closer, options);
-    } catch (Throwable t) {
-      throw CommonUtils.closeAndRethrow(closer, t);
+  @Override
+  public int read() throws IOException {
+    int bytesRead = read(mSingleByte);
+    if (bytesRead == -1) {
+      return -1;
     }
+    Preconditions.checkState(bytesRead == 1);
+    return BufferUtils.byteToInt(mSingleByte[0]);
   }
 
   @Override
-  public void close() throws IOException {
-    mCloser.close();
+  public int read(byte[] b) throws IOException {
+    return read(b, 0, b.length);
   }
 
   @Override
-  public long remaining() {
-    return mInputStream.remaining();
-  }
+  public int read(byte[] b, int off, int len) throws IOException {
+    checkIfClosed();
+    Preconditions.checkArgument(b != null, PreconditionMessage.ERR_READ_BUFFER_NULL);
+    Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= b.length,
+        PreconditionMessage.ERR_BUFFER_STATE.toString(), b.length, off, len);
+    if (len == 0) {
+      return 0;
+    }
 
-  @Override
-  public void seek(long pos) throws IOException {
-    mInputStream.seek(pos);
+    readPacket();
+    if (mCurrentPacket == null) {
+      mEOF = true;
+    }
+    if (mEOF) {
+      closePacketReader();
+      return -1;
+    }
+    int toRead = Math.min(len, mCurrentPacket.readableBytes());
+    mCurrentPacket.readBytes(b, off, toRead);
+    mPos += toRead;
+    return toRead;
   }
 
   @Override
   public int positionedRead(long pos, byte[] b, int off, int len) throws IOException {
-    return mInputStream.positionedRead(pos, b, off, len);
+    if (len == 0) {
+      return 0;
+    }
+    if (pos < 0 || pos >= mLength) {
+      return -1;
+    }
+
+    int lenCopy = len;
+    try (PacketReader reader = mPacketReaderFactory.create(pos, len)) {
+      // We try to read len bytes instead of returning after reading one packet because
+      // it is not free to create/close a PacketReader.
+      while (len > 0) {
+        DataBuffer dataBuffer = null;
+        try {
+          dataBuffer = reader.readPacket();
+          if (dataBuffer == null) {
+            break;
+          }
+          Preconditions.checkState(dataBuffer.readableBytes() <= len);
+          int toRead = dataBuffer.readableBytes();
+          dataBuffer.readBytes(b, off, toRead);
+          len -= toRead;
+          off += toRead;
+        } finally {
+          if (dataBuffer != null) {
+            dataBuffer.release();
+          }
+        }
+      }
+    }
+    if (lenCopy == len) {
+      return -1;
+    }
+    return lenCopy - len;
+  }
+
+  @Override
+  public long remaining() {
+    return mEOF ? 0 : mLength - mPos;
+  }
+
+  @Override
+  public void seek(long pos) throws IOException {
+    checkIfClosed();
+    Preconditions.checkArgument(pos >= 0, PreconditionMessage.ERR_SEEK_NEGATIVE.toString(), pos);
+    Preconditions
+        .checkArgument(pos <= mLength, PreconditionMessage.ERR_SEEK_PAST_END_OF_REGION.toString(),
+            mId);
+    if (pos == mPos) {
+      return;
+    }
+    if (pos < mPos) {
+      mEOF = false;
+    }
+
+    closePacketReader();
+    mPos = pos;
+  }
+
+  @Override
+  public long skip(long n) throws IOException {
+    checkIfClosed();
+    if (n <= 0) {
+      return 0;
+    }
+
+    long toSkip = Math.min(remaining(), n);
+    mPos += toSkip;
+
+    closePacketReader();
+    return toSkip;
+  }
+
+  @Override
+  public void close() throws IOException {
+    try {
+      closePacketReader();
+    } finally {
+      mPacketReaderFactory.close();
+    }
+    mClosed = true;
+  }
+
+  /**
+   * @return whether the packet in stream is reading packets directly from a local file
+   */
+  public boolean isShortCircuit() {
+    return mPacketReaderFactory.isShortCircuit();
+  }
+
+  /**
+   * Reads a new packet from the channel if all of the current packet is read.
+   */
+  private void readPacket() throws IOException {
+    if (mPacketReader == null) {
+      mPacketReader = mPacketReaderFactory.create(mPos, mLength - mPos);
+    }
+
+    if (mCurrentPacket != null && mCurrentPacket.readableBytes() == 0) {
+      mCurrentPacket.release();
+      mCurrentPacket = null;
+    }
+    if (mCurrentPacket == null) {
+      mCurrentPacket = mPacketReader.readPacket();
+    }
+  }
+
+  /**
+   * Close the current packet reader.
+   */
+  private void closePacketReader() throws IOException {
+    if (mCurrentPacket != null) {
+      mCurrentPacket.release();
+      mCurrentPacket = null;
+    }
+    if (mPacketReader != null) {
+      mPacketReader.close();
+    }
+    mPacketReader = null;
+  }
+
+  /**
+   * Convenience method to ensure the stream is not closed.
+   */
+  private void checkIfClosed() {
+    Preconditions.checkState(!mClosed, PreconditionMessage.ERR_CLOSED_BLOCK_IN_STREAM);
   }
 
   @Override
   public WorkerNetAddress location() {
-    return mBlockWorkerClient.getWorkerNetAddress();
+    return mAddress;
   }
 
   @Override
   public boolean isLocal() {
     return mLocal;
-  }
-
-  /**
-   * @return whether this stream is reading directly from a local file
-   */
-  public boolean isShortCircuit() {
-    return mInputStream.isShortCircuit();
-  }
-
-  /**
-   * Creates an instance of {@link BlockInStream}.
-   *
-   * @param inputStream the packet inputstream
-   * @param blockWorkerClient the block worker client
-   * @param closer the closer registered with closable resources open so far
-   * @param options the options
-   */
-  protected BlockInStream(PacketInStream inputStream, BlockWorkerClient blockWorkerClient,
-      Closer closer, InStreamOptions options) {
-    super(inputStream);
-
-    mInputStream = inputStream;
-    mBlockWorkerClient = blockWorkerClient;
-
-    mCloser = closer;
-    mCloser.register(mInputStream);
-    mLocal = blockWorkerClient.getWorkerNetAddress().getHost()
-        .equals(NetworkAddressUtils.getClientHostName());
   }
 }

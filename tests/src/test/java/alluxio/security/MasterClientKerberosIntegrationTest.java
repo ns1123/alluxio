@@ -18,6 +18,7 @@ import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.file.options.GetStatusOptions;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
@@ -43,6 +44,8 @@ import java.net.URLClassLoader;
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
 public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTest {
+  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
+
   private static MiniKdc sKdc;
   private static File sWorkDir;
 
@@ -65,15 +68,16 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + host + "@" + realm;
+    sServerPrincipal = "alluxio/" + HOSTNAME + "@" + realm;
     sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + host);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + HOSTNAME);
 
     sLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
+        .put(PropertyKey.MASTER_HOSTNAME, HOSTNAME)
+        .put(PropertyKey.WORKER_HOSTNAME, HOSTNAME)
         .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
         .put(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true")
         .put(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal)
@@ -117,7 +121,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     masterClient.connect();
     Assert.assertTrue(masterClient.isConnected());
     masterClient.createFile(new AlluxioURI(filename), CreateFileOptions.defaults());
-    Assert.assertNotNull(masterClient.getStatus(new AlluxioURI(filename)));
+    Assert.assertNotNull(
+        masterClient.getStatus(new AlluxioURI(filename), GetStatusOptions.defaults()));
     masterClient.disconnect();
     masterClient.close();
   }

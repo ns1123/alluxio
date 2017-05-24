@@ -115,10 +115,10 @@ public final class TransportAndProtocolAuthenticationTest extends BaseIntegratio
   @Before
   public void before() throws Exception {
     // Use port 0 to assign each test case an available port (possibly different)
-    String localhost = NetworkAddressUtils.getLocalHostName();
-    mServerTSocket = new TServerSocket(new InetSocketAddress(localhost, 0));
+    Configuration.set(PropertyKey.TEST_MODE, "true");
+    mServerTSocket = new TServerSocket(new InetSocketAddress(sServerName, 0));
     int port = NetworkAddressUtils.getThriftPort(mServerTSocket);
-    mServerAddress = new InetSocketAddress(localhost, port);
+    mServerAddress = new InetSocketAddress(sServerName, port);
   }
 
   @After
@@ -413,7 +413,7 @@ public final class TransportAndProtocolAuthenticationTest extends BaseIntegratio
 
   private void startServerThread() throws Exception {
     // Create args and use them to build a Thrift TServer
-    TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory();
+    TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory(sServerName);
     startServerWithTransportFactory(tTransportFactory);
   }
 

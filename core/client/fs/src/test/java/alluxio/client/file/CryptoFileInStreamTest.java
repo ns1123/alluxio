@@ -19,7 +19,6 @@ import alluxio.client.LayoutUtils;
 import alluxio.client.ReadType;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
-import alluxio.client.block.StreamFactory;
 import alluxio.client.block.stream.BlockInStream;
 import alluxio.client.block.stream.BlockOutStream;
 import alluxio.client.block.stream.TestBlockInStream;
@@ -29,6 +28,7 @@ import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.security.CryptoUtils;
 import alluxio.client.util.ClientTestUtils;
 import alluxio.exception.PreconditionMessage;
+import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.io.BufferUtils;
 import alluxio.wire.FileInfo;
@@ -60,7 +60,7 @@ import java.util.List;
  * Tests for the {@link CryptoFileInStream} class.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystemContext.class, AlluxioBlockStore.class, StreamFactory.class})
+@PrepareForTest({FileSystemContext.class, AlluxioBlockStore.class})
 @PowerMockIgnore("javax.crypto.*")
 public final class CryptoFileInStreamTest {
 
@@ -133,8 +133,6 @@ public final class CryptoFileInStreamTest {
     PowerMockito.mockStatic(AlluxioBlockStore.class);
     PowerMockito.when(AlluxioBlockStore.create(mContext)).thenReturn(mBlockStore);
     PowerMockito.when(mBlockStore.getWorkerInfoList()).thenReturn(new ArrayList<BlockWorkerInfo>());
-    Mockito.mock(StreamFactory.class);
-    PowerMockito.mockStatic(StreamFactory.class);
 
     // Set up BufferedBlockInStreams and caching streams
     mCacheStreams = new ArrayList<>();
@@ -142,17 +140,18 @@ public final class CryptoFileInStreamTest {
     for (int i = 0; i < mNumStreams; i++) {
       blockIds.add((long) i);
       mCacheStreams.add(new TestBlockOutStream(
-          ByteBuffer.allocate((int) mPhysicalBlockLength), i, getBlockLength(i)));
+          ByteBuffer.allocate((int) mPhysicalBlockLength), getBlockLength(i)));
       Mockito.when(mBlockStore.getWorkerInfoList())
           .thenReturn(Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress(), 0, 0)));
       Mockito
-          .when(mBlockStore.getInStream(Mockito.eq((long) i), Mockito.any(InStreamOptions.class)))
+          .when(mBlockStore.getInStream(Mockito.eq((long) i), Mockito.any(
+              Protocol.OpenUfsBlockOptions.class), Mockito.any(InStreamOptions.class)))
           .thenAnswer(new Answer<BlockInStream>() {
             @Override
             public BlockInStream answer(InvocationOnMock invocation) throws Throwable {
               long i = (Long) invocation.getArguments()[0];
               byte[] input = getBlockData((int) i);
-              return new TestBlockInStream(i, input);
+              return new TestBlockInStream(input, i, input.length, false);
             }
           });
       Mockito.when(mBlockStore.getOutStream(Mockito.eq((long) i), Mockito.anyLong(),

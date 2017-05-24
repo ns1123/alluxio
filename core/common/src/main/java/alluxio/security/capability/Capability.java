@@ -57,6 +57,25 @@ public final class Capability {
   }
 
   /**
+   * Creates an instance of {@link Capability} from a proto representation of the capability.
+   *
+   * @param capability the proto representation of the capability
+   * @throws InvalidCapabilityException if the proto object is malformed
+   */
+  public Capability(alluxio.proto.security.CapabilityProto.Capability capability)
+      throws InvalidCapabilityException {
+    if (capability == null || !capability.hasContent() || !capability.hasAuthenticator()
+        || !capability.hasKeyId()) {
+      throw new InvalidCapabilityException(
+          "Invalid thrift capability. The keyId, authenticator and content must be all set.");
+    }
+
+    mKeyId = capability.getKeyId();
+    mAuthenticator = ProtoUtils.getAuthenticator(capability);
+    mContent = ProtoUtils.getContent(capability);
+  }
+
+  /**
    * Creates an instance of {@link Capability} from a thrift representation of the capability.
    *
    * @param capability the thrift representation of the capability
@@ -155,6 +174,16 @@ public final class Capability {
     capability.setAuthenticator(mAuthenticator);
     capability.setKeyId(mKeyId);
     return capability;
+  }
+
+  /**
+   * @return the proto representation of the object
+   */
+  public alluxio.proto.security.CapabilityProto.Capability toProto() {
+    CapabilityProto.Capability.Builder builder = CapabilityProto.Capability.newBuilder();
+    ProtoUtils.setContent(builder, mContent);
+    ProtoUtils.setAuthenticator(builder, mAuthenticator);
+    return builder.setKeyId(mKeyId).build();
   }
 
   @Override

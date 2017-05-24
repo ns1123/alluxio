@@ -15,7 +15,9 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.JobCommand;
+import alluxio.thrift.JobHeartbeatTOptions;
 import alluxio.thrift.JobMasterWorkerService;
+import alluxio.thrift.RegisterJobWorkerTOptions;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.ThriftUtils;
@@ -95,7 +97,9 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   public synchronized long registerWorker(final WorkerNetAddress address) throws IOException {
     return retryRPC(new RpcCallable<Long>() {
       public Long call() throws TException {
-        return mClient.registerWorker(ThriftUtils.toThrift(address));
+        return mClient
+            .registerJobWorker(ThriftUtils.toThrift(address), new RegisterJobWorkerTOptions())
+            .getId();
       }
     });
   }
@@ -107,7 +111,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
 
       @Override
       public List<JobCommand> call() throws TException {
-        return mClient.heartbeat(workerId, taskInfoList);
+        return mClient.heartbeat(workerId, taskInfoList, new JobHeartbeatTOptions()).getCommands();
       }
     });
   }

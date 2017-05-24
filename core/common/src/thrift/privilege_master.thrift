@@ -10,19 +10,29 @@ enum TPrivilege {
   TTL
 }
 
-struct GetGroupPrivilegesTOptions {
+struct GetGroupPrivilegesTOptions {}
+struct GetGroupPrivilegesTResponse {
+  1: list<TPrivilege> privileges
 }
 
-struct GetUserPrivilegesTOptions {
+struct GetUserPrivilegesTOptions {}
+struct GetUserPrivilegesTResponse {
+  1: list<TPrivilege> privileges
 }
 
-struct GetGroupToPrivilegesMappingTOptions {
+struct GetGroupToPrivilegesMappingTOptions {}
+struct GetGroupToPrivilegesMappingTResponse {
+  1: map<string, list<TPrivilege>> groupPrivilegesMap
 }
 
-struct GrantPrivilegesTOptions {
+struct GrantPrivilegesTOptions {}
+struct GrantPrivilegesTResponse {
+  1: list<TPrivilege> privileges
 }
 
-struct RevokePrivilegesTOptions {
+struct RevokePrivilegesTOptions {}
+struct RevokePrivilegesTResponse {
+  1: list<TPrivilege> privileges
 }
 
 /**
@@ -33,46 +43,46 @@ service PrivilegeMasterClientService extends common.AlluxioService {
   /**
    * Returns the privilege information for the given group.
    */
-  list<TPrivilege> getGroupPrivileges(
+  GetGroupPrivilegesTResponse getGroupPrivileges(
     /** the name of the group */ 1: string group,
-    /** method options */ 2: GetGroupPrivilegesTOptions options,
+    /** the method options */ 2: GetGroupPrivilegesTOptions options,
     )
     throws (1: exception.AlluxioTException e)
 
   /**
    * Returns the privilege information for the given user.
    */
-  list<TPrivilege> getUserPrivileges(
+  GetUserPrivilegesTResponse getUserPrivileges(
     /** the name of the user */ 1: string user,
-    /** method options */ 2: GetUserPrivilegesTOptions options,
+    /** the method options */ 2: GetUserPrivilegesTOptions options,
     )
     throws (1: exception.AlluxioTException e)
 
   /**
    * Returns the mapping from groups to privileges.
    */
-  map<string, list<TPrivilege>> getGroupToPrivilegesMapping(
-    /** method options */ 1: GetGroupToPrivilegesMappingTOptions options,
+  GetGroupToPrivilegesMappingTResponse getGroupToPrivilegesMapping(
+    /** the method options */ 1: GetGroupToPrivilegesMappingTOptions options,
     )
     throws (1: exception.AlluxioTException e)
 
   /**
    * Grants the given privileges to the given group, returning the updated privileges for the group.
    */
-  list<TPrivilege> grantPrivileges(
+  GrantPrivilegesTResponse grantPrivileges(
     /** the name of the group */ 1: string group,
     /** the privileges to grant */ 2: list<TPrivilege> privileges,
-    /** method options */ 3: GrantPrivilegesTOptions options,
+    /** the method options */ 3: GrantPrivilegesTOptions options,
     )
     throws (1: exception.AlluxioTException e)
 
   /**
    * Removes the given privileges from the given group, returning the updated privileges for the group.
    */
-  list<TPrivilege> revokePrivileges(
+  RevokePrivilegesTResponse revokePrivileges(
     /** the name of the group */ 1: string group,
     /** the privileges to revoke */ 2: list<TPrivilege> privileges,
-    /** method options */ 3: RevokePrivilegesTOptions options,
+    /** the method options */ 3: RevokePrivilegesTOptions options,
     )
     throws (1: exception.AlluxioTException e)
 }

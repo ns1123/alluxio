@@ -28,7 +28,7 @@ var (
 
 var frameworks = []string{"flink", "hadoop", "spark"}
 var webappDir = "core/server/common/src/main/webapp"
-var webappWar = "server/webapp.war"
+var webappWar = "assembly/webapp.war"
 
 func init() {
 	// Override default usage which isn't designed for scripts intended to be run by `go run`.
@@ -187,8 +187,9 @@ func generateTarball() error {
 	// OVERRIDE DEFAULT SETTINGS
 	// Update the web app location.
 	replace("core/common/src/main/java/alluxio/PropertyKey.java", webappDir, webappWar)
-	// Update the server jar path.
-	replace("libexec/alluxio-config.sh", "assembly/target/alluxio-assemblies-${VERSION}-jar-with-dependencies.jar", "server/alluxio-${VERSION}-server.jar")
+	// Update the assembly jar paths.
+	replace("libexec/alluxio-config.sh", "assembly/client/target/alluxio-assembly-client-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-client-${VERSION}.jar")
+	replace("libexec/alluxio-config.sh", "assembly/server/target/alluxio-assembly-server-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-server-${VERSION}.jar")
 
 	// COMPILE
 	mvnArgs := getMvnArgs()
@@ -203,27 +204,28 @@ func generateTarball() error {
 
 	// CREATE NEEDED DIRECTORIES
 	// Create the directory for the server jar.
-	mkdir(filepath.Join(dstPath, "server"))
+	mkdir(filepath.Join(dstPath, "assembly"))
 	// Create directories for the client jars.
 	for _, framework := range frameworks {
 		mkdir(filepath.Join(dstPath, "client", framework))
 	}
 	mkdir(filepath.Join(dstPath, "logs"))
 
-	// ADD ALLUXIO SERVER JAR TO DISTRIBUTION
-	run("adding Alluxio server jar", "mv", fmt.Sprintf("assembly/target/alluxio-assemblies-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "server", fmt.Sprintf("alluxio-%v-server.jar", version)))
+	// ADD ALLUXIO ASSEMBLY JARS TO DISTRIBUTION
+	run("adding Alluxio client assembly jar", "mv", fmt.Sprintf("assembly/client/target/alluxio-assembly-client-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-client-%v.jar", version)))
+	run("adding Alluxio server assembly jar", "mv", fmt.Sprintf("assembly/server/target/alluxio-assembly-server-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-server-%v.jar", version)))
 	// Condense the webapp into a single .war file.
 	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webappWar), "-C", webappDir, ".")
 
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
-	chdir(filepath.Join(srcPath, "core/client"))
+	chdir(filepath.Join(srcPath, "core/client/runtime"))
 	for _, framework := range frameworks {
 		clientArgs := mvnArgs
 		if framework != "hadoop" {
 			clientArgs = append(clientArgs, fmt.Sprintf("-P%s", framework))
 		}
 		run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", clientArgs...)
-		run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
+		run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 	}
 
 	// ADD ADDITIONAL CONTENT TO DISTRIBUTION

@@ -18,6 +18,7 @@ import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.job.command.CommandManager;
 import alluxio.thrift.JobCommand;
+import alluxio.underfs.UfsManager;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Lists;
@@ -48,6 +49,7 @@ public final class JobCoordinatorTest {
   private CommandManager mCommandManager;
   private List<WorkerInfo> mWorkerInfoList;
   private JobDefinition<JobConfig, Serializable, Serializable> mJobDefinition;
+  private UfsManager mUfsManager;
 
   @Before
   public void before() throws Exception {
@@ -72,12 +74,14 @@ public final class JobCoordinatorTest {
     mWorkerInfo = new WorkerInfo();
     mWorkerInfo.setId(0);
     mWorkerInfoList = Lists.newArrayList(mWorkerInfo);
+
+    mUfsManager = Mockito.mock(UfsManager.class);
   }
 
   @Test
   public void createJobCoordinator() throws Exception {
     mockSelectExecutors(mWorkerInfo);
-    JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+    JobCoordinator.create(mCommandManager, mUfsManager, mWorkerInfoList, mJobInfo);
 
     List<JobCommand> commands = mCommandManager.pollAllPendingCommands(mWorkerInfo.getId());
     Assert.assertEquals(1, commands.size());
@@ -89,7 +93,7 @@ public final class JobCoordinatorTest {
   public void updateStatusFailure() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+        JobCoordinator.create(mCommandManager, mUfsManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.RUNNING, Status.FAILED, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -101,7 +105,7 @@ public final class JobCoordinatorTest {
   public void updateStatusFailureOverCancel() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+        JobCoordinator.create(mCommandManager, mUfsManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.RUNNING, Status.FAILED, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -112,7 +116,7 @@ public final class JobCoordinatorTest {
   public void updateStatusCancel() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+        JobCoordinator.create(mCommandManager, mUfsManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.CANCELED, Status.RUNNING, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -123,7 +127,7 @@ public final class JobCoordinatorTest {
   public void updateStatusRunning() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+        JobCoordinator.create(mCommandManager, mUfsManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.COMPLETED, Status.RUNNING, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -134,7 +138,7 @@ public final class JobCoordinatorTest {
   public void updateStatusCompleted() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+        JobCoordinator.create(mCommandManager, mUfsManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.COMPLETED, Status.COMPLETED, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -151,7 +155,7 @@ public final class JobCoordinatorTest {
             Mockito.anyMapOf(WorkerInfo.class, Serializable.class)))
         .thenThrow(new UnsupportedOperationException("test exception"));
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+        JobCoordinator.create(mCommandManager, mUfsManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.COMPLETED, Status.COMPLETED, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -163,7 +167,7 @@ public final class JobCoordinatorTest {
   public void noTasks() throws Exception {
     mockSelectExecutors();
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+        JobCoordinator.create(mCommandManager, mUfsManager, mWorkerInfoList, mJobInfo);
     Assert.assertEquals(Status.COMPLETED, mJobInfo.getStatus());
   }
 
@@ -171,7 +175,7 @@ public final class JobCoordinatorTest {
   public void failWorker() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+        JobCoordinator.create(mCommandManager, mUfsManager, mWorkerInfoList, mJobInfo);
     jobCoordinator.failTasksForWorker(mWorkerInfo.getId());
     Assert.assertEquals(Status.FAILED, mJobInfo.getStatus());
   }

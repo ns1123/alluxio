@@ -32,8 +32,10 @@ import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.stream.BlockOutStream;
 import alluxio.client.block.stream.TestBlockOutStream;
+import alluxio.client.block.stream.TestUnderFileSystemFileOutStream;
 import alluxio.client.block.stream.UnderFileSystemFileOutStream;
 import alluxio.client.file.options.CompleteFileOptions;
+import alluxio.client.file.options.GetStatusOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.util.ClientTestUtils;
 import alluxio.exception.ExceptionMessage;
@@ -57,7 +59,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -82,7 +83,7 @@ public class FileOutStreamTest {
   private FileSystemMasterClient mFileSystemMasterClient;
 
   private Map<Long, TestBlockOutStream> mAlluxioOutStreamMap;
-  private ByteArrayOutputStream mUnderStorageOutputStream;
+  private TestUnderFileSystemFileOutStream mUnderStorageOutputStream;
   private AtomicBoolean mUnderStorageFlushed;
 
   private FileOutStream mTestStream;
@@ -105,8 +106,8 @@ public class FileOutStreamTest {
 
     when(mFileSystemContext.acquireMasterClientResource())
         .thenReturn(new DummyCloseableResource<>(mFileSystemMasterClient));
-    when(mFileSystemMasterClient.getStatus(any(AlluxioURI.class))).thenReturn(
-        new URIStatus(new FileInfo()));
+    when(mFileSystemMasterClient.getStatus(any(AlluxioURI.class), any(GetStatusOptions.class)))
+        .thenReturn(new URIStatus(new FileInfo()));
 
     // Return sequentially increasing numbers for new block ids
     when(mFileSystemMasterClient.getNewBlockIdForFile(FILE_NAME))
@@ -128,7 +129,7 @@ public class FileOutStreamTest {
             Long blockId = invocation.getArgumentAt(0, Long.class);
             if (!outStreamMap.containsKey(blockId)) {
               TestBlockOutStream newStream =
-                  new TestBlockOutStream(ByteBuffer.allocate(1000), blockId, BLOCK_LENGTH);
+                  new TestBlockOutStream(ByteBuffer.allocate(1000), BLOCK_LENGTH);
               outStreamMap.put(blockId, newStream);
             }
             return outStreamMap.get(blockId);
@@ -142,12 +143,14 @@ public class FileOutStreamTest {
 
     // Create an under storage stream so that we can check whether it has been flushed
     final AtomicBoolean underStorageFlushed = new AtomicBoolean(false);
-    mUnderStorageOutputStream = new ByteArrayOutputStream() {
-      @Override
-      public void flush() {
-        underStorageFlushed.set(true);
-      }
-    };
+    mUnderStorageOutputStream =
+        new TestUnderFileSystemFileOutStream(ByteBuffer.allocate(5000)) {
+          @Override
+          public void flush() throws IOException {
+            super.flush();
+            underStorageFlushed.set(true);
+          }
+        };
     mUnderStorageFlushed = underStorageFlushed;
 
     PowerMockito.mockStatic(UnderFileSystemFileOutStream.class);
@@ -297,7 +300,7 @@ public class FileOutStreamTest {
     doThrow(new IOException("test error")).when(stream).write((byte) 7);
     mTestStream.write(7);
     mTestStream.write(8);
-    Assert.assertArrayEquals(new byte[] {7, 8}, mUnderStorageOutputStream.toByteArray());
+    Assert.assertArrayEquals(new byte[] {7, 8}, mUnderStorageOutputStream.getWrittenData());
     // The cache stream is written to only once - the FileInStream gives up on it after it throws
     // the first exception.
     verify(stream, times(1)).write(anyByte());
@@ -413,7 +416,7 @@ public class FileOutStreamTest {
         mAlluxioOutStreamMap.get(filledStreams).getWrittenData());
 
     Assert.assertArrayEquals(BufferUtils.getIncreasingByteArray(start, len),
-        mUnderStorageOutputStream.toByteArray());
+        mUnderStorageOutputStream.getWrittenData());
   }
 
   /**

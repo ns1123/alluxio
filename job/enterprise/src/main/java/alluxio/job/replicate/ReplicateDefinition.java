@@ -10,9 +10,9 @@
 package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
+import alluxio.client.Cancelable;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
-import alluxio.client.block.StreamFactory;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
@@ -27,6 +27,7 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
 import alluxio.master.block.BlockId;
+import alluxio.proto.dataserver.Protocol;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.BlockInfo;
@@ -153,11 +154,20 @@ public final class ReplicateDefinition
       options.setCapabilityFetcher(
           new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
     }
-    try (InputStream inputStream = createInputStream(status, blockId, blockStore);
-        OutputStream outputStream = blockStore
-            .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
-                localNetAddress, options)) {
-      ByteStreams.copy(inputStream, outputStream);
+
+    // use -1 to reuse the existing block size for this block
+    try (OutputStream outputStream =
+        blockStore.getOutStream(blockId, -1, localNetAddress, options)) {
+      try (InputStream inputStream = createInputStream(status, blockId, blockStore)) {
+        ByteStreams.copy(inputStream, outputStream);
+      } catch (Throwable t) {
+        try {
+          ((Cancelable) outputStream).cancel();
+        } catch (Throwable t2) {
+          t.addSuppressed(t2);
+        }
+        throw t;
+      }
     }
     return null;
   }
@@ -175,40 +185,25 @@ public final class ReplicateDefinition
    */
   private InputStream createInputStream(URIStatus status, long blockId,
       AlluxioBlockStore blockStore) throws AlluxioException, IOException {
-    BlockInfo blockInfo = blockStore.getInfo(blockId);
-    // This block is stored in Alluxio, read it from Alluxio worker
-    if (blockInfo.getLocations().size() > 0) {
-      InStreamOptions options = InStreamOptions.defaults();
-      if (status.getCapability() != null) {
-        options.setCapabilityFetcher(
-            new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
-      }
-      return blockStore.getInStream(blockId, options);
+    InStreamOptions options = InStreamOptions.defaults();
+    if (status.getCapability() != null) {
+      options.setCapabilityFetcher(
+          new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
+    }
+    Protocol.OpenUfsBlockOptions openUfsBlockOptions = null;
+    if (status.isPersisted()) {
+      String ufsPath = status.getUfsPath();
+      long mountId = status.getMountId();
+      long blockSize = status.getBlockSizeBytes();
+      long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
+      openUfsBlockOptions =
+          Protocol.OpenUfsBlockOptions.newBuilder().setBlockSize(blockSize).setMountId(mountId)
+              .setUfsPath(ufsPath).setOffsetInFile(blockStart)
+              .setMaxUfsReadConcurrency(options.getMaxUfsReadConcurrency())
+              .setNoCache(!options.getAlluxioStorageType().isStore())
+              .build();
     }
 
-    if (!status.isPersisted()) {
-      throw new IOException("Block " + blockId + " is not found in Alluxio and ufs.");
-    }
-
-    String ufsPath = status.getUfsPath();
-    long mountId = status.getMountId();
-    long blockSize = status.getBlockSizeBytes();
-    long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
-
-    WorkerNetAddress worker;
-
-    if (mFileSystemContext.hasLocalWorker()) { // Use local worker if possible
-      worker = mFileSystemContext.getLocalWorker();
-    } else { // Otherwise randomly select a worker
-      List<BlockWorkerInfo> workers = blockStore.getWorkerInfoList();
-      if (workers.isEmpty()) {
-        throw new IOException(ExceptionMessage.NO_WORKER_AVAILABLE.getMessage());
-      }
-      Collections.shuffle(workers);
-      worker = workers.get(0).getNetAddress();
-    }
-
-    return StreamFactory.createUfsBlockInStream(mFileSystemContext, ufsPath, blockId, blockSize,
-        blockStart, worker, mountId, InStreamOptions.defaults());
+    return blockStore.getInStream(blockId, openUfsBlockOptions, options);
   }
 }

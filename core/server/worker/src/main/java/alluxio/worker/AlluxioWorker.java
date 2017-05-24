@@ -51,6 +51,9 @@ public final class AlluxioWorker {
       System.exit(1);
     }
 
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.WORKER);
+    // ALLUXIO CS END
     WorkerProcess process = WorkerProcess.Factory.create();
     ProcessUtils.run(process);
   }

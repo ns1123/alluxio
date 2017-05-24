@@ -9,8 +9,16 @@
 
 package alluxio.job.replicate;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
@@ -29,6 +37,8 @@ import alluxio.exception.NoWorkerException;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
+import alluxio.proto.dataserver.Protocol;
+import alluxio.underfs.UfsManager;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
@@ -39,18 +49,17 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -81,16 +90,18 @@ public final class ReplicateDefinitionTest {
   private AlluxioBlockStore mMockBlockStore;
   private FileSystem mMockFileSystem;
   private JobMasterContext mMockJobMasterContext;
+  private UfsManager mMockUfsManager;
 
   @Rule
   public final ExpectedException mThrown = ExpectedException.none();
 
   @Before
   public void before() {
-    mMockJobMasterContext = Mockito.mock(JobMasterContext.class);
+    mMockJobMasterContext = mock(JobMasterContext.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
-    mMockFileSystem = PowerMockito.mock(FileSystem.class);
+    mMockFileSystem = mock(FileSystem.class);
+    mMockUfsManager = mock(UfsManager.class);
   }
 
   /**
@@ -106,9 +117,9 @@ public final class ReplicateDefinitionTest {
       throws Exception {
     BlockInfo blockInfo = new BlockInfo().setBlockId(TEST_BLOCK_ID);
     blockInfo.setLocations(blockLocations);
-    Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
+    when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
     PowerMockito.mockStatic(AlluxioBlockStore.class);
-    PowerMockito.when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
+    when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
 
     String path = "/test";
     ReplicateConfig config = new ReplicateConfig(path, TEST_BLOCK_ID, numReplicas);
@@ -128,24 +139,24 @@ public final class ReplicateDefinitionTest {
     String path = "/test";
     URIStatus status = new URIStatus(new FileInfo().setPath(path));
     PowerMockito.mockStatic(FileSystem.Factory.class);
-    PowerMockito.when(FileSystem.Factory.get()).thenReturn(mMockFileSystem);
-    Mockito.when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
+    when(FileSystem.Factory.get()).thenReturn(mMockFileSystem);
+    when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
 
-    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
-    Mockito.when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(InStreamOptions.class)))
-        .thenReturn(mockInStream);
-    Mockito.when(
+    when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
+    when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(Protocol.OpenUfsBlockOptions.class),
+            any(InStreamOptions.class))).thenReturn(mockInStream);
+    when(
         mMockBlockStore.getOutStream(eq(TEST_BLOCK_ID), eq(-1L), eq(LOCAL_ADDRESS),
             any(OutStreamOptions.class))).thenReturn(mockOutStream);
-    Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID))
+    when(mMockBlockStore.getInfo(TEST_BLOCK_ID))
         .thenReturn(new BlockInfo().setBlockId(TEST_BLOCK_ID)
             .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1))));
     PowerMockito.mockStatic(AlluxioBlockStore.class);
-    PowerMockito.when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
+    when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
 
     ReplicateConfig config = new ReplicateConfig(path, TEST_BLOCK_ID, 1 /* value not used */);
     ReplicateDefinition definition = new ReplicateDefinition(mMockFileSystemContext);
-    definition.runTask(config, null, new JobWorkerContext(1, 1));
+    definition.runTask(config, null, new JobWorkerContext(1, 1, mMockUfsManager));
   }
 
   @Test
@@ -156,7 +167,7 @@ public final class ReplicateDefinitionTest {
     Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
     expected.put(WORKER_INFO_1, null);
     // select the only worker
-    Assert.assertEquals(expected, result);
+    assertEquals(expected, result);
   }
 
   @Test
@@ -167,7 +178,7 @@ public final class ReplicateDefinitionTest {
     Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
     expected.put(WORKER_INFO_2, null);
     // select one worker left
-    Assert.assertEquals(expected, result);
+    assertEquals(expected, result);
   }
 
   @Test
@@ -179,7 +190,7 @@ public final class ReplicateDefinitionTest {
     expected.put(WORKER_INFO_2, null);
     expected.put(WORKER_INFO_3, null);
     // select both workers left
-    Assert.assertEquals(expected, result);
+    assertEquals(expected, result);
   }
 
   @Test
@@ -188,8 +199,8 @@ public final class ReplicateDefinitionTest {
         Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), 1,
         Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
     // select one worker out of two
-    Assert.assertEquals(1, result.size());
-    Assert.assertEquals(null, result.values().iterator().next());
+    assertEquals(1, result.size());
+    assertEquals(null, result.values().iterator().next());
   }
 
   @Test
@@ -199,7 +210,7 @@ public final class ReplicateDefinitionTest {
         Lists.newArrayList(WORKER_INFO_1));
     Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
     // select none as no choice left
-    Assert.assertEquals(expected, result);
+    assertEquals(expected, result);
   }
 
   @Test
@@ -210,16 +221,17 @@ public final class ReplicateDefinitionTest {
     Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
     expected.put(WORKER_INFO_2, null);
     // select the only worker left though more copies are requested
-    Assert.assertEquals(expected, result);
+    assertEquals(expected, result);
   }
 
   @Test
   public void runTaskNoBlockWorker() throws Exception {
     byte[] input = BufferUtils.getIncreasingByteArray(0, (int) TEST_BLOCK_SIZE);
 
-    TestBlockInStream mockInStream = new TestBlockInStream(TEST_BLOCK_ID, input);
+    TestBlockInStream mockInStream =
+        new TestBlockInStream(input, TEST_BLOCK_ID, input.length, false);
     TestBlockOutStream mockOutStream =
-        new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_ID, TEST_BLOCK_SIZE);
+        new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_SIZE);
     mThrown.expect(NoWorkerException.class);
     mThrown.expectMessage(ExceptionMessage.NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK
         .getMessage(TEST_BLOCK_ID));
@@ -230,11 +242,29 @@ public final class ReplicateDefinitionTest {
   public void runTaskLocalBlockWorker() throws Exception {
     byte[] input = BufferUtils.getIncreasingByteArray(0, (int) TEST_BLOCK_SIZE);
 
-    TestBlockInStream mockInStream = new TestBlockInStream(TEST_BLOCK_ID, input);
+    TestBlockInStream mockInStream =
+        new TestBlockInStream(input, TEST_BLOCK_ID, input.length, false);
     TestBlockOutStream mockOutStream =
-        new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_ID, TEST_BLOCK_SIZE);
+        new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_SIZE);
     BlockWorkerInfo localBlockWorker = new BlockWorkerInfo(LOCAL_ADDRESS, TEST_BLOCK_SIZE, 0);
     runTaskReplicateTestHelper(Lists.newArrayList(localBlockWorker), mockInStream, mockOutStream);
-    Assert.assertTrue(Arrays.equals(input, mockOutStream.getWrittenData()));
+    assertTrue(Arrays.equals(input, mockOutStream.getWrittenData()));
+  }
+
+  @Test
+  public void runTaskInputIOException() throws Exception {
+    BlockInStream mockInStream = mock(BlockInStream.class);
+    BlockOutStream mockOutStream = mock(BlockOutStream.class);
+
+    BlockWorkerInfo localBlockWorker = new BlockWorkerInfo(LOCAL_ADDRESS, TEST_BLOCK_SIZE, 0);
+    doThrow(new IOException("test")).when(mockInStream).read(any(byte[].class), anyInt(), anyInt());
+    doThrow(new IOException("test")).when(mockInStream).read(any(byte[].class));
+    try {
+      runTaskReplicateTestHelper(Lists.newArrayList(localBlockWorker), mockInStream, mockOutStream);
+      fail("Expected the task to throw and IOException");
+    } catch (IOException e) {
+      assertEquals("test", e.getMessage());
+    }
+    verify(mockOutStream).cancel();
   }
 }

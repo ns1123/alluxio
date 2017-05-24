@@ -49,6 +49,9 @@ public final class AlluxioJobMaster {
       System.exit(1);
     }
 
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.JOB_MASTER);
+    // ALLUXIO CS END
     JobMasterProcess process = JobMasterProcess.Factory.create();
     ProcessUtils.run(process);
   }
