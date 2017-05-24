@@ -3065,7 +3065,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           try {
             jobId = client.run(config);
           } catch (alluxio.exception.status.ResourceExhaustedException e) {
-            LOG.warn("The job service is busy, will retry later.");
+            LOG.warn("The job service is busy, will retry later: {}", e.getMessage());
+            LOG.debug("Exception: ", e);
             mQuietPeriodSeconds = (mQuietPeriodSeconds == 0) ? 1 :
                 Math.min(MAX_QUIET_PERIOD_SECONDS, mQuietPeriodSeconds * 2);
             remove = false;
@@ -3092,9 +3093,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         } catch (FileDoesNotExistException | InvalidPathException e) {
           LOG.warn("The file to be persisted (id={}) no longer exists : {}", fileId,
               e.getMessage());
+          LOG.debug("Exception: ", e);
         } catch (Exception e) {
           LOG.warn("Unexpected exception encountered when starting a job to persist file (id={}).",
-              fileId, e);
+              fileId, e.getMessage());
+          LOG.debug("Exception: ", e);
         } finally {
           if (remove) {
             mPersistRequests.remove(fileId);
@@ -3155,16 +3158,18 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 journalContext);
             break;
           default:
-            LOG.warn("Unexpected persistence state {}.", inode.getPersistenceState());
+            throw new IllegalStateException(
+                "Unrecognized persistence state: " + inode.getPersistenceState());
         }
       } catch (FileDoesNotExistException | InvalidPathException e) {
         LOG.warn("The file to be persisted (id={}) no longer exists : {}", fileId, e.getMessage());
+        LOG.debug("Exception: ", e);
         // Cleanup the temporary file.
         cleanup(tempUfsPath);
-      } catch (IOException e) {
-        LOG.warn(
-            "Failed to finalize persistence of a file (id={}), persist job will be retried : {}",
-            fileId, e.getMessage());
+      } catch (Exception e) {
+        LOG.warn("Unexpected exception encountered when trying to complete persistence of a file "
+            + "(id={}), the persist job will be retried: {}", fileId, e.getMessage());
+        LOG.debug("Exception: ", e);
         cleanup(tempUfsPath);
         mPersistRequests.add(fileId);
       } finally {
@@ -3188,6 +3193,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             try {
               client.cancel(job.getJobId());
               job.setCancelState(PersistJob.CancelState.CANCELING);
+            } catch (alluxio.exception.status.NotFoundException e) {
+              LOG.warn("Persist job (id={}) to cancel not found: {}", job.getJobId(),
+                  e.getMessage());
+              LOG.debug("Exception: ", e);
+              mPersistJobs.remove(fileId);
+              continue;
             } catch (Exception e) {
               LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
                   job.getJobId(), e.getMessage());
@@ -3234,9 +3245,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
           }
         } catch (Exception e) {
-          LOG.warn(
-              "Unexpected exception encountered when trying to retrieve the status of a persist "
-                  + " job (id={}) : {}.", fileId, e.getMessage());
+          LOG.warn("Exception encountered when trying to retrieve the status of a "
+                  + " persist job (id={}), the persist job will be retried : {}.", fileId,
+              e.getMessage());
+          LOG.debug("Exception: ", e);
           mPersistJobs.remove(fileId);
           mPersistRequests.add(fileId);
         } finally {

@@ -16,7 +16,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.job.JobConfig;
 import alluxio.job.TestJobConfig;
-import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobInfo;
 import alluxio.master.job.command.CommandManager;
 import alluxio.underfs.UfsManager;
