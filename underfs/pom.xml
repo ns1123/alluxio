@@ -23,6 +23,9 @@
   <description>Parent POM for different implementations of Alluxio under file system</description>
 
   <modules>
+    <!-- ALLUXIO CS ADD -->
+    <module>fork</module>
+    <!-- ALLUXIO CS END -->
     <module>gcs</module>
     <module>glusterfs</module>
     <module>hdfs</module>
