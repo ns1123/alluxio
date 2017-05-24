@@ -134,6 +134,8 @@ public final class PersistDefinition
     long ret;
     try (Closer closer = Closer.create()) {
       OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
+      // Disable decryption when reading from Alluxio in order to directly copy ciphertext to UFS.
+      options.setDisableDecrypt(true);
       FileInStream in = closer.register(fs.openFile(uri, options));
       AlluxioURI dstPath = new AlluxioURI(ufsPath);
       // Create ancestor directories from top to the bottom. We cannot use recursive create
