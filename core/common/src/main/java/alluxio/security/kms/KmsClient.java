@@ -40,6 +40,9 @@ public interface KmsClient {
   EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
       throws IOException;
 
+  /**
+   * Factory for creating {@link KmsClient}.
+   */
   class Factory {
     private static final Logger LOG = LoggerFactory.getLogger(Factory.class);
     private static final ServiceLoader<KmsClientFactory> SERVICE_LOADER =

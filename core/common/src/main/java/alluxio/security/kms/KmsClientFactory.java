@@ -27,6 +27,7 @@ public interface KmsClientFactory {
   KmsClient create() throws IOException;
 
   /**
+   * @param provider the KMS provider
    * @return whether this factory supports the KMS provider
    */
   boolean supportsProvider(String provider);
