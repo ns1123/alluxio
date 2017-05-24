@@ -33,6 +33,7 @@ import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.DeleteOptions;
 import alluxio.master.file.options.FreeOptions;
+import alluxio.master.file.options.GetStatusOptions;
 import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
@@ -115,6 +116,9 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
         new FileSystemMasterClientService.Processor<>(
             new FileSystemMasterClientServiceHandler(this)));
+    services.put(Constants.FILE_SYSTEM_MASTER_JOB_SERVICE_NAME,
+        new alluxio.thrift.FileSystemMasterJobService.Processor<>(
+            new FileSystemMasterJobServiceHandler(this)));
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));
@@ -194,9 +198,9 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public FileInfo getFileInfo(AlluxioURI path)
+  public FileInfo getFileInfo(AlluxioURI path, GetStatusOptions options)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
-    return mFileSystemMaster.getFileInfo(path);
+    return mFileSystemMaster.getFileInfo(path, options);
   }
 
   @Override

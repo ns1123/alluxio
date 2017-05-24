@@ -53,6 +53,11 @@ public final class User implements Principal {
       javax.security.auth.login.LoginException {
     mSubject = subject;
     if (subject != null) {
+      if (Boolean.getBoolean("sun.security.jgss.native")
+          && alluxio.util.CommonUtils.isAlluxioServer()) {
+        mName = alluxio.security.util.KerberosUtils.getKerberosServiceName();
+        return;
+      }
       alluxio.security.util.KerberosName kerberosName =
           alluxio.security.util.KerberosUtils.extractKerberosNameFromSubject(subject);
       com.google.common.base.Preconditions.checkNotNull(kerberosName);

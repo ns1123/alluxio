@@ -11,11 +11,12 @@
 
 package alluxio.underfs.jdbc.meta;
 
-import org.apache.http.annotation.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Types;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Information about a column.

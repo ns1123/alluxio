@@ -17,7 +17,6 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.cli.Format;
-import alluxio.client.block.BlockWorkerClientTestUtils;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.util.ClientTestUtils;
@@ -206,8 +205,9 @@ public abstract class AbstractLocalAlluxioCluster {
     // This must happen after UFS is started with UnderFileSystemCluster.get().
     if (!mUfsCluster.getClass().getName().equals(LocalFileSystemCluster.class.getName())) {
       String ufsAddress = mUfsCluster.getUnderFilesystemAddress() + mWorkDirectory;
-      UnderFileSystemUtils.mkdirIfNotExists(ufs, ufsAddress);
       Configuration.set(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, ufsAddress);
+      UnderFileSystem nonLocalUfs = UnderFileSystem.Factory.createForRoot();
+      UnderFileSystemUtils.mkdirIfNotExists(nonLocalUfs, ufsAddress);
     }
   }
 
@@ -407,7 +407,6 @@ public abstract class AbstractLocalAlluxioCluster {
    * Resets the client pools to the original state.
    */
   protected void resetClientPools() throws IOException {
-    BlockWorkerClientTestUtils.reset();
     FileSystemContext.INSTANCE.reset();
   }
 

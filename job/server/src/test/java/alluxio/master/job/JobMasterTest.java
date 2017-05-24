@@ -19,6 +19,7 @@ import alluxio.job.TestJobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobInfo;
 import alluxio.master.job.command.CommandManager;
+import alluxio.underfs.UfsManager;
 
 import com.google.common.collect.Maps;
 import org.junit.After;
@@ -52,7 +53,7 @@ public final class JobMasterTest {
   public void before() throws Exception {
     // Can't use ConfigurationRule due to conflicts with PowerMock.
     Configuration.set(PropertyKey.JOB_MASTER_JOB_CAPACITY, TEST_JOB_MASTER_JOB_CAPACITY);
-    mJobMaster = new JobMaster();
+    mJobMaster = new JobMaster(Mockito.mock(UfsManager.class));
     mJobMaster.start(true);
   }
 
@@ -78,8 +79,8 @@ public final class JobMasterTest {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
     Mockito.when(JobCoordinator
-        .create(Mockito.any(CommandManager.class), Mockito.anyList(), Mockito.any(JobInfo.class)))
-        .thenReturn(coordinator);
+        .create(Mockito.any(CommandManager.class), Mockito.any(UfsManager.class), Mockito.anyList(),
+            Mockito.any(JobInfo.class))).thenReturn(coordinator);
     TestJobConfig jobConfig = new TestJobConfig("/test");
     for (long i = 0; i < TEST_JOB_MASTER_JOB_CAPACITY; i++) {
       mJobMaster.run(jobConfig);
@@ -92,8 +93,8 @@ public final class JobMasterTest {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
     Mockito.when(JobCoordinator
-        .create(Mockito.any(CommandManager.class), Mockito.anyList(), Mockito.any(JobInfo.class)))
-        .thenReturn(coordinator);
+        .create(Mockito.any(CommandManager.class), Mockito.any(UfsManager.class), Mockito.anyList(),
+            Mockito.any(JobInfo.class))).thenReturn(coordinator);
     TestJobConfig jobConfig = new TestJobConfig("/test");
     for (long i = 0; i < TEST_JOB_MASTER_JOB_CAPACITY; i++) {
       mJobMaster.run(jobConfig);

@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -124,7 +125,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
           }
         });
       }
-      CommonUtils.invokeAll(callables);
+      CommonUtils.invokeAll(callables, 10, TimeUnit.SECONDS);
 
       // Setup web server
       mWebServer =
@@ -321,7 +322,8 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     // ALLUXIO CS END
     try {
       // ALLUXIO CS REPLACE
-      // tTransportFactory = mTransportProvider.getServerTransportFactory();
+      // String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
+      // tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
       // ALLUXIO CS WITH
       if (isCapabilityEnabled) {
         tTransportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
@@ -337,9 +339,10 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
             mRegistry.get(BlockWorker.class).getCapabilityCache()
                 .incrementUserConnectionCount(user);
           }
-        });
+        }, NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC));
       } else {
-        tTransportFactory = mTransportProvider.getServerTransportFactory();
+        String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
+        tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
       }
       // ALLUXIO CS END
     } catch (IOException e) {

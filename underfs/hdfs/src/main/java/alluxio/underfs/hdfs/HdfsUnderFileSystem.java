@@ -42,6 +42,7 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 // ALLUXIO CS REMOVE
 // import org.apache.hadoop.security.SecurityUtil;
 // ALLUXIO CS END
+import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,39 +90,48 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
    * @param conf the configuration for this UFS
    * @param hdfsConf the configuration for HDFS
    */
-  protected HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
+  HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
       Configuration hdfsConf) {
-    super(ufsUri);
+    super(ufsUri, conf);
     mUfsConf = conf;
     // ALLUXIO CS ADD
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
     if (hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      String loggerType = mUfsConf.getValue(PropertyKey.LOGGER_TYPE);
       try {
-        // NOTE: this is temporary solution with Client/Worker decoupling turned off. Once the
-        // decoupling is enabled by default, there is no need to distinguish server-side and
-        // client-side connection to secure HDFS as UFS.
-        // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
-        // and client. It's brittle to depend on alluxio.logger.type.
-        // TODO(chaomin): extract this to a util function.
-        if (loggerType.equalsIgnoreCase("MASTER_LOGGER")) {
-          connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-              alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
-        } else if (loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
-          connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-              alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
-        } else {
-          connectFromAlluxioClient();
+        switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
+          case MASTER:
+            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
+            break;
+          case WORKER:
+            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
+            break;
+          case JOB_MASTER:
+            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+            break;
+          case JOB_WORKER:
+            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC));
+            break;
+          // Client and Proxy are handled the same.
+          case CLIENT:
+          case PROXY:
+            connectFromAlluxioClient();
+            break;
+          default:
+            throw new IllegalStateException(
+                "Unknown process type: " + alluxio.util.CommonUtils.PROCESS_TYPE.get());
         }
       } catch (IOException e) {
         LOG.error("Login error: " + e);
       }
 
       try {
-        if ((loggerType.equalsIgnoreCase("MASTER_LOGGER")
-            || loggerType.equalsIgnoreCase("WORKER_LOGGER")) && !mUser.isEmpty()
+        if (alluxio.util.CommonUtils.isAlluxioServer() && !mUser.isEmpty()
             && !org.apache.hadoop.security.UserGroupInformation.getLoginUser().getShortUserName()
             .equals(mUser)) {
           // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
@@ -158,6 +168,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // ALLUXIO CS END
     Path path = new Path(ufsUri.toString());
     try {
+      // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
+      // group service.
+      UserGroupInformation.setConfiguration(hdfsConf);
       mFileSystem = path.getFileSystem(hdfsConf);
     } catch (IOException e) {
       LOG.warn("Exception thrown when trying to get FileSystem for {} : {}", ufsUri,
@@ -187,6 +200,10 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     Preconditions.checkNotNull(conf, "conf");
     Configuration hdfsConf = new Configuration();
 
+    // Load HDFS site properties from the given file and overwrite the default HDFS conf,
+    // the path of this file can be passed through --option
+    hdfsConf.addResource(new Path(conf.getValue(PropertyKey.UNDERFS_HDFS_CONFIGURATION)));
+
     // On Hadoop 2.x this is strictly unnecessary since it uses ServiceLoader to automatically
     // discover available file system implementations. However this configuration setting is
     // required for earlier Hadoop versions plus it is still honoured as an override even in 2.x so
@@ -201,13 +218,18 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     hdfsConf.set("fs.hdfs.impl.disable.cache",
         System.getProperty("fs.hdfs.impl.disable.cache", "true"));
 
-    // Load HDFS site properties from the given file and overwrite the default HDFS conf,
-    // the path of this file can be passed through --option
-    hdfsConf.addResource(new Path(conf.getValue(PropertyKey.UNDERFS_HDFS_CONFIGURATION)));
-
     // NOTE, adding S3 credentials in system properties to HDFS conf for backward compatibility.
     // TODO(binfan): remove this as it can be set in mount options through --option
-    HdfsUnderFileSystemUtils.addS3Credentials(hdfsConf);
+    String accessKeyConf = PropertyKey.S3N_ACCESS_KEY.toString();
+    if (System.getProperty(accessKeyConf) != null
+        && !conf.containsKey(PropertyKey.S3N_ACCESS_KEY)) {
+      hdfsConf.set(accessKeyConf, System.getProperty(accessKeyConf));
+    }
+    String secretKeyConf = PropertyKey.S3N_SECRET_KEY.toString();
+    if (System.getProperty(secretKeyConf) != null
+        && !conf.containsKey(PropertyKey.S3N_SECRET_KEY)) {
+      hdfsConf.set(secretKeyConf, System.getProperty(secretKeyConf));
+    }
     // Set all parameters passed through --option
     for (Map.Entry<String, String> entry : conf.getUserSpecifiedConf().entrySet()) {
       hdfsConf.set(entry.getKey(), entry.getValue());

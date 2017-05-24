@@ -128,6 +128,7 @@ public final class ProtoUtils {
   }
 
   /**
+<<<<<<< HEAD
    * A wrapper of
    * {@link alluxio.proto.security.EncryptionProto.CryptoKey.Builder#setKey} which takes a byte[]
    * as input.
@@ -153,6 +154,48 @@ public final class ProtoUtils {
   public static alluxio.proto.security.EncryptionProto.CryptoKey.Builder setIv(
       alluxio.proto.security.EncryptionProto.CryptoKey.Builder builder, byte[] bytes) {
     return builder.setIv(com.google.protobuf.ByteString.copyFrom(bytes));
+=======
+   * @param capability the capability
+   * @return the capability content
+   */
+  public static byte[] getContent(alluxio.proto.security.CapabilityProto.Capability capability) {
+    return capability.getContent().toByteArray();
+  }
+
+  /**
+   * @param capability the capability builder
+   * @param content the capability content
+   */
+  public static void setContent(
+      alluxio.proto.security.CapabilityProto.Capability.Builder capability, byte[] content) {
+    capability.setContent(com.google.protobuf.ByteString.copyFrom(content));
+  }
+
+  /**
+   * @param capability the capability
+   * @return the capability authenticator
+   */
+  public static byte[] getAuthenticator(
+      alluxio.proto.security.CapabilityProto.Capability capability) {
+    return capability.getAuthenticator().toByteArray();
+  }
+
+  /**
+   * @param capability the capability builder
+   * @param authenticator the authenticator
+   */
+  public static void setAuthenticator(
+      alluxio.proto.security.CapabilityProto.Capability.Builder capability, byte[] authenticator) {
+    capability.setAuthenticator(com.google.protobuf.ByteString.copyFrom(authenticator));
+  }
+
+  /**
+   * @param key the secret key
+   * @return the key in byte array
+   */
+  public static byte[] getSecretKey(alluxio.proto.security.Key.SecretKey key) {
+    return key.getSecretKey().toByteArray();
+>>>>>>> origin/enterprise-1.5
   }
   // ALLUXIO CS END
 

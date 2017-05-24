@@ -12,8 +12,8 @@
 package alluxio.worker.netty;
 
 import alluxio.security.LoginUser;
-import alluxio.security.util.KerberosName;
 import alluxio.security.util.KerberosUtils;
+import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
@@ -25,7 +25,6 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
@@ -53,14 +52,14 @@ public class KerberosSaslNettyServer {
     }
 
     try {
-      KerberosName name = KerberosUtils.extractKerberosNameFromSubject(mSubject);
-      Preconditions.checkNotNull(name);
-      final String hostName = name.getHostName();
-      final String serviceName = name.getServiceName();
+      final String hostname =
+          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC);
+      final String serviceName = KerberosUtils.getKerberosServiceName();
+      Preconditions.checkNotNull(hostname);
       mSaslServer = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslServer>() {
         public SaslServer run() {
           try {
-            return Sasl.createSaslServer(KerberosUtils.GSSAPI_MECHANISM_NAME, serviceName, hostName,
+            return Sasl.createSaslServer(KerberosUtils.GSSAPI_MECHANISM_NAME, serviceName, hostname,
                 KerberosUtils.SASL_PROPERTIES,
                 new KerberosUtils.NettyGssSaslCallbackHandler(channel));
           } catch (Exception e) {
@@ -69,7 +68,7 @@ public class KerberosSaslNettyServer {
           }
         }
       });
-    } catch (LoginException | PrivilegedActionException e) {
+    } catch (PrivilegedActionException e) {
       throw new SaslException("KerberosSaslNettyServer: Could not create Sasl Netty Server. ", e);
     }
   }
