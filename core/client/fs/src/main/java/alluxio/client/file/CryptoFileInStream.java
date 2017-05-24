@@ -76,8 +76,14 @@ public final class CryptoFileInStream extends FileInStream {
 
   @Override
   public int read() throws IOException {
+    if (remaining() <= 0) {
+      return -1;
+    }
     if (mCryptoBuf == null || mCryptoBuf.readableBytes() == 0) {
       getNextCryptoBuf();
+      if (mCryptoBuf == null) {
+        return -1;
+      }
     }
     mLogicalPos++;
     return mCryptoBuf.readByte();
@@ -85,12 +91,18 @@ public final class CryptoFileInStream extends FileInStream {
 
   @Override
   public int read(byte[] b) throws IOException {
+    Preconditions.checkArgument(b != null, PreconditionMessage.ERR_READ_BUFFER_NULL);
     return read(b, 0, b.length);
   }
 
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
-    if (remaining() <= 0) {
+    Preconditions.checkArgument(b != null, PreconditionMessage.ERR_READ_BUFFER_NULL);
+    Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= b.length,
+        PreconditionMessage.ERR_BUFFER_STATE.toString(), b.length, off, len);
+    if (len == 0) {
+      return 0;
+    } else if (remaining() <= 0) {
       return -1;
     }
     int tLen = len;
@@ -99,6 +111,9 @@ public final class CryptoFileInStream extends FileInStream {
     while (tLen > 0 && mLogicalPos < mLogicalFileLength) {
       if (mCryptoBuf == null || mCryptoBuf.readableBytes() == 0) {
         getNextCryptoBuf();
+        if (mCryptoBuf == null) {
+          break;
+        }
       }
       long currentBufLeftBytes = mCryptoBuf.readableBytes();
       if (currentBufLeftBytes >= tLen) {
@@ -119,6 +134,7 @@ public final class CryptoFileInStream extends FileInStream {
   }
 
   @Override
+  // TODO(chaomin): fix positionedRead to be threadSafe and not changing the internal state
   public int positionedRead(long pos, byte[] b, int off, int len) throws IOException {
     if (pos < 0 || pos >= mLogicalFileLength) {
       return -1;
@@ -156,28 +172,39 @@ public final class CryptoFileInStream extends FileInStream {
   }
 
   private void seekLogicalInternal(long pos) throws IOException {
-    long seekChunkStart = LayoutUtils.getPhysicalChunkStart(mMeta, pos);
+    long seekChunkStart = LayoutUtils.getLogicalChunkStart(mMeta, pos);
     // No need to get a new CryptoBuf if the seek pos is already in the current buf
     if (mLogicalChunkStart != seekChunkStart || mCryptoBuf == null) {
       mLogicalChunkStart = seekChunkStart;
+      super.seek(LayoutUtils.getPhysicalChunkStart(mMeta, pos));
       getNextCryptoBuf();
+      if (mCryptoBuf == null) {
+        Preconditions.checkState(mLogicalChunkStart == mLogicalFileLength);
+        mLogicalPos = pos;
+        super.seek(super.maxSeekPosition());
+        return;
+      }
     }
-    int offsetFromChunkStart = (int) LayoutUtils.getLogicalOffsetFromChunkStart(mMeta, pos);
-    mCryptoBuf.readerIndex(offsetFromChunkStart);
+    if (mCryptoBuf != null) {
+      int offsetFromChunkStart = (int) LayoutUtils.getLogicalOffsetFromChunkStart(mMeta, pos);
+      mCryptoBuf.readerIndex(offsetFromChunkStart);
+    }
     mLogicalPos = pos;
   }
 
   private void getNextCryptoBuf() throws IOException {
     mCryptoBuf = readBufferAndDecrypt();
-    Preconditions.checkNotNull(mCryptoBuf);
   }
 
   private ByteBuf readBufferAndDecrypt() throws IOException {
-    if (mLogicalFileLength - mLogicalChunkStart <= 0) {
-      close();
+    if (mLogicalFileLength - mLogicalChunkStart < 0) {
       throw new IOException(String.format(
           "Failed to create a new crypto buffer: current logical chunk start %d reaches the"
           + "logical EOF %d.", mLogicalChunkStart, mLogicalFileLength));
+    }
+    if (mLogicalFileLength == mLogicalChunkStart) {
+      // reaches the logical file EOF. This is legal when seek to logical EOF.
+      return null;
     }
     // TODO(chaomin): tune the crypto buffer size to batch multiple chunks decryption
     int physicalChunkSize = (int) (mMeta.getChunkHeaderSize() + mMeta.getChunkFooterSize()

@@ -77,7 +77,7 @@ public final class LayoutUtilsTest {
       .build();
 
   @Test
-  public void toPhysicalOffset() throws Exception {
+  public void toOffset() throws Exception {
     final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
     final long[] logicalOffset = new long[]{
         1,
@@ -88,6 +88,17 @@ public final class LayoutUtilsTest {
         CHUNK_SIZE + CHUNK_SIZE,
         CHUNK_SIZE + CHUNK_SIZE + CHUNK_SIZE - 10,
     };
+
+    final long[] logicalChunkStart = new long[] {
+        0,
+        0,
+        CHUNK_SIZE,
+        CHUNK_SIZE,
+        CHUNK_SIZE,
+        CHUNK_SIZE + CHUNK_SIZE,
+        CHUNK_SIZE + CHUNK_SIZE,
+    };
+
     final long[] physicalChunkStart = new long[] {
         0,
         0,
@@ -129,6 +140,8 @@ public final class LayoutUtilsTest {
     };
 
     for (int i = 0; i < logicalOffset.length; i++) {
+      Assert.assertEquals(logicalChunkStart[i],
+          LayoutUtils.getLogicalChunkStart(mMeta, logicalOffset[i]));
       Assert.assertEquals(physicalChunkStart[i],
           LayoutUtils.getPhysicalChunkStart(mMeta, logicalOffset[i]));
       Assert.assertEquals(logicalChunkOffsetFromChunkStart[i],

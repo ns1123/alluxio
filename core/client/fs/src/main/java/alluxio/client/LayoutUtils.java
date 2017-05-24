@@ -36,6 +36,21 @@ public final class LayoutUtils {
   private static final int FOOTER_METADATA_MAX_SIZE = initializeFileMetadataSize();
 
   /**
+   * Translates a logical offset to the logical chunk start position, starting from the file start.
+   *
+   * @param meta the encryption metadata
+   * @param logicalOffset the logical offset
+   * @return the translated chunk logical start position
+   */
+  public static long getLogicalChunkStart(EncryptionProto.Meta meta, long logicalOffset) {
+    long numBlocksBeforeOffset = logicalOffset / meta.getLogicalBlockSize();
+    long logicalOffsetWithinBlock = logicalOffset % meta.getLogicalBlockSize();
+    long numChunksBeforeOffsetWithinBlock = logicalOffsetWithinBlock / meta.getChunkSize();
+    return numBlocksBeforeOffset * meta.getLogicalBlockSize()
+        + numChunksBeforeOffsetWithinBlock * meta.getChunkSize();
+  }
+
+  /**
    * Translates a logical offset to the physical chunk start position, starting from the file start.
    *
    * @param meta the encryption metadata
