@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -85,13 +86,25 @@ public final class CryptoFileInStreamTest {
   }
 
   private byte[] getBlockData(int streamId) {
+    // The file has a first full block, a second block with fullBlockSize-1
+    // The file footer is split across two physical chunks.
+    byte[] fileFooter = LayoutUtils.encodeFooter(mMeta);
     if (streamId == mNumStreams - 1) {
-      return LayoutUtils.encodeFooter(mMeta);
+      return Arrays.copyOfRange(fileFooter, 1, fileFooter.length);
+    } else if (streamId == mNumStreams - 2) {
+      byte[] combined = new byte[(int) mPhysicalBlockLength];
+      byte[] plaintext = BufferUtils.getIncreasingByteArray(
+          (int) (streamId * mLogicalBlockLength), (int) mLogicalBlockLength - 1);
+      ByteBuf ciphertext = CryptoUtils.encryptChunks(mMeta, Unpooled.wrappedBuffer(plaintext));
+      ciphertext.readBytes(combined, 0, ciphertext.readableBytes());
+      combined[(int) mPhysicalBlockLength - 1] = fileFooter[fileFooter.length - 1];
+      return combined;
+    } else {
+      byte[] plaintext = BufferUtils.getIncreasingByteArray(
+          (int) (streamId * mLogicalBlockLength), (int) mLogicalBlockLength);
+      ByteBuf ciphertext = CryptoUtils.encryptChunks(mMeta, Unpooled.wrappedBuffer(plaintext));
+      return ciphertext.array();
     }
-    byte[] plaintext = BufferUtils.getIncreasingByteArray(
-        (int) (streamId * mLogicalBlockLength), (int) mLogicalBlockLength);
-    ByteBuf ciphertext = CryptoUtils.encryptChunks(mMeta, Unpooled.wrappedBuffer(plaintext));
-    return ciphertext.array();
   }
 
   /**
@@ -102,13 +115,14 @@ public final class CryptoFileInStreamTest {
     // Set logical block size to be 4 full chunks size.
     Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "256KB");
     mMeta = EncryptionMetaFactory.create();
-    // Two full blocks and one footer in the last physical block.
+    // One full blocks, one partial block + 1st part of footer, and the 2nd part of footer in the
+    // last physical block.
     mNumStreams = 3;
     mLogicalBlockLength = mMeta.getLogicalBlockSize();
     mPhysicalBlockLength = mMeta.getPhysicalBlockSize();
     mFileFooterLength = mMeta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
-    mLogicalFileLength = mMeta.getLogicalBlockSize() * (mNumStreams - 1);
-    mPhysicalFileLength = mMeta.getPhysicalBlockSize() * (mNumStreams - 1) + mFileFooterLength;
+    mLogicalFileLength = mMeta.getLogicalBlockSize() * (mNumStreams - 1) - 1;
+    mPhysicalFileLength = mMeta.getPhysicalBlockSize() * (mNumStreams - 1) - 1 + mFileFooterLength;
     mInfo = new FileInfo().setBlockSizeBytes(mPhysicalBlockLength).setLength(mPhysicalFileLength);
 
     ClientTestUtils.setSmallBufferSizes();
@@ -300,7 +314,7 @@ public final class CryptoFileInStreamTest {
     // Read one byte
     Assert.assertEquals((byte) (skipAmount + readAmount + skipAmount * 2), mTestStream.read());
     // Skip to EOF
-    Assert.assertEquals(skipAmount - 1, mTestStream.skip(skipAmount - 1));
+    Assert.assertEquals(skipAmount - 2, mTestStream.skip(skipAmount - 2));
     Assert.assertEquals(-1, mTestStream.read());
     mTestStream.close();
   }
@@ -361,7 +375,63 @@ public final class CryptoFileInStreamTest {
     }
   }
 
-  // TODO(chaomin): add tests for concurrent positionedRead
+  @Test
+  public void positionedRead() throws Exception {
+    class TestCase {
+      long mPos;
+      int mLen;
+
+      public TestCase(long pos, int len) {
+        mPos = pos;
+        mLen = len;
+      }
+    }
+
+    List<TestCase> testCases = new LinkedList<>();
+    testCases.add(new TestCase(0, 1));
+    testCases.add(new TestCase(0, (int) mLogicalFileLength));
+    testCases.add(new TestCase(1, 1));
+    testCases.add(new TestCase(1, (int) mMeta.getChunkSize() + 1));
+    testCases.add(new TestCase(1, (int) mLogicalBlockLength + 2));
+    testCases.add(new TestCase(mMeta.getChunkSize() - 1, 1));
+    testCases.add(new TestCase(mMeta.getChunkSize() - 1, 2));
+    testCases.add(new TestCase(mMeta.getChunkSize() - 1, (int) mMeta.getChunkSize()));
+    testCases.add(new TestCase(mMeta.getChunkSize(), 1));
+    testCases.add(new TestCase(mLogicalBlockLength - 1, 1));
+    testCases.add(new TestCase(mLogicalBlockLength + 1, (int) mLogicalBlockLength - 2));
+    testCases.add(new TestCase(mLogicalBlockLength + 2, (int) mLogicalBlockLength - 4));
+    testCases.add(new TestCase(mLogicalFileLength - 1, 1));
+    for (TestCase test : testCases) {
+      byte[] buffer = new byte[test.mLen];
+      long pos = test.mPos;
+      mTestStream.positionedRead(pos, buffer, 0, test.mLen);
+      Assert.assertArrayEquals(BufferUtils.getIncreasingByteArray((int) pos, test.mLen), buffer);
+      Assert.assertEquals(mLogicalFileLength, mTestStream.remaining());
+    }
+    mTestStream.close();
+  }
+
+  @Test
+  public void positionedReadReturnsLessThanRequested() throws Exception {
+    // seek at the EOF does not affect positionedRead
+    int seekPos = (int) mLogicalFileLength;
+    mTestStream.seek(seekPos);
+    int len = 2;
+    byte[] buffer = new byte[len];
+    long pos = mLogicalFileLength - 1;
+    // Got the data length from the pos to logical EOF
+    Assert.assertEquals(mLogicalFileLength - pos, mTestStream.positionedRead(pos, buffer, 0, len));
+    Assert.assertEquals(mLogicalFileLength - seekPos, mTestStream.remaining());
+    mTestStream.close();
+  }
+
+  @Test
+  public void positionedReadFailed() throws Exception {
+    byte[] buffer = new byte[(int) mLogicalBlockLength];
+    Assert.assertEquals(-1, mTestStream.positionedRead(mLogicalFileLength, buffer, 0, 1));
+    Assert.assertEquals(-1, mTestStream.positionedRead(-1, buffer, 0, 1));
+    mTestStream.close();
+  }
 
   private void testReadBuffer(int dataRead) throws Exception {
     byte[] buffer = new byte[dataRead];

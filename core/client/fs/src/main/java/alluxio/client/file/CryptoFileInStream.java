@@ -71,6 +71,9 @@ public final class CryptoFileInStream extends FileInStream {
       mCryptoBuf.release();
       mCryptoBuf = null;
     }
+    // Need an extra step to seek the physical pos to the physical max length, to make sure
+    // the cached streams are in expected state.
+    super.seek(super.maxSeekPosition());
     super.close();
   }
 
@@ -134,14 +137,40 @@ public final class CryptoFileInStream extends FileInStream {
   }
 
   @Override
-  // TODO(chaomin): fix positionedRead to be threadSafe and not changing the internal state
   public int positionedRead(long pos, byte[] b, int off, int len) throws IOException {
     if (pos < 0 || pos >= mLogicalFileLength) {
       return -1;
     }
-    // TODO(chaomin): is it different when cache partial block is on?
-    seek(pos);
-    return read(b, off, len);
+    long physicalChunkStart = LayoutUtils.getPhysicalChunkStart(mMeta, pos);
+    // logical read length is either "len" or from pos to the end of the file.
+    int logicalToRead = (int) Math.min(len, mLogicalFileLength - pos);
+
+    int tBytesLeft = logicalToRead;
+    int tOff = off;
+    long tPos = pos;
+    while (tBytesLeft > 0) {
+      long tLogicalChunkStart = LayoutUtils.getLogicalChunkStart(mMeta, tPos);
+      int physicalReadLength = (int) (mMeta.getChunkHeaderSize() + mMeta.getChunkFooterSize()
+          + Math.min(mLogicalFileLength - tLogicalChunkStart, mMeta.getChunkSize()));
+      byte[] ciphertext = new byte[physicalReadLength];
+      super.positionedRead(physicalChunkStart, ciphertext, 0, physicalReadLength);
+      physicalChunkStart += physicalReadLength;
+      ByteBuf plaintext = CryptoUtils.decryptChunks(mMeta, Unpooled.wrappedBuffer(ciphertext));
+      try {
+        int offsetFromChunkStart = (int) LayoutUtils.getLogicalOffsetFromChunkStart(mMeta, tPos);
+        if (offsetFromChunkStart > 0) {
+          plaintext.readerIndex(offsetFromChunkStart);
+        }
+        int byteRead = Math.min(tBytesLeft, plaintext.readableBytes());
+        plaintext.readBytes(b, tOff, byteRead);
+        tPos += byteRead;
+        tOff += byteRead;
+        tBytesLeft -= byteRead;
+      } finally {
+        plaintext.release();
+      }
+    }
+    return logicalToRead;
   }
 
   @Override
