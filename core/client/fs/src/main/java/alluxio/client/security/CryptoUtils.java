@@ -51,7 +51,7 @@ public final class CryptoUtils {
   public static EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
       throws IOException {
     try {
-      // TODO(cc): the inputKey, IV, and generationId should be be hard coded.
+      // TODO(cc): the inputKey, IV, and generationId should not be hard coded.
       EncryptionProto.CryptoKey key =
           KmsClient.Factory.create().getCryptoKey(kms, encrypt, "alluxio-test");
       key = ProtoUtils.setIv(
@@ -215,6 +215,5 @@ public final class CryptoUtils {
         newKey).build();
   }
 
-  private CryptoUtils() {
-  } // prevent instantiation
+  private CryptoUtils() {} // prevent instantiation
 }
