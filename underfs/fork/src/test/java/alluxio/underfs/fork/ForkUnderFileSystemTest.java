@@ -43,7 +43,7 @@ public class ForkUnderFileSystemTest {
     properties.put("alluxio-fork.A.option.foo", "1");
     properties.put("alluxio-fork.B.ufs", uriB);
     properties.put("alluxio-fork.B.option.bar", "2");
-    UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://",
+    UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://test",
         UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(properties));
     UnderFileSystem nestedUfs = Whitebox.getInternalState(ufs, "mUnderFileSystem");
     ImmutableMap<String, Pair<String, UnderFileSystem>> ufses =
@@ -75,7 +75,7 @@ public class ForkUnderFileSystemTest {
     properties.put("alluxio-fork.A.option.property", "X");
     properties.put("alluxio-fork.C.ufs", uriC);
     properties.put("alluxio-fork.C.option.property", "Z");
-    UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://",
+    UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://test",
         UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(properties));
     UnderFileSystem nestedUfs = Whitebox.getInternalState(ufs, "mUnderFileSystem");
     ImmutableMap<String, Pair<String, UnderFileSystem>> ufses =

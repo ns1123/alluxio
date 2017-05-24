@@ -58,13 +58,13 @@ public class ForkUnderFileSystemIntegrationTest {
     Map<String, String> properties = new HashMap<>();
     properties.put("alluxio-fork.A.ufs", mUfsPathA);
     properties.put("alluxio-fork.B.ufs", mUfsPathB);
-    mUnderFileSystem = UnderFileSystem.Factory.create("alluxio-fork://",
+    mUnderFileSystem = UnderFileSystem.Factory.create("alluxio-fork://test",
         UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(properties));
   }
 
   @Test
   public void directoryLifeCycle() throws Exception {
-    String[] dirnames = { "test-dir", "alluxio-fork:///test-dir"};
+    String[] dirnames = { "test-dir", "alluxio-fork://test/test-dir"};
     for (String dirname : dirnames) {
       // Initially the file should not exist in either UFS.
       Assert.assertFalse(exists(PathUtils.concatPath(mUfsPathA, normalize(dirname))));
@@ -94,7 +94,7 @@ public class ForkUnderFileSystemIntegrationTest {
 
   @Test
   public void fileLifeCycle() throws Exception {
-    String[] filenames = { "test-file", "alluxio-fork:///test-file"};
+    String[] filenames = { "test-file", "alluxio-fork://test/test-file"};
     for (String filename : filenames) {
       // Initially the directory should not exist in either UFS.
       Assert.assertFalse(exists(PathUtils.concatPath(mUfsPathA, normalize(filename))));
@@ -124,7 +124,7 @@ public class ForkUnderFileSystemIntegrationTest {
 
   @Test
   public void directoryStatus() throws Exception {
-    String[] dirnames = { "test-dir", "alluxio-fork:///test-dir"};
+    String[] dirnames = { "test-dir", "alluxio-fork://test/test-dir"};
     for (String dirname : dirnames) {
       Assert.assertTrue(mUnderFileSystem.mkdirs(dirname));
       Assert.assertTrue(mUnderFileSystem.isDirectory(dirname));
@@ -137,7 +137,7 @@ public class ForkUnderFileSystemIntegrationTest {
 
   @Test
   public void fileStatus() throws Exception {
-    String[] filenames = { "test-file", "alluxio-fork:///test-file"};
+    String[] filenames = { "test-file", "alluxio-fork://test/test-file"};
     for (String filename : filenames) {
       mUnderFileSystem.create(filename).close();
       Assert.assertFalse(mUnderFileSystem.isDirectory(filename));
@@ -163,7 +163,7 @@ public class ForkUnderFileSystemIntegrationTest {
   @Test
   public void writeAndRead() throws Exception {
     String message = "Hello World!";
-    String[] filenames = { "test-dir", "alluxio-fork:///test-dir"};
+    String[] filenames = { "test-dir", "alluxio-fork://test/test-dir"};
     for (String filename : filenames) {
       // Write a test file.
       OutputStream os = mUnderFileSystem.create(filename);
