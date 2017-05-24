@@ -35,7 +35,7 @@ import javax.crypto.NoSuchPaddingException;
  * @see <a href="http://hadoop.apache.org/docs/r2.7.3/hadoop-kms/index.html">hadoop-kms
  * documentation</a> for more details on Hadoop KMS.
  *
- * NOTE: Only simple authentication is supported, Kerberos and SSL are not supported yet.
+ * TODO(cc): Only simple authentication is supported, Kerberos and SSL are not supported yet.
  * If this client tries to connect to a Hadoop KMS with Kerberos or SSL, connection will fail.
  */
 public class HadoopKmsClient implements KmsClient {
