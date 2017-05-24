@@ -181,12 +181,9 @@ public class ForkUnderFileInputStream extends InputStream {
   public long skip(long n) throws IOException {
     if (mStream != null) {
       try {
-        long numSkipped = mStream.skip(n);
-        if (numSkipped != n) {
-          throw new IOException("Failed to skip to the correct offset");
-        }
-        mOffset += n;
-        return n;
+        long skipped = mStream.skip(n);
+        mOffset += skipped;
+        return skipped;
       } catch (IOException e) {
         cleanup();
       }
