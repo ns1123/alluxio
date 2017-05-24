@@ -46,10 +46,12 @@ public class ForkUnderFileSystemTest {
     UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://",
         UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(properties));
     UnderFileSystem nestedUfs = Whitebox.getInternalState(ufs, "mUnderFileSystem");
-    ImmutableMap<String, UnderFileSystem> ufses =
+    ImmutableMap<String, Pair<String, UnderFileSystem>> ufses =
         Whitebox.getInternalState(nestedUfs, "mUnderFileSystems");
-    MockUnderFileSystem ufsA = Whitebox.getInternalState(ufses.get(uriA), "mUnderFileSystem");
-    MockUnderFileSystem ufsB = Whitebox.getInternalState(ufses.get(uriB), "mUnderFileSystem");
+    MockUnderFileSystem ufsA =
+        Whitebox.getInternalState(ufses.get("A").getRight(), "mUnderFileSystem");
+    MockUnderFileSystem ufsB =
+        Whitebox.getInternalState(ufses.get("B").getRight(), "mUnderFileSystem");
     UnderFileSystemConfiguration propA = Whitebox.getInternalState(ufsA, "mUfsConf");
     UnderFileSystemConfiguration propB = Whitebox.getInternalState(ufsB, "mUfsConf");
     Assert.assertEquals(propA.getUserSpecifiedConf().size(), 1);
