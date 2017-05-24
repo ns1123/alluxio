@@ -30,31 +30,25 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Virtual input stream that can be used to read from multiple UFSes.
- *
- * The implementation maintains the offset of the aggregate input stream and an input stream for
- * each of the underlying UFSes as well as their offsets. It also maintains the offset of the
- * aggregate input stream. A read operation reads bytes from one of the streams, using the aggregate
- * and underlying offset information to make sure that the underlying stream is read from at the
- * correct position.
  */
 @NotThreadSafe
 public class ForkUnderFileInputStream extends InputStream {
   private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileInputStream.class);
 
-  /** The current aggregate stream offset. */
+  /** The current stream offset. */
   private long mOffset;
-  /** The options for opening a stream. */
+  /** The options for opening an underlying stream. */
   private final OpenOptions mOptions;
-  /** The current input stream. */
+  /** An input stream for an underlying UFS. */
   private InputStream mStream;
-  /** The underlying UFSes and path to read data from. */
+  /** Pairs of underlying UFS paths and instances to read from. */
   private final Collection<Pair<String, UnderFileSystem>> mUfses;
 
   /**
    * Creates a new instance of {@link ForkUnderFileInputStream}.
    *
-   * @param ufses pairs of UFS and UFS paths
-   * @param options the options for opening a stream
+   * @param ufses pairs of UFS paths and instances
+   * @param options the options for opening an underlying stream
    */
   ForkUnderFileInputStream(Collection<Pair<String, UnderFileSystem>> ufses, OpenOptions options) {
     mOffset = 0;
@@ -82,15 +76,10 @@ public class ForkUnderFileInputStream extends InputStream {
         }
         return n;
       } catch (IOException e) {
-        try {
-          mStream.close();
-        } catch (IOException e2) {
-          LOG.warn("Failed to close stream {}", e.getMessage());
-          LOG.debug("Exception: ", e);
-        }
-        mStream = null;
+        cleanup();
       }
     }
+
     // Otherwise, try to read from the UFSes one by one.
     AtomicReference<Integer> result = new AtomicReference<>();
     // The function takes Pair<Pair<A,B>,C> as input:
@@ -125,15 +114,7 @@ public class ForkUnderFileInputStream extends InputStream {
               result.set(n);
               return null;
             } catch (IOException e) {
-              try {
-                if (mStream != null) {
-                  mStream.close();
-                }
-              } catch (IOException e2) {
-                LOG.warn("Failed to close stream {}", e.getMessage());
-                LOG.debug("Exception: ", e);
-              }
-              mStream = null;
+              cleanup();
               return e;
             }
           }
@@ -152,13 +133,7 @@ public class ForkUnderFileInputStream extends InputStream {
         }
         return n;
       } catch (IOException e) {
-        try {
-          mStream.close();
-        } catch (IOException e2) {
-          LOG.warn("Failed to close stream {}", e.getMessage());
-          LOG.debug("Exception: ", e);
-        }
-        mStream = null;
+        cleanup();
       }
     }
     // Otherwise try the UFSes one by one.
@@ -194,15 +169,7 @@ public class ForkUnderFileInputStream extends InputStream {
               result.set(n);
               return null;
             } catch (IOException e) {
-              try {
-                if (mStream != null) {
-                  mStream.close();
-                }
-              } catch (IOException e2) {
-                LOG.warn("Failed to close stream {}", e.getMessage());
-                LOG.debug("Exception: ", e);
-              }
-              mStream = null;
+              cleanup();
               return e;
             }
           }
@@ -221,16 +188,20 @@ public class ForkUnderFileInputStream extends InputStream {
         mOffset += n;
         return n;
       } catch (IOException e) {
-        try {
-          mStream.close();
-        } catch (IOException e2) {
-          LOG.warn("Failed to close stream {}", e.getMessage());
-          LOG.debug("Exception: ", e);
-        }
-        mStream = null;
+        cleanup();
       }
     }
     mOffset += n;
     return n;
+  }
+
+  private void cleanup() {
+    try {
+      mStream.close();
+    } catch (IOException e) {
+      LOG.warn("Failed to close stream {}", e.getMessage());
+      LOG.debug("Exception: ", e);
+    }
+    mStream = null;
   }
 }
