@@ -103,7 +103,7 @@ public final class JobMasterIntegrationTest extends BaseIntegrationTest {
           public Boolean apply(Void input) {
             return !mJobMaster.getWorkerInfoList().isEmpty();
           }
-        }, WaitForOptions.defaults().setTimeout(10 * Constants.SECOND_MS));
+        }, WaitForOptions.defaults().setTimeoutMs(10 * Constants.SECOND_MS));
     mJobWorker.stop();
     CommonUtils.sleepMs(WORKER_TIMEOUT_MS + LOST_WORKER_INTERVAL_MS);
     assertTrue(mJobMaster.getWorkerInfoList().isEmpty());
@@ -123,7 +123,7 @@ public final class JobMasterIntegrationTest extends BaseIntegrationTest {
           public Boolean apply(Void input) {
             return !mJobMaster.getWorkerInfoList().isEmpty();
           }
-        }, WaitForOptions.defaults().setTimeout(10 * Constants.SECOND_MS));
+        }, WaitForOptions.defaults().setTimeoutMs(10 * Constants.SECOND_MS));
     final long firstWorkerId = mJobMaster.getWorkerInfoList().get(0).getId();
     mLocalAlluxioJobCluster.restartWorker();
     CommonUtils.waitFor("Restarted worker to register with job master",
@@ -133,7 +133,7 @@ public final class JobMasterIntegrationTest extends BaseIntegrationTest {
             List<WorkerInfo> workerInfo = mJobMaster.getWorkerInfoList();
             return !workerInfo.isEmpty() && workerInfo.get(0).getId() != firstWorkerId;
           }
-        }, WaitForOptions.defaults().setTimeout(10 * Constants.SECOND_MS));
+        }, WaitForOptions.defaults().setTimeoutMs(10 * Constants.SECOND_MS));
     // The restarted worker should replace the original worker since they have the same address.
     assertEquals(1, mJobMaster.getWorkerInfoList().size());
   }
