@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.hdfs.apache12;
+package alluxio.underfs.hdfs.apache1_2;
 
 import alluxio.AlluxioURI;
 import alluxio.underfs.UnderFileSystem;

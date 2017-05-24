@@ -23,9 +23,9 @@
   <description>HDFS Under File System implementation (mutli-version support)</description>
 
   <modules>
-    <module>apache1.2</module>
-    <module>apache2.2</module>
-    <module>apache2.7</module>
+    <module>apache1_2</module>
+    <module>apache2_2</module>
+    <module>apache2_7</module>
   </modules>
 
   <properties>
@@ -36,42 +36,4 @@
     <license.header.path>${project.parent.parent.basedir}/build/license/</license.header.path>
   </properties>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>2.2</version>
-          <executions>
-            <execution>
-              <id>shade-hadoop-client</id>
-              <phase>package</phase>
-              <goals>
-                <goal>shade</goal>
-              </goals>
-              <configuration>
-                <artifactSet>
-                  <includes>
-                    <include>*:*</include>
-                  </includes>
-                  <excludes>
-                    <exclude>org.alluxio:alluxio-core-common</exclude>
-                    <exclude>org.alluxio:alluxio-core-protobuf</exclude>
-                    <exclude>org.slf4j</exclude>
-                  </excludes>
-                </artifactSet>
-                <relocations>
-                  <relocation>
-                    <pattern>org.apache</pattern>
-                    <shadedPattern>shaded.alluxio.org.apache.${hadoop.version}</shadedPattern>
-                  </relocation>
-                </relocations>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
 </project>

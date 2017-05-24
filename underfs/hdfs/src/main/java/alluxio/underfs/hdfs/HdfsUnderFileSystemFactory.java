@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -50,9 +51,9 @@ public class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
   private static String getHdfsUfsJarPath(String hdfsModule) {
     // TODO(binfan): we may want to have a dedicated dir for the jars
     return String
-        .format("file://%s/alluxio/underfs/hdfsx/%s/target/alluxio-underfs-hdfsx-%s-%s.jar",
-            Configuration.get(PropertyKey.WORK_DIR), hdfsModule, hdfsModule,
-            ProjectConstants.VERSION);
+        .format("file:///Users/binfan/projects/cs/enterprise/underfs/hdfsx/%s/target/alluxio-underfs-hdfsx-%s-%s.jar",
+            //System.getProperty("user.dir"),
+            hdfsModule, hdfsModule, ProjectConstants.VERSION);
   }
 
   /**
@@ -63,17 +64,24 @@ public class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
     return String.format("alluxio.underfs.hdfs.%s.HdfsUnderFileSystem", hdfsModule);
   }
 
-  /** The Map from a user-specified HDFS version string to its submodule name. */
-  private static final Map<String, String> VERSION_TO_MODULE_MAP =
-      new ImmutableMap.Builder<String, String>()
-          .put("(apache-)?1.2(.*)?", "apache12") // Apache HDFS 1.2.*
-          .put("(apache-)?2.2(.*)?", "apache22") // Apache HDFS 2.2.*
-          .put("(apache-)?2.7(.*)?", "apache27") // Apache HDFS 2.7.*
+  /** The Map from module name to regexp of user-specified HDFS version. */
+  private static final Map<String, Pattern> MODULES =
+      new ImmutableMap.Builder<String, Pattern>()
+          .put("apache1_2", Pattern.compile("(apache-)?1.2(.*)?")) // Apache HDFS 1.2.*
+          .put("apache2_2", Pattern.compile("(apache-)?2.2(.*)?")) // Apache HDFS 2.2.*
+          .put("apache2_7", Pattern.compile("(apache-)?2.7(.*)?")) // Apache HDFS 2.7.*
           .build();
 
   private static UnderFileSystem createHdfsUfs(String path, UnderFileSystemConfiguration conf) {
     String version = conf.getValue(PropertyKey.UNDERFS_HDFS_VERSION);
-    String module = VERSION_TO_MODULE_MAP.get(version);
+    String module = null;
+    for (Map.Entry<String, Pattern> entry : MODULES.entrySet()) {
+      Pattern pattern = entry.getValue();
+      if (pattern.matcher(version).matches()) {
+        module = entry.getKey();
+        break;
+      }
+    }
     if (module == null) {
       throw new RuntimeException("Unknown Hdfs version " + version);
     }
@@ -114,8 +122,7 @@ public class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
   /**
    * Constructs a new {@link HdfsUnderFileSystemFactory}.
    */
-  public HdfsUnderFileSystemFactory() {
-  }
+  public HdfsUnderFileSystemFactory() {}
 
   @Override
   public UnderFileSystem create(String path, UnderFileSystemConfiguration conf) {
