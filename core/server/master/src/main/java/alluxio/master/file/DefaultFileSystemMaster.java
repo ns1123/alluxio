@@ -3244,14 +3244,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             default:
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
           }
-        } catch (alluxio.exception.status.NotFoundException e) {
-          LOG.warn("Persist job (id={}) to retrieve status for not found, the persist job will be "
-              + "retried: {}", job.getJobId(), e.getMessage());
-          LOG.debug("Exception: ", e);
-          mPersistJobs.remove(fileId);
-          mPersistRequests.add(fileId);
         } catch (Exception e) {
-          LOG.warn("Unexpected exception encountered when trying to retrieve the status of a "
+          LOG.warn("Exception encountered when trying to retrieve the status of a "
                   + " persist job (id={}), the persist job will be retried : {}.", fileId,
               e.getMessage());
           LOG.debug("Exception: ", e);
