@@ -15,3 +15,12 @@ message Content {
     optional string user = 4;
 }
 
+message Capability {
+    // The serialized capability content.
+    optional bytes content = 1;
+    // The authenticator.
+    optional bytes authenticator = 2;
+    // The capability key ID.
+    optional int64 key_id = 3;
+}
+

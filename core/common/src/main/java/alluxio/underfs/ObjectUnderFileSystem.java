@@ -74,9 +74,10 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
    * Constructs an {@link ObjectUnderFileSystem}.
    *
    * @param uri the {@link AlluxioURI} used to create this ufs
+   * @param ufsConf UFS configuration
    */
-  protected ObjectUnderFileSystem(AlluxioURI uri) {
-    super(uri);
+  protected ObjectUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf) {
+    super(uri, ufsConf);
 
     int numThreads = Configuration.getInt(PropertyKey.UNDERFS_OBJECT_STORE_SERVICE_THREADS);
     mExecutorService = ExecutorServiceFactories.fixedThreadPoolExecutorServiceFactory(
@@ -87,13 +88,22 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
    * Information about a single object in object UFS.
    */
   protected class ObjectStatus {
-    final long mContentLength;
-    final long mLastModifiedTimeMs;
-    final String mName;
+    private static final long INVALID_CONTENT_LENGTH = -1L;
+    private static final long INVALID_MODIFIED_TIME = -1L;
+
+    private final long mContentLength;
+    private final long mLastModifiedTimeMs;
+    private final String mName;
 
     public ObjectStatus(String name, long contentLength, long lastModifiedTimeMs) {
       mContentLength = contentLength;
       mLastModifiedTimeMs = lastModifiedTimeMs;
+      mName = name;
+    }
+
+    public ObjectStatus(String name) {
+      mContentLength = INVALID_CONTENT_LENGTH;
+      mLastModifiedTimeMs = INVALID_MODIFIED_TIME;
       mName = name;
     }
 
@@ -356,16 +366,13 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
 
   @Override
   public UfsDirectoryStatus getDirectoryStatus(String path) throws IOException {
-    String keyAsFolder = convertToFolderName(stripPrefixIfPresent(path));
-    ObjectStatus details = getObjectStatus(keyAsFolder);
-    if (details != null) {
+    if (isDirectory(path)) {
       ObjectPermissions permissions = getPermissions();
       return new UfsDirectoryStatus(path, permissions.getOwner(), permissions.getGroup(),
           permissions.getMode());
-    } else {
-      LOG.error("Error fetching directory status, assuming directory does not exist");
-      throw new FileNotFoundException(path);
     }
+    LOG.warn("Error fetching directory status, assuming directory {} does not exist", path);
+    throw new FileNotFoundException(path);
   }
 
   // Not supported
@@ -397,7 +404,7 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
       return new UfsFileStatus(path, details.getContentLength(), details.getLastModifiedTimeMs(),
           permissions.getOwner(), permissions.getGroup(), permissions.getMode());
     } else {
-      LOG.error("Error fetching file status, assuming file does not exist");
+      LOG.warn("Error fetching file status, assuming file {} does not exist", path);
       throw new FileNotFoundException(path);
     }
   }
@@ -412,7 +419,7 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
     if (getObjectStatus(keyAsFolder) != null) {
       return true;
     }
-    return getObjectListingChunkAndCreateNonEmpty(path, true) != null;
+    return getObjectListingChunkForPath(path, true) != null;
   }
 
   @Override
@@ -688,14 +695,14 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
       throws IOException;
 
   /**
-   * Gets a (partial) object listing and attempt to create non-empty directory breadcrumb.
+   * Gets a (partial) object listing for the given path.
    *
    * @param path of pseudo-directory
    * @param recursive whether to request immediate children only, or all descendants
    * @return chunked object listing, or null if the path does not exist as a pseudo-directory
    */
-  protected ObjectListingChunk getObjectListingChunkAndCreateNonEmpty(String path,
-      boolean recursive) throws IOException {
+  protected ObjectListingChunk getObjectListingChunkForPath(String path, boolean recursive)
+      throws IOException {
     // Check if anything begins with <folder_path>/
     String dir = stripPrefixIfPresent(path);
     ObjectListingChunk objs = getObjectListingChunk(dir, recursive);
@@ -703,7 +710,9 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
     if (objs != null && ((objs.getObjectStatuses() != null && objs.getObjectStatuses().length > 0)
         || (objs.getCommonPrefixes() != null && objs.getCommonPrefixes().length > 0))) {
       // If the breadcrumb exists, this is a no-op
-      mkdirsInternal(dir);
+      if (!mUfsConf.isReadOnly()) {
+        mkdirsInternal(dir);
+      }
       return objs;
     }
     return null;
@@ -725,7 +734,7 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
    * @return an array of the file and folder names in this directory
    */
   protected UfsStatus[] listInternal(String path, ListOptions options) throws IOException {
-    ObjectListingChunk chunk = getObjectListingChunkAndCreateNonEmpty(path, options.isRecursive());
+    ObjectListingChunk chunk = getObjectListingChunkForPath(path, options.isRecursive());
     if (chunk == null) {
       String keyAsFolder = convertToFolderName(stripPrefixIfPresent(path));
       if (getObjectStatus(keyAsFolder) != null) {
@@ -802,7 +811,9 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
           child = childNameIndex != -1 ? child.substring(0, childNameIndex) : child;
           if (!child.isEmpty() && !children.containsKey(child)) {
             // This directory has not been created through Alluxio.
-            mkdirsInternal(commonPrefix);
+            if (!mUfsConf.isReadOnly()) {
+              mkdirsInternal(commonPrefix);
+            }
             // If both a file and a directory existed with the same name, the path will be
             // treated as a directory
             ObjectPermissions permissions = getPermissions();

@@ -18,6 +18,7 @@ import alluxio.WorkerStorageTierAssoc;
 import alluxio.metrics.MetricsSystem;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
+import alluxio.util.CommonUtils;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.io.BlockWriter;
 
@@ -45,32 +46,42 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
   /** An object storing the mapping of tier aliases to ordinals. */
   private final StorageTierAssoc mStorageTierAssoc = new WorkerStorageTierAssoc();
   private long mBytesReserved = 0;
-  // ALLUXIO CS ADD
-  private final boolean mCapabilityEnabled;
-  // ALLUXIO CS END
 
   private class BlockWriteRequestInternal extends WriteRequestInternal {
     final BlockWriter mBlockWriter;
 
     BlockWriteRequestInternal(Protocol.WriteRequest request) throws Exception {
-      super(request.getId(), request.getSessionId());
+      super(request.getId());
       Preconditions.checkState(request.getOffset() == 0);
-      mWorker.createBlockRemote(request.getSessionId(), request.getId(),
-          mStorageTierAssoc.getAlias(request.getTier()), FILE_BUFFER_SIZE);
+      mWorker.createBlockRemote(mSessionId, mId, mStorageTierAssoc.getAlias(request.getTier()),
+          FILE_BUFFER_SIZE);
       mBytesReserved = FILE_BUFFER_SIZE;
-      mBlockWriter = mWorker.getTempBlockWriterRemote(request.getSessionId(), request.getId());
+      mBlockWriter = mWorker.getTempBlockWriterRemote(mSessionId, mId);
     }
 
     @Override
     public void close() throws IOException {
       mBlockWriter.close();
-      // TODO(peis): We can call mWorker.commitBlock() here.
+      try {
+        mWorker.commitBlock(mSessionId, mId);
+      } catch (Exception e) {
+        throw CommonUtils.castToIOException(e);
+      }
     }
 
     @Override
     void cancel() throws IOException {
       mBlockWriter.close();
-      // TODO(peis): We can call mWorker.abortBlock() here.
+      try {
+        mWorker.abortBlock(mSessionId, mId);
+      } catch (Exception e) {
+        throw CommonUtils.castToIOException(e);
+      }
+    }
+
+    @Override
+    void cleanup() throws IOException {
+      mWorker.cleanupSession(mSessionId);
     }
   }
 
@@ -83,26 +94,16 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
   DataServerBlockWriteHandler(ExecutorService executorService, BlockWorker blockWorker) {
     super(executorService);
     mWorker = blockWorker;
-    // ALLUXIO CS ADD
-    mCapabilityEnabled =
-        alluxio.Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
-            && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
-            .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
-    // ALLUXIO CS END
   }
 
   // ALLUXIO CS ADD
   @Override
   protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
       alluxio.security.authorization.Mode.Bits accessMode)
       throws alluxio.exception.InvalidCapabilityException,
       alluxio.exception.AccessControlException {
-    if (!mCapabilityEnabled) {
-      return;
-    }
-    long fileId = alluxio.util.IdUtils.fileIdFromBlockId(blockId);
-    String user = ctx.channel().attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
-    mWorker.getCapabilityCache().checkAccess(user, fileId, accessMode);
+    Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
   }
 
   // ALLUXIO CS END

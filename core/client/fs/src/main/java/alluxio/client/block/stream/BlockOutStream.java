@@ -11,148 +11,287 @@
 
 package alluxio.client.block.stream;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.client.BoundedStream;
 import alluxio.client.Cancelable;
-import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
+import alluxio.exception.PreconditionMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.util.CommonUtils;
+import alluxio.util.network.NettyUtils;
 import alluxio.wire.WorkerNetAddress;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Provides a stream API to write a block to Alluxio. An instance of this class can be obtained by
- * calling
- * {@link alluxio.client.block.AlluxioBlockStore#getOutStream(long, long, OutStreamOptions)}.
+ * Provides an {@link OutputStream} implementation that is based on {@link PacketWriter} which
+ * streams data packet by packet.
  */
 @NotThreadSafe
-public class BlockOutStream extends FilterOutputStream implements BoundedStream, Cancelable {
-  private final long mBlockId;
-  private final long mBlockSize;
+public class BlockOutStream extends OutputStream implements BoundedStream, Cancelable {
   private final Closer mCloser;
-  // ALLUXIO CS REPLACE
-  // private final BlockWorkerClient mBlockWorkerClient;
-  // ALLUXIO CS WITH
-  private final java.util.List<BlockWorkerClient> mBlockWorkerClients;
-  // ALLUXIO CS END
-  private final PacketOutStream mOutStream;
+  /** Length of the stream. If unknown, set to Long.MAX_VALUE. */
+  private final long mLength;
+  private ByteBuf mCurrentPacket = null;
+
+  private final List<PacketWriter> mPacketWriters;
   private boolean mClosed;
 
   /**
-   * Creates a new block output stream that writes to local file directly.
+   * Creates an {@link BlockOutStream}.
    *
-   * @param blockId the block id
-   * @param blockSize the block size
-   * @param workerNetAddress the worker network address
    * @param context the file system context
-   * @param options the options
-   * @return the {@link BlockOutStream} instance created
+   * @param blockId the block ID
+   * @param blockSize the block size in bytes
+   * @param address the Alluxio worker address
+   * @param options the out stream options
+   * @return the {@link OutputStream} object
    */
-  public static BlockOutStream createShortCircuitBlockOutStream(long blockId, long blockSize,
-      WorkerNetAddress workerNetAddress, FileSystemContext context, OutStreamOptions options)
-          throws IOException {
-    Closer closer = Closer.create();
-    try {
-      BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
+  public static BlockOutStream create(FileSystemContext context, long blockId, long blockSize,
+      WorkerNetAddress address, OutStreamOptions options) throws IOException {
+    if (CommonUtils.isLocalHost(address) && Configuration
+        .getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED) && !NettyUtils
+        .isDomainSocketSupported(address)) {
+      return createLocalBlockOutStream(context, address, blockId, blockSize, options);
+    } else {
+      Protocol.WriteRequest writeRequestPartial =
+          Protocol.WriteRequest.newBuilder().setId(blockId).setTier(options.getWriteTier())
+              .setType(Protocol.RequestType.ALLUXIO_BLOCK).buildPartial();
       // ALLUXIO CS ADD
-      client.setCapabilityNonRPC(options.getCapabilityFetcher());
-      client.updateCapability();
+      if (options.getCapabilityFetcher() != null) {
+        writeRequestPartial = writeRequestPartial.toBuilder()
+            .setCapability(options.getCapabilityFetcher().getCapability().toProto()).buildPartial();
+      }
       // ALLUXIO CS END
-      PacketOutStream outStream = PacketOutStream
-          .createLocalPacketOutStream(client, blockId, blockSize, options);
-      closer.register(outStream);
-      return new BlockOutStream(outStream, blockId, blockSize, client, options);
-    } catch (Throwable t) {
-      throw CommonUtils.closeAndRethrow(closer, t);
+      return createNettyBlockOutStream(context, address, blockSize, writeRequestPartial, options);
     }
   }
 
   /**
-   * Creates a new netty block output stream.
+   * Creates a {@link BlockOutStream} that writes to a local file.
    *
-   * @param blockId the block id
-   * @param blockSize the block size
-   * @param workerNetAddress the worker network address
    * @param context the file system context
-   * @param options the options
-   * @return the {@link BlockOutStream} instance created
+   * @param address the worker network address
+   * @param id the ID
+   * @param length the block or file length
+   * @param options the out stream options
+   * @return the {@link BlockOutStream} created
    */
-  public static BlockOutStream createNettyBlockOutStream(long blockId, long blockSize,
-      WorkerNetAddress workerNetAddress, FileSystemContext context, OutStreamOptions options)
-          throws IOException {
-    Closer closer = Closer.create();
-    try {
-      BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
-      // ALLUXIO CS ADD
-      client.setCapabilityNonRPC(options.getCapabilityFetcher());
-      client.updateCapability();
-      // ALLUXIO CS END
-      PacketOutStream outStream = PacketOutStream
-          .createNettyPacketOutStream(context, workerNetAddress, client.getSessionId(), blockId,
-              blockSize, Protocol.RequestType.ALLUXIO_BLOCK, options);
-      closer.register(outStream);
-      return new BlockOutStream(outStream, blockId, blockSize, client, options);
-    } catch (Throwable t) {
-      throw CommonUtils.closeAndRethrow(closer, t);
+  protected static BlockOutStream createLocalBlockOutStream(FileSystemContext context,
+      WorkerNetAddress address, long id, long length, OutStreamOptions options) throws IOException {
+    long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
     }
+    // ALLUXIO CS END
+    PacketWriter packetWriter =
+        LocalFilePacketWriter.create(context, address, id, packetSize, options);
+    return new BlockOutStream(packetWriter, length);
+  }
+
+  /**
+   * Creates a {@link BlockOutStream} that writes to a netty data server.
+   *
+   * @param context the file system context
+   * @param address the netty data server address
+   * @param length the block or file length
+   * @param partialRequest details of the write request which are constant for all requests
+   * @param options the out stream options
+   * @return the {@link BlockOutStream} created
+   */
+  protected static BlockOutStream createNettyBlockOutStream(FileSystemContext context,
+      WorkerNetAddress address, long length, Protocol.WriteRequest partialRequest,
+      OutStreamOptions options) throws IOException {
+    long packetSize =
+        Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
+    }
+    // ALLUXIO CS END
+    PacketWriter packetWriter =
+        new NettyPacketWriter(context, address, length, partialRequest, packetSize);
+    return new BlockOutStream(packetWriter, length);
+  }
+
+  /**
+   * Constructs a new {@link BlockOutStream} with only one {@link PacketWriter}.
+   *
+   * @param packetWriter the packet writer
+   * @param length the length of the stream
+   */
+  protected BlockOutStream(PacketWriter packetWriter, long length) {
+    mCloser = Closer.create();
+    mLength = length;
+    mPacketWriters = new ArrayList<>(1);
+    mPacketWriters.add(packetWriter);
+    mCloser.register(packetWriter);
+    mClosed = false;
+  }
+
+  /**
+   * @return the remaining size of the block
+   */
+  @Override
+  public long remaining() {
+    long pos = Long.MAX_VALUE;
+    for (PacketWriter packetWriter : mPacketWriters) {
+      pos = Math.min(pos, packetWriter.pos());
+    }
+    return mLength - pos - (mCurrentPacket != null ? mCurrentPacket.readableBytes() : 0);
   }
 
   // ALLUXIO CS ADD
   /**
    * Creates a new remote block output stream.
    *
+   * @param context the file system context
    * @param blockId the block id
    * @param blockSize the block size
    * @param workerNetAddresses the worker network address
-   * @param context the file system context
    * @param options the options
    * @return the {@link BlockOutStream} instance created
    */
-  public static BlockOutStream createReplicatedBlockOutStream(long blockId, long blockSize,
-      java.util.List<WorkerNetAddress> workerNetAddresses, FileSystemContext context,
+  public static BlockOutStream createReplicatedBlockOutStream(FileSystemContext context,
+      long blockId, long blockSize, java.util.List<WorkerNetAddress> workerNetAddresses,
       OutStreamOptions options) throws IOException {
-    Closer closer = Closer.create();
-    try {
-      java.util.List<BlockWorkerClient> clients =
-          new java.util.ArrayList<>(workerNetAddresses.size());
-      for (WorkerNetAddress workerNetAddress : workerNetAddresses) {
-        BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
-        client.setCapabilityNonRPC(options.getCapabilityFetcher());
-        client.updateCapability();
-        clients.add(client);
-      }
-      PacketOutStream outStream = PacketOutStream.createReplicatedPacketOutStream(context,
-          clients, blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK, options);
-      return new BlockOutStream(outStream, blockId, blockSize, clients, options);
-    } catch (Throwable t) {
-      throw CommonUtils.closeAndRethrow(closer, t);
+    Protocol.WriteRequest writeRequestPartial = Protocol.WriteRequest.newBuilder()
+        .setId(blockId).setTier(options.getWriteTier()).setType(Protocol.RequestType.ALLUXIO_BLOCK)
+        .buildPartial();
+    if (options.getCapabilityFetcher() != null) {
+      writeRequestPartial = writeRequestPartial.toBuilder()
+          .setCapability(options.getCapabilityFetcher().getCapability().toProto()).buildPartial();
     }
+
+    List<PacketWriter> packetWriters = new ArrayList<>();
+    for (WorkerNetAddress address: workerNetAddresses) {
+      if (alluxio.util.CommonUtils.isLocalHost(address)) {
+        long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
+        if (options.isEncrypted()) {
+          packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+              options.getEncryptionMeta(), packetSize);
+        }
+        PacketWriter packetWriter =
+            LocalFilePacketWriter.create(context, address, blockId, packetSize, options);
+        packetWriters.add(packetWriter);
+      } else {
+        long packetSize =
+            Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
+        if (options.isEncrypted()) {
+          packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+              options.getEncryptionMeta(), packetSize);
+        }
+        PacketWriter packetWriter =
+            new NettyPacketWriter(context, address, blockSize, writeRequestPartial, packetSize);
+        packetWriters.add(packetWriter);
+      }
+    }
+    return new BlockOutStream(packetWriters, blockSize);
+  }
+
+  /**
+   * Constructs a new {@link BlockOutStream} with only one {@link PacketWriter}.
+   *
+   * @param packetWriters the packet writer
+   * @param length the length of the stream
+   */
+  protected BlockOutStream(List<PacketWriter> packetWriters, long length) {
+    mCloser = Closer.create();
+    mLength = length;
+    mPacketWriters = packetWriters;
+    for (PacketWriter packetWriter : packetWriters) {
+      mCloser.register(packetWriter);
+    }
+    mClosed = false;
   }
 
   // ALLUXIO CS END
-  // Explicitly overriding some write methods which are not efficiently implemented in
-  // FilterOutStream.
+  @Override
+  public void write(int b) throws IOException {
+    Preconditions.checkState(remaining() > 0, PreconditionMessage.ERR_END_OF_BLOCK);
+    updateCurrentPacket(false);
+    mCurrentPacket.writeByte(b);
+  }
 
   @Override
   public void write(byte[] b) throws IOException {
-    mOutStream.write(b);
+    write(b, 0, b.length);
   }
 
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
-    mOutStream.write(b, off, len);
+    if (len == 0) {
+      return;
+    }
+
+    while (len > 0) {
+      updateCurrentPacket(false);
+      int toWrite = Math.min(len, mCurrentPacket.writableBytes());
+      mCurrentPacket.writeBytes(b, off, toWrite);
+      off += toWrite;
+      len -= toWrite;
+    }
+    updateCurrentPacket(false);
+  }
+  // ALLUXIO CS ADD
+
+  /**
+   * Writes the data in the specified byte buf to this output stream.
+   *
+   * @param buf the buffer
+   * @throws IOException
+   */
+  public void write(io.netty.buffer.ByteBuf buf) throws IOException {
+    write(buf, 0, buf.readableBytes());
   }
 
+  /**
+   * Writes len bytes from the specified byte buf starting at offset off to this output stream.
+   *
+   * @param buf the buffer
+   * @param off the offset
+   * @param len the length
+   */
+  public void write(io.netty.buffer.ByteBuf buf, int off, int len) throws IOException {
+    if (len == 0) {
+      return;
+    }
+
+    while (len > 0) {
+      updateCurrentPacket(false);
+      int toWrite = Math.min(len, mCurrentPacket.writableBytes());
+      mCurrentPacket.writeBytes(buf, off, toWrite);
+      off += toWrite;
+      len -= toWrite;
+    }
+    updateCurrentPacket(false);
+  }
+  // ALLUXIO CS END
+
   @Override
-  public long remaining() {
-    return mOutStream.remaining();
+  public void flush() throws IOException {
+    if (mClosed) {
+      return;
+    }
+    updateCurrentPacket(true);
+    for (PacketWriter packetWriter : mPacketWriters) {
+      packetWriter.flush();
+    }
   }
 
   @Override
@@ -160,111 +299,92 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
     if (mClosed) {
       return;
     }
+    releaseCurrentPacket();
+
     IOException exception = null;
-    try {
-      mOutStream.cancel();
-    } catch (IOException e) {
-      exception = e;
-    }
-    // ALLUXIO CS REPLACE
-    // try {
-    //   mBlockWorkerClient.cancelBlock(mBlockId);
-    // } catch (IOException e) {
-    //   exception = e;
-    // }
-    // ALLUXIO CS WITH
-    for (BlockWorkerClient client : mBlockWorkerClients) {
+    for (PacketWriter packetWriter : mPacketWriters) {
       try {
-        client.cancelBlock(mBlockId);
+        packetWriter.cancel();
       } catch (IOException e) {
-        exception = e;
+        if (exception != null) {
+          exception.addSuppressed(e);
+        }
       }
     }
-    // ALLUXIO CS END
-
-    if (exception == null) {
-      mClosed = true;
-      return;
+    if (exception != null) {
+      throw exception;
     }
 
-    mClosed = true;
-    throw CommonUtils.closeAndRethrow(mCloser, exception);
+    close();
   }
 
   @Override
   public void close() throws IOException {
-    if (mClosed) {
-      return;
-    }
     try {
-      mOutStream.close();
-      if (remaining() < mBlockSize) {
-        // ALLUXIO CS REPLACE
-        // mBlockWorkerClient.cacheBlock(mBlockId);
-        // ALLUXIO CS WITH
-        for (BlockWorkerClient client : mBlockWorkerClients) {
-          client.cacheBlock(mBlockId);
-        }
-        // ALLUXIO CS END
-      }
+      updateCurrentPacket(true);
     } catch (Throwable t) {
       mCloser.rethrow(t);
     } finally {
-      mCloser.close();
       mClosed = true;
+      mCloser.close();
     }
   }
 
   /**
-   * Creates a new block output stream.
+   * Updates the current packet.
    *
-   * @param outStream the {@link PacketOutStream} associated with this {@link BlockOutStream}
-   * @param blockId the block id
-   * @param blockSize the block size
-   * @param blockWorkerClient the block worker client
-   * @param options the options
+   * @param lastPacket if the current packet is the last packet
    */
-  protected BlockOutStream(PacketOutStream outStream, long blockId, long blockSize,
-      BlockWorkerClient blockWorkerClient, OutStreamOptions options) {
-    super(outStream);
+  private void updateCurrentPacket(boolean lastPacket) throws IOException {
+    // Early return for the most common case.
+    if (mCurrentPacket != null && mCurrentPacket.writableBytes() > 0 && !lastPacket) {
+      return;
+    }
 
-    mOutStream = outStream;
-    mBlockId = blockId;
-    mBlockSize = blockSize;
-    mCloser = Closer.create();
-    // ALLUXIO CS REPLACE
-    // mBlockWorkerClient = mCloser.register(blockWorkerClient);
-    // ALLUXIO CS WITH
-    mCloser.register(blockWorkerClient);
-    mBlockWorkerClients = new java.util.ArrayList<>();
-    mBlockWorkerClients.add(blockWorkerClient);
-    // ALLUXIO CS END
-    mClosed = false;
+    if (mCurrentPacket == null) {
+      if (!lastPacket) {
+        mCurrentPacket = allocateBuffer();
+      }
+      return;
+    }
+
+    if (mCurrentPacket.writableBytes() == 0 || lastPacket) {
+      try {
+        if (mCurrentPacket.readableBytes() > 0) {
+          for (PacketWriter packetWriter : mPacketWriters) {
+            mCurrentPacket.retain();
+            packetWriter.writePacket(mCurrentPacket.duplicate());
+          }
+        } else {
+          Preconditions.checkState(lastPacket);
+        }
+      } finally {
+        // If the packet has bytes to read, we increment its refcount explicitly for every packet
+        // writer. So we need to release here. If the packet has no bytes to read, then it has
+        // to be the last packet. It needs to be released as well.
+        mCurrentPacket.release();
+      }
+      mCurrentPacket = null;
+    }
+    if (!lastPacket) {
+      mCurrentPacket = allocateBuffer();
+    }
   }
-  // ALLUXIO CS ADD
 
   /**
-   * Creates a new block output stream.
-   *
-   * @param outStream the {@link PacketOutStream} associated with this {@link BlockOutStream}
-   * @param blockId the block id
-   * @param blockSize the block size
-   * @param blockWorkerClients the block worker clients
-   * @param options the options
+   * Releases the current packet.
    */
-  private BlockOutStream(PacketOutStream outStream, long blockId, long blockSize,
-      java.util.List<BlockWorkerClient> blockWorkerClients, OutStreamOptions options) {
-    super(outStream);
-
-    mOutStream = outStream;
-    mBlockId = blockId;
-    mBlockSize = blockSize;
-    mCloser = Closer.create();
-    for (BlockWorkerClient client : blockWorkerClients) {
-      mCloser.register(client);
+  private void releaseCurrentPacket() {
+    if (mCurrentPacket != null) {
+      mCurrentPacket.release();
+      mCurrentPacket = null;
     }
-    mBlockWorkerClients = blockWorkerClients;
-    mClosed = false;
   }
-  // ALLUXIO CS END
+
+  /**
+   * @return a newly allocated byte buffer of the user defined default size
+   */
+  private ByteBuf allocateBuffer() {
+    return PooledByteBufAllocator.DEFAULT.buffer(mPacketWriters.get(0).packetSize());
+  }
 }

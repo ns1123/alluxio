@@ -50,6 +50,7 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_SECRET_KEY_WRITE_RESPONSE(12),
     RPC_SASL_MESSAGE(13),
     RPC_SECRET_KEY(14),
+    RPC_REMOVE_BLOCK_REQUEST(15),
     // ALLUXIO CS END
 
     // Tags lower than 100 are reserved since v1.4.0.
@@ -58,6 +59,13 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_RESPONSE(102),
     RPC_UFS_BLOCK_READ_REQUEST(103),
     RPC_HEARTBEAT(104),
+    RPC_LOCAL_BLOCK_OPEN_REQUEST(105),
+    RPC_LOCAL_BLOCK_OPEN_RESPONSE(106),
+    RPC_LOCAL_BLOCK_CLOSE_REQUEST(107),
+    RPC_LOCAL_BLOCK_CREATE_REQUEST(108),
+    RPC_LOCAL_BLOCK_CREATE_RESPONSE(109),
+    RPC_LOCAL_BLOCK_COMPLETE_REQUEST(110),
+    RPC_READ_RESPONSE(111),
 
     RPC_UNKNOWN(1000),
     ;
@@ -134,6 +142,8 @@ public abstract class RPCMessage implements EncodedMessage {
           return RPC_SASL_MESSAGE;
         case 14:
           return RPC_SECRET_KEY;
+        case 15:
+          return RPC_REMOVE_BLOCK_REQUEST;
         // ALLUXIO CS END
         case 100:
           return RPC_READ_REQUEST;
@@ -145,6 +155,20 @@ public abstract class RPCMessage implements EncodedMessage {
           return RPC_UFS_BLOCK_READ_REQUEST;
         case 104:
           return RPC_HEARTBEAT;
+        case 105:
+          return RPC_LOCAL_BLOCK_OPEN_REQUEST;
+        case 106:
+          return RPC_LOCAL_BLOCK_OPEN_RESPONSE;
+        case 107:
+          return RPC_LOCAL_BLOCK_CLOSE_REQUEST;
+        case 108:
+          return RPC_LOCAL_BLOCK_CREATE_REQUEST;
+        case 109:
+          return RPC_LOCAL_BLOCK_CREATE_RESPONSE;
+        case 110:
+          return RPC_LOCAL_BLOCK_COMPLETE_REQUEST;
+        case 111:
+          return RPC_READ_RESPONSE;
         default:
           throw new IllegalArgumentException("Unknown RPCMessage type id. id: " + id);
       }
@@ -241,6 +265,9 @@ public abstract class RPCMessage implements EncodedMessage {
       case RPC_SECRET_KEY:
         return RPCProtoMessage.decode(in,
             new ProtoMessage(alluxio.proto.security.Key.SecretKey.getDefaultInstance()));
+      case RPC_REMOVE_BLOCK_REQUEST:
+        return RPCProtoMessage.decode(in,
+            new ProtoMessage(Protocol.RemoveBlockRequest.getDefaultInstance()));
       // ALLUXIO CS END
       case RPC_READ_REQUEST:
         return RPCProtoMessage
@@ -252,9 +279,30 @@ public abstract class RPCMessage implements EncodedMessage {
         return RPCProtoMessage.decode(in, new ProtoMessage(Protocol.Response.getDefaultInstance()));
       case RPC_UFS_BLOCK_READ_REQUEST:
         return RPCUnderFileSystemBlockReadRequest.decode(in);
+      case RPC_LOCAL_BLOCK_OPEN_REQUEST:
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.LocalBlockOpenRequest.getDefaultInstance()));
+      case RPC_LOCAL_BLOCK_OPEN_RESPONSE:
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.LocalBlockOpenResponse.getDefaultInstance()));
+      case RPC_LOCAL_BLOCK_CLOSE_REQUEST:
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.LocalBlockCloseRequest.getDefaultInstance()));
+      case RPC_LOCAL_BLOCK_CREATE_REQUEST:
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.LocalBlockCreateRequest.getDefaultInstance()));
+      case RPC_LOCAL_BLOCK_CREATE_RESPONSE:
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.LocalBlockCreateResponse.getDefaultInstance()));
+      case RPC_LOCAL_BLOCK_COMPLETE_REQUEST:
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.LocalBlockCompleteRequest.getDefaultInstance()));
       case RPC_HEARTBEAT:
         return
             RPCProtoMessage.decode(in, new ProtoMessage(Protocol.Heartbeat.getDefaultInstance()));
+      case RPC_READ_RESPONSE:
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.ReadResponse.getDefaultInstance()));
       default:
         throw new IllegalArgumentException("Unknown RPCMessage type. type: " + type);
     }

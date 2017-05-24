@@ -38,6 +38,9 @@ public final class AlluxioMaster {
       System.exit(-1);
     }
 
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.MASTER);
+    // ALLUXIO CS END
     MasterProcess process = MasterProcess.Factory.create();
     ProcessUtils.run(process);
   }

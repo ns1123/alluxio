@@ -169,9 +169,9 @@ public final class CapabilityCache implements Closeable {
    * @param capability the capability in thrift form
    * @throws InvalidCapabilityException if the thrift representation of the capability is not valid
    */
-  public void addCapability(alluxio.thrift.Capability capability)
+  public void addCapability(alluxio.proto.security.CapabilityProto.Capability capability)
       throws InvalidCapabilityException {
-    if (capability == null || !capability.isSetKeyId()) {
+    if (capability == null || !capability.hasKeyId()) {
       return;
     }
     alluxio.security.capability.Capability cap =

@@ -17,9 +17,15 @@
     <artifactId>alluxio-parent</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alluxio-assemblies</artifactId>
-  <name>Alluxio Assemblies</name>
-  <description>Assemblies of Alluxio system</description>
+  <artifactId>alluxio-assembly</artifactId>
+  <packaging>pom</packaging>
+  <name>Alluxio Assembly JARs</name>
+  <description>Assembly JARs of Alluxio system</description>
+
+  <modules>
+    <module>client</module>
+    <module>server</module>
+  </modules>
 
   <properties>
     <!-- The following paths need to be defined here as well as in the parent pom so that mvn can -->

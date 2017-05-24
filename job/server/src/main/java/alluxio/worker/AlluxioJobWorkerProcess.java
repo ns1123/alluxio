@@ -16,6 +16,8 @@ import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
+import alluxio.underfs.JobUfsManager;
+import alluxio.underfs.UfsManager;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -74,13 +76,17 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
   /** The web ui server. */
   private JobWorkerWebServer mWebServer = null;
 
+  /** The manager for all ufs. */
+  private UfsManager mUfsManager;
+
   /**
    * Constructor of {@link AlluxioJobWorker}.
    */
   AlluxioJobWorkerProcess() {
     try {
       mStartTimeMs = System.currentTimeMillis();
-      mJobWorker = new JobWorker();
+      mUfsManager = new JobUfsManager();
+      mJobWorker = new JobWorker(mUfsManager);
 
       // Setup web server
       mWebServer = new JobWorkerWebServer(ServiceType.JOB_WORKER_WEB.getServiceName(),
@@ -217,7 +223,8 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
     // Return a TTransportFactory based on the authentication type
     TTransportFactory tTransportFactory;
     try {
-      tTransportFactory = mTransportProvider.getServerTransportFactory();
+      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC);
+      tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

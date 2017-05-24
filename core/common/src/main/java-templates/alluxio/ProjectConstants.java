@@ -21,6 +21,8 @@ public final class ProjectConstants {
   // ALLUXIO CS END
   /* Project version, specified in maven property. **/
   public static final String VERSION = "${project.version}";
+  /* Hadoop version, specified in maven property. **/
+  public static final String HADOOP_VERSION = "${hadoop.version}";
 
   private ProjectConstants() {} // prevent instantiation
 }

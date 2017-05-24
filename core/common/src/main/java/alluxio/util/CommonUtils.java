@@ -11,12 +11,18 @@
 
 package alluxio.util;
 
+import alluxio.exception.status.AlluxioStatusException;
+import alluxio.exception.status.Status;
+import alluxio.proto.dataserver.Protocol;
 import alluxio.security.group.CachedGroupMapping;
 import alluxio.security.group.GroupMappingService;
 import alluxio.util.ShellUtils.ExitCodeException;
+import alluxio.util.network.NetworkAddressUtils;
+import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import com.google.common.io.Closer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +38,12 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -48,9 +57,6 @@ public final class CommonUtils {
   private static final String ALPHANUM =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   private static final Random RANDOM = new Random();
-  // ALLUXIO CS ADD
-  private static final boolean IS_ALLUXIO_SERVER = initializeIsAlluxioServer();
-  // ALLUXIO CS END
 
   /**
    * @return current time in milliseconds
@@ -330,39 +336,6 @@ public final class CommonUtils {
     return key;
   }
 
-  // ALLUXIO CS ADD
-  /**
-   * Util method to tell whether the current JVM is running Alluxio server (i.e. AlluxioMaster,
-   * AlluxioWorker) or Alluxio client.
-   *
-   * @return true if the current JVM is running Alluxio server, false otherwise
-   */
-  public static boolean isAlluxioServer() {
-    return IS_ALLUXIO_SERVER;
-  }
-
-  /**
-   * Initializes the {@link CommonUtils#IS_ALLUXIO_SERVER} based on the stack trace main class name.
-   *
-   * @return true if the current JVM is running Alluxio server, false otherwise
-   */
-  private static boolean initializeIsAlluxioServer() {
-    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-    if (stack.length == 0) {
-      LOG.error("Failed to get stack trace of current thread...");
-      return false;
-    }
-    StackTraceElement main = stack[stack.length - 1];
-    String mainClass = main.getClassName();
-    if (mainClass.isEmpty()) {
-      LOG.error("Failed to get the main class name of current stack trace...");
-      return false;
-    }
-    return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker")
-        || mainClass.contains("AlluxioJobMaster") || mainClass.contains("AlluxioJobWorker");
-  }
-
-  // ALLUXIO CS END
   /**
    * Strips the leading and trailing quotes from the given string.
    * E.g. return 'alluxio' for input '"alluxio"'.
@@ -484,22 +457,60 @@ public final class CommonUtils {
 
   // ALLUXIO CS END
   /**
-   * Executes the given callables, waiting for them to complete (or time out).
-
+   * Executes the given callables, waiting for them to complete (or time out). If a callable throws
+   * an exception, that exception will be re-thrown from this method.
+   *
    * @param callables the callables to execute
+   * @param timeout the maximum time to wait
+   * @param unit the time unit of the timeout argument
    * @param <T> the return type of the callables
+   * @throws Exception if any of the callables throws an exception
    */
-  public static <T> void invokeAll(List<Callable<T>> callables) {
+  public static <T> void invokeAll(List<Callable<T>> callables, long timeout, TimeUnit unit)
+      throws TimeoutException, Exception {
     ExecutorService service = Executors.newCachedThreadPool();
     try {
-      service.invokeAll(callables, 10, TimeUnit.SECONDS);
-      service.shutdown();
-      if (!service.awaitTermination(10, TimeUnit.SECONDS)) {
-        throw new RuntimeException("Timed out trying to shutdown service.");
+      List<Future<T>> results = service.invokeAll(callables, timeout, unit);
+      service.shutdownNow();
+      propagateExceptions(results);
+      for (Future<T> result : results) {
+        if (result.isCancelled()) {
+          throw new TimeoutException("Timed out invoking task");
+        }
+      }
+      // All tasks are guaranteed to have finished at this point. If they were still running, their
+      // futures would have been canceled by invokeAll.
+      if (!service.awaitTermination(1, TimeUnit.SECONDS)) {
+        throw new IllegalStateException("Failed to shutdown service");
       }
     } catch (InterruptedException e) {
       service.shutdownNow();
+      Thread.currentThread().interrupt();
       throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Checks whether any of the futures have completed with an exception, propagating the exception
+   * if any is found.
+   *
+   * @param futures the futures to check
+   * @throws Exception if one of the futures completed with an exception
+   */
+  private static <T> void propagateExceptions(List<Future<T>> futures) throws Exception {
+    for (Future<?> future : futures) {
+      try {
+        if (future.isDone() && !future.isCancelled()) {
+          future.get();
+        }
+      } catch (ExecutionException e) {
+        Throwable cause = e.getCause();
+        Throwables.propagateIfPossible(cause);
+        if (cause instanceof Exception) {
+          throw (Exception) cause;
+        }
+        throw new RuntimeException(cause);
+      }
     }
   }
 
@@ -530,6 +541,51 @@ public final class CommonUtils {
     } finally {
       closer.close();
     }
+  }
+  // ALLUXIO CS ADD
+  /** Alluxio process types. */
+  public static enum ProcessType {
+    MASTER, JOB_MASTER, WORKER, JOB_WORKER, PROXY, CLIENT;
+  }
+
+  /**
+   * Represents the type of Alluxio process running in this JVM.
+   *
+   * NOTE: This will only be set by main methods of Alluxio processes. It will not be set properly
+   * for tests. Avoid using this field if at all possible.
+   */
+  public static final java.util.concurrent.atomic.AtomicReference<ProcessType> PROCESS_TYPE =
+      new java.util.concurrent.atomic.AtomicReference<>(ProcessType.CLIENT);
+
+  /**
+   * NOTE: This method is fragile and does not work with our testing infrastructure. Avoid using it
+   * if at all possible.
+   *
+   * @return whether the current process is an Alluxio server process
+   */
+  public static boolean isAlluxioServer() {
+    return !PROCESS_TYPE.get().equals(ProcessType.CLIENT);
+  }
+  // ALLUXIO CS END
+
+  /**
+   * Unwraps a {@link alluxio.proto.dataserver.Protocol.Response}.
+   *
+   * @param response the response
+   */
+  public static void unwrapResponse(Protocol.Response response) throws AlluxioStatusException {
+    Status status = Status.fromProto(response.getStatus());
+    if (status != Status.OK) {
+      throw AlluxioStatusException.from(status, response.getMessage());
+    }
+  }
+
+  /**
+   * @param address the Alluxio worker network address
+   * @return true if the worker is local
+   */
+  public static boolean isLocalHost(WorkerNetAddress address) {
+    return address.getHost().equals(NetworkAddressUtils.getClientHostName());
   }
 
   private CommonUtils() {} // prevent instantiation

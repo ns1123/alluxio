@@ -30,6 +30,7 @@ import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateFileOptions;
+import alluxio.master.file.options.GetStatusOptions;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.privilege.PrivilegeMasterFactory;
@@ -70,6 +71,7 @@ public final class PersistenceTest {
   private MasterRegistry mRegistry;
   private FileSystemMaster mFileSystemMaster;
   private JobMasterClient mMockJobMasterClient;
+  private static final GetStatusOptions GET_STATUS_OPTIONS = GetStatusOptions.defaults();
 
   @Rule
   public ManuallyScheduleHeartbeat mManualScheduler =
@@ -118,7 +120,7 @@ public final class PersistenceTest {
   public void successfulAsyncPersistence() throws Exception {
     // Create a file and check the internal state.
     AlluxioURI testFile = createTestFile();
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
     // Repeatedly schedule the async persistence, checking the internal state.
@@ -173,7 +175,7 @@ public final class PersistenceTest {
 
     {
       // Create the temporary UFS file.
-      fileInfo = mFileSystemMaster.getFileInfo(testFile);
+      fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
       Map<Long, PersistJob> persistJobs = getPersistJobs();
       PersistJob job = persistJobs.get(fileInfo.getFileId());
       UnderFileSystem ufs = UnderFileSystem.Factory.create(job.getTempUfsPath());
@@ -196,7 +198,7 @@ public final class PersistenceTest {
   public void noRetryCanceled() throws Exception {
     // Create a file and check the internal state.
     AlluxioURI testFile = createTestFile();
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
     // Repeatedly schedule the async persistence, checking the internal state.
@@ -239,7 +241,7 @@ public final class PersistenceTest {
   public void retryFailed() throws Exception {
     // Create a file and check the internal state.
     AlluxioURI testFile = createTestFile();
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
     // Repeatedly schedule the async persistence, checking the internal state.
@@ -285,7 +287,7 @@ public final class PersistenceTest {
   public void replayPersistRequest() throws Exception {
     // Create a file and check the internal state.
     AlluxioURI testFile = createTestFile();
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
     // Repeatedly schedule the async persistence, checking the internal state.
@@ -310,7 +312,7 @@ public final class PersistenceTest {
   public void replayPersistJob() throws Exception {
     // Create a file and check the internal state.
     AlluxioURI testFile = createTestFile();
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
     // Repeatedly schedule the async persistence, checking the internal state.
@@ -362,7 +364,7 @@ public final class PersistenceTest {
       @Override
       public Boolean apply(Void input) {
         try {
-          FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+          FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
           return fileInfo.getPersistenceState() == PersistenceState.PERSISTED.toString();
         } catch (FileDoesNotExistException | InvalidPathException | AccessControlException e) {
           return false;
@@ -370,7 +372,7 @@ public final class PersistenceTest {
       }
     }, WaitForOptions.defaults().setTimeout(30000));
 
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Map<Long, PersistJob> persistJobs = getPersistJobs();
     Assert.assertEquals(0, getPersistRequests().size());
     Assert.assertEquals(0, persistJobs.size());
@@ -378,7 +380,7 @@ public final class PersistenceTest {
   }
 
   private void checkPersistenceInProgress(AlluxioURI testFile, long jobId) throws Exception {
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Map<Long, PersistJob> persistJobs = getPersistJobs();
     Assert.assertEquals(0, getPersistRequests().size());
     Assert.assertEquals(1, persistJobs.size());
@@ -391,7 +393,7 @@ public final class PersistenceTest {
   }
 
   private void checkPersistenceRequested(AlluxioURI testFile) throws Exception {
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Set<Long> persistRequests = getPersistRequests();
     Assert.assertEquals(1, persistRequests.size());
     Assert.assertEquals(0, getPersistJobs().size());
