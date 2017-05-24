@@ -61,26 +61,4 @@ public class UnderFileSystemFileOutStream extends BlockOutStream {
   protected UnderFileSystemFileOutStream(PacketWriter packetWriter) {
     super(packetWriter, Long.MAX_VALUE);
   }
-  // ALLUXIO CS ADD
-
-  /**
-   * Writes the data in the specified byte buf to this output stream.
-   *
-   * @param buf the buffer
-   */
-  public void write(io.netty.buffer.ByteBuf buf) throws IOException {
-    mOutStream.write(buf);
-  }
-
-  /**
-   * Writes len bytes from the specified byte buf starting at offset off to this output stream.
-   *
-   * @param buf the buffer
-   * @param off the offset
-   * @param len the length
-   */
-  public void write(io.netty.buffer.ByteBuf buf, int off, int len) throws IOException {
-    mOutStream.write(buf, off, len);
-  }
-  // ALLUXIO CS END
 }

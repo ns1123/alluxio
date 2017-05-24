@@ -29,6 +29,7 @@ import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.stream.TestBlockOutStream;
 import alluxio.client.block.stream.UnderFileSystemFileOutStream;
+import alluxio.client.file.options.GetStatusOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.util.ClientTestUtils;
 import alluxio.exception.PreconditionMessage;
@@ -104,8 +105,8 @@ public final class CryptoFileOutStreamTest {
 
     when(mFileSystemContext.acquireMasterClientResource())
         .thenReturn(new DummyCloseableResource<>(mFileSystemMasterClient));
-    when(mFileSystemMasterClient.getStatus(any(AlluxioURI.class))).thenReturn(
-        new URIStatus(new FileInfo()));
+    when(mFileSystemMasterClient.getStatus(any(AlluxioURI.class), any(GetStatusOptions.class)))
+        .thenReturn(new URIStatus(new FileInfo()));
 
     // Return sequentially increasing numbers for new block ids
     when(mFileSystemMasterClient.getNewBlockIdForFile(FILE_NAME))
@@ -127,7 +128,7 @@ public final class CryptoFileOutStreamTest {
             Long blockId = invocation.getArgumentAt(0, Long.class);
             if (!outStreamMap.containsKey(blockId)) {
               TestBlockOutStream newStream = new TestBlockOutStream(
-                  ByteBuffer.allocate((int) mBlockLength), blockId, mBlockLength);
+                  ByteBuffer.allocate((int) mBlockLength), mBlockLength);
               outStreamMap.put(blockId, newStream);
             }
             return outStreamMap.get(blockId);

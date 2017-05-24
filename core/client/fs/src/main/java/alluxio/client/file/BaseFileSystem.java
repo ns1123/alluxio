@@ -255,11 +255,10 @@ public class BaseFileSystem implements FileSystem {
       throws FileDoesNotExistException, IOException, AlluxioException {
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
-<<<<<<< HEAD
       // ALLUXIO CS REPLACE
-      // return masterClient.getStatus(path);
+      // return masterClient.getStatus(path, options);
       // ALLUXIO CS WITH
-      URIStatus physicalStatus = getStatusInternal(masterClient, path);
+      URIStatus physicalStatus = getStatusInternal(masterClient, path, options);
       if (physicalStatus.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
             mFileSystemContext.get(physicalStatus.getFileId());
@@ -268,9 +267,6 @@ public class BaseFileSystem implements FileSystem {
       }
       return physicalStatus;
       // ALLUXIO CS END
-=======
-      return masterClient.getStatus(path, options);
->>>>>>> origin/enterprise-1.5
     } catch (NotFoundException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } catch (UnavailableException e) {
@@ -283,9 +279,10 @@ public class BaseFileSystem implements FileSystem {
   }
   // ALLUXIO CS ADD
 
-  private URIStatus getStatusInternal(FileSystemMasterClient masterClient, AlluxioURI path)
+  private URIStatus getStatusInternal(
+      FileSystemMasterClient masterClient, AlluxioURI path, GetStatusOptions options)
       throws IOException {
-    URIStatus status = masterClient.getStatus(path);
+    URIStatus status = masterClient.getStatus(path, options);
     if (!status.isFolder() && status.isEncrypted()) {
       getEncryptionMeta(status);
     }
@@ -454,7 +451,7 @@ public class BaseFileSystem implements FileSystem {
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     URIStatus status;
     try {
-      status = getStatusInternal(masterClient, path);
+      status = getStatusInternal(masterClient, path, GetStatusOptions.defaults());
     } catch (NotFoundException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } catch (UnavailableException e) {
