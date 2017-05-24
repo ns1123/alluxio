@@ -14,6 +14,7 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
+import alluxio.underfs.UfsManager;
 import alluxio.worker.job.JobMasterClient;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.CancelTaskCommand;
@@ -54,17 +55,21 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   private final ExecutorService mCommandHandlingService =
       Executors.newFixedThreadPool(DEFAULT_COMMAND_HANDLING_POOL_SIZE,
           ThreadFactoryUtils.build("command-handling-service-%d", true));
+  /** The manager for all ufs. */
+  private UfsManager mUfsManager;
 
   /**
    * Creates a new instance of {@link CommandHandlingExecutor}.
    *
    * @param taskExecutorManager the {@link TaskExecutorManager}
+   * @param ufsManager the {@link UfsManager}
    * @param masterClient the {@link JobMasterClient}
    * @param workerNetAddress the connection info for this worker
    */
-  public CommandHandlingExecutor(TaskExecutorManager taskExecutorManager,
+  public CommandHandlingExecutor(TaskExecutorManager taskExecutorManager, UfsManager ufsManager,
       JobMasterClient masterClient, WorkerNetAddress workerNetAddress) {
     mTaskExecutorManager = Preconditions.checkNotNull(taskExecutorManager, "taskExecutorManager");
+    mUfsManager = Preconditions.checkNotNull(ufsManager, "ufsManager");
     mMasterClient = Preconditions.checkNotNull(masterClient, "masterClient");
     mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress, "workerNetAddress");
   }
@@ -112,7 +117,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
         try {
           jobConfig = (JobConfig) SerializationUtils.deserialize(command.getJobConfig());
           Serializable taskArgs = SerializationUtils.deserialize(command.getTaskArgs());
-          JobWorkerContext context = new JobWorkerContext(jobId, taskId);
+          JobWorkerContext context = new JobWorkerContext(jobId, taskId, mUfsManager);
           LOG.info("Received run task " + taskId + " for job " + jobId + " on worker "
               + JobWorkerIdRegistry.getWorkerId());
           mTaskExecutorManager.executeTask(jobId, taskId, jobConfig, taskArgs, context);
