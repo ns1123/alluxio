@@ -76,12 +76,6 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
     }
     // ALLUXIO CS END
     PacketReader.Factory factory = new LocalFilePacketReader.Factory(path, packetSize);
-    // ALLUXIO CS ADD
-    if (options.isEncrypted()) {
-      return new PacketInStream(
-          new CryptoPacketReader.Factory(factory, options.getEncryptionMeta()), id, length);
-    }
-    // ALLUXIO CS END
     return new PacketInStream(factory, id, length);
   }
 
@@ -113,12 +107,6 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
     // ALLUXIO CS END
     PacketReader.Factory factory = new NettyPacketReader.Factory(
         context, address, id, lockId, sessionId, noCache, type, packetSize);
-    // ALLUXIO CS ADD
-    if (options.isEncrypted()) {
-      return new PacketInStream(
-          new CryptoPacketReader.Factory(factory, options.getEncryptionMeta()), id, length);
-    }
-    // ALLUXIO CS END
     return new PacketInStream(factory, id, length);
   }
 

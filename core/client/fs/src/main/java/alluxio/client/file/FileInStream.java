@@ -211,7 +211,11 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
     return data;
   }
 
-  private int readInternal(byte[] b, int off, int len) throws IOException {
+  // ALLUXIO CS REPLACE
+  // private int readInternal(byte[] b, int off, int len) throws IOException {
+  // ALLUXIO CS WITH
+  protected int readInternal(byte[] b, int off, int len) throws IOException {
+    // ALLUXIO CS END
     Preconditions.checkArgument(b != null, PreconditionMessage.ERR_READ_BUFFER_NULL);
     Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= b.length,
         PreconditionMessage.ERR_BUFFER_STATE.toString(), b.length, off, len);

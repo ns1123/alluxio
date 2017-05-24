@@ -18,8 +18,6 @@ import alluxio.client.security.CryptoUtils;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
-import com.google.common.base.Preconditions;
-
 import java.io.IOException;
 
 /**
@@ -37,35 +35,47 @@ public final class EncryptionMetaFactory {
    * @return the encryption meta
    */
   public static EncryptionProto.Meta create() throws IOException {
-    return create(Constants.INVALID_ENCRYPTION_ID);
+    return create(Constants.INVALID_ENCRYPTION_ID, Constants.INVALID_ENCRYPTION_ID,
+        LayoutUtils.toPhysicalBlockLength(
+          PARTIAL_META, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)));
   }
 
   /**
    * Creates a new {@link EncryptionProto.Meta} from the configuration and the specified file id.
    *
    * @param fileId the file id
+   * @param encryptionId the encryption id
+   * @param physicalBlockSize the physical block size
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create(long fileId) throws IOException {
+  public static EncryptionProto.Meta create(long fileId, long encryptionId, long physicalBlockSize)
+      throws IOException {
     EncryptionProto.CryptoKey cryptoKey = CryptoUtils.getCryptoKey(
-        Configuration.get(PropertyKey.SECURITY_KMS_ENDPOINT), true, String.valueOf(fileId));
-    return create(fileId, cryptoKey);
+        Configuration.get(PropertyKey.SECURITY_KMS_ENDPOINT), true, String.valueOf(encryptionId));
+    return create(fileId, encryptionId, physicalBlockSize, cryptoKey);
   }
 
   /**
    * Creates a new {@link EncryptionProto.Meta} from the specified file id and crypto key.
    *
    * @param fileId the file id
+   * @param encryptionId the encryption id
+   * @param physicalBlockSize the physical block size
    * @param cryptoKey the crypto key
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create(long fileId, EncryptionProto.CryptoKey cryptoKey)
+  public static EncryptionProto.Meta create(
+      long fileId, long encryptionId, long physicalBlockSize, EncryptionProto.CryptoKey cryptoKey)
       throws IOException {
+    long logicalBlockSize = LayoutUtils.toLogicalBlockLength(PARTIAL_META, physicalBlockSize);
     return PARTIAL_META.toBuilder()
-        .setEncryptionId(fileId)
+        .setEncryptionId(encryptionId)
         .setFileId(fileId)
+        .setLogicalBlockSize(logicalBlockSize)
+        .setPhysicalBlockSize(physicalBlockSize)
         .setEncodedMetaSize(
-            PARTIAL_FILE_METADATA.toBuilder().setEncryptionId(fileId).build().getSerializedSize())
+            PARTIAL_FILE_METADATA.toBuilder().setEncryptionId(encryptionId)
+                .setPhysicalBlockSize(physicalBlockSize).build().getSerializedSize())
         .setCryptoKey(cryptoKey)
         .build();
   }
@@ -78,15 +88,6 @@ public final class EncryptionMetaFactory {
         Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
     long chunkFooterSize =
         Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
-    long defaultBlockSize = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
-    long logicalBlockSize = 0;
-    long physicalBlockSize = 0;
-    if (defaultBlockSize >= chunkSize) {
-      Preconditions.checkState(defaultBlockSize % chunkSize == 0);
-      logicalBlockSize = defaultBlockSize;
-      physicalBlockSize = blockHeaderSize + blockFooterSize
-          + logicalBlockSize / chunkSize * (chunkHeaderSize + chunkSize + chunkFooterSize);
-    }
 
     return FileFooter.FileMetadata.newBuilder()
         .setBlockHeaderSize(blockHeaderSize)
@@ -94,7 +95,6 @@ public final class EncryptionMetaFactory {
         .setChunkHeaderSize(chunkHeaderSize)
         .setChunkSize(chunkSize)
         .setChunkFooterSize(chunkFooterSize)
-        .setPhysicalBlockSize(physicalBlockSize)
         .buildPartial();
   }
 
@@ -106,15 +106,6 @@ public final class EncryptionMetaFactory {
         Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
     long chunkFooterSize =
         Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
-    long defaultBlockSize = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
-    long logicalBlockSize = 0;
-    long physicalBlockSize = 0;
-    if (defaultBlockSize >= chunkSize) {
-      Preconditions.checkState(defaultBlockSize % chunkSize == 0);
-      logicalBlockSize = defaultBlockSize;
-      physicalBlockSize = blockHeaderSize + blockFooterSize
-          + logicalBlockSize / chunkSize * (chunkHeaderSize + chunkSize + chunkFooterSize);
-    }
 
     return EncryptionProto.Meta.newBuilder()
         .setBlockHeaderSize(blockHeaderSize)
@@ -122,8 +113,6 @@ public final class EncryptionMetaFactory {
         .setChunkHeaderSize(chunkHeaderSize)
         .setChunkSize(chunkSize)
         .setChunkFooterSize(chunkFooterSize)
-        .setLogicalBlockSize(logicalBlockSize)
-        .setPhysicalBlockSize(physicalBlockSize)
         .buildPartial();
   }
 

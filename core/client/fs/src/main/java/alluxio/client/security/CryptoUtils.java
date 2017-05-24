@@ -15,7 +15,6 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
-import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.proto.ProtoUtils;
 
@@ -25,9 +24,6 @@ import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import javax.annotation.concurrent.ThreadSafe;
 /**
@@ -36,9 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class CryptoUtils {
-  private static final String SHA1 = "SHA-1";
-  private static final String CIPHER = "AES/GCM/NoPadding";
-  private static final int AES_KEY_LENGTH = 16; // in bytes
+  private static final String CIPHER = Constants.AES_GCM_NOPADDING;
 
   /**
    * Gets a {@link EncryptionProto.CryptoKey} from the specified kms and input key.
@@ -81,7 +75,7 @@ public final class CryptoUtils {
       EncryptionProto.CryptoKey cryptoKey, byte[] plaintext, int inputOffset, int inputLen,
       byte[] ciphertext, int outputOffset) {
     try {
-      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, toAES128Key(cryptoKey));
+      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, cryptoKey);
       return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
@@ -90,7 +84,6 @@ public final class CryptoUtils {
 
   /**
    * Encrypts the input ByteBuf at chunk level and return the ciphertext in another ByteBuf.
-   * It takes the ownership of the input ByteBuf.
    *
    * @param meta the encryption meta with chunk layout sizes
    * @param input the input plaintext in a ByteBuf
@@ -101,13 +94,12 @@ public final class CryptoUtils {
     final int chunkSize = (int) meta.getChunkSize();
     final int chunkFooterSize = (int) meta.getChunkFooterSize();
     int logicalTotalLen = input.readableBytes();
-    int physicalTotalLen = (int) LayoutUtils.toPhysicalLength(meta, 0, logicalTotalLen);
+    int physicalTotalLen = (int) LayoutUtils.toPhysicalChunksLength(meta, logicalTotalLen);
     byte[] ciphertext = new byte[physicalTotalLen];
     byte[] plainChunk = new byte[chunkSize];
     try {
       int logicalPos = 0;
       int physicalPos = 0;
-      cryptoKey = toAES128Key(cryptoKey);
       while (logicalPos < logicalTotalLen) {
         int logicalLeft = logicalTotalLen - logicalPos;
         int logicalChunkLen = Math.min(chunkSize, logicalLeft);
@@ -124,8 +116,6 @@ public final class CryptoUtils {
       return Unpooled.wrappedBuffer(ciphertext);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
-    } finally {
-      input.release();
     }
   }
 
@@ -144,7 +134,7 @@ public final class CryptoUtils {
       EncryptionProto.CryptoKey cryptoKey, byte[] ciphertext, int inputOffset, int inputLen,
       byte[] plaintext, int outputOffset) {
     try {
-      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, toAES128Key(cryptoKey));
+      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, cryptoKey);
       return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
@@ -153,13 +143,12 @@ public final class CryptoUtils {
 
   /**
    * Decrypts the input ByteBuf at chunk level and return the plaintext in another DataBuffer.
-   * It takes the ownership of the input DataBuffer.
    *
    * @param meta the encryption meta with chunk layout sizes
    * @param input the input ciphertext in a DataBuffer
    * @return the decrypted content in a byte array
    */
-  public static byte[] decryptChunks(EncryptionProto.Meta meta, DataBuffer input) {
+  public static ByteBuf decryptChunks(EncryptionProto.Meta meta, ByteBuf input) {
     EncryptionProto.CryptoKey cryptoKey = meta.getCryptoKey();
     final int chunkFooterSize = (int) meta.getChunkFooterSize();
     final int physicalChunkSize =
@@ -167,13 +156,12 @@ public final class CryptoUtils {
 
     // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
     int physicalTotalLen = input.readableBytes();
-    int logicalTotalLen = (int) LayoutUtils.toLogicalLength(meta, 0, physicalTotalLen);
+    int logicalTotalLen = (int) LayoutUtils.toLogicalChunksLength(meta, physicalTotalLen);
     byte[] plaintext = new byte[logicalTotalLen];
     byte[] cipherChunk = new byte[physicalChunkSize];
     try {
       int logicalPos = 0;
       int physicalPos = 0;
-      cryptoKey = toAES128Key(cryptoKey);
       while (physicalPos < physicalTotalLen) {
         int physicalLeft = physicalTotalLen - physicalPos;
         int physicalChunkLen = Math.min(physicalChunkSize, physicalLeft);
@@ -188,26 +176,10 @@ public final class CryptoUtils {
         physicalPos += physicalChunkLen;
       }
       Preconditions.checkState(logicalPos == logicalTotalLen);
-      return plaintext;
+      return Unpooled.wrappedBuffer(plaintext);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
-    } finally {
-      input.release();
     }
-  }
-
-  // TODO(cc): this method is to ensure the key is 128 bits, remove this once KMS is available.
-  private static EncryptionProto.CryptoKey toAES128Key(EncryptionProto.CryptoKey key)
-      throws NoSuchAlgorithmException {
-    MessageDigest sha = MessageDigest.getInstance(SHA1);
-    byte[] newKey = Arrays.copyOf(sha.digest(key.getKey().toByteArray()), AES_KEY_LENGTH);
-    return ProtoUtils.setKey(
-        EncryptionProto.CryptoKey.newBuilder()
-            .setCipher(key.getCipher())
-            .setGenerationId(key.getGenerationId())
-            .setIv(key.getIv())
-            .setNeedsAuthTag(key.getNeedsAuthTag()),
-        newKey).build();
   }
 
   private CryptoUtils() {} // prevent instantiation

@@ -69,12 +69,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     // ALLUXIO CS END
     PacketWriter packetWriter =
         LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
-    // ALLUXIO CS ADD
-    if (options.isEncrypted()) {
-      return new PacketOutStream(
-          new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()), length);
-    }
-    // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -104,12 +98,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     // ALLUXIO CS END
     PacketWriter packetWriter = new NettyPacketWriter(
         context, address, id, length, sessionId, options.getWriteTier(), type, packetSize);
-    // ALLUXIO CS ADD
-    if (options.isEncrypted()) {
-      return new PacketOutStream(
-          new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()), length);
-    }
-    // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -137,12 +125,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     // ALLUXIO CS END
     PacketWriter packetWriter =
         new NettyPacketWriter(context, address, length, partialRequest, packetSize);
-    // ALLUXIO CS ADD
-    if (options.isEncrypted()) {
-      return new PacketOutStream(
-          new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()), length);
-    }
-    // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -174,11 +156,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         }
         PacketWriter packetWriter =
             LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
-        if (options.isEncrypted()) {
-          packetWriters.add(new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()));
-        } else {
-          packetWriters.add(packetWriter);
-        }
+        packetWriters.add(packetWriter);
       } else {
         long packetSize =
             Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
@@ -190,11 +168,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         PacketWriter packetWriter =
             new NettyPacketWriter(context, client.getWorkerNetAddress(), id, length,
                 client.getSessionId(), options.getWriteTier(), type, packetSize);
-        if (options.isEncrypted()) {
-          packetWriters.add(new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()));
-        } else {
-          packetWriters.add(packetWriter);
-        }
+        packetWriters.add(packetWriter);
       }
     }
     return new PacketOutStream(packetWriters, length);
@@ -273,12 +247,42 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     }
     updateCurrentPacket(false);
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Writes the data in the specified byte buf to this output stream.
+   *
+   * @param buf the buffer
+   */
+  public void write(io.netty.buffer.ByteBuf buf) throws IOException {
+    write(buf, 0, buf.readableBytes());
+  }
+
+  /**
+   * Writes len bytes from the specified byte buf starting at offset off to this output stream.
+   *
+   * @param buf the buffer
+   * @param off the offset
+   * @param len the length
+   */
+  public void write(io.netty.buffer.ByteBuf buf, int off, int len) throws IOException {
+    if (len == 0) {
+      return;
+    }
+
+    while (len > 0) {
+      updateCurrentPacket(false);
+      int toWrite = Math.min(len, mCurrentPacket.writableBytes());
+      mCurrentPacket.writeBytes(buf, off, toWrite);
+      off += toWrite;
+      len -= toWrite;
+    }
+    updateCurrentPacket(false);
+  }
+  // ALLUXIO CS END
 
   @Override
   public void flush() throws IOException {
-    // ALLUXIO CS ADD
-    // Note: flush at non-chunk-boundary is not support with GCM encryption mode.
-    // ALLUXIO CS END
     if (mClosed) {
       return;
     }

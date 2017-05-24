@@ -149,6 +149,29 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
   public void write(byte[] b, int off, int len) throws IOException {
     mOutStream.write(b, off, len);
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Writes the data in the specified byte buf to this output stream.
+   *
+   * @param buf the buffer
+   * @throws IOException
+   */
+  public void write(io.netty.buffer.ByteBuf buf) throws IOException {
+    mOutStream.write(buf);
+  }
+
+  /**
+   * Writes len bytes from the specified byte buf starting at offset off to this output stream.
+   *
+   * @param buf the buffer
+   * @param off the offset
+   * @param len the length
+   */
+  public void write(io.netty.buffer.ByteBuf buf, int off, int len) throws IOException {
+    mOutStream.write(buf, off, len);
+  }
+  // ALLUXIO CS END
 
   @Override
   public long remaining() {
