@@ -55,7 +55,7 @@ public final class JobTestUtils {
               throw Throwables.propagate(e);
             }
           }
-        }, WaitForOptions.defaults().setTimeout(30 * Constants.SECOND_MS));
+        }, WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS));
     return singleton.get();
   }
 

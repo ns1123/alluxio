@@ -76,6 +76,6 @@ public class LostWorkerIntegrationTest extends BaseIntegrationTest {
         return !mLocalAlluxioJobCluster.getMaster().getJobMaster().getWorkerInfoList().isEmpty()
             && JobWorkerIdRegistry.getWorkerId() != initialId;
       }
-    }, WaitForOptions.defaults().setTimeout(10 * Constants.SECOND_MS));
+    }, WaitForOptions.defaults().setTimeoutMs(10 * Constants.SECOND_MS));
   }
 }

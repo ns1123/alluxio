@@ -370,7 +370,7 @@ public final class PersistenceTest {
           return false;
         }
       }
-    }, WaitForOptions.defaults().setTimeout(30000));
+    }, WaitForOptions.defaults().setTimeoutMs(30000));
 
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Map<Long, PersistJob> persistJobs = getPersistJobs();

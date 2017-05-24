@@ -138,6 +138,6 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
         }
         return null;
       }
-    }, WaitForOptions.defaults().setTimeout(10 * Constants.SECOND_MS));
+    }, WaitForOptions.defaults().setTimeoutMs(10 * Constants.SECOND_MS));
   }
 }
