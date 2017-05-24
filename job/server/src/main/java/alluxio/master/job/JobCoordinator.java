@@ -13,7 +13,7 @@ import alluxio.job.JobConfig;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobMasterContext;
-import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;

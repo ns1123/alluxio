@@ -228,17 +228,22 @@ public class AlluxioStatusException extends IOException {
   public static AlluxioStatusException fromAlluxioException(AlluxioException ae) {
     try {
       throw ae;
-    // ALLUXIO CS ADD
-    } catch (alluxio.exception.InvalidCapabilityException e) {
-      return new PermissionDeniedException(e);
+    // ALLUXIO CS REPLACE
+    // } catch (AccessControlException e) {
+    // ALLUXIO CS WITH
+    } catch (AccessControlException | alluxio.exception.InvalidCapabilityException e) {
     // ALLUXIO CS END
-    } catch (AccessControlException e) {
       return new PermissionDeniedException(e);
     } catch (BlockAlreadyExistsException | FileAlreadyCompletedException
         | FileAlreadyExistsException e) {
       return new AlreadyExistsException(e);
+    // ALLUXIO CS REPLACE
+    // } catch (BlockDoesNotExistException | FileDoesNotExistException
+    //    | LineageDoesNotExistException e) {
+    // ALLUXIO CS WITH
     } catch (BlockDoesNotExistException | FileDoesNotExistException
-        | LineageDoesNotExistException e) {
+        | LineageDoesNotExistException | alluxio.exception.JobDoesNotExistException e) {
+    // ALLUXIO CS END
       return new NotFoundException(e);
     } catch (BlockInfoException | InvalidFileSizeException | InvalidPathException e) {
       return new InvalidArgumentException(e);
