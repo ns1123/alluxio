@@ -32,8 +32,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class ForkUnderFileSystemFactory implements UnderFileSystemFactory {
-  private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileSystemFactory.class);
-
   /**
    * Constructs a new {@link ForkUnderFileSystemFactory}.
    */
