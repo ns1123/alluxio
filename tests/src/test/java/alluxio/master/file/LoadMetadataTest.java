@@ -250,7 +250,7 @@ public class LoadMetadataTest extends BaseIntegrationTest {
               }
               return false;
             }
-          }, WaitForOptions.defaults().setTimeout(60000));
+          }, WaitForOptions.defaults().setTimeoutMs(60000));
     }
 
     if (expectExists && expectLoadFromUfs) {
@@ -276,7 +276,7 @@ public class LoadMetadataTest extends BaseIntegrationTest {
               }
               return true;
             }
-          }, WaitForOptions.defaults().setTimeout(60000));
+          }, WaitForOptions.defaults().setTimeoutMs(60000));
     }
   }
 }
