@@ -33,6 +33,23 @@ public final class ForkUnderFileSystemUtils {
   private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileSystemUtils.class);
 
   /**
+   * Folds the given value into the given list.
+   *
+   * @param list the list to use
+   * @param value the value to use
+   * @param <T> the type of the list elements
+   * @param <U> the type of the value
+   * @return the folded list
+   */
+  static <T, U> Collection<Pair<T, U>> fold(Collection<T> list, U value) {
+    List<Pair<T, U>> foldedList = new ArrayList<>();
+    for (T element : list) {
+      foldedList.add(new ImmutablePair<>(element, value));
+    }
+    return foldedList;
+  }
+
+  /**
    * Invokes the given function concurrently over the given inputs, succeeding if all invocations
    * succeed.
    *
@@ -138,23 +155,6 @@ public final class ForkUnderFileSystemUtils {
       throw new RuntimeException(e);
     }
     return exceptions;
-  }
-
-  /**
-   * Folds the given value into the given list.
-   *
-   * @param list the list to use
-   * @param value the value to use
-   * @param <T> the type of the list elements
-   * @param <U> the type of the value
-   * @return the folded list
-   */
-  static <T, U> Collection<Pair<T, U>> fold(Collection<T> list, U value) {
-    List<Pair<T, U>> foldedList = new ArrayList<>();
-    for (T element : list) {
-      foldedList.add(new ImmutablePair<>(element, value));
-    }
-    return foldedList;
   }
 
   private ForkUnderFileSystemUtils() {} // prevent instantiation

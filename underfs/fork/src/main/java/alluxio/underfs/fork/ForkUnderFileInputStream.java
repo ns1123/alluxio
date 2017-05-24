@@ -11,19 +11,18 @@
 
 package alluxio.underfs.fork;
 
+import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.options.OpenOptions;
+
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
@@ -42,148 +41,195 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class ForkUnderFileInputStream extends InputStream {
   private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileInputStream.class);
 
-  /**
-   * The underlying streams to read data from and their current offset.
-   */
-  private final List<Pair<InputStream, AtomicReference<Long>>> mStreams = new ArrayList<>();
-  /**
-   * The current aggregate stream offset. The invariant maintain by the implementation is that
-   * this offset is greater or equal to any offset of an underlying stream.
-   */
+  /** The current aggregate stream offset. */
   private long mOffset;
-  /**
-   * The executor service to use.
-   */
-  private final ExecutorService mExecutorService;
+  /** The options for opening a stream. */
+  private final OpenOptions mOptions;
+  /** The current input stream. */
+  private InputStream mStream;
+  /** The underlying UFSes and path to read data from. */
+  private final Collection<Pair<String, UnderFileSystem>> mUfses;
 
   /**
    * Creates a new instance of {@link ForkUnderFileInputStream}.
    *
-   * @param service the executor service to use
-   * @param streams the underlying input streams
+   * @param ufses pairs of UFS and UFS paths
+   * @param options the options for opening a stream
    */
-  ForkUnderFileInputStream(ExecutorService service, Collection<InputStream> streams) {
-    mExecutorService = service;
-    for (InputStream stream : streams) {
-      mStreams.add(new ImmutablePair<>(stream, new AtomicReference<>(0L)));
-    }
+  ForkUnderFileInputStream(Collection<Pair<String, UnderFileSystem>> ufses, OpenOptions options) {
     mOffset = 0;
+    mOptions = options;
+    mStream = null;
+    mUfses = ufses;
   }
 
   @Override
   public void close() throws IOException {
-    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
-        new Function<Pair<InputStream, AtomicReference<Long>>, IOException>() {
-          @Nullable
-          @Override
-          public IOException apply(Pair<InputStream, AtomicReference<Long>> arg) {
-            InputStream is = arg.getLeft();
-            try {
-              is.close();
-            } catch (IOException e) {
-              return e;
-            }
-            return null;
-          }
-        }, mStreams);
+    if (mStream != null) {
+      mStream.close();
+    }
+    mStream = null;
   }
 
   @Override
   public int read() throws IOException {
+    // If a valid stream exists, read from it.
+    if (mStream != null) {
+      try {
+        int n = mStream.read();
+        if (n != -1) {
+          mOffset++;
+        }
+        return n;
+      } catch (IOException e) {
+        try {
+          mStream.close();
+        } catch (IOException e2) {
+          LOG.warn("Failed to close stream {}", e.getMessage());
+          LOG.debug("Exception: ", e);
+        }
+        mStream = null;
+      }
+    }
+    // Otherwise, try to read from the UFSes one by one.
     AtomicReference<Integer> result = new AtomicReference<>();
-    // The function takes Pair<Pair<A,B>,C> as input
-    // - A is the input stream to attempt the read operation with
-    // - B is a reference to the offset of the input stream
+    // The function takes Pair<Pair<A,B>,C> as input:
+    //
+    // - A is the UFS to attempt the read operation with
+    // - B is the UFS path to read from
     // - C is a reference to the return value of the read operation
+    //
+    // Pre-condition: mStream == null
+    // Post-condition: mStream != null iff the function returned null
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<Pair<Pair<InputStream, AtomicReference<Long>>, AtomicReference<Integer>>,
-            IOException>() {
+        new Function<Pair<Pair<String, UnderFileSystem>, AtomicReference<Integer>>, IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              Pair<Pair<InputStream, AtomicReference<Long>>, AtomicReference<Integer>> arg) {
-            InputStream stream = arg.getLeft().getLeft();
-            AtomicReference<Long> offset = arg.getLeft().getRight();
+              Pair<Pair<String, UnderFileSystem>, AtomicReference<Integer>> arg) {
+            Preconditions.checkState(mStream == null);
+            String path = arg.getLeft().getLeft();
+            UnderFileSystem ufs = arg.getLeft().getRight();
             AtomicReference<Integer> result = arg.getRight();
-            Preconditions.checkState(offset.get() <= mOffset);
-            // 1. make sure the underlying stream is at the right offset
-            if (offset.get() < mOffset) {
-              try {
-                long delta = offset.get() - mOffset;
-                if (stream.skip(delta) != delta) {
-                  throw new IOException("stream could not be advanced");
-                }
-                offset.set(offset.get() + delta);
-              } catch (IOException e) {
-                return e;
-              }
-            }
-            // 2. attempt the read operation
             try {
-              int n = stream.read();
-              result.set(n);
-              if (n != -1) {
-                mOffset += 1;
+              mStream = ufs.open(path, mOptions);
+              long numSkipped = mStream.skip(mOffset);
+              if (numSkipped != mOffset) {
+                mStream.close();
+                throw new IOException("Failed to skip to the correct offset");
               }
-              offset.set(offset.get() + 1);
+              int n = mStream.read();
+              if (n != -1) {
+                mOffset++;
+              }
+              result.set(n);
+              return null;
             } catch (IOException e) {
+              try {
+                if (mStream != null) {
+                  mStream.close();
+                }
+              } catch (IOException e2) {
+                LOG.warn("Failed to close stream {}", e.getMessage());
+                LOG.debug("Exception: ", e);
+              }
+              mStream = null;
               return e;
             }
-            return null;
           }
-        }, ForkUnderFileSystemUtils.fold(mStreams, result));
+        }, ForkUnderFileSystemUtils.fold(mUfses, result));
     return result.get();
   }
 
   @Override
   public int read(final byte[] b, final int off, final int len) throws IOException {
+    // If a valid stream exists, read from it.
+    if (mStream != null) {
+      try {
+        int n = mStream.read(b, off, len);
+        if (n != -1) {
+          mOffset += n;
+        }
+        return n;
+      } catch (IOException e) {
+        try {
+          mStream.close();
+        } catch (IOException e2) {
+          LOG.warn("Failed to close stream {}", e.getMessage());
+          LOG.debug("Exception: ", e);
+        }
+        mStream = null;
+      }
+    }
+    // Otherwise try the UFSes one by one.
     AtomicReference<Integer> result = new AtomicReference<>();
     // The function takes Pair<Pair<A,B>,C> as input
-    // - A is the input stream to attempt the read operation with
-    // - B is a reference to the offset of the input stream
+    //
+    // - A is the UFS to attempt the read operation with
+    // - B is the UFS path to read from
     // - C is a reference to the return value of the read operation
+    //
+    // Pre-condition: mStream == null
+    // Post-condition: mStream != null iff the function returned null
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<Pair<Pair<InputStream, AtomicReference<Long>>, AtomicReference<Integer>>,
-            IOException>() {
+        new Function<Pair<Pair<String, UnderFileSystem>, AtomicReference<Integer>>, IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              Pair<Pair<InputStream, AtomicReference<Long>>, AtomicReference<Integer>> arg) {
-            InputStream stream = arg.getLeft().getLeft();
-            AtomicReference<Long> offset = arg.getLeft().getRight();
+              Pair<Pair<String, UnderFileSystem>, AtomicReference<Integer>> arg) {
+            Preconditions.checkState(mStream == null);
+            String path = arg.getLeft().getLeft();
+            UnderFileSystem ufs = arg.getLeft().getRight();
             AtomicReference<Integer> result = arg.getRight();
-            Preconditions.checkState(offset.get() <= mOffset);
-            // 1. make sure the underlying stream is at the right offset
-            if (offset.get() < mOffset) {
-              try {
-                long delta = offset.get() - mOffset;
-                if (stream.skip(delta) != delta) {
-                  throw new IOException("stream could not be advanced");
-                }
-                offset.set(offset.get() + delta);
-              } catch (IOException e) {
-                return e;
-              }
-            }
-            // 2. attempt the read operation
             try {
-              int n = stream.read(b, off, len);
-              result.set(n);
+              mStream = ufs.open(path, mOptions);
+              long numSkipped = mStream.skip(mOffset);
+              if (numSkipped != mOffset) {
+                throw new IOException("Failed to skip to the correct offset");
+              }
+              int n = mStream.read(b, off, len);
               if (n != -1) {
                 mOffset += n;
               }
-              offset.set(offset.get() + n);
+              result.set(n);
+              return null;
             } catch (IOException e) {
+              try {
+                if (mStream != null) {
+                  mStream.close();
+                }
+              } catch (IOException e2) {
+                LOG.warn("Failed to close stream {}", e.getMessage());
+                LOG.debug("Exception: ", e);
+              }
+              mStream = null;
               return e;
             }
-            return null;
           }
-        }, ForkUnderFileSystemUtils.fold(mStreams, result));
+        }, ForkUnderFileSystemUtils.fold(mUfses, result));
     return result.get();
   }
 
   @Override
   public long skip(long n) throws IOException {
+    if (mStream != null) {
+      try {
+        long numSkipped = mStream.skip(n);
+        if (numSkipped != n) {
+          throw new IOException("Failed to skip to the correct offset");
+        }
+        mOffset += n;
+        return n;
+      } catch (IOException e) {
+        try {
+          mStream.close();
+        } catch (IOException e2) {
+          LOG.warn("Failed to close stream {}", e.getMessage());
+          LOG.debug("Exception: ", e);
+        }
+        mStream = null;
+      }
+    }
     mOffset += n;
     return n;
   }

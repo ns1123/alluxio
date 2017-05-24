@@ -35,7 +35,7 @@ public class AggregateException extends IOException {
     int i = 0;
     for (IOException e : mExceptions) {
       sb.append("Exception #").append(++i).append(":\n");
-      sb.append(e.toString());
+      sb.append(e.toString()).append("\n");
     }
     return sb.toString();
   }

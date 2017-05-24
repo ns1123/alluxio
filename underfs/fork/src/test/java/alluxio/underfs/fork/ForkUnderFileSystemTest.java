@@ -16,11 +16,14 @@ import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.underfs.mock.MockUnderFileSystem;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,5 +56,36 @@ public class ForkUnderFileSystemTest {
     Assert.assertEquals(propA.getUserSpecifiedConf().get("foo"), "1");
     Assert.assertEquals(propB.getUserSpecifiedConf().size(), 1);
     Assert.assertEquals(propB.getUserSpecifiedConf().get("bar"), "2");
+  }
+
+  /**
+   * Tests that nested UFS are processed in the alphabetical order of their provider name.
+   */
+  @Test
+  public void order() {
+    Map<String, String> properties = new HashMap<>();
+    String uriA = "mock://A";
+    String uriB = "mock://B";
+    String uriC = "mock://C";
+    properties.put("alluxio-fork.B.ufs", uriB);
+    properties.put("alluxio-fork.B.option.property", "Y");
+    properties.put("alluxio-fork.A.ufs", uriA);
+    properties.put("alluxio-fork.A.option.property", "X");
+    properties.put("alluxio-fork.C.ufs", uriC);
+    properties.put("alluxio-fork.C.option.property", "Z");
+    UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://",
+        UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(properties));
+    UnderFileSystem nestedUfs = Whitebox.getInternalState(ufs, "mUnderFileSystem");
+    ImmutableMap<String, Pair<String, UnderFileSystem>> ufses =
+        Whitebox.getInternalState(nestedUfs, "mUnderFileSystems");
+    List<String> values = new ArrayList<>();
+    for (Pair<String, UnderFileSystem> entry : ufses.values()) {
+      MockUnderFileSystem mockUfs = Whitebox.getInternalState(entry.getValue(), "mUnderFileSystem");
+      values.add(mockUfs.getProperty("property"));
+    }
+    Assert.assertEquals(values.size(), 3);
+    Assert.assertEquals(values.get(0), "X");
+    Assert.assertEquals(values.get(1), "Y");
+    Assert.assertEquals(values.get(2), "Z");
   }
 }

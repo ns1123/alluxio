@@ -108,6 +108,10 @@ public class MockUnderFileSystem implements UnderFileSystem {
     return null;
   }
 
+  public String getProperty(String key) {
+    return mUfsConf.getUserSpecifiedConf().get(key);
+  }
+
   @Override
   public long getSpace(String path, SpaceType type) throws IOException {
     return -1;
