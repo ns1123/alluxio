@@ -46,7 +46,6 @@ import alluxio.util.WaitForOptions;
 import alluxio.wire.FileInfo;
 
 import com.google.common.base.Function;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -179,8 +178,8 @@ public final class PersistenceTest {
     {
       // Create the temporary UFS file.
       fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
-      Map<Long, Pair<PersistJob, ExponentialTimer>> persistJobs = getPersistJobs();
-      PersistJob job = persistJobs.get(fileInfo.getFileId()).getLeft();
+      Map<Long, PersistJob> persistJobs = getPersistJobs();
+      PersistJob job = persistJobs.get(fileInfo.getFileId());
       UnderFileSystem ufs = UnderFileSystem.Factory.create(job.getTempUfsPath());
       UnderFileSystemUtils.touch(ufs, job.getTempUfsPath());
     }
@@ -281,6 +280,8 @@ public final class PersistenceTest {
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
       checkPersistenceInProgress(testFile, jobId);
     }
+
+    // Check that after 10 attempts the operation is not retried again.
     HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
     checkEmpty();
   }
@@ -378,7 +379,7 @@ public final class PersistenceTest {
     }, WaitForOptions.defaults().setTimeout(30000));
 
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
-    Map<Long, Pair<PersistJob, ExponentialTimer>> persistJobs = getPersistJobs();
+    Map<Long, PersistJob> persistJobs = getPersistJobs();
     Assert.assertEquals(0, getPersistRequests().size());
     Assert.assertEquals(0, persistJobs.size());
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), fileInfo.getPersistenceState());
@@ -386,11 +387,11 @@ public final class PersistenceTest {
 
   private void checkPersistenceInProgress(AlluxioURI testFile, long jobId) throws Exception {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
-    Map<Long, Pair<PersistJob, ExponentialTimer>> persistJobs = getPersistJobs();
+    Map<Long, PersistJob> persistJobs = getPersistJobs();
     Assert.assertEquals(0, getPersistRequests().size());
     Assert.assertEquals(1, persistJobs.size());
     Assert.assertTrue(persistJobs.containsKey(fileInfo.getFileId()));
-    PersistJob job = persistJobs.get(fileInfo.getFileId()).getLeft();
+    PersistJob job = persistJobs.get(fileInfo.getFileId());
     Assert.assertEquals(fileInfo.getFileId(), job.getFileId());
     Assert.assertEquals(jobId, job.getId());
     Assert.assertTrue(job.getTempUfsPath().contains(testFile.getPath()));
@@ -412,7 +413,7 @@ public final class PersistenceTest {
     return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistRequests");
   }
 
-  private Map<Long, Pair<PersistJob, ExponentialTimer>> getPersistJobs() {
+  private Map<Long, PersistJob> getPersistJobs() {
     FileSystemMaster nestedFileSystemMaster =
         Whitebox.getInternalState(mFileSystemMaster, "mFileSystemMaster");
     return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistJobs");

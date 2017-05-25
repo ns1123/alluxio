@@ -17,7 +17,6 @@ import alluxio.time.ExponentialTimer;
 import alluxio.util.CommonUtils;
 
 import com.google.common.base.Function;
-import org.apache.commons.lang3.tuple.Pair;
 import org.powermock.reflect.Whitebox;
 
 import java.util.HashMap;
@@ -108,7 +107,7 @@ public final class PersistenceTestUtils {
   public static void pauseChecker(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
     FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
-    Map<Long, Pair<PersistJob, ExponentialTimer>> persistJobs =
+    Map<Long, PersistJob> persistJobs =
         Whitebox.getInternalState(nestedMaster, "mPersistJobs");
     Whitebox.setInternalState(nestedMaster, "mPersistJobs", new BlackHoleMap<>(persistJobs));
   }
@@ -121,7 +120,7 @@ public final class PersistenceTestUtils {
   public static void resumeChecker(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
     FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
-    BlackHoleMap<Long, Pair<PersistJob, ExponentialTimer>> persistJobs =
+    BlackHoleMap<Long, PersistJob> persistJobs =
         Whitebox.getInternalState(nestedMaster, "mPersistJobs");
     Whitebox.setInternalState(nestedMaster, "mPersistJobs", persistJobs.getInnerMap());
   }
