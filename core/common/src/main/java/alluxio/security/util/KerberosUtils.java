@@ -110,6 +110,20 @@ public final class KerberosUtils {
   }
 
   /**
+   * @return the Kerberos unified instance name if set, otherwise null
+   */
+  public static String maybeGetKerberosUnifiedInstanceName() {
+    if (!Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME)) {
+      return null;
+    }
+    String unifedInstance = Configuration.get(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME);
+    if (unifedInstance.isEmpty()) {
+      return null;
+    }
+    return unifedInstance;
+  }
+
+  /**
    * Gets the {@link GSSCredential} from JGSS.
    *
    * @return the credential
