@@ -13,7 +13,6 @@ package alluxio.underfs.hdfs;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
-import alluxio.ProjectConstants;
 import alluxio.PropertyKey;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
@@ -21,15 +20,8 @@ import alluxio.underfs.UnderFileSystemFactory;
 import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -42,64 +34,16 @@ import javax.annotation.concurrent.ThreadSafe;
 public class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
   private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystemFactory.class);
   // ALLUXIO CS ADD
-  private static final Map<String, URLClassLoader> LOADERS = new HashMap<>();
-
-  /**
-   * @param hdfsModule module name of HDFS
-   * @return the path to the jar of the UFS adaptor for this HDFS
-   */
-  private static String getHdfsUfsJarPath(String hdfsModule) {
-    // TODO(binfan): we may want to have a dedicated dir for the jars
-    return String
-        .format("file:///Users/binfan/projects/cs/enterprise/underfs/hdfsx/%s/target/alluxio-underfs-hdfsx-%s-%s.jar",
-            //System.getProperty("user.dir"),
-            hdfsModule, hdfsModule, ProjectConstants.VERSION);
-  }
-
-  /**
-   * @param hdfsModule module name of HDFS
-   * @return the class name of the HdfsUnderFileSystem implementation
-   */
-  private static String getHdfsUfsClassName(String hdfsModule) {
-    return String.format("alluxio.underfs.hdfs.%s.HdfsUnderFileSystem", hdfsModule);
-  }
-
-  /** The Map from module name to regexp of user-specified HDFS version. */
-  private static final Map<String, Pattern> MODULES =
-      new ImmutableMap.Builder<String, Pattern>()
-          .put("apache1_2", Pattern.compile("(apache-)?1.2(.*)?")) // Apache HDFS 1.2.*
-          .put("apache2_2", Pattern.compile("(apache-)?2.2(.*)?")) // Apache HDFS 2.2.*
-          .put("apache2_7", Pattern.compile("(apache-)?2.7(.*)?")) // Apache HDFS 2.7.*
-          .build();
-
   private static UnderFileSystem createHdfsUfs(String path, UnderFileSystemConfiguration conf) {
-    String version = conf.getValue(PropertyKey.UNDERFS_HDFS_VERSION);
-    String module = null;
-    for (Map.Entry<String, Pattern> entry : MODULES.entrySet()) {
-      Pattern pattern = entry.getValue();
-      if (pattern.matcher(version).matches()) {
-        module = entry.getKey();
-        break;
-      }
+    String versionStr = conf.getValue(PropertyKey.UNDERFS_HDFS_VERSION);
+    HdfsVersion version = HdfsVersion.find(versionStr);
+    if (version == null) {
+      throw new RuntimeException("Unknown Hdfs version " + versionStr);
     }
-    if (module == null) {
-      throw new RuntimeException("Unknown Hdfs version " + version);
-    }
-    URLClassLoader classLoader;
-    if (LOADERS.containsKey(module)) {
-      classLoader = LOADERS.get(module);
-    } else {
-      URL[] urls;
-      try {
-        urls = new URL[] {new URL(getHdfsUfsJarPath(module))};
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-      classLoader = new URLClassLoader(urls, HdfsUnderFileSystemFactory.class.getClassLoader());
-      LOADERS.put(module, classLoader);
-    }
+
     @SuppressWarnings("unchecked") Class<?> clazz;
-    String hdfsUfsClassName = getHdfsUfsClassName(module);
+    String hdfsUfsClassName = version.getHdfsUfsClassName();
+    ClassLoader classLoader = version.getHdfsUfsClassLoader();
     try {
       clazz = classLoader.loadClass(hdfsUfsClassName);
     } catch (ClassNotFoundException e) {
@@ -112,13 +56,13 @@ public class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
           new Object[] {new AlluxioURI(path), conf});
     } catch (Exception e) {
       throw new RuntimeException(String
-          .format("HdfsUnderFileSystem class for given version %s could not be instantiated",
-              version), e);
+          .format("HdfsUnderFileSystem class for version %s could not be instantiated", version),
+          e);
     }
     return ufs;
   }
-
   // ALLUXIO CS END
+
   /**
    * Constructs a new {@link HdfsUnderFileSystemFactory}.
    */

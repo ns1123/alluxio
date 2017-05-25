@@ -1,1 +1,3 @@
 HdfsSecurityUtils.java
+HdfsVersion.java
+IsolatedClassLoader.java

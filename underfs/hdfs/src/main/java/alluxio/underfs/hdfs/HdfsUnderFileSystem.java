@@ -94,6 +94,10 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     Configuration hdfsConf = createConfiguration(conf);
 
     // ALLUXIO CS ADD
+    // Set class loader in HDFS conf so Configuration#getClass() uses the class loader consistently.
+    ClassLoader classLoader = this.getClass().getClassLoader();
+    hdfsConf.setClassLoader(classLoader);
+
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
     if (hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
@@ -166,7 +170,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     }
     // ALLUXIO CS END
     Path path = new Path(ufsUri.toString());
+    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
     try {
+      Thread.currentThread().setContextClassLoader(classLoader);
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
       // group service.
       UserGroupInformation.setConfiguration(hdfsConf);
@@ -175,6 +181,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       LOG.warn("Exception thrown when trying to get FileSystem for {} : {}", ufsUri,
           e.getMessage());
       throw new RuntimeException("Failed to create Hadoop FileSystem", e);
+    } finally {
+      Thread.currentThread().setContextClassLoader(previousClassLoader);
     }
   }
 

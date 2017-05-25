@@ -30,7 +30,7 @@
     <checkstyle.path>${project.parent.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.parent.parent.basedir}/build/findbugs/</findbugs.path>
     <!-- The shading prefix should match the artifact ID, replacing '-' with '.' -->
-    <shading.prefix>alluxio.underfs.hdfsx.apache2.2</shading.prefix>
+    <shading.prefix>alluxio.underfs.hdfsx.apache2_2</shading.prefix>
   </properties>
 
   <dependencies>
@@ -74,6 +74,8 @@
             <configuration>
               <artifactSet>
                 <includes>
+                  <include>org.alluxio:alluxio-underfs-hdfs</include>
+
                   <include>org.apache.hadoop:hadoop-annotations</include>
                   <include>org.apache.hadoop:hadoop-auth</include>
                   <include>org.apache.hadoop:hadoop-common</include>

@@ -26,18 +26,27 @@ import org.junit.Test;
 public class HdfsUnderFileSystemFactoryIntegrationTest {
 
   @Test
-  public void createApache22() throws Exception {
+  public void create() throws Exception {
     HdfsUnderFileSystemFactory factory = new HdfsUnderFileSystemFactory();
     UnderFileSystemConfiguration conf = UnderFileSystemConfiguration.defaults();
-    conf.setUserSpecifiedConf(ImmutableMap.of(PropertyKey.UNDERFS_HDFS_VERSION.toString(), "2.2"));
-    UnderFileSystem ufs = factory.create("hdfs://localhost:9000/", conf);
-    Assert.assertTrue(ufs instanceof alluxio.underfs.hdfs.apache2_2.HdfsUnderFileSystem);
+
+    conf.setUserSpecifiedConf(ImmutableMap.of(PropertyKey.UNDERFS_HDFS_VERSION.toString(),
+        HdfsVersion.APACHE_2_2.getCanonicalVersion()));
+    UnderFileSystem hdfsUfs22 = factory.create("hdfs://localhost:9000/", conf);
+    Assert.assertEquals(HdfsVersion.APACHE_2_2.getHdfsUfsClassLoader(),
+        hdfsUfs22.getClass().getClassLoader());
     Assert.assertNotEquals(UnderFileSystemFactory.class.getClassLoader(),
-        ufs.getClass().getClassLoader());
-    conf.setUserSpecifiedConf(ImmutableMap.of(PropertyKey.UNDERFS_HDFS_VERSION.toString(), "2.2.0"));
-    ufs = factory.create("hdfs://localhost:9000/", conf);
-    Assert.assertTrue(ufs instanceof alluxio.underfs.hdfs.apache2_2.HdfsUnderFileSystem);
+        hdfsUfs22.getClass().getClassLoader());
+
+    conf.setUserSpecifiedConf(ImmutableMap.of(PropertyKey.UNDERFS_HDFS_VERSION.toString(),
+        HdfsVersion.APACHE_2_7.getCanonicalVersion()));
+    UnderFileSystem hdfsUfs27 = factory.create("hdfs://localhost:9000/", conf);
+    Assert.assertEquals(HdfsVersion.APACHE_2_7.getHdfsUfsClassLoader(),
+        hdfsUfs27.getClass().getClassLoader());
     Assert.assertNotEquals(UnderFileSystemFactory.class.getClassLoader(),
-        ufs.getClass().getClassLoader());
+        hdfsUfs27.getClass().getClassLoader());
+
+    Assert.assertNotEquals(hdfsUfs22.getClass().getClassLoader(),
+        hdfsUfs27.getClass().getClassLoader());
   }
 }
