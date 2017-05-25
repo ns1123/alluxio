@@ -41,6 +41,8 @@ import alluxio.retry.ExponentialBackoffRetry;
  * Note that in the above scenario, the {@link ExponentialBackoffRetry} policy is not applicable
  * because the {@link RetryPolicy#attemptRetry()} is blocking.
  */
+// TODO(jiri): Replace max number of events with maximum total wait time both here and in
+// ExponentialBackoffRetry.
 public class ExponentialTimer {
   /** The time of the next event. */
   private long mNextEventMs;

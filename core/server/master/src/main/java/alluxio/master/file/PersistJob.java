@@ -50,8 +50,9 @@ public final class PersistJob {
    *
    * @param id the job id to use
    * @param fileId the file id to use
-   * @param uri the file URI
+   * @param uri the file URI to use
    * @param tempUfsPath the temporary UFS path to use
+   * @param timer the timer to use
    */
   public PersistJob(long id, long fileId, AlluxioURI uri, String tempUfsPath,
       ExponentialTimer timer) {
