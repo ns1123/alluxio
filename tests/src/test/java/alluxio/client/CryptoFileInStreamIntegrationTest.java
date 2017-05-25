@@ -21,13 +21,15 @@ import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.file.options.DeleteOptions;
+import alluxio.client.file.options.ListStatusOptions;
 import alluxio.security.authorization.Mode;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
+import alluxio.wire.LoadMetadataType;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -86,111 +88,228 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
   @Test
   public void readByteAfterWriteByte() throws Exception {
     for (CreateFileOptions options : getOptionSet()) {
-      String filename = mTestPath + "readByteAfterWriteByte" + options.getWriteType().toString();
-      FileOutStream os = mFileSystem.createFile(new AlluxioURI(filename), options);
+      String filename = mTestPath + options.getWriteType().toString();
+      AlluxioURI uri = new AlluxioURI(filename);
+      FileOutStream os = mFileSystem.createFile(uri, options);
+      // Write one byte.
       os.write(1);
       os.close();
 
-      FileInStream is = mFileSystem.openFile(new AlluxioURI(filename));
+      FileInStream is = mFileSystem.openFile(uri);
+      // Read back one byte and verify the data.
       Assert.assertEquals(1, is.read());
     }
   }
 
   @Test
-  public void readAfterWrite() throws Exception {
-    byte[] expected = BufferUtils.getIncreasingByteArray(1, BLOCK_SIZE);
-    byte[] actual = new byte[BLOCK_SIZE];
+  public void readFullAfterWrite() throws Exception {
+    int fileLength = BLOCK_SIZE;
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
+    byte[] actual = new byte[fileLength];
     for (CreateFileOptions options : getOptionSet()) {
-      String filename = mTestPath + "readAfterWrite" + options.getWriteType().toString();
-      FileOutStream os = mFileSystem.createFile(new AlluxioURI(filename), options);
+      String filename = mTestPath + options.getWriteType().toString();
+      AlluxioURI uri = new AlluxioURI(filename);
+      FileOutStream os = mFileSystem.createFile(uri, options);
       Assert.assertTrue(os instanceof CryptoFileOutStream);
+      // Create a file with a full block. File footer is in a separate physical block.
       os.write(expected);
       os.close();
 
-      FileInStream is = mFileSystem.openFile(new AlluxioURI(filename));
+      FileInStream is = mFileSystem.openFile(uri);
       Assert.assertTrue(is instanceof CryptoFileInStream);
-      Assert.assertEquals(BLOCK_SIZE, is.read(actual));
+      // Read back the block and verify the data.
+      Assert.assertEquals(fileLength, is.read(actual));
       Assert.assertArrayEquals(expected, actual);
     }
   }
 
   @Test
-  public void readPartialAfterWrite() throws Exception {
-    byte[] expected = BufferUtils.getIncreasingByteArray(1, BLOCK_SIZE * 2 - 1);
-    byte[] actual = new byte[BLOCK_SIZE];
+  public void readWithOffAndLen() throws Exception {
+    // Create a file with a full block and a partial block. File footer is split to two physical
+    // blocks.
+    int fileLength = BLOCK_SIZE * 2 - 1;
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
+    byte[] actual = new byte[fileLength];
     for (CreateFileOptions options : getOptionSet()) {
-      String filename = mTestPath + "readPartialAfterWrite" + options.getWriteType().toString();
-      FileOutStream os = mFileSystem.createFile(new AlluxioURI(filename), options);
+      String filename = mTestPath + options.getWriteType().toString();
+      AlluxioURI uri = new AlluxioURI(filename);
+      FileOutStream os = mFileSystem.createFile(uri, options);
       Assert.assertTrue(os instanceof CryptoFileOutStream);
       os.write(expected);
       os.close();
 
-      FileInStream is = mFileSystem.openFile(new AlluxioURI(filename));
+      FileInStream is = mFileSystem.openFile(uri);
       Assert.assertTrue(is instanceof CryptoFileInStream);
-      Assert.assertEquals(BLOCK_SIZE, is.read(actual));
-      Assert.assertArrayEquals(Arrays.copyOf(expected, BLOCK_SIZE), actual);
+      // Read a random len with a random off.
+      Random random = new Random();
+      int off = random.nextInt(BLOCK_SIZE);
+      int len = random.nextInt(BLOCK_SIZE - 1);
+      Assert.assertEquals(len, is.read(actual, off, len));
+      Assert.assertArrayEquals(Arrays.copyOf(expected, len),
+          Arrays.copyOfRange(actual, off, off + len));
     }
   }
 
   @Test
   public void seek() throws Exception {
-    byte[] expected = BufferUtils.getIncreasingByteArray(1, BLOCK_SIZE * 2 - 1);
+    // Create a file with two full blocks and a partial block.
+    int fileLength = BLOCK_SIZE * 2 + 1;
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
+    int len = BLOCK_SIZE - 1;
     byte[] actual = new byte[BLOCK_SIZE - 1];
     for (CreateFileOptions options : getOptionSet()) {
-      String filename = mTestPath + "seek" + options.getWriteType().toString();
-      FileOutStream os = mFileSystem.createFile(new AlluxioURI(filename), options);
+      String filename = mTestPath + options.getWriteType().toString();
+      AlluxioURI uri = new AlluxioURI(filename);
+      FileOutStream os = mFileSystem.createFile(uri, options);
       Assert.assertTrue(os instanceof CryptoFileOutStream);
       os.write(expected);
       os.close();
 
-      FileInStream is = mFileSystem.openFile(new AlluxioURI(filename));
+      FileInStream is = mFileSystem.openFile(uri);
       Assert.assertTrue(is instanceof CryptoFileInStream);
-      is.seek(BLOCK_SIZE);
-      Assert.assertEquals(BLOCK_SIZE - 1, is.read(actual));
+      Random random = new Random();
+      int seekPos = random.nextInt(BLOCK_SIZE);
+      is.seek(seekPos);
+      Assert.assertEquals(len, is.read(actual));
       Assert.assertArrayEquals(
-          Arrays.copyOfRange(expected, BLOCK_SIZE, 2 * BLOCK_SIZE - 1), actual);
+          Arrays.copyOfRange(expected, seekPos, seekPos + len), actual);
+
+      int seekBackwardPos = seekPos - 1;
+      is.seek(seekBackwardPos);
+      Assert.assertEquals(len, is.read(actual));
+      Assert.assertArrayEquals(
+          Arrays.copyOfRange(expected, seekBackwardPos, seekBackwardPos + len), actual);
+
+      int seekForwardPos = seekBackwardPos + 2;
+      is.seek(seekForwardPos);
+      Assert.assertEquals(len, is.read(actual));
+      Assert.assertArrayEquals(
+          Arrays.copyOfRange(expected, seekForwardPos, seekForwardPos + len), actual);
+    }
+  }
+
+  @Test
+  public void seekException() throws Exception {
+    // Create a file with a half block and a partial block. File footer is within the first block.
+    int fileLength = BLOCK_SIZE / 2;
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
+    for (CreateFileOptions options : getOptionSet()) {
+      String filename = mTestPath + options.getWriteType().toString();
+      AlluxioURI uri = new AlluxioURI(filename);
+      FileOutStream os = mFileSystem.createFile(uri, options);
+      Assert.assertTrue(os instanceof CryptoFileOutStream);
+      os.write(expected);
+      os.close();
+
+      FileInStream is = mFileSystem.openFile(uri);
+      Assert.assertTrue(is instanceof CryptoFileInStream);
+      try {
+        is.seek(-1);
+        Assert.fail("Seek to negative pos should fail.");
+      } catch (IllegalArgumentException e) {
+        // expected
+      }
+    }
+  }
+
+  @Test
+  public void seekEofAndRead() throws Exception {
+    // Create a file with a half block and a partial block. File footer is within the first block.
+    int fileLength = BLOCK_SIZE / 2;
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
+    for (CreateFileOptions options : getOptionSet()) {
+      String filename = mTestPath + options.getWriteType().toString();
+      AlluxioURI uri = new AlluxioURI(filename);
+      FileOutStream os = mFileSystem.createFile(uri, options);
+      Assert.assertTrue(os instanceof CryptoFileOutStream);
+      os.write(expected);
+      os.close();
+
+      FileInStream is = mFileSystem.openFile(uri);
+      Assert.assertTrue(is instanceof CryptoFileInStream);
+      // seek to EOF.
+      is.seek((long) fileLength);
+      // Then read should return -1.
+      Assert.assertEquals(-1, is.read());
     }
   }
 
   @Test
   public void skip() throws Exception {
-    byte[] expected = BufferUtils.getIncreasingByteArray(1, BLOCK_SIZE * 2);
-    byte[] actual = new byte[BLOCK_SIZE / 2];
+    // Create a file with 2 full blocks.
+    int fileLength = BLOCK_SIZE * 2;
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
+    int len = BLOCK_SIZE / 2;
+    byte[] actual = new byte[len];
     for (CreateFileOptions options : getOptionSet()) {
-      String filename = mTestPath + "skip" + options.getWriteType().toString();
-      FileOutStream os = mFileSystem.createFile(new AlluxioURI(filename), options);
+      String filename = mTestPath + options.getWriteType().toString();
+      AlluxioURI uri = new AlluxioURI(filename);
+      FileOutStream os = mFileSystem.createFile(uri, options);
       Assert.assertTrue(os instanceof CryptoFileOutStream);
       os.write(expected);
       os.close();
 
-      FileInStream is = mFileSystem.openFile(new AlluxioURI(filename));
+      FileInStream is = mFileSystem.openFile(uri);
       Assert.assertTrue(is instanceof CryptoFileInStream);
-      is.skip(BLOCK_SIZE * 3 / 2);
-      Assert.assertEquals(BLOCK_SIZE / 2, is.read(actual));
-      Assert.assertArrayEquals(Arrays.copyOfRange(expected, BLOCK_SIZE * 3 / 2, 2 * BLOCK_SIZE),
+      is.skip((long) (fileLength - len));
+      // Read till EOF after skip.
+      Assert.assertEquals(len, is.read(actual));
+      Assert.assertArrayEquals(Arrays.copyOfRange(expected, fileLength - len, fileLength),
           actual);
     }
   }
 
   @Test
-  @Ignore("TODO(chaomin): fix this")
   public void positionedRead() throws Exception {
-    byte[] expected = BufferUtils.getIncreasingByteArray(1, BLOCK_SIZE * 2);
+    // Create a file with 2 full blocks.
+    int fileLength = BLOCK_SIZE * 2;
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
     byte[] actual = new byte[BLOCK_SIZE / 2];
     for (CreateFileOptions options : getOptionSet()) {
-      String filename = mTestPath + "positionedRead" + options.getWriteType().toString();
-      FileOutStream os = mFileSystem.createFile(new AlluxioURI(filename), options);
+      String filename = mTestPath + options.getWriteType().toString();
+      AlluxioURI uri = new AlluxioURI(filename);
+      FileOutStream os = mFileSystem.createFile(uri, options);
       Assert.assertTrue(os instanceof CryptoFileOutStream);
       os.write(expected);
       os.close();
 
       Random random = new Random();
       long pos = random.nextInt(BLOCK_SIZE);
-      FileInStream is = mFileSystem.openFile(new AlluxioURI(filename));
+      FileInStream is = mFileSystem.openFile(uri);
       Assert.assertTrue(is instanceof CryptoFileInStream);
+      // positionedRead half a block with at a random pos
       Assert.assertEquals(BLOCK_SIZE / 2, is.positionedRead(pos, actual, 0, BLOCK_SIZE / 2));
       Assert.assertArrayEquals(
           Arrays.copyOfRange(expected, (int) pos, (int) (pos + BLOCK_SIZE / 2)), actual);
     }
+  }
+
+  @Test
+  public void deleteInAlluxioAndLoadFromUfs() throws Exception {
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, BLOCK_SIZE * 2);
+    byte[] actual = new byte[BLOCK_SIZE];
+    CreateFileOptions createFileOptions = mWriteBoth;
+    String filename = mTestPath + createFileOptions.getWriteType().toString();
+    AlluxioURI uri = new AlluxioURI(filename);
+    FileOutStream os = mFileSystem.createFile(uri, createFileOptions);
+    Assert.assertTrue(os instanceof CryptoFileOutStream);
+    // Write both to Alluxio and UFS.
+    os.write(expected);
+    os.close();
+    long oldFileId = mFileSystem.getStatus(uri).getFileId();
+    // Delete the file only in Alluxio.
+    mFileSystem.delete(uri, DeleteOptions.defaults().setAlluxioOnly(true));
+    // Reload the metadata from UFS.
+    mFileSystem.listStatus(
+        uri, ListStatusOptions.defaults().setLoadMetadataType(LoadMetadataType.Always));
+    // Verify the file id is different.
+    long newFileId = mFileSystem.getStatus(uri).getFileId();
+    Assert.assertNotEquals(oldFileId, newFileId);
+
+    // Verify the encryption id can be read from the file footer and data is available after reload.
+    FileInStream is = mFileSystem.openFile(new AlluxioURI(filename));
+    Assert.assertTrue(is instanceof CryptoFileInStream);
+    Assert.assertEquals(BLOCK_SIZE, is.read(actual));
+    Assert.assertArrayEquals(Arrays.copyOfRange(expected, 0, BLOCK_SIZE), actual);
   }
 }
