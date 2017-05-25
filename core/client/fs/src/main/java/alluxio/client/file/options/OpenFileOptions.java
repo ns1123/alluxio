@@ -43,7 +43,7 @@ public final class OpenFileOptions {
   private BlockLocationPolicy mUfsReadLocationPolicy;
   // ALLUXIO CS ADD
   /** If set to true, data is served in raw bytes, without decryption (any data transformation). */
-  private boolean mTransformationDisabled;
+  private boolean mSkipTransformation;
   // ALLUXIO CS END
 
   /**
@@ -142,10 +142,10 @@ public final class OpenFileOptions {
   }
   // ALLUXIO CS ADD
   /**
-   * @return whether data transformation is disabled or not
+   * @return whether to skip data transformation or not
    */
-  public boolean isTransformationDisabled() {
-    return mTransformationDisabled;
+  public boolean isSkipTransformation() {
+    return mSkipTransformation;
   }
 
   // ALLUXIO CS END
@@ -247,11 +247,11 @@ public final class OpenFileOptions {
   }
   // ALLUXIO CS ADD
   /**
-   * @param transformationDisabled the transformation disabled flag to set
+   * @param skipTransformation the skip transformation flag to set
    * @return the updated options object
    */
-  public OpenFileOptions setTransformationDisabled(boolean transformationDisabled) {
-    mTransformationDisabled = transformationDisabled;
+  public OpenFileOptions setSkipTransformation(boolean skipTransformation) {
+    mSkipTransformation = skipTransformation;
     return this;
   }
 
@@ -282,7 +282,7 @@ public final class OpenFileOptions {
         // && Objects.equal(mUfsReadLocationPolicy, that.mUfsReadLocationPolicy);
         // ALLUXIO CS WITH
         && Objects.equal(mUfsReadLocationPolicy, that.mUfsReadLocationPolicy)
-        && Objects.equal(mTransformationDisabled, that.mTransformationDisabled);
+        && Objects.equal(mSkipTransformation, that.mSkipTransformation);
         // ALLUXIO CS END
   }
 
@@ -299,7 +299,7 @@ public final class OpenFileOptions {
         .add("readType", mReadType)
         .add("ufsReadLocationPolicy", mUfsReadLocationPolicy)
         // ALLUXIO CS ADD
-        .add("transformationDisabled", mTransformationDisabled)
+        .add("skipTransformation", mSkipTransformation)
         // ALLUXIO CS END
         .toString();
   }
