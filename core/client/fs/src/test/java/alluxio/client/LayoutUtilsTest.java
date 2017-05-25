@@ -236,7 +236,7 @@ public final class LayoutUtilsTest {
     final long footerSize = mMeta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
 
     List<TestCase> testCases = new LinkedList<>();
-    testCases.add(new TestCase(0, 0));
+    testCases.add(new TestCase(footerSize, 0));
     testCases.add(new TestCase(
         BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE
             + footerSize,

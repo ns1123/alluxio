@@ -156,9 +156,6 @@ public final class LayoutUtils {
    * @return the physical file length
    */
   public static long toPhysicalFileLength(EncryptionProto.Meta meta, long logicalFileLength) {
-    if (logicalFileLength == 0L) {
-      return 0L;
-    }
     Preconditions.checkState(meta.getLogicalBlockSize() > 0);
     Preconditions.checkState(meta.getPhysicalBlockSize() > 0);
     long numFullBlocks = logicalFileLength / meta.getLogicalBlockSize();
