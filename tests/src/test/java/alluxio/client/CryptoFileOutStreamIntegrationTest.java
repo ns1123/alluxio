@@ -46,8 +46,6 @@ import java.io.InputStream;
  */
 @RunWith(Parameterized.class)
 public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStreamIntegrationTest {
-  // TODO(binfan): Run tests with local writes enabled and disabled.
-
   private alluxio.proto.security.EncryptionProto.Meta mMeta;
 
   @Parameters
@@ -79,9 +77,6 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
         .build();
   }
 
-  /**
-   * Tests {@link FileOutStream#write(int)}.
-   */
   @Test
   public void writeBytes() throws Exception {
     String uniqPath = PathUtils.uniqPath();
@@ -99,9 +94,6 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
     }
   }
 
-  /**
-   * Tests {@link FileOutStream#write(byte[], int, int)}.
-   */
   @Test
   public void writeTwoByteArrays() throws Exception {
     String uniqPath = PathUtils.uniqPath();
@@ -119,9 +111,6 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
     }
   }
 
-  /**
-   * Tests writing to a file and specify the location to be localhost.
-   */
   @Test
   public void writeSpecifyLocal() throws Exception {
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
@@ -141,10 +130,6 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
     }
   }
 
-  /**
-   * Tests writing to a file for longer than HEARTBEAT_INTERVAL_MS to make sure the sessionId
-   * doesn't change. Tracks [ALLUXIO-171].
-   */
   @Test
   public void longWrite() throws Exception {
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
@@ -164,11 +149,6 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
     }
   }
 
-  /**
-   * Tests if out-of-order writes are possible. Writes could be out-of-order when the following are
-   * both true: - a "large" write (over half the internal buffer size) follows a smaller write. -
-   * the "large" write does not cause the internal buffer to overflow.
-   */
   @Test
   public void outOfOrderWrite() throws Exception {
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
