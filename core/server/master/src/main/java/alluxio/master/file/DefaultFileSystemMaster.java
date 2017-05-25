@@ -287,10 +287,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   private final alluxio.client.job.JobMasterClientPool mJobMasterClientPool;
 
   /** Set of file IDs to persist. */
-  private final Set<Long> mPersistRequests;
+  private final Map<Long, alluxio.time.ExponentialTimer> mPersistRequests;
 
   /** Map from file IDs to persist jobs. */
-  private final Map<Long, PersistJob> mPersistJobs;
+  private final Map<Long,
+      org.apache.commons.lang3.tuple.Pair<PersistJob, alluxio.time.ExponentialTimer>> mPersistJobs;
   // ALLUXIO CS END
 
   /** The manager of all ufs. */
@@ -375,7 +376,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
     // ALLUXIO CS WITH
     mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
-    mPersistRequests = new alluxio.collections.ConcurrentHashSet<>();
+    mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
@@ -1371,8 +1372,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             // Remove the file from the set of files to persist.
             mPersistRequests.remove(fileId);
             // Cancel any ongoing jobs.
-            PersistJob job = mPersistJobs.get(fileId);
-            if (job != null) {
+            org.apache.commons.lang3.tuple.Pair<PersistJob, alluxio.time.ExponentialTimer> pair =
+                mPersistJobs.get(fileId);
+            if (pair != null) {
+              PersistJob job = pair.getLeft();
               job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
             }
             // ALLUXIO CS END
@@ -2769,7 +2772,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
     // ALLUXIO CS ADD
     long fileId = inodePath.getInode().getId();
-    mPersistRequests.add(fileId);
+    mPersistRequests.put(fileId, new alluxio.time.ExponentialTimer(
+        Configuration.getLong(PropertyKey.MASTER_PERSISTENCE_NUM_ATTEMPTS),
+        Configuration.getLong(PropertyKey.MASTER_PERSISTENCE_BASE_TIME_WINDOW_MS)));
     // ALLUXIO CS END
   }
 
@@ -2832,9 +2837,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       file.setTempUfsPath(options.getTempUfsPath());
       if (replayed && options.getPersistJobId() != -1 && !options.getTempUfsPath().isEmpty()) {
         long fileId = file.getId();
-        mPersistRequests.remove(fileId);
-        mPersistJobs.put(fileId,
-            new PersistJob(fileId, options.getPersistJobId(), options.getTempUfsPath()));
+        alluxio.time.ExponentialTimer timer = mPersistRequests.remove(fileId);
+        mPersistJobs.put(fileId, new org.apache.commons.lang3.tuple.ImmutablePair<>(
+            new PersistJob(fileId, options.getPersistJobId(), options.getTempUfsPath()), timer));
       }
       inode.setLastModificationTimeMs(opTimeMs);
     }
@@ -3029,7 +3034,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     public void heartbeat() throws InterruptedException {
       java.util.concurrent.TimeUnit.SECONDS.sleep(mQuietPeriodSeconds);
       // Process persist requests.
-      for (long fileId : mPersistRequests) {
+      for (long fileId : mPersistRequests.keySet()) {
+        alluxio.time.ExponentialTimer timer = mPersistRequests.get(fileId);
+        if (!timer.isReady()) {
+          continue;
+        }
         AlluxioURI uri;
         String tempUfsPath;
         boolean remove = true;
@@ -3076,7 +3085,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             mJobMasterClientPool.release(client);
           }
           mQuietPeriodSeconds /= 2;
-          mPersistJobs.put(fileId, new PersistJob(fileId, jobId, tempUfsPath));
+          mPersistJobs.put(fileId, new org.apache.commons.lang3.tuple.ImmutablePair<>(
+              new PersistJob(fileId, jobId, tempUfsPath), timer));
 
           // Update the inode and journal the change.
           try (LockedInodePath inodePath = mInodeTree
@@ -3121,7 +3131,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     @Override
     public void close() {} // nothing to clean up
 
-    private void handleCompletion(PersistJob job) {
+    private void handleCompletion(PersistJob job, alluxio.time.ExponentialTimer timer) {
       long fileId = job.getFileId();
       String tempUfsPath = job.getTempUfsPath();
       try (JournalContext journalContext = createJournalContext();
@@ -3168,10 +3178,16 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         cleanup(tempUfsPath);
       } catch (Exception e) {
         LOG.warn("Unexpected exception encountered when trying to complete persistence of a file "
-            + "(id={}), the persist job will be retried: {}", fileId, e.getMessage());
+            + "(id={}): {}", fileId, e.getMessage());
         LOG.debug("Exception: ", e);
         cleanup(tempUfsPath);
-        mPersistRequests.add(fileId);
+        if (timer.hasNext()) {
+          LOG.warn("The persist job will be retried.");
+          mPersistRequests.put(fileId, timer.next());
+        } else {
+          LOG.warn("The persist job was unsuccessfully attempted {} times and will not be retried.",
+              Configuration.getLong(PropertyKey.MASTER_PERSISTENCE_NUM_ATTEMPTS));
+        }
       } finally {
         mPersistJobs.remove(fileId);
       }
@@ -3182,7 +3198,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       boolean queueEmpty = mPersistCheckerPool.getQueue().isEmpty();
       // Check the progress of persist jobs.
       for (long fileId : mPersistJobs.keySet()) {
-        final PersistJob job = mPersistJobs.get(fileId);
+        org.apache.commons.lang3.tuple.Pair<PersistJob, alluxio.time.ExponentialTimer> pair =
+            mPersistJobs.get(fileId);
+        final PersistJob job = pair.getLeft();
+        final alluxio.time.ExponentialTimer timer = pair.getRight();
         // Cancel any jobs marked as canceled
         switch (job.getCancelState()) {
           case NOT_CANCELED:
@@ -3226,8 +3245,17 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             case CREATED:
               break;
             case FAILED:
+              LOG.warn("The persist job (id={}) failed: {}", jobId, jobInfo.getErrorMessage());
               mPersistJobs.remove(fileId);
-              mPersistRequests.add(fileId);
+              if (timer.hasNext()) {
+                LOG.warn("The persist job will be retried.");
+                mPersistRequests.put(fileId, timer.next());
+              } else {
+                LOG.warn(
+                    "The persist job was unsuccessfully attempted {} times and will not be "
+                        + "retried.",
+                    Configuration.getLong(PropertyKey.MASTER_PERSISTENCE_NUM_ATTEMPTS));
+              }
               break;
             case CANCELED:
               mPersistJobs.remove(fileId);
@@ -3236,7 +3264,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               mPersistCheckerPool.execute(new Runnable() {
                 @Override
                 public void run() {
-                  handleCompletion(job);
+                  handleCompletion(job, timer);
                 }
               });
               mPersistJobs.remove(fileId);
@@ -3246,11 +3274,17 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
         } catch (Exception e) {
           LOG.warn("Exception encountered when trying to retrieve the status of a "
-                  + " persist job (id={}), the persist job will be retried : {}.", fileId,
-              e.getMessage());
+              + " persist job (id={}) : {}.", fileId, e.getMessage());
           LOG.debug("Exception: ", e);
           mPersistJobs.remove(fileId);
-          mPersistRequests.add(fileId);
+          if (timer.hasNext()) {
+            LOG.warn("The persist job will be retried.");
+            mPersistRequests.put(fileId, timer.next());
+          } else {
+            LOG.warn(
+                "The persist job was unsuccessfully attempted {} times, and will not be retried.",
+                Configuration.getLong(PropertyKey.MASTER_PERSISTENCE_NUM_ATTEMPTS));
+          }
         } finally {
           mJobMasterClientPool.release(client);
         }
