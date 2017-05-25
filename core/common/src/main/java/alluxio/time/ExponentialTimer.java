@@ -11,21 +11,47 @@
 
 package alluxio.time;
 
+import alluxio.retry.RetryPolicy;
+import alluxio.retry.ExponentialBackoffRetry;
+
 /**
  * The {@link ExponentialTimer} can be used for generating a sequence of events that are
  * exponentially distributed in time.
+ *
+ * The intended usage is to associate the timer with an operation that should to be re-attempted
+ * if it fails using exponential back-off. For instance, an event loop iterates over scheduled
+ * operations each of which is associated with a timer and the event loop can use the timer to check
+ * if the operation is ready to be attempted and whether it should be re-attempted again in the
+ * future in case it fails.
+ *
+ * <pre>
+ * while (true) {
+ *   Operation op = operations.pop();
+ *   if (op.getTimer().isReady()) {
+ *     boolean success = op.run();
+ *     if (!success && op.getTimer().hasNext()) {
+ *       op.getTimer().next();
+ *       operations.push(op);
+ *     }
+ *   }
+ *   Thread.sleep(10);
+ * }
+ * </pre>
+ *
+ * Note that in the above scenario, the {@link ExponentialBackoffRetry} policy is not applicable
+ * because the {@link RetryPolicy#attemptRetry()} is blocking.
  */
 public class ExponentialTimer {
   /** The time of the next event. */
   private long mNextEventMs;
-  /** The current wait time (in milliseconds). */
+  /** The current wait time (in milliseconds) between events. */
   private long mWaitTimeMs;
-  /** The maximum wait time (in milliseconds). */
-  private long mMaxWaitTimeMs;
-  /** The current number of events. */
+  /** The maximum wait time (in milliseconds) between events. */
+  private final long mMaxWaitTimeMs;
+  /** The number of generated events. */
   private long mNumEvents;
   /** The maximum number of events. */
-  private long mMaxNumEvents;
+  private final long mMaxNumEvents;
 
   /**
    * Creates a new instance of {@link ExponentialTimer}.
@@ -64,7 +90,7 @@ public class ExponentialTimer {
   public ExponentialTimer next() {
     mNumEvents++;
     mNextEventMs = System.currentTimeMillis() + mWaitTimeMs;
-    long next = Math.min(mWaitTimeMs << 1, mMaxWaitTimeMs);
+    long next = Math.min(mWaitTimeMs * 2, mMaxWaitTimeMs);
     // Account for overflow.
     if (next < mWaitTimeMs) {
       next = Integer.MAX_VALUE;
