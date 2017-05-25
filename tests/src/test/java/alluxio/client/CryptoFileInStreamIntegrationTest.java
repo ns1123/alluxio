@@ -44,6 +44,7 @@ import java.util.Random;
  * Integration tests for {@link CryptoFileInStream}.
  */
 public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest {
+  // Set the logical block size to be 4 logical encryption chunks.
   private static final int BLOCK_SIZE = 256 * 1024;
 
   @Rule
@@ -103,6 +104,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
 
   @Test
   public void readFullAfterWrite() throws Exception {
+    // Create a file with a full block. File footer is in a separate physical block.
     int fileLength = BLOCK_SIZE;
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
     byte[] actual = new byte[fileLength];
@@ -111,7 +113,6 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
       Assert.assertTrue(os instanceof CryptoFileOutStream);
-      // Create a file with a full block. File footer is in a separate physical block.
       os.write(expected);
       os.close();
 
@@ -251,7 +252,8 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
 
       FileInStream is = mFileSystem.openFile(uri);
       Assert.assertTrue(is instanceof CryptoFileInStream);
-      is.skip((long) (fileLength - len));
+      long skipLen = fileLength - len;
+      Assert.assertEquals(skipLen, is.skip(skipLen));
       // Read till EOF after skip.
       Assert.assertEquals(len, is.read(actual));
       Assert.assertArrayEquals(Arrays.copyOfRange(expected, fileLength - len, fileLength),
@@ -285,9 +287,12 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
   }
 
   @Test
-  public void deleteInAlluxioAndLoadFromUfs() throws Exception {
-    byte[] expected = BufferUtils.getIncreasingByteArray(1, BLOCK_SIZE * 2);
-    byte[] actual = new byte[BLOCK_SIZE];
+  public void readEncryptedFileFromUfs() throws Exception {
+    // Create a file with 2 full blocks.
+    int fileLength = BLOCK_SIZE * 2;
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
+    int len = BLOCK_SIZE - 1;
+    byte[] actual = new byte[len];
     CreateFileOptions createFileOptions = mWriteBoth;
     String filename = mTestPath + createFileOptions.getWriteType().toString();
     AlluxioURI uri = new AlluxioURI(filename);
@@ -307,9 +312,9 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     Assert.assertNotEquals(oldFileId, newFileId);
 
     // Verify the encryption id can be read from the file footer and data is available after reload.
-    FileInStream is = mFileSystem.openFile(new AlluxioURI(filename));
+    FileInStream is = mFileSystem.openFile(uri);
     Assert.assertTrue(is instanceof CryptoFileInStream);
-    Assert.assertEquals(BLOCK_SIZE, is.read(actual));
-    Assert.assertArrayEquals(Arrays.copyOfRange(expected, 0, BLOCK_SIZE), actual);
+    Assert.assertEquals(len, is.read(actual));
+    Assert.assertArrayEquals(Arrays.copyOfRange(expected, 0, len), actual);
   }
 }
