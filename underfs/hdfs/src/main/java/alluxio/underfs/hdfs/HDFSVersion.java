@@ -1,6 +1,7 @@
 package alluxio.underfs.hdfs;
 
 import alluxio.ProjectConstants;
+import alluxio.util.io.PathUtils;
 
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -9,15 +10,14 @@ import javax.annotation.Nullable;
 
 /** The set of supported Hdfs versions. */
 public enum HdfsVersion {
-  APACHE_1_2("1.2", "(apache-)?1.2(.*)?", "apache1_2"), // Apache HDFS 1.2.*
   APACHE_2_2("2.2", "(apache-)?2.2(.*)?", "apache2_2"), // Apache HDFS 2.2.*
   APACHE_2_7("2.7", "(apache-)?2.7(.*)?", "apache2_7"), // Apache HDFS 2.7.*
   ;
 
   // TODO(binfan): we may want to have a dedicated dir for the jars
   public static final String JAR_PATH_FORMAT =
-      "file:///Users/binfan/projects/cs/enterprise/underfs/hdfsx/%s/target/alluxio-underfs"
-          + "-hdfsx-%s-%s.jar";
+      PathUtils.concatPath(System.getProperty("user.dir"),
+          "../underfs/hdfsx/%s/target/alluxio-underfs-hdfsx-%s-%s.jar");
   private final String mCanonicalVersion;
   private final Pattern mVersionPattern;
   private final String mModuleName;
