@@ -37,7 +37,7 @@ public class OpenFileOptionsTest {
     Assert.assertEquals(Integer.MAX_VALUE, options.getMaxUfsReadConcurrency());
     Assert.assertTrue(options.getUfsReadLocationPolicy() instanceof LocalFirstPolicy);
     // ALLUXIO CS ADD
-    Assert.assertFalse(options.isDecryptionDisabled());
+    Assert.assertFalse(options.isTransformationDisabled());
     // ALLUXIO CS END
   }
 
@@ -55,7 +55,7 @@ public class OpenFileOptionsTest {
     options.setMaxUfsReadConcurrency(5);
     options.setUfsReadLocationPolicy((BlockLocationPolicy) policy);
     // ALLUXIO CS ADD
-    options.setDecryptionDisabled(true);
+    options.setTransformationDisabled(true);
     // ALLUXIO CS END
 
     Assert.assertEquals(readType, options.getReadType());
@@ -63,7 +63,7 @@ public class OpenFileOptionsTest {
     Assert.assertEquals(5, options.getMaxUfsReadConcurrency());
     Assert.assertEquals(policy, options.getUfsReadLocationPolicy());
     // ALLUXIO CS ADD
-    Assert.assertEquals(true, options.isDecryptionDisabled());
+    Assert.assertEquals(true, options.isTransformationDisabled());
     // ALLUXIO CS END
   }
 

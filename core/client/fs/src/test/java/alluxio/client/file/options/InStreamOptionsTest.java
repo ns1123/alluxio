@@ -49,11 +49,7 @@ public class InStreamOptionsTest {
    * Tests getting and setting fields.
    */
   @Test
-  // ALLUXIO CS REPLACE
-  // public void fields() {
-  // ALLUXIO CS WITH
   public void fields() throws Exception {
-    // ALLUXIO CS END
     ReadType readType = ReadType.NO_CACHE;
     FileWriteLocationPolicy policy = new RoundRobinPolicy();
     BlockLocationPolicy blockLocationPolicy = new DeterministicHashPolicy();

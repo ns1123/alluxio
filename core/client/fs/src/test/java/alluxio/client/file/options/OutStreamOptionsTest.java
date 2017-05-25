@@ -114,11 +114,7 @@ public class OutStreamOptionsTest {
    * Tests getting and setting fields.
    */
   @Test
-  // ALLUXIO CS REPLACE
-  // public void fields() {
-  // ALLUXIO CS WITH
   public void fields() throws Exception {
-    // ALLUXIO CS END
     Random random = new Random();
     long blockSize = random.nextLong();
     FileWriteLocationPolicy locationPolicy = new RoundRobinPolicy();
