@@ -41,8 +41,7 @@ import org.junit.runners.Parameterized.Parameters;
 import java.io.InputStream;
 
 /**
- * Integration tests for {@link CryptoFileOutStream}, parameterized by the write
- * types.
+ * Integration tests for {@link CryptoFileOutStream}, parameterized by the write types.
  */
 @RunWith(Parameterized.class)
 public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStreamIntegrationTest {

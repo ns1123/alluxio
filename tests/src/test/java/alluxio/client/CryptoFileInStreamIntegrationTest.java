@@ -93,12 +93,14 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
       // Write one byte.
-      os.write(1);
+      Random random = new Random();
+      int b = random.nextInt(64);
+      os.write(b);
       os.close();
 
       FileInStream is = mFileSystem.openFile(uri);
       // Read back one byte and verify the data.
-      Assert.assertEquals(1, is.read());
+      Assert.assertEquals(b, is.read());
     }
   }
 
