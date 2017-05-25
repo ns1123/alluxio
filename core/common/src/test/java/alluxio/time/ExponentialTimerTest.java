@@ -37,9 +37,9 @@ public class ExponentialTimerTest {
   }
 
   /**
-   * Tests the exponential backoff logic.
+   * Tests the exponential back-off logic.
    */
-  @Test
+  @Test(timeout=2000)
   public void backoff() {
     int n = 10;
     ExponentialTimer timer = new ExponentialTimer(n, 1, 1000);
@@ -49,9 +49,8 @@ public class ExponentialTimerTest {
         CommonUtils.sleepMs(10);
       }
       timer.next();
+      long now = System.currentTimeMillis();
+      Assert.assertTrue(now - start > (1 << i - 1));
     }
-    long end = System.currentTimeMillis();
-    // end - start should be at least 2^9 - 1
-    Assert.assertTrue(end - start > (1 << 10 - 1));
   }
 }

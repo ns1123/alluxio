@@ -44,16 +44,17 @@ import alluxio.retry.ExponentialBackoffRetry;
 // TODO(jiri): Replace max number of events with maximum total wait time both here and in
 // ExponentialBackoffRetry.
 public class ExponentialTimer {
-  /** The time of the next event. */
-  private long mNextEventMs;
-  /** The current wait time (in milliseconds) between events. */
-  private long mWaitTimeMs;
-  /** The maximum wait time (in milliseconds) between events. */
-  private final long mMaxWaitTimeMs;
-  /** The number of generated events. */
-  private long mNumEvents;
   /** The maximum number of events. */
   private final long mMaxNumEvents;
+  /** The maximum wait time (in milliseconds) between events. */
+  private final long mMaxWaitTimeMs;
+
+  /** The time of the next event. */
+  private long mNextEventMs;
+  /** The number of generated events. */
+  private long mNumEvents;
+  /** The current wait time (in milliseconds) between events. */
+  private long mWaitTimeMs;
 
   /**
    * Creates a new instance of {@link ExponentialTimer}.
@@ -63,11 +64,11 @@ public class ExponentialTimer {
    * @param maxWaitTimeMs the initial wait time (in milliseconds)
    */
   public ExponentialTimer(long maxEvents, long initialWaitTimesMs, long maxWaitTimeMs) {
-    mMaxWaitTimeMs = maxWaitTimeMs;
-    mWaitTimeMs = Math.min(initialWaitTimesMs, maxWaitTimeMs);
-    mNumEvents = 0;
     mMaxNumEvents = maxEvents;
+    mMaxWaitTimeMs = maxWaitTimeMs;
     mNextEventMs = System.currentTimeMillis();
+    mNumEvents = 0;
+    mWaitTimeMs = Math.min(initialWaitTimesMs, maxWaitTimeMs);
   }
 
   /**
