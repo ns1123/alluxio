@@ -13,7 +13,6 @@ package alluxio.master.file;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
-import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.client.job.JobMasterClient;
@@ -47,7 +46,6 @@ import alluxio.util.WaitForOptions;
 import alluxio.wire.FileInfo;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.After;
 import org.junit.Assert;
@@ -66,7 +64,6 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JobMasterClient.Factory.class)
