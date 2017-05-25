@@ -41,6 +41,10 @@ public final class OpenFileOptions {
   private int mMaxUfsReadConcurrency;
   /** The location policy to determine the worker location to serve UFS block reads. */
   private BlockLocationPolicy mUfsReadLocationPolicy;
+  // ALLUXIO CS ADD
+  /** If set to true, data is served in raw bytes, without decryption (any data transformation). */
+  private boolean mSkipTransformation;
+  // ALLUXIO CS END
 
   /**
    * @return the default {@link InStreamOptions}
@@ -136,6 +140,15 @@ public final class OpenFileOptions {
   public String getUfsReadLocationPolicyClass() {
     return mUfsReadLocationPolicy.getClass().getCanonicalName();
   }
+  // ALLUXIO CS ADD
+  /**
+   * @return whether to skip data transformation or not
+   */
+  public boolean isSkipTransformation() {
+    return mSkipTransformation;
+  }
+
+  // ALLUXIO CS END
 
   /**
    * @param locationPolicy the location policy to use when storing data to Alluxio
@@ -232,6 +245,17 @@ public final class OpenFileOptions {
     mMaxUfsReadConcurrency = maxUfsReadConcurrency;
     return this;
   }
+  // ALLUXIO CS ADD
+  /**
+   * @param skipTransformation the skip transformation flag to set
+   * @return the updated options object
+   */
+  public OpenFileOptions setSkipTransformation(boolean skipTransformation) {
+    mSkipTransformation = skipTransformation;
+    return this;
+  }
+
+  // ALLUXIO CS END
 
   /**
    * @return the {@link InStreamOptions} representation of this object
@@ -254,7 +278,12 @@ public final class OpenFileOptions {
     return Objects.equal(mCacheLocationPolicy, that.mCacheLocationPolicy)
         && Objects.equal(mReadType, that.mReadType)
         && Objects.equal(mMaxUfsReadConcurrency, that.mMaxUfsReadConcurrency)
-        && Objects.equal(mUfsReadLocationPolicy, that.mUfsReadLocationPolicy);
+        // ALLUXIO CS REPLACE
+        // && Objects.equal(mUfsReadLocationPolicy, that.mUfsReadLocationPolicy);
+        // ALLUXIO CS WITH
+        && Objects.equal(mUfsReadLocationPolicy, that.mUfsReadLocationPolicy)
+        && Objects.equal(mSkipTransformation, that.mSkipTransformation);
+        // ALLUXIO CS END
   }
 
   @Override
@@ -269,6 +298,9 @@ public final class OpenFileOptions {
         .add("maxUfsReadConcurrency", mMaxUfsReadConcurrency)
         .add("readType", mReadType)
         .add("ufsReadLocationPolicy", mUfsReadLocationPolicy)
+        // ALLUXIO CS ADD
+        .add("skipTransformation", mSkipTransformation)
+        // ALLUXIO CS END
         .toString();
   }
 }
