@@ -86,8 +86,8 @@ public final class PersistenceTest {
     tmpFolder.create();
     File ufsRoot = tmpFolder.newFolder();
     Configuration.set(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, ufsRoot.getAbsolutePath());
-    Configuration.set(PropertyKey.MASTER_PERSISTENCE_BASE_TIME_WINDOW_MS, 0);
-    Configuration.set(PropertyKey.MASTER_PERSISTENCE_NUM_ATTEMPTS, 10);
+    Configuration.set(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS, 0);
+    Configuration.set(PropertyKey.MASTER_PERSISTENCE_MAX_ATTEMPTS, 10);
     mJournalFolder = tmpFolder.newFolder();
     startServices();
   }
@@ -392,7 +392,7 @@ public final class PersistenceTest {
     Assert.assertTrue(persistJobs.containsKey(fileInfo.getFileId()));
     PersistJob job = persistJobs.get(fileInfo.getFileId()).getLeft();
     Assert.assertEquals(fileInfo.getFileId(), job.getFileId());
-    Assert.assertEquals(jobId, job.getJobId());
+    Assert.assertEquals(jobId, job.getId());
     Assert.assertTrue(job.getTempUfsPath().contains(testFile.getPath()));
     Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), fileInfo.getPersistenceState());
   }

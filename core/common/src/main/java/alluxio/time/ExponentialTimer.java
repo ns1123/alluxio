@@ -16,36 +16,44 @@ package alluxio.time;
  * exponentially distributed in time.
  */
 public class ExponentialTimer {
-  private long mNextEvent;
-  private long mTimeWindow;
+  /** The time of the next event. */
+  private long mNextEventMs;
+  /** The current wait time (in milliseconds). */
+  private long mWaitTimeMs;
+  /** The maximum wait time (in milliseconds). */
+  private long mMaxWaitTimeMs;
+  /** The current number of events. */
   private long mNumEvents;
-  private long mMaxEvents;
+  /** The maximum number of events. */
+  private long mMaxNumEvents;
 
   /**
    * Creates a new instance of {@link ExponentialTimer}.
    *
    * @param maxEvents the maximum number of events
-   * @param timeWindow the initial time window
+   * @param initialWaitTimesMs the initial wait time (in milliseconds)
+   * @param maxWaitTimeMs the initial wait time (in milliseconds)
    */
-  public ExponentialTimer(long maxEvents, long timeWindow) {
-    mTimeWindow = timeWindow;
+  public ExponentialTimer(long maxEvents, long initialWaitTimesMs, long maxWaitTimeMs) {
+    mMaxWaitTimeMs = maxWaitTimeMs;
+    mWaitTimeMs = Math.min(initialWaitTimesMs, maxWaitTimeMs);
     mNumEvents = 0;
-    mMaxEvents = maxEvents;
-    mNextEvent = System.currentTimeMillis();
+    mMaxNumEvents = maxEvents;
+    mNextEventMs = System.currentTimeMillis();
   }
 
   /**
    * @return whether an event is ready
    */
   public boolean isReady() {
-    return System.currentTimeMillis() >= mNextEvent;
+    return System.currentTimeMillis() >= mNextEventMs;
   }
 
   /**
    * @return whether there are any events left
    */
   public boolean hasNext() {
-    return mNumEvents < mMaxEvents;
+    return mNumEvents < mMaxNumEvents;
   }
 
   /**
@@ -55,13 +63,13 @@ public class ExponentialTimer {
    */
   public ExponentialTimer next() {
     mNumEvents++;
-    mNextEvent = System.currentTimeMillis() + mTimeWindow;
-    long next = mTimeWindow << 1;
+    mNextEventMs = System.currentTimeMillis() + mWaitTimeMs;
+    long next = Math.min(mWaitTimeMs << 1, mMaxWaitTimeMs);
     // Account for overflow.
-    if (next < mTimeWindow) {
+    if (next < mWaitTimeMs) {
       next = Integer.MAX_VALUE;
     }
-    mTimeWindow = next;
+    mWaitTimeMs = next;
     return this;
   }
 }

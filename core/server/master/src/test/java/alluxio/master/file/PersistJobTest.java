@@ -11,6 +11,8 @@
 
 package alluxio.master.file;
 
+import alluxio.AlluxioURI;
+import alluxio.time.ExponentialTimer;
 import alluxio.util.CommonUtils;
 
 import org.junit.Assert;
@@ -29,18 +31,22 @@ public final class PersistJobTest {
   @Test
   public void fields() {
     Random random = new Random();
-    long fileId = random.nextLong();
     long jobId = random.nextLong();
+    long fileId = random.nextLong();
+    AlluxioURI uri = new AlluxioURI(CommonUtils.randomAlphaNumString(random.nextInt(10)));
     String tempUfsPath = CommonUtils.randomAlphaNumString(random.nextInt(10));
+    ExponentialTimer timer = new ExponentialTimer(0,0,0);
     PersistJob.CancelState cancelState =
         PersistJob.CancelState.values()[random.nextInt(PersistJob.CancelState.values().length)];
 
-    PersistJob persistJob = new PersistJob(fileId, jobId, tempUfsPath);
+    PersistJob persistJob = new PersistJob(jobId, fileId, uri, tempUfsPath, timer);
     persistJob.setCancelState(cancelState);
 
+    Assert.assertEquals(jobId, persistJob.getId());
     Assert.assertEquals(fileId, persistJob.getFileId());
-    Assert.assertEquals(jobId, persistJob.getJobId());
+    Assert.assertEquals(uri, persistJob.getUri());
     Assert.assertEquals(tempUfsPath, persistJob.getTempUfsPath());
+    Assert.assertEquals(timer, persistJob.getTimer());
     Assert.assertEquals(cancelState, persistJob.getCancelState());
   }
 }

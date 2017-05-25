@@ -247,12 +247,14 @@ public class PropertyKey {
       create(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
           String.format("${%s}/recompute.log", Name.LOGS_DIR));
   // ALLUXIO CS ADD
-  public static final PropertyKey MASTER_PERSISTENCE_BASE_TIME_WINDOW_MS =
-      create(Name.MASTER_PERSISTENCE_BASE_TIME_WINDOW_MS, 10);
   public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
       create(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS, 1000);
-  public static final PropertyKey MASTER_PERSISTENCE_NUM_ATTEMPTS =
-      create(Name.MASTER_PERSISTENCE_NUM_ATTEMPTS, 22); // give up after ~1 day
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
+      create(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS, 10);
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_ATTEMPTS =
+      create(Name.MASTER_PERSISTENCE_MAX_ATTEMPTS, 30);
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_WAIT_TIME_MS =
+      create(Name.MASTER_PERSISTENCE_MAX_WAIT_TIME_MS, Constants.HOUR_MS);
   public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
       create(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS, 1000);
   // ALLUXIO CS END
@@ -1028,12 +1030,14 @@ public class PropertyKey {
     public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
         "alluxio.master.lineage.recompute.log.path";
     // ALLUXIO CS ADD
-    public static final String MASTER_PERSISTENCE_BASE_TIME_WINDOW_MS =
-        "alluxio.master.persistence.base.time.window.ms";
     public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
         "alluxio.master.persistence.checker.interval.ms";
-    public static final String MASTER_PERSISTENCE_NUM_ATTEMPTS =
-        "alluxio.master.persistence.num.attempts";
+    public static final String MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
+        "alluxio.master.persistence.initial.wait.time.ms";
+    public static final String MASTER_PERSISTENCE_MAX_ATTEMPTS =
+        "alluxio.master.persistence.max.attempts";
+    public static final String MASTER_PERSISTENCE_MAX_WAIT_TIME_MS =
+        "alluxio.master.persistence.max.wait.time.ms";
     public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
         "alluxio.master.persistence.scheduler.interval.ms";
     // ALLUXIO CS END
