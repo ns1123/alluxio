@@ -14,7 +14,9 @@ package alluxio.master.privilege;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.exception.AccessControlException;
-import alluxio.exception.PrivilegeDeniedException;
+import alluxio.exception.ExceptionMessage;
+import alluxio.exception.status.PermissionDeniedException;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.CommonUtils;
@@ -46,7 +48,8 @@ public class PrivilegeChecker {
    *
    * @param privilege the privilege to check
    */
-  public void check(Privilege privilege) {
+  public void check(Privilege privilege)
+      throws PermissionDeniedException, UnauthenticatedException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         .equals(AuthType.NOSASL)) {
       return;
@@ -54,7 +57,7 @@ public class PrivilegeChecker {
     try {
       check(AuthenticatedClientUser.getClientUser(), privilege);
     } catch (AccessControlException e) {
-      throw new RuntimeException("Failed to get the authenticated client user", e);
+      throw new UnauthenticatedException("Failed to get the authenticated client user", e);
     }
   }
 
@@ -62,7 +65,7 @@ public class PrivilegeChecker {
    * @param user the user to check privileges for
    * @param privilege the privilege to check
    */
-  public void check(String user, Privilege privilege) {
+  public void check(String user, Privilege privilege) throws PermissionDeniedException {
     if (!Configuration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
       return;
     }
@@ -81,6 +84,7 @@ public class PrivilegeChecker {
         return;
       }
     }
-    throw new PrivilegeDeniedException(user, privilege);
+    throw new PermissionDeniedException(
+        ExceptionMessage.PRIVILEGE_DENIED.getMessage(user, privilege));
   }
 }
