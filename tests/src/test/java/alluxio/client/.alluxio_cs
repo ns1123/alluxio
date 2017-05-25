@@ -1,3 +1,5 @@
+CryptoFileInStreamIntegrationTest.java
+CryptoFileOutStreamIntegrationTest.java
 FileOutStreamAsyncWriteJobIntegrationTest.java
 DataAuthorizationKerberosIntegrationTest.java
 DataAuthorizationIntegrationTest.java

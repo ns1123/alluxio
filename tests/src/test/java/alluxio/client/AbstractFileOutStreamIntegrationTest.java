@@ -46,14 +46,17 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
   protected static final int BLOCK_SIZE_BYTES = 1000;
 
   @Rule
+  // ALLUXIO CS REPLACE
+  // public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
+  //     new LocalAlluxioClusterResource.Builder()
+  //     .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
+  //     .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
+  //     .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
+  //     .build();
+  // ALLUXIO CS WITH
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource.Builder()
-          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
-          // ALLUXIO CS ADD
-          .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
-          // ALLUXIO CS END
-          .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
-          .build();
+      buildLocalAlluxioClusterResource();
+  // ALLUXIO CS END
 
   protected FileSystem mFileSystem = null;
 
@@ -71,6 +74,15 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
   }
+
+  protected LocalAlluxioClusterResource buildLocalAlluxioClusterResource() {
+    return new LocalAlluxioClusterResource.Builder()
+        .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
+        .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
+        .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
+        .build();
+  }
+
   // ALLUXIO CS END
   /**
    * Helper to write an Alluxio file with stream of bytes of increasing byte value.
