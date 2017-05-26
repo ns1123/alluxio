@@ -107,16 +107,15 @@ func generateTarballs() error {
 			fmt.Fprintf(os.Stderr, "distribution %s not recognized\n", distribution)
 			continue
 		}
-                // TODO(chaomin): maybe append the OS type if native is enabled.
+		// TODO(chaomin): maybe append the OS type if native is enabled.
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
-		mvnArgs := []string{}
-		mvnArgs = append(mvnArgs, fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion))
-		if nativeFlag {
-			mvnArgs = append(mvnArgs, "-Pnative")
-		}
+		mvnArgs := fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion)
 		generateTarballArgs := []string{
-			"-mvn-args", strings.Join(mvnArgs, ","),
+			"-mvn-args", mvnArgs,
 			"-target", tarball,
+		}
+		if nativeFlag {
+			generateTarballArgs = append(generateTarballArgs, "-native")
 		}
 		if licenseCheckFlag {
 			generateTarballArgs = append(generateTarballArgs, "-license-check")

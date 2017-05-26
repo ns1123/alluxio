@@ -22,6 +22,7 @@ var (
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
 	mvnArgsFlag          string
+	nativeFlag           bool
 	profilesFlag         string
 	targetFlag           string
 )
@@ -41,6 +42,7 @@ func init() {
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.StringVar(&mvnArgsFlag, "mvn-args", "", `a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args "-Pspark,-Dhadoop.version=2.2.0"`)
+	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
 	flag.StringVar(&profilesFlag, "profiles", "", "[DEPRECATED: use -mvn-args instead] a comma-separated list of build profiles to use")
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
@@ -104,6 +106,9 @@ func getMvnArgs() []string {
 		for _, arg := range strings.Split(mvnArgsFlag, ",") {
 			args = append(args, arg)
 		}
+	}
+	if nativeFlag {
+		args = append(args, "-Pnative")
 	}
 	if licenseCheckFlag {
 		args = append(args, "-Dlicense.check.enabled=true")
@@ -216,7 +221,7 @@ func generateTarball() error {
 	run("adding Alluxio server assembly jar", "mv", fmt.Sprintf("assembly/server/target/alluxio-assembly-server-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-server-%v.jar", version)))
 	// Condense the webapp into a single .war file.
 	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webappWar), "-C", webappDir, ".")
-	if strings.Contains(strings.Join(mvnArgs, " "), "-Pnative") {
+	if nativeFlag {
 		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/"), filepath.Join(dstPath, "lib/"))
 	}
 
