@@ -15,7 +15,7 @@ import alluxio.AuthenticatedUserRule;
 import alluxio.ConfigurationRule;
 import alluxio.PropertyKey;
 import alluxio.exception.ExceptionMessage;
-import alluxio.exception.PrivilegeDeniedException;
+import alluxio.exception.status.PermissionDeniedException;
 import alluxio.security.group.GroupMappingService;
 import alluxio.wire.Privilege;
 
@@ -53,7 +53,7 @@ public final class PrivilegeCheckerTest {
       PrivilegeCheckerTest.TestGroupsMapping.class.getName()));
 
   @Test
-  public void checkPass() {
+  public void checkPass() throws Exception {
     Set<Privilege> privileges = new HashSet<>(Collections.singletonList(Privilege.FREE));
     SimplePrivilegeMaster privilegeService =
         new SimplePrivilegeMaster(ImmutableMap.of(TEST_GROUP, privileges));
@@ -62,34 +62,34 @@ public final class PrivilegeCheckerTest {
   }
 
   @Test
-  public void checkMissingPermission() {
+  public void checkMissingPermission() throws Exception {
     Set<Privilege> privileges = new HashSet<>(Collections.singletonList(Privilege.FREE));
     SimplePrivilegeMaster privilegeService =
         new SimplePrivilegeMaster(ImmutableMap.of(TEST_GROUP, privileges));
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
-    mThrown.expect(PrivilegeDeniedException.class);
+    mThrown.expect(PermissionDeniedException.class);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.TTL));
     checker.check(Privilege.TTL);
   }
 
   @Test
-  public void checkGroupWithNoPermissions() {
+  public void checkGroupWithNoPermissions() throws Exception {
     Set<Privilege> privileges = new HashSet<>();
     SimplePrivilegeMaster privilegeService =
         new SimplePrivilegeMaster(ImmutableMap.of(TEST_GROUP, privileges));
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
-    mThrown.expect(PrivilegeDeniedException.class);
+    mThrown.expect(PermissionDeniedException.class);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.TTL));
     checker.check(Privilege.TTL);
   }
 
   @Test
-  public void checkUserWithNoGroups() {
+  public void checkUserWithNoGroups() throws Exception {
     Set<Privilege> privileges = new HashSet<>(Collections.singletonList(Privilege.FREE));
     SimplePrivilegeMaster privilegeService =
         new SimplePrivilegeMaster(ImmutableMap.of(TEST_GROUP, privileges));
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
-    mThrown.expect(PrivilegeDeniedException.class);
+    mThrown.expect(PermissionDeniedException.class);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage("otheruser", Privilege.TTL));
     checker.check("otheruser", Privilege.TTL);
   }

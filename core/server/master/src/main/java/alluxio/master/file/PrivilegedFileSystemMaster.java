@@ -24,6 +24,8 @@ import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidFileSizeException;
 import alluxio.exception.InvalidPathException;
 import alluxio.exception.UnexpectedAlluxioException;
+import alluxio.exception.status.PermissionDeniedException;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.PersistenceState;
@@ -159,24 +161,31 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void free(AlluxioURI path, FreeOptions options)
-      throws FileDoesNotExistException, InvalidPathException, AccessControlException,
-      UnexpectedAlluxioException {
-    mPrivilegeChecker.check(Privilege.FREE);
+  public void free(AlluxioURI path, FreeOptions options) throws FileDoesNotExistException,
+      InvalidPathException, AccessControlException, UnexpectedAlluxioException {
+    try {
+      mPrivilegeChecker.check(Privilege.FREE);
+    } catch (PermissionDeniedException | UnauthenticatedException e) {
+      throw new AccessControlException(e.getMessage(), e);
+    }
     mFileSystemMaster.free(path, options);
   }
 
   @Override
   public void setAttribute(AlluxioURI path, SetAttributeOptions options)
       throws FileDoesNotExistException, AccessControlException, InvalidPathException {
-    if (options.getPinned() != null) {
-      mPrivilegeChecker.check(Privilege.PIN);
-    }
-    if (options.getReplicationMin() != null && options.getReplicationMin() > 0) {
-      mPrivilegeChecker.check(Privilege.REPLICATION);
-    }
-    if (options.getTtl() != null) {
-      mPrivilegeChecker.check(Privilege.TTL);
+    try {
+      if (options.getPinned() != null) {
+        mPrivilegeChecker.check(Privilege.PIN);
+      }
+      if (options.getReplicationMin() != null && options.getReplicationMin() > 0) {
+        mPrivilegeChecker.check(Privilege.REPLICATION);
+      }
+      if (options.getTtl() != null) {
+        mPrivilegeChecker.check(Privilege.TTL);
+      }
+    } catch (PermissionDeniedException | UnauthenticatedException e) {
+      throw new AccessControlException(e.getMessage(), e.getCause());
     }
     mFileSystemMaster.setAttribute(path, options);
   }
