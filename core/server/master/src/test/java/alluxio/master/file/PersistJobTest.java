@@ -35,7 +35,7 @@ public final class PersistJobTest {
     long fileId = random.nextLong();
     AlluxioURI uri = new AlluxioURI(CommonUtils.randomAlphaNumString(random.nextInt(10)));
     String tempUfsPath = CommonUtils.randomAlphaNumString(random.nextInt(10));
-    ExponentialTimer timer = new ExponentialTimer(0, 0, 0);
+    ExponentialTimer timer = new ExponentialTimer(0, 0, 0, 0);
     PersistJob.CancelState cancelState =
         PersistJob.CancelState.values()[random.nextInt(PersistJob.CancelState.values().length)];
 

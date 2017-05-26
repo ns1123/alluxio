@@ -27,7 +27,7 @@ import alluxio.retry.ExponentialBackoffRetry;
  * <pre>
  * while (true) {
  *   Operation op = operations.pop();
- *   switch (op.getTimer().isReady()) {
+ *   switch (op.getTimer().tick()) {
  *   case EXPIRED:
  *     // operation will not be re-attempted
  *     break;
@@ -59,8 +59,8 @@ public class ExponentialTimer {
     READY,
   }
 
-  /** The maximum wait time between events (in milliseconds). */
-  private final long mMaxWaitTimeMs;
+  /** The maximum interval time between events (in milliseconds). */
+  private final long mMaxIntervalMs;
   /** The last event horizon (in milliseconds). */
   private final long mLastEventHorizonMs;
 
@@ -68,21 +68,23 @@ public class ExponentialTimer {
   private long mNumEvents;
   /** The time of the next event. */
   private long mNextEventMs;
-  /** The current wait time  between events (in milliseconds). */
-  private long mWaitTimeMs;
+  /** The current interval between events (in milliseconds). */
+  private long mIntervalMs;
 
   /**
    * Creates a new instance of {@link ExponentialTimer}.
    *
-   * @param initialWaitTimesMs the initial wait time between events (in milliseconds)
-   * @param maxWaitTimeMs the maximum wait time between events (in milliseconds)
+   * @param initialIntervalMs the initial interval between events (in milliseconds)
+   * @param maxIntervalMs the maximum interval between events (in milliseconds)
+   * @param initialWaitTimeMs the initial wait time before first event (in milliseconds)
    * @param maxTotalWaitTimeMs the maximum total wait time (in milliseconds)
    */
-  public ExponentialTimer(long initialWaitTimesMs, long maxWaitTimeMs, long maxTotalWaitTimeMs) {
-    mMaxWaitTimeMs = maxWaitTimeMs;
+  public ExponentialTimer(long initialIntervalMs, long maxIntervalMs, long initialWaitTimeMs,
+      long maxTotalWaitTimeMs) {
+    mMaxIntervalMs = maxIntervalMs;
     mLastEventHorizonMs = System.currentTimeMillis() + maxTotalWaitTimeMs;
-    mNextEventMs = System.currentTimeMillis();
-    mWaitTimeMs = Math.min(initialWaitTimesMs, maxWaitTimeMs);
+    mNextEventMs = System.currentTimeMillis() + initialWaitTimeMs;
+    mIntervalMs = Math.min(initialIntervalMs, maxIntervalMs);
     mNumEvents = 0;
   }
 
@@ -112,13 +114,13 @@ public class ExponentialTimer {
     if (System.currentTimeMillis() < mNextEventMs) {
       return Result.NOT_READY;
     }
-    mNextEventMs = System.currentTimeMillis() + mWaitTimeMs;
-    long next = Math.min(mWaitTimeMs * 2, mMaxWaitTimeMs);
+    mNextEventMs = System.currentTimeMillis() + mIntervalMs;
+    long next = Math.min(mIntervalMs * 2, mMaxIntervalMs);
     // Account for overflow.
-    if (next < mWaitTimeMs) {
+    if (next < mIntervalMs) {
       next = Integer.MAX_VALUE;
     }
-    mWaitTimeMs = next;
+    mIntervalMs = next;
     mNumEvents++;
     return Result.READY;
   }

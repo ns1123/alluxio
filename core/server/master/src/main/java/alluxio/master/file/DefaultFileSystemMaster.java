@@ -2770,8 +2770,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // ALLUXIO CS ADD
     long fileId = inodePath.getInode().getId();
     mPersistRequests.put(fileId, new alluxio.time.ExponentialTimer(
-        Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_RETRY_INTERVAL_MS),
-        Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_RETRY_INTERVAL_MS),
+        Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
+        Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
+        Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
     // ALLUXIO CS END
   }
@@ -2838,8 +2839,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         alluxio.time.ExponentialTimer timer = mPersistRequests.remove(fileId);
         if (timer == null) {
           timer = new alluxio.time.ExponentialTimer(
-              Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_RETRY_INTERVAL_MS),
-              Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_RETRY_INTERVAL_MS),
+              Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
+              Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
+              Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
               Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS));
         }
         mPersistJobs.put(fileId,

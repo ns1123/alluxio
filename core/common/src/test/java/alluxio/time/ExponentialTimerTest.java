@@ -27,7 +27,7 @@ public class ExponentialTimerTest {
   @Test
   public void expiration() {
     int maxTotalWaitTimeMs = 1000;
-    ExponentialTimer timer = new ExponentialTimer(0, 0, maxTotalWaitTimeMs);
+    ExponentialTimer timer = new ExponentialTimer(0, 0, 0, maxTotalWaitTimeMs);
     Assert.assertEquals(ExponentialTimer.Result.READY, timer.tick());
     CommonUtils.sleepMs(maxTotalWaitTimeMs);
     Assert.assertEquals(ExponentialTimer.Result.EXPIRED, timer.tick());
@@ -39,7 +39,7 @@ public class ExponentialTimerTest {
   @Test(timeout = 2000)
   public void backoff() {
     int n = 10;
-    ExponentialTimer timer = new ExponentialTimer(1, 1000, 1000);
+    ExponentialTimer timer = new ExponentialTimer(1, 1000, 0, 1000);
     long start = System.currentTimeMillis();
     for (int i = 0; i < n; i++) {
       while (timer.tick() == ExponentialTimer.Result.NOT_READY) {
