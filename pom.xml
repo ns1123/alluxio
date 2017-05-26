@@ -202,6 +202,7 @@
     <module>minicluster</module>
     <!-- ALLUXIO CS ADD -->
     <module>job</module>
+    <module>kms</module>
     <module>security</module>
     <!-- ALLUXIO CS END -->
   </modules>

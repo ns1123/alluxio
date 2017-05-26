@@ -11,11 +11,10 @@
 
 package alluxio.client.security;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.security.kms.KmsClient;
 import alluxio.util.proto.ProtoUtils;
 
 import com.google.common.base.Preconditions;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The Alluxio cryptographic utilities. It supports fetching crypto keys from KMS,
  * encrypting and decrypting data.
@@ -42,21 +42,26 @@ public final class CryptoUtils {
    * @param inputKey the input key of the KMS calls
    * @return the fetched crypto key for encryption or decryption
    */
-  public static EncryptionProto.CryptoKey getCryptoKey(
-      String kms, boolean encrypt, String inputKey) throws IOException {
-    if (Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER).equalsIgnoreCase(
-        Constants.KMS_TS_PROVIDER_NAME)) {
-      return TSKmsUtils.getCryptoKey(kms, encrypt, inputKey);
+  public static EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
+      throws IOException {
+    try {
+      // TODO(cc): the inputKey, IV, and generationId should not be hard coded.
+      EncryptionProto.CryptoKey key =
+          KmsClient.Factory.create().getCryptoKey(kms, encrypt, "alluxio-test");
+      key = ProtoUtils.setIv(
+          key.toBuilder().setGenerationId("generationId"),
+          Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
+      return key;
+    } catch (IOException e) {
+      return ProtoUtils.setIv(
+          ProtoUtils.setKey(
+              EncryptionProto.CryptoKey.newBuilder()
+                  .setCipher(CIPHER)
+                  .setNeedsAuthTag(1)
+                  .setGenerationId("generationId"),
+              Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()),
+          Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
     }
-    return ProtoUtils.setIv(
-        ProtoUtils.setKey(
-            EncryptionProto.CryptoKey.newBuilder()
-                .setCipher(CIPHER)
-                .setNeedsAuthTag(1)
-                .setGenerationId("generationId"),
-            Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()),
-        Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
-
   }
 
   /**
