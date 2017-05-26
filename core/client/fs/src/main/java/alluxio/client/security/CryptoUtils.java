@@ -11,7 +11,9 @@
 
 package alluxio.client.security;
 
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.security.kms.KmsClient;
@@ -45,12 +47,14 @@ public final class CryptoUtils {
   public static EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
       throws IOException {
     try {
-      // TODO(cc): the inputKey, IV, and generationId should not be hard coded.
       EncryptionProto.CryptoKey key =
-          KmsClient.Factory.create().getCryptoKey(kms, encrypt, "alluxio-test");
-      key = ProtoUtils.setIv(
-          key.toBuilder().setGenerationId("generationId"),
-          Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
+          KmsClient.Factory.create().getCryptoKey(kms, encrypt, inputKey);
+      if (Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER).equalsIgnoreCase(
+          Constants.KMS_HADOOP_PROVIDER_NAME)) {
+        // TODO(cc): the IV for Hadoop KMS should not be hard coded.
+        key = ProtoUtils.setIv(key.toBuilder(), Constants.ENCRYPTION_IV_FOR_TESTING.getBytes())
+            .build();
+      }
       return key;
     } catch (IOException e) {
       return ProtoUtils.setIv(
