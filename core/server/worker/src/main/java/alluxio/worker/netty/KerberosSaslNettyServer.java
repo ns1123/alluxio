@@ -56,11 +56,13 @@ public class KerberosSaslNettyServer {
           NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC);
       final String serviceName = KerberosUtils.getKerberosServiceName();
       Preconditions.checkNotNull(hostname);
+      String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName();
+      final String instanceName = unifiedInstanceName != null ? unifiedInstanceName : hostname;
       mSaslServer = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslServer>() {
         public SaslServer run() {
           try {
-            return Sasl.createSaslServer(KerberosUtils.GSSAPI_MECHANISM_NAME, serviceName, hostname,
-                KerberosUtils.SASL_PROPERTIES,
+            return Sasl.createSaslServer(KerberosUtils.GSSAPI_MECHANISM_NAME, serviceName,
+                instanceName, KerberosUtils.SASL_PROPERTIES,
                 new KerberosUtils.NettyGssSaslCallbackHandler(channel));
           } catch (Exception e) {
             LOG.error("Subject failed to create Sasl client. ", e);
