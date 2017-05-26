@@ -65,6 +65,13 @@
       <artifactId>alluxio-shell</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- ALLUXIO CS ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-kms-twosigma</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!-- ALLUXIO CS END -->
   </dependencies>
 
   <build>
