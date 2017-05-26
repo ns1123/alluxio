@@ -58,7 +58,8 @@ public interface KmsClient {
       if (sInit) {
         return;
       }
-      ServiceLoader<KmsClientFactory> factories = ServiceLoader.load(KmsClientFactory.class);
+      ServiceLoader<KmsClientFactory> factories = ServiceLoader.load(KmsClientFactory.class,
+          KmsClientFactory.class.getClassLoader());
       for (KmsClientFactory factory : factories) {
         FACTORIES.add(factory);
       }
