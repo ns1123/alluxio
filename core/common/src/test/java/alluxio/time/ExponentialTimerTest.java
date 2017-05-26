@@ -22,7 +22,7 @@ import org.junit.Test;
 public class ExponentialTimerTest {
 
   /**
-   * Tests the maximum number of attempts is respected.
+   * Tests that the maximum total wait time is respected.
    */
   @Test
   public void expiration() {

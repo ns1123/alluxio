@@ -3027,7 +3027,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     public void close() {} // Nothing to clean up
 
     /**
-     * Updates the file system metadata to reflect the fact that the persist job expired.
+     * Updates the file system metadata to reflect the fact that the persist file request expired.
      *
      * @param fileId the file ID
      * @param journalContext the journal context
@@ -3042,10 +3042,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           case NOT_PERSISTED:
             // fall through
           case PERSISTED:
-            LOG.warn(
-                "File {} (id={}) persistence state is {}. Expired file persistence will have no "
-                    + "effect.", inodePath.getUri(), fileId, inode.getPersistenceState());
-            break;
+            LOG.warn("File {} (id={}) persistence state is {} and will not be changed.",
+                inodePath.getUri(), fileId, inode.getPersistenceState());
+            return;
           case TO_BE_PERSISTED:
             inode.setPersistenceState(PersistenceState.NOT_PERSISTED);
             inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
@@ -3067,23 +3066,45 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
 
     /**
-     * Attempts to schedule the persist job and updates the file system metadata accordingly.
+     * Attempts to schedule a persist job and updates the file system metadata accordingly.
      *
      * @param fileId the file ID
-     * @param uri the Alluxio URI
-     * @param previousUfsPath the previous temporary UFS path
      * @param journalContext the journal context
      */
-    private void handleReady(long fileId, AlluxioURI uri, String previousUfsPath,
-        JournalContext journalContext) throws AlluxioException, IOException {
+    private void handleReady(long fileId, JournalContext journalContext)
+        throws AlluxioException, IOException {
       alluxio.time.ExponentialTimer timer = mPersistRequests.get(fileId);
+      // Lookup relevant file information.
+      AlluxioURI uri;
+      String tempUfsPath;
+      try (LockedInodePath inodePath = mInodeTree
+          .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+        InodeFile inode = inodePath.getInodeFile();
+        uri = inodePath.getUri();
+        switch (inode.getPersistenceState()) {
+          case LOST:
+            // fall through
+          case NOT_PERSISTED:
+            // fall through
+          case PERSISTED:
+            LOG.warn("File {} (id={}) persistence state is {} and will not be changed.",
+                inodePath.getUri(), fileId, inode.getPersistenceState());
+            return;
+          case TO_BE_PERSISTED:
+            tempUfsPath = inodePath.getInodeFile().getTempUfsPath();
+            break;
+          default:
+            throw new IllegalStateException(
+                "Unrecognized persistence state: " + inode.getPersistenceState());
+        }
+      }
 
       // If previous persist job failed, clean up the temporary file.
-      cleanup(previousUfsPath);
+      cleanup(tempUfsPath);
 
       // Generate a temporary path to be used by the persist job.
       MountTable.Resolution resolution = mMountTable.resolve(uri);
-      String tempUfsPath =
+      tempUfsPath =
           PathUtils.temporaryFileName(System.currentTimeMillis(), resolution.getUri().toString());
       alluxio.job.persist.PersistConfig config =
           new alluxio.job.persist.PersistConfig(uri.getPath(), resolution.getMountId(), false,
@@ -3128,38 +3149,25 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       java.util.concurrent.TimeUnit.SECONDS.sleep(mQuietPeriodSeconds);
       // Process persist requests.
       for (long fileId : mPersistRequests.keySet()) {
-        AlluxioURI uri = null;
-        String tempUfsPath;
         boolean remove = true;
         alluxio.time.ExponentialTimer timer = mPersistRequests.get(fileId);
         alluxio.time.ExponentialTimer.Result timerResult = timer.tick();
         if (timerResult == alluxio.time.ExponentialTimer.Result.NOT_READY) {
-          // operation is not ready to attempted
+          // operation is not ready to be scheduled
           continue;
         }
+        AlluxioURI uri = null;
         try (JournalContext journalContext = createJournalContext()) {
-          // Lookup relevant file information.
           try (LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
             uri = inodePath.getUri();
-            InodeFile inode = inodePath.getInodeFile();
-            switch (inode.getPersistenceState()) {
-              case NOT_PERSISTED:
-                // fall through
-              case LOST:
-                // fall through
-              case PERSISTED:
-                continue;
-              default:
-                tempUfsPath = inode.getTempUfsPath();
-            }
           }
           switch (timerResult) {
             case EXPIRED:
               handleExpired(fileId, journalContext);
               break;
             case READY:
-              handleReady(fileId, uri, tempUfsPath, journalContext);
+              handleReady(fileId, journalContext);
               break;
             default:
               throw new IllegalStateException("Unrecognized timer state: " + timerResult);
@@ -3175,10 +3183,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               Math.min(MAX_QUIET_PERIOD_SECONDS, mQuietPeriodSeconds * 2);
           remove = false;
         } catch (Exception e) {
-          LOG.warn(
-              "Unexpected exception encountered when starting the job to persist file {} (id={}) "
-                  + ": {}",
-              uri, fileId, e.getMessage());
+          LOG.warn("Unexpected exception encountered when scheduling the persist job for file {} "
+              + "(id={}) : {}", uri, fileId, e.getMessage());
           LOG.debug("Exception: ", e);
         } finally {
           if (remove) {
@@ -3268,6 +3274,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         LOG.debug("Exception: ", e);
         cleanup(tempUfsPath);
         mPersistRequests.put(fileId, job.getTimer());
+      } finally {
+        mPersistJobs.remove(fileId);
       }
     }
 
@@ -3329,7 +3337,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               mPersistJobs.remove(fileId);
               break;
             case COMPLETED:
-              mPersistJobs.remove(fileId);
               mPersistCheckerPool.execute(new Runnable() {
                 @Override
                 public void run() {
