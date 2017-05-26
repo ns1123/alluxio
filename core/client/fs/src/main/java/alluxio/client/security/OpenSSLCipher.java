@@ -48,8 +48,14 @@ public final class OpenSSLCipher implements Cipher {
    * @param mode the operation mode
    * @param cryptoKey the cipher parameters
    */
-  public OpenSSLCipher(OpMode mode, EncryptionProto.CryptoKey cryptoKey) throws GeneralSecurityException {
-    if (!cryptoKey.getCipher().equals(AES_GCM_NOPADDING)) {
+  public OpenSSLCipher(OpMode mode, EncryptionProto.CryptoKey cryptoKey)
+      throws GeneralSecurityException {
+    String cipherName = cryptoKey.getCipher();
+    // This is special handling for TS KMS, because it returns the cipher name : id-aes128-GCM
+    if (cipherName.contains("aes128-GCM") || cipherName.contains("aes256-GCM")) {
+      cipherName = Constants.AES_GCM_NOPADDING;
+    }
+    if (!cipherName.equals(AES_GCM_NOPADDING)) {
       throw new GeneralSecurityException("Unsupported cipher transformation");
     }
     mCryptoKey = cryptoKey;
