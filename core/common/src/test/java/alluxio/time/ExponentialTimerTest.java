@@ -36,7 +36,7 @@ public class ExponentialTimerTest {
   /**
    * Tests the exponential back-off logic.
    */
-  @Test(timeout=2000)
+  @Test(timeout = 2000)
   public void backoff() {
     int n = 10;
     ExponentialTimer timer = new ExponentialTimer(1, 1000, 1000);

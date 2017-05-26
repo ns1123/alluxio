@@ -97,7 +97,6 @@ import alluxio.thrift.MountTOptions;
 import alluxio.thrift.PersistCommandOptions;
 import alluxio.thrift.PersistFile;
 import alluxio.thrift.UfsInfo;
-import alluxio.time.ExponentialTimer;
 import alluxio.underfs.MasterUfsManager;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UfsManager;
@@ -3134,7 +3133,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         boolean remove = true;
         alluxio.time.ExponentialTimer timer = mPersistRequests.get(fileId);
         alluxio.time.ExponentialTimer.Result timerResult = timer.tick();
-        if (timerResult == ExponentialTimer.Result.NOT_READY) {
+        if (timerResult == alluxio.time.ExponentialTimer.Result.NOT_READY) {
           // operation is not ready to attempted
           continue;
         }
@@ -3162,6 +3161,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             case READY:
               handleReady(fileId, uri, tempUfsPath, journalContext);
               break;
+            default:
+              throw new IllegalStateException("Unrecognized timer state: " + timerResult);
           }
         } catch (FileDoesNotExistException | InvalidPathException e) {
           LOG.warn("The file {} (id={}) to be persisted was not found : {}", uri, fileId,

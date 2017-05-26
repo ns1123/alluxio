@@ -33,6 +33,7 @@ import alluxio.retry.ExponentialBackoffRetry;
  *     break;
  *   case NOT_READY:
  *     // operation is not ready to be re-attempted
+ *     operations.push(op);
  *     break;
  *   case READY:
  *     boolean success = op.run();
@@ -44,11 +45,14 @@ import alluxio.retry.ExponentialBackoffRetry;
  * }
  * </pre>
  *
- * Note that in the above scenario, the {@link ExponentialBackoffRetry} policy is not applicable
+ * Note that in the above scenario, the {@link ExponentialBackoffRetry} policy cannot be used
  * because the {@link RetryPolicy#attemptRetry()} is blocking.
  */
 public class ExponentialTimer {
 
+  /**
+   * Represents the result of {@link #tick()}.
+   */
   public enum Result {
     EXPIRED,
     NOT_READY,
