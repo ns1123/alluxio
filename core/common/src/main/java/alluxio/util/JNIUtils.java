@@ -28,8 +28,8 @@ public final class JNIUtils {
    * @param filename the native library file to load
    */
   public static void load(Logger logger, String filename) {
-    logger.info("Loading native library " + filename);
+    logger.debug("Loading native library " + filename);
     System.load(filename);
-    logger.info("The native library was loaded");
+    logger.debug("The native library was loaded");
   }
 }
