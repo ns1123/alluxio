@@ -216,6 +216,9 @@ func generateTarball() error {
 	run("adding Alluxio server assembly jar", "mv", fmt.Sprintf("assembly/server/target/alluxio-assembly-server-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-server-%v.jar", version)))
 	// Condense the webapp into a single .war file.
 	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webappWar), "-C", webappDir, ".")
+	if strings.Contains(strings.Join(mvnArgs, " "), "-Pnative") {
+		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/"), filepath.Join(dstPath, "lib/"))
+	}
 
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
 	chdir(filepath.Join(srcPath, "core/client/runtime"))
