@@ -274,7 +274,7 @@ public class FileOutStream extends AbstractOutStream {
     }
 
     if (mUnderStorageType.isSyncPersist()) {
-      ((UnderFileSystemFileOutStream) mUnderStorageOutputStream).write(buf, off, len);
+      mUnderStorageOutputStream.write(buf, off, len);
       Metrics.BYTES_WRITTEN_UFS.inc(len);
     }
     mBytesWritten += len;

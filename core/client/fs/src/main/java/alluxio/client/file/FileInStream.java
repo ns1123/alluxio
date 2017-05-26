@@ -271,7 +271,11 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
         long oldPos = mPos;
         try {
           seek(pos);
-          return read(b, off, len);
+          // ALLUXIO CS REPLACE
+          // return read(b, off, len);
+          // ALLUXIO CS WITH
+          return readInternal(b, off, len);
+          // ALLUXIO CS END
         } finally {
           seek(oldPos);
         }
