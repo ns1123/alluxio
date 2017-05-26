@@ -10,7 +10,7 @@
 package alluxio.job;
 
 import alluxio.exception.ExceptionMessage;
-import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.exception.JobDoesNotExistException;
 
 import org.junit.Assert;
 import org.junit.Rule;

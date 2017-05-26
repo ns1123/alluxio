@@ -16,7 +16,7 @@ import alluxio.client.job.JobMasterClientPool;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatExecutor;
-import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.exception.JobDoesNotExistException;
 import alluxio.job.replicate.ReplicationHandler;
 import alluxio.job.replicate.DefaultReplicationHandler;
 import alluxio.master.block.BlockMaster;
