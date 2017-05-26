@@ -86,7 +86,7 @@ public final class PersistenceTest {
     File ufsRoot = tmpFolder.newFolder();
     Configuration.set(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, ufsRoot.getAbsolutePath());
     Configuration.set(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS, 0);
-    Configuration.set(PropertyKey.MASTER_PERSISTENCE_MAX_ATTEMPTS, 10);
+    Configuration.set(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS, 1000);
     mJournalFolder = tmpFolder.newFolder();
     startServices();
   }
@@ -273,17 +273,20 @@ public final class PersistenceTest {
     Mockito.when(mMockJobMasterClient.getStatus(Mockito.anyLong())).thenReturn(jobInfo);
 
     // Repeatedly execute the persistence checker and scheduler heartbeats, checking the internal
-    // state.
-    for (int i = 0; i < 10; i++) {
+    // state. After the internal timeout associated with the operation expires, check the operation
+    // has been cancelled.
+    while (true) {
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
       checkPersistenceRequested(testFile);
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
-      checkPersistenceInProgress(testFile, jobId);
+      if (getPersistJobs().size() != 0) {
+        checkPersistenceInProgress(testFile, jobId);
+      } else {
+        checkEmpty();
+        break;
+      }
+      CommonUtils.sleepMs(100);
     }
-
-    // Check that after 10 attempts the operation is not retried again and the inode state is reset.
-    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-    checkEmpty();
     fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
   }

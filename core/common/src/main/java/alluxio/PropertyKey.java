@@ -251,8 +251,8 @@ public class PropertyKey {
       create(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS, 1000);
   public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
       create(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS, 10);
-  public static final PropertyKey MASTER_PERSISTENCE_MAX_ATTEMPTS =
-      create(Name.MASTER_PERSISTENCE_MAX_ATTEMPTS, 30);
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
+      create(Name.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS, Constants.DAY_MS);
   public static final PropertyKey MASTER_PERSISTENCE_MAX_WAIT_TIME_MS =
       create(Name.MASTER_PERSISTENCE_MAX_WAIT_TIME_MS, Constants.HOUR_MS);
   public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
@@ -1034,8 +1034,8 @@ public class PropertyKey {
         "alluxio.master.persistence.checker.interval.ms";
     public static final String MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
         "alluxio.master.persistence.initial.wait.time.ms";
-    public static final String MASTER_PERSISTENCE_MAX_ATTEMPTS =
-        "alluxio.master.persistence.max.attempts";
+    public static final String MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
+        "alluxio.master.persistence.max.total.wait.time.ms";
     public static final String MASTER_PERSISTENCE_MAX_WAIT_TIME_MS =
         "alluxio.master.persistence.max.wait.time.ms";
     public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =

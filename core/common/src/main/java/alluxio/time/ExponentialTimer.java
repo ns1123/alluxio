@@ -27,10 +27,16 @@ import alluxio.retry.ExponentialBackoffRetry;
  * <pre>
  * while (true) {
  *   Operation op = operations.pop();
- *   if (op.getTimer().isReady()) {
+ *   switch (op.getTimer().isReady()) {
+ *   case EXPIRED:
+ *     // operation will not be re-attempted
+ *     break;
+ *   case NOT_READY:
+ *     // operation is not ready to be re-attempted
+ *     break;
+ *   case READY:
  *     boolean success = op.run();
- *     if (!success && op.getTimer().hasNext()) {
- *       op.getTimer().next();
+ *     if (!success) {
  *       operations.push(op);
  *     }
  *   }
@@ -41,57 +47,67 @@ import alluxio.retry.ExponentialBackoffRetry;
  * Note that in the above scenario, the {@link ExponentialBackoffRetry} policy is not applicable
  * because the {@link RetryPolicy#attemptRetry()} is blocking.
  */
-// TODO(jiri): Replace max number of events with maximum total wait time both here and in
-// ExponentialBackoffRetry.
 public class ExponentialTimer {
-  /** The maximum number of events. */
-  private final long mMaxNumEvents;
-  /** The maximum wait time (in milliseconds) between events. */
-  private final long mMaxWaitTimeMs;
 
-  /** The time of the next event. */
-  private long mNextEventMs;
+  public enum Result {
+    EXPIRED,
+    NOT_READY,
+    READY,
+  }
+
+  /** The maximum wait time between events (in milliseconds). */
+  private final long mMaxWaitTimeMs;
+  /** The last event horizon (in milliseconds). */
+  private final long mLastEventHorizonMs;
+
   /** The number of generated events. */
   private long mNumEvents;
-  /** The current wait time (in milliseconds) between events. */
+  /** The time of the next event. */
+  private long mNextEventMs;
+  /** The current wait time  between events (in milliseconds). */
   private long mWaitTimeMs;
 
   /**
    * Creates a new instance of {@link ExponentialTimer}.
    *
-   * @param maxEvents the maximum number of events
-   * @param initialWaitTimesMs the initial wait time (in milliseconds)
-   * @param maxWaitTimeMs the initial wait time (in milliseconds)
+   * @param initialWaitTimesMs the initial wait time between events (in milliseconds)
+   * @param maxWaitTimeMs the maximum wait time between events (in milliseconds)
+   * @param maxTotalWaitTimeMs the maximum total wait time (in milliseconds)
    */
-  public ExponentialTimer(long maxEvents, long initialWaitTimesMs, long maxWaitTimeMs) {
-    mMaxNumEvents = maxEvents;
+  public ExponentialTimer(long initialWaitTimesMs, long maxWaitTimeMs, long maxTotalWaitTimeMs) {
     mMaxWaitTimeMs = maxWaitTimeMs;
+    mLastEventHorizonMs = System.currentTimeMillis() + maxTotalWaitTimeMs;
     mNextEventMs = System.currentTimeMillis();
-    mNumEvents = 0;
     mWaitTimeMs = Math.min(initialWaitTimesMs, maxWaitTimeMs);
+    mNumEvents = 0;
   }
 
   /**
-   * @return whether an event is ready
+   * @return the number of generated events so far
    */
-  public boolean isReady() {
-    return System.currentTimeMillis() >= mNextEventMs;
+  public long getNumEvents() {
+    return mNumEvents;
   }
 
   /**
-   * @return whether there are any events left
-   */
-  public boolean hasNext() {
-    return mNumEvents < mMaxNumEvents;
-  }
-
-  /**
-   * Generates the next event.
+   * Attempts to perform a timer tick. One of three scenarios can be encountered:
    *
-   * @return the updated object
+   * 1. the timer has expired
+   * 2. the next event is not ready
+   * 3. the next event is generated
+   *
+   * The last option has the side-effect of updating the internal state of the timer to reflect
+   * the generation of the event.
+   *
+   * @return the {@link Result} that indicates which scenario was encountered
    */
-  public ExponentialTimer next() {
-    mNumEvents++;
+  public Result tick() {
+    if (System.currentTimeMillis() >= mLastEventHorizonMs) {
+      return Result.EXPIRED;
+    }
+    if (System.currentTimeMillis() < mNextEventMs) {
+      return Result.NOT_READY;
+    }
     mNextEventMs = System.currentTimeMillis() + mWaitTimeMs;
     long next = Math.min(mWaitTimeMs * 2, mMaxWaitTimeMs);
     // Account for overflow.
@@ -99,6 +115,7 @@ public class ExponentialTimer {
       next = Integer.MAX_VALUE;
     }
     mWaitTimeMs = next;
-    return this;
+    mNumEvents++;
+    return Result.READY;
   }
 }
