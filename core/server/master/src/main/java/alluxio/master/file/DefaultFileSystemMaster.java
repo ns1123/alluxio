@@ -31,6 +31,7 @@ import alluxio.exception.InvalidFileSizeException;
 import alluxio.exception.InvalidPathException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.exception.UnexpectedAlluxioException;
+import alluxio.exception.status.InvalidArgumentException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
@@ -3137,7 +3138,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     @Override
     public void close() {} // nothing to clean up
 
-    private void handleCompletion(PersistJob job) {
+    /**
+     * Updates the file system metadata to reflect the fact that the persist job failed.
+     *
+     * NOTE: It is the responsibility of the caller to update {@link #mPersistJobs}.
+     *
+     * @param job the failed job
+     */
+    private void handleFailure(PersistJob job) {
       long fileId = job.getFileId();
       String tempUfsPath = job.getTempUfsPath();
       try (JournalContext journalContext = createJournalContext();
@@ -3145,9 +3153,62 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
         InodeFile inode = inodePath.getInodeFile();
         switch (inode.getPersistenceState()) {
+          case LOST:
+            // fall through
+          case NOT_PERSISTED:
+            // fall through
           case PERSISTED:
-            // This can happen if multiple persist requests are issued (e.g. through CLI).
-            LOG.warn("File {} (id={}) is already persisted.", job.getUri(), fileId);
+            LOG.warn("File {} (id={}) persistence state is {}. Failed persist has no effect.",
+                job.getUri(), fileId, inode.getPersistenceState());
+            break;
+          case TO_BE_PERSISTED:
+            inode.setPersistenceState(PersistenceState.NOT_PERSISTED);
+            inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
+            inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
+
+            // Journal the action.
+            SetAttributeEntry.Builder builder =
+                SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(false)
+                    .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
+                    .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
+            appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
+                journalContext);
+            break;
+          default:
+            throw new IllegalStateException(
+                "Unrecognized persistence state: " + inode.getPersistenceState());
+        }
+      } catch (FileDoesNotExistException e) {
+        LOG.warn("The file {} (id={}) to be persisted was not found: {}", job.getUri(), fileId,
+            e.getMessage());
+        LOG.debug("Exception: ", e);
+        // Cleanup the temporary file.
+        cleanup(tempUfsPath);
+      }
+    }
+
+    /**
+     * Updates the file system metadata to reflect the fact that the persist job succeeded.
+     *
+     * NOTE: It is the responsibility of the caller to update {@link #mPersistJobs}.
+     *
+     * @param job the successful job
+     */
+    private void handleSuccess(PersistJob job) {
+      long fileId = job.getFileId();
+      String tempUfsPath = job.getTempUfsPath();
+      try (JournalContext journalContext = createJournalContext();
+          LockedInodePath inodePath = mInodeTree
+              .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+        InodeFile inode = inodePath.getInodeFile();
+        switch (inode.getPersistenceState()) {
+          case LOST:
+            // fall through
+          case NOT_PERSISTED:
+            // fall through
+          case PERSISTED:
+            LOG.warn("File {} (id={}) persistence state is {}. Successful persist has no effect.",
+                job.getUri(), fileId, inode.getPersistenceState());
             break;
           case TO_BE_PERSISTED:
             MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
@@ -3197,9 +3258,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           LOG.warn("Persisting file {} (id={}) failed {} times and will not be retried again.",
               job.getUri(), fileId,
               Configuration.getLong(PropertyKey.MASTER_PERSISTENCE_MAX_ATTEMPTS));
+          handleFailure(job);
         }
-      } finally {
-        mPersistJobs.remove(fileId);
       }
     }
 
@@ -3252,9 +3312,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             case CREATED:
               break;
             case FAILED:
+              mPersistJobs.remove(fileId);
               LOG.warn("The persist job (id={}) for file {} (id={}) failed: {}", jobId,
                   job.getUri(), fileId, jobInfo.getErrorMessage());
-              mPersistJobs.remove(fileId);
               if (job.getTimer().hasNext()) {
                 LOG.warn("The persist job for file {} (id={}) will be retried.", job.getUri(),
                     fileId);
@@ -3264,19 +3324,20 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                     "The persist job for file {} (id={}) failed {} times and will not be retried "
                         + "again.", job.getUri(), fileId,
                     Configuration.getLong(PropertyKey.MASTER_PERSISTENCE_MAX_ATTEMPTS));
+                handleFailure(job);
               }
               break;
             case CANCELED:
               mPersistJobs.remove(fileId);
               break;
             case COMPLETED:
+              mPersistJobs.remove(fileId);
               mPersistCheckerPool.execute(new Runnable() {
                 @Override
                 public void run() {
-                  handleCompletion(job);
+                  handleSuccess(job);
                 }
               });
-              mPersistJobs.remove(fileId);
               break;
             default:
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
@@ -3296,6 +3357,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                     + "again.",
                 job.getUri(), fileId,
                 Configuration.getLong(PropertyKey.MASTER_PERSISTENCE_MAX_ATTEMPTS));
+            handleFailure(job);
           }
         } finally {
           mJobMasterClientPool.release(client);

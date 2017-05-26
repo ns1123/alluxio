@@ -281,9 +281,11 @@ public final class PersistenceTest {
       checkPersistenceInProgress(testFile, jobId);
     }
 
-    // Check that after 10 attempts the operation is not retried again.
+    // Check that after 10 attempts the operation is not retried again and the inode state is reset.
     HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
     checkEmpty();
+    fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
+    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
   }
 
   /**

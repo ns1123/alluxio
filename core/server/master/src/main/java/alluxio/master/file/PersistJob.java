@@ -24,15 +24,15 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class PersistJob {
   /** The id of the file that is persisted. */
-  private long mFileId;
+  private final long mFileId;
   /** The URI of the file (NOTE: this can be out of date and should only be used for logging). */
-  private AlluxioURI mUri;
+  private final AlluxioURI mUri;
   /** The id of the persist job. */
-  private long mId;
+  private final long mId;
   /** The temporary UFS path the file is persisted to. */
-  private String mTempUfsPath;
+  private final String mTempUfsPath;
   /** The timer used for retrying failed jobs. */
-  private ExponentialTimer mTimer;
+  private final ExponentialTimer mTimer;
   /** The cancel state. */
   private CancelState mCancelState;
 
