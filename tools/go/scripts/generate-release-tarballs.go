@@ -41,7 +41,8 @@ var (
 	debugFlag            bool
 	distributionsFlag    string
 	licenseCheckFlag     bool
-	licenseSecretKeyFlag string	
+	licenseSecretKeyFlag string
+	nativeFlag           bool
 )
 
 func init() {
@@ -54,7 +55,8 @@ func init() {
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
 	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions(), ","), fmt.Sprintf("a comma-separated list of distributions to generate; the default is to generate all distributions"))
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
-	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")	
+	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
+	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native OpenSSL JNI. Prerequisites: OpenSSL, CMake and JDK with JNI support.")
 	flag.Parse()
 }
 
@@ -106,9 +108,13 @@ func generateTarballs() error {
 			continue
 		}
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
-		mvnArgs := fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion)		
+		mvnArgs := []string{}
+		mvnArgs = append(mvnArgs, fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion))
+		if nativeFlag {
+			mvnArgs = append(mvnArgs, "-Pnative")
+		}
 		generateTarballArgs := []string{
-			"-mvn-args", mvnArgs,
+			"-mvn-args", strings.Join(mvnArgs, ","),
 			"-target", tarball,
 		}
 		if licenseCheckFlag {
