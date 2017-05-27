@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Interface for different Key Management Service (KMS) clients.
@@ -44,8 +45,26 @@ public interface KmsClient {
    */
   class Factory {
     private static final Logger LOG = LoggerFactory.getLogger(Factory.class);
-    private static final ServiceLoader<KmsClientFactory> SERVICE_LOADER =
-        ServiceLoader.load(KmsClientFactory.class);
+    private static final List<KmsClientFactory> FACTORIES = new CopyOnWriteArrayList<>();
+
+    private static boolean sInit = false;
+
+    static {
+      // Call the actual initializer which is a synchronized method for thread safety purposes.
+      init();
+    }
+
+    private static synchronized void init() {
+      if (sInit) {
+        return;
+      }
+      ServiceLoader<KmsClientFactory> factories = ServiceLoader.load(KmsClientFactory.class,
+          KmsClientFactory.class.getClassLoader());
+      for (KmsClientFactory factory : factories) {
+        FACTORIES.add(factory);
+      }
+      sInit = true;
+    }
 
     private Factory() {} // prevent initialization
 
@@ -61,7 +80,7 @@ public interface KmsClient {
     public static KmsClient create() throws IOException {
       String provider = Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER);
       List<Throwable> errors = new ArrayList<>();
-      for (KmsClientFactory factory : SERVICE_LOADER) {
+      for (KmsClientFactory factory : FACTORIES) {
         if (factory.supportsProvider(provider)) {
           try {
             return factory.create();
