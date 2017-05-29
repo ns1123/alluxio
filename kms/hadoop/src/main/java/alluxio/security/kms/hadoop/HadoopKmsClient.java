@@ -11,13 +11,16 @@
 
 package alluxio.security.kms.hadoop;
 
+import alluxio.PropertyKey;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.security.authentication.AuthType;
 import alluxio.security.kms.KmsClient;
 import alluxio.util.proto.ProtoUtils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.crypto.key.KeyProvider;
 import org.apache.hadoop.crypto.key.kms.KMSClientProvider;
+import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.IOException;
 import java.net.URI;
@@ -73,7 +76,17 @@ public class HadoopKmsClient implements KmsClient {
     } catch (URISyntaxException e) {
       throw new IOException("Invalid hadoop KMS endpoint format", e);
     }
+
     Configuration conf = new Configuration();
+    String principal = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+    String keytabFile = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+    if (!principal.isEmpty() && !keytabFile.isEmpty()) {
+      // Login Hadoop with Alluxio client kerberos principal and keytab.
+      conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
+      UserGroupInformation.setConfiguration(conf);
+      UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
+    }
+
     KeyProvider keyProvider = KMSClientProvider.Factory.get(kmsEndpoint, conf);
     byte[] key = keyProvider.getCurrentKey(inputKey).getMaterial();
     String cipher = keyProvider.getMetadata(inputKey).getCipher();
