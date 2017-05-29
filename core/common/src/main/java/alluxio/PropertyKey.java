@@ -723,6 +723,8 @@ public class PropertyKey {
       create(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
       create(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+  public static final PropertyKey SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
+      create(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME, "");
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
       create(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED, false);
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
@@ -1376,6 +1378,9 @@ public class PropertyKey {
         "alluxio.security.kerberos.client.principal";
     public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
         "alluxio.security.kerberos.client.keytab.file";
+    public static final String SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
+        "alluxio.security.kerberos.unified.instance.name";
+
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
         "alluxio.security.authorization.capability.enabled";
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =

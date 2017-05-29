@@ -45,6 +45,7 @@ import java.net.URLClassLoader;
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
 public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTest {
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
+  private static final String UNIFIED_INSTANCE = "instance";
 
   private static MiniKdc sKdc;
   private static File sWorkDir;
@@ -70,10 +71,10 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + HOSTNAME + "@" + realm;
+    sServerPrincipal = "alluxio/" + UNIFIED_INSTANCE + "@" + realm;
     sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + HOSTNAME);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + UNIFIED_INSTANCE);
 
     sLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
         .put(PropertyKey.MASTER_HOSTNAME, HOSTNAME)
@@ -85,6 +86,7 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
         .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal)
         .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath())
         .put(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio")
+        .put(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME, UNIFIED_INSTANCE)
         .build());
     sLocalAlluxioClusterResource.start();
   }

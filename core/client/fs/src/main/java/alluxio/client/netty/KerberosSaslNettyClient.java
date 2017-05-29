@@ -54,12 +54,15 @@ public class KerberosSaslNettyClient {
 
     final String serviceName = KerberosUtils.getKerberosServiceName();
     final CallbackHandler ch = new SaslClientCallbackHandler();
+
+    String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName();
+    final String instanceName = unifiedInstanceName != null ? unifiedInstanceName : serverHostname;
     try {
       mSaslClient = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslClient>() {
         public SaslClient run() throws SaslException {
             return Sasl.createSaslClient(
                 new String[] { KerberosUtils.GSSAPI_MECHANISM_NAME }, null /* authorizationId */,
-                serviceName, serverHostname, KerberosUtils.SASL_PROPERTIES, ch);
+                serviceName, instanceName, KerberosUtils.SASL_PROPERTIES, ch);
         }
       });
     } catch (PrivilegedActionException e) {
