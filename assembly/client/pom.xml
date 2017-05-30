@@ -68,6 +68,11 @@
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-kms-dummy</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-kms-twosigma</artifactId>
       <version>${project.version}</version>
     </dependency>
