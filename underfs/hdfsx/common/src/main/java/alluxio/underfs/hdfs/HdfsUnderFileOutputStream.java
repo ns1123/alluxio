@@ -38,19 +38,6 @@ public class HdfsUnderFileOutputStream extends OutputStream {
    * @param out underlying stream to wrap
    */
   public HdfsUnderFileOutputStream(FSDataOutputStream out) {
-    LOG.error("HdfsUnderFileOutputStream#constr classLoader {}", this.getClass().getClassLoader());
-    LOG.error("HdfsUnderFileOutputStream#constr out classLoader {}",
-        out.getClass().getClassLoader());
-    LOG.error("HdfsUnderFileOutputStream#constr FSDataOutputStream {}",
-        FSDataOutputStream.class.getClassLoader());
-    try {
-      LOG.error("HdfsUnderFileOutputStream url = {}",
-          this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-      LOG.error("FSDataOutputStream url = {}",
-          FSDataOutputStream.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-    } catch (Exception e) {
-      // ignore
-    }
     mOut = out;
   }
 

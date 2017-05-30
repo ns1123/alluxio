@@ -66,17 +66,12 @@ public final class IsolatedClassLoader extends URLClassLoader {
     super(jars, null);
     mRootClassloader = new ParentClassLoader(fallbackClassloader);
     mPrefixes = Arrays.asList(prefixes);
+    LOG.info("Classloader created, jars={}, prefixes={}", jars, prefixes);
   }
 
   @Override
   public Class<?> findClass(String name) throws ClassNotFoundException {
-    if (name.equals("org.apache.hadoop.fs.FSDataOutputStream")) {
-      for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
-        LOG.info("ts: {}", ste);
-      }
-    }
     if (isPrefixMatching(name)) {
-      LOG.info("IsolatedClassLoader: findClass {}", name);
       return super.findClass(name);
     } else {
       return mRootClassloader.findClass(name);
@@ -87,7 +82,6 @@ public final class IsolatedClassLoader extends URLClassLoader {
   @Override
   public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
     if (isPrefixMatching(name)) {
-      LOG.info("IsolatedClassLoader: loadClass {}", name);
       return super.loadClass(name, resolve);
     } else {
       return mRootClassloader.loadClass(name, resolve);

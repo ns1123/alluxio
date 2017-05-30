@@ -59,6 +59,7 @@ public class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
           .format("HdfsUnderFileSystem class for version %s could not be instantiated", version),
           e);
     }
+    LOG.debug("Hdfs UFS created for version {}", version.getCanonicalVersion());
     return ufs;
   }
   // ALLUXIO CS END
