@@ -15,8 +15,6 @@ import alluxio.AlluxioURI;
 import alluxio.PropertyKey;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
-import alluxio.underfs.AtomicFileOutputStream;
-import alluxio.underfs.AtomicFileOutputStreamCallback;
 import alluxio.underfs.BaseUnderFileSystem;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
@@ -255,6 +253,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
 
   @Override
   public OutputStream create(String path, CreateOptions options) throws IOException {
+    LOG.error("HdfsUnderFileSystem#create: classloader {}",
+        this.getClass().getClassLoader());
     if (!options.isEnsureAtomic()) {
       return createDirect(path, options);
     }
@@ -270,6 +270,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
         // TODO(chaomin): support creating HDFS files with specified block size and replication.
         FSDataOutputStream stream = FileSystem.create(mFileSystem, new Path(path),
             new FsPermission(options.getMode().toShort()));
+        LOG.error("HdfsUnderFileSystem#createDirect: classloader {}",
+            this.getClass().getClassLoader());
         return new HdfsUnderFileOutputStream(stream);
       } catch (IOException e) {
         LOG.warn("Retry count {} : {} ", retryPolicy.getRetryCount(), e.getMessage());
