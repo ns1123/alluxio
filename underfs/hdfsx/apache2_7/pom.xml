@@ -55,7 +55,7 @@
     </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-hdfs</artifactId>
+      <artifactId>alluxio-underfs-hdfsx-common</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
@@ -75,7 +75,7 @@
             <configuration>
               <artifactSet>
                 <includes>
-                  <include>org.alluxio:alluxio-underfs-hdfs</include>
+                  <include>org.alluxio:alluxio-underfs-hdfsx-common</include>
 
                   <include>org.apache.hadoop:hadoop-annotations</include>
                   <include>org.apache.hadoop:hadoop-auth</include>

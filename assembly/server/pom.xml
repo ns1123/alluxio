@@ -79,17 +79,19 @@
       <version>${project.version}</version>
     </dependency>
     -->
+    <!-- ALLUXIO CS REPLACE -->
+    <!--<dependency>-->
+      <!--<groupId>org.alluxio</groupId>-->
+      <!--<artifactId>alluxio-underfs-hdfs</artifactId>-->
+      <!--<version>${project.version}</version>-->
+    <!--</dependency>-->
+    <!-- ALLUXIO CS WITH -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-hdfs</artifactId>
+      <artifactId>alluxio-underfs-hdfsx-common</artifactId>
       <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
+    <!-- ALLUXIO CS END -->
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
