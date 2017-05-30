@@ -77,8 +77,6 @@ public class HdfsUnderFileOutputStream extends OutputStream {
 
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
-    LOG.error("HdfsUnderFileOutputStream#write mOut classLoader {}",
-        mOut.getClass().getClassLoader());
     mOut.write(b, off, len);
   }
 }

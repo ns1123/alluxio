@@ -26,14 +26,15 @@ import java.io.OutputStream;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A {@link AtomicFileOutputStream} writes to a temporary file and renames on close. This ensures
- * that writing to the stream is atomic, i.e., all writes become readable only after a close.
+ * A {@link AtomicHdfsFileOutputStream} writes to a temporary file and renames on close. This
+ * ensures that writing to the stream is atomic, i.e., all writes become readable only after a
+ * close.
  */
 @NotThreadSafe
-public class AtomicFileOutputStream extends OutputStream {
-  private static final Logger LOG = LoggerFactory.getLogger(AtomicFileOutputStream.class);
+public class AtomicHdfsFileOutputStream extends OutputStream {
+  private static final Logger LOG = LoggerFactory.getLogger(AtomicHdfsFileOutputStream.class);
 
-  private AtomicFileOutputStreamCallback mUfs;
+  private HdfsUnderFileSystem mUfs;
   private CreateOptions mOptions;
   private String mPermanentPath;
   private String mTemporaryPath;
@@ -41,13 +42,13 @@ public class AtomicFileOutputStream extends OutputStream {
   private boolean mClosed = false;
 
   /**
-   * Constructs a new {@link AtomicFileOutputStream}.
+   * Constructs a new {@link AtomicHdfsFileOutputStream}.
    *
    * @param path path being written to
    * @param ufs the calling {@link UnderFileSystem}
    * @param options create options for destination file
    */
-  public AtomicFileOutputStream(String path, AtomicFileOutputStreamCallback ufs,
+  public AtomicHdfsFileOutputStream(String path, HdfsUnderFileSystem ufs,
       CreateOptions options) throws IOException {
     mOptions = options;
     mPermanentPath = path;

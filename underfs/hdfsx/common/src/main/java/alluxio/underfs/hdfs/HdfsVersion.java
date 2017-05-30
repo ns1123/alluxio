@@ -105,8 +105,9 @@ public enum HdfsVersion {
           new String[] {"org.apache.hadoop", // unshaded hadoop classes
               mHdfsUfsClassname, // HdfsUnderFileSystem for this version
               HdfsUnderFileSystem.class.getCanonicalName(), // superclass of HdfsUnderFileSystem
-              "alluxio.underfs.AtomicFileOutputStream", // creates FSDataOutputStream
-              "alluxio.underfs.hdfs.HdfsUnderFileInputStream",
+              "alluxio.underfs.hdfs.AtomicHdfsFileOutputStream", // creates FSDataOutputStream
+              "alluxio.underfs.hdfs.HdfsUnderFileOutputStream", // creates FSDataOutputStream
+              "alluxio.underfs.hdfs.HdfsUnderFileInputStream", // creates FSDataOutputStream
               "alluxio.underfs.hdfsx." + mModuleName // shaded classes of transitive dependencies
           },
           HdfsUnderFileSystemFactory.class.getClassLoader());

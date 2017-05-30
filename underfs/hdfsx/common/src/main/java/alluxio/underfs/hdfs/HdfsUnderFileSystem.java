@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.PropertyKey;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
+import alluxio.underfs.AtomicFileOutputStreamCallback;
 import alluxio.underfs.BaseUnderFileSystem;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
@@ -38,9 +39,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-// ALLUXIO CS REMOVE
-// import org.apache.hadoop.security.SecurityUtil;
-// ALLUXIO CS END
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +54,10 @@ import java.util.Map;
 import java.util.Stack;
 
 import javax.annotation.concurrent.ThreadSafe;
+
+// ALLUXIO CS REMOVE
+// import org.apache.hadoop.security.SecurityUtil;
+// ALLUXIO CS END
 
 /**
  * HDFS {@link UnderFileSystem} implementation.
@@ -255,10 +257,10 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   public OutputStream create(String path, CreateOptions options) throws IOException {
     LOG.error("HdfsUnderFileSystem#create: classloader {}",
         this.getClass().getClassLoader());
-    if (!options.isEnsureAtomic()) {
-      return createDirect(path, options);
+    if (options.isEnsureAtomic()) {
+      return new AtomicHdfsFileOutputStream(path, this, options);
     }
-    return new AtomicFileOutputStream(path, this, options);
+    return createDirect(path, options);
   }
 
   @Override
