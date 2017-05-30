@@ -34,8 +34,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class CryptoUtils {
-  private static final String CIPHER = Constants.AES_GCM_NOPADDING;
-
   /**
    * Gets a {@link EncryptionProto.CryptoKey} from the specified kms and input key.
    *
@@ -46,26 +44,15 @@ public final class CryptoUtils {
    */
   public static EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
       throws IOException {
-    try {
-      EncryptionProto.CryptoKey key =
-          KmsClient.Factory.create().getCryptoKey(kms, encrypt, inputKey);
-      if (Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER).equalsIgnoreCase(
-          Constants.KMS_HADOOP_PROVIDER_NAME)) {
-        // TODO(cc): the IV for Hadoop KMS should not be hard coded.
-        key = ProtoUtils.setIv(key.toBuilder(), Constants.ENCRYPTION_IV_FOR_TESTING.getBytes())
-            .build();
-      }
-      return key;
-    } catch (IOException e) {
-      return ProtoUtils.setIv(
-          ProtoUtils.setKey(
-              EncryptionProto.CryptoKey.newBuilder()
-                  .setCipher(CIPHER)
-                  .setNeedsAuthTag(1)
-                  .setGenerationId("generationId"),
-              Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()),
-          Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
+    EncryptionProto.CryptoKey key =
+        KmsClient.Factory.create().getCryptoKey(kms, encrypt, inputKey);
+    if (Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER).equalsIgnoreCase(
+        Constants.KMS_HADOOP_PROVIDER_NAME)) {
+      // TODO(cc): the IV for Hadoop KMS should not be hard coded.
+      key = ProtoUtils.setIv(key.toBuilder(), Constants.ENCRYPTION_IV_FOR_TESTING.getBytes())
+          .build();
     }
+    return key;
   }
 
   /**

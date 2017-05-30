@@ -118,5 +118,4 @@ public class HadoopKmsClient implements KmsClient {
       throw new RuntimeException("Unknown random number generator algorithm: " + SHA1PRNG, e);
     }
   }
-
 }

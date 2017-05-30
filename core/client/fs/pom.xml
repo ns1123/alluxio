@@ -77,6 +77,14 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <!-- ALLUXIO CS ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-kms-dummy</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- ALLUXIO CS END -->
   </dependencies>
 
   <build>
