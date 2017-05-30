@@ -17,11 +17,8 @@ import alluxio.PropertyKey;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.underfs.UnderFileSystemFactory;
-import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -31,38 +28,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * It caches created {@link HdfsUnderFileSystem}s, using the scheme and authority pair as the key.
  */
 @ThreadSafe
-public class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
-  private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystemFactory.class);
-  // ALLUXIO CS ADD
-  private static UnderFileSystem createHdfsUfs(String path, UnderFileSystemConfiguration conf) {
-    String versionStr = conf.getValue(PropertyKey.UNDERFS_HDFS_VERSION);
-    HdfsVersion version = HdfsVersion.find(versionStr);
-    if (version == null) {
-      throw new RuntimeException("Unknown Hdfs version " + versionStr);
-    }
-
-    @SuppressWarnings("unchecked") Class<?> clazz;
-    String hdfsUfsClassName = version.getHdfsUfsClassName();
-    ClassLoader classLoader = version.getHdfsUfsClassLoader();
-    try {
-      clazz = classLoader.loadClass(hdfsUfsClassName);
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException(String.format("Failed to load class %s", hdfsUfsClassName), e);
-    }
-    UnderFileSystem ufs;
-    try {
-      ufs = (UnderFileSystem) CommonUtils.createNewClassInstance(clazz,
-          new Class[] {AlluxioURI.class, UnderFileSystemConfiguration.class},
-          new Object[] {new AlluxioURI(path), conf});
-    } catch (Exception e) {
-      throw new RuntimeException(String
-          .format("HdfsUnderFileSystem class for version %s could not be instantiated", version),
-          e);
-    }
-    return ufs;
-  }
-  // ALLUXIO CS END
-
+public final class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
   /**
    * Constructs a new {@link HdfsUnderFileSystemFactory}.
    */
@@ -71,11 +37,7 @@ public class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
   @Override
   public UnderFileSystem create(String path, UnderFileSystemConfiguration conf) {
     Preconditions.checkNotNull(path);
-    // ALLUXIO CS REPLACE
-    // return HdfsUnderFileSystem.createInstance(new AlluxioURI(path), conf);
-    // ALLUXIO CS WITH
-    return createHdfsUfs(path, conf);
-    // ALLUXIO CS END
+    return HdfsUnderFileSystem.createInstance(new AlluxioURI(path), conf);
   }
 
   @Override
