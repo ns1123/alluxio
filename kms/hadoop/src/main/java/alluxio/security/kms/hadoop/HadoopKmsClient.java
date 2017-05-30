@@ -11,13 +11,16 @@
 
 package alluxio.security.kms.hadoop;
 
+import alluxio.PropertyKey;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.security.authentication.AuthType;
 import alluxio.security.kms.KmsClient;
 import alluxio.util.proto.ProtoUtils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.crypto.key.KeyProvider;
 import org.apache.hadoop.crypto.key.kms.KMSClientProvider;
+import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.IOException;
 import java.net.URI;
@@ -31,11 +34,16 @@ import javax.crypto.NoSuchPaddingException;
 /**
  * Hadoop KMS client.
  *
+ * If the Hadoop KMS uses kerberos authentication, {@link HadoopKmsClient} uses the principal and
+ * keytab file specified in
+ * {@link PropertyKey#SECURITY_KERBEROS_CLIENT_PRINCIPAL} and
+ * {@link PropertyKey#SECURITY_KERBEROS_CLIENT_KEYTAB_FILE} for authentication.
+ *
+ * If the Hadoop KMS uses TLS/SSL, make sure the KMS certificate is available in
+ * ${JAVA_HOME}/jre/lib/security/cacerts.
+ *
  * @see <a href="http://hadoop.apache.org/docs/r2.7.3/hadoop-kms/index.html">hadoop-kms
  * documentation</a> for more details on Hadoop KMS.
- *
- * TODO(cc): Only simple authentication is supported, Kerberos and SSL are not supported yet.
- * If this client tries to connect to a Hadoop KMS with Kerberos or SSL, connection will fail.
  */
 public class HadoopKmsClient implements KmsClient {
   private static final String SHA1PRNG = "SHA1PRNG";
@@ -73,7 +81,17 @@ public class HadoopKmsClient implements KmsClient {
     } catch (URISyntaxException e) {
       throw new IOException("Invalid hadoop KMS endpoint format", e);
     }
+
     Configuration conf = new Configuration();
+    String principal = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+    String keytabFile = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+    if (!principal.isEmpty() && !keytabFile.isEmpty()) {
+      // Login Hadoop with Alluxio client kerberos principal and keytab.
+      conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
+      UserGroupInformation.setConfiguration(conf);
+      UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
+    }
+
     KeyProvider keyProvider = KMSClientProvider.Factory.get(kmsEndpoint, conf);
     byte[] key = keyProvider.getCurrentKey(inputKey).getMaterial();
     String cipher = keyProvider.getMetadata(inputKey).getCipher();
