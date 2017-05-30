@@ -83,6 +83,12 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-hdfs</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- ALLUXIO CS ADD -->
     <dependency>

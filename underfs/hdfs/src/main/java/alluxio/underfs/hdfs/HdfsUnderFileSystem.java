@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -94,14 +95,10 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     Configuration hdfsConf = createConfiguration(conf);
 
     // ALLUXIO CS ADD
-    // Set class loader in HDFS conf so Configuration#getClass() uses the class loader consistently.
-    ClassLoader classLoader = this.getClass().getClassLoader();
-    hdfsConf.setClassLoader(classLoader);
-
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
-    if (hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
-        alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+    if (alluxio.security.authentication.AuthType.KERBEROS.getAuthName().equalsIgnoreCase(
+        hdfsConf.get("hadoop.security.authentication"))) {
       try {
         switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
           case MASTER:
@@ -170,9 +167,10 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     }
     // ALLUXIO CS END
     Path path = new Path(ufsUri.toString());
+    // Stash the classloader for service loading
     ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
     try {
-      Thread.currentThread().setContextClassLoader(classLoader);
+      Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
       // group service.
       UserGroupInformation.setConfiguration(hdfsConf);
@@ -206,6 +204,12 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   public static Configuration createConfiguration(UnderFileSystemConfiguration conf) {
     Preconditions.checkNotNull(conf, "conf");
     Configuration hdfsConf = new Configuration();
+
+    // Set class loader in HDFS to be the isolated class loader.
+    // The classloader in hdfsConf will be used in conf so Configuration#getClass() and
+    // also for resource loading
+    ClassLoader classLoader = hdfsConf.getClass().getClassLoader();
+    hdfsConf.setClassLoader(classLoader);
 
     // Load HDFS site properties from the given file and overwrite the default HDFS conf,
     // the path of this file can be passed through --option
@@ -264,8 +268,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     while (retryPolicy.attemptRetry()) {
       try {
         // TODO(chaomin): support creating HDFS files with specified block size and replication.
-        return new HdfsUnderFileOutputStream(FileSystem.create(mFileSystem, new Path(path),
-            new FsPermission(options.getMode().toShort())));
+        FSDataOutputStream stream = FileSystem.create(mFileSystem, new Path(path),
+            new FsPermission(options.getMode().toShort()));
+        return new HdfsUnderFileOutputStream(stream);
       } catch (IOException e) {
         LOG.warn("Retry count {} : {} ", retryPolicy.getRetryCount(), e.getMessage());
         te = e;

@@ -16,8 +16,10 @@ public enum HdfsVersion {
 
   // TODO(binfan): we may want to have a dedicated dir for the jars
   public static final String JAR_PATH_FORMAT =
-      PathUtils.concatPath(System.getProperty("user.dir"),
-          "../underfs/hdfsx/%s/target/alluxio-underfs-hdfsx-%s-%s.jar");
+      PathUtils.concatPath(//
+          "file://" + //System.getProperty("user.dir"),
+          "/Users/binfan/projects/cs/enterprise/",
+          "underfs/hdfsx/%s/target/alluxio-underfs-hdfsx-%s-%s.jar");
   private final String mCanonicalVersion;
   private final Pattern mVersionPattern;
   private final String mModuleName;
@@ -25,6 +27,13 @@ public enum HdfsVersion {
   private ClassLoader mClassLoader;
 
 
+  /**
+   * Constructs an instance of {@link HdfsVersion}.
+   *
+   * @param canonicalVersion the canonical version of an HDFS
+   * @param versionPattern the regex pattern of version for an HDFS
+   * @param moduleName the name of the module
+   */
   HdfsVersion(String canonicalVersion, String versionPattern, String moduleName) {
     mModuleName = moduleName;
     mCanonicalVersion = canonicalVersion;
@@ -96,6 +105,8 @@ public enum HdfsVersion {
           new String[] {"org.apache.hadoop", // unshaded hadoop classes
               mHdfsUfsClassname, // HdfsUnderFileSystem for this version
               HdfsUnderFileSystem.class.getCanonicalName(), // superclass of HdfsUnderFileSystem
+              "alluxio.underfs.AtomicFileOutputStream", // creates FSDataOutputStream
+              "alluxio.underfs.hdfs.HdfsUnderFileInputStream",
               "alluxio.underfs.hdfsx." + mModuleName // shaded classes of transitive dependencies
           },
           HdfsUnderFileSystemFactory.class.getClassLoader());
