@@ -34,17 +34,16 @@ import javax.crypto.NoSuchPaddingException;
 /**
  * Hadoop KMS client.
  *
- * If the Hadoop KMS uses kerberos authentication,
- * if {@link PropertyKey#SECURITY_KERBEROS_CLIENT_PRINCIPAL} and
- * {@link PropertyKey#SECURITY_KERBEROS_CLIENT_KEYTAB_FILE} are specified, {@link HadoopKmsClient}
- * uses them for authentication, otherwise, the default principal in the kerberos ticket cache is
- * used.
+ * If the Hadoop KMS uses kerberos authentication, {@link HadoopKmsClient} uses the principal and
+ * keytab file specified in
+ * {@link PropertyKey#SECURITY_KERBEROS_CLIENT_PRINCIPAL} and
+ * {@link PropertyKey#SECURITY_KERBEROS_CLIENT_KEYTAB_FILE} for authentication.
+ *
+ * If the Hadoop KMS uses TLS/SSL, make sure the KMS certificate is available in
+ * ${JAVA_HOME}/jre/lib/security/cacerts.
  *
  * @see <a href="http://hadoop.apache.org/docs/r2.7.3/hadoop-kms/index.html">hadoop-kms
  * documentation</a> for more details on Hadoop KMS.
- *
- * TODO(cc): SSL is not supported yet.
- * If this client tries to connect to a Hadoop KMS with SSL, connection will fail.
  */
 public class HadoopKmsClient implements KmsClient {
   private static final String SHA1PRNG = "SHA1PRNG";
