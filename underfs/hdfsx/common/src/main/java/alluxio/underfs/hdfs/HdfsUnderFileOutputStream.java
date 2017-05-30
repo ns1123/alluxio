@@ -26,6 +26,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * converted to {@link FSDataOutputStream#sync()}. This is currently safe because all invocations of
  * flush intend the functionality to be sync.
  */
+// TODO(binfan): dedup this file with HdfsUnderFileOutputStream.java in underfs-hdfs
 @NotThreadSafe
 public class HdfsUnderFileOutputStream extends OutputStream {
   private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileOutputStream.class);

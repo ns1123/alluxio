@@ -23,6 +23,7 @@ import java.security.PrivilegedExceptionAction;
  * A utility class that allows program code to run in a security context provided by the HDFS
  * security user and groups information.
  */
+// TODO(binfan): dedup this file with HdfsSecurityUtils.java in underfs-hdfs
 public final class HdfsSecurityUtils {
   private static final Logger LOG = LoggerFactory.getLogger(HdfsSecurityUtils.class);
 

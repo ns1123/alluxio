@@ -39,6 +39,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+// ALLUXIO CS REMOVE
+// import org.apache.hadoop.security.SecurityUtil;
+// ALLUXIO CS END
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,13 +58,10 @@ import java.util.Stack;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-// ALLUXIO CS REMOVE
-// import org.apache.hadoop.security.SecurityUtil;
-// ALLUXIO CS END
-
 /**
  * HDFS {@link UnderFileSystem} implementation.
  */
+// TODO(binfan): dedup this file with HdfsUnderFileSystem.java in underfs-hdfs
 @ThreadSafe
 public class HdfsUnderFileSystem extends BaseUnderFileSystem
     implements AtomicFileOutputStreamCallback {

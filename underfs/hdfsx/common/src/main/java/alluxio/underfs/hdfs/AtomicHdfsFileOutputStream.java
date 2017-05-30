@@ -30,6 +30,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * ensures that writing to the stream is atomic, i.e., all writes become readable only after a
  * close.
  */
+// TODO(binfan): dedup this file with AtomicFileOutputStream.java in core-common
 @NotThreadSafe
 public class AtomicHdfsFileOutputStream extends OutputStream {
   private static final Logger LOG = LoggerFactory.getLogger(AtomicHdfsFileOutputStream.class);

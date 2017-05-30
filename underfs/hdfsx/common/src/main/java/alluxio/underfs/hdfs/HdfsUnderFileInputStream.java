@@ -23,6 +23,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 /**
  * Input stream implementation for {@link HdfsUnderFileSystem}.
  */
+// TODO(binfan): dedup this file with HdfsUnderFileInputStream.java in underfs-hdfs
 @NotThreadSafe
 public class HdfsUnderFileInputStream extends FilterInputStream implements Seekable {
 

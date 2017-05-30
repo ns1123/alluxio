@@ -30,6 +30,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * It caches created {@link HdfsUnderFileSystem}s, using the scheme and authority pair as the key.
  */
+// TODO(binfan): dedup this file with HdfsUnderFileSystemFactory.java in underfs-hdfs
 @ThreadSafe
 public class HdfsUnderFileSystemFactory implements UnderFileSystemFactory {
   private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystemFactory.class);
