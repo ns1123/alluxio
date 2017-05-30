@@ -30,11 +30,11 @@ public final class IsolatedClassLoader extends URLClassLoader {
    * A class loader to make the protected methods including findClass and loadClass in ClassLoader
    * accessible.
    */
-  private static class ParentClassLoader extends ClassLoader {
+  private static class DefaultClassLoader extends ClassLoader {
     /**
      * @param classLoader the parent class loader
      */
-    public ParentClassLoader(ClassLoader classLoader) {
+    public DefaultClassLoader(ClassLoader classLoader) {
       super(classLoader);
     }
 
@@ -54,17 +54,17 @@ public final class IsolatedClassLoader extends URLClassLoader {
     }
   }
 
-  private final ParentClassLoader mRootClassloader;
+  private final DefaultClassLoader mDefaultClassloader;
   private final List<String> mPrefixes;
 
   /**
-   * @param jars Array of URLs of jars
+   * @param jars array of URLs of jars
    * @param prefixes prefixes of class names that to use the isolated class loader
-   * @param fallbackClassloader the class loader to fall back
+   * @param defaultClassLoader the default class loader to fall back
    */
-  public IsolatedClassLoader(URL[] jars, String[] prefixes, ClassLoader fallbackClassloader) {
+  public IsolatedClassLoader(URL[] jars, String[] prefixes, ClassLoader defaultClassLoader) {
     super(jars, null);
-    mRootClassloader = new ParentClassLoader(fallbackClassloader);
+    mDefaultClassloader = new DefaultClassLoader(defaultClassLoader);
     mPrefixes = Arrays.asList(prefixes);
     LOG.info("Classloader created, jars={}, prefixes={}", jars, prefixes);
   }
@@ -74,7 +74,7 @@ public final class IsolatedClassLoader extends URLClassLoader {
     if (isPrefixMatching(name)) {
       return super.findClass(name);
     } else {
-      return mRootClassloader.findClass(name);
+      return mDefaultClassloader.findClass(name);
     }
 
   }
@@ -84,7 +84,7 @@ public final class IsolatedClassLoader extends URLClassLoader {
     if (isPrefixMatching(name)) {
       return super.loadClass(name, resolve);
     } else {
-      return mRootClassloader.loadClass(name, resolve);
+      return mDefaultClassloader.loadClass(name, resolve);
     }
   }
 

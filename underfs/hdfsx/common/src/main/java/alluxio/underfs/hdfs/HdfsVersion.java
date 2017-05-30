@@ -1,6 +1,8 @@
 package alluxio.underfs.hdfs;
 
+import alluxio.Configuration;
 import alluxio.ProjectConstants;
+import alluxio.PropertyKey;
 import alluxio.util.io.PathUtils;
 
 import java.net.URL;
@@ -17,8 +19,7 @@ public enum HdfsVersion {
   // TODO(binfan): we may want to have a dedicated dir for the jars
   public static final String JAR_PATH_FORMAT =
       PathUtils.concatPath(//
-          "file://" + //System.getProperty("user.dir"),
-          "/Users/binfan/projects/cs/enterprise/",
+          "file://" + Configuration.get(PropertyKey.HOME),
           "underfs/hdfsx/%s/target/alluxio-underfs-hdfsx-%s-%s.jar");
   private final String mCanonicalVersion;
   private final Pattern mVersionPattern;
@@ -87,31 +88,26 @@ public enum HdfsVersion {
   /**
    * @return the corresponding class loader for this Hdfs version
    */
-  public ClassLoader getHdfsUfsClassLoader() {
+  public synchronized ClassLoader getHdfsUfsClassLoader() {
     if (mClassLoader != null) {
       return mClassLoader;
     }
-    synchronized (this) {
-      if (mClassLoader != null) {
-        return mClassLoader;
-      }
-      URL jarURL;
-      try {
-        jarURL = new URL(getJarPath());
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-      mClassLoader = new IsolatedClassLoader(new URL[] {jarURL},
-          new String[] {"org.apache.hadoop", // unshaded hadoop classes
-              mHdfsUfsClassname, // HdfsUnderFileSystem for this version
-              HdfsUnderFileSystem.class.getCanonicalName(), // superclass of HdfsUnderFileSystem
-              "alluxio.underfs.hdfs.AtomicHdfsFileOutputStream", // creates FSDataOutputStream
-              "alluxio.underfs.hdfs.HdfsUnderFileOutputStream", // creates FSDataOutputStream
-              "alluxio.underfs.hdfs.HdfsUnderFileInputStream", // creates FSDataOutputStream
-              "alluxio.underfs.hdfsx." + mModuleName // shaded classes of transitive dependencies
-          },
-          HdfsUnderFileSystemFactory.class.getClassLoader());
-      return mClassLoader;
+    URL jarURL;
+    try {
+      jarURL = new URL(getJarPath());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+    mClassLoader = new IsolatedClassLoader(new URL[] {jarURL},
+        new String[] {"org.apache.hadoop", // unshaded hadoop classes
+            mHdfsUfsClassname, // HdfsUnderFileSystem for this version
+            HdfsUnderFileSystem.class.getCanonicalName(), // superclass of HdfsUnderFileSystem
+            "alluxio.underfs.hdfs.AtomicHdfsFileOutputStream", // creates FSDataOutputStream
+            "alluxio.underfs.hdfs.HdfsUnderFileOutputStream", // creates FSDataOutputStream
+            "alluxio.underfs.hdfs.HdfsUnderFileInputStream", // creates FSDataOutputStream
+            "alluxio.underfs.hdfsx." + mModuleName // shaded classes of transitive dependencies
+        },
+        HdfsUnderFileSystemFactory.class.getClassLoader());
+    return mClassLoader;
   }
 }
