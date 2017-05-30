@@ -747,7 +747,7 @@ public class PropertyKey {
   public static final PropertyKey SECURITY_KMS_ENDPOINT =
       create(Name.SECURITY_KMS_ENDPOINT, "http://localhost:9000");
   public static final PropertyKey SECURITY_KMS_PROVIDER =
-      create(Name.SECURITY_KMS_PROVIDER, "NOKMS");
+      create(Name.SECURITY_KMS_PROVIDER, Constants.KMS_DUMMY_PROVIDER_NAME);
 
   //
   // Native library
