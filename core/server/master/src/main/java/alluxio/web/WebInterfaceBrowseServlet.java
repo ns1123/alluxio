@@ -184,6 +184,11 @@ public final class WebInterfaceBrowseServlet extends HttpServlet {
           offset = fileInfo.getLength();
         }
         try {
+          // ALLUXIO CS ADD
+          if (fileInfo.isEncrypted()) {
+            throw new AccessControlException("Can not display the content of an encrypted file.");
+          }
+          // ALLUXIO CS END
           displayFile(new AlluxioURI(currentFileInfo.getAbsolutePath()), request, offset);
         } catch (AlluxioException e) {
           throw new IOException(e);
