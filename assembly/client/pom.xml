@@ -60,11 +60,6 @@
       <artifactId>alluxio-keyvalue-hadoop</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-shell</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
@@ -77,6 +72,11 @@
       <version>${project.version}</version>
     </dependency>
     <!-- ALLUXIO CS END -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-shell</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
