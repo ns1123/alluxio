@@ -11,6 +11,7 @@
 
 package alluxio.security.kms.hadoop;
 
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.security.authentication.AuthType;
@@ -41,6 +42,8 @@ import javax.crypto.NoSuchPaddingException;
  *
  * If the Hadoop KMS uses TLS/SSL, make sure the KMS certificate is available in
  * ${JAVA_HOME}/jre/lib/security/cacerts.
+ *
+ * The user authenticated to the KMS should have the permission to get and create keys.
  *
  * @see <a href="http://hadoop.apache.org/docs/r2.7.3/hadoop-kms/index.html">hadoop-kms
  * documentation</a> for more details on Hadoop KMS.
@@ -93,7 +96,20 @@ public class HadoopKmsClient implements KmsClient {
     }
 
     KeyProvider keyProvider = KMSClientProvider.Factory.get(kmsEndpoint, conf);
-    byte[] key = keyProvider.getCurrentKey(inputKey).getMaterial();
+    KeyProvider.KeyVersion keyVersion = keyProvider.getCurrentKey(inputKey);
+    if (keyVersion == null) {
+      // Create a new key since there is no existing key named as inputKey.
+      // TODO(cc): Only AES256/GCM/NoPadding is supported now.
+      KeyProvider.Options options = new KeyProvider.Options(conf);
+      options.setCipher(Constants.AES_GCM_NOPADDING);
+      options.setBitLength(256);
+      try {
+        keyVersion = keyProvider.createKey(inputKey, options);
+      } catch (NoSuchAlgorithmException e) {
+        throw new IOException(e);
+      }
+    }
+    byte[] key = keyVersion.getMaterial();
     String cipher = keyProvider.getMetadata(inputKey).getCipher();
     byte[] iv = new byte[0];
     if (encrypt) {
