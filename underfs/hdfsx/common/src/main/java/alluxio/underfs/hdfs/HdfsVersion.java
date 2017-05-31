@@ -32,7 +32,7 @@ public enum HdfsVersion {
   public static final String TARGET_JAR_PATH_FORMAT1 = "file://" + PathUtils
       .concatPath(Configuration.get(PropertyKey.HOME), "underfs/hdfsx/%s/target/");
   public static final String TARGET_JAR_PATH_FORMAT2 = "file://" + PathUtils
-      .concatPath(System.getProperty("user.dir"), "underfs/hdfsx/%s/target/");
+      .concatPath(System.getProperty("user.dir"), "../underfs/hdfsx/%s/target/"); // for tests
 
   private final String mCanonicalVersion;
   private final Pattern mVersionPattern;
