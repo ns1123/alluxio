@@ -278,12 +278,13 @@ public final class LayoutUtils {
       throws IOException {
     int len = footer.length;
     int metaMaxLen = len - FOOTER_SIZE_BYTES_LENGTH - FOOTER_MAGIC_BYTES_LENGTH;
-    Preconditions.checkState(len > 0);
+    Preconditions.checkState(metaMaxLen > 0);
     ByteBuffer buf = ByteBuffer.wrap(footer);
     int metaSize = (int) buf.getLong(metaMaxLen);
-    byte[] metaBytes = new byte[metaSize];
     Preconditions.checkState(metaMaxLen >= metaSize);
-    buf.get(metaBytes, metaMaxLen - metaSize, metaSize);
+    buf = ByteBuffer.wrap(footer, metaMaxLen - metaSize, metaSize);
+    byte[] metaBytes = new byte[metaSize];
+    buf.get(metaBytes, 0, metaSize);
     return FileFooter.FileMetadata.parseFrom(metaBytes);
   }
 
