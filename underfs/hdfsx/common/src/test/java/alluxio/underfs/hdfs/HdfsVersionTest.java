@@ -11,8 +11,6 @@
 
 package alluxio.underfs.hdfs;
 
-import alluxio.ProjectConstants;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,15 +36,6 @@ public class HdfsVersionTest {
       Assert.assertEquals(
           String.format("alluxio.underfs.hdfs.%s.HdfsUnderFileSystem", version.getModuleName()),
           version.getHdfsUfsClassName());
-    }
-  }
-
-  @Test
-  public void getJarPath() throws Exception {
-    for (HdfsVersion version : HdfsVersion.values()) {
-      Assert.assertEquals(String
-          .format(HdfsVersion.JAR_PATH_FORMAT, version.getModuleName(), version.getModuleName(),
-              ProjectConstants.VERSION), version.getJarPath());
     }
   }
 
