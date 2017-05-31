@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-core-client</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0-RC1</version>
   </parent>
   <artifactId>alluxio-core-client-runtime</artifactId>
   <packaging>jar</packaging>
@@ -74,6 +74,11 @@
         <dependency>
           <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-databind</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>jline</groupId>
+          <artifactId>jline</artifactId>
           <scope>provided</scope>
         </dependency>
         <dependency>

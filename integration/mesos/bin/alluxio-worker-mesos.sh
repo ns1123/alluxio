@@ -24,7 +24,7 @@ mkdir -p "${ALLUXIO_LOGS_DIR}"
 ${ALLUXIO_HOME}/job/bin/alluxio-start.sh worker &
 # ALLUXIO CS END
 
-"${JAVA}" -cp "${CLASSPATH}" \
+"${JAVA}" -cp "${ALLUXIO_SERVER_CLASSPATH}" \
   ${ALLUXIO_WORKER_JAVA_OPTS}  \
   -Djava.library.path="${MESOS_LIBRARY_PATH}" \
   -Dalluxio.home="${ALLUXIO_HOME}" \

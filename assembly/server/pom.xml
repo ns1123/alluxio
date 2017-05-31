@@ -17,7 +17,7 @@
   <parent>
     <artifactId>alluxio-assembly</artifactId>
     <groupId>org.alluxio</groupId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0-RC1</version>
   </parent>
   <artifactId>alluxio-assembly-server</artifactId>
   <packaging>jar</packaging>
@@ -138,27 +138,11 @@
     </profile>
 
     <profile>
-      <id>yarn</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.alluxio</groupId>
-          <artifactId>alluxio-integration-yarn</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-      </dependencies>
-    </profile>
-
-    <profile>
       <id>developer</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
           <artifactId>alluxio-integration-mesos</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.alluxio</groupId>
-          <artifactId>alluxio-integration-yarn</artifactId>
           <version>${project.version}</version>
         </dependency>
       </dependencies>

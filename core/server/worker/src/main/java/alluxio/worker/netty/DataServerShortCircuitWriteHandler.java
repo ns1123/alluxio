@@ -85,6 +85,7 @@ class DataServerShortCircuitWriteHandler extends ChannelInboundHandlerAdapter {
   public void channelUnregistered(ChannelHandlerContext ctx) {
     if (mSessionId != INVALID_SESSION_ID) {
       mBlockWorker.cleanupSession(mSessionId);
+      mSessionId = INVALID_SESSION_ID;
     }
     ctx.fireChannelUnregistered();
   }
@@ -130,6 +131,10 @@ class DataServerShortCircuitWriteHandler extends ChannelInboundHandlerAdapter {
 
       @Override
       public void exceptionCaught(Throwable throwable) {
+        if (mSessionId != INVALID_SESSION_ID) {
+          mBlockWorker.cleanupSession(mSessionId);
+          mSessionId = INVALID_SESSION_ID;
+        }
         ctx.writeAndFlush(
             RPCProtoMessage.createResponse(AlluxioStatusException.fromThrowable(throwable)));
       }
@@ -137,9 +142,9 @@ class DataServerShortCircuitWriteHandler extends ChannelInboundHandlerAdapter {
       @Override
       public String toString() {
         if (request.getOnlyReserveSpace()) {
-          return String.format("Reserve space: %s", request.toString());
+          return String.format("Session %d: reserve space: %s", mSessionId, request.toString());
         } else {
-          return String.format("Create block: %s", request.toString());
+          return String.format("Session %d: create block: %s", mSessionId, request.toString());
         }
       }
     });
@@ -181,9 +186,9 @@ class DataServerShortCircuitWriteHandler extends ChannelInboundHandlerAdapter {
       @Override
       public String toString() {
         if (request.getCancel()) {
-          return String.format("Abort block: %s", request.toString());
+          return String.format("Session %d: abort block: %s", mSessionId, request.toString());
         } else {
-          return String.format("Commit block: %s", request.toString());
+          return String.format("Session %d: commit block: %s", mSessionId, request.toString());
         }
       }
     });
