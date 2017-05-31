@@ -414,9 +414,6 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
     //     masterPrincipal, host);
     // ALLUXIO CS WITH
-    if (!mIsHdfsKerberized) {
-      return;
-    }
     connectFromAlluxioServer(host);
     // ALLUXIO CS END
   }
@@ -437,15 +434,15 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
     // ALLUXIO CS WITH
-    if (!mIsHdfsKerberized) {
-      return;
-    }
     connectFromAlluxioServer(host);
     // ALLUXIO CS END
   }
   // ALLUXIO CS ADD
 
   private void connectFromAlluxioServer(String host) throws IOException {
+    if (!mIsHdfsKerberized) {
+      return;
+    }
     String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     if (principal.isEmpty() || keytab.isEmpty()) {
