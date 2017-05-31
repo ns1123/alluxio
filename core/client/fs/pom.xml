@@ -82,11 +82,7 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-kms-dummy</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-kms-twosigma</artifactId>
-      <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <!-- ALLUXIO CS END -->
   </dependencies>
@@ -107,42 +103,4 @@
       </plugin>
     </plugins>
   </build>
-  <!-- ALLUXIO CS ADD -->
-
-  <profiles>
-    <!-- Hadoop KMS only exists in Hadoop version >= 2.6.0 -->
-    <profile>
-      <id>hadoop-2.6</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.alluxio</groupId>
-          <artifactId>alluxio-kms-hadoop</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-      </dependencies>
-    </profile>
-
-    <profile>
-      <id>hadoop-2.7</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.alluxio</groupId>
-          <artifactId>alluxio-kms-hadoop</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-      </dependencies>
-    </profile>
-
-    <profile>
-      <id>hadoop-2.8</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.alluxio</groupId>
-          <artifactId>alluxio-kms-hadoop</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
-  <!-- ALLUXIO CS END -->
 </project>
