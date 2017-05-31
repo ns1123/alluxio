@@ -82,7 +82,11 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-kms-dummy</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-kms-twosigma</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <!-- ALLUXIO CS END -->
   </dependencies>
