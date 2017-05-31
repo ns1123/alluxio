@@ -9,6 +9,8 @@
 
 package alluxio.underfs;
 
+import alluxio.exception.status.NotFoundException;
+import alluxio.exception.status.UnavailableException;
 import alluxio.master.file.FileSystemMasterClient;
 import alluxio.thrift.UfsInfo;
 import alluxio.util.network.NetworkAddressUtils;
@@ -39,38 +41,33 @@ public final class JobUfsManager extends AbstractUfsManager {
         NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.MASTER_RPC)));
   }
 
-  /**
-   * Establishes the connection to the given UFS.
-   *
-   * @param ufs UFS instance
-   * @throws IOException if failed to create the UFS instance
-   */
-  protected void connect(UnderFileSystem ufs) throws IOException {
-    ufs.connectFromWorker(
-        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
-  }
-
   @Override
-  public UnderFileSystem get(long mountId) {
-    UnderFileSystem ufs = super.get(mountId);
-    if (ufs == null) {
-      UfsInfo info;
-      try {
-        info = mMasterClient.getUfsInfo(mountId);
-      } catch (IOException e) {
-        LOG.error("Failed to get UFS info for mount point with id {}", mountId);
-        return null;
-      }
-      Preconditions.checkState((info.isSetUri() && info.isSetProperties()), "unknown mountId");
-      try {
-        ufs = super.addMount(mountId, info.getUri(),
-            UnderFileSystemConfiguration.defaults().setReadOnly(info.getProperties().isReadOnly())
-                .setShared(info.getProperties().isShared())
-                .setUserSpecifiedConf(info.getProperties().getProperties()));
-      } catch (IOException e) {
-        LOG.error("Failed to add mount point {} with id {}", info.getUri(), mountId, e);
-        return null;
-      }
+  public UnderFileSystem get(long mountId) throws NotFoundException, UnavailableException {
+    try {
+      return super.get(mountId);
+    } catch (NotFoundException e) {
+      // Not cached locally, let's query master
+    }
+
+    UfsInfo info;
+    try {
+      info = mMasterClient.getUfsInfo(mountId);
+    } catch (IOException e) {
+      throw new UnavailableException(
+          String.format("Failed to get UFS info for mount point with id %d", mountId), e);
+    }
+    Preconditions.checkState((info.isSetUri() && info.isSetProperties()), "unknown mountId");
+    UnderFileSystem ufs = super.addMount(mountId, info.getUri(),
+        UnderFileSystemConfiguration.defaults().setReadOnly(info.getProperties().isReadOnly())
+            .setShared(info.getProperties().isShared())
+            .setUserSpecifiedConf(info.getProperties().getProperties()));
+    try {
+      ufs.connectFromWorker(
+          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+    } catch (IOException e) {
+      removeMount(mountId);
+      throw new UnavailableException(
+          String.format("Failed to connect to UFS %s with id %d", info.getUri(), mountId), e);
     }
     return ufs;
   }
