@@ -132,11 +132,7 @@ public class HadoopKmsClient implements KmsClient {
     }
     String cipher = keyMetadata.getCipher();
     return ProtoUtils.setKey(
-        ProtoUtils.setIv(
-            CRYPTO_KEY_PARTIAL_BUILDER
-                .setCipher(cipher),
-            iv),
-        key).build();
+        ProtoUtils.setIv(CRYPTO_KEY_PARTIAL_BUILDER.setCipher(cipher), iv), key).build();
   }
 
   /**
