@@ -69,6 +69,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
 
   private FileSystem mFileSystem;
   private UnderFileSystemConfiguration mUfsConf;
+  // ALLUXIO CS ADD
+  private final boolean mIsHdfsKerberized;
+  // ALLUXIO CS END
 
   /**
    * Factory method to constructs a new HDFS {@link UnderFileSystem} instance.
@@ -97,8 +100,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // ALLUXIO CS ADD
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
-    if (hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
-        alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+    mIsHdfsKerberized = hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
+        alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+    if (mIsHdfsKerberized) {
       try {
         switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
           case MASTER:
@@ -410,6 +414,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
     //     masterPrincipal, host);
     // ALLUXIO CS WITH
+    if (!mIsHdfsKerberized) {
+      return;
+    }
     connectFromAlluxioServer(host);
     // ALLUXIO CS END
   }
@@ -430,6 +437,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
     // ALLUXIO CS WITH
+    if (!mIsHdfsKerberized) {
+      return;
+    }
     connectFromAlluxioServer(host);
     // ALLUXIO CS END
   }
@@ -445,6 +455,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   }
 
   private void connectFromAlluxioClient() throws IOException {
+    if (!mIsHdfsKerberized) {
+      return;
+    }
     String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
     String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
     if (principal.isEmpty() || keytab.isEmpty()) {
