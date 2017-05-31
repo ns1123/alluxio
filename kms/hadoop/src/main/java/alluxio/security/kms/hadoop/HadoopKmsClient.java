@@ -28,6 +28,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -49,7 +51,14 @@ import javax.crypto.NoSuchPaddingException;
  * documentation</a> for more details on Hadoop KMS.
  */
 public class HadoopKmsClient implements KmsClient {
+  // Add prefix to the Alluxio crypto keys to distinguish from Hadoop crypto keys.
+  private static final String ALLUXIO_KEY_NAME_PREFIX = "alluxio:";
   private static final String SHA1PRNG = "SHA1PRNG";
+  // Initialization vector is stored as an attribute in the Hadoop KMS keys.
+  private static final String ATTRIBUTE_IV = "IV";
+  private static final int KEY_BIT_LENGTH = 256;
+  private static final EncryptionProto.CryptoKey.Builder CRYPTO_KEY_PARTIAL_BUILDER =
+      EncryptionProto.CryptoKey.newBuilder().setGenerationId("").setNeedsAuthTag(1);
 
   /**
    * Creates a new {@link HadoopKmsClient}.
@@ -57,22 +66,25 @@ public class HadoopKmsClient implements KmsClient {
   public HadoopKmsClient() {}
 
   /**
-   * Gets cipher type and key from Hadoop KMS with inputKey as key name, then creates a
-   * {@link EncryptionProto.CryptoKey}, note that some fields may not be set, details are below.
+   * Gets a {@link EncryptionProto.CryptoKey}.
+   * Names of Alluxio crypto keys in Hadoop KMS are in the format alluxio:{inputKey}.
+   * If a key with name alluxio:{inputKey} already exists in Hadoop KMS, the key is retrieved and
+   * transformed to {@link EncryptionProto.CryptoKey}.
+   * Otherwise, if encrypt is true, a random key and initialization vector (IV) will be generated
+   * and stored into the Hadoop KMS with alluxio:{inputKey} as name, and a
+   * {@link EncryptionProto.CryptoKey} will be created based on the generated key and IV;
+   * if encrypt is false, an {@link IOException} will be thrown indicating that no key with name
+   * alluxio:{inputKey} exists.
    *
-   * Hadoop KMS does not store IV, the IV is randomly generated if encrypt is true, otherwise,
-   * IV is empty in the returned {@link EncryptionProto.CryptoKey} and should be retrieved from
-   * the {@link EncryptionProto.Meta} encoded in Alluxio encrypted files.
-   *
-   * Hadoop KMS does not provide generation ID, so the generation ID in the returned
+   * Note:
+   * 1. Hadoop KMS does not provide generation ID, so the generation ID in the returned
    * {@link EncryptionProto.CryptoKey} is empty.
-   *
-   * NeedsAuthTag is always set to 1.
+   * 2. NeedsAuthTag is always set to 1.
    *
    * @param kms the KMS endpoint in Hadoop KMS URI format like kms://{PROTO}@{HOST}:{PORT}/{PATH}
-   * @param encrypt whether to encrypt or decrypt
+   * @param encrypt whether the key is for encryption or decryption
    * @param inputKey name of the key to be retrieved
-   * @return the available crypto key information
+   * @return the crypto key
    * @throws IOException when the crypto key fails to be created
    */
   @Override
@@ -96,45 +108,28 @@ public class HadoopKmsClient implements KmsClient {
     }
 
     KeyProvider keyProvider = KMSClientProvider.Factory.get(kmsEndpoint, conf);
-    KeyProvider.KeyVersion keyVersion = keyProvider.getCurrentKey(inputKey);
+    String keyName = ALLUXIO_KEY_NAME_PREFIX + inputKey;
+    KeyProvider.KeyVersion keyVersion = keyProvider.getCurrentKey(keyName);
     if (keyVersion == null) {
-      // Create a new key since there is no existing key named as inputKey.
-      // TODO(cc): Only AES256/GCM/NoPadding is supported now.
-      KeyProvider.Options options = new KeyProvider.Options(conf);
-      options.setCipher(Constants.AES_GCM_NOPADDING);
-      options.setBitLength(256);
-      try {
-        keyVersion = keyProvider.createKey(inputKey, options);
-      } catch (NoSuchAlgorithmException e) {
-        throw new IOException(e);
+      // Key with name inputKey does not exist.
+      if (encrypt) {
+        return createKey(keyProvider, keyName);
       }
+      throw new IOException("No key named " + keyName + " exists");
     }
+    // Key with name inputKey exists.
     byte[] key = keyVersion.getMaterial();
-    String cipher = keyProvider.getMetadata(inputKey).getCipher();
     byte[] iv = new byte[0];
-    if (encrypt) {
-      // TODO(cc): in order to encode iv into file footer, iv needs to be added into
-      // FileFooter.FileMetadata protobuf.
-      // Generate a random IV for encryption. For decryption, the IV is retrieved from file
-      // metadata.
-      try {
-        int blockSize = Cipher.getInstance(cipher).getBlockSize();
-        if (blockSize > 0) {
-          // Only block cipher has IV which has the same size as a block.
-          iv = new byte[blockSize];
-          createInitializationVector(iv);
-        }
-      } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-        throw new IOException("Failed to get block size for cipher type " + cipher, e);
-      }
+    KeyProvider.Metadata keyMetadata = keyProvider.getMetadata(keyName);
+    Map<String, String> attr = keyMetadata.getAttributes();
+    if (attr.containsKey(ATTRIBUTE_IV)) {
+      iv = attr.get(ATTRIBUTE_IV).getBytes();
     }
-    // TODO(cc): for decryption, IV needs to be parsed from FileFooter.
+    String cipher = keyMetadata.getCipher();
     return ProtoUtils.setKey(
         ProtoUtils.setIv(
-            EncryptionProto.CryptoKey.newBuilder()
-                .setCipher(cipher)
-                .setGenerationId("")
-                .setNeedsAuthTag(1),
+            CRYPTO_KEY_PARTIAL_BUILDER
+                .setCipher(cipher),
             iv),
         key).build();
   }
@@ -150,6 +145,41 @@ public class HadoopKmsClient implements KmsClient {
       rand.nextBytes(iv);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException("Unknown random number generator algorithm: " + SHA1PRNG, e);
+    }
+  }
+
+  /**
+   * Creates and stores a new key with name in KMS, the key and initialization vector are all
+   * randomly generated.
+   *
+   * @param provider the provider for generating the key
+   * @param name the name of the key
+   * @return the newly generated key
+   * @throws IOException if the key fails to be created
+   */
+  private EncryptionProto.CryptoKey createKey(KeyProvider provider, String name)
+      throws IOException {
+    // TODO(cc): Only AES256/GCM/NoPadding is supported now.
+    try {
+      KeyProvider.Options options = new KeyProvider.Options(new Configuration());
+      String cipher = Constants.AES_GCM_NOPADDING;
+      options.setCipher(cipher);
+      options.setBitLength(KEY_BIT_LENGTH);
+      Map<String, String> attributes = new HashMap<>();
+      int blockSize = Cipher.getInstance(cipher).getBlockSize();
+      byte[] iv = new byte[blockSize];
+      createInitializationVector(iv);
+      attributes.put(ATTRIBUTE_IV, new String(iv));
+      options.setAttributes(attributes);
+      byte[] key = provider.createKey(name, options).getMaterial();
+      return ProtoUtils.setKey(
+        ProtoUtils.setIv(
+            CRYPTO_KEY_PARTIAL_BUILDER
+                .setCipher(cipher),
+            iv),
+        key).build();
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+      throw new IOException(e);
     }
   }
 }
