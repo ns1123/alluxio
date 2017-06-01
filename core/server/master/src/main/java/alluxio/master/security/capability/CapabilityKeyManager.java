@@ -191,15 +191,13 @@ public class CapabilityKeyManager implements Closeable {
       return;
     }
 
-    NettySecretKeyWriter nettySecretKeyWriter = new NettySecretKeyWriter();
-    nettySecretKeyWriter.open(
-        NetworkAddressUtils.getSecureRpcPortSocketAddress(worker.getAddress()));
     // mNewKey is null when there is no key rotation ongoing, thus send the current key.
     // Otherwise the new key is being prepared, always send the new key.
     CapabilityKey key = mNewKey == null ? mCapabilityKey : mNewKey;
     try {
       LOG.debug("Sending key with id {} to worker {}", key.getKeyId(), worker.getAddress());
-      nettySecretKeyWriter.write(key);
+      NettySecretKeyWriter
+          .write(NetworkAddressUtils.getSecureRpcPortSocketAddress(worker.getAddress()), key);
     } catch (IOException e) {
       LOG.debug("Retrying to send key with id {} to worker {}, previously failed with: {}",
           key.getKeyId(), worker.getAddress(), e.getMessage());
@@ -207,7 +205,6 @@ public class CapabilityKeyManager implements Closeable {
       mExecutor.schedule(createDistributeKeyRunnable(worker), KEY_DISTRIBUTION_RETRY_INTERVAL_MS,
           TimeUnit.MILLISECONDS);
     }
-    nettySecretKeyWriter.close();
 
     // The key distribution finishes, decrease the active connection by 1 and check whether all
     // connections are finished.

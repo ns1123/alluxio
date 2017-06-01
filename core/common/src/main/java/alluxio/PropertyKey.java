@@ -139,6 +139,8 @@ public class PropertyKey {
       create(Name.UNDERFS_S3A_DIRECTORY_SUFFIX, "/");
   public static final PropertyKey UNDERFS_S3A_INHERIT_ACL =
       create(Name.UNDERFS_S3A_INHERIT_ACL, true);
+  public static final PropertyKey UNDERFS_S3A_LIST_OBJECTS_VERSION_1 =
+      create(Name.UNDERFS_S3A_LIST_OBJECTS_VERSION_1, false);
   public static final PropertyKey UNDERFS_S3A_REQUEST_TIMEOUT =
       create(Name.UNDERFS_S3A_REQUEST_TIMEOUT_MS, 60000);
   public static final PropertyKey UNDERFS_S3A_SECURE_HTTP_ENABLED =
@@ -249,6 +251,14 @@ public class PropertyKey {
   // ALLUXIO CS ADD
   public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
       create(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS, 1000);
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
+      create(Name.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS, Constants.SECOND_MS);
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
+      create(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS, 0);
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_INTERVAL_MS =
+      create(Name.MASTER_PERSISTENCE_MAX_INTERVAL_MS, Constants.HOUR_MS);
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
+      create(Name.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS, Constants.DAY_MS);
   public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
       create(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS, 1000);
   // ALLUXIO CS END
@@ -969,6 +979,8 @@ public class PropertyKey {
         "alluxio.underfs.s3a.consistency.timeout.ms";
     public static final String UNDERFS_S3A_DIRECTORY_SUFFIX =
         "alluxio.underfs.s3a.directory.suffix";
+    public static final String UNDERFS_S3A_LIST_OBJECTS_VERSION_1 =
+        "alluxio.underfs.s3a.list.objects.v1";
     public static final String UNDERFS_S3A_REQUEST_TIMEOUT_MS =
         "alluxio.underfs.s3a.request.timeout.ms";
     public static final String UNDERFS_S3A_SECURE_HTTP_ENABLED =
@@ -1057,6 +1069,14 @@ public class PropertyKey {
     // ALLUXIO CS ADD
     public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
         "alluxio.master.persistence.checker.interval.ms";
+    public static final String MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
+        "alluxio.master.persistence.initial.interval.ms";
+    public static final String MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
+        "alluxio.master.persistence.initial.wait.time.ms";
+    public static final String MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
+        "alluxio.master.persistence.max.total.wait.time.ms";
+    public static final String MASTER_PERSISTENCE_MAX_INTERVAL_MS =
+        "alluxio.master.persistence.max.interval.ms";
     public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
         "alluxio.master.persistence.scheduler.interval.ms";
     // ALLUXIO CS END
