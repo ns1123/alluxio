@@ -18,15 +18,15 @@ import (
 const edition = "enterprise"
 const versionMarker = "${VERSION}"
 
-var underfsModules = map[string]bool{
-	"ufs-hadoop-1.0": true,
-	"ufs-hadoop-1.2": true,
-	"ufs-hadoop-2.3": true,
-	"ufs-hadoop-2.4": true,
-	"ufs-hadoop-2.5": true,
-	"ufs-hadoop-2.6": true,
-	"ufs-hadoop-2.7": true,
-	"ufs-hadoop-2.8": true,
+var ufsModuleNames = map[string]string{
+	"ufs-hadoop-1.0": "hdfsx-apache1_0",
+	"ufs-hadoop-1.2": "hdfsx-apache1_2",
+	"ufs-hadoop-2.3": "hdfsx-apache2_3",
+	"ufs-hadoop-2.4": "hdfsx-apache2_4",
+	"ufs-hadoop-2.5": "hdfsx-apache2_5",
+	"ufs-hadoop-2.6": "hdfsx-apache2_6",
+	"ufs-hadoop-2.7": "hdfsx-apache2_7",
+	"ufs-hadoop-2.8": "hdfsx-apache2_8",
 }
 
 var (
@@ -37,7 +37,7 @@ var (
 	nativeFlag           bool
 	profilesFlag         string
 	targetFlag           string
-	underfsModulesFlag   string
+	ufsModulesFlag       string
 )
 
 var frameworks = []string{"flink", "hadoop", "spark"}
@@ -60,13 +60,13 @@ func init() {
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
 			`Note that trailing ".tar.gz" will be stripped to determine the name for the root directory of the generated tarball`, versionMarker, versionMarker))
-	flag.StringVar(&underfsModulesFlag, "underfs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of underfs modules to compile into the distribution tarball. Options: [%v]", strings.Join(validUnderfsModules(), ",")))
+	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball. Options: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
 }
 
-func validUnderfsModules() []string {
+func validUfsModules() []string {
 	result := []string{}
-	for t := range underfsModules {
+	for t := range ufsModuleNames {
 		result = append(result, t)
 	}
 	sort.Strings(result)
@@ -152,7 +152,7 @@ func getVersion() (string, error) {
 	return match[1], nil
 }
 
-func addAdditionalFiles(srcPath, dstPath string) {
+func addAdditionalFiles(srcPath, dstPath, version string) {
 	chdir(srcPath)
 	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
 	// DOCKER
@@ -181,14 +181,23 @@ func addAdditionalFiles(srcPath, dstPath string) {
 		path := filepath.Join("integration/mesos/bin", file)
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
-	// UNDERFS MODULES
-	run("Add underfs modules to lib/", "mv", filepath.Join(srcPath, "lib"), dstPath)
+	// ufs MODULES
+	mkdir(filepath.Join(dstPath, "lib"))
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
+		moduleName, ok := ufsModuleNames[module]
+		if !ok {
+			// This should be impossible, we validate ufsModulesFlag at the start.
+			panic(fmt.Sprintf("Unrecognized ufs module: %v", module))
+		}
+		ufsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", moduleName, version)
+		run(fmt.Sprintf("Add ufs module %v to lib/", module), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
+	}
 }
 
 func generateTarball() error {
-	for _, module := range strings.Split(underfsModulesFlag, ",") {
-		if !underfsModules[module] {
-			return fmt.Errorf("underfs module %v not recognized", module)
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
+		if _, ok := ufsModuleNames[module]; !ok {
+			return fmt.Errorf("ufs module %v not recognized", module)
 		}
 	}
 
@@ -229,8 +238,8 @@ func generateTarball() error {
 
 	// COMPILE
 	mvnArgs := getCommonMvnArgs()
-	// Only add underfs modules for the main build, not for building per-framework clients.
-	for _, module := range strings.Split(underfsModulesFlag, ",") {
+	// Only add ufs modules for the main build, not for building per-framework clients.
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
 		mvnArgs = append(mvnArgs, fmt.Sprintf("-P%v", module))
 	}
 	run("compiling repo", "mvn", mvnArgs...)
@@ -261,7 +270,7 @@ func generateTarball() error {
 	}
 
 	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
-	addAdditionalFiles(srcPath, dstPath)
+	addAdditionalFiles(srcPath, dstPath, version)
 
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
 	chdir(filepath.Join(srcPath, "core/client/runtime"))

@@ -37,7 +37,7 @@ var releaseDistributions = map[string]string{
 	"mapr5.2":   "2.7.0-mapr-1607",
 }
 
-var underfsModules = map[string]bool{
+var ufsModules = map[string]bool{
 	"ufs-hadoop-1.0": true,
 	"ufs-hadoop-1.2": true,
 	"ufs-hadoop-2.3": true,
@@ -54,7 +54,7 @@ var (
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
 	nativeFlag           bool
-	underfsModulesFlag   string
+	ufsModulesFlag       string
 )
 
 func init() {
@@ -69,7 +69,7 @@ func init() {
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
-	flag.StringVar(&underfsModulesFlag, "underfs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of underfs modules to compile into the distribution tarball(s). Options: [%v]", strings.Join(validUnderfsModules(), ",")))
+	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Options: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
 }
 
@@ -82,9 +82,9 @@ func validDistributions() []string {
 	return result
 }
 
-func validUnderfsModules() []string {
+func validUfsModules() []string {
 	result := []string{}
-	for t := range underfsModules {
+	for t := range ufsModules {
 		result = append(result, t)
 	}
 	sort.Strings(result)
@@ -117,9 +117,9 @@ func generateTarballs() error {
 	goScriptsDir := filepath.Dir(file)
 	generateTarballScript := filepath.Join(goScriptsDir, "generate-tarball.go")
 
-	for _, module := range strings.Split(underfsModulesFlag, ",") {
-		if !underfsModules[module] {
-			return fmt.Errorf("underfs module %v not recognized", module)
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
+		if !ufsModules[module] {
+			return fmt.Errorf("ufs module %v not recognized", module)
 		}
 	}
 
@@ -141,7 +141,7 @@ func generateTarballs() error {
 		generateTarballArgs := []string{
 			"-mvn-args", mvnArgs,
 			"-target", tarball,
-			"-underfs-modules", underfsModulesFlag,
+			"-ufs-modules", ufsModulesFlag,
 		}
 		if nativeFlag {
 			generateTarballArgs = append(generateTarballArgs, "-native")
