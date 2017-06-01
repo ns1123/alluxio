@@ -118,9 +118,10 @@ struct FileInfo {
   22: bool mountPoint
   23: list<FileBlockInfo> fileBlockInfos
   // ALLUXIO CS ADD
-  1001: i32 replicationMax;
-  1002: i32 replicationMin;
-  1003: optional common.Capability capability;
+  1001: i32 replicationMax
+  1002: i32 replicationMin
+  1003: optional common.Capability capability
+  1004: bool encrypted
   // ALLUXIO CS END
   24: common.TTtlAction ttlAction
   25: i64 mountId

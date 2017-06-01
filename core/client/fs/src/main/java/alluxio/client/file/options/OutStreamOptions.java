@@ -54,6 +54,8 @@ public final class OutStreamOptions {
   private int mReplicationMax;
   private int mReplicationMin;
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
+  private boolean mEncrypted;
+  private alluxio.proto.security.EncryptionProto.Meta mEncryptionMeta;
   // ALLUXIO CS END
   private String mUfsPath;
   private long mMountId;
@@ -87,6 +89,8 @@ public final class OutStreamOptions {
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    mEncrypted = false;
+    mEncryptionMeta = null;
     // ALLUXIO CS END
   }
 
@@ -174,6 +178,20 @@ public final class OutStreamOptions {
    */
   public int getReplicationMin() {
     return mReplicationMin;
+  }
+
+  /**
+   * @return whether the file is encrypted or not
+   */
+  public boolean isEncrypted() {
+    return mEncrypted;
+  }
+
+  /**
+   * @return the encryption meta
+   */
+  public alluxio.proto.security.EncryptionProto.Meta getEncryptionMeta() {
+    return mEncryptionMeta;
   }
 
   // ALLUXIO CS END
@@ -341,6 +359,24 @@ public final class OutStreamOptions {
   }
 
   /**
+   * @param encrypted the encrypted flag value to use
+   * @return the updated object
+   */
+  public OutStreamOptions setEncrypted(boolean encrypted) {
+    mEncrypted = encrypted;
+    return this;
+  }
+
+  /**
+   * @param meta the encryption meta to set
+   * @return the updated object
+   */
+  public OutStreamOptions setEncryptionMeta(alluxio.proto.security.EncryptionProto.Meta meta) {
+    mEncryptionMeta = meta;
+    return this;
+  }
+
+  /**
    * @return the capability fetcher
    */
   public alluxio.client.security.CapabilityFetcher getCapabilityFetcher() {
@@ -389,6 +425,8 @@ public final class OutStreamOptions {
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
+        && Objects.equal(mEncrypted, that.mEncrypted)
+        && Objects.equal(mEncryptionMeta, that.mEncryptionMeta)
         // ALLUXIO CS END
         && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mWriteTier, that.mWriteTier)
@@ -411,6 +449,8 @@ public final class OutStreamOptions {
         mReplicationMax,
         mReplicationMin,
         mCapabilityFetcher,
+        mEncrypted,
+        mEncryptionMeta,
         // ALLUXIO CS END
         mUfsPath,
         mWriteTier,
@@ -437,6 +477,8 @@ public final class OutStreamOptions {
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("capabilityFetcher", mCapabilityFetcher)
+        .add("encrypted", mEncrypted)
+        .add("encryptionMeta", mEncryptionMeta)
         // ALLUXIO CS END
         .toString();
   }

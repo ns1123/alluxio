@@ -192,6 +192,23 @@ public final class Constants {
   // Kerberos
   public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";
 
+  // Encryption
+  public static final String AES_GCM_NOPADDING = "AES/GCM/NoPadding";
+  public static final long DEFAULT_CHUNK_SIZE = 64 * KB;
+  public static final long DEFAULT_CHUNK_FOOTER_SIZE = 16L;
+  public static final String ENCRYPTION_MAGIC = "ALLUXIO1";
+  public static final long INVALID_ENCRYPTION_ID = -1L;
+  public static final String KMS_DUMMY_PROVIDER_NAME = "DUMMY";
+  public static final String KMS_HADOOP_PROVIDER_NAME = "HADOOP";
+  public static final String KMS_TS_PROVIDER_NAME = "TS";
+  public static final String KMS_API_PREFIX = "";
+  // For dummy KMS
+  public static final String ENCRYPTION_KEY_FOR_TESTING = "16bytesSecretKey";
+  public static final String ENCRYPTION_IV_FOR_TESTING = "iv";
+
+  // Native library
+  public static final String NATIVE_ALLUXIO_LIB_NAME = "alluxio";
+
   // ALLUXIO CS END
   private Constants() {} // prevent instantiation
 }

@@ -66,6 +66,7 @@ public class FileInfoTest {
     Assert.assertEquals(a.getCapability(), b.getCapability());
     Assert.assertEquals(a.getReplicationMax(), b.getReplicationMax());
     Assert.assertEquals(a.getReplicationMin(), b.getReplicationMin());
+    Assert.assertEquals(a.isEncrypted(), b.isEncrypted());
     // ALLUXIO CS END
     Assert.assertEquals(a.isPersisted(), b.isPersisted());
     Assert.assertEquals(a.isPinned(), b.isPinned());
@@ -110,6 +111,7 @@ public class FileInfoTest {
     // ALLUXIO CS ADD
     int replicationMax = random.nextInt(10);
     int replicationMin = random.nextInt(10);
+    boolean encrypted = random.nextBoolean();
     // ALLUXIO CS END
 
     result.setBlockIds(blockIds);
@@ -129,6 +131,7 @@ public class FileInfoTest {
     // ALLUXIO CS ADD
     result.setReplicationMax(replicationMax);
     result.setReplicationMin(replicationMin);
+    result.setEncrypted(encrypted);
     // ALLUXIO CS END
     result.setName(name);
     result.setOwner(userName);

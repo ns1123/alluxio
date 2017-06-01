@@ -242,6 +242,44 @@ public class FileOutStream extends AbstractOutStream {
     }
     mBytesWritten += len;
   }
+  // ALLUXIO CS ADD
+
+  // TODO(chaomin): dedup code with writeInternal with byte[]
+  protected void writeInternal(io.netty.buffer.ByteBuf buf, int off, int len) throws IOException {
+    Preconditions.checkArgument(buf != null, PreconditionMessage.ERR_WRITE_BUFFER_NULL);
+    Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= buf.readableBytes(),
+        PreconditionMessage.ERR_BUFFER_STATE.toString(), buf.readableBytes(), off, len);
+
+    if (mShouldCacheCurrentBlock) {
+      try {
+        int tLen = len;
+        int tOff = off;
+        while (tLen > 0) {
+          if (mCurrentBlockOutStream == null || mCurrentBlockOutStream.remaining() == 0) {
+            getNextBlock();
+          }
+          long currentBlockLeftBytes = mCurrentBlockOutStream.remaining();
+          if (currentBlockLeftBytes >= tLen) {
+            mCurrentBlockOutStream.write(buf, tOff, tLen);
+            tLen = 0;
+          } else {
+            mCurrentBlockOutStream.write(buf, tOff, (int) currentBlockLeftBytes);
+            tOff += currentBlockLeftBytes;
+            tLen -= currentBlockLeftBytes;
+          }
+        }
+      } catch (Exception e) {
+        handleCacheWriteException(e);
+      }
+    }
+
+    if (mUnderStorageType.isSyncPersist()) {
+      mUnderStorageOutputStream.write(buf, off, len);
+      Metrics.BYTES_WRITTEN_UFS.inc(len);
+    }
+    mBytesWritten += len;
+  }
+  // ALLUXIO CS END
 
   private void getNextBlock() throws IOException {
     if (mCurrentBlockOutStream != null) {
