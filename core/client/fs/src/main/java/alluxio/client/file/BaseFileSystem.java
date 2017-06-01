@@ -327,13 +327,20 @@ public class BaseFileSystem implements FileSystem {
     for (URIStatus status : statuses) {
       if (status.isEncrypted()) {
         if (!status.isFolder()) {
-          alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
-          alluxio.wire.FileInfo fileInfo =
-              alluxio.client.LayoutUtils.convertFileInfoToLogical(status.toFileInfo(), meta);
-          status = new URIStatus(fileInfo);
+          try {
+            alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
+            alluxio.wire.FileInfo fileInfo =
+                alluxio.client.LayoutUtils.convertFileInfoToLogical(status.toFileInfo(), meta);
+            status = new URIStatus(fileInfo);
+          } catch (IOException e) {
+            LOG.warn("Failed to decode or convert to logical file info for file {}, showing "
+                + "physical status.", status.getPath());
+          }
         }
         retval.add(status);
       } else {
+        // This is assuming encryption is a cluster wide knob. Need to update this once we support
+        // mixed encrypted/unencrypted files in one directory.
         return statuses;
       }
     }
@@ -349,31 +356,45 @@ public class BaseFileSystem implements FileSystem {
     if (meta == null) {
       // 2. Read from file footer with unencrypted fileInStream. It will locate to the
       // UFS physical offset if the footer is not in Alluxio memory.
-      InStreamOptions inStreamOptions = InStreamOptions.defaults()
-          .setReadType(alluxio.client.ReadType.NO_CACHE)
-          .setEncrypted(false);
-      if (status.getCapability() != null) {
-        inStreamOptions.setCapabilityFetcher(
-            new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
-                status.getCapability()));
-      }
-      FileInStream fileInStream = FileInStream.create(status, inStreamOptions, mFileSystemContext);
-      final int footerMaxSize = alluxio.client.LayoutUtils.getFooterMaxSize();
-      if (status.getLength() > footerMaxSize) {
-        fileInStream.seek(status.getLength() - footerMaxSize);
-      }
-      byte[] footerBytes = new byte[footerMaxSize];
-      fileInStream.read(footerBytes, 0, footerMaxSize);
-      alluxio.proto.layout.FileFooter.FileMetadata fileMetadata =
-          alluxio.client.LayoutUtils.decodeFooter(footerBytes);
-      alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey =
-          alluxio.client.security.CryptoUtils.getCryptoKey(
-              alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_KMS_ENDPOINT),
-              false, String.valueOf(fileMetadata.getEncryptionId()));
-      meta = alluxio.client.LayoutUtils.fromFooterMetadata(fileId, fileMetadata, cryptoKey);
+      meta = getEncryptionMetaFromFooter(status);
       mFileSystemContext.put(fileId, meta);
     }
     return meta;
+  }
+
+  private alluxio.proto.security.EncryptionProto.Meta getEncryptionMetaFromFooter(URIStatus status)
+      throws IOException {
+    long fileId = status.getFileId();
+    InStreamOptions inStreamOptions = InStreamOptions.defaults()
+        .setReadType(alluxio.client.ReadType.NO_CACHE)
+        .setEncrypted(false);
+    if (status.getCapability() != null) {
+      inStreamOptions.setCapabilityFetcher(
+          new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
+              status.getCapability()));
+    }
+    FileInStream fileInStream = FileInStream.create(status, inStreamOptions, mFileSystemContext);
+    final int footerMaxSize = alluxio.client.LayoutUtils.getFooterMaxSize();
+    if (status.getLength() > footerMaxSize) {
+      fileInStream.seek(status.getLength() - footerMaxSize);
+    }
+    byte[] footerBytes = new byte[footerMaxSize];
+    fileInStream.read(footerBytes, 0, footerMaxSize);
+    alluxio.proto.layout.FileFooter.FileMetadata fileMetadata =
+        alluxio.client.LayoutUtils.decodeFooter(footerBytes);
+    alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey;
+    try {
+      cryptoKey = alluxio.client.security.CryptoUtils.getCryptoKey(
+          alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_KMS_ENDPOINT),
+          false, String.valueOf(fileMetadata.getEncryptionId()));
+    } catch (IOException e) {
+      // Allow null crypto key for getStatus and listStatus because one user might not have
+      // access to the crypto keys for the files being listed.
+      LOG.debug("Can not get the crypto key for encryption id: {}",
+          fileMetadata.getEncryptionId());
+      cryptoKey = null;
+    }
+    return alluxio.client.LayoutUtils.fromFooterMetadata(fileId, fileMetadata, cryptoKey);
   }
   // ALLUXIO CS END
 
@@ -476,7 +497,19 @@ public class BaseFileSystem implements FileSystem {
     if (!options.isSkipTransformation()) {
       inStreamOptions.setEncrypted(status.isEncrypted());
       if (status.isEncrypted()) {
-        inStreamOptions.setEncryptionMeta(mFileSystemContext.get(status.getFileId()));
+        alluxio.proto.security.EncryptionProto.Meta meta =
+            mFileSystemContext.get(status.getFileId());
+        if (meta == null || !meta.hasCryptoKey()) {
+          // Retry getting the crypto key if the cached meta does not have a valid crypto key.
+          meta = getEncryptionMetaFromFooter(status);
+          if (meta == null || !meta.hasCryptoKey()) {
+            throw new IOException(
+                "Can not open an encrypted file because the client can not get the crypto key.");
+          }
+          // Update the meta in cache with the new crypto key set.
+          mFileSystemContext.put(status.getFileId(), meta);
+        }
+        inStreamOptions.setEncryptionMeta(meta);
       }
       if (inStreamOptions.isEncrypted()) {
         return CryptoFileInStream.create(status, inStreamOptions, mFileSystemContext);
