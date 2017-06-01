@@ -193,6 +193,9 @@ public class ForkUnderFileInputStream extends InputStream {
   }
 
   private void cleanup() {
+    if (mStream == null) {
+      return;
+    }
     try {
       mStream.close();
     } catch (IOException e) {
