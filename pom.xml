@@ -886,6 +886,23 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
           <version>1.4</version>
+          <!-- ALLUXIO CS ADD -->
+          <executions>
+            <execution>
+              <id>enforce-java</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireJavaVersion>
+                    <version>[1.8,)</version>
+                  </requireJavaVersion>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+          <!-- ALLUXIO CS END -->
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
