@@ -23,9 +23,77 @@
   <description>HDFS Under File System implementation (mutli-version support)</description>
 
   <modules>
-    <module>apache2_2</module>
     <module>common</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>hdfs-1.0</id>
+      <modules>
+        <module>apache1_0</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>hdfs-1.2</id>
+      <modules>
+        <module>apache1_2</module>
+      </modules>
+    </profile>
+
+    <!--build as default HDFS UFS version-->
+    <profile>
+      <id>hdfs-2.2</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>apache2_2</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>hdfs-2.3</id>
+      <modules>
+        <module>apache2_3</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>hdfs-2.4</id>
+      <modules>
+        <module>apache2_4</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>hdfs-2.5</id>
+      <modules>
+        <module>apache2_5</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>hdfs-2.6</id>
+      <modules>
+        <module>apache2_6</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>hdfs-2.7</id>
+      <modules>
+        <module>apache2_7</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>hdfs-2.8</id>
+      <modules>
+        <module>apache2_8</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
