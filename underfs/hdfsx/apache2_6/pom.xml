@@ -18,12 +18,12 @@
     <artifactId>alluxio-underfs-hdfsx</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alluxio-underfs-hdfsx-apache2_7</artifactId>
-  <name>Alluxio Under File System - HDFS Distributions - Apache 2.7</name>
+  <artifactId>alluxio-underfs-hdfsx-apache2_6</artifactId>
+  <name>Alluxio Under File System - HDFS Distributions - Apache 2.6</name>
   <description>HDFS Under File System implementation</description>
 
   <properties>
-    <hadoop.version>2.7.2</hadoop.version>
+    <hadoop.version>2.6.5</hadoop.version>
 
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
          properly from sub-project directories -->
@@ -32,7 +32,7 @@
     <findbugs.path>${project.parent.parent.parent.basedir}/build/findbugs/</findbugs.path>
     <lib.path>${project.parent.parent.parent.basedir}/lib/</lib.path>
     <!-- The shading prefix should match the artifact ID, replacing '-' with '.' -->
-    <shading.prefix>alluxio.underfs.hdfsx.apache2_7</shading.prefix>
+    <shading.prefix>alluxio.underfs.hdfsx.apache2_6</shading.prefix>
   </properties>
 
   <dependencies>
@@ -101,6 +101,7 @@
                   <include>commons-configuration:commons-configuration</include>
                   <include>commons-daemon:commons-daemon</include>
                   <include>commons-digester:commons-digester</include>
+                  <include>commons-el:commons-el</include>
                   <include>commons-httpclient:commons-httpclient</include>
                   <include>commons-logging:commons-logging</include>
                   <include>commons-net:commons-net</include>
@@ -119,17 +120,18 @@
                   <include>org.apache.directory.api:api-util</include>
                   <include>org.apache.directory.server:apacheds-i18n</include>
                   <include>org.apache.directory.server:apacheds-kerberos-codec</include>
-                  <include>org.apache.htrace:htrace-core</include>
                   <include>org.codehaus.jackson:jackson-core-asl</include>
                   <include>org.codehaus.jackson:jackson-jaxrs</include>
                   <include>org.codehaus.jackson:jackson-mapper-asl</include>
                   <include>org.codehaus.jackson:jackson-xc</include>
                   <include>org.codehaus.jettison:jettison</include>
-                  <include>org.fusesource.leveldbjni:leveldbjni-all</include>
+                  <include>org.htrace:htrace-core</include>
                   <include>org.mortbay.jetty:jetty-util</include>
                   <include>org.mortbay.jetty:jetty</include>
                   <include>org.tukaani:xz</include>
                   <include>org.xerial.snappy:snappy-java</include>
+                  <include>tomcat:jasper-compiler</include>
+                  <include>tomcat:jasper-runtime</include>
                   <include>xerces:xercesImpl</include>
                   <include>xml-apis:xml-apis</include>
                   <include>xmlenc:xmlenc</include>
@@ -169,12 +171,12 @@
                   <shadedPattern>${shading.prefix}.com.sun.istack</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>com.sun.research.ws.wadl</pattern>
-                  <shadedPattern>${shading.prefix}.com.sun.research.ws.wadl</shadedPattern>
-                </relocation>
-                <relocation>
                   <pattern>com.sun.jersey</pattern>
                   <shadedPattern>${shading.prefix}.com.sun.jersey</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.sun.research.ws.wadl</pattern>
+                  <shadedPattern>${shading.prefix}.com.sun.research.ws.wadl</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>com.sun.xml.bind</pattern>
@@ -206,7 +208,7 @@
                 </relocation>
                 <relocation>
                   <pattern>javax.ws.rs</pattern>
-                  <shadedPattern>${shading.prefix}.javax.ws.rs</shadedPattern>
+                  <shadedPattern>${shading.prefix}.javax.servlet</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>javax.xml.XMLConstants</pattern>
@@ -285,6 +287,10 @@
                   <shadedPattern>${shading.prefix}.org.apache.commons.digester</shadedPattern>
                 </relocation>
                 <relocation>
+                  <pattern>org.apache.commons.el</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.el</shadedPattern>
+                </relocation>
+                <relocation>
                   <pattern>org.apache.commons.httpclient</pattern>
                   <shadedPattern>${shading.prefix}.org.apache.commons.httpclient</shadedPattern>
                 </relocation>
@@ -310,8 +316,8 @@
                   <shadedPattern>${shading.prefix}.org.apache.html.dom</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>org.apache.htrace</pattern>
-                  <shadedPattern>${shading.prefix}.org.apache.htrace</shadedPattern>
+                  <pattern>org.apache.jasper</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.jasper</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>org.apache.jute</pattern>
@@ -346,12 +352,8 @@
                   <shadedPattern>${shading.prefix}.org.codehaus.jettison</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>org.fusesource</pattern>
-                  <shadedPattern>${shading.prefix}.org.fusesource</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.iq80.leveldb</pattern>
-                  <shadedPattern>${shading.prefix}.org.iq80.leveldb</shadedPattern>
+                  <pattern>org.htrace</pattern>
+                  <shadedPattern>${shading.prefix}.org.htrace</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>org.jboss.netty</pattern>

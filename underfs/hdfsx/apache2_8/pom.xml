@@ -18,12 +18,12 @@
     <artifactId>alluxio-underfs-hdfsx</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alluxio-underfs-hdfsx-apache2_7</artifactId>
-  <name>Alluxio Under File System - HDFS Distributions - Apache 2.7</name>
+  <artifactId>alluxio-underfs-hdfsx-apache2_8</artifactId>
+  <name>Alluxio Under File System - HDFS Distributions - Apache 2.8</name>
   <description>HDFS Under File System implementation</description>
 
   <properties>
-    <hadoop.version>2.7.2</hadoop.version>
+    <hadoop.version>2.8.0</hadoop.version>
 
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
          properly from sub-project directories -->
@@ -32,7 +32,7 @@
     <findbugs.path>${project.parent.parent.parent.basedir}/build/findbugs/</findbugs.path>
     <lib.path>${project.parent.parent.parent.basedir}/lib/</lib.path>
     <!-- The shading prefix should match the artifact ID, replacing '-' with '.' -->
-    <shading.prefix>alluxio.underfs.hdfsx.apache2_7</shading.prefix>
+    <shading.prefix>alluxio.underfs.hdfsx.apache2_8</shading.prefix>
   </properties>
 
   <dependencies>
@@ -81,6 +81,7 @@
                   <include>org.apache.hadoop:hadoop-auth</include>
                   <include>org.apache.hadoop:hadoop-common</include>
                   <include>org.apache.hadoop:hadoop-hdfs</include>
+                  <include>org.apache.hadoop:hadoop-hdfs-client</include>
 
                   <!-- Transitive dependencies introduced by hadoop-* -->
                   <include>asm:asm</include>
@@ -88,6 +89,9 @@
                   <include>com.google.protobuf:protobuf-java</include>
                   <include>com.jamesmurty.utils:java-xmlbuilder</include>
                   <include>com.jcraft:jsch</include>
+                  <include>com.nimbusds:nimbus-jose-jwt</include>
+                  <include>com.squareup.okhttp:okhttp</include>
+                  <include>com.squareup.okio:okio</include>
                   <include>com.sun.jersey:jersey-core</include>
                   <include>com.sun.jersey:jersey-json</include>
                   <include>com.sun.jersey:jersey-server</include>
@@ -112,6 +116,7 @@
                   <include>javax.xml.stream:stax-api</include>
                   <include>jdk.tools:jdk.tools</include>
                   <include>net.java.dev.jets3t:jets3t</include>
+                  <include>net.minidev:json-smart</include>
                   <include>org.apache.avro:avro</include>
                   <include>org.apache.commons:commons-compress</include>
                   <include>org.apache.commons:commons-math3</include>
@@ -119,13 +124,15 @@
                   <include>org.apache.directory.api:api-util</include>
                   <include>org.apache.directory.server:apacheds-i18n</include>
                   <include>org.apache.directory.server:apacheds-kerberos-codec</include>
-                  <include>org.apache.htrace:htrace-core</include>
+                  <include>org.apache.htrace:htrace-core4</include>
+                  <include>org.apache.httpcomponents:httpclient</include>
                   <include>org.codehaus.jackson:jackson-core-asl</include>
                   <include>org.codehaus.jackson:jackson-jaxrs</include>
                   <include>org.codehaus.jackson:jackson-mapper-asl</include>
                   <include>org.codehaus.jackson:jackson-xc</include>
                   <include>org.codehaus.jettison:jettison</include>
                   <include>org.fusesource.leveldbjni:leveldbjni-all</include>
+                  <include>org.mortbay.jetty:jetty-sslengine</include>
                   <include>org.mortbay.jetty:jetty-util</include>
                   <include>org.mortbay.jetty:jetty</include>
                   <include>org.tukaani:xz</include>
@@ -163,6 +170,14 @@
                 <relocation>
                   <pattern>com.sun.activation</pattern>
                   <shadedPattern>${shading.prefix}.com.sun.activation</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.nimbusds</pattern>
+                  <shadedPattern>${shading.prefix}.com.nimbusds</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.squareup.okhttp</pattern>
+                  <shadedPattern>${shading.prefix}.com.squareup.okhttp</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>com.sun.istack</pattern>
@@ -249,6 +264,14 @@
                   <shadedPattern>${shading.prefix}.net.iharder.base64</shadedPattern>
                 </relocation>
                 <relocation>
+                  <pattern>net.minidev.json</pattern>
+                  <shadedPattern>${shading.prefix}.net.minidev.json</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>okio</pattern>
+                  <shadedPattern>${shading.prefix}.okio</shadedPattern>
+                </relocation>
+                <relocation>
                   <pattern>org.apache.avro</pattern>
                   <shadedPattern>${shading.prefix}.org.apache.avro</shadedPattern>
                 </relocation>
@@ -312,6 +335,10 @@
                 <relocation>
                   <pattern>org.apache.htrace</pattern>
                   <shadedPattern>${shading.prefix}.org.apache.htrace</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.http</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.http</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>org.apache.jute</pattern>
