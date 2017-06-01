@@ -11,13 +11,9 @@
 
 package alluxio.client.security;
 
-import alluxio.Configuration;
-import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.security.kms.KmsClient;
-import alluxio.util.proto.ProtoUtils;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
