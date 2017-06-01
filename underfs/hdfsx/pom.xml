@@ -28,14 +28,18 @@
 
   <profiles>
     <profile>
-      <id>hdfs-1.0</id>
+      <id>ufs-hadoop-1.0</id>
       <modules>
         <module>apache1_0</module>
       </modules>
     </profile>
 
+    <!-- enable by default -->
     <profile>
-      <id>hdfs-1.2</id>
+      <id>ufs-hadoop-1.2</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <modules>
         <module>apache1_2</module>
       </modules>
@@ -43,7 +47,7 @@
 
     <!-- enable by default -->
     <profile>
-      <id>hdfs-2.2</id>
+      <id>ufs-hadoop-2.2</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
@@ -53,21 +57,21 @@
     </profile>
 
     <profile>
-      <id>hdfs-2.3</id>
+      <id>ufs-hadoop-2.3</id>
       <modules>
         <module>apache2_3</module>
       </modules>
     </profile>
 
     <profile>
-      <id>hdfs-2.4</id>
+      <id>ufs-hadoop-2.4</id>
       <modules>
         <module>apache2_4</module>
       </modules>
     </profile>
 
     <profile>
-      <id>hdfs-2.5</id>
+      <id>ufs-hadoop-2.5</id>
       <modules>
         <module>apache2_5</module>
       </modules>
@@ -75,7 +79,7 @@
 
     <!-- enable by default -->
     <profile>
-      <id>hdfs-2.6</id>
+      <id>ufs-hadoop-2.6</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
@@ -85,14 +89,14 @@
     </profile>
 
     <profile>
-      <id>hdfs-2.7</id>
+      <id>ufs-hadoop-2.7</id>
       <modules>
         <module>apache2_7</module>
       </modules>
     </profile>
 
     <profile>
-      <id>hdfs-2.8</id>
+      <id>ufs-hadoop-2.8</id>
       <modules>
         <module>apache2_8</module>
       </modules>
