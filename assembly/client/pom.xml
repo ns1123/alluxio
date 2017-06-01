@@ -60,18 +60,23 @@
       <artifactId>alluxio-keyvalue-hadoop</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-shell</artifactId>
+      <artifactId>alluxio-kms-dummy</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-kms-twosigma</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!-- ALLUXIO CS END -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-shell</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -110,8 +115,8 @@
       </plugin>
     </plugins>
   </build>
-
   <!-- ALLUXIO CS ADD -->
+
   <profiles>
     <!-- Hadoop KMS only exists in Hadoop version >= 2.6.0 -->
     <profile>
