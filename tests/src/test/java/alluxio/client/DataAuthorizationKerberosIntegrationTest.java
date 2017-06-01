@@ -22,37 +22,32 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
-import alluxio.exception.InvalidCapabilityException;
-import alluxio.master.LocalAlluxioCluster;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authorization.Mode;
 import alluxio.security.minikdc.MiniKdc;
-import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.block.BlockWorker;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
 /**
- * Integration tests on Alluxio Client (reuse the {@link LocalAlluxioCluster}).
+ * Integration tests for data authorization with Kerberos.
  */
-@Ignore("TODO(chaomin): fix this test")
 public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrationTest {
   private static final String TMP_DIR = "/tmp";
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
+  private static final String UNIFIED_INSTANCE = "instance";
 
   private static MiniKdc sKdc;
   private static File sWorkDir;
@@ -63,22 +58,11 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
   @ClassRule
   public static final TemporaryFolder FOLDER = new TemporaryFolder();
 
-  @Rule
-  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource.Builder()
-          .setProperty(PropertyKey.MASTER_HOSTNAME, HOSTNAME)
-          .setProperty(PropertyKey.WORKER_HOSTNAME, HOSTNAME)
-          .setProperty(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED, true)
-          .setProperty(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
-          .setProperty(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true")
-          .setProperty(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal)
-          .setProperty(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath())
-          .setProperty(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal)
-          .setProperty(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath())
-          .setProperty(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio")
-          .build();
+  @ClassRule
+  public static LocalAlluxioClusterResource sLocalAlluxioClusterResource =
+      new LocalAlluxioClusterResource.Builder().setStartCluster(false).build();
 
-  private FileSystem mFileSystem = null;
+  private static FileSystem sFileSystem = null;
 
   @BeforeClass
   public static void beforeClass() throws Exception {
@@ -88,10 +72,28 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
 
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + HOSTNAME + "@" + realm;
+    sServerPrincipal = "alluxio/" + UNIFIED_INSTANCE + "@" + realm;
     sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + HOSTNAME);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + UNIFIED_INSTANCE);
+
+    sLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
+        .put(PropertyKey.MASTER_HOSTNAME, HOSTNAME)
+        .put(PropertyKey.WORKER_HOSTNAME, HOSTNAME)
+        .put(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED, true)
+        .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
+        .put(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, true)
+        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal)
+        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath())
+        .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal)
+        .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath())
+        .put(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio")
+        .put(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME, UNIFIED_INSTANCE)
+        .build());
+    sLocalAlluxioClusterResource.start();
+    sFileSystem = sLocalAlluxioClusterResource.get().getClient();
+    sFileSystem.createDirectory(new AlluxioURI(TMP_DIR),
+        CreateDirectoryOptions.defaults().setMode(Mode.createFullAccess()));
   }
 
   @AfterClass
@@ -103,9 +105,6 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
 
   @Before
   public void before() throws Exception {
-    mFileSystem = mLocalAlluxioClusterResource.get().getClient();
-    mFileSystem.createDirectory(new AlluxioURI(TMP_DIR),
-        CreateDirectoryOptions.defaults().setMode(Mode.createFullAccess()));
     FileSystemContext.INSTANCE.reset();
     LoginUserTestUtils.resetLoginUser();
   }
@@ -124,7 +123,7 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
     mode.fromShort((short) 0600);
     CreateFileOptions options =
         CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE);
-    try (FileOutStream outStream = mFileSystem.createFile(uri, options)) {
+    try (FileOutStream outStream = sFileSystem.createFile(uri, options)) {
       outStream.write(1);
     }
   }
@@ -138,31 +137,13 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
     CreateFileOptions options =
         CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE)
             .setBlockSizeBytes(8);
-    try (FileOutStream outStream = mFileSystem.createFile(uri, options)) {
+    try (FileOutStream outStream = sFileSystem.createFile(uri, options)) {
       outStream.write(1);
-      mLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class)
+      sLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class)
           .getCapabilityCache().expireCapabilityForUser("alluxio");
       for (int i = 0; i < 32; i++) {
         outStream.write(1);
       }
-    }
-  }
-
-  @Test
-  @LocalAlluxioClusterResource.Config(
-      confParams = {PropertyKey.Name.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS, "-100"})
-  public void expiredCapabilityForever() throws Exception {
-    String uniqPath = TMP_DIR + PathUtils.uniqPath();
-    AlluxioURI uri = new AlluxioURI(uniqPath);
-    Mode mode = Mode.defaults();
-    mode.fromShort((short) 0600);
-    CreateFileOptions options =
-        CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE);
-    try (FileOutStream outStream = mFileSystem.createFile(uri, options)) {
-      outStream.write(1);
-      Assert.fail();
-    } catch (Exception e) {
-      Assert.assertTrue(CommonUtils.getRootCause(e) instanceof InvalidCapabilityException);
     }
   }
 
@@ -174,11 +155,11 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
     mode.fromShort((short) 0600);
     CreateFileOptions options =
         CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE);
-    try (FileOutStream outStream = mFileSystem.createFile(uri, options)) {
+    try (FileOutStream outStream = sFileSystem.createFile(uri, options)) {
       outStream.write(1);
     }
 
-    try (FileInStream instream = mFileSystem.openFile(uri)) {
+    try (FileInStream instream = sFileSystem.openFile(uri)) {
       instream.read();
     }
   }
@@ -192,11 +173,11 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
     mode.fromShort((short) 0600);
     CreateFileOptions options =
         CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE);
-    try (FileOutStream outStream = mFileSystem.createFile(uri, options)) {
+    try (FileOutStream outStream = sFileSystem.createFile(uri, options)) {
       outStream.write(1);
     }
 
-    try (FileInStream instream = mFileSystem.openFile(uri)) {
+    try (FileInStream instream = sFileSystem.openFile(uri)) {
       instream.read();
     }
   }
