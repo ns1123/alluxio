@@ -333,8 +333,7 @@ public class BaseFileSystem implements FileSystem {
                 alluxio.client.LayoutUtils.convertFileInfoToLogical(status.toFileInfo(), meta);
             status = new URIStatus(fileInfo);
           } catch (IOException e) {
-            // TODO(chaomin): maybe downgrade to debug level if this is spammy
-            LOG.error("Failed to decode or convert to logical file info for file {}, showing "
+            LOG.warn("Failed to decode or convert to logical file info for file {}, showing "
                 + "physical status.", status.getPath());
           }
         }
