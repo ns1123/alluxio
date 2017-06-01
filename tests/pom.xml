@@ -256,18 +256,6 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-hdfsx-apache2_2</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-hdfsx-apache2_7</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
     <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
