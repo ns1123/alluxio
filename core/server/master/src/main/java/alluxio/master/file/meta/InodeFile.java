@@ -47,6 +47,7 @@ public final class InodeFile extends Inode<InodeFile> {
   private int mReplicationMax;
   private int mReplicationMin;
   private String mTempUfsPath;
+  private boolean mEncrypted;
   // ALLUXIO CS END
 
   /**
@@ -68,6 +69,7 @@ public final class InodeFile extends Inode<InodeFile> {
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
     mTempUfsPath = Constants.PERSISTENCE_INVALID_UFS_PATH;
+    mEncrypted = false;
     // ALLUXIO CS END
   }
 
@@ -104,6 +106,7 @@ public final class InodeFile extends Inode<InodeFile> {
     // ALLUXIO CS ADD
     ret.setReplicationMax(getReplicationMax());
     ret.setReplicationMin(getReplicationMin());
+    ret.setEncrypted(isEncrypted());
     // ALLUXIO CS END
     return ret;
   }
@@ -201,6 +204,13 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public String getTempUfsPath() {
     return mTempUfsPath;
+  }
+
+  /**
+   * @return true if the file is encrypted, false otherwise
+   */
+  public boolean isEncrypted() {
+    return mEncrypted;
   }
 
   // ALLUXIO CS END
@@ -311,6 +321,15 @@ public final class InodeFile extends Inode<InodeFile> {
     return getThis();
   }
 
+  /**
+   * @param encrypted the encrypted flag value to use
+   * @return the updated object
+   */
+  public InodeFile setEncrypted(boolean encrypted) {
+    mEncrypted = encrypted;
+    return getThis();
+  }
+
   // ALLUXIO CS END
   /**
    * Completes the file. Cannot set the length if the file is already completed. However, an unknown
@@ -360,6 +379,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("tempUfsPath", mTempUfsPath)
+        .add("encrypted", mEncrypted)
         // ALLUXIO CS END
         .add("length", mLength).toString();
   }
@@ -389,6 +409,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setReplicationMin(entry.getReplicationMin())
         .setPersistJobId(entry.getPersistJobId())
         .setTempUfsPath(entry.getTempUfsPath())
+        .setEncrypted(entry.getEncrypted())
         // ALLUXIO CS END
         .setTtl(entry.getTtl())
         .setTtlAction((ProtobufUtils.fromProtobuf(entry.getTtlAction())))
@@ -422,6 +443,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setReplicationDurable(options.getReplicationDurable())
         .setReplicationMax(options.getReplicationMax())
         .setReplicationMin(options.getReplicationMin())
+        .setEncrypted(options.isEncrypted())
         // ALLUXIO CS END
         .setTtl(options.getTtl())
         .setTtlAction(options.getTtlAction())
@@ -458,6 +480,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setReplicationMin(getReplicationMin())
         .setPersistJobId(getPersistJobId())
         .setTempUfsPath(getTempUfsPath())
+        .setEncrypted(isEncrypted())
         // ALLUXIO CS END
         .setTtl(getTtl())
         .setTtlAction(ProtobufUtils.toProtobuf(getTtlAction())).build();

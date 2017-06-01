@@ -16,6 +16,7 @@ import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
+import alluxio.underfs.UfsManager;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.job.JobMasterClient;
 import alluxio.worker.job.command.CommandHandlingExecutor;
@@ -46,6 +47,7 @@ public final class CommandHandlingExecutorTest {
   private JobMasterClient mJobMasterClient;
   private long mWorkerId;
   private TaskExecutorManager mTaskExecutorManager;
+  private UfsManager mUfsManager;
 
   @Before
   public void before() {
@@ -53,8 +55,10 @@ public final class CommandHandlingExecutorTest {
     mJobMasterClient = Mockito.mock(JobMasterClient.class);
     mTaskExecutorManager = PowerMockito.mock(TaskExecutorManager.class);
     WorkerNetAddress workerNetAddress = PowerMockito.mock(WorkerNetAddress.class);
+    mUfsManager = Mockito.mock(UfsManager.class);
     mCommandHandlingExecutor =
-        new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient, workerNetAddress);
+        new CommandHandlingExecutor(mTaskExecutorManager, mUfsManager, mJobMasterClient,
+            workerNetAddress);
   }
 
   @Test

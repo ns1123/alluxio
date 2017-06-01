@@ -14,14 +14,11 @@ package alluxio.worker.netty;
 import alluxio.ConfigurationRule;
 import alluxio.Constants;
 import alluxio.PropertyKey;
-import alluxio.client.netty.ClientHandler;
 import alluxio.client.netty.NettyClient;
+import alluxio.client.netty.NettyRPC;
+import alluxio.client.netty.NettyRPCContext;
 import alluxio.client.netty.NettySecureRpcClient;
-import alluxio.client.netty.SingleResponseListener;
-import alluxio.network.protocol.RPCProtoMessage;
-import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.security.Key;
-import alluxio.proto.status.Status.PStatus;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.util.CommonUtils;
 import alluxio.util.proto.ProtoMessage;
@@ -41,9 +38,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Unit tests for {@link NettySecureRpcServer}.
@@ -98,9 +94,11 @@ public final class NettySecureRpcServerTest {
             Key.SecretKey.newBuilder().setKeyType(Key.KeyType.CAPABILITY).setKeyId(keyId)
                 .setExpirationTimeMs(expirationTimeMs), encodedKey).build();
 
-    RPCProtoMessage resp = request(new RPCProtoMessage(new ProtoMessage(request), null));
-    Protocol.Response response = resp.getMessage().asResponse();
-    Assert.assertEquals(PStatus.OK, response.getStatus());
+    try {
+      updateKey(request);
+    } catch (Exception e) {
+      Assert.fail();
+    }
   }
 
   @Test
@@ -115,14 +113,14 @@ public final class NettySecureRpcServerTest {
               Key.SecretKey.newBuilder().setKeyType(Key.KeyType.CAPABILITY).setKeyId(keyId)
                   .setExpirationTimeMs(expirationTimeMs), encodedKey).build();
 
-      requestWithNonSslClient(new RPCProtoMessage(new ProtoMessage(request), null));
+      updateKeyNonSslClient(request);
       Assert.fail("The server should get failure on non-ssl request and client should time out.");
-    } catch (TimeoutException e) {
+    } catch (IOException e) {
       // expected
     }
   }
 
-  private RPCProtoMessage request(RPCProtoMessage rpcSecretKeyWriteRequest) throws Exception {
+  private void updateKey(Key.SecretKey key) throws Exception {
     InetSocketAddress address =
         new InetSocketAddress(mNettySecureRpcServer.getBindHost(),
             mNettySecureRpcServer.getPort());
@@ -130,18 +128,14 @@ public final class NettySecureRpcServerTest {
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();
     try {
-      SingleResponseListener listener = new SingleResponseListener();
-      ((ClientHandler) channel.pipeline().addLast(new ClientHandler()).last())
-          .addListener(listener);
-      channel.writeAndFlush(rpcSecretKeyWriteRequest);
-      return listener.get(NettySecureRpcClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      NettyRPC.call(NettyRPCContext.defaults().setTimeout(NettySecureRpcClient.TIMEOUT_MS)
+          .setChannel(channel), new ProtoMessage(key));
     } finally {
-      channel.close().sync();
+      channel.close();
     }
   }
 
-  private RPCProtoMessage requestWithNonSslClient(RPCProtoMessage rpcSecretKeyWriteRequest)
-      throws Exception {
+  private void updateKeyNonSslClient(Key.SecretKey key) throws Exception {
     InetSocketAddress address =
         new InetSocketAddress(mNettySecureRpcServer.getBindHost(),
             mNettySecureRpcServer.getPort());
@@ -149,13 +143,10 @@ public final class NettySecureRpcServerTest {
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();
     try {
-      SingleResponseListener listener = new SingleResponseListener();
-      ((ClientHandler) channel.pipeline().addLast(new ClientHandler()).last())
-          .addListener(listener);
-      channel.writeAndFlush(rpcSecretKeyWriteRequest);
-      return listener.get(500 /* timeout in ms */, TimeUnit.MILLISECONDS);
+      NettyRPC.call(NettyRPCContext.defaults().setTimeout(500 /* timeout in ms */)
+          .setChannel(channel), new ProtoMessage(key));
     } finally {
-      channel.close().sync();
+      channel.close();
     }
   }
 }

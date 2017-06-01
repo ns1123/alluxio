@@ -55,18 +55,22 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     pipeline.addLast("frameDecoder", RPCMessage.createFrameDecoder());
     pipeline.addLast("RPCMessageDecoder", new RPCMessageDecoder());
     pipeline.addLast("RPCMessageEncoder", new RPCMessageEncoder());
-    // ALLUXIO CS ADD
-    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-        alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      pipeline.addLast(new KerberosSaslDataServerHandler());
-    }
-    // ALLUXIO CS END
 
     // Idle Event Handlers
     pipeline.addLast("idleEventHandler", new IdleStateHandler(timeoutMs, 0, 0,
         TimeUnit.MILLISECONDS));
     pipeline.addLast("idleReadHandler", new IdleReadHandler());
     pipeline.addLast("heartbeatHandler", new DataServerHeartbeatHandler());
+    // ALLUXIO CS ADD
+
+    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+        alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+      pipeline.addLast(new KerberosSaslDataServerHandler());
+    }
+    if (Utils.isCapabilityEnabled()) {
+      pipeline.addLast(new ConnectionCountHandler(mWorkerProcess.getWorker(BlockWorker.class)));
+    }
+    // ALLUXIO CS END
 
     // Block Handlers
     pipeline.addLast("dataServerBlockReadHandler",

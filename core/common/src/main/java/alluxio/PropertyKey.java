@@ -251,6 +251,14 @@ public class PropertyKey {
   // ALLUXIO CS ADD
   public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
       create(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS, 1000);
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
+      create(Name.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS, Constants.SECOND_MS);
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
+      create(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS, 0);
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_INTERVAL_MS =
+      create(Name.MASTER_PERSISTENCE_MAX_INTERVAL_MS, Constants.HOUR_MS);
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
+      create(Name.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS, Constants.DAY_MS);
   public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
       create(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS, 1000);
   // ALLUXIO CS END
@@ -483,6 +491,12 @@ public class PropertyKey {
   //
   // User related properties
   //
+  // ALLUXIO CS ADD
+  public static final PropertyKey USER_BLOCK_FOOTER_SIZE_BYTES =
+      create(Name.USER_BLOCK_FOOTER_SIZE_BYTES, "0B");
+  public static final PropertyKey USER_BLOCK_HEADER_SIZE_BYTES =
+      create(Name.USER_BLOCK_HEADER_SIZE_BYTES, "0B");
+  // ALLUXIO CS END
   public static final PropertyKey USER_BLOCK_MASTER_CLIENT_THREADS =
       create(Name.USER_BLOCK_MASTER_CLIENT_THREADS, 10);
   public static final PropertyKey USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES =
@@ -509,6 +523,14 @@ public class PropertyKey {
       create(Name.USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS, 300 * Constants.SECOND_MS);
   public static final PropertyKey USER_DATE_FORMAT_PATTERN =
       create(Name.USER_DATE_FORMAT_PATTERN, "MM-dd-yyyy HH:mm:ss:SSS");
+  // ALLUXIO CS ADD
+  public static final PropertyKey USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
+      create(Name.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B");
+  public static final PropertyKey USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES =
+      create(Name.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B");
+  public static final PropertyKey USER_ENCRYPTION_CHUNK_SIZE_BYTES =
+      create(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES, "64KB");
+  // ALLUXIO CS END
   public static final PropertyKey USER_FAILED_SPACE_REQUEST_LIMITS =
       create(Name.USER_FAILED_SPACE_REQUEST_LIMITS, 3);
   public static final PropertyKey USER_FILE_BUFFER_BYTES =
@@ -719,6 +741,8 @@ public class PropertyKey {
       create(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
       create(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+  public static final PropertyKey SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
+      create(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME, "");
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
       create(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED, false);
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
@@ -727,6 +751,21 @@ public class PropertyKey {
       create(Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS, Constants.DAY_MS);
   public static final PropertyKey SECURITY_PRIVILEGES_ENABLED =
       create(Name.SECURITY_PRIVILEGES_ENABLED, false);
+  // TODO(chaomin): switch to per mount point encryption knob
+  public static final PropertyKey SECURITY_ENCRYPTION_ENABLED =
+      create(Name.SECURITY_ENCRYPTION_ENABLED, false);
+  public static final PropertyKey SECURITY_ENCRYPTION_OPENSSL_ENABLED =
+      create(Name.SECURITY_ENCRYPTION_OPENSSL_ENABLED, false);
+  public static final PropertyKey SECURITY_KMS_ENDPOINT =
+      create(Name.SECURITY_KMS_ENDPOINT, "http://localhost:9000");
+  public static final PropertyKey SECURITY_KMS_PROVIDER =
+      create(Name.SECURITY_KMS_PROVIDER, Constants.KMS_DUMMY_PROVIDER_NAME);
+
+  //
+  // Native library
+  //
+  public static final PropertyKey NATIVE_LIBRARY_PATH =
+      create(Name.NATIVE_LIBRARY_PATH, String.format("${%s}/lib/native", Name.HOME));
 
   //
   // Job service
@@ -1032,6 +1071,14 @@ public class PropertyKey {
     // ALLUXIO CS ADD
     public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
         "alluxio.master.persistence.checker.interval.ms";
+    public static final String MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
+        "alluxio.master.persistence.initial.interval.ms";
+    public static final String MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
+        "alluxio.master.persistence.initial.wait.time.ms";
+    public static final String MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
+        "alluxio.master.persistence.max.total.wait.time.ms";
+    public static final String MASTER_PERSISTENCE_MAX_INTERVAL_MS =
+        "alluxio.master.persistence.max.interval.ms";
     public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
         "alluxio.master.persistence.scheduler.interval.ms";
     // ALLUXIO CS END
@@ -1184,6 +1231,12 @@ public class PropertyKey {
     //
     // User related properties
     //
+    // ALLUXIO CS ADD
+    public static final String USER_BLOCK_FOOTER_SIZE_BYTES =
+        "alluxio.user.block.footer.size.bytes";
+    public static final String USER_BLOCK_HEADER_SIZE_BYTES =
+        "alluxio.user.block.header.size.bytes";
+    // ALLUXIO CS END
     public static final String USER_BLOCK_MASTER_CLIENT_THREADS =
         "alluxio.user.block.master.client.threads";
     public static final String USER_BLOCK_REMOTE_READER_CLASS =
@@ -1238,6 +1291,14 @@ public class PropertyKey {
     public static final String USER_FILE_WRITE_TYPE_DEFAULT = "alluxio.user.file.writetype.default";
     public static final String USER_FILE_WRITE_TIER_DEFAULT =
         "alluxio.user.file.write.tier.default";
+    // ALLUXIO CS ADD
+    public static final String USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
+        "alluxio.encryption.chunk.footer.size.bytes";
+    public static final String USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES =
+        "alluxio.encryption.chunk.header.size.bytes";
+    public static final String USER_ENCRYPTION_CHUNK_SIZE_BYTES =
+        "alluxio.encryption.chunk.size.bytes";
+    // ALLUXIO CS END
     public static final String USER_HEARTBEAT_INTERVAL_MS = "alluxio.user.heartbeat.interval.ms";
     public static final String USER_HOSTNAME = "alluxio.user.hostname";
     public static final String USER_LINEAGE_ENABLED = "alluxio.user.lineage.enabled";
@@ -1368,6 +1429,9 @@ public class PropertyKey {
         "alluxio.security.kerberos.client.principal";
     public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
         "alluxio.security.kerberos.client.keytab.file";
+    public static final String SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
+        "alluxio.security.kerberos.unified.instance.name";
+
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
         "alluxio.security.authorization.capability.enabled";
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
@@ -1375,6 +1439,17 @@ public class PropertyKey {
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
         "alluxio.security.authorization.capability.key.lifetime.ms";
     public static final String SECURITY_PRIVILEGES_ENABLED = "alluxio.security.privileges.enabled";
+    // TODO(chaomin): replace this with per mount encryption knob
+    public static final String SECURITY_ENCRYPTION_ENABLED = "alluxio.security.encryption.enabled";
+    public static final String SECURITY_ENCRYPTION_OPENSSL_ENABLED =
+        "alluxio.security.encryption.openssl.enabled";
+    public static final String SECURITY_KMS_ENDPOINT = "alluxio.security.kms.endpoint";
+    public static final String SECURITY_KMS_PROVIDER = "alluxio.security.kms.provider";
+
+    //
+    // Native library
+    //
+    public static final String NATIVE_LIBRARY_PATH = "alluxio.native.library.path";
 
     //
     // Job service

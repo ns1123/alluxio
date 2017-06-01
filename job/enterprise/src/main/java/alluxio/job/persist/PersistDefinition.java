@@ -110,23 +110,21 @@ public final class PersistDefinition
 
   @Override
   public SerializableVoid runTask(PersistConfig config, SerializableVoid args,
-      JobWorkerContext jobWorkerContext) throws Exception {
+      JobWorkerContext context) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-
-    URIStatus status = mFileSystem.getStatus(uri);
-    String ufsPath = status.getUfsPath();
-    if (config.getUfsPath() != null) {
-      ufsPath = config.getUfsPath();
-    }
+    String ufsPath = config.getUfsPath();
 
     // check if the file is persisted in UFS and delete it, if we are overwriting it
-    UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
+    UnderFileSystem ufs = context.getUfsManager().get(config.getMountId());
+    if (ufs == null) {
+      throw new IOException("Failed to create UFS instance for " + ufsPath);
+    }
     if (ufs.exists(ufsPath)) {
       if (config.isOverwrite()) {
         LOG.info("File {} is already persisted in UFS. Removing it.", config.getFilePath());
         ufs.deleteFile(ufsPath);
       } else {
-        throw new RuntimeException("File " + config.getFilePath()
+        throw new IOException("File " + config.getFilePath()
             + " is already persisted in UFS, to overwrite the file, please set the overwrite flag"
             + " in the config.");
       }
@@ -136,6 +134,8 @@ public final class PersistDefinition
     long ret;
     try (Closer closer = Closer.create()) {
       OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
+      // Disable decryption when reading from Alluxio in order to directly copy ciphertext to UFS.
+      options.setSkipTransformation(true);
       FileInStream in = closer.register(fs.openFile(uri, options));
       AlluxioURI dstPath = new AlluxioURI(ufsPath);
       // Create ancestor directories from top to the bottom. We cannot use recursive create
