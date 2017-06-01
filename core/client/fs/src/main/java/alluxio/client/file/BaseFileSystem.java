@@ -339,6 +339,8 @@ public class BaseFileSystem implements FileSystem {
         }
         retval.add(status);
       } else {
+        // This is assuming encryption is a cluster wide knob. Need to update this once we support
+        // mixed encrypted/unencrypted files in one directory.
         return statuses;
       }
     }
