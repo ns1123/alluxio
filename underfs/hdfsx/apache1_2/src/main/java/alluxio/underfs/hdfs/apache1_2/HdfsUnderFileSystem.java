@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.hdfsx.apache1_2;
+package alluxio.underfs.hdfs.apache1_2;
 
 import alluxio.AlluxioURI;
 import alluxio.underfs.UnderFileSystem;
@@ -21,7 +21,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * HDFS {@link UnderFileSystem} implementation.
  */
 @ThreadSafe
-public final class HdfsUnderFileSystem extends alluxio.underfs.hdfsx.HdfsUnderFileSystem {
+public final class HdfsUnderFileSystem extends alluxio.underfs.hdfs.HdfsUnderFileSystem {
+
   /**
    * Constructs a new HDFS {@link UnderFileSystem}.
    *
