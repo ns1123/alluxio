@@ -41,7 +41,7 @@
       </modules>
     </profile>
 
-    <!--build as default HDFS UFS version-->
+    <!-- enable by default -->
     <profile>
       <id>hdfs-2.2</id>
       <activation>
@@ -73,8 +73,12 @@
       </modules>
     </profile>
 
+    <!-- enable by default -->
     <profile>
       <id>hdfs-2.6</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <modules>
         <module>apache2_6</module>
       </modules>

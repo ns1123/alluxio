@@ -77,7 +77,6 @@
               <artifactSet>
                 <includes>
                   <include>org.alluxio:alluxio-underfs-hdfsx-common</include>
-
                   <include>org.apache.hadoop:hadoop-annotations</include>
                   <include>org.apache.hadoop:hadoop-auth</include>
                   <include>org.apache.hadoop:hadoop-common</include>

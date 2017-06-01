@@ -39,14 +39,14 @@ public class HdfsUnderFileSystemFactoryIntegrationTest {
         hdfsUfs22.getClass().getClassLoader());
 
     conf.setUserSpecifiedConf(ImmutableMap.of(PropertyKey.UNDERFS_HDFS_VERSION.toString(),
-        HdfsVersion.APACHE_2_7.getCanonicalVersion()));
-    UnderFileSystem hdfsUfs27 = factory.create("hdfs://localhost:9000/", conf);
-    Assert.assertEquals(HdfsVersion.APACHE_2_7.getHdfsUfsClassLoader(),
-        hdfsUfs27.getClass().getClassLoader());
+        HdfsVersion.APACHE_2_6.getCanonicalVersion()));
+    UnderFileSystem hdfsUfs26 = factory.create("hdfs://localhost:9000/", conf);
+    Assert.assertEquals(HdfsVersion.APACHE_2_6.getHdfsUfsClassLoader(),
+        hdfsUfs26.getClass().getClassLoader());
     Assert.assertNotEquals(UnderFileSystemFactory.class.getClassLoader(),
-        hdfsUfs27.getClass().getClassLoader());
+        hdfsUfs26.getClass().getClassLoader());
 
     Assert.assertNotEquals(hdfsUfs22.getClass().getClassLoader(),
-        hdfsUfs27.getClass().getClassLoader());
+        hdfsUfs26.getClass().getClassLoader());
   }
 }

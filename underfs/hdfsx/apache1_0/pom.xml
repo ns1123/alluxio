@@ -70,6 +70,7 @@
             <configuration>
               <artifactSet>
                 <includes>
+                  <include>org.alluxio:alluxio-underfs-hdfsx-common</include>
                   <include>org.apache.hadoop:hadoop-core</include>
 
                   <!-- Transitive dependencies introduced by hadoop-core -->

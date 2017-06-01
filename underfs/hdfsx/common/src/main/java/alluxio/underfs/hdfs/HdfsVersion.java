@@ -24,8 +24,15 @@ import javax.annotation.Nullable;
 
 /** The set of supported Hdfs versions. */
 public enum HdfsVersion {
+  APACHE_1_0("1.0", "(apache-)?1.0(.*)?", "apache1_0"), // Apache HDFS 1.0.*
+  APACHE_1_2("1.2", "(apache-)?1.2(.*)?", "apache1_2"), // Apache HDFS 1.2.*
   APACHE_2_2("2.2", "(apache-)?2.2(.*)?", "apache2_2"), // Apache HDFS 2.2.*
+  APACHE_2_3("2.3", "(apache-)?2.3(.*)?", "apache2_3"), // Apache HDFS 2.3.*
+  APACHE_2_4("2.4", "(apache-)?2.4(.*)?", "apache2_4"), // Apache HDFS 2.4.*
+  APACHE_2_5("2.5", "(apache-)?2.5(.*)?", "apache2_5"), // Apache HDFS 2.5.*
+  APACHE_2_6("2.6", "(apache-)?2.6(.*)?", "apache2_6"), // Apache HDFS 2.6.*
   APACHE_2_7("2.7", "(apache-)?2.7(.*)?", "apache2_7"), // Apache HDFS 2.7.*
+  APACHE_2_8("2.8", "(apache-)?2.8(.*)?", "apache2_8"), // Apache HDFS 2.8.*
   ;
 
   public static final String HDFS_JAR_FILENAME_FORMAT = "alluxio-underfs-hdfsx-%s-%s.jar";
