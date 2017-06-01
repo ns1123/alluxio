@@ -44,6 +44,10 @@ public class PropertyKey {
   public static final PropertyKey KEY_VALUE_ENABLED = create(Name.KEY_VALUE_ENABLED, false);
   public static final PropertyKey KEY_VALUE_PARTITION_SIZE_BYTES_MAX =
       create(Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX, "512MB");
+  // ALLUXIO CS ADD
+  public static final PropertyKey LIB_DIR =
+      create(Name.LIB_DIR, String.format("${%s}/lib", Name.HOME));
+  // ALLUXIO CS END
   public static final PropertyKey LOGGER_TYPE = create(Name.LOGGER_TYPE, "Console");
   public static final PropertyKey LOGS_DIR =
       create(Name.LOGS_DIR, String.format("${%s}/logs", Name.WORK_DIR));
@@ -103,6 +107,10 @@ public class PropertyKey {
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
       create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///,maprfs:///");
   public static final PropertyKey UNDERFS_HDFS_REMOTE = create(Name.UNDERFS_HDFS_REMOTE, false);
+  // ALLUXIO CS ADD
+  public static final PropertyKey UNDERFS_HDFS_VERSION =
+      create(Name.UNDERFS_HDFS_VERSION, ProjectConstants.HADOOP_VERSION);
+  // ALLUXIO CS END
   public static final PropertyKey UNDERFS_OBJECT_STORE_SERVICE_THREADS =
       create(Name.UNDERFS_OBJECT_STORE_SERVICE_THREADS, 20);
   public static final PropertyKey UNDERFS_OBJECT_STORE_MOUNT_SHARED_PUBLICLY =
@@ -886,6 +894,9 @@ public class PropertyKey {
         "alluxio.keyvalue.partition.size.bytes.max";
     public static final String LOGGER_TYPE = "alluxio.logger.type";
     public static final String LOGS_DIR = "alluxio.logs.dir";
+    // ALLUXIO CS ADD
+    public static final String LIB_DIR = "alluxio.lib.dir";
+    // ALLUXIO CS END
     public static final String METRICS_CONF_FILE = "alluxio.metrics.conf.file";
     public static final String NETWORK_HOST_RESOLUTION_TIMEOUT_MS =
         "alluxio.network.host.resolution.timeout.ms";
@@ -924,6 +935,9 @@ public class PropertyKey {
     public static final String UNDERFS_HDFS_IMPL = "alluxio.underfs.hdfs.impl";
     public static final String UNDERFS_HDFS_PREFIXES = "alluxio.underfs.hdfs.prefixes";
     public static final String UNDERFS_HDFS_REMOTE = "alluxio.underfs.hdfs.remote";
+    // ALLUXIO CS ADD
+    public static final String UNDERFS_HDFS_VERSION = "alluxio.underfs.hdfs.version";
+    // ALLUXIO CS END
     public static final String UNDERFS_OBJECT_STORE_SERVICE_THREADS =
         "alluxio.underfs.object.store.service.threads";
     public static final String UNDERFS_OBJECT_STORE_MOUNT_SHARED_PUBLICLY =

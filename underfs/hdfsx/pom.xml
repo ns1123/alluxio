@@ -14,34 +14,26 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.alluxio</groupId>
-    <artifactId>alluxio-parent</artifactId>
+    <artifactId>alluxio-underfs</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alluxio-underfs</artifactId>
+  <artifactId>alluxio-underfs-hdfsx</artifactId>
   <packaging>pom</packaging>
-  <name>Alluxio Under File System</name>
-  <description>Parent POM for different implementations of Alluxio under file system</description>
+  <name>Alluxio Under File System - HDFS Distributions</name>
+  <description>HDFS Under File System implementation (mutli-version support)</description>
 
   <modules>
-    <module>gcs</module>
-    <module>glusterfs</module>
-    <module>hdfs</module>
-    <!-- ALLUXIO CS ADD -->
-    <module>hdfsx</module>
-    <module>jdbc</module>
-    <!-- ALLUXIO CS END -->
-    <module>local</module>
-    <module>oss</module>
-    <module>s3</module>
-    <module>s3a</module>
-    <module>swift</module>
+    <module>apache2_2</module>
+    <module>apache2_7</module>
+    <module>common</module>
   </modules>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
          properly from sub-project directories -->
-    <checkstyle.path>${project.parent.basedir}/build/checkstyle/</checkstyle.path>
-    <findbugs.path>${project.parent.basedir}/build/findbugs/</findbugs.path>
-    <license.header.path>${project.parent.basedir}/build/license/</license.header.path>
+    <checkstyle.path>${project.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
+    <findbugs.path>${project.parent.parent.basedir}/build/findbugs/</findbugs.path>
+    <license.header.path>${project.parent.parent.basedir}/build/license/</license.header.path>
   </properties>
+
 </project>
