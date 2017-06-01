@@ -29,6 +29,7 @@
     <license.header.path>${project.parent.parent.parent.basedir}/build/license/</license.header.path>
     <checkstyle.path>${project.parent.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.parent.parent.basedir}/build/findbugs/</findbugs.path>
+    <lib.path>${project.parent.parent.parent.basedir}/lib/</lib.path>
     <!-- The shading prefix should match the artifact ID, replacing '-' with '.' -->
     <shading.prefix>alluxio.underfs.hdfsx.apache2_2</shading.prefix>
   </properties>
@@ -333,6 +334,31 @@
                   </excludes>
                 </filter>
               </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-installed</id>
+            <phase>install</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                  <type>${project.packaging}</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${lib.path}</outputDirectory>
             </configuration>
           </execution>
         </executions>

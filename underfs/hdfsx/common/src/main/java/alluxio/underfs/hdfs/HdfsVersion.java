@@ -28,11 +28,9 @@ public enum HdfsVersion {
   APACHE_2_7("2.7", "(apache-)?2.7(.*)?", "apache2_7"), // Apache HDFS 2.7.*
   ;
 
-  public static final String JAR_FILENAME_FORMAT = "alluxio-underfs-hdfsx-%s-%s.jar";
-  public static final String TARGET_JAR_PATH_FORMAT1 = "file://" + PathUtils
-      .concatPath(Configuration.get(PropertyKey.HOME), "underfs/hdfsx/%s/target/");
-  public static final String TARGET_JAR_PATH_FORMAT2 = "file://" + PathUtils
-      .concatPath(System.getProperty("user.dir"), "../underfs/hdfsx/%s/target/"); // for tests
+  public static final String HDFS_JAR_FILENAME_FORMAT = "alluxio-underfs-hdfsx-%s-%s.jar";
+  public static final String LIB_TEST_PATH_FORMAT = "file://" + PathUtils
+      .concatPath(System.getProperty("user.dir"), "../lib/"); // for tests
 
   private final String mCanonicalVersion;
   private final Pattern mVersionPattern;
@@ -95,15 +93,14 @@ public enum HdfsVersion {
    */
   public URL[] getJarPaths() {
 
-    String jarFilename = String.format(JAR_FILENAME_FORMAT, mModuleName, ProjectConstants.VERSION);
+    String jarFilename = String.format(HDFS_JAR_FILENAME_FORMAT, mModuleName, ProjectConstants.VERSION);
     try {
-      URL targetJarURL1 = new URL(
-          PathUtils.concatPath(String.format(TARGET_JAR_PATH_FORMAT1, mModuleName), jarFilename));
-      URL targetJarURL2 = new URL(
-          PathUtils.concatPath(String.format(TARGET_JAR_PATH_FORMAT2, mModuleName), jarFilename));
       URL libJarURL = new URL(
           "file://" + PathUtils.concatPath(Configuration.get(PropertyKey.LIB_DIR), jarFilename));
-      return new URL[] {targetJarURL1, targetJarURL2, libJarURL};
+      URL libJarTestURL = new URL(
+          PathUtils.concatPath(String.format(LIB_TEST_PATH_FORMAT, mModuleName), jarFilename));
+      // NOTE, jars will be searched in the order that LIB_DIR first, then the path for test.
+      return new URL[] {libJarURL, libJarTestURL};
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
