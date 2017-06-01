@@ -202,7 +202,7 @@ public final class Constants {
   public static final String KMS_HADOOP_PROVIDER_NAME = "HADOOP";
   public static final String KMS_TS_PROVIDER_NAME = "TS";
   public static final String KMS_API_PREFIX = "";
-  // TODO(chaomin): remove this once KMS integration is done
+  // For dummy KMS
   public static final String ENCRYPTION_KEY_FOR_TESTING = "16bytesSecretKey";
   public static final String ENCRYPTION_IV_FOR_TESTING = "iv";
 
