@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
 import alluxio.client.WriteType;
-import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.MockFileInStream;
@@ -27,6 +26,7 @@ import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.job.JobWorkerContext;
+import alluxio.underfs.UfsManager;
 import alluxio.util.io.BufferUtils;
 import alluxio.wire.FileInfo;
 
@@ -34,37 +34,40 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
- * Unit tests for {@link MoveDefinition#runTask(MoveConfig, List, JobWorkerContext)}.
+ * Unit tests for {@link MoveDefinition#runTask(MoveConfig, ArrayList, JobWorkerContext)}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystem.class, FileSystemContext.class})
+@PrepareForTest({FileSystemContext.class})
 public final class MoveDefinitionRunTaskTest {
   private static final String TEST_DIR = "/DIR";
   private static final String TEST_SOURCE = "/DIR/TEST_SOURCE";
   private static final String TEST_DESTINATION = "/DIR/TEST_DESTINATION";
   private static final byte[] TEST_SOURCE_CONTENTS = BufferUtils.getIncreasingByteArray(100);
 
-  private BaseFileSystem mMockFileSystem;
+  private FileSystem mMockFileSystem;
   private FileSystemContext mMockFileSystemContext;
   private MockFileInStream mMockInStream;
   private MockFileOutStream mMockOutStream;
+  private UfsManager mMockUfsManager;
 
   @Before
   public void before() throws Exception {
-    mMockFileSystem = PowerMockito.mock(BaseFileSystem.class);
+    mMockFileSystem = Mockito.mock(FileSystem.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockInStream = new MockFileInStream(FileSystemContext.INSTANCE, TEST_SOURCE_CONTENTS);
     when(mMockFileSystem.openFile(new AlluxioURI(TEST_SOURCE))).thenReturn(mMockInStream);
     mMockOutStream = new MockFileOutStream();
     when(mMockFileSystem.createFile(eq(new AlluxioURI(TEST_DESTINATION)),
         any(CreateFileOptions.class))).thenReturn(mMockOutStream);
+    mMockUfsManager = Mockito.mock(UfsManager.class);
   }
 
   /**
@@ -143,6 +146,6 @@ public final class MoveDefinitionRunTaskTest {
     new MoveDefinition(mMockFileSystemContext, mMockFileSystem).runTask(
         new MoveConfig(configSource, "", writeType.toString(), false),
         Lists.newArrayList(new MoveCommand(commandSource, commandDestination)),
-        new JobWorkerContext(1, 1));
+        new JobWorkerContext(1, 1, mMockUfsManager));
   }
 }

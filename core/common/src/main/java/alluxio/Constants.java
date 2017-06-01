@@ -93,6 +93,9 @@ public final class Constants {
   public static final long BLOCK_MASTER_WORKER_SERVICE_VERSION = 2;
   public static final long BLOCK_WORKER_CLIENT_SERVICE_VERSION = 2;
   public static final long FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION = 2;
+  // ALLUXIO CS ADD
+  public static final long FILE_SYSTEM_MASTER_JOB_SERVICE_VERSION = 2;
+  // ALLUXIO CS END
   public static final long FILE_SYSTEM_MASTER_WORKER_SERVICE_VERSION = 2;
   public static final long FILE_SYSTEM_WORKER_CLIENT_SERVICE_VERSION = 2;
   public static final long LINEAGE_MASTER_CLIENT_SERVICE_VERSION = 2;
@@ -112,6 +115,9 @@ public final class Constants {
   public static final String BLOCK_MASTER_CLIENT_SERVICE_NAME = "BlockMasterClient";
   public static final String BLOCK_MASTER_WORKER_SERVICE_NAME = "BlockMasterWorker";
   public static final String FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME = "FileSystemMasterClient";
+  // ALLUXIO CS ADD
+  public static final String FILE_SYSTEM_MASTER_JOB_SERVICE_NAME = "FileSystemMasterJob";
+  // ALLUXIO CS END
   public static final String FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME = "FileSystemMasterWorker";
   public static final String LINEAGE_MASTER_CLIENT_SERVICE_NAME = "LineageMasterClient";
   public static final String META_MASTER_SERVICE_NAME = "MetaMaster";

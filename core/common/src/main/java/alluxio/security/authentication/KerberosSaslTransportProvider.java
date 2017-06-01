@@ -81,6 +81,8 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   public TTransport getClientTransportInternal(
       Subject subject, final String protocol, final String serverName,
       final InetSocketAddress serverAddress) throws UnauthenticatedException {
+    String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName();
+    final String instanceName = unifiedInstanceName != null ? unifiedInstanceName : serverName;
     try {
       return Subject.doAs(subject, new
           PrivilegedExceptionAction<TSaslClientTransport>() {
@@ -90,7 +92,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
                 TransportProviderUtils.createThriftSocket(serverAddress, mSocketTimeoutMs);
             return new TSaslClientTransport(
                 KerberosUtils.GSSAPI_MECHANISM_NAME, null /* authorizationId */,
-                protocol, serverName, KerberosUtils.SASL_PROPERTIES, null, wrappedTransport);
+                protocol, instanceName, KerberosUtils.SASL_PROPERTIES, null, wrappedTransport);
           } catch (SaslException e) {
             throw new AuthenticationException("Exception initializing SASL client", e);
           }
@@ -138,11 +140,13 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   public TTransportFactory getServerTransportFactoryInternal(Subject subject, final String protocol,
       final String serverName, final Runnable callback)
       throws SaslException, PrivilegedActionException {
+    String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName();
+    final String instanceName = unifiedInstanceName != null ? unifiedInstanceName : serverName;
     return Subject.doAs(subject, new PrivilegedExceptionAction<TSaslServerTransport.Factory>() {
       public TSaslServerTransport.Factory run() {
         TSaslServerTransport.Factory saslTransportFactory = new TSaslServerTransport.Factory();
         saslTransportFactory
-            .addServerDefinition(KerberosUtils.GSSAPI_MECHANISM_NAME, protocol, serverName,
+            .addServerDefinition(KerberosUtils.GSSAPI_MECHANISM_NAME, protocol, instanceName,
                 KerberosUtils.SASL_PROPERTIES,
                 new KerberosUtils.ThriftGssSaslCallbackHandler(callback));
         return saslTransportFactory;

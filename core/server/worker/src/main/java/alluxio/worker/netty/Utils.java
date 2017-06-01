@@ -52,5 +52,12 @@ public final class Utils {
     blockWorker.getCapabilityCache().checkAccess(user, fileId, accessMode);
   }
 
+  /**
+   * @return true if the capability feature is enabled
+   */
+  public static boolean isCapabilityEnabled() {
+    return CAPABILITY_ENABLED;
+  }
+
   private Utils() {}  // prevent instantiation
 }

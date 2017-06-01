@@ -236,6 +236,14 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <!-- ALLUXIO CS ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-fork</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-gcs</artifactId>

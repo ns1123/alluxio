@@ -10,7 +10,7 @@
 package alluxio.job;
 
 import alluxio.exception.ExceptionMessage;
-import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.exception.JobDoesNotExistException;
 
 import com.google.common.base.Throwables;
 import org.slf4j.Logger;
