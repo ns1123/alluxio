@@ -34,6 +34,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
+  private boolean mEncrypted;
   // ALLUXIO CS END
   private long mTtl;
   private TtlAction mTtlAction;
@@ -61,6 +62,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mReplicationDurable = options.getReplicationDurable();
     mReplicationMax = options.getReplicationMax();
     mReplicationMin = options.getReplicationMin();
+    mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
     // ALLUXIO CS END
     mTtl = options.getTtl();
     mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
@@ -82,6 +84,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
@@ -116,6 +119,13 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
    */
   public int getReplicationMin() {
     return mReplicationMin;
+  }
+
+  /**
+   * @return true if the file is encrypted, false otherwise
+   */
+  public boolean isEncrypted() {
+    return mEncrypted;
   }
 
   // ALLUXIO CS END
@@ -178,6 +188,15 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     return this;
   }
 
+  /**
+   * @param encrypted the encrypted flag value to use
+   * @return the updated options object
+   */
+  public CreateFileOptions setEncrypted(boolean encrypted) {
+    mEncrypted = encrypted;
+    return this;
+  }
+
   // ALLUXIO CS END
   /**
    * @param cacheable true if the file is cacheable, false otherwise
@@ -229,6 +248,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
         && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
+        && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
         && Objects.equal(mTtlAction, that.mTtlAction) && Objects.equal(mCacheable, that.mCacheable);
   }
@@ -239,7 +259,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mCacheable);
     // ALLUXIO CS WITH
     return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
-        mReplicationMax, mReplicationMin, mTtl, mTtlAction, mCacheable);
+        mReplicationMax, mReplicationMin, mEncrypted, mTtl, mTtlAction, mCacheable);
     // ALLUXIO CS END
   }
 
@@ -250,6 +270,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
+        .add("encrypted", mEncrypted)
         // ALLUXIO CS END
         .add("ttlAction", mTtlAction).add("cacheable", mCacheable).toString();
   }

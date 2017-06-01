@@ -128,6 +128,34 @@ public final class ProtoUtils {
   }
 
   /**
+   * A wrapper of
+   * {@link alluxio.proto.security.EncryptionProto.CryptoKey.Builder#setKey} which takes a byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes key bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.security.EncryptionProto.CryptoKey.Builder setKey(
+      alluxio.proto.security.EncryptionProto.CryptoKey.Builder builder, byte[] bytes) {
+    return builder.setKey(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * A wrapper of
+   * {@link alluxio.proto.security.EncryptionProto.CryptoKey.Builder#setIv} which takes a byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes iv bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.security.EncryptionProto.CryptoKey.Builder setIv(
+      alluxio.proto.security.EncryptionProto.CryptoKey.Builder builder, byte[] bytes) {
+    return builder.setIv(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
    * @param capability the capability
    * @return the capability content
    */
