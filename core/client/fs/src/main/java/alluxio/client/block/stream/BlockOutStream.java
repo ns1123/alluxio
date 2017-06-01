@@ -92,6 +92,12 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
   protected static BlockOutStream createLocalBlockOutStream(FileSystemContext context,
       WorkerNetAddress address, long id, long length, OutStreamOptions options) throws IOException {
     long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
+    }
+    // ALLUXIO CS END
     PacketWriter packetWriter =
         LocalFilePacketWriter.create(context, address, id, packetSize, options);
     return new BlockOutStream(packetWriter, length);
@@ -112,6 +118,12 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
       OutStreamOptions options) throws IOException {
     long packetSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
+    }
+    // ALLUXIO CS END
     PacketWriter packetWriter =
         new NettyPacketWriter(context, address, length, partialRequest, packetSize);
     return new BlockOutStream(packetWriter, length);
@@ -170,12 +182,20 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     for (WorkerNetAddress address: workerNetAddresses) {
       if (alluxio.util.CommonUtils.isLocalHost(address)) {
         long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
+        if (options.isEncrypted()) {
+          packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+              options.getEncryptionMeta(), packetSize);
+        }
         PacketWriter packetWriter =
             LocalFilePacketWriter.create(context, address, blockId, packetSize, options);
         packetWriters.add(packetWriter);
       } else {
         long packetSize =
             Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
+        if (options.isEncrypted()) {
+          packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+              options.getEncryptionMeta(), packetSize);
+        }
         PacketWriter packetWriter =
             new NettyPacketWriter(context, address, blockSize, writeRequestPartial, packetSize);
         packetWriters.add(packetWriter);
@@ -228,6 +248,40 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     }
     updateCurrentPacket(false);
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Writes the data in the specified byte buf to this output stream.
+   *
+   * @param buf the buffer
+   * @throws IOException
+   */
+  public void write(io.netty.buffer.ByteBuf buf) throws IOException {
+    write(buf, 0, buf.readableBytes());
+  }
+
+  /**
+   * Writes len bytes from the specified byte buf starting at offset off to this output stream.
+   *
+   * @param buf the buffer
+   * @param off the offset
+   * @param len the length
+   */
+  public void write(io.netty.buffer.ByteBuf buf, int off, int len) throws IOException {
+    if (len == 0) {
+      return;
+    }
+
+    while (len > 0) {
+      updateCurrentPacket(false);
+      int toWrite = Math.min(len, mCurrentPacket.writableBytes());
+      mCurrentPacket.writeBytes(buf, off, toWrite);
+      off += toWrite;
+      len -= toWrite;
+    }
+    updateCurrentPacket(false);
+  }
+  // ALLUXIO CS END
 
   @Override
   public void flush() throws IOException {

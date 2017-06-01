@@ -47,6 +47,8 @@ public final class InStreamOptions {
   private BlockLocationPolicy mUfsReadLocationPolicy;
   // ALLUXIO CS ADD
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
+  private boolean mEncrypted = false;
+  private alluxio.proto.security.EncryptionProto.Meta mEncryptionMeta = null;
   // ALLUXIO CS END
 
   /**
@@ -203,11 +205,43 @@ public final class InStreamOptions {
   }
 
   /**
+   * @return whether the file is encrypted or not
+   */
+  public boolean isEncrypted() {
+    return mEncrypted;
+  }
+
+  /**
+   * @return the encryption meta
+   */
+  public alluxio.proto.security.EncryptionProto.Meta getEncryptionMeta() {
+    return mEncryptionMeta;
+  }
+
+  /**
    * @param fetcher the capability fetcher to set
    * @return the updated object
    */
   public InStreamOptions setCapabilityFetcher(alluxio.client.security.CapabilityFetcher fetcher) {
     mCapabilityFetcher = fetcher;
+    return this;
+  }
+
+  /**
+   * @param encrypted the encrypted flag value to use
+   * @return the updated object
+   */
+  public InStreamOptions setEncrypted(boolean encrypted) {
+    mEncrypted = encrypted;
+    return this;
+  }
+
+  /**
+   * @param meta the encryption metadata
+   * @return the updated object
+   */
+  public InStreamOptions setEncryptionMeta(alluxio.proto.security.EncryptionProto.Meta meta) {
+    mEncryptionMeta = meta;
     return this;
   }
   // ALLUXIO CS END
@@ -237,6 +271,8 @@ public final class InStreamOptions {
         && Objects.equal(mCachePartiallyReadBlock, that.mCachePartiallyReadBlock)
         // ALLUXIO CS ADD
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
+        && Objects.equal(mEncrypted, that.mEncrypted)
+        && Objects.equal(mEncryptionMeta, that.mEncryptionMeta)
         // ALLUXIO CS END
         && Objects.equal(mSeekBufferSizeBytes, that.mSeekBufferSizeBytes)
         && Objects.equal(mMaxUfsReadConcurrency, that.mMaxUfsReadConcurrency)
@@ -252,6 +288,8 @@ public final class InStreamOptions {
             mCachePartiallyReadBlock,
             // ALLUXIO CS ADD
             mCapabilityFetcher,
+            mEncrypted,
+            mEncryptionMeta,
             // ALLUXIO CS END
             mSeekBufferSizeBytes,
             mMaxUfsReadConcurrency,
@@ -264,6 +302,8 @@ public final class InStreamOptions {
         .add("readType", mReadType).add("cachePartiallyReadBlock", mCachePartiallyReadBlock)
         // ALLUXIO CS ADD
         .add("capabilityFetcher", mCapabilityFetcher)
+        .add("encrypted", mEncrypted)
+        .add("encryptionMeta", mEncryptionMeta)
         // ALLUXIO CS END
         .add("seekBufferSize", mSeekBufferSizeBytes)
         .add("maxUfsReadConcurrency", mMaxUfsReadConcurrency)
