@@ -47,13 +47,7 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource.Builder()
-          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
-          // ALLUXIO CS ADD
-          .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
-          // ALLUXIO CS END
-          .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
-          .build();
+      buildLocalAlluxioClusterResource();
 
   protected FileSystem mFileSystem = null;
 
@@ -71,7 +65,18 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
   }
+
   // ALLUXIO CS END
+  protected LocalAlluxioClusterResource buildLocalAlluxioClusterResource() {
+    return new LocalAlluxioClusterResource.Builder()
+        .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
+        // ALLUXIO CS ADD
+        .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
+        // ALLUXIO CS END
+        .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
+        .build();
+  }
+
   /**
    * Helper to write an Alluxio file with stream of bytes of increasing byte value.
    *

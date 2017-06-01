@@ -71,6 +71,11 @@ public final class FileSystemContext implements Closeable {
   private final ConcurrentHashMapV8<SocketAddress, NettyChannelPool>
       mNettyChannelPools = new ConcurrentHashMapV8<>();
 
+  // ALLUXIO CS ADD
+  private alluxio.client.security.EncryptionCache mEncryptionCache =
+      new alluxio.client.security.EncryptionCache();
+
+  // ALLUXIO CS END
   /** The shared master address associated with the {@link FileSystemContext}. */
   @GuardedBy("this")
   private InetSocketAddress mMasterAddress;
@@ -145,6 +150,9 @@ public final class FileSystemContext implements Closeable {
       pool.close();
     }
     mNettyChannelPools.clear();
+    // ALLUXIO CS ADD
+    mEncryptionCache.clear();
+    // ALLUXIO CS END
 
     synchronized (this) {
       mMasterAddress = null;
@@ -282,6 +290,28 @@ public final class FileSystemContext implements Closeable {
     }
     return mLocalWorker;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Gets the encryption metadata from encryption cache.
+   *
+   * @param fileId the file id
+   * @return the encryption meta if exists, null otherwise
+   */
+  public alluxio.proto.security.EncryptionProto.Meta get(Long fileId) {
+    return mEncryptionCache.get(fileId);
+  }
+
+  /**
+   * Puts the encryption metadata for a given file id into the encryption cache.
+   *
+   * @param fileId the file id
+   * @param meta the encryption metadata
+   */
+  public void put(Long fileId, alluxio.proto.security.EncryptionProto.Meta meta) {
+    mEncryptionCache.put(fileId, meta);
+  }
+  // ALLUXIO CS END
 
   private void initializeLocalWorker() throws IOException {
     List<WorkerNetAddress> addresses = getWorkerAddresses();

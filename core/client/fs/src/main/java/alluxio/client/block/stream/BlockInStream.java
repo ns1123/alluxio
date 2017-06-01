@@ -115,6 +115,12 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
       WorkerNetAddress address, long blockId, long length, InStreamOptions options)
       throws IOException {
     long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_READER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
+    }
+    // ALLUXIO CS END
     return new BlockInStream(
         new LocalFilePacketReader.Factory(context, address, blockId, packetSize, options), address,
         blockId, length);
@@ -135,6 +141,12 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
       InStreamOptions options) {
     long packetSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
+    }
+    // ALLUXIO CS END
     PacketReader.Factory factory = new NettyPacketReader.Factory(context, address,
         readRequestPartial.toBuilder().setPacketSize(packetSize).buildPartial(), options);
     return new BlockInStream(factory, address, readRequestPartial.getBlockId(), blockSize);

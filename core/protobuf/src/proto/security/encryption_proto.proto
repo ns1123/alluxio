@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+package alluxio.proto.security;
+
+// The encryption metadata including the encryption id, block and chunk layout info.
+// Use varint here to save memory since this is cached in Alluxio.
+message Meta {
+    optional int64 block_header_size = 1 [default = 0];  // in bytes
+    optional int64 block_footer_size = 2 [default = 0];  // in bytes
+    optional int64 chunk_header_size = 3 [default = 0];  // in bytes
+    optional int64 chunk_size = 4 [default = 65536];     // in bytes
+    optional int64 chunk_footer_size = 5 [default = 16]; // in bytes
+    optional int64 physical_block_size = 6;              // in bytes
+    optional int64 logical_block_size = 7;               // in bytes
+    optional int64 encryption_id = 8     [default = -1];
+    optional int64 file_id = 9           [default = -1];
+    optional int64 encoded_meta_size = 10;
+    optional CryptoKey crypto_key = 11;
+}
+
+// The encrypt/decrypt key format returned from KMS.
+message CryptoKey {
+    optional string cipher = 1;
+    optional bytes key = 2;
+    optional bytes iv = 3;
+    optional int32 needsAuthTag = 4;
+    optional string generationId = 5;
+}
