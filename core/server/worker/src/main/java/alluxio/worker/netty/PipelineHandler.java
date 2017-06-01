@@ -60,6 +60,9 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
       pipeline.addLast(new KerberosSaslDataServerHandler());
     }
+    if (Utils.isCapabilityEnabled()) {
+      pipeline.addLast(new ConnectionCountHandler(mWorkerProcess.getWorker(BlockWorker.class)));
+    }
     // ALLUXIO CS END
 
     // Idle Event Handlers

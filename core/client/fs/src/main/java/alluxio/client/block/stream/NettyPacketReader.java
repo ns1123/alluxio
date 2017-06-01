@@ -201,7 +201,7 @@ public final class NettyPacketReader implements PacketReader {
       } catch (IOException e) {
         LOG.warn("Failed to close the NettyBlockReader (block: {}, address: {}) with exception {}.",
             mReadRequest.getBlockId(), mAddress, e.getMessage());
-        mChannel.close();
+        CommonUtils.closeChannel(mChannel);
         return;
       }
     } finally {

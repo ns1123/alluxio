@@ -38,6 +38,7 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
 import alluxio.proto.dataserver.Protocol;
+import alluxio.underfs.UfsManager;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
@@ -89,6 +90,7 @@ public final class ReplicateDefinitionTest {
   private AlluxioBlockStore mMockBlockStore;
   private FileSystem mMockFileSystem;
   private JobMasterContext mMockJobMasterContext;
+  private UfsManager mMockUfsManager;
 
   @Rule
   public final ExpectedException mThrown = ExpectedException.none();
@@ -99,6 +101,7 @@ public final class ReplicateDefinitionTest {
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
     mMockFileSystem = mock(FileSystem.class);
+    mMockUfsManager = mock(UfsManager.class);
   }
 
   /**
@@ -153,7 +156,7 @@ public final class ReplicateDefinitionTest {
 
     ReplicateConfig config = new ReplicateConfig(path, TEST_BLOCK_ID, 1 /* value not used */);
     ReplicateDefinition definition = new ReplicateDefinition(mMockFileSystemContext);
-    definition.runTask(config, null, new JobWorkerContext(1, 1));
+    definition.runTask(config, null, new JobWorkerContext(1, 1, mMockUfsManager));
   }
 
   @Test

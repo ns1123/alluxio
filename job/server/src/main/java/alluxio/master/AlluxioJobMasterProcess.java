@@ -19,6 +19,8 @@ import alluxio.master.job.JobMasterClientServiceHandler;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.JobMasterClientService;
+import alluxio.underfs.JobUfsManager;
+import alluxio.underfs.UfsManager;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -82,7 +84,11 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   /** The web server. */
   private JobMasterWebServer mWebServer = null;
 
+  /** The manager for all ufs. */
+  private UfsManager mUfsManager;
+
   AlluxioJobMasterProcess() {
+    mUfsManager = new JobUfsManager();
     mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
     mMaxWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MAX);
 
@@ -120,7 +126,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   }
 
   protected void createMaster() {
-    mJobMaster = new JobMaster();
+    mJobMaster = new JobMaster(mUfsManager);
   }
 
   @Override

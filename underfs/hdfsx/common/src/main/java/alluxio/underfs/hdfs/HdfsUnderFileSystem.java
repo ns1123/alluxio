@@ -203,7 +203,15 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
    */
   public static Configuration createConfiguration(UnderFileSystemConfiguration conf) {
     Preconditions.checkNotNull(conf, "conf");
-    Configuration hdfsConf = new Configuration();
+    Configuration hdfsConf;
+    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      // Reflection may be invoked
+      Thread.currentThread().setContextClassLoader(HdfsUnderFileSystem.class.getClassLoader());
+      hdfsConf = new Configuration();
+    } finally {
+      Thread.currentThread().setContextClassLoader(previousClassLoader);
+    }
 
     // Set class loader in HDFS to be the isolated class loader.
     // The classloader in hdfsConf will be used in conf so Configuration#getClass() and

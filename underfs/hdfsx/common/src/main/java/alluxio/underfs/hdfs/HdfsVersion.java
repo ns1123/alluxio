@@ -16,6 +16,7 @@ import alluxio.ProjectConstants;
 import alluxio.PropertyKey;
 import alluxio.util.io.PathUtils;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
@@ -27,11 +28,10 @@ public enum HdfsVersion {
   APACHE_2_7("2.7", "(apache-)?2.7(.*)?", "apache2_7"), // Apache HDFS 2.7.*
   ;
 
-  // TODO(binfan): we may want to have a dedicated dir for the jars
-  public static final String JAR_PATH_FORMAT =
-      PathUtils.concatPath(//
-          "file://" + Configuration.get(PropertyKey.HOME),
-          "underfs/hdfsx/%s/target/alluxio-underfs-hdfsx-%s-%s.jar");
+  public static final String HDFS_JAR_FILENAME_FORMAT = "alluxio-underfs-hdfsx-%s-%s.jar";
+  public static final String LIB_TEST_PATH_FORMAT = "file://" + PathUtils
+      .concatPath(System.getProperty("user.dir"), "../lib/"); // for tests
+
   private final String mCanonicalVersion;
   private final Pattern mVersionPattern;
   private final String mModuleName;
@@ -91,8 +91,19 @@ public enum HdfsVersion {
   /**
    * @return the path to the jar of the UFS adaptor for this HDFS
    */
-  public String getJarPath() {
-    return String.format(JAR_PATH_FORMAT, mModuleName, mModuleName, ProjectConstants.VERSION);
+  public URL[] getJarPaths() {
+
+    String jarFilename = String.format(HDFS_JAR_FILENAME_FORMAT, mModuleName, ProjectConstants.VERSION);
+    try {
+      URL libJarURL = new URL(
+          "file://" + PathUtils.concatPath(Configuration.get(PropertyKey.LIB_DIR), jarFilename));
+      URL libJarTestURL = new URL(
+          PathUtils.concatPath(String.format(LIB_TEST_PATH_FORMAT, mModuleName), jarFilename));
+      // NOTE, jars will be searched in the order that LIB_DIR first, then the path for test.
+      return new URL[] {libJarURL, libJarTestURL};
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -102,13 +113,7 @@ public enum HdfsVersion {
     if (mClassLoader != null) {
       return mClassLoader;
     }
-    URL jarURL;
-    try {
-      jarURL = new URL(getJarPath());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-    mClassLoader = new IsolatedClassLoader(new URL[] {jarURL},
+    mClassLoader = new IsolatedClassLoader(getJarPaths(),
         new String[] {"org.apache.hadoop", // unshaded hadoop classes
             mHdfsUfsClassname, // HdfsUnderFileSystem for this version
             HdfsUnderFileSystem.class.getCanonicalName(), // superclass of HdfsUnderFileSystem
@@ -116,8 +121,7 @@ public enum HdfsVersion {
             "alluxio.underfs.hdfs.HdfsUnderFileOutputStream", // creates FSDataOutputStream
             "alluxio.underfs.hdfs.HdfsUnderFileInputStream", // creates FSDataInputStream
             "alluxio.underfs.hdfsx." + mModuleName // shaded classes of transitive dependencies
-        },
-        HdfsUnderFileSystemFactory.class.getClassLoader());
+        }, HdfsUnderFileSystemFactory.class.getClassLoader());
     return mClassLoader;
   }
 }

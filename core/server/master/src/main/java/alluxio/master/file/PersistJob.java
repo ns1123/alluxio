@@ -11,6 +11,9 @@
 
 package alluxio.master.file;
 
+import alluxio.AlluxioURI;
+import alluxio.time.ExponentialTimer;
+
 import com.google.common.base.Objects;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -21,11 +24,15 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class PersistJob {
   /** The id of the file that is persisted. */
-  private long mFileId;
+  private final long mFileId;
+  /** The URI of the file (NOTE: this can be out of date and should only be used for logging). */
+  private final AlluxioURI mUri;
   /** The id of the persist job. */
-  private long mJobId;
+  private final long mId;
   /** The temporary UFS path the file is persisted to. */
-  private String mTempUfsPath;
+  private final String mTempUfsPath;
+  /** The timer used for retrying failed jobs. */
+  private final ExponentialTimer mTimer;
   /** The cancel state. */
   private CancelState mCancelState;
 
@@ -41,14 +48,19 @@ public final class PersistJob {
   /**
    * Creates a new instance of {@link PersistJob}.
    *
+   * @param id the job id to use
    * @param fileId the file id to use
-   * @param jobId the job id to use
+   * @param uri the file URI to use
    * @param tempUfsPath the temporary UFS path to use
+   * @param timer the timer to use
    */
-  public PersistJob(long fileId, long jobId, String tempUfsPath) {
+  public PersistJob(long id, long fileId, AlluxioURI uri, String tempUfsPath,
+      ExponentialTimer timer) {
+    mId = id;
     mFileId = fileId;
-    mJobId = jobId;
+    mUri = uri;
     mTempUfsPath = tempUfsPath;
+    mTimer = timer;
     mCancelState = CancelState.NOT_CANCELED;
   }
 
@@ -60,10 +72,17 @@ public final class PersistJob {
   }
 
   /**
+   * @return the file uri
+   */
+  public AlluxioURI getUri() {
+    return mUri;
+  }
+
+  /**
    * @return the job id
    */
-  public long getJobId() {
-    return mJobId;
+  public long getId() {
+    return mId;
   }
 
   /**
@@ -71,6 +90,13 @@ public final class PersistJob {
    */
   public String getTempUfsPath() {
     return mTempUfsPath;
+  }
+
+  /**
+   * @return the timer
+   */
+  public ExponentialTimer getTimer() {
+    return mTimer;
   }
 
   /**
@@ -97,19 +123,22 @@ public final class PersistJob {
     }
     PersistJob that = (PersistJob) o;
     return Objects.equal(mFileId, that.mFileId)
-        && Objects.equal(mJobId, that.mJobId)
+        && Objects.equal(mUri, that.mUri)
+        && Objects.equal(mId, that.mId)
         && Objects.equal(mTempUfsPath, that.mTempUfsPath)
+        && Objects.equal(mTimer, that.mTimer)
         && Objects.equal(mCancelState, that.mCancelState);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFileId, mJobId, mTempUfsPath, mCancelState);
+    return Objects.hashCode(mFileId, mUri, mId, mTempUfsPath, mTimer, mCancelState);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("fileId", mFileId).add("jobId", mJobId)
-        .add("tempUfsPath", mTempUfsPath).add("cancelState", mCancelState).toString();
+    return Objects.toStringHelper(this).add("fileId", mFileId).add("uri", mUri).add("id", mId)
+        .add("tempUfsPath", mTempUfsPath).add("timer", mTimer).add("cancelState", mCancelState)
+        .toString();
   }
 }

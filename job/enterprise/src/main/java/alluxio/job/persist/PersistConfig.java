@@ -29,26 +29,31 @@ public class PersistConfig implements JobConfig {
 
   public static final String NAME = "Persist";
 
+  /** The path for the Alluxio file to persist. */
   private String mFilePath;
-  /** If set, determines the UFS path to persist the file at. */
-  private String mUfsPath;
-  /** Configures if overwrite the existing file in under storage. */
+  /** The mount ID for the UFS path to persist the file to. */
+  private long mMountId;
+  /** Determines whether to overwrite an existing file in UFS. */
   private final boolean mOverwrite;
+  /** Determines the UFS path to persist the file to. */
+  private String mUfsPath;
 
   /**
    * Creates a new instance of {@link PersistConfig}.
    *
    * @param filePath the Alluxio path of the file to persist
-   * @param ufsPath the (optional) UFS path to persist the file at
+   * @param mountId the mount ID for the UFS path to persist the file to
    * @param overwrite flag of overwriting the existing file in UFS or not
+   * @param ufsPath the UFS path to persist the file to
    */
   @JsonCreator
   public PersistConfig(@JsonProperty("filePath") String filePath,
-      @JsonProperty("ufsPath") String ufsPath,
-      @JsonProperty("overwrite") boolean overwrite) {
+      @JsonProperty("mountId") long mountId, @JsonProperty("overwrite") boolean overwrite,
+      @JsonProperty("ufsPath") String ufsPath) {
     mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
-    mUfsPath = ufsPath;
+    mMountId = Preconditions.checkNotNull(mountId, "The mount ID cannot be null");
     mOverwrite = overwrite;
+    mUfsPath = Preconditions.checkNotNull(ufsPath, "The UFS path cannot be null");
   }
 
   @Override
@@ -61,6 +66,13 @@ public class PersistConfig implements JobConfig {
    */
   public String getFilePath() {
     return mFilePath;
+  }
+
+  /**
+   * @return the mount ID
+   */
+  public long getMountId() {
+    return mMountId;
   }
 
   /**
@@ -89,18 +101,20 @@ public class PersistConfig implements JobConfig {
       return false;
     }
     PersistConfig that = (PersistConfig) obj;
-    return Objects.equal(mFilePath, that.mFilePath) && Objects.equal(mUfsPath, that.mUfsPath)
-        && Objects.equal(mOverwrite, that.mOverwrite);
+    return Objects.equal(mFilePath, that.mFilePath)
+        && Objects.equal(mMountId, that.mMountId)
+        && Objects.equal(mOverwrite, that.mOverwrite)
+        && Objects.equal(mUfsPath, that.mUfsPath);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFilePath, mUfsPath, mOverwrite);
+    return Objects.hashCode(mFilePath, mMountId, mOverwrite, mUfsPath);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("filePath", mFilePath).add("ufsPath", mUfsPath)
-        .add("overwrite", mOverwrite).toString();
+    return Objects.toStringHelper(this).add("filePath", mFilePath).add("mountId", mMountId)
+        .add("overwrite", mOverwrite).add("ufsPath", mUfsPath).toString();
   }
 }

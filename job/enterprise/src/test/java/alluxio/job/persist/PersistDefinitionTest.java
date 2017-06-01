@@ -11,7 +11,6 @@ package alluxio.job.persist;
 
 import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
-import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
@@ -40,8 +39,7 @@ import java.util.Map;
  * Tests {@link PersistDefinition}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AlluxioBlockStore.class, BaseFileSystem.class, FileSystemContext.class,
-    JobMasterContext.class})
+@PrepareForTest({AlluxioBlockStore.class, FileSystemContext.class, JobMasterContext.class})
 public final class PersistDefinitionTest {
   private FileSystem mMockFileSystem;
   private FileSystemContext mMockFileSystemContext;
@@ -51,7 +49,7 @@ public final class PersistDefinitionTest {
   @Before
   public void before() {
     mMockJobMasterContext = Mockito.mock(JobMasterContext.class);
-    mMockFileSystem = PowerMockito.mock(BaseFileSystem.class);
+    mMockFileSystem = Mockito.mock(FileSystem.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
     PowerMockito.mockStatic(AlluxioBlockStore.class);
@@ -61,7 +59,7 @@ public final class PersistDefinitionTest {
   @Test
   public void selectExecutorsTest() throws Exception {
     AlluxioURI uri = new AlluxioURI("/test");
-    PersistConfig config = new PersistConfig(uri.getPath(), null, true);
+    PersistConfig config = new PersistConfig(uri.getPath(), -1, true, "");
 
     WorkerNetAddress workerNetAddress = new WorkerNetAddress().setDataPort(10);
     WorkerInfo workerInfo = new WorkerInfo().setAddress(workerNetAddress);
@@ -86,7 +84,7 @@ public final class PersistDefinitionTest {
   @Test
   public void selectExecutorsMissingLocationTest() throws Exception {
     AlluxioURI uri = new AlluxioURI("/test");
-    PersistConfig config = new PersistConfig(uri.getPath(), null, true);
+    PersistConfig config = new PersistConfig(uri.getPath(), -1, true, "");
 
     long blockId = 1;
     BlockInfo blockInfo = new BlockInfo().setBlockId(blockId);

@@ -49,12 +49,14 @@ import java.net.InetSocketAddress;
  * Tests for Netty authentication with different Kerberos credential combinations.
  */
 public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
+  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
+  private static final String UNIFIED_INSTANCE = "instance";
+
   private NettyDataServer mNettyDataServer;
   private BlockWorker mBlockWorker;
 
   private static MiniKdc sKdc;
   private static File sWorkDir;
-  private static String sHost;
 
   private static String sServerPrincipal;
   private static File sServerKeytab;
@@ -72,13 +74,12 @@ public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    sHost = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + sHost + "@" + realm;
+    sServerPrincipal = "alluxio/" + UNIFIED_INSTANCE + "@" + realm;
     sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + sHost);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + UNIFIED_INSTANCE);
   }
 
   @AfterClass
@@ -93,13 +94,14 @@ public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
     LoginUserTestUtils.resetLoginUser();
     // Set server-side and client-side Kerberos configuration for Netty authentication.
     Configuration.set(PropertyKey.TEST_MODE, "true");
-    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
-    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, HOSTNAME);
+    Configuration.set(PropertyKey.WORKER_HOSTNAME, HOSTNAME);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME, UNIFIED_INSTANCE);
 
     // Note: mock workers here to bypass thrift authentication and directly test netty data path.
     // Otherwise invalid Kerberos login would first fail on the thrift protocol.

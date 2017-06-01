@@ -398,3 +398,28 @@ service FileSystemMasterWorkerService extends common.AlluxioService {
     )
     throws (1: exception.AlluxioTException e)
 }
+// ALLUXIO CS ADD
+/**
+ * This interface contains file system master service endpoints for Alluxio job service.
+ */
+service FileSystemMasterJobService extends common.AlluxioService {
+
+  /*
+   * Returns the file information for a file or directory identified by the given file id.
+   */
+  GetFileInfoTResponse getFileInfo(
+    /** the id of the file */ 1: i64 fileId,
+    /** the method options */ 2: GetFileInfoTOptions options,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  /**
+   * Returns the UFS information for the given mount point identified by its id.
+   **/
+  GetUfsInfoTResponse getUfsInfo(
+    /** the id of the ufs */ 1: i64 mountId,
+    /** the method options */ 2: GetUfsInfoTOptions options,
+    )
+    throws (1: exception.AlluxioTException e)
+}
+// ALLUXIO CS END
