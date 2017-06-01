@@ -215,7 +215,14 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
       }
 
       // When the block does not exist in Alluxio but exists in UFS, try to open the UFS block.
-      if (mWorker.openUfsBlock(request.mSessionId, request.mId, request.mOpenUfsBlockOptions)) {
+      Protocol.OpenUfsBlockOptions openUfsBlockOptions = request.mOpenUfsBlockOptions;
+      // ALLUXIO CS ADD
+      String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+      if (user != null) {
+        openUfsBlockOptions = openUfsBlockOptions.toBuilder().setUser(user).build();
+      }
+      // ALLUXIO CS END
+      if (mWorker.openUfsBlock(request.mSessionId, request.mId, openUfsBlockOptions)) {
         try {
           request.mBlockReader = mWorker
               .readUfsBlock(request.mSessionId, request.mId, request.mStart);
