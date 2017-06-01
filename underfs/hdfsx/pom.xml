@@ -23,10 +23,7 @@
   <description>HDFS Under File System implementation (mutli-version support)</description>
 
   <modules>
-    <module>apache1_2</module>
     <module>apache2_2</module>
-    <module>apache2_6</module>
-    <module>apache2_7</module>
     <module>common</module>
   </modules>
 
