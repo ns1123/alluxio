@@ -1493,8 +1493,8 @@
          </plugins>
       </build>
     </profile>
-    <!-- ALLUXIO CS END -->
 
+    <!-- ALLUXIO CS END -->
     <!-- profile that activates alluxio fuse for java8 or newer -->
     <profile>
       <id>fuse</id>
