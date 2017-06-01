@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -274,9 +275,13 @@ public final class LayoutUtils {
    * @param footer the encoded representation of the footer
    * @return the parsed {@link FileFooter.FileMetadata}
    */
-  public static FileFooter.FileMetadata decodeFooter(byte[] footer)
-      throws IOException {
+  public static FileFooter.FileMetadata decodeFooter(byte[] footer) throws IOException {
     int len = footer.length;
+    if (len < FOOTER_MAGIC_BYTES_LENGTH + FOOTER_SIZE_BYTES_LENGTH
+        || !Arrays.equals(Arrays.copyOfRange(footer, len - FOOTER_MAGIC_BYTES_LENGTH, len),
+            Constants.ENCRYPTION_MAGIC.getBytes())) {
+      throw new IOException("This is a non-encrypted file, can not decode the format nor decrypt.");
+    }
     int metaMaxLen = len - FOOTER_SIZE_BYTES_LENGTH - FOOTER_MAGIC_BYTES_LENGTH;
     Preconditions.checkState(metaMaxLen > 0);
     ByteBuffer buf = ByteBuffer.wrap(footer);
@@ -311,7 +316,7 @@ public final class LayoutUtils {
    *
    * @param fileId the file id
    * @param fileMetadata the file metadata
-   * @param cryptoKey the crypto key
+   * @param cryptoKey the crypto key. if null, the CryptoKey will not be set in Meta
    * @return the parsed encryption metadata
    */
   public static EncryptionProto.Meta fromFooterMetadata(
@@ -325,14 +330,17 @@ public final class LayoutUtils {
         .setChunkFooterSize(fileMetadata.getChunkFooterSize())
         .buildPartial();
     long logicalBlockSize = toLogicalBlockLength(partialMeta, fileMetadata.getPhysicalBlockSize());
-    return partialMeta.toBuilder()
+    partialMeta = partialMeta.toBuilder()
         .setPhysicalBlockSize(fileMetadata.getPhysicalBlockSize())
         .setLogicalBlockSize(logicalBlockSize)
         .setFileId(fileId)
         .setEncryptionId(fileMetadata.getEncryptionId())
         .setEncodedMetaSize(fileMetadata.getSerializedSize())
-        .setCryptoKey(cryptoKey)
-        .build();
+        .buildPartial();
+    if (cryptoKey != null) {
+      return partialMeta.toBuilder().setCryptoKey(cryptoKey).build();
+    }
+    return partialMeta.toBuilder().build();
   }
 
   private static int initializeFileMetadataSize() {
