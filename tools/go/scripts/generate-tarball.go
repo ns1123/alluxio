@@ -11,11 +11,23 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 )
 
 const edition = "enterprise"
 const versionMarker = "${VERSION}"
+
+var underfsModules = map[string]bool{
+	"ufs-hadoop-1.0": true,
+	"ufs-hadoop-1.2": true,
+	"ufs-hadoop-2.3": true,
+	"ufs-hadoop-2.4": true,
+	"ufs-hadoop-2.5": true,
+	"ufs-hadoop-2.6": true,
+	"ufs-hadoop-2.7": true,
+	"ufs-hadoop-2.8": true,
+}
 
 var (
 	debugFlag            bool
@@ -48,8 +60,17 @@ func init() {
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
 			`Note that trailing ".tar.gz" will be stripped to determine the name for the root directory of the generated tarball`, versionMarker, versionMarker))
-	flag.StringVar(&underfsModulesFlag, "underfs-modules", "ufs-hadoop-2.2", "a comma-separated list of underfs modules to compile into the distribution tarball")
+	flag.StringVar(&underfsModulesFlag, "underfs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of underfs modules to compile into the distribution tarball. Options: [%v]", strings.Join(validUnderfsModules(), ",")))
 	flag.Parse()
+}
+
+func validUnderfsModules() []string {
+	result := []string{}
+	for t := range underfsModules {
+		result = append(result, t)
+	}
+	sort.Strings(result)
+	return result
 }
 
 func run(desc, cmd string, args ...string) string {
@@ -165,6 +186,12 @@ func addAdditionalFiles(srcPath, dstPath string) {
 }
 
 func generateTarball() error {
+	for _, module := range strings.Split(underfsModulesFlag, ",") {
+		if !underfsModules[module] {
+			return fmt.Errorf("underfs module %v not recognized", module)
+		}
+	}
+
 	cwd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -257,7 +284,7 @@ func generateTarball() error {
 
 func main() {
 	if err := generateTarball(); err != nil {
-		fmt.Printf("Failed to generate tarball: %v", err)
+		fmt.Printf("Failed to generate tarball: %v\n", err)
 		os.Exit(1)
 	}
 }
