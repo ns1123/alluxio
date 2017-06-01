@@ -25,6 +25,7 @@ var (
 	nativeFlag           bool
 	profilesFlag         string
 	targetFlag           string
+	underfsModulesFlag   string
 )
 
 var frameworks = []string{"flink", "hadoop", "spark"}
@@ -47,6 +48,7 @@ func init() {
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
 			`Note that trailing ".tar.gz" will be stripped to determine the name for the root directory of the generated tarball`, versionMarker, versionMarker))
+	flag.StringVar(&underfsModulesFlag, "underfs-modules", "ufs-hadoop-2.2", "a comma-separated list of underfs modules to compile into the distribution tarball")
 	flag.Parse()
 }
 
@@ -95,7 +97,7 @@ func chdir(path string) {
 	}
 }
 
-func getMvnArgs() []string {
+func getCommonMvnArgs() []string {
 	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos"}
 	if profilesFlag != "" {
 		for _, profile := range strings.Split(profilesFlag, ",") {
@@ -158,6 +160,8 @@ func addAdditionalFiles(srcPath, dstPath string) {
 		path := filepath.Join("integration/mesos/bin", file)
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
+	// UNDERFS MODULES
+	run("Add underfs modules to lib/", "mv", filepath.Join(srcPath, "lib"), dstPath)
 }
 
 func generateTarball() error {
@@ -197,7 +201,11 @@ func generateTarball() error {
 	replace("libexec/alluxio-config.sh", "assembly/server/target/alluxio-assembly-server-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-server-${VERSION}.jar")
 
 	// COMPILE
-	mvnArgs := getMvnArgs()
+	mvnArgs := getCommonMvnArgs()
+	// Only add underfs modules for the main build, not for building per-framework clients.
+	for _, module := range strings.Split(underfsModulesFlag, ",") {
+		mvnArgs = append(mvnArgs, fmt.Sprintf("-P%v", module))
+	}
 	run("compiling repo", "mvn", mvnArgs...)
 
 	// SET DESTINATION PATHS
@@ -225,19 +233,19 @@ func generateTarball() error {
 		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/"), filepath.Join(dstPath, "lib/"))
 	}
 
+	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
+	addAdditionalFiles(srcPath, dstPath)
+
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
 	chdir(filepath.Join(srcPath, "core/client/runtime"))
 	for _, framework := range frameworks {
-		clientArgs := mvnArgs
+		clientArgs := getCommonMvnArgs()
 		if framework != "hadoop" {
 			clientArgs = append(clientArgs, fmt.Sprintf("-P%s", framework))
 		}
 		run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", clientArgs...)
 		run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 	}
-
-	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
-	addAdditionalFiles(srcPath, dstPath)
 
 	// CREATE DISTRIBUTION TARBALL AND CLEANUP
 	chdir(cwd)
