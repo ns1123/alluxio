@@ -886,6 +886,23 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
           <version>1.4</version>
+          <!-- ALLUXIO CS ADD -->
+          <executions>
+            <execution>
+              <id>enforce-java</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireJavaVersion>
+                    <version>[1.8,)</version>
+                  </requireJavaVersion>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+          <!-- ALLUXIO CS END -->
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -924,9 +941,11 @@
           <version>2.19.1</version>
           <configuration>
             <argLine>-Djava.net.preferIPv4Stack=true -XX:MaxPermSize=512M</argLine>
+            <!-- ALLUXIO CS ADD -->
             <excludes>
               <exclude>${surefire.exclude}</exclude>
             </excludes>
+            <!-- ALLUXIO CS END -->
             <forkCount>${surefire.forkCount}</forkCount>
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
             <reuseForks>false</reuseForks>
@@ -1474,8 +1493,8 @@
          </plugins>
       </build>
     </profile>
-    <!-- ALLUXIO CS END -->
 
+    <!-- ALLUXIO CS END -->
     <!-- profile that activates alluxio fuse for java8 or newer -->
     <profile>
       <id>fuse</id>
