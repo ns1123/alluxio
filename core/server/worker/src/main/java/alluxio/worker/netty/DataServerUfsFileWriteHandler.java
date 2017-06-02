@@ -58,7 +58,10 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close(Channel channel) throws IOException {
+      if (mOutputStream == null) {
+        createUfsFile(channel);
+      }
       if (mOutputStream != null) {
         mOutputStream.close();
         mOutputStream = null;
@@ -118,20 +121,7 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
   protected void writeBuf(Channel channel, ByteBuf buf, long pos) throws Exception {
     FileWriteRequestInternal request = (FileWriteRequestInternal) mRequest;
     if (request.mOutputStream == null) {
-      Protocol.CreateUfsFileOptions createUfsFileOptions =
-          request.mWriteRequest.getCreateUfsFileOptions();
-      // ALLUXIO CS ADD
-      // Before interacting with the UFS manager, make sure the user is set.
-      String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
-      if (user != null) {
-        alluxio.security.authentication.AuthenticatedClientUser.set(user);
-      }
-      // ALLUXIO CS END
-      request.mUnderFileSystem = mUfsManager.get(createUfsFileOptions.getMountId());
-      request.mOutputStream = request.mUnderFileSystem.create(request.mUfsPath,
-          CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
-              .setGroup(createUfsFileOptions.getGroup())
-              .setMode(new Mode((short) createUfsFileOptions.getMode())));
+      createUfsFile(channel);
     }
 
     buf.readBytes(((FileWriteRequestInternal) mRequest).mOutputStream, buf.readableBytes());
@@ -140,6 +130,24 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
   @Override
   protected void incrementMetrics(long bytesWritten) {
     Metrics.BYTES_WRITTEN_UFS.inc(bytesWritten);
+  }
+
+  private void createUfsFile(Channel channel) throws IOException {
+    FileWriteRequestInternal request = (FileWriteRequestInternal) mRequest;
+    Protocol.CreateUfsFileOptions createUfsFileOptions =
+        request.mWriteRequest.getCreateUfsFileOptions();
+    // ALLUXIO CS ADD
+    // Before interacting with the UFS manager, make sure the user is set.
+    String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+    if (user != null) {
+      alluxio.security.authentication.AuthenticatedClientUser.set(user);
+    }
+    // ALLUXIO CS END
+    request.mUnderFileSystem = mUfsManager.get(createUfsFileOptions.getMountId());
+    request.mOutputStream = request.mUnderFileSystem.create(request.mUfsPath,
+        CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
+            .setGroup(createUfsFileOptions.getGroup())
+            .setMode(new Mode((short) createUfsFileOptions.getMode())));
   }
 
   /**

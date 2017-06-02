@@ -61,7 +61,7 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close(Channel channel) throws IOException {
       mBlockWriter.close();
       try {
         mWorker.commitBlock(mSessionId, mId);

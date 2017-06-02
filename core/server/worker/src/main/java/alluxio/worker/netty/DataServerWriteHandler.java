@@ -136,7 +136,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
    */
   protected volatile WriteRequestInternal mRequest;
 
-  abstract class WriteRequestInternal implements Closeable {
+  abstract class WriteRequestInternal {
     /** This ID can either be block ID or temp UFS file ID. */
     final long mId;
     /** The session id associated with all temporary resources of this request. */
@@ -146,6 +146,13 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
       mId = id;
       mSessionId = IdUtils.createSessionId();
     }
+
+    /**
+     * Closes the request.
+     *
+     * @param channel the channel
+     */
+    abstract void close(Channel channel) throws IOException;
 
     /**
      * Cancels the request.
@@ -386,7 +393,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
      */
     private void complete() throws IOException {
       if (mRequest != null) {
-        mRequest.close();
+        mRequest.close(mChannel);
         mRequest = null;
       }
       mPosToWrite = 0;
