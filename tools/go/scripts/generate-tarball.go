@@ -185,8 +185,7 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	}
 	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
-	modules := validUfsModules()
-	for _, module := range modules {
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
 		moduleName, ok := ufsModuleNames[module]
 		if !ok {
 			// This should be impossible, we validate ufsModulesFlag at the start.
