@@ -55,7 +55,7 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
       super(request.getId());
       mWriteRequest = request;
       mUfsPath = request.getCreateUfsFileOptions().getUfsPath();
-   }
+    }
 
     @Override
     public void close() throws IOException {
@@ -68,7 +68,7 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
     @Override
     void cancel() throws IOException {
       // TODO(calvin): Consider adding cancel to the ufs stream api.
-      if (mOutputStream != null) {
+      if (mOutputStream != null && mUnderFileSystem != null) {
         mOutputStream.close();
         mUnderFileSystem.deleteFile(mUfsPath);
         mOutputStream = null;
