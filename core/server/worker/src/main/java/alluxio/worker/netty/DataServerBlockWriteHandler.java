@@ -25,6 +25,7 @@ import alluxio.worker.block.io.BlockWriter;
 import com.codahale.metrics.Counter;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 
 import java.io.IOException;
 import java.nio.channels.GatheringByteChannel;
@@ -60,7 +61,7 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close(Channel channel) throws IOException {
       mBlockWriter.close();
       try {
         mWorker.commitBlock(mSessionId, mId);
@@ -130,7 +131,7 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
   }
 
   @Override
-  protected void writeBuf(ByteBuf buf, long pos) throws Exception {
+  protected void writeBuf(Channel channel, ByteBuf buf, long pos) throws Exception {
     if (mBytesReserved < pos) {
       long bytesToReserve = Math.max(FILE_BUFFER_SIZE, pos - mBytesReserved);
       // Allocate enough space in the existing temporary block for the write.

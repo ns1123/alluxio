@@ -276,6 +276,12 @@ public final class UnderFileSystemBlockReader implements BlockReader {
     }
 
     if (mUnderFileSystemInputStream == null && offset < mBlockMeta.getBlockSize()) {
+      // ALLUXIO CS ADD
+      if (mBlockMeta.getUser() != null && !mBlockMeta.getUser().isEmpty()) {
+        // Before interacting with ufs manager, set the user.
+        alluxio.security.authentication.AuthenticatedClientUser.set(mBlockMeta.getUser());
+      }
+      // ALLUXIO CS END
       UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId());
       mUnderFileSystemInputStream = ufs.open(mBlockMeta.getUnderFileSystemPath(),
           OpenOptions.defaults().setOffset(mBlockMeta.getOffset() + offset));

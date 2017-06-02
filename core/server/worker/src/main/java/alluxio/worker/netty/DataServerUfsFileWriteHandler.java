@@ -21,6 +21,7 @@ import alluxio.underfs.options.CreateOptions;
 
 import com.codahale.metrics.Counter;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -45,30 +46,36 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
 
   private class FileWriteRequestInternal extends WriteRequestInternal {
     private final String mUfsPath;
-    private final UnderFileSystem mUnderFileSystem;
-    private final OutputStream mOutputStream;
+    private final Protocol.WriteRequest mWriteRequest;
+
+    private UnderFileSystem mUnderFileSystem;
+    private OutputStream mOutputStream;
 
     FileWriteRequestInternal(Protocol.WriteRequest request) throws Exception {
       super(request.getId());
-      Protocol.CreateUfsFileOptions createUfsFileOptions = request.getCreateUfsFileOptions();
-      mUfsPath = createUfsFileOptions.getUfsPath();
-      mUnderFileSystem = mUfsManager.get(createUfsFileOptions.getMountId());
-      mOutputStream = mUnderFileSystem.create(mUfsPath,
-          CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
-              .setGroup(createUfsFileOptions.getGroup())
-              .setMode(new Mode((short) createUfsFileOptions.getMode())));
+      mWriteRequest = request;
+      mUfsPath = request.getCreateUfsFileOptions().getUfsPath();
     }
 
     @Override
-    public void close() throws IOException {
-      mOutputStream.close();
+    public void close(Channel channel) throws IOException {
+      if (mOutputStream == null) {
+        createUfsFile(channel);
+      }
+      if (mOutputStream != null) {
+        mOutputStream.close();
+        mOutputStream = null;
+      }
     }
 
     @Override
     void cancel() throws IOException {
       // TODO(calvin): Consider adding cancel to the ufs stream api.
-      mOutputStream.close();
-      mUnderFileSystem.deleteFile(mUfsPath);
+      if (mOutputStream != null && mUnderFileSystem != null) {
+        mOutputStream.close();
+        mUnderFileSystem.deleteFile(mUfsPath);
+        mOutputStream = null;
+      }
     }
 
     @Override
@@ -111,13 +118,36 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
   }
 
   @Override
-  protected void writeBuf(ByteBuf buf, long pos) throws Exception {
+  protected void writeBuf(Channel channel, ByteBuf buf, long pos) throws Exception {
+    FileWriteRequestInternal request = (FileWriteRequestInternal) mRequest;
+    if (request.mOutputStream == null) {
+      createUfsFile(channel);
+    }
+
     buf.readBytes(((FileWriteRequestInternal) mRequest).mOutputStream, buf.readableBytes());
   }
 
   @Override
   protected void incrementMetrics(long bytesWritten) {
     Metrics.BYTES_WRITTEN_UFS.inc(bytesWritten);
+  }
+
+  private void createUfsFile(Channel channel) throws IOException {
+    FileWriteRequestInternal request = (FileWriteRequestInternal) mRequest;
+    Protocol.CreateUfsFileOptions createUfsFileOptions =
+        request.mWriteRequest.getCreateUfsFileOptions();
+    // ALLUXIO CS ADD
+    // Before interacting with the UFS manager, make sure the user is set.
+    String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+    if (user != null) {
+      alluxio.security.authentication.AuthenticatedClientUser.set(user);
+    }
+    // ALLUXIO CS END
+    request.mUnderFileSystem = mUfsManager.get(createUfsFileOptions.getMountId());
+    request.mOutputStream = request.mUnderFileSystem.create(request.mUfsPath,
+        CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
+            .setGroup(createUfsFileOptions.getGroup())
+            .setMode(new Mode((short) createUfsFileOptions.getMode())));
   }
 
   /**
