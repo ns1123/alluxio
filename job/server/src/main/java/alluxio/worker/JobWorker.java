@@ -16,6 +16,7 @@ import alluxio.Server;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.underfs.UfsManager;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.job.JobMasterClient;
@@ -50,13 +51,18 @@ public final class JobWorker extends AbstractWorker {
   private final TaskExecutorManager mTaskExecutorManager;
   /** The service that handles commands sent from master. */
   private Future<?> mCommandHandlingService;
+  /** The manager for all ufs. */
+  private UfsManager mUfsManager;
 
   /**
    * Creates a new instance of {@link JobWorker}.
+   *
+   * @param ufsManager the ufs manager
    */
-  JobWorker() {
+  JobWorker(UfsManager ufsManager) {
     super(
         Executors.newFixedThreadPool(1, ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
+    mUfsManager = ufsManager;
     mJobMasterClient = JobMasterClient.Factory.create();
     mTaskExecutorManager = new TaskExecutorManager();
   }
@@ -85,9 +91,10 @@ public final class JobWorker extends AbstractWorker {
       throw Throwables.propagate(e);
     }
 
-    mCommandHandlingService = getExecutorService()
-        .submit(new HeartbeatThread(HeartbeatContext.JOB_WORKER_COMMAND_HANDLING,
-            new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient, address),
+    mCommandHandlingService = getExecutorService().submit(
+        new HeartbeatThread(HeartbeatContext.JOB_WORKER_COMMAND_HANDLING,
+            new CommandHandlingExecutor(mTaskExecutorManager, mUfsManager, mJobMasterClient,
+                address),
             Configuration.getInt(PropertyKey.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 

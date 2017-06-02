@@ -29,6 +29,11 @@ import org.junit.Test;
 /**
  * Tests for the {@link InStreamOptions} class.
  */
+// ALLUXIO CS ADD
+@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)
+@org.powermock.core.classloader.annotations.PrepareForTest(
+    alluxio.proto.security.EncryptionProto.Meta.class)
+// ALLUXIO CS END
 public class InStreamOptionsTest {
   /**
    * Tests that building an {@link InStreamOptions} with the defaults works.
@@ -56,6 +61,12 @@ public class InStreamOptionsTest {
     options.setSeekBufferSizeBytes(Constants.MB);
     options.setUfsReadLocationPolicy(blockLocationPolicy);
     options.setMaxUfsReadConcurrency(5);
+    // ALLUXIO CS ADD
+    options.setEncrypted(true);
+    alluxio.proto.security.EncryptionProto.Meta meta
+        = alluxio.client.EncryptionMetaFactory.create();
+    options.setEncryptionMeta(meta);
+    // ALLUXIO CS END
 
     Assert.assertEquals(options.getAlluxioStorageType(), readType.getAlluxioStorageType());
     Assert.assertEquals(policy, options.getCacheLocationPolicy());
@@ -63,6 +74,10 @@ public class InStreamOptionsTest {
     Assert.assertEquals(Constants.MB, options.getSeekBufferSizeBytes());
     Assert.assertEquals(blockLocationPolicy, options.getUfsReadLocationPolicy());
     Assert.assertEquals(5, options.getMaxUfsReadConcurrency());
+    // ALLUXIO CS ADD
+    Assert.assertEquals(true, options.isEncrypted());
+    Assert.assertEquals(meta, options.getEncryptionMeta());
+    // ALLUXIO CS END
   }
 
   /**

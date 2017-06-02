@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
-import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
@@ -26,6 +25,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.job.JobMasterContext;
+import alluxio.underfs.UfsManager;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
@@ -41,6 +41,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -55,7 +56,7 @@ import java.util.Map;
  * Unit tests for {@link MoveDefinition#selectExecutors(MoveConfig, List, JobMasterContext)}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AlluxioBlockStore.class, FileSystem.class, FileSystemContext.class})
+@PrepareForTest({AlluxioBlockStore.class, FileSystemContext.class})
 public final class MoveDefinitionSelectExecutorsTest {
   private static final List<BlockWorkerInfo> BLOCK_WORKERS =
       new ImmutableList.Builder<BlockWorkerInfo>()
@@ -76,15 +77,17 @@ public final class MoveDefinitionSelectExecutorsTest {
   private static final List<WorkerInfo> JOB_WORKERS =
       ImmutableList.of(JOB_WORKER_0, JOB_WORKER_1, JOB_WORKER_2, JOB_WORKER_3);
 
-  private BaseFileSystem mMockFileSystem;
+  private FileSystem mMockFileSystem;
   private FileSystemContext mMockFileSystemContext;
   private AlluxioBlockStore mMockBlockStore;
+  private UfsManager mMockUfsManager;
 
   @Before
   public void before() throws Exception {
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
-    mMockFileSystem = PowerMockito.mock(BaseFileSystem.class);
+    mMockFileSystem = Mockito.mock(FileSystem.class);
+    mMockUfsManager = Mockito.mock(UfsManager.class);
     PowerMockito.mockStatic(AlluxioBlockStore.class);
     PowerMockito.when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
     when(mMockBlockStore.getWorkerInfoList()).thenReturn(BLOCK_WORKERS);
@@ -303,7 +306,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     Map<WorkerInfo, ArrayList<MoveCommand>> assignments =
         new MoveDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(
             new MoveConfig("/src", "/dst", "THROUGH", true), ImmutableList.of(JOB_WORKER_3),
-            new JobMasterContext(1));
+            new JobMasterContext(1, mMockUfsManager));
 
     Assert.assertEquals(ImmutableMap.of(JOB_WORKER_3,
         new ArrayList<MoveCommand>(Arrays.asList(new MoveCommand("/src", "/dst")))), assignments);
@@ -323,7 +326,7 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   private Map<WorkerInfo, ArrayList<MoveCommand>> assignMoves(MoveConfig config) throws Exception {
     return new MoveDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
-        JOB_WORKERS, new JobMasterContext(1));
+        JOB_WORKERS, new JobMasterContext(1, mMockUfsManager));
   }
 
   /**

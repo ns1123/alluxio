@@ -41,7 +41,8 @@ var (
 	debugFlag            bool
 	distributionsFlag    string
 	licenseCheckFlag     bool
-	licenseSecretKeyFlag string	
+	licenseSecretKeyFlag string
+	nativeFlag           bool
 )
 
 func init() {
@@ -54,7 +55,8 @@ func init() {
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
 	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions(), ","), fmt.Sprintf("a comma-separated list of distributions to generate; the default is to generate all distributions"))
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
-	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")	
+	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
+	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
 	flag.Parse()
 }
 
@@ -105,11 +107,15 @@ func generateTarballs() error {
 			fmt.Fprintf(os.Stderr, "distribution %s not recognized\n", distribution)
 			continue
 		}
+		// TODO(chaomin): maybe append the OS type if native is enabled.
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
-		mvnArgs := fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion)		
+		mvnArgs := fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion)
 		generateTarballArgs := []string{
 			"-mvn-args", mvnArgs,
 			"-target", tarball,
+		}
+		if nativeFlag {
+			generateTarballArgs = append(generateTarballArgs, "-native")
 		}
 		if licenseCheckFlag {
 			generateTarballArgs = append(generateTarballArgs, "-license-check")

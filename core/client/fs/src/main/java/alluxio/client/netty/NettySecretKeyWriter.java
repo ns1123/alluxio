@@ -14,88 +14,41 @@ package alluxio.client.netty;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.metrics.MetricsSystem;
-import alluxio.network.protocol.RPCProtoMessage;
-import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.security.Key;
-import alluxio.proto.status.Status.PStatus;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.util.proto.ProtoMessage;
 import alluxio.util.proto.ProtoUtils;
 
 import com.codahale.metrics.Counter;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Write a secret key to a remote server using Netty secured by SSL.
  */
-@NotThreadSafe
-public class NettySecretKeyWriter {
-  private static final Logger LOG = LoggerFactory.getLogger(NettySecretKeyWriter.class);
-
-  private boolean mOpen;
-  private InetSocketAddress mAddress;
-
-  /**
-   * Creates a new {@link NettySecretKeyWriter}.
-   */
-  public NettySecretKeyWriter() {
-    mOpen = false;
-    mAddress = null;
-  }
-
-  /**
-   * Opens the writer.
-   *
-   * @param address the remote server address
-   */
-  public void open(InetSocketAddress address) {
-    Preconditions.checkState(!mOpen);
-    mAddress = address;
-    mOpen = true;
-  }
-
-  /**
-   * Closes the writer.
-   */
-  public void close() {
-    if (mOpen) {
-      mOpen = false;
-    }
-  }
+public final class NettySecretKeyWriter {
+  private NettySecretKeyWriter() {}  // prevent instantiation
 
   /**
    * Writes a {@link CapabilityKey} to the Netty server and waits for the response.
    *
+   * @param address the network address of the secret key server
    * @param capabilityKey the capability key to send
    * @throws IOException if it fails to write capability key to the remote server
    */
-  public void write(CapabilityKey capabilityKey) throws IOException {
+  public static void write(InetSocketAddress address, CapabilityKey capabilityKey)
+      throws IOException {
     Channel channel = null;
-    ClientHandler handler = null;
     Metrics.NETTY_SECRET_KEY_WRITE_OPS.inc();
     try {
-      Bootstrap bs = NettySecureRpcClient.createClientBootstrap(mAddress);
+      Bootstrap bs = NettySecureRpcClient.createClientBootstrap(address);
       channel = bs.connect().sync().channel();
       NettySecureRpcClient.waitForChannelReady(channel);
-      if (!(channel.pipeline().last() instanceof ClientHandler)) {
-        channel.pipeline().addLast(new ClientHandler());
-      }
-      handler = (ClientHandler) channel.pipeline().last();
-      SingleResponseListener listener = new SingleResponseListener();
-      handler.addListener(listener);
 
       Key.SecretKey request =
           ProtoUtils.setSecretKey(
@@ -103,37 +56,14 @@ public class NettySecretKeyWriter {
                   .setKeyId(capabilityKey.getKeyId())
                   .setExpirationTimeMs(capabilityKey.getExpirationTimeMs()),
               capabilityKey.getEncodedKey()).build();
-
-      ChannelFuture channelFuture =
-          channel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(request), null)).sync();
-
-      if (channelFuture.isDone() && !channelFuture.isSuccess()) {
-        LOG.error("Failed to write secret key to %s for with error %s.", mAddress.toString(),
-            channelFuture.cause());
-        throw new IOException(channelFuture.cause());
-      }
-
-      RPCProtoMessage resp = listener
-          .get(Configuration.getLong(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS),
-              TimeUnit.MILLISECONDS);
-      Protocol.Response response = resp.getMessage().asResponse();
-
-      if (!response.getStatus().equals(PStatus.OK)) {
-        throw new IOException("Failed to write capability key to the remote server.");
-      }
+      NettyRPC.call(NettyRPCContext.defaults().setChannel(channel).setTimeout(
+          Configuration.getLong(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS)), new ProtoMessage(request));
     } catch (Exception e) {
       Metrics.NETTY_SECRET_KEY_WRITE_FAILURES.inc();
       throw new IOException(e);
     } finally {
-      if (handler != null) {
-        handler.removeListeners();
-      }
-      try {
-        if (channel != null) {
-          channel.close().sync();
-        }
-      } catch (InterruptedException ee) {
-        Throwables.propagate(ee);
+      if (channel != null) {
+        channel.close();
       }
     }
   }

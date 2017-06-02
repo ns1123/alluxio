@@ -15,7 +15,7 @@ import alluxio.job.JobConfig;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.exception.JobDoesNotExistException;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.exception.ExceptionUtils;
