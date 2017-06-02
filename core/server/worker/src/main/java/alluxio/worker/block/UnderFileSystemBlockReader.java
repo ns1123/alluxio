@@ -137,6 +137,7 @@ public final class UnderFileSystemBlockReader implements BlockReader {
     //   throw new BlockDoesNotExistException(
     //       ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mBlockMeta.getUnderFileSystemPath()));
     // }
+    //
     // ALLUXIO CS END
     updateUnderFileSystemInputStream(offset);
     updateBlockWriter(offset);
