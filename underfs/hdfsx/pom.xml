@@ -101,6 +101,41 @@
         <module>apache2_8</module>
       </modules>
     </profile>
+
+    <profile>
+      <id>ufs-hadoop-cdh5.6</id>
+      <modules>
+        <module>cdh5_6</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>ufs-hadoop-cdh5.8</id>
+      <modules>
+        <module>cdh5_8</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>ufs-hadoop-hdp2.4</id>
+      <modules>
+        <module>hdp2_4</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>ufs-hadoop-hdp2.5</id>
+      <modules>
+        <module>hdp2_5</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>ufs-hadoop-mapr5.2</id>
+      <modules>
+        <module>mapr5_2</module>
+      </modules>
+    </profile>
   </profiles>
 
   <properties>
