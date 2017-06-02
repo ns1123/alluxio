@@ -238,7 +238,7 @@ public class AlluxioStatusException extends IOException {
         | FileAlreadyExistsException e) {
       return new AlreadyExistsException(e);
     } catch (BlockDoesNotExistException | FileDoesNotExistException
-       | LineageDoesNotExistException e) {
+        | LineageDoesNotExistException e) {
       return new NotFoundException(e);
     // ALLUXIO CS ADD
     } catch (alluxio.exception.JobDoesNotExistException e) {

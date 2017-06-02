@@ -271,7 +271,6 @@ public class URIStatus {
   public String toString() {
     return mInfo.toString();
   }
-
   // ALLUXIO CS ADD
 
   /**
