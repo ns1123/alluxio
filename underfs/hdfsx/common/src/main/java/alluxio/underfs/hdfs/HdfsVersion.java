@@ -24,15 +24,20 @@ import javax.annotation.Nullable;
 
 /** The set of supported Hdfs versions. */
 public enum HdfsVersion {
-  APACHE_1_0("1.0", "(apache-)?1.0(.*)?", "apache1_0"), // Apache HDFS 1.0.*
-  APACHE_1_2("1.2", "(apache-)?1.2(.*)?", "apache1_2"), // Apache HDFS 1.2.*
-  APACHE_2_2("2.2", "(apache-)?2.2(.*)?", "apache2_2"), // Apache HDFS 2.2.*
-  APACHE_2_3("2.3", "(apache-)?2.3(.*)?", "apache2_3"), // Apache HDFS 2.3.*
-  APACHE_2_4("2.4", "(apache-)?2.4(.*)?", "apache2_4"), // Apache HDFS 2.4.*
-  APACHE_2_5("2.5", "(apache-)?2.5(.*)?", "apache2_5"), // Apache HDFS 2.5.*
-  APACHE_2_6("2.6", "(apache-)?2.6(.*)?", "apache2_6"), // Apache HDFS 2.6.*
-  APACHE_2_7("2.7", "(apache-)?2.7(.*)?", "apache2_7"), // Apache HDFS 2.7.*
-  APACHE_2_8("2.8", "(apache-)?2.8(.*)?", "apache2_8"), // Apache HDFS 2.8.*
+  APACHE_1_0("1.0", "1\\.0(\\.(\\d+))?", "apache1_0"),
+  APACHE_1_2("1.2", "1\\.2(\\.(\\d+))?", "apache1_2"),
+  APACHE_2_2("2.2", "2\\.2(\\.(\\d+))?", "apache2_2"),
+  APACHE_2_3("2.3", "2\\.3(\\.(\\d+))?", "apache2_3"),
+  APACHE_2_4("2.4", "2\\.4(\\.(\\d+))?", "apache2_4"),
+  APACHE_2_5("2.5", "2\\.5(\\.(\\d+))?", "apache2_5"),
+  APACHE_2_6("2.6", "2\\.6(\\.(\\d+))?", "apache2_6"),
+  APACHE_2_7("2.7", "2\\.7(\\.(\\d+))?", "apache2_7"),
+  APACHE_2_8("2.8", "2\\.8(\\.(\\d+))?", "apache2_8"),
+  CDH_5_6("cdh5.6", "(cdh5\\.6(\\.(\\d+))?|2\\.6\\.0-cdh5.6\\.(.*)?)", "cdh5_6"),
+  CDH_5_8("cdh5.8", "(cdh5\\.8(\\.(\\d+))?|2\\.6\\.0-cdh5.8\\.(.*)?)", "cdh5_8"),
+  HDP_2_4("hdp2.4", "(hdp2\\.4(\\.(\\d+))?|2\\.7\\.1\\.2\\.4\\.(\\d+)\\.(\\d+)-(.*)?)", "hdp2_4"),
+  HDP_2_5("hdp2.5", "(hdp2\\.5(\\.(\\d+))?|2\\.7\\.3\\.2\\.5\\.(\\d+)\\.(\\d+)-(.*)?)", "hdp2_5"),
+  MAPR_5_2("mapr5.2", "(mapr5\\.2(\\.(\\d+))?|2\\.7\\.0-mapr-1607)", "mapr5_2"),
   ;
 
   public static final String HDFS_JAR_FILENAME_FORMAT = "alluxio-underfs-hdfsx-%s-%s.jar";
