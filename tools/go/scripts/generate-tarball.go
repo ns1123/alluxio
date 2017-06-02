@@ -193,7 +193,7 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 			os.Exit(1)
 		}
 		ufsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", moduleName, version)
-		run(fmt.Sprintf("Add ufs module %v to lib/", module), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
+		run(fmt.Sprintf("adding ufs module %v to lib/", module), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
 	}
 }
 
@@ -215,7 +215,7 @@ func generateTarball() error {
 	}
 	run(fmt.Sprintf("copying source from %v to %v", repoPath, srcPath), "cp", "-R", repoPath+"/.", srcPath)
 	chdir(srcPath)
-	run("Running git clean -fdx", "git", "clean", "-fdx")
+	run("running git clean -fdx", "git", "clean", "-fdx")
 
 	// GET THE VERSION AND PREPEND WITH `edition-`
 	originalVersion, err := getVersion()
