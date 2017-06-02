@@ -47,7 +47,6 @@ import java.io.File;
 public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrationTest {
   private static final String TMP_DIR = "/tmp";
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
-  private static final String UNIFIED_INSTANCE = "instance";
 
   private static MiniKdc sKdc;
   private static File sWorkDir;
@@ -72,10 +71,10 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
 
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + UNIFIED_INSTANCE + "@" + realm;
+    sServerPrincipal = "alluxio/" + HOSTNAME + "@" + realm;
     sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + UNIFIED_INSTANCE);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + HOSTNAME);
 
     sLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
         .put(PropertyKey.MASTER_HOSTNAME, HOSTNAME)
@@ -88,7 +87,6 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
         .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal)
         .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath())
         .put(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio")
-        .put(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME, UNIFIED_INSTANCE)
         .build());
     sLocalAlluxioClusterResource.start();
     sFileSystem = sLocalAlluxioClusterResource.get().getClient();
