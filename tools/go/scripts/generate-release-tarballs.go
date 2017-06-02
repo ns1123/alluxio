@@ -37,12 +37,24 @@ var releaseDistributions = map[string]string{
 	"mapr5.2":   "2.7.0-mapr-1607",
 }
 
+var ufsModules = map[string]bool{
+	"ufs-hadoop-1.0": true,
+	"ufs-hadoop-1.2": true,
+	"ufs-hadoop-2.3": true,
+	"ufs-hadoop-2.4": true,
+	"ufs-hadoop-2.5": true,
+	"ufs-hadoop-2.6": true,
+	"ufs-hadoop-2.7": true,
+	"ufs-hadoop-2.8": true,
+}
+
 var (
 	debugFlag            bool
 	distributionsFlag    string
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
 	nativeFlag           bool
+	ufsModulesFlag       string
 )
 
 func init() {
@@ -53,16 +65,26 @@ func init() {
 	}
 
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
-	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions(), ","), fmt.Sprintf("a comma-separated list of distributions to generate; the default is to generate all distributions"))
+	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions(), ","), "a comma-separated list of distributions to generate; the default is to generate all distributions")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
+	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Options: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
 }
 
 func validDistributions() []string {
 	result := []string{}
 	for t := range releaseDistributions {
+		result = append(result, t)
+	}
+	sort.Strings(result)
+	return result
+}
+
+func validUfsModules() []string {
+	result := []string{}
+	for t := range ufsModules {
 		result = append(result, t)
 	}
 	sort.Strings(result)
@@ -95,6 +117,12 @@ func generateTarballs() error {
 	goScriptsDir := filepath.Dir(file)
 	generateTarballScript := filepath.Join(goScriptsDir, "generate-tarball.go")
 
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
+		if !ufsModules[module] {
+			return fmt.Errorf("ufs module %v not recognized", module)
+		}
+	}
+
 	var distributions []string
 	if distributionsFlag != "" {
 		distributions = strings.Split(distributionsFlag, ",")
@@ -113,6 +141,7 @@ func generateTarballs() error {
 		generateTarballArgs := []string{
 			"-mvn-args", mvnArgs,
 			"-target", tarball,
+			"-ufs-modules", ufsModulesFlag,
 		}
 		if nativeFlag {
 			generateTarballArgs = append(generateTarballArgs, "-native")
@@ -130,7 +159,7 @@ func generateTarballs() error {
 
 func main() {
 	if err := generateTarballs(); err != nil {
-		fmt.Printf("Failed to generate tarballs: %v", err)
+		fmt.Printf("Failed to generate tarballs: %v\n", err)
 		os.Exit(1)
 	}
 }
