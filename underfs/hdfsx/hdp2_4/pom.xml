@@ -23,7 +23,7 @@
   <description>HDFS Under File System implementation</description>
 
   <properties>
-    <hadoop.version>2.7.1.2.4.2.12-1</hadoop.version>
+    <ufs.hadoop.version>2.7.1.2.4.2.12-1</ufs.hadoop.version>
 
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
          properly from sub-project directories -->
@@ -40,12 +40,12 @@
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
-      <version>${hadoop.version}</version>
+      <version>${ufs.hadoop.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
-      <version>${hadoop.version}</version>
+      <version>${ufs.hadoop.version}</version>
     </dependency>
 
     <!-- Internal dependencies -->
