@@ -18,6 +18,7 @@ import (
 const edition = "enterprise"
 const versionMarker = "${VERSION}"
 
+// Map from ufs profile to the name used in the generated tarball.
 var ufsModuleNames = map[string]string{
 	"ufs-hadoop-1.0": "hdfsx-apache1_0",
 	"ufs-hadoop-1.2": "hdfsx-apache1_2",
