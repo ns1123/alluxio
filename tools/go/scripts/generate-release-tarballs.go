@@ -40,6 +40,7 @@ var releaseDistributions = map[string]string{
 var ufsModules = map[string]bool{
 	"ufs-hadoop-1.0": true,
 	"ufs-hadoop-1.2": true,
+	"ufs-hadoop-2.2": true,
 	"ufs-hadoop-2.3": true,
 	"ufs-hadoop-2.4": true,
 	"ufs-hadoop-2.5": true,
@@ -69,7 +70,7 @@ func init() {
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
-	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Options: [%v]", strings.Join(validUfsModules(), ",")))
+	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
 }
 
@@ -117,12 +118,6 @@ func generateTarballs() error {
 	goScriptsDir := filepath.Dir(file)
 	generateTarballScript := filepath.Join(goScriptsDir, "generate-tarball.go")
 
-	for _, module := range strings.Split(ufsModulesFlag, ",") {
-		if !ufsModules[module] {
-			return fmt.Errorf("ufs module %v not recognized", module)
-		}
-	}
-
 	var distributions []string
 	if distributionsFlag != "" {
 		distributions = strings.Split(distributionsFlag, ",")
@@ -157,7 +152,20 @@ func generateTarballs() error {
 	return nil
 }
 
+func handleArgs() error {
+	if flag.NArg() > 0 {
+		return fmt.Errorf("Unrecognized arguments: %v", flag.Args())
+	}
+	return nil
+}
+
 func main() {
+	if err := handleArgs(); err != nil {
+		fmt.Printf("Problem reading arguments: %v\n", err)
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	if err := generateTarballs(); err != nil {
 		fmt.Printf("Failed to generate tarballs: %v\n", err)
 		os.Exit(1)

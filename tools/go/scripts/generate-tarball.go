@@ -22,6 +22,7 @@ const versionMarker = "${VERSION}"
 var ufsModuleNames = map[string]string{
 	"ufs-hadoop-1.0": "hdfsx-apache1_0",
 	"ufs-hadoop-1.2": "hdfsx-apache1_2",
+	"ufs-hadoop-2.2": "hdfsx-apache2_2",
 	"ufs-hadoop-2.3": "hdfsx-apache2_3",
 	"ufs-hadoop-2.4": "hdfsx-apache2_4",
 	"ufs-hadoop-2.5": "hdfsx-apache2_5",
@@ -61,7 +62,7 @@ func init() {
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
 			`Note that trailing ".tar.gz" will be stripped to determine the name for the root directory of the generated tarball`, versionMarker, versionMarker))
-	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball. Options: [%v]", strings.Join(validUfsModules(), ",")))
+	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball. Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
 }
 
@@ -184,7 +185,11 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	}
 	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
-	for _, module := range strings.Split(ufsModulesFlag, ",") {
+	modules := validUfsModules()
+	if strings.ToLower(ufsModulesFlag) != "all" {
+		modules = strings.Split(ufsModulesFlag, ",")
+	}
+	for _, module := range modules {
 		moduleName, ok := ufsModuleNames[module]
 		if !ok {
 			// This should be impossible, we validate ufsModulesFlag at the start.
@@ -197,12 +202,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 }
 
 func generateTarball() error {
-	for _, module := range strings.Split(ufsModulesFlag, ",") {
-		if _, ok := ufsModuleNames[module]; !ok {
-			return fmt.Errorf("ufs module %v not recognized", module)
-		}
-	}
-
 	cwd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -293,7 +292,39 @@ func generateTarball() error {
 	return nil
 }
 
+func validateUfsModulesFlag() error {
+	if strings.ToLower(ufsModulesFlag) == "all" {
+		return nil
+	}
+
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
+		if _, ok := ufsModuleNames[module]; !ok {
+			return fmt.Errorf("ufs module %v not recognized", module)
+		}
+	}
+	return nil
+}
+
+func handleArgs() error {
+	if flag.NArg() > 0 {
+		return fmt.Errorf("Unrecognized arguments: %v", flag.Args())
+	}
+	if err := validateUfsModulesFlag(); err != nil {
+		return err
+	}
+	if strings.ToLower(ufsModulesFlag) == "all" {
+		ufsModulesFlag = strings.Join(validUfsModules(), ",")
+	}
+	return nil
+}
+
 func main() {
+	if err := handleArgs(); err != nil {
+		fmt.Printf("Problem reading arguments: %v\n", err)
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	if err := generateTarball(); err != nil {
 		fmt.Printf("Failed to generate tarball: %v\n", err)
 		os.Exit(1)
