@@ -181,13 +181,14 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		path := filepath.Join("integration/mesos/bin", file)
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
-	// ufs MODULES
+	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
 	for _, module := range strings.Split(ufsModulesFlag, ",") {
 		moduleName, ok := ufsModuleNames[module]
 		if !ok {
 			// This should be impossible, we validate ufsModulesFlag at the start.
-			panic(fmt.Sprintf("Unrecognized ufs module: %v", module))
+			fmt.Fprintf(os.Stderr, "Unrecognized ufs module: %v", module)
+			os.Exit(1)
 		}
 		ufsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", moduleName, version)
 		run(fmt.Sprintf("Add ufs module %v to lib/", module), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
