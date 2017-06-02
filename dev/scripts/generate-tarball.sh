@@ -29,7 +29,7 @@
 
 # ALLUXIO CS ADD
 echo "This script is only meant to be used for building the OS repo. To build enterprise,
-use tools/go/scripts/generate_tarball.go"
+use tools/go/scripts/generate-tarball.go"
 exit 1
 # ALLUXIO CS END
 set -e
