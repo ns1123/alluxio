@@ -143,7 +143,7 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
       alluxio.security.authentication.AuthenticatedClientUser.set(user);
     }
     // ALLUXIO CS END
-    request.mUnderFileSystem = mUfsManager.get(createUfsFileOptions.getMountId());
+    request.mUnderFileSystem = mUfsManager.get(createUfsFileOptions.getMountId()).getUfs();
     request.mOutputStream = request.mUnderFileSystem.create(request.mUfsPath,
         CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
             .setGroup(createUfsFileOptions.getGroup())
