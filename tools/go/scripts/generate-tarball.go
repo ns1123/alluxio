@@ -33,7 +33,7 @@ var ufsModuleNames = map[string]string{
 	"ufs-hadoop-cdh5.8":  "hdfsx-cdh5_8",
 	"ufs-hadoop-hdp2.4":  "hdfsx-hdp2_4",
 	"ufs-hadoop-hdp2.5":  "hdfsx-hdp2_5",
-	"ufs-hadoop-mapr5_2": "hdfsx-mapr5_2",
+	"ufs-hadoop-mapr5.2": "hdfsx-mapr5_2",
 }
 
 var (
