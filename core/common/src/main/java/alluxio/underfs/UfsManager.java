@@ -41,6 +41,10 @@ public interface UfsManager extends Closeable {
    */
   void removeMount(long mountId);
 
+  // ALLUXIO CS ADD
+  // Before calling this get method, set the authenticated user if possible. Make sure this method
+  // does not spawn any new thread.
+  // ALLUXIO CS END
   /**
    * Gets a UFS instance from the cache if exists, or throws exception otherwise.
    *

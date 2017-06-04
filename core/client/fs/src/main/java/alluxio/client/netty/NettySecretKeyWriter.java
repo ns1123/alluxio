@@ -47,6 +47,7 @@ public final class NettySecretKeyWriter {
     Metrics.NETTY_SECRET_KEY_WRITE_OPS.inc();
     try {
       Bootstrap bs = NettySecureRpcClient.createClientBootstrap(address);
+      bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY, address.getHostName());
       channel = bs.connect().sync().channel();
       NettySecureRpcClient.waitForChannelReady(channel);
 
