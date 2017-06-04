@@ -253,7 +253,17 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
       if (request.mBlockReader instanceof UnderFileSystemBlockReader) {
         UnderFileSystemBlockReader reader = (UnderFileSystemBlockReader) request.mBlockReader;
         AlluxioURI ufsUri = reader.getUfsUri();
-        String metricName = String.format("BytesReadUfs-Ufs:%s", MetricsSystem.escapeURI(ufsUri));
+        // ALLUXIO CS REPLACE
+        // String metricName = String.format("BytesReadUfs-Ufs:%s", MetricsSystem.escapeURI(ufsUri));
+        // ALLUXIO CS WITH
+        String user;
+        try {
+          user = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+        } catch (alluxio.exception.AccessControlException e) {
+          user = "null";
+        }
+        String metricName = String.format("BytesReadUfs-Ufs:%s-User:%s", MetricsSystem.escapeURI(ufsUri));
+        // ALLUXIO CS END
         request.mBlockReaderMetricCounter = MetricsSystem.workerCounter(metricName);
       } else {
         request.mBlockReaderMetricCounter = Metrics.BYTES_READ_ALLUXIO;

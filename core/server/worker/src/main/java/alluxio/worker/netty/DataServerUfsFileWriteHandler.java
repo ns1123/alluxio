@@ -152,7 +152,11 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
             .setGroup(createUfsFileOptions.getGroup())
             .setMode(new Mode((short) createUfsFileOptions.getMode())));
     String ufsName = MetricsSystem.escapeURI(ufs.getUfsMountPointUri());
-    String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsName);
+    // ALLUXIO CS REPLACE
+    // String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsName);
+    // ALLUXIO CS WITH
+    String metricName = String.format("BytesWrittenUfs-Ufs:%s-User:%s", ufsName, user);
+    // ALLUXIO CS END
     request.mCounter = MetricsSystem.workerCounter(metricName);
   }
 }
