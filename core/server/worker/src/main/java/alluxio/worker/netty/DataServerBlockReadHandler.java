@@ -207,6 +207,18 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
       if (lockId != BlockLockManager.INVALID_LOCK_ID) {
         try {
           request.mBlockReader = mWorker.readBlockRemote(request.mSessionId, request.mId, lockId);
+          // ALLUXIO CS REPLACE
+          // request.mBlockReaderMetricCounter = MetricsSystem.workerCounter("BytesReadAlluxio");
+          // ALLUXIO CS WITH
+          String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+          String metricName;
+          if (user != null) {
+            metricName = String.format("BytesReadAlluxio-User:%s", user);
+          } else {
+            metricName = "BytesReadAlluxio";
+          }
+          request.mBlockReaderMetricCounter = MetricsSystem.workerCounter("BytesReadAlluxio");
+          // ALLUXIO CS END
           mWorker.accessBlock(request.mSessionId, request.mId);
           ((FileChannel) request.mBlockReader.getChannel()).position(request.mStart);
           return;
@@ -228,6 +240,20 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
         try {
           request.mBlockReader = mWorker
               .readUfsBlock(request.mSessionId, request.mId, request.mStart);
+          AlluxioURI ufsMountPointUri =
+              ((UnderFileSystemBlockReader) request.mBlockReader).getUfsMountPointUri();
+          String ufsString = MetricsSystem.escape(ufsMountPointUri);
+          // ALLUXIO CS REPLACE
+          // String metricName = String.format("BytesReadUfs-Ufs:%s", ufsString);
+          // ALLUXIO CS WITH
+          String metricName;
+          if (user != null) {
+            metricName = String.format("BytesReadUfs-Ufs:%s", ufsString);
+          } else {
+            metricName = String.format("BytesReadUfs-Ufs:%s-User:%s", ufsString, user);
+          }
+          // ALLUXIO CS END
+          request.mBlockReaderMetricCounter = MetricsSystem.workerCounter(metricName);
           return;
         } catch (Exception e) {
           mWorker.closeUfsBlock(request.mSessionId, request.mId);
@@ -248,28 +274,6 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
 
   @Override
   protected void incrementMetrics(long bytesRead) {
-    BlockReadRequestInternal request = (BlockReadRequestInternal) mRequest;
-    if (request.mBlockReaderMetricCounter == null) {
-      if (request.mBlockReader instanceof UnderFileSystemBlockReader) {
-        UnderFileSystemBlockReader reader = (UnderFileSystemBlockReader) request.mBlockReader;
-        AlluxioURI ufsUri = reader.getUfsUri();
-        String metricName = String.format("BytesReadUfs-Ufs:%s", MetricsSystem.escape(ufsUri));
-        request.mBlockReaderMetricCounter = MetricsSystem.workerCounter(metricName);
-      } else {
-        request.mBlockReaderMetricCounter = Metrics.BYTES_READ_ALLUXIO;
-      }
-    }
-    request.mBlockReaderMetricCounter.inc(bytesRead);
-  }
-
-  /**
-   * Class that contains metrics for BlockDataServerHandler.
-   */
-  private static final class Metrics {
-    private static final Counter BYTES_READ_ALLUXIO =
-        MetricsSystem.workerCounter("BytesReadAlluxio");
-
-    private Metrics() {
-    } // prevent instantiation
+    ((BlockReadRequestInternal) mRequest).mBlockReaderMetricCounter.inc(bytesRead);
   }
 }

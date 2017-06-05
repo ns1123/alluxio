@@ -69,8 +69,8 @@ public final class UnderFileSystemBlockReader implements BlockReader {
 
   /** The input stream to read from UFS. */
   private InputStream mUnderFileSystemInputStream;
-  /** The uri of the UFS we are reading from. */
-  private AlluxioURI mUfsUri;
+  /** The mount point uri of the UFS we are reading from. */
+  private AlluxioURI mUfsMountPointUri;
   /** The block writer to write the block to Alluxio. */
   private LocalFileBlockWriter mBlockWriter;
   /** If set, the reader is closed and should not be used afterwards. */
@@ -268,10 +268,10 @@ public final class UnderFileSystemBlockReader implements BlockReader {
   }
 
   /**
-   * @return the URI of the UFS that this reader is currently reading from
+   * @return the mount point URI of the UFS that this reader is currently reading from
    */
-  public AlluxioURI getUfsUri() {
-    return mUfsUri;
+  public AlluxioURI getUfsMountPointUri() {
+    return mUfsMountPointUri;
   }
 
   /**
@@ -295,7 +295,7 @@ public final class UnderFileSystemBlockReader implements BlockReader {
       // ALLUXIO CS END
       UfsInfo ufsInfo = mUfsManager.get(mBlockMeta.getMountId());
       UnderFileSystem ufs = ufsInfo.getUfs();
-      mUfsUri = ufsInfo.getUfsMountPointUri();
+      mUfsMountPointUri = ufsInfo.getUfsMountPointUri();
       mUnderFileSystemInputStream = ufs.open(mBlockMeta.getUnderFileSystemPath(),
           OpenOptions.defaults().setOffset(mBlockMeta.getOffset() + offset));
       mInStreamPos = offset;
