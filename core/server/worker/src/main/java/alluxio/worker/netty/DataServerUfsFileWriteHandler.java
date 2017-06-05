@@ -16,7 +16,7 @@ import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
-import alluxio.underfs.UfsManager.Ufs;
+import alluxio.underfs.UfsManager.UfsInfo;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 
@@ -145,13 +145,13 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
       alluxio.security.authentication.AuthenticatedClientUser.set(user);
     }
     // ALLUXIO CS END
-    Ufs ufs = mUfsManager.get(createUfsFileOptions.getMountId());
-    request.mUnderFileSystem = ufs.getUfs();
+    UfsInfo ufsInfo = mUfsManager.get(createUfsFileOptions.getMountId());
+    request.mUnderFileSystem = ufsInfo.getUfs();
     request.mOutputStream = request.mUnderFileSystem.create(request.mUfsPath,
         CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
             .setGroup(createUfsFileOptions.getGroup())
             .setMode(new Mode((short) createUfsFileOptions.getMode())));
-    String ufsName = MetricsSystem.escape(ufs.getUfsMountPointUri());
+    String ufsName = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
     String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsName);
     request.mCounter = MetricsSystem.workerCounter(metricName);
   }

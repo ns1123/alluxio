@@ -26,7 +26,7 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.underfs.UfsManager;
-import alluxio.underfs.UfsManager.Ufs;
+import alluxio.underfs.UfsManager.UfsInfo;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.OpenOptions;
 // ALLUXIO CS REMOVE
@@ -293,7 +293,7 @@ public final class UnderFileSystemBlockReader implements BlockReader {
         alluxio.security.authentication.AuthenticatedClientUser.set(mBlockMeta.getUser());
       }
       // ALLUXIO CS END
-      Ufs ufsInfo = mUfsManager.get(mBlockMeta.getMountId());
+      UfsInfo ufsInfo = mUfsManager.get(mBlockMeta.getMountId());
       UnderFileSystem ufs = ufsInfo.getUfs();
       mUfsUri = ufsInfo.getUfsMountPointUri();
       mUnderFileSystemInputStream = ufs.open(mBlockMeta.getUnderFileSystemPath(),
