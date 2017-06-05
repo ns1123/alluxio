@@ -25,8 +25,7 @@
   <modules>
     <module>client</module>
     <module>common</module>
-    <module>enterprise</module>
-    <module>server</module>    
+    <module>server</module>
   </modules>
 
   <properties>
