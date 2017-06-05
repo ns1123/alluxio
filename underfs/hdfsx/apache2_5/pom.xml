@@ -1,0 +1,333 @@
+<!--
+
+    The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+    (the "License"). You may not use this work except in compliance with the License, which is
+    available at www.apache.org/licenses/LICENSE-2.0
+
+    This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+    either express or implied, as more fully set forth in the License.
+
+    See the NOTICE file distributed with this work for information regarding copyright ownership.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.alluxio</groupId>
+    <artifactId>alluxio-underfs-hdfsx</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>alluxio-underfs-hdfsx-apache2_5</artifactId>
+  <name>Alluxio Under File System - HDFS Distributions - Apache 2.5</name>
+  <description>HDFS Under File System implementation</description>
+
+  <properties>
+    <ufs.hadoop.version>2.5.2</ufs.hadoop.version>
+
+    <!-- These need to be defined here as well as in the parent pom so that mvn can run
+         properly from sub-project directories -->
+    <license.header.path>${project.parent.parent.parent.basedir}/build/license/</license.header.path>
+    <checkstyle.path>${project.parent.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
+    <findbugs.path>${project.parent.parent.parent.basedir}/build/findbugs/</findbugs.path>
+    <lib.path>${project.parent.parent.parent.basedir}/lib/</lib.path>
+    <!-- The shading prefix should match the artifact ID, replacing '-' with '.' -->
+    <shading.prefix>alluxio.underfs.hdfsx.apache2_5</shading.prefix>
+  </properties>
+
+  <dependencies>
+    <!-- External dependencies -->
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+      <version>${ufs.hadoop.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
+      <version>${ufs.hadoop.version}</version>
+    </dependency>
+
+    <!-- Internal dependencies -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-core-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-hdfsx-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>shade-hdfs</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>org.alluxio:alluxio-underfs-hdfsx-common</include>
+                  <include>org.apache.hadoop:hadoop-annotations</include>
+                  <include>org.apache.hadoop:hadoop-auth</include>
+                  <include>org.apache.hadoop:hadoop-common</include>
+                  <include>org.apache.hadoop:hadoop-hdfs</include>
+
+                  <!-- Transitive dependencies introduced by hadoop-* -->
+                  <include>asm:asm</include>
+                  <include>com.google.protobuf:protobuf-java</include>
+                  <include>com.jamesmurty.utils:java-xmlbuilder</include>
+                  <include>com.jcraft:jsch</include>
+                  <include>com.sun.jersey:jersey-core</include>
+                  <include>com.sun.jersey:jersey-json</include>
+                  <include>com.sun.jersey:jersey-server</include>
+                  <include>com.sun.xml.bind:jaxb-impl</include>
+                  <include>com.thoughtworks.paranamer:paranamer</include>
+                  <include>commons-beanutils:commons-beanutils-core</include>
+                  <include>commons-beanutils:commons-beanutils</include>
+                  <include>commons-cli:commons-cli</include>
+                  <include>commons-codec:commons-codec</include>
+                  <include>commons-collections:commons-collections</include>
+                  <include>commons-configuration:commons-configuration</include>
+                  <include>commons-daemon:commons-daemon</include>
+                  <include>commons-digester:commons-digester</include>
+                  <include>commons-el:commons-el</include>
+                  <include>commons-httpclient:commons-httpclient</include>
+                  <include>commons-logging:commons-logging</include>
+                  <include>commons-net:commons-net</include>
+                  <include>io.netty:netty</include>
+                  <include>javax.activation:activation</include>
+                  <include>javax.servlet.jsp:jsp-api</include>
+                  <include>javax.servlet:servlet-api</include>
+                  <include>javax.xml.bind:jaxb-api</include>
+                  <include>javax.xml.stream:stax-api</include>
+                  <include>jdk.tools:jdk.tools</include>
+                  <include>net.java.dev.jets3t:jets3t</include>
+                  <include>org.apache.avro:avro</include>
+                  <include>org.apache.commons:commons-compress</include>
+                  <include>org.apache.commons:commons-math3</include>
+                  <include>org.apache.directory.api:api-asn1-api</include>
+                  <include>org.apache.directory.api:api-util</include>
+                  <include>org.apache.directory.server:apacheds-i18n</include>
+                  <include>org.apache.directory.server:apacheds-kerberos-codec</include>
+                  <include>org.codehaus.jackson:jackson-core-asl</include>
+                  <include>org.codehaus.jackson:jackson-jaxrs</include>
+                  <include>org.codehaus.jackson:jackson-mapper-asl</include>
+                  <include>org.codehaus.jackson:jackson-xc</include>
+                  <include>org.codehaus.jettison:jettison</include>
+                  <include>org.mortbay.jetty:jetty-util</include>
+                  <include>org.mortbay.jetty:jetty</include>
+                  <include>org.tukaani:xz</include>
+                  <include>org.xerial.snappy:snappy-java</include>
+                  <include>tomcat:jasper-compiler</include>
+                  <include>tomcat:jasper-runtime</include>
+                  <include>xmlenc:xmlenc</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <!-- Relocation for service loading files except alluxio or hadoop -->
+                <relocation>
+                  <pattern>^META-INF/services/((?!(alluxio|org.apache.hadoop)).*)$</pattern>
+                  <shadedPattern>META-INF/services/${shading.prefix}.$1</shadedPattern>
+                  <rawString>true</rawString>
+                </relocation>
+
+                <!-- Relocation for transitive dependencies in hadoop-core-->
+                <relocation>
+                  <pattern>com.google.protobuf</pattern>
+                  <shadedPattern>${shading.prefix}.com.google.protobuf</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.jamesmurty.utils</pattern>
+                  <shadedPattern>${shading.prefix}.com.jamesmurty.utils</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.jcraft.jsch</pattern>
+                  <shadedPattern>${shading.prefix}.com.jcraft.jsch</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.sun.activation</pattern>
+                  <shadedPattern>${shading.prefix}.com.sun.activation</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.sun.istack</pattern>
+                  <shadedPattern>${shading.prefix}.com.sun.istack</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.sun.jersey</pattern>
+                  <shadedPattern>${shading.prefix}.com.sun.jersey</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.sun.research.ws.wadl</pattern>
+                  <shadedPattern>${shading.prefix}.com.sun.research.ws.wadl</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.sun.xml.bind</pattern>
+                  <shadedPattern>${shading.prefix}.com.sun.xml.bind</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.sun.xml.txw2</pattern>
+                  <shadedPattern>${shading.prefix}.com.sun.xml.txw2</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.thoughtworks.paranamer</pattern>
+                  <shadedPattern>${shading.prefix}.com.thoughtworks.paranamer</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>contribs.mx</pattern>
+                  <shadedPattern>${shading.prefix}.contribs.mx</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>javax.activation</pattern>
+                  <shadedPattern>${shading.prefix}.javax.activation</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>javax.el</pattern>
+                  <shadedPattern>${shading.prefix}.javax.el</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>javax.servlet</pattern>
+                  <shadedPattern>${shading.prefix}.javax.servlet</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>javax.ws.rs</pattern>
+                  <shadedPattern>${shading.prefix}.javax.servlet</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>javax.xml.XMLConstants</pattern>
+                  <shadedPattern>${shading.prefix}.javax.xml.XMLConstants</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>javax.xml.bind</pattern>
+                  <shadedPattern>${shading.prefix}.javax.xml.bind</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>javax.xml.stream</pattern>
+                  <shadedPattern>${shading.prefix}.javax.xml.stream</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>net.iharder.base64</pattern>
+                  <shadedPattern>${shading.prefix}.net.iharder.base64</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.avro</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.avro</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.beanutils</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.beanutils</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.cli</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.cli</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.codec</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.codec</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.collections</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.collections</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.compress</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.compress</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.configuration</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.configuration</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.daemon</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.daemon</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.digester</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.digester</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.el</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.el</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.httpclient</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.httpclient</shadedPattern>
+                </relocation>
+                <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                <!--<relocation>-->
+                <!--<pattern>org.apache.commons.logging</pattern>-->
+                <!--<shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>-->
+                <!--</relocation>-->
+                <relocation>
+                  <pattern>org.apache.commons.math3</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.math3</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.commons.net</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.commons.net</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.directory</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.directory</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.jasper</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.jasper</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.jute</pattern>
+                  <shadedPattern>${shading.prefix}.org.apache.jute</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.codehaus.jackson</pattern>
+                  <shadedPattern>${shading.prefix}.org.codehaus.jackson</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.codehaus.jettison</pattern>
+                  <shadedPattern>${shading.prefix}.org.codehaus.jettison</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.jboss.netty</pattern>
+                  <shadedPattern>${shading.prefix}.org.jboss.netty</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.jets3t.service</pattern>
+                  <shadedPattern>${shading.prefix}.org.jets3t.service</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.mortbay</pattern>
+                  <shadedPattern>${shading.prefix}.org.mortbay</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.objectweb.asm</pattern>
+                  <shadedPattern>${shading.prefix}.org.objectweb.asm</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.tukaani</pattern>
+                  <shadedPattern>${shading.prefix}.org.tukaani</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.xerial.snappy</pattern>
+                  <shadedPattern>${shading.prefix}.org.xerial.snappy</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.znerd.xmlenc</pattern>
+                  <shadedPattern>${shading.prefix}.org.znerd.xmlenc</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
