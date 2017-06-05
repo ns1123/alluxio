@@ -117,6 +117,13 @@
     </profile>
 
     <profile>
+      <id>ufs-hadoop-cdh5.11</id>
+      <modules>
+        <module>cdh5_11</module>
+      </modules>
+    </profile>
+
+    <profile>
       <id>ufs-hadoop-hdp2.4</id>
       <modules>
         <module>hdp2_4</module>

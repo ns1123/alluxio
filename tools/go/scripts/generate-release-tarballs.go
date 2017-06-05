@@ -38,15 +38,21 @@ var releaseDistributions = map[string]string{
 }
 
 var ufsModules = map[string]bool{
-	"ufs-hadoop-1.0": true,
-	"ufs-hadoop-1.2": true,
-	"ufs-hadoop-2.2": true,
-	"ufs-hadoop-2.3": true,
-	"ufs-hadoop-2.4": true,
-	"ufs-hadoop-2.5": true,
-	"ufs-hadoop-2.6": true,
-	"ufs-hadoop-2.7": true,
-	"ufs-hadoop-2.8": true,
+	"ufs-hadoop-1.0":     true,
+	"ufs-hadoop-1.2":     true,
+	"ufs-hadoop-2.2":     true,
+	"ufs-hadoop-2.3":     true,
+	"ufs-hadoop-2.4":     true,
+	"ufs-hadoop-2.5":     true,
+	"ufs-hadoop-2.6":     true,
+	"ufs-hadoop-2.7":     true,
+	"ufs-hadoop-2.8":     true,
+	"ufs-hadoop-cdh5.6":  true,
+	"ufs-hadoop-cdh5.8":  true,
+	"ufs-hadoop-cdh5.11": true,
+	"ufs-hadoop-hdp2.4":  true,
+	"ufs-hadoop-hdp2.5":  true,
+	"ufs-hadoop-mapr5.2": true,
 }
 
 var (
@@ -70,7 +76,9 @@ func init() {
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
-	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2,ufs-hadoop-2.7", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
+	flag.StringVar(&ufsModulesFlag, "ufs-modules",
+		"ufs-hadoop-1.2,ufs-hadoop-2.7,ufs-hadoop-cdh5.8,ufs-hadoop-hdp2.5,ufs-hadoop-mapr5.2",
+		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
 }
 
