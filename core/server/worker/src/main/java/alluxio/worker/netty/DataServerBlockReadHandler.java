@@ -262,7 +262,7 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
         } catch (alluxio.exception.AccessControlException e) {
           user = "null";
         }
-        String metricName = String.format("BytesReadUfs-Ufs:%s-User:%s", MetricsSystem.escapeURI(ufsUri));
+        String metricName = String.format("BytesReadUfs-Ufs:%s-User:%s", MetricsSystem.escape(ufsUri));
         // ALLUXIO CS END
         request.mBlockReaderMetricCounter = MetricsSystem.workerCounter(metricName);
       } else {
