@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.hdfs.cdh5_6;
+package alluxio.underfs.hdfs.cdh5_8;
 
 import alluxio.AlluxioURI;
 import alluxio.underfs.UnderFileSystem;
