@@ -126,7 +126,7 @@
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-enterprise</artifactId>
+      <artifactId>alluxio-job-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!-- ALLUXIO CS END -->
