@@ -71,8 +71,8 @@ public final class CryptoFileOutStream extends FileOutStream {
 
   @Override
   public void flush() throws IOException {
-    // Note: Flush at non-chunk-boundary will is a no-op with GCM encryption mode. Alluxio will
-    // never flush an partial logical chunk.
+    // Note: Flush at non-chunk-boundary is a no-op with GCM encryption mode. Alluxio will
+    // never flush a partial logical chunk.
     if (mCryptoBuf != null && mCryptoBuf.writableBytes() == 0) {
       flushCryptoBuf();
     }
