@@ -109,7 +109,7 @@ public class PropertyKey {
   public static final PropertyKey UNDERFS_HDFS_REMOTE = create(Name.UNDERFS_HDFS_REMOTE, false);
   // ALLUXIO CS ADD
   public static final PropertyKey UNDERFS_HDFS_VERSION =
-      create(Name.UNDERFS_HDFS_VERSION, ProjectConstants.HADOOP_VERSION);
+      create(Name.UNDERFS_HDFS_VERSION, "2.2");
   // ALLUXIO CS END
   public static final PropertyKey UNDERFS_OBJECT_STORE_SERVICE_THREADS =
       create(Name.UNDERFS_OBJECT_STORE_SERVICE_THREADS, 20);
