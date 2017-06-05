@@ -231,56 +231,54 @@ public final class CryptoFileOutStreamTest {
         new String(new char[(int) mMeta.getChunkSize() / 2]).replace('\0', 'a').getBytes();
     mTestStream.write(halfChunk);
     mTestStream.flush();
-    Assert.assertEquals(LayoutUtils.toPhysicalBlockLength(mMeta, halfChunk.length),
-        mAlluxioOutStreamMap.get(0L).getWrittenData().length);
+    Assert.assertEquals(0, mAlluxioOutStreamMap.size());
     mTestStream.close();
     Assert.assertEquals(LayoutUtils.toPhysicalFileLength(mMeta, halfChunk.length),
         mAlluxioOutStreamMap.get(0L).getWrittenData().length);
   }
 
   @Test
-  public void flushPartialChunkAndAppendByteShouldFail() throws Exception {
+  public void flushPartialChunkAndWriteOneByte() throws Exception {
     byte[] halfChunk =
         new String(new char[(int) mMeta.getChunkSize() / 2]).replace('\0', 'a').getBytes();
     mTestStream.write(halfChunk);
     mTestStream.flush();
-    Assert.assertEquals(LayoutUtils.toPhysicalBlockLength(mMeta, halfChunk.length),
+    Assert.assertEquals(0, mAlluxioOutStreamMap.size());
+    mTestStream.write(1);
+    mTestStream.flush();
+    Assert.assertEquals(0, mAlluxioOutStreamMap.size());
+    mTestStream.close();
+    Assert.assertEquals(LayoutUtils.toPhysicalFileLength(mMeta, halfChunk.length + 1),
         mAlluxioOutStreamMap.get(0L).getWrittenData().length);
-    try {
-      mTestStream.write(1);
-      Assert.fail("Append after flush partial chunk should fail.");
-    } catch (IOException e) {
-      // expected
-    }
   }
 
   @Test
-  public void flushPartialChunkAndAppendBytesShouldFail() throws Exception {
+  public void flushPartialChunkAndAppendBytes() throws Exception {
     byte[] halfChunk =
         new String(new char[(int) mMeta.getChunkSize() / 2]).replace('\0', 'a').getBytes();
     mTestStream.write(halfChunk);
     mTestStream.flush();
-    Assert.assertEquals(LayoutUtils.toPhysicalBlockLength(mMeta, halfChunk.length),
+    Assert.assertEquals(0, mAlluxioOutStreamMap.size());
+    mTestStream.write(halfChunk);
+    mTestStream.flush();
+    Assert.assertEquals(LayoutUtils.toPhysicalChunksLength(mMeta, halfChunk.length * 2),
         mAlluxioOutStreamMap.get(0L).getWrittenData().length);
-    try {
-      mTestStream.write(halfChunk);
-      Assert.fail("Append after flush partial chunk should fail.");
-    } catch (IOException e) {
-      // expected
-    }
+    mTestStream.close();
+    Assert.assertEquals(LayoutUtils.toPhysicalFileLength(mMeta, halfChunk.length * 2),
+        mAlluxioOutStreamMap.get(0L).getWrittenData().length);
   }
 
   @Test
-  public void flushFullChunksAndAppendIsOkay() throws Exception {
+  public void flushFullChunksAndAppend() throws Exception {
     byte[] twoFullChunk =
         new String(new char[(int) mMeta.getChunkSize() * 2]).replace('\0', 'a').getBytes();
     mTestStream.write(twoFullChunk);
     mTestStream.flush();
-    Assert.assertEquals(LayoutUtils.toPhysicalBlockLength(mMeta, twoFullChunk.length),
+    Assert.assertEquals(LayoutUtils.toPhysicalChunksLength(mMeta, twoFullChunk.length),
         mAlluxioOutStreamMap.get(0L).getWrittenData().length);
     mTestStream.write(1);
     mTestStream.flush();
-    Assert.assertEquals(LayoutUtils.toPhysicalBlockLength(mMeta, twoFullChunk.length + 1),
+    Assert.assertEquals(LayoutUtils.toPhysicalChunksLength(mMeta, twoFullChunk.length),
         mAlluxioOutStreamMap.get(0L).getWrittenData().length);
     mTestStream.close();
     Assert.assertEquals(LayoutUtils.toPhysicalFileLength(mMeta, twoFullChunk.length + 1),
