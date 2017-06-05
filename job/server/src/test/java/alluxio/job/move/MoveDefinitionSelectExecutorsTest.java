@@ -41,6 +41,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -159,7 +160,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     setPathToNotExist("/dst/src");
     assignMoves("/src", "/dst/src");
     verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src/nested")),
-        eq(CreateDirectoryOptions.defaults()));
+        Matchers.eq(CreateDirectoryOptions.defaults()));
   }
 
   @Test

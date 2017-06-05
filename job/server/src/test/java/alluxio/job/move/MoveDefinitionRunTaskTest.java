@@ -9,7 +9,6 @@
 
 package alluxio.job.move;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -31,9 +30,11 @@ import alluxio.util.io.BufferUtils;
 import alluxio.wire.FileInfo;
 
 import com.google.common.collect.Lists;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -76,7 +77,7 @@ public final class MoveDefinitionRunTaskTest {
   @Test
   public void basicMoveTest() throws Exception {
     runTask(TEST_SOURCE, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
-    assertArrayEquals(TEST_SOURCE_CONTENTS, mMockOutStream.toByteArray());
+    Assert.assertArrayEquals(TEST_SOURCE_CONTENTS, mMockOutStream.toByteArray());
     verify(mMockFileSystem).delete(new AlluxioURI(TEST_SOURCE));
   }
 
@@ -126,11 +127,11 @@ public final class MoveDefinitionRunTaskTest {
   public void writeTypeTest() throws Exception {
     runTask(TEST_SOURCE, TEST_SOURCE, TEST_DESTINATION, WriteType.CACHE_THROUGH);
     verify(mMockFileSystem).createFile(eq(new AlluxioURI(TEST_DESTINATION)),
-        eq(CreateFileOptions.defaults().setWriteType(WriteType.CACHE_THROUGH)));
+        Matchers.eq(CreateFileOptions.defaults().setWriteType(WriteType.CACHE_THROUGH)));
 
     runTask(TEST_SOURCE, TEST_SOURCE, TEST_DESTINATION, WriteType.MUST_CACHE);
     verify(mMockFileSystem).createFile(eq(new AlluxioURI(TEST_DESTINATION)),
-        eq(CreateFileOptions.defaults().setWriteType(WriteType.MUST_CACHE)));
+        Matchers.eq(CreateFileOptions.defaults().setWriteType(WriteType.MUST_CACHE)));
   }
 
   /**

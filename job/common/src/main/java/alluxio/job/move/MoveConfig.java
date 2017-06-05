@@ -18,7 +18,7 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Configuration for the move job. See {@link MoveDefinition} for detailed semantics.
+ * Configuration for the move job. See {@code MoveDefinition} for detailed semantics.
  */
 @ThreadSafe
 public class MoveConfig implements JobConfig {
