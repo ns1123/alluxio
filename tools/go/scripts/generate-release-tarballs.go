@@ -37,11 +37,12 @@ var releaseDistributions = map[string]string{
 	"mapr5.2":   "2.7.0-mapr-1607",
 }
 
-// Map from ufsModule to a bool indicating if this module is included by default
+// TODO(andrew): consolidate the following definition with the duplicated definition in generate-tarball.go
+// Map from UFS module name to a bool indicating if this module is included by default
 var ufsModules = map[string]bool{
 	"ufs-hadoop-1.0":     false,
 	"ufs-hadoop-1.2":     true,
-	"ufs-hadoop-2.2":     false,
+	"ufs-hadoop-2.2":     true,
 	"ufs-hadoop-2.3":     false,
 	"ufs-hadoop-2.4":     false,
 	"ufs-hadoop-2.5":     false,
@@ -93,8 +94,8 @@ func validDistributions() []string {
 
 func validUfsModules() []string {
 	result := []string{}
-	for t := range ufsModules {
-		result = append(result, t)
+	for ufsModule := range ufsModules {
+		result = append(result, ufsModule)
 	}
 	sort.Strings(result)
 	return result
@@ -102,9 +103,9 @@ func validUfsModules() []string {
 
 func defaultUfsModules() []string {
 	result := []string{}
-	for t := range ufsModules {
-		if ufsModules[t] {
-			result = append(result, t)
+	for ufsModule := range ufsModules {
+		if ufsModules[ufsModule] {
+			result = append(result, ufsModule)
 		}
 	}
 	sort.Strings(result)

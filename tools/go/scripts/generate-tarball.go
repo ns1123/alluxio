@@ -31,9 +31,30 @@ var ufsModuleNames = map[string]string{
 	"ufs-hadoop-2.8":     "hdfsx-apache2_8",
 	"ufs-hadoop-cdh5.6":  "hdfsx-cdh5_6",
 	"ufs-hadoop-cdh5.8":  "hdfsx-cdh5_8",
+	"ufs-hadoop-cdh5.11": "hdfsx-cdh5_11",
 	"ufs-hadoop-hdp2.4":  "hdfsx-hdp2_4",
 	"ufs-hadoop-hdp2.5":  "hdfsx-hdp2_5",
 	"ufs-hadoop-mapr5.2": "hdfsx-mapr5_2",
+}
+
+// TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
+// Map from UFS module name to a bool indicating if this module is included by default
+var ufsModules = map[string]bool{
+	"ufs-hadoop-1.0":     false,
+	"ufs-hadoop-1.2":     true,
+	"ufs-hadoop-2.2":     true,
+	"ufs-hadoop-2.3":     false,
+	"ufs-hadoop-2.4":     false,
+	"ufs-hadoop-2.5":     false,
+	"ufs-hadoop-2.6":     false,
+	"ufs-hadoop-2.7":     true,
+	"ufs-hadoop-2.8":     false,
+	"ufs-hadoop-cdh5.6":  false,
+	"ufs-hadoop-cdh5.8":  true,
+	"ufs-hadoop-cdh5.11": false,
+	"ufs-hadoop-hdp2.4":  false,
+	"ufs-hadoop-hdp2.5":  true,
+	"ufs-hadoop-mapr5.2": true,
 }
 
 var (
@@ -67,7 +88,8 @@ func init() {
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
 			`Note that trailing ".tar.gz" will be stripped to determine the name for the root directory of the generated tarball`, versionMarker, versionMarker))
-	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2,ufs-hadoop-2.7", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball. Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
+	flag.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
+		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball. Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
 }
 
@@ -75,6 +97,17 @@ func validUfsModules() []string {
 	result := []string{}
 	for t := range ufsModuleNames {
 		result = append(result, t)
+	}
+	sort.Strings(result)
+	return result
+}
+
+func defaultUfsModules() []string {
+	result := []string{}
+	for ufsModule := range ufsModules {
+		if ufsModules[ufsModule] {
+			result = append(result, ufsModule)
+		}
 	}
 	sort.Strings(result)
 	return result
