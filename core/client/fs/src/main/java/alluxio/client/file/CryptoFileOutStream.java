@@ -35,7 +35,6 @@ public final class CryptoFileOutStream extends FileOutStream {
   private final EncryptionProto.Meta mMeta;
   private ByteBuf mCryptoBuf;
   private boolean mClosed;
-  private boolean mFlushPartialChunkCalled;
 
   /**
    * Creates a new {@link CryptoFileOutStream}.
@@ -72,23 +71,16 @@ public final class CryptoFileOutStream extends FileOutStream {
 
   @Override
   public void flush() throws IOException {
-    // Note: Flush at non-chunk-boundary and then append is not supported with GCM encryption mode.
-    // It is allowed to flush and then immediately close the file, with only partial chunk in the
-    // end of the file.
-    if (mCryptoBuf != null && mCryptoBuf.writableBytes() < mMeta.getChunkSize()
-        && mCryptoBuf.writableBytes() > 0) {
-      mFlushPartialChunkCalled = true;
+    // Note: Flush at non-chunk-boundary is a no-op with GCM encryption mode. Alluxio will
+    // never flush a partial logical chunk.
+    if (mCryptoBuf != null && mCryptoBuf.writableBytes() == 0) {
+      flushCryptoBuf();
     }
-    flushCryptoBuf();
     super.flush();
   }
 
   @Override
   public void write(int b) throws IOException {
-    if (mFlushPartialChunkCalled) {
-      throw new IOException("Flush at non-chunk-boundary and then append is not allowed with GCM "
-          + "encryption mode");
-    }
     if (mCryptoBuf.writableBytes() == 0) {
       getNextCryptoBuf();
     }
@@ -103,10 +95,6 @@ public final class CryptoFileOutStream extends FileOutStream {
 
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
-    if (mFlushPartialChunkCalled) {
-      throw new IOException("Flush at non-chunk-boundary and then append is not allowed with GCM "
-          + "encryption mode");
-    }
     Preconditions.checkArgument(b != null, PreconditionMessage.ERR_WRITE_BUFFER_NULL);
     Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= b.length,
         PreconditionMessage.ERR_BUFFER_STATE.toString(), b.length, off, len);
