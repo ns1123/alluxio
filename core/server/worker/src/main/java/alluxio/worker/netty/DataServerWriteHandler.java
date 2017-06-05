@@ -350,9 +350,10 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
         }
 
         try {
-          mPosToWrite += buf.readableBytes();
-          incrementMetrics(buf.readableBytes());
+          int readableBytes = buf.readableBytes();
+          mPosToWrite += readableBytes;
           writeBuf(mChannel, buf, mPosToWrite);
+          incrementMetrics(readableBytes);
         } catch (Exception e) {
           LOG.warn("Failed to write packet {}", e.getMessage());
           Throwables.propagateIfPossible(e);
