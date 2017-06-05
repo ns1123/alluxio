@@ -1214,7 +1214,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       MountPointInfo info = mountInfo.toMountPointInfo();
       UnderFileSystem ufs;
       try {
-        ufs = mUfsManager.get(mountInfo.getMountId());
+        ufs = mUfsManager.get(mountInfo.getMountId()).getUfs();
       } catch (UnavailableException | NotFoundException e) {
         // We should never reach here
         LOG.error(String.format("No UFS cached for %s", info), e);
@@ -2529,9 +2529,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       boolean replayed, MountOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException {
     AlluxioURI alluxioPath = inodePath.getUri();
-    UnderFileSystem ufs = mUfsManager.addMount(mountId, ufsPath.toString(),
+    UnderFileSystem ufs = mUfsManager.addMount(mountId, new AlluxioURI(ufsPath.toString()),
         UnderFileSystemConfiguration.defaults().setReadOnly(options.isReadOnly())
-            .setShared(options.isShared()).setUserSpecifiedConf(options.getProperties()));
+            .setShared(options.isShared()).setUserSpecifiedConf(options.getProperties())).getUfs();
     try {
       if (!replayed) {
         ufs.connectFromMaster(
@@ -3456,7 +3456,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           });
 
       final String ufsDataFolder = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
-      final UnderFileSystem ufs = ufsManager.getRoot();
+      final UnderFileSystem ufs = ufsManager.getRoot().getUfs();
 
       MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMasterMetricName(UFS_CAPACITY_TOTAL),
           new Gauge<Long>() {

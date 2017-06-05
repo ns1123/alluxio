@@ -115,7 +115,7 @@ public final class PersistDefinition
     String ufsPath = config.getUfsPath();
 
     // check if the file is persisted in UFS and delete it, if we are overwriting it
-    UnderFileSystem ufs = context.getUfsManager().get(config.getMountId());
+    UnderFileSystem ufs = context.getUfsManager().get(config.getMountId()).getUfs();
     if (ufs == null) {
       throw new IOException("Failed to create UFS instance for " + ufsPath);
     }
