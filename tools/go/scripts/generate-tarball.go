@@ -58,6 +58,8 @@ var ufsModules = map[string]bool{
 }
 
 var (
+	callHomeFlag         bool
+	callHomeBucketFlag   string
 	debugFlag            bool
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
@@ -80,6 +82,8 @@ func init() {
 		flag.PrintDefaults()
 	}
 
+	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
+	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
@@ -175,14 +179,20 @@ func getCommonMvnArgs() []string {
 	if nativeFlag {
 		args = append(args, "-Pnative")
 	}
+	if callHomeFlag {
+		args = append(args, "-Dcall.home.enabled=true")
+		if callHomeBucketFlag != "" {
+			args = append(args, fmt.Sprintf("-Dcall.home.bucket=%s", callHomeBucketFlag))
+		}
+	}
 	if licenseCheckFlag {
 		args = append(args, "-Dlicense.check.enabled=true")
 		if licenseSecretKeyFlag != "" {
 			args = append(args, fmt.Sprintf("-Dlicense.secret.key=%s", licenseSecretKeyFlag))
 		}
-		if proxyURLFlag != "" {
-			args = append(args, fmt.Sprintf("-Dproxy.url=%s", proxyURLFlag))
-		}
+	}
+	if proxyURLFlag != "" {
+		args = append(args, fmt.Sprintf("-Dproxy.url=%s", proxyURLFlag))
 	}
 	return args
 }

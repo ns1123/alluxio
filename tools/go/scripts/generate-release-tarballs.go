@@ -58,6 +58,8 @@ var ufsModules = map[string]bool{
 }
 
 var (
+	callHomeFlag         bool
+	callHomeBucketFlag   string
 	debugFlag            bool
 	distributionsFlag    string
 	licenseCheckFlag     bool
@@ -74,6 +76,8 @@ func init() {
 		flag.PrintDefaults()
 	}
 
+	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
+	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
 	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions(), ","), "a comma-separated list of distributions to generate; the default is to generate all distributions")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
@@ -163,14 +167,20 @@ func generateTarballs() error {
 		if nativeFlag {
 			generateTarballArgs = append(generateTarballArgs, "-native")
 		}
+		if callHomeFlag {
+			generateTarballArgs = append(generateTarballArgs, "-call-home")
+			if callHomeBucketFlag {
+				generateTarballArgs = append(generateTarballArgs, "-call-home-bucket", callHomeBucketFlag)
+			}
+		}
 		if licenseCheckFlag {
 			generateTarballArgs = append(generateTarballArgs, "-license-check")
 			if licenseSecretKeyFlag {
 				generateTarballArgs = append(generateTarballArgs, "-license-secret-key", licenseSecretKeyFlag)
 			}
-			if proxyURLFlag {
-				generateTarballArgs = append(generateTarballArgs, "-proxy-url", proxyURLFlag)
-			}
+		}
+		if proxyURLFlag {
+			generateTarballArgs = append(generateTarballArgs, "-proxy-url", proxyURLFlag)
 		}
 		args := []string{"run", generateTarballScript}
 		args = append(args, generateTarballArgs...)
