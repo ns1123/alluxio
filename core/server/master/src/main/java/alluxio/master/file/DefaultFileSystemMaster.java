@@ -40,10 +40,7 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
-// ALLUXIO CS REMOVE
-// import alluxio.master.file.async.AsyncPersistHandler;
-// ALLUXIO CS END
-import alluxio.master.file.meta.AsyncUfsAbsentPathCache;
+import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -383,7 +380,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
-    mUfsAbsentPathCache = new AsyncUfsAbsentPathCache(mMountTable);
+    mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
 
     Metrics.registerGauges(this, mUfsManager);
   }
@@ -1071,6 +1068,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         mBlockMaster.commitBlockInUFS(blockId, blockSize);
         currLength -= blockSize;
       }
+      // The path exists in UFS, so it is no longer absent
+      mUfsAbsentPathCache.processExisting(inodePath.getUri());
     }
     Metrics.FILES_COMPLETED.inc();
   }
@@ -1154,8 +1153,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mTtlBuckets.insert(inode);
 
     if (options.isPersisted()) {
-      // The path exists in UFS, so it is no longer absent.
-      mUfsAbsentPathCache.process(inodePath.getUri());
+      // The path exists in UFS, so it is no longer absent. The ancestors exist in UFS, but the
+      // actual file does not exist in UFS yet.
+      mUfsAbsentPathCache.processExisting(inodePath.getUri().getParent());
     }
 
     Metrics.FILES_CREATED.inc();
@@ -1739,7 +1739,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
       if (options.isPersisted()) {
         // The path exists in UFS, so it is no longer absent.
-        mUfsAbsentPathCache.process(inodePath.getUri());
+        mUfsAbsentPathCache.processExisting(inodePath.getUri());
       }
 
       return createResult;
@@ -1941,7 +1941,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               ExceptionMessage.FAILED_UFS_RENAME.getMessage(ufsSrcPath, ufsDstUri));
         }
         // The destination was persisted in ufs.
-        mUfsAbsentPathCache.process(dstPath);
+        mUfsAbsentPathCache.processExisting(dstPath);
       }
     } catch (Exception e) {
       // On failure, revert changes and throw exception.
