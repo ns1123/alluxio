@@ -125,6 +125,7 @@ public final class CallHomeMaster extends AbstractMaster {
 
   @Override
   public void start(Boolean isLeader) throws IOException {
+    super.start(isLeader);
     Preconditions.checkNotNull(mMasterProcess, "Alluxio master process is not specified");
     if (!isLeader) {
       return;
