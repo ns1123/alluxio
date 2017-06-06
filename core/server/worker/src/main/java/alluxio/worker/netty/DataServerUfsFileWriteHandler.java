@@ -16,6 +16,7 @@ import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
+import alluxio.underfs.UfsManager.UfsInfo;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 
@@ -50,6 +51,7 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
 
     private UnderFileSystem mUnderFileSystem;
     private OutputStream mOutputStream;
+    private Counter mCounter;
 
     FileWriteRequestInternal(Protocol.WriteRequest request) throws Exception {
       super(request.getId());
@@ -129,7 +131,7 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
 
   @Override
   protected void incrementMetrics(long bytesWritten) {
-    Metrics.BYTES_WRITTEN_UFS.inc(bytesWritten);
+    ((FileWriteRequestInternal) mRequest).mCounter.inc(bytesWritten);
   }
 
   private void createUfsFile(Channel channel) throws IOException {
@@ -143,20 +145,23 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
       alluxio.security.authentication.AuthenticatedClientUser.set(user);
     }
     // ALLUXIO CS END
-    request.mUnderFileSystem = mUfsManager.get(createUfsFileOptions.getMountId());
+    UfsInfo ufsInfo = mUfsManager.get(createUfsFileOptions.getMountId());
+    request.mUnderFileSystem = ufsInfo.getUfs();
     request.mOutputStream = request.mUnderFileSystem.create(request.mUfsPath,
         CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
             .setGroup(createUfsFileOptions.getGroup())
             .setMode(new Mode((short) createUfsFileOptions.getMode())));
-  }
-
-  /**
-   * Class that contains metrics for BlockDataServerHandler.
-   */
-  private static final class Metrics {
-    private static final Counter BYTES_WRITTEN_UFS = MetricsSystem.workerCounter("BytesWrittenUFS");
-
-    private Metrics() {
-    } // prevent instantiation
+    String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
+    // ALLUXIO CS REPLACE
+    // String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsString);
+    // ALLUXIO CS WITH
+    String metricName;
+    if (user == null) {
+      metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsString);
+    } else {
+      metricName = String.format("BytesWrittenUfs-Ufs:%s-User:%s", ufsString, user);
+    }
+    // ALLUXIO CS END
+    request.mCounter = MetricsSystem.workerCounter(metricName);
   }
 }

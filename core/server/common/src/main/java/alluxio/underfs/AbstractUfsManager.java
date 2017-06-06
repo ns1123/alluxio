@@ -117,13 +117,13 @@ public abstract class AbstractUfsManager implements UfsManager {
   private final ConcurrentHashMap<Key, UnderFileSystem> mUnderFileSystemMap =
       new ConcurrentHashMap<>();
   /**
-   * Maps from mount id to {@link UnderFileSystem} instances. This map helps efficiently retrieve
-   * an existing UFS instance given its mount id.
+   * Maps from mount id to {@link UfsInfo} instances. This map helps efficiently retrieve
+   * existing UFS info given its mount id.
    */
-  private final ConcurrentHashMap<Long, UnderFileSystem> mMountIdToUnderFileSystemMap =
+  private final ConcurrentHashMap<Long, UfsInfo> mMountIdToUfsMap =
       new ConcurrentHashMap<>();
 
-  private UnderFileSystem mRootUfs;
+  private UfsInfo mRootUfsInfo;
   protected final Closer mCloser;
 
   AbstractUfsManager() {
@@ -138,13 +138,13 @@ public abstract class AbstractUfsManager implements UfsManager {
    * @param ufsConf the UFS configuration
    * @return the UFS instance
    */
-  private UnderFileSystem getOrAdd(String ufsUri, UnderFileSystemConfiguration ufsConf) {
-    Key key = new Key(new AlluxioURI(ufsUri), ufsConf.getUserSpecifiedConf());
+  private UnderFileSystem getOrAdd(AlluxioURI ufsUri, UnderFileSystemConfiguration ufsConf) {
+    Key key = new Key(ufsUri, ufsConf.getUserSpecifiedConf());
     UnderFileSystem cachedFs = mUnderFileSystemMap.get(key);
     if (cachedFs != null) {
       return cachedFs;
     }
-    UnderFileSystem fs = UnderFileSystem.Factory.create(ufsUri, ufsConf);
+    UnderFileSystem fs = UnderFileSystem.Factory.create(ufsUri.toString(), ufsConf);
     cachedFs = mUnderFileSystemMap.putIfAbsent(key, fs);
     if (cachedFs == null) {
       // above insert is successful
@@ -161,14 +161,14 @@ public abstract class AbstractUfsManager implements UfsManager {
   }
 
   @Override
-  public UnderFileSystem addMount(long mountId, String ufsUri,
+  public UfsInfo addMount(long mountId, AlluxioURI ufsUri,
       UnderFileSystemConfiguration ufsConf) {
     Preconditions.checkArgument(mountId != IdUtils.INVALID_MOUNT_ID, "mountId");
     Preconditions.checkArgument(ufsUri != null, "uri");
     Preconditions.checkArgument(ufsConf != null, "ufsConf");
-    UnderFileSystem ufs = getOrAdd(ufsUri, ufsConf);
-    mMountIdToUnderFileSystemMap.put(mountId, ufs);
-    return ufs;
+    UfsInfo ufsInfo = new UfsInfo(getOrAdd(ufsUri, ufsConf), ufsUri);
+    mMountIdToUfsMap.put(mountId, ufsInfo);
+    return ufsInfo;
   }
 
   @Override
@@ -176,34 +176,34 @@ public abstract class AbstractUfsManager implements UfsManager {
     Preconditions.checkArgument(mountId != IdUtils.INVALID_MOUNT_ID, "mountId");
     // TODO(binfan): check the refcount of this ufs in mUnderFileSystemMap and remove it if this is
     // no more used. Currently, it is possibly used by out mount too.
-    mMountIdToUnderFileSystemMap.remove(mountId);
+    mMountIdToUfsMap.remove(mountId);
   }
 
   @Override
-  public UnderFileSystem get(long mountId) throws NotFoundException, UnavailableException {
-    UnderFileSystem ufs = mMountIdToUnderFileSystemMap.get(mountId);
-    if (ufs == null) {
+  public UfsInfo get(long mountId) throws NotFoundException, UnavailableException {
+    UfsInfo ufsInfo = mMountIdToUfsMap.get(mountId);
+    if (ufsInfo == null) {
       throw new NotFoundException(
           String.format("Mount Id %d not found in cached mount points", mountId));
     }
-    return ufs;
+    return ufsInfo;
   }
 
   @Override
-  public UnderFileSystem getRoot() {
+  public UfsInfo getRoot() {
     synchronized (this) {
-      if (mRootUfs == null) {
+      if (mRootUfsInfo == null) {
         String rootUri = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
         boolean rootReadOnly =
             Configuration.getBoolean(PropertyKey.MASTER_MOUNT_TABLE_ROOT_READONLY);
         boolean rootShared = Configuration.getBoolean(PropertyKey.MASTER_MOUNT_TABLE_ROOT_SHARED);
         Map<String, String> rootConf =
             Configuration.getNestedProperties(PropertyKey.MASTER_MOUNT_TABLE_ROOT_OPTION);
-        mRootUfs = addMount(IdUtils.ROOT_MOUNT_ID, rootUri,
+        mRootUfsInfo = addMount(IdUtils.ROOT_MOUNT_ID, new AlluxioURI(rootUri),
             UnderFileSystemConfiguration.defaults().setReadOnly(rootReadOnly).setShared(rootShared)
                 .setUserSpecifiedConf(rootConf));
       }
-      return mRootUfs;
+      return mRootUfsInfo;
     }
   }
 

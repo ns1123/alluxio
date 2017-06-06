@@ -49,7 +49,8 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
   private long mBytesReserved = 0;
 
   private class BlockWriteRequestInternal extends WriteRequestInternal {
-    final BlockWriter mBlockWriter;
+    BlockWriter mBlockWriter;
+    Counter mCounter;
 
     BlockWriteRequestInternal(Protocol.WriteRequest request) throws Exception {
       super(request.getId());
@@ -57,12 +58,13 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
       mWorker.createBlockRemote(mSessionId, mId, mStorageTierAssoc.getAlias(request.getTier()),
           FILE_BUFFER_SIZE);
       mBytesReserved = FILE_BUFFER_SIZE;
-      mBlockWriter = mWorker.getTempBlockWriterRemote(mSessionId, mId);
     }
 
     @Override
     public void close(Channel channel) throws IOException {
-      mBlockWriter.close();
+      if (mBlockWriter != null) {
+        mBlockWriter.close();
+      }
       try {
         mWorker.commitBlock(mSessionId, mId);
       } catch (Exception e) {
@@ -72,7 +74,9 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
 
     @Override
     void cancel() throws IOException {
-      mBlockWriter.close();
+      if (mBlockWriter != null) {
+        mBlockWriter.close();
+      }
       try {
         mWorker.abortBlock(mSessionId, mId);
       } catch (Exception e) {
@@ -138,25 +142,29 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
       mWorker.requestSpace(mRequest.mSessionId, mRequest.mId, bytesToReserve);
       mBytesReserved += bytesToReserve;
     }
-    BlockWriter blockWriter = ((BlockWriteRequestInternal) mRequest).mBlockWriter;
-    GatheringByteChannel outputChannel = blockWriter.getChannel();
+    BlockWriteRequestInternal request = (BlockWriteRequestInternal) mRequest;
+    if (request.mBlockWriter == null) {
+      request.mBlockWriter = mWorker.getTempBlockWriterRemote(request.mSessionId, request.mId);
+      // ALLUXIO CS REPLACE
+      // mCounter = MetricsSystem.workerCounter("BytesWrittenAlluxio");
+      // ALLUXIO CS WITH
+      String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+      String metricName =
+          user != null ? String.format("BytesWrittenAlluxio-User:%s", user) : "BytesWrittenAlluxio";
+      request.mCounter = MetricsSystem.workerCounter(metricName);
+      // ALLUXIO CS END
+    }
+    GatheringByteChannel outputChannel = request.mBlockWriter.getChannel();
     int sz = buf.readableBytes();
     Preconditions.checkState(buf.readBytes(outputChannel, sz) == sz);
   }
 
   @Override
   protected void incrementMetrics(long bytesWritten) {
-    Metrics.BYTES_WRITTEN_REMOTE.inc(bytesWritten);
-  }
-
-  /**
-   * Class that contains metrics for BlockDataServerHandler.
-   */
-  private static final class Metrics {
-    private static final Counter BYTES_WRITTEN_REMOTE =
-        MetricsSystem.workerCounter("BytesWrittenRemote");
-
-    private Metrics() {
-    } // prevent instantiation
+    Counter counter = ((BlockWriteRequestInternal) mRequest).mCounter;
+    if (counter == null) {
+      throw new IllegalStateException("metric counter is null");
+    }
+    counter.inc(bytesWritten);
   }
 }
