@@ -16,6 +16,7 @@ import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.security.CryptoUtils;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.util.io.BufferUtils;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -89,7 +90,7 @@ public final class CryptoFileInStream extends FileInStream {
       }
     }
     mLogicalPos++;
-    return mCryptoBuf.readByte();
+    return BufferUtils.byteToInt(mCryptoBuf.readByte());
   }
 
   @Override
