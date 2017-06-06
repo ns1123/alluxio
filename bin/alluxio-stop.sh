@@ -54,7 +54,7 @@ stop_job_master() {
   ${LAUNCHER} "${BIN}/alluxio" "killAll" "alluxio.master.AlluxioJobMaster"
 }
 
-stop_job_workers() {
+stop_job_masters() {
   ${LAUNCHER} "${BIN}/alluxio-masters.sh" "${BIN}/alluxio" "killAll" "alluxio.master.AlluxioJobMaster"
 }
 
