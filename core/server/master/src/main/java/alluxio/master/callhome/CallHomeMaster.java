@@ -100,7 +100,7 @@ public final class CallHomeMaster extends AbstractMaster {
     super(journalFactory.create(Constants.CALL_HOME_MASTER_NAME), new SystemClock(),
         ExecutorServiceFactories
             .fixedThreadPoolExecutorServiceFactory(Constants.CALL_HOME_MASTER_NAME, 2));
-    registry.add(LicenseMaster.class, this);
+    registry.add(CallHomeMaster.class, this);
   }
 
   /**
