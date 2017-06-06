@@ -233,6 +233,10 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		ufsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", moduleName, version)
 		run(fmt.Sprintf("adding ufs module %v to lib/", module), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
 	}
+	// NATIVE LIBRARIES
+	if nativeFlag {
+		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/native"), filepath.Join(dstPath, "lib", "native"))
+	}
 }
 
 func generateTarball() error {
@@ -300,9 +304,6 @@ func generateTarball() error {
 	run("adding Alluxio server assembly jar", "mv", fmt.Sprintf("assembly/server/target/alluxio-assembly-server-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-server-%v.jar", version)))
 	// Condense the webapp into a single .war file.
 	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webappWar), "-C", webappDir, ".")
-	if nativeFlag {
-		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/"), filepath.Join(dstPath, "lib/"))
-	}
 
 	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
 	addAdditionalFiles(srcPath, dstPath, version)
