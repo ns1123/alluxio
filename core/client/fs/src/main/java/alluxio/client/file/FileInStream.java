@@ -301,6 +301,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
 
   @Override
   public long remaining() {
+    // WARNING: do not call remaining() directly within this file, use remainingInternal() instead.
     return remainingInternal();
   }
 
