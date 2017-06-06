@@ -274,6 +274,10 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
 
   @Override
   protected void incrementMetrics(long bytesRead) {
-    ((BlockReadRequestInternal) mRequest).mCounter.inc(bytesRead);
+    Counter counter = ((BlockReadRequestInternal) mRequest).mCounter;
+    if (counter == null) {
+      throw new IllegalStateException("metric counter is null");
+    }
+    counter.inc(bytesRead);
   }
 }

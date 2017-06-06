@@ -161,6 +161,10 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
 
   @Override
   protected void incrementMetrics(long bytesWritten) {
-    ((BlockWriteRequestInternal) mRequest).mCounter.inc(bytesWritten);
+    Counter counter = ((BlockWriteRequestInternal) mRequest).mCounter;
+    if (counter == null) {
+      throw new IllegalStateException("metric counter is null");
+    }
+    counter.inc(bytesWritten);
   }
 }
