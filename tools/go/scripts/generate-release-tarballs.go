@@ -169,17 +169,17 @@ func generateTarballs() error {
 		}
 		if callHomeFlag {
 			generateTarballArgs = append(generateTarballArgs, "-call-home")
-			if callHomeBucketFlag {
+			if callHomeBucketFlag != "" {
 				generateTarballArgs = append(generateTarballArgs, "-call-home-bucket", callHomeBucketFlag)
 			}
 		}
 		if licenseCheckFlag {
 			generateTarballArgs = append(generateTarballArgs, "-license-check")
-			if licenseSecretKeyFlag {
+			if licenseSecretKeyFlag != "" {
 				generateTarballArgs = append(generateTarballArgs, "-license-secret-key", licenseSecretKeyFlag)
 			}
 		}
-		if proxyURLFlag {
+		if proxyURLFlag != "" {
 			generateTarballArgs = append(generateTarballArgs, "-proxy-url", proxyURLFlag)
 		}
 		args := []string{"run", generateTarballScript}
