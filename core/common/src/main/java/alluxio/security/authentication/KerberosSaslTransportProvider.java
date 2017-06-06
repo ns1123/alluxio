@@ -46,7 +46,8 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * Constructor for transport provider when authentication type is {@link AuthType#KERBEROS).
    */
   public KerberosSaslTransportProvider() {
-    mSocketTimeoutMs = Configuration.getInt(PropertyKey.SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS);
+    mSocketTimeoutMs =
+        (int) Configuration.getMs(PropertyKey.SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS);
   }
 
   @Override
