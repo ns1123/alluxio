@@ -203,7 +203,7 @@ public final class CryptoFileInStream extends FileInStream {
   private void seekLogicalInternal(long pos) throws IOException {
     long seekChunkStart = LayoutUtils.getLogicalChunkStart(mMeta, pos);
     // No need to get a new CryptoBuf if the seek pos is already in the current buf
-    if (mLogicalChunkStart != seekChunkStart || mCryptoBuf == null) {
+    if (mCryptoBuf == null || seekChunkStart != mLogicalChunkStart - mCryptoBuf.capacity()) {
       mLogicalChunkStart = seekChunkStart;
       super.seek(LayoutUtils.getPhysicalChunkStart(mMeta, pos));
       getNextCryptoBuf();

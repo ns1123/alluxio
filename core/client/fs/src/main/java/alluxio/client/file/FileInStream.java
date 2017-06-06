@@ -180,7 +180,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
   }
 
   private int readInternal() throws IOException {
-    if (remaining() <= 0) {
+    if (remainingInternal() <= 0) {
       return -1;
     }
     updateStreams();
@@ -213,14 +213,14 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
         PreconditionMessage.ERR_BUFFER_STATE.toString(), b.length, off, len);
     if (len == 0) {
       return 0;
-    } else if (remaining() <= 0) {
+    } else if (remainingInternal() <= 0) {
       return -1;
     }
 
     int currentOffset = off;
     int bytesLeftToRead = len;
 
-    while (bytesLeftToRead > 0 && remaining() > 0) {
+    while (bytesLeftToRead > 0 && remainingInternal() > 0) {
       updateStreams();
       Preconditions.checkNotNull(mCurrentBlockInStream, PreconditionMessage.ERR_UNEXPECTED_EOF);
       int bytesToRead = (int) Math.min(bytesLeftToRead, mCurrentBlockInStream.remaining());
@@ -301,7 +301,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
 
   @Override
   public long remaining() {
-    return mFileLength - mPos;
+    return remainingInternal();
   }
 
   @Override
@@ -325,7 +325,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       return 0;
     }
 
-    long toSkip = Math.min(n, remaining());
+    long toSkip = Math.min(n, remainingInternal());
     seek(mPos + toSkip);
     return toSkip;
   }
@@ -419,7 +419,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
    * @return the current block id based on mPos, -1 if at the end of the file
    */
   private long getCurrentBlockId() {
-    if (remaining() <= 0) {
+    if (remainingInternal() <= 0) {
       return -1;
     }
     return getBlockId(mPos);
@@ -583,8 +583,12 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
     if (mCurrentBlockInStream != null) {
       mCurrentBlockInStream.seek(mPos % mBlockSize);
     } else {
-      Preconditions.checkState(remaining() == 0);
+      Preconditions.checkState(remainingInternal() == 0);
     }
+  }
+
+  private long remainingInternal() {
+    return mFileLength - mPos;
   }
 
   /**
@@ -626,7 +630,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       if (mCurrentBlockInStream != null) {
         mCurrentBlockInStream.seek(mPos % mBlockSize);
       } else {
-        Preconditions.checkState(remaining() == 0);
+        Preconditions.checkState(remainingInternal() == 0);
       }
     } else {
       mPos = pos / mBlockSize * mBlockSize;
