@@ -37,16 +37,24 @@ var releaseDistributions = map[string]string{
 	"mapr5.2":   "2.7.0-mapr-1607",
 }
 
+// TODO(andrew): consolidate the following definition with the duplicated definition in generate-tarball.go
+// Map from UFS module name to a bool indicating if this module is included by default
 var ufsModules = map[string]bool{
-	"ufs-hadoop-1.0": true,
-	"ufs-hadoop-1.2": true,
-	"ufs-hadoop-2.2": true,
-	"ufs-hadoop-2.3": true,
-	"ufs-hadoop-2.4": true,
-	"ufs-hadoop-2.5": true,
-	"ufs-hadoop-2.6": true,
-	"ufs-hadoop-2.7": true,
-	"ufs-hadoop-2.8": true,
+	"ufs-hadoop-1.0":     false,
+	"ufs-hadoop-1.2":     true,
+	"ufs-hadoop-2.2":     true,
+	"ufs-hadoop-2.3":     false,
+	"ufs-hadoop-2.4":     false,
+	"ufs-hadoop-2.5":     false,
+	"ufs-hadoop-2.6":     false,
+	"ufs-hadoop-2.7":     true,
+	"ufs-hadoop-2.8":     false,
+	"ufs-hadoop-cdh5.6":  false,
+	"ufs-hadoop-cdh5.8":  true,
+	"ufs-hadoop-cdh5.11": false,
+	"ufs-hadoop-hdp2.4":  false,
+	"ufs-hadoop-hdp2.5":  true,
+	"ufs-hadoop-mapr5.2": true,
 }
 
 var (
@@ -70,7 +78,8 @@ func init() {
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
-	flag.StringVar(&ufsModulesFlag, "ufs-modules", "ufs-hadoop-2.2,ufs-hadoop-2.7", fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
+	flag.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
+		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
 }
 
@@ -85,8 +94,19 @@ func validDistributions() []string {
 
 func validUfsModules() []string {
 	result := []string{}
-	for t := range ufsModules {
-		result = append(result, t)
+	for ufsModule := range ufsModules {
+		result = append(result, ufsModule)
+	}
+	sort.Strings(result)
+	return result
+}
+
+func defaultUfsModules() []string {
+	result := []string{}
+	for ufsModule := range ufsModules {
+		if ufsModules[ufsModule] {
+			result = append(result, ufsModule)
+		}
 	}
 	sort.Strings(result)
 	return result
