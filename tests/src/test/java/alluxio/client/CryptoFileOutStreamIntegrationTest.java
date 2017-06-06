@@ -137,7 +137,7 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
         filePath, CreateFileOptions.defaults().setWriteType(mWriteType))) {
       Assert.assertTrue(os instanceof CryptoFileOutStream);
       os.write((byte) 0);
-      Thread.sleep(Configuration.getInt(PropertyKey.USER_HEARTBEAT_INTERVAL_MS) * 2);
+      Thread.sleep(Configuration.getMs(PropertyKey.USER_HEARTBEAT_INTERVAL_MS) * 2);
       os.write((byte) 1);
     }
     if (mWriteType.getAlluxioStorageType().isStore()) {
