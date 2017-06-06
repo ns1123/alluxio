@@ -184,7 +184,7 @@ public final class CryptoFileInStreamTest {
   @Test
   public void singleByteRead() throws Exception {
     for (int i = 0; i < mLogicalFileLength; i++) {
-      Assert.assertEquals((byte) i, mTestStream.read());
+      Assert.assertEquals(i & 0xff, mTestStream.read());
     }
     mTestStream.close();
   }
@@ -311,7 +311,7 @@ public final class CryptoFileInStreamTest {
     // Skip to 1.75
     Assert.assertEquals(skipAmount * 2, mTestStream.skip(skipAmount * 2));
     // Read one byte
-    Assert.assertEquals((byte) (skipAmount + readAmount + skipAmount * 2), mTestStream.read());
+    Assert.assertEquals((skipAmount + readAmount + skipAmount * 2) & 0xff, mTestStream.read());
     // Skip to EOF
     Assert.assertEquals(skipAmount - 2, mTestStream.skip(skipAmount - 2));
     Assert.assertEquals(-1, mTestStream.read());

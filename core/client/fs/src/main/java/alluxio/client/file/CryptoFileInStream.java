@@ -16,6 +16,7 @@ import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.security.CryptoUtils;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.util.io.BufferUtils;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -89,7 +90,7 @@ public final class CryptoFileInStream extends FileInStream {
       }
     }
     mLogicalPos++;
-    return mCryptoBuf.readByte();
+    return BufferUtils.byteToInt(mCryptoBuf.readByte());
   }
 
   @Override
@@ -203,7 +204,7 @@ public final class CryptoFileInStream extends FileInStream {
   private void seekLogicalInternal(long pos) throws IOException {
     long seekChunkStart = LayoutUtils.getLogicalChunkStart(mMeta, pos);
     // No need to get a new CryptoBuf if the seek pos is already in the current buf
-    if (mLogicalChunkStart != seekChunkStart || mCryptoBuf == null) {
+    if (mCryptoBuf == null || seekChunkStart != mLogicalChunkStart - mCryptoBuf.capacity()) {
       mLogicalChunkStart = seekChunkStart;
       super.seek(LayoutUtils.getPhysicalChunkStart(mMeta, pos));
       getNextCryptoBuf();

@@ -192,6 +192,32 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
   }
 
   @Test
+  public void seekInSameEncryptionChunk() throws Exception {
+    int fileLength = BLOCK_SIZE / 4;
+    byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
+    for (CreateFileOptions options : getOptionSet()) {
+      String filename = mTestPath + options.getWriteType().toString();
+      AlluxioURI uri = new AlluxioURI(filename);
+      FileOutStream os = mFileSystem.createFile(uri, options);
+      Assert.assertTrue(os instanceof CryptoFileOutStream);
+      os.write(expected);
+      os.close();
+
+      FileInStream is = mFileSystem.openFile(uri);
+      Assert.assertTrue(is instanceof CryptoFileInStream);
+      int firstSeekPos = 16;
+      is.seek(firstSeekPos);
+      int len = fileLength - firstSeekPos;
+      byte[] actual = new byte[len];
+      Assert.assertEquals(len, is.read(actual));
+
+      int secondSeekPos = 4;
+      is.seek(secondSeekPos);
+      Assert.assertEquals(secondSeekPos + 1, is.read());
+    }
+  }
+
+  @Test
   public void seekException() throws Exception {
     // Create a file with a half block and a partial block. File footer is within the first block.
     int fileLength = BLOCK_SIZE / 2;
