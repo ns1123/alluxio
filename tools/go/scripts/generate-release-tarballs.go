@@ -63,6 +63,7 @@ var (
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
 	nativeFlag           bool
+	proxyURLFlag         string
 	ufsModulesFlag       string
 )
 
@@ -78,6 +79,7 @@ func init() {
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
+	flag.StringVar(&proxyURLFlag, "proxy-url", "", "the URL to use for performing remote checks")
 	flag.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
 		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
@@ -163,7 +165,12 @@ func generateTarballs() error {
 		}
 		if licenseCheckFlag {
 			generateTarballArgs = append(generateTarballArgs, "-license-check")
-			generateTarballArgs = append(generateTarballArgs, "-license-secret-key", licenseSecretKeyFlag)
+			if licenseSecretKeyFlag {
+				generateTarballArgs = append(generateTarballArgs, "-license-secret-key", licenseSecretKeyFlag)
+			}
+			if proxyURLFlag {
+				generateTarballArgs = append(generateTarballArgs, "-proxy-url", proxyURLFlag)
+			}
 		}
 		args := []string{"run", generateTarballScript}
 		args = append(args, generateTarballArgs...)
