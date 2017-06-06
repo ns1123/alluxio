@@ -40,7 +40,9 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.file.async.AsyncPersistHandler;
+// ALLUXIO CS REMOVE
+// import alluxio.master.file.async.AsyncPersistHandler;
+// ALLUXIO CS END
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
