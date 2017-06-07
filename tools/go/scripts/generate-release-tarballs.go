@@ -17,6 +17,7 @@ const versionMarker = "${VERSION}"
 
 var releaseDistributions = map[string]string{
 	"hadoop1.0": "1.0.4",
+	"hadoop1.2": "1.2.1",
 	"hadoop2.2": "2.2.0",
 	"hadoop2.4": "2.4.1",
 	"hadoop2.6": "2.6.0",
