@@ -70,6 +70,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
 
   private FileSystem mFileSystem;
   private UnderFileSystemConfiguration mUfsConf;
+  // ALLUXIO CS ADD
+  private final boolean mIsHdfsKerberized;
+  // ALLUXIO CS END
 
   /**
    * Factory method to constructs a new HDFS {@link UnderFileSystem} instance.
@@ -97,8 +100,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // ALLUXIO CS ADD
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
-    if (alluxio.security.authentication.AuthType.KERBEROS.getAuthName().equalsIgnoreCase(
-        hdfsConf.get("hadoop.security.authentication"))) {
+    mIsHdfsKerberized = hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
+        alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+    if (mIsHdfsKerberized) {
       try {
         switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
           case MASTER:
@@ -456,6 +460,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // ALLUXIO CS ADD
 
   private void connectFromAlluxioServer(String host) throws IOException {
+    if (!mIsHdfsKerberized) {
+      return;
+    }
     String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     if (principal.isEmpty() || keytab.isEmpty()) {
@@ -465,6 +472,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   }
 
   private void connectFromAlluxioClient() throws IOException {
+    if (!mIsHdfsKerberized) {
+      return;
+    }
     String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
     String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
     if (principal.isEmpty() || keytab.isEmpty()) {
