@@ -27,9 +27,6 @@ import java.security.PrivilegedExceptionAction;
 public final class HdfsSecurityUtils {
   private static final Logger LOG = LoggerFactory.getLogger(HdfsSecurityUtils.class);
 
-  /** The HDFS configuration. */
-  private static Configuration sHdfsConf = new Configuration();
-
   private static boolean isHdfsSecurityEnabled() {
     return UserGroupInformation.isSecurityEnabled();
   }
@@ -38,43 +35,44 @@ public final class HdfsSecurityUtils {
    * Runs a method in a security context as the current user.
    *
    * @param runner the method to be run
+   * @param conf HDFS configuration
    * @param <T> the return type
    * @return the result of the secure method
    * @throws IOException if failed to run as the current user
    */
-  public static <T> T runAsCurrentUser(final SecuredRunner<T> runner) throws IOException {
-    UserGroupInformation.setConfiguration(sHdfsConf);
+  public static <T> T runAsCurrentUser(final SecuredRunner<T> runner,
+      Configuration conf) throws IOException {
+    UserGroupInformation.setConfiguration(conf);
     if (!isHdfsSecurityEnabled()) {
       LOG.warn("security is not enabled");
       return runner.run();
     }
 
     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-    return runAs(ugi, runner);
+    return runAs(ugi, runner, conf);
   }
 
   /**
    * Runs a method in a security context as the specified user.
    *
-   * @param runner the method to be run
-   * @param <T> the return type
    * @param ugi the specified user
+   * @param runner the method to be run
+   * @param conf HDFS configuration
+   * @param <T> the return type
    * @return the result of the secure method
    * @throws IOException if failed to run as the specified user
    */
-  public static <T> T runAs(UserGroupInformation ugi, final SecuredRunner<T> runner)
-      throws IOException {
-    UserGroupInformation.setConfiguration(sHdfsConf);
+  public static <T> T runAs(UserGroupInformation ugi, final SecuredRunner<T> runner,
+      Configuration conf) throws IOException {
+    UserGroupInformation.setConfiguration(conf);
     if (!isHdfsSecurityEnabled()) {
       LOG.warn("security is not enabled");
       return runner.run();
     }
 
-    ugi.setConfiguration(sHdfsConf);
-
     LOG.debug("UGI: {}", ugi.toString());
-    LOG.debug("UGI login user {}", ugi.getLoginUser());
-    LOG.debug("UGI current user {}", ugi.getCurrentUser());
+    LOG.debug("UGI login user {}", UserGroupInformation.getLoginUser());
+    LOG.debug("UGI current user {}", UserGroupInformation.getCurrentUser());
 
     if (ugi.getAuthenticationMethod() == UserGroupInformation.AuthenticationMethod.KERBEROS
         && !ugi.hasKerberosCredentials()) {
