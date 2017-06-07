@@ -100,8 +100,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // ALLUXIO CS ADD
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
-    mIsHdfsKerberized = hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
-        alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+    mIsHdfsKerberized = hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase("KERBEROS");
     if (mIsHdfsKerberized) {
       try {
         switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
