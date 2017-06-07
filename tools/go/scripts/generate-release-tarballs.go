@@ -160,7 +160,7 @@ func generateTarballs() error {
 		// TODO(chaomin): maybe append the OS type if native is enabled.
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
 		mvnArgs := []string{fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion)}
-		if strings.HasPrefix(hadoopVersion, "hadoop1.") {
+		if strings.HasPrefix(hadoopVersion, "1") {
 			mvnArgs = append(mvnArgs, "-Phadoop-1")
 		}
 		generateTarballArgs := []string{
