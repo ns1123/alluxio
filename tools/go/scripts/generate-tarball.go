@@ -210,33 +210,56 @@ func getVersion() (string, error) {
 
 func addAdditionalFiles(srcPath, dstPath, version string) {
 	chdir(srcPath)
-	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
+	pathsToCopy := []string {
+		// BIN
+		"bin/alluxio",
+		"bin/alluxio-masters.sh",
+		"bin/alluxio-mount.sh",
+		"bin/alluxio-start.sh",
+		"bin/alluxio-stop.sh",
+		"bin/alluxio-workers.sh",
+		// CONF
+		"conf/alluxio-env.sh.template",
+		"conf/alluxio-site.properties.template",
+		"conf/core-site.xml.template",
+		"conf/log4j.properties",
+		"conf/masters",
+		"conf/metrics.properties.template",
+		"conf/workers",
+		// LIBEXEC
+		"libexec/alluxio-config.sh",
+		"libexec/alluxio-layout.sh.template",
+		// DOCKER
+		"integration/docker/bin/alluxio-master.sh",
+		"integration/docker/bin/alluxio-job-master.sh",
+		"integration/docker/bin/alluxio-job-worker.sh",
+		"integration/docker/bin/alluxio-proxy.sh",
+		"integration/docker/bin/alluxio-worker.sh",
+		// MESOS
+		"integration/mesos/bin/alluxio-env-mesos.sh",
+		"integration/mesos/bin/alluxio-master-mesos.sh",
+		"integration/mesos/bin/alluxio-mesos-start.sh",
+		"integration/mesos/bin/alluxio-worker-mesos.sh",
+		"integration/mesos/bin/common.sh",
+	}
+	for _, path := range pathsToCopy {
+		mkdir(filepath.Dir(path))
+		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
+	}
+
 	// DOCKER
-	mkdir(filepath.Join(dstPath, "integration/docker/bin"))
+	mkdir(filepath.Join("integration/docker/conf"))
+	// Copy files from /docker-enterprise to /docker.
 	for _, file := range []string{
-		"alluxio-master.sh",
-		"alluxio-job-master.sh",
-		"alluxio-job-worker.sh",
-		"alluxio-proxy.sh",
-		"alluxio-worker.sh",
+		"Dockerfile",
+		"README.md",
+		"entrypoint.sh",
 	} {
-		path := filepath.Join("integration/docker/bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
+		src := filepath.Join("integration/docker-enterprise", file)
+		dst := filepath.Join("integration/docker", file)
+		run(fmt.Sprintf("adding %v", src), "mv", src, filepath.Join(dstPath, dst))
 	}
-	// cp -r docker-enterprise/. to copy the contents of the directory, not the directory itself.
-	run("copying docker-enterprise directory", "cp", "-r", "integration/docker-enterprise/.", filepath.Join(dstPath, "integration/docker"))
-	// MESOS
-	mkdir(filepath.Join(dstPath, "integration", "mesos", "bin"))
-	for _, file := range []string{
-		"alluxio-env-mesos.sh",
-		"alluxio-master-mesos.sh",
-		"alluxio-mesos-start.sh",
-		"alluxio-worker-mesos.sh",
-		"common.sh",
-	} {
-		path := filepath.Join("integration/mesos/bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
-	}
+
 	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
 	for _, module := range strings.Split(ufsModulesFlag, ",") {
