@@ -192,7 +192,7 @@
     </profile>
 
     <profile>
-      <id>cdh5.4</id>
+      <id>cdh-5.4</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
@@ -203,7 +203,7 @@
     </profile>
 
     <profile>
-      <id>cdh5.6</id>
+      <id>cdh-5.6</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
@@ -214,7 +214,7 @@
     </profile>
 
     <profile>
-      <id>cdh5.8</id>
+      <id>cdh-5.8</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
@@ -225,7 +225,7 @@
     </profile>
 
     <profile>
-      <id>hdp2.2</id>
+      <id>hdp-2.2</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
@@ -236,7 +236,7 @@
     </profile>
 
     <profile>
-      <id>hdp2.3</id>
+      <id>hdp-2.3</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
@@ -247,7 +247,7 @@
     </profile>
 
     <profile>
-      <id>hdp2.4</id>
+      <id>hdp-2.4</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
@@ -258,7 +258,7 @@
     </profile>
 
     <profile>
-      <id>hdp2.5</id>
+      <id>hdp-2.5</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
@@ -269,7 +269,7 @@
     </profile>
 
     <profile>
-      <id>mapr5.0</id>
+      <id>mapr-5.0</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
@@ -280,7 +280,7 @@
     </profile>
 
     <profile>
-      <id>mapr5.1</id>
+      <id>mapr-5.1</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
@@ -291,7 +291,7 @@
     </profile>
 
     <profile>
-      <id>mapr5.2</id>
+      <id>mapr-5.2</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>

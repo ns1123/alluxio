@@ -1389,98 +1389,98 @@
     </profile>
 
     <profile>
-      <id>cdh4</id>
+      <id>cdh-4.1</id>
       <properties>
         <hadoop.version>2.0.0-mr1-cdh4.1.2</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>cdh5.4</id>
+      <id>cdh-5.4</id>
       <properties>
         <hadoop.version>2.6.0-cdh5.4.9</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>cdh5.6</id>
+      <id>cdh-5.6</id>
       <properties>
         <hadoop.version>2.6.0-cdh5.6.1</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>cdh5.8</id>
+      <id>cdh-5.8</id>
       <properties>
         <hadoop.version>2.6.0-cdh5.8.5</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>hdp2.0</id>
+      <id>hdp-2.0</id>
       <properties>
         <hadoop.version>2.2.0.2.0.6.3-7</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>hdp2.1</id>
+      <id>hdp-2.1</id>
       <properties>
         <hadoop.version>2.4.0.2.1.7.4-3</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>hdp2.2</id>
+      <id>hdp-2.2</id>
       <properties>
         <hadoop.version>2.6.0.2.2.9.18-1</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>hdp2.3</id>
+      <id>hdp-2.3</id>
       <properties>
         <hadoop.version>2.7.1.2.3.99.0-195</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>hdp2.4</id>
+      <id>hdp-2.4</id>
       <properties>
         <hadoop.version>2.7.1.2.4.4.1-9</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>hdp2.5</id>
+      <id>hdp-2.5</id>
       <properties>
         <hadoop.version>2.7.3.2.5.5.5-2</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>mapr4.1</id>
+      <id>mapr-4.1</id>
       <properties>
         <hadoop.version>2.5.1-mapr-1503</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>mapr5.0</id>
+      <id>mapr-5.0</id>
       <properties>
         <hadoop.version>2.7.0-mapr-1506</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>mapr5.1</id>
+      <id>mapr-5.1</id>
       <properties>
         <hadoop.version>2.7.0-mapr-1602</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>mapr5.2</id>
+      <id>mapr-5.2</id>
       <properties>
         <hadoop.version>2.7.0-mapr-1607</hadoop.version>
       </properties>
