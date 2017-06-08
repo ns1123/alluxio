@@ -15,30 +15,30 @@ import (
 
 const versionMarker = "${VERSION}"
 
-var releaseDistributions = map[string]interface{}{
-	"hadoop-1.0": nil,
-	"hadoop-1.2": nil,
-	"hadoop-2.2": nil,
-	"hadoop-2.3": nil,
-	"hadoop-2.4": nil,
-	"hadoop-2.5": nil,
-	"hadoop-2.6": nil,
-	"hadoop-2.7": nil,
-	"hadoop-2.8": nil,
-	"cdh-4.1":    nil,
-	"cdh-5.4":    nil,
-	"cdh-5.6":    nil,
-	"cdh-5.8":    nil,
-	"hdp-2.0":    nil,
-	"hdp-2.1":    nil,
-	"hdp-2.2":    nil,
-	"hdp-2.3":    nil,
-	"hdp-2.4":    nil,
-	"hdp-2.5":    nil,
-	"mapr-4.1":   nil,
-	"mapr-5.0":   nil,
-	"mapr-5.1":   nil,
-	"mapr-5.2":   nil,
+var hadoopProfiles = map[string]struct{}{
+	"hadoop-1.0": struct{}{},
+	"hadoop-1.2": struct{}{},
+	"hadoop-2.2": struct{}{},
+	"hadoop-2.3": struct{}{},
+	"hadoop-2.4": struct{}{},
+	"hadoop-2.5": struct{}{},
+	"hadoop-2.6": struct{}{},
+	"hadoop-2.7": struct{}{},
+	"hadoop-2.8": struct{}{},
+	"cdh-4.1":    struct{}{},
+	"cdh-5.4":    struct{}{},
+	"cdh-5.6":    struct{}{},
+	"cdh-5.8":    struct{}{},
+	"hdp-2.0":    struct{}{},
+	"hdp-2.1":    struct{}{},
+	"hdp-2.2":    struct{}{},
+	"hdp-2.3":    struct{}{},
+	"hdp-2.4":    struct{}{},
+	"hdp-2.5":    struct{}{},
+	"mapr-4.1":   struct{}{},
+	"mapr-5.0":   struct{}{},
+	"mapr-5.1":   struct{}{},
+	"mapr-5.2":   struct{}{},
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-tarball.go
@@ -65,7 +65,7 @@ var (
 	callHomeFlag         bool
 	callHomeBucketFlag   string
 	debugFlag            bool
-	distributionsFlag    string
+	hadoopProfilesFlag   string
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
 	nativeFlag           bool
@@ -83,7 +83,7 @@ func init() {
 	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
 	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
-	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validReleaseDistributions(), ","), "a comma-separated list of distributions to generate; the default is to generate all distributions")
+	flag.StringVar(&hadoopProfilesFlag, "hadoop-profiles", strings.Join(validHadoopProfiles(), ","), "a comma-separated list of hadoop profiles to be used when generating different Alluxio distributions")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
@@ -93,10 +93,10 @@ func init() {
 	flag.Parse()
 }
 
-func validReleaseDistributions() []string {
+func validHadoopProfiles() []string {
 	result := []string{}
-	for distribution, _ := range releaseDistributions {
-		result = append(result, distribution)
+	for profile, _ := range hadoopProfiles {
+		result = append(result, profile)
 	}
 	sort.Strings(result)
 	return result
@@ -148,21 +148,21 @@ func generateTarballs() error {
 	goScriptsDir := filepath.Dir(file)
 	generateTarballScript := filepath.Join(goScriptsDir, "generate-tarball.go")
 
-	var distributions []string
-	if distributionsFlag != "" {
-		distributions = strings.Split(distributionsFlag, ",")
+	var profiles []string
+	if hadoopProfilesFlag != "" {
+		profiles = strings.Split(hadoopProfilesFlag, ",")
 	} else {
-		distributions = validReleaseDistributions()
+		profiles = validHadoopProfiles()
 	}
-	for _, distribution := range distributions {
-		if _, ok := releaseDistributions[distribution]; !ok {
-			fmt.Fprintf(os.Stderr, "distribution %s not recognized\n", distribution)
+	for _, profile := range profiles {
+		if _, ok := hadoopProfiles[profile]; !ok {
+			fmt.Fprintf(os.Stderr, "hadoop profile %s not recognized\n", profile)
 			continue
 		}
 		// TODO(chaomin): maybe append the OS type if native is enabled.
-		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
+		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, profile)
 		generateTarballArgs := []string{
-			"-mvn-args", fmt.Sprintf("-P%v", distribution),
+			"-mvn-args", fmt.Sprintf("-P%v", profile),
 			"-target", tarball,
 			"-ufs-modules", ufsModulesFlag,
 		}
@@ -186,7 +186,7 @@ func generateTarballs() error {
 		}
 		args := []string{"run", generateTarballScript}
 		args = append(args, generateTarballArgs...)
-		run(fmt.Sprintf("Generating distribution for profile %v at %v", distribution, tarball), "go", args...)
+		run(fmt.Sprintf("Generating distribution for profile %v at %v", profile, tarball), "go", args...)
 	}
 	return nil
 }
