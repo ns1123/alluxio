@@ -134,7 +134,10 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       } catch (IOException e) {
         LOG.error("Failed to Login", e);
       }
+      // Stash the classloader for service loading
+      previousClassLoader = Thread.currentThread().getContextClassLoader();
       try {
+        Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
         if (alluxio.util.CommonUtils.isAlluxioServer() && !mUser.isEmpty()
             && !UserGroupInformation.getLoginUser().getShortUserName()
             .equals(mUser)) {
@@ -165,12 +168,17 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       } catch (IOException e) {
         throw new RuntimeException(String.format(
             "Failed to get Hadoop FileSystem client with Kerberos for %s", ufsPrefix), e);
+      } finally {
+        Thread.currentThread().setContextClassLoader(previousClassLoader);
       }
       return;
     }
     // ALLUXIO CS END
     Path path = new Path(ufsUri.toString());
+    // Stash the classloader for service loading
+    previousClassLoader = Thread.currentThread().getContextClassLoader();
     try {
+      Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
       // group service.
       UserGroupInformation.setConfiguration(hdfsConf);
@@ -178,6 +186,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     } catch (IOException e) {
       throw new RuntimeException(
           String.format("Failed to get Hadoop FileSystem client for %s", ufsUri), e);
+    } finally {
+      Thread.currentThread().setContextClassLoader(previousClassLoader);
     }
   }
 
