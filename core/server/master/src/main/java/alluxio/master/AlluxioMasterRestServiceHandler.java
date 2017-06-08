@@ -32,14 +32,10 @@ import alluxio.util.LogUtils;
 import alluxio.web.MasterWebServer;
 import alluxio.wire.AlluxioMasterInfo;
 import alluxio.wire.Capacity;
-<<<<<<< HEAD
 // ALLUXIO CS ADD
 import alluxio.wire.LicenseInfo;
 // ALLUXIO CS END
-||||||| merged common ancestors
-=======
 import alluxio.wire.LogInfo;
->>>>>>> bd641b8aaf874bbec5ab37ab703c8a5f88a009d1
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.WorkerInfo;
 
