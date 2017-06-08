@@ -246,9 +246,8 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		mkdir(filepath.Dir(path))
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
-
 	// DOCKER
-	mkdir(filepath.Join("integration/docker/conf"))
+	mkdir(filepath.Join(dstPath, "integration/docker/conf"))
 	// Copy files from /docker-enterprise to /docker.
 	for _, file := range []string{
 		"Dockerfile",
@@ -259,7 +258,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		dst := filepath.Join("integration/docker", file)
 		run(fmt.Sprintf("adding %v", src), "mv", src, filepath.Join(dstPath, dst))
 	}
-
 	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
 	for _, module := range strings.Split(ufsModulesFlag, ",") {
