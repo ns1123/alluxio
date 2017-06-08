@@ -11,7 +11,6 @@
 
 package alluxio.underfs.hdfs;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,21 +34,18 @@ public final class HdfsSecurityUtils {
    * Runs a method in a security context as the current user.
    *
    * @param runner the method to be run
-   * @param conf HDFS configuration
    * @param <T> the return type
    * @return the result of the secure method
    * @throws IOException if failed to run as the current user
    */
-  public static <T> T runAsCurrentUser(final SecuredRunner<T> runner,
-      Configuration conf) throws IOException {
-    UserGroupInformation.setConfiguration(conf);
+  public static <T> T runAsCurrentUser(final SecuredRunner<T> runner) throws IOException {
     if (!isHdfsSecurityEnabled()) {
       LOG.warn("security is not enabled");
       return runner.run();
     }
 
     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-    return runAs(ugi, runner, conf);
+    return runAs(ugi, runner);
   }
 
   /**
@@ -57,14 +53,12 @@ public final class HdfsSecurityUtils {
    *
    * @param ugi the specified user
    * @param runner the method to be run
-   * @param conf HDFS configuration
    * @param <T> the return type
    * @return the result of the secure method
    * @throws IOException if failed to run as the specified user
    */
-  public static <T> T runAs(UserGroupInformation ugi, final SecuredRunner<T> runner,
-      Configuration conf) throws IOException {
-    UserGroupInformation.setConfiguration(conf);
+  public static <T> T runAs(UserGroupInformation ugi, final SecuredRunner<T> runner)
+      throws IOException {
     if (!isHdfsSecurityEnabled()) {
       LOG.warn("security is not enabled");
       return runner.run();
