@@ -72,8 +72,11 @@ public class AlluxioMasterProcess implements MasterProcess {
   /** The transport provider to create thrift server transport. */
   private final TransportProvider mTransportProvider;
 
-  /** The address for the rpc server. */
-  private final InetSocketAddress mRpcAddress;
+  /** The bind address for the rpc server. */
+  private final InetSocketAddress mRpcBindAddress;
+
+  /** The connect address for the rpc server. */
+  private final InetSocketAddress mRpcConnectAddress;
 
   private final MetricsServlet mMetricsServlet = new MetricsServlet(MetricsSystem.METRIC_REGISTRY);
 
@@ -132,7 +135,8 @@ public class AlluxioMasterProcess implements MasterProcess {
       mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);
       // reset master rpc port
       Configuration.set(PropertyKey.MASTER_RPC_PORT, Integer.toString(mPort));
-      mRpcAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC);
+      mRpcBindAddress = NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC);
+      mRpcConnectAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC);
 
       // Check that journals of each service have been formatted.
       MasterUtils.checkJournalFormatted();
@@ -158,7 +162,7 @@ public class AlluxioMasterProcess implements MasterProcess {
 
   @Override
   public InetSocketAddress getRpcAddress() {
-    return mRpcAddress;
+    return mRpcConnectAddress;
   }
 
   @Override
@@ -206,8 +210,6 @@ public class AlluxioMasterProcess implements MasterProcess {
     if (mIsServing) {
       stopServing();
       stopMasters();
-      mTServerSocket.close();
-      mTServerSocket = null;
       mIsServing = false;
     }
   }
@@ -252,10 +254,10 @@ public class AlluxioMasterProcess implements MasterProcess {
   protected void startServing(String startMessage, String stopMessage) {
     MetricsSystem.startSinks();
     startServingWebServer();
-    LOG.info("{} version {} started @ {} {}", this, RuntimeConstants.VERSION, mRpcAddress,
+    LOG.info("{} version {} started @ {} {}", this, RuntimeConstants.VERSION, mRpcConnectAddress,
         startMessage);
     startServingRPCServer();
-    LOG.info("{} version {} ended @ {} {}", this, RuntimeConstants.VERSION, mRpcAddress,
+    LOG.info("{} version {} ended @ {} {}", this, RuntimeConstants.VERSION, mRpcConnectAddress,
         stopMessage);
   }
 
@@ -310,8 +312,9 @@ public class AlluxioMasterProcess implements MasterProcess {
       if (mTServerSocket != null) {
         mTServerSocket.close();
       }
-      mTServerSocket = new TServerSocket(mRpcAddress,
-          Configuration.getInt(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
+      mTServerSocket =
+          new TServerSocket(mRpcBindAddress,
+              Configuration.getInt(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
     } catch (TTransportException e) {
       throw new RuntimeException(e);
     }
@@ -349,6 +352,10 @@ public class AlluxioMasterProcess implements MasterProcess {
       mThriftServer.stop();
       mThriftServer = null;
     }
+    if (mTServerSocket != null) {
+      mTServerSocket.close();
+      mTServerSocket = null;
+    }
     if (mWebServer != null) {
       mWebServer.stop();
       mWebServer = null;
@@ -359,6 +366,6 @@ public class AlluxioMasterProcess implements MasterProcess {
 
   @Override
   public String toString() {
-    return "Alluxio master @" + mRpcAddress;
+    return "Alluxio master @" + mRpcConnectAddress;
   }
 }
