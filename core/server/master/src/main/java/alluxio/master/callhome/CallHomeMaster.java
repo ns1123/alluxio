@@ -100,7 +100,7 @@ public final class CallHomeMaster extends AbstractMaster {
     super(journalFactory.create(Constants.CALL_HOME_MASTER_NAME), new SystemClock(),
         ExecutorServiceFactories
             .fixedThreadPoolExecutorServiceFactory(Constants.CALL_HOME_MASTER_NAME, 2));
-    registry.add(LicenseMaster.class, this);
+    registry.add(CallHomeMaster.class, this);
   }
 
   /**
@@ -125,6 +125,7 @@ public final class CallHomeMaster extends AbstractMaster {
 
   @Override
   public void start(Boolean isLeader) throws IOException {
+    super.start(isLeader);
     Preconditions.checkNotNull(mMasterProcess, "Alluxio master process is not specified");
     if (!isLeader) {
       return;
