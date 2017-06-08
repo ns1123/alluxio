@@ -155,6 +155,10 @@ func generateTarballs() error {
 		distributions = validReleaseDistributions()
 	}
 	for _, distribution := range distributions {
+		if _, ok := releaseDistributions[distribution]; !ok {
+			fmt.Fprintf(os.Stderr, "distribution %s not recognized\n", distribution)
+			continue
+		}
 		// TODO(chaomin): maybe append the OS type if native is enabled.
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
 		generateTarballArgs := []string{
