@@ -15,30 +15,30 @@ import (
 
 const versionMarker = "${VERSION}"
 
-var validDistributions = []string{
-	"hadoop1.0",
-	"hadoop1.2",
-	"hadoop2.2",
-	"hadoop2.3",
-	"hadoop2.4",
-	"hadoop2.5",
-	"hadoop2.6",
-	"hadoop2.7",
-	"hadoop2.8",
-	"cdh4",
-	"cdh5.4",
-	"cdh5.6",
-	"cdh5.8",
-	"hdp2.0",
-	"hdp2.1",
-	"hdp2.2",
-	"hdp2.3",
-	"hdp2.4",
-	"hdp2.5",
-	"mapr4.1",
-	"mapr5.0",
-	"mapr5.1",
-	"mapr5.2",
+var releaseDistributions = map[string]interface{}{
+	"hadoop-1.0": nil,
+	"hadoop-1.2": nil,
+	"hadoop-2.2": nil,
+	"hadoop-2.3": nil,
+	"hadoop-2.4": nil,
+	"hadoop-2.5": nil,
+	"hadoop-2.6": nil,
+	"hadoop-2.7": nil,
+	"hadoop-2.8": nil,
+	"cdh-4.1":    nil,
+	"cdh-5.4":    nil,
+	"cdh-5.6":    nil,
+	"cdh-5.8":    nil,
+	"hdp-2.0":    nil,
+	"hdp-2.1":    nil,
+	"hdp-2.2":    nil,
+	"hdp-2.3":    nil,
+	"hdp-2.4":    nil,
+	"hdp-2.5":    nil,
+	"mapr-4.1":   nil,
+	"mapr-5.0":   nil,
+	"mapr-5.1":   nil,
+	"mapr-5.2":   nil,
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-tarball.go
@@ -83,7 +83,7 @@ func init() {
 	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
 	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
-	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions, ","), "a comma-separated list of distributions to generate; the default is to generate all distributions")
+	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validReleaseDistributions(), ","), "a comma-separated list of distributions to generate; the default is to generate all distributions")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
@@ -91,6 +91,15 @@ func init() {
 	flag.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
 		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
+}
+
+func validReleaseDistributions() []string {
+	result := []string{}
+	for distribution, _ := range releaseDistributions {
+		result = append(result, distribution)
+	}
+	sort.String(result)
+	return result
 }
 
 func validUfsModules() []string {
@@ -143,7 +152,7 @@ func generateTarballs() error {
 	if distributionsFlag != "" {
 		distributions = strings.Split(distributionsFlag, ",")
 	} else {
-		distributions = validDistributions
+		distributions = validReleaseDistributions()
 	}
 	for _, distribution := range distributions {
 		// TODO(chaomin): maybe append the OS type if native is enabled.
@@ -173,7 +182,7 @@ func generateTarballs() error {
 		}
 		args := []string{"run", generateTarballScript}
 		args = append(args, generateTarballArgs...)
-		run(fmt.Sprintf("Generating distribution for distribution profile %v at %v", distribution, tarball), "go", args...)
+		run(fmt.Sprintf("Generating distribution for profile %v at %v", distribution, tarball), "go", args...)
 	}
 	return nil
 }
