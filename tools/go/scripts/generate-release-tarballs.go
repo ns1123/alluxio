@@ -15,27 +15,30 @@ import (
 
 const versionMarker = "${VERSION}"
 
-var releaseDistributions = map[string]string{
-	"hadoop1.0": "1.0.4",
-	"hadoop1.2": "1.2.1",
-	"hadoop2.2": "2.2.0",
-	"hadoop2.4": "2.4.1",
-	"hadoop2.6": "2.6.0",
-	"hadoop2.7": "2.7.2",
-	"cdh4":      "2.0.0-mr1-cdh4.1.2",
-	"cdh5.4":    "2.6.0-cdh5.4.9",
-	"cdh5.6":    "2.6.0-cdh5.6.1",
-	"cdh5.8":    "2.6.0-cdh5.8.5",
-	"hdp2.0":    "2.2.0.2.0.6.3-7",
-	"hdp2.1":    "2.4.0.2.1.7.4-3",
-	"hdp2.2":    "2.6.0.2.2.9.18-1",
-	"hdp2.3":    "2.7.1.2.3.99.0-195",
-	"hdp2.4":    "2.7.1.2.4.4.1-9",
-	"hdp2.5":    "2.7.3.2.5.5.5-2",
-	"mapr4.1":   "2.5.1-mapr-1503",
-	"mapr5.0":   "2.7.0-mapr-1506",
-	"mapr5.1":   "2.7.0-mapr-1602",
-	"mapr5.2":   "2.7.0-mapr-1607",
+var validDistributions = []string{
+	"hadoop1.0",
+	"hadoop1.2",
+	"hadoop2.2",
+	"hadoop2.3",
+	"hadoop2.4",
+	"hadoop2.5",
+	"hadoop2.6",
+	"hadoop2.7",
+	"hadoop2.8",
+	"cdh4",
+	"cdh5.4",
+	"cdh5.6",
+	"cdh5.8",
+	"hdp2.0",
+	"hdp2.1",
+	"hdp2.2",
+	"hdp2.3",
+	"hdp2.4",
+	"hdp2.5",
+	"mapr4.1",
+	"mapr5.0",
+	"mapr5.1",
+	"mapr5.2",
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-tarball.go
@@ -80,7 +83,7 @@ func init() {
 	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
 	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
-	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions(), ","), "a comma-separated list of distributions to generate; the default is to generate all distributions")
+	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions, ","), "a comma-separated list of distributions to generate; the default is to generate all distributions")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
@@ -88,15 +91,6 @@ func init() {
 	flag.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
 		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
-}
-
-func validDistributions() []string {
-	result := []string{}
-	for t := range releaseDistributions {
-		result = append(result, t)
-	}
-	sort.Strings(result)
-	return result
 }
 
 func validUfsModules() []string {
@@ -149,22 +143,13 @@ func generateTarballs() error {
 	if distributionsFlag != "" {
 		distributions = strings.Split(distributionsFlag, ",")
 	} else {
-		distributions = validDistributions()
+		distributions = validDistributions
 	}
 	for _, distribution := range distributions {
-		hadoopVersion, ok := releaseDistributions[distribution]
-		if !ok {
-			fmt.Fprintf(os.Stderr, "distribution %s not recognized\n", distribution)
-			continue
-		}
 		// TODO(chaomin): maybe append the OS type if native is enabled.
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
-		mvnArgs := []string{fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion)}
-		if strings.HasPrefix(hadoopVersion, "1") {
-			mvnArgs = append(mvnArgs, "-Phadoop-1")
-		}
 		generateTarballArgs := []string{
-			"-mvn-args", strings.Join(mvnArgs, ","),
+			"-mvn-args", fmt.Sprintf("-P%v", distribution),
 			"-target", tarball,
 			"-ufs-modules", ufsModulesFlag,
 		}
@@ -188,7 +173,7 @@ func generateTarballs() error {
 		}
 		args := []string{"run", generateTarballScript}
 		args = append(args, generateTarballArgs...)
-		run(fmt.Sprintf("Generating distribution for %v-%v at %v", distribution, hadoopVersion, tarball), "go", args...)
+		run(fmt.Sprintf("Generating distribution for distribution profile %v at %v", distribution, tarball), "go", args...)
 	}
 	return nil
 }
