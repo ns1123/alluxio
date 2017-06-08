@@ -43,7 +43,6 @@ import alluxio.master.block.BlockMaster;
 // ALLUXIO CS REMOVE
 // import alluxio.master.file.async.AsyncPersistHandler;
 // ALLUXIO CS END
-import alluxio.master.file.meta.AsyncUfsAbsentPathCache;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -383,7 +382,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
-    mUfsAbsentPathCache = new AsyncUfsAbsentPathCache(mMountTable);
+    mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
 
     Metrics.registerGauges(this, mUfsManager);
   }

@@ -11,20 +11,64 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 )
 
 const edition = "enterprise"
 const versionMarker = "${VERSION}"
 
+// Map from ufs profile to the name used in the generated tarball.
+var ufsModuleNames = map[string]string{
+	"ufs-hadoop-1.0":     "hdfsx-apache1_0",
+	"ufs-hadoop-1.2":     "hdfsx-apache1_2",
+	"ufs-hadoop-2.2":     "hdfsx-apache2_2",
+	"ufs-hadoop-2.3":     "hdfsx-apache2_3",
+	"ufs-hadoop-2.4":     "hdfsx-apache2_4",
+	"ufs-hadoop-2.5":     "hdfsx-apache2_5",
+	"ufs-hadoop-2.6":     "hdfsx-apache2_6",
+	"ufs-hadoop-2.7":     "hdfsx-apache2_7",
+	"ufs-hadoop-2.8":     "hdfsx-apache2_8",
+	"ufs-hadoop-cdh5.6":  "hdfsx-cdh5_6",
+	"ufs-hadoop-cdh5.8":  "hdfsx-cdh5_8",
+	"ufs-hadoop-cdh5.11": "hdfsx-cdh5_11",
+	"ufs-hadoop-hdp2.4":  "hdfsx-hdp2_4",
+	"ufs-hadoop-hdp2.5":  "hdfsx-hdp2_5",
+	"ufs-hadoop-mapr5.2": "hdfsx-mapr5_2",
+}
+
+// TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
+// Map from UFS module name to a bool indicating if this module is included by default
+var ufsModules = map[string]bool{
+	"ufs-hadoop-1.0":     false,
+	"ufs-hadoop-1.2":     true,
+	"ufs-hadoop-2.2":     true,
+	"ufs-hadoop-2.3":     false,
+	"ufs-hadoop-2.4":     false,
+	"ufs-hadoop-2.5":     false,
+	"ufs-hadoop-2.6":     false,
+	"ufs-hadoop-2.7":     true,
+	"ufs-hadoop-2.8":     false,
+	"ufs-hadoop-cdh5.6":  false,
+	"ufs-hadoop-cdh5.8":  true,
+	"ufs-hadoop-cdh5.11": false,
+	"ufs-hadoop-hdp2.4":  false,
+	"ufs-hadoop-hdp2.5":  true,
+	"ufs-hadoop-mapr5.2": true,
+}
+
 var (
+	callHomeFlag         bool
+	callHomeBucketFlag   string
 	debugFlag            bool
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
 	mvnArgsFlag          string
 	nativeFlag           bool
 	profilesFlag         string
+	proxyURLFlag         string
 	targetFlag           string
+	ufsModulesFlag       string
 )
 
 var frameworks = []string{"flink", "hadoop", "spark"}
@@ -38,16 +82,41 @@ func init() {
 		flag.PrintDefaults()
 	}
 
+	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
+	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.StringVar(&mvnArgsFlag, "mvn-args", "", `a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args "-Pspark,-Dhadoop.version=2.2.0"`)
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
 	flag.StringVar(&profilesFlag, "profiles", "", "[DEPRECATED: use -mvn-args instead] a comma-separated list of build profiles to use")
+	flag.StringVar(&proxyURLFlag, "proxy-url", "", "the URL used for communicating with company backend")
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
 			`Note that trailing ".tar.gz" will be stripped to determine the name for the root directory of the generated tarball`, versionMarker, versionMarker))
+	flag.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
+		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball. Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	flag.Parse()
+}
+
+func validUfsModules() []string {
+	result := []string{}
+	for t := range ufsModuleNames {
+		result = append(result, t)
+	}
+	sort.Strings(result)
+	return result
+}
+
+func defaultUfsModules() []string {
+	result := []string{}
+	for ufsModule := range ufsModules {
+		if ufsModules[ufsModule] {
+			result = append(result, ufsModule)
+		}
+	}
+	sort.Strings(result)
+	return result
 }
 
 func run(desc, cmd string, args ...string) string {
@@ -95,7 +164,7 @@ func chdir(path string) {
 	}
 }
 
-func getMvnArgs() []string {
+func getCommonMvnArgs() []string {
 	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos"}
 	if profilesFlag != "" {
 		for _, profile := range strings.Split(profilesFlag, ",") {
@@ -110,11 +179,20 @@ func getMvnArgs() []string {
 	if nativeFlag {
 		args = append(args, "-Pnative")
 	}
+	if callHomeFlag {
+		args = append(args, "-Dcall.home.enabled=true")
+		if callHomeBucketFlag != "" {
+			args = append(args, fmt.Sprintf("-Dcall.home.bucket=%s", callHomeBucketFlag))
+		}
+	}
 	if licenseCheckFlag {
 		args = append(args, "-Dlicense.check.enabled=true")
 		if licenseSecretKeyFlag != "" {
 			args = append(args, fmt.Sprintf("-Dlicense.secret.key=%s", licenseSecretKeyFlag))
 		}
+	}
+	if proxyURLFlag != "" {
+		args = append(args, fmt.Sprintf("-Dproxy.url=%s", proxyURLFlag))
 	}
 	return args
 }
@@ -129,7 +207,7 @@ func getVersion() (string, error) {
 	return match[1], nil
 }
 
-func addAdditionalFiles(srcPath, dstPath string) {
+func addAdditionalFiles(srcPath, dstPath, version string) {
 	chdir(srcPath)
 	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
 	// DOCKER
@@ -158,6 +236,22 @@ func addAdditionalFiles(srcPath, dstPath string) {
 		path := filepath.Join("integration/mesos/bin", file)
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
+	// UFS MODULES
+	mkdir(filepath.Join(dstPath, "lib"))
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
+		moduleName, ok := ufsModuleNames[module]
+		if !ok {
+			// This should be impossible, we validate ufsModulesFlag at the start.
+			fmt.Fprintf(os.Stderr, "Unrecognized ufs module: %v", module)
+			os.Exit(1)
+		}
+		ufsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", moduleName, version)
+		run(fmt.Sprintf("adding ufs module %v to lib/", module), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
+	}
+	// NATIVE LIBRARIES
+	if nativeFlag {
+		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/native"), filepath.Join(dstPath, "lib", "native"))
+	}
 }
 
 func generateTarball() error {
@@ -178,7 +272,7 @@ func generateTarball() error {
 	}
 	run(fmt.Sprintf("copying source from %v to %v", repoPath, srcPath), "cp", "-R", repoPath+"/.", srcPath)
 	chdir(srcPath)
-	run("Running git clean -fdx", "git", "clean", "-fdx")
+	run("running git clean -fdx", "git", "clean", "-fdx")
 
 	// GET THE VERSION AND PREPEND WITH `edition-`
 	originalVersion, err := getVersion()
@@ -197,7 +291,11 @@ func generateTarball() error {
 	replace("libexec/alluxio-config.sh", "assembly/server/target/alluxio-assembly-server-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-server-${VERSION}.jar")
 
 	// COMPILE
-	mvnArgs := getMvnArgs()
+	mvnArgs := getCommonMvnArgs()
+	// Only add ufs modules for the main build, not for building per-framework clients.
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
+		mvnArgs = append(mvnArgs, fmt.Sprintf("-P%v", module))
+	}
 	run("compiling repo", "mvn", mvnArgs...)
 
 	// SET DESTINATION PATHS
@@ -221,23 +319,20 @@ func generateTarball() error {
 	run("adding Alluxio server assembly jar", "mv", fmt.Sprintf("assembly/server/target/alluxio-assembly-server-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-server-%v.jar", version)))
 	// Condense the webapp into a single .war file.
 	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webappWar), "-C", webappDir, ".")
-	if nativeFlag {
-		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/"), filepath.Join(dstPath, "lib/"))
-	}
+
+	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
+	addAdditionalFiles(srcPath, dstPath, version)
 
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
 	chdir(filepath.Join(srcPath, "core/client/runtime"))
 	for _, framework := range frameworks {
-		clientArgs := mvnArgs
+		clientArgs := getCommonMvnArgs()
 		if framework != "hadoop" {
 			clientArgs = append(clientArgs, fmt.Sprintf("-P%s", framework))
 		}
 		run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", clientArgs...)
 		run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 	}
-
-	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
-	addAdditionalFiles(srcPath, dstPath)
 
 	// CREATE DISTRIBUTION TARBALL AND CLEANUP
 	chdir(cwd)
@@ -247,9 +342,41 @@ func generateTarball() error {
 	return nil
 }
 
+func validateUfsModulesFlag() error {
+	if strings.ToLower(ufsModulesFlag) == "all" {
+		return nil
+	}
+
+	for _, module := range strings.Split(ufsModulesFlag, ",") {
+		if _, ok := ufsModuleNames[module]; !ok {
+			return fmt.Errorf("ufs module %v not recognized", module)
+		}
+	}
+	return nil
+}
+
+func handleArgs() error {
+	if flag.NArg() > 0 {
+		return fmt.Errorf("Unrecognized arguments: %v", flag.Args())
+	}
+	if err := validateUfsModulesFlag(); err != nil {
+		return err
+	}
+	if strings.ToLower(ufsModulesFlag) == "all" {
+		ufsModulesFlag = strings.Join(validUfsModules(), ",")
+	}
+	return nil
+}
+
 func main() {
+	if err := handleArgs(); err != nil {
+		fmt.Printf("Problem reading arguments: %v\n", err)
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	if err := generateTarball(); err != nil {
-		fmt.Printf("Failed to generate tarball: %v", err)
+		fmt.Printf("Failed to generate tarball: %v\n", err)
 		os.Exit(1)
 	}
 }

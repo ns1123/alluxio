@@ -30,6 +30,7 @@
     <module>glusterfs</module>
     <module>hdfs</module>
     <!-- ALLUXIO CS ADD -->
+    <module>hdfsx</module>
     <module>jdbc</module>
     <!-- ALLUXIO CS END -->
     <module>local</module>

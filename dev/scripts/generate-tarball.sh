@@ -29,7 +29,7 @@
 
 # ALLUXIO CS ADD
 echo "This script is only meant to be used for building the OS repo. To build enterprise,
-use tools/go/scripts/generate_tarball.go"
+use tools/go/scripts/generate-tarball.go"
 exit 1
 # ALLUXIO CS END
 set -e
@@ -103,16 +103,18 @@ function create_tarball {
   local hadoop_profile=$1
   local version="$(bin/alluxio version)"
   if [[ "${hadoop_profile}" == "default" ]]; then
-    local prefix="alluxio-${version}-bin"
+    local prefix="alluxio-${version}"
   else
-    local prefix="alluxio-${version}-${hadoop_profile}-bin"
+    local prefix="alluxio-${version}-${hadoop_profile}"
   fi
   # Remove any logs generated during the build.
   rm -rf logs/*.log
+  # Create the default under storage directory.
+  mkdir underFSStorage
   cd ..
   rm -rf "${prefix}"
   mv "${REPO_COPY}" "${prefix}"
-  local target="${TARBALL_DIR}/${prefix}.tar.gz"
+  local target="${TARBALL_DIR}/${prefix}-bin.tar.gz"
   gtar -czf "${target}" "${prefix}" --exclude-vcs
   echo "Generated tarball at ${target}"
 }
