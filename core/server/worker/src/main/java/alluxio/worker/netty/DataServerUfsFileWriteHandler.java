@@ -16,12 +16,7 @@ import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
-<<<<<<< HEAD
-import alluxio.underfs.UfsManager.Ufs;
-||||||| merged common ancestors
-=======
 import alluxio.underfs.UfsManager.UfsInfo;
->>>>>>> enterprise-1.5
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 
@@ -52,47 +47,16 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
 
   private class FileWriteRequestInternal extends WriteRequestInternal {
     private final String mUfsPath;
-<<<<<<< HEAD
-    private final UnderFileSystem mUnderFileSystem;
-    private final OutputStream mOutputStream;
-    private final Counter mCounter;
-||||||| merged common ancestors
-    private final UnderFileSystem mUnderFileSystem;
-    private final OutputStream mOutputStream;
-=======
     private final Protocol.WriteRequest mWriteRequest;
 
     private UnderFileSystem mUnderFileSystem;
     private OutputStream mOutputStream;
     private Counter mCounter;
->>>>>>> enterprise-1.5
 
     FileWriteRequestInternal(Protocol.WriteRequest request) throws Exception {
       super(request.getId());
-<<<<<<< HEAD
-      Protocol.CreateUfsFileOptions createUfsFileOptions = request.getCreateUfsFileOptions();
-      mUfsPath = createUfsFileOptions.getUfsPath();
-      Ufs ufs = mUfsManager.get(createUfsFileOptions.getMountId());
-      mUnderFileSystem = ufs.getUfs();
-      mOutputStream = mUnderFileSystem.create(mUfsPath,
-          CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
-              .setGroup(createUfsFileOptions.getGroup())
-              .setMode(new Mode((short) createUfsFileOptions.getMode())));
-      String ufsName = MetricsSystem.escapeURI(ufs.getUfsMountPointUri());
-      String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsName);
-      mCounter = MetricsSystem.workerCounter(metricName);
-||||||| merged common ancestors
-      Protocol.CreateUfsFileOptions createUfsFileOptions = request.getCreateUfsFileOptions();
-      mUfsPath = createUfsFileOptions.getUfsPath();
-      mUnderFileSystem = mUfsManager.get(createUfsFileOptions.getMountId());
-      mOutputStream = mUnderFileSystem.create(mUfsPath,
-          CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
-              .setGroup(createUfsFileOptions.getGroup())
-              .setMode(new Mode((short) createUfsFileOptions.getMode())));
-=======
       mWriteRequest = request;
       mUfsPath = request.getCreateUfsFileOptions().getUfsPath();
->>>>>>> enterprise-1.5
     }
 
     @Override
@@ -167,21 +131,6 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
 
   @Override
   protected void incrementMetrics(long bytesWritten) {
-<<<<<<< HEAD
-    ((FileWriteRequestInternal) mRequest).mCounter.inc(bytesWritten);
-||||||| merged common ancestors
-    Metrics.BYTES_WRITTEN_UFS.inc(bytesWritten);
-  }
-
-  /**
-   * Class that contains metrics for BlockDataServerHandler.
-   */
-  private static final class Metrics {
-    private static final Counter BYTES_WRITTEN_UFS = MetricsSystem.workerCounter("BytesWrittenUFS");
-
-    private Metrics() {
-    } // prevent instantiation
-=======
     ((FileWriteRequestInternal) mRequest).mCounter.inc(bytesWritten);
   }
 
@@ -214,6 +163,5 @@ final class DataServerUfsFileWriteHandler extends DataServerWriteHandler {
     }
     // ALLUXIO CS END
     request.mCounter = MetricsSystem.workerCounter(metricName);
->>>>>>> enterprise-1.5
   }
 }

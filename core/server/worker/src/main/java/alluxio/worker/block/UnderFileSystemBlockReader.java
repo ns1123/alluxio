@@ -26,12 +26,7 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.underfs.UfsManager;
-<<<<<<< HEAD
-import alluxio.underfs.UfsManager.Ufs;
-||||||| merged common ancestors
-=======
 import alluxio.underfs.UfsManager.UfsInfo;
->>>>>>> enterprise-1.5
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.OpenOptions;
 // ALLUXIO CS REMOVE
@@ -74,14 +69,8 @@ public final class UnderFileSystemBlockReader implements BlockReader {
 
   /** The input stream to read from UFS. */
   private InputStream mUnderFileSystemInputStream;
-<<<<<<< HEAD
-  /** The uri of the UFS we are reading from. */
-  private AlluxioURI mUfsUri;
-||||||| merged common ancestors
-=======
   /** The mount point uri of the UFS we are reading from. */
   private AlluxioURI mUfsMountPointUri;
->>>>>>> enterprise-1.5
   /** The block writer to write the block to Alluxio. */
   private LocalFileBlockWriter mBlockWriter;
   /** If set, the reader is closed and should not be used afterwards. */
@@ -141,13 +130,7 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    */
   private void init(long offset) throws BlockDoesNotExistException, IOException {
     // ALLUXIO CS REMOVE
-<<<<<<< HEAD
-    // UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId()).getUfs();
-||||||| merged common ancestors
-    // UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId());
-=======
     // UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId()).getUfs;
->>>>>>> enterprise-1.5
     // ufs.connectFromWorker(
     //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
     // if (!ufs.isFile(mBlockMeta.getUnderFileSystemPath())) {
@@ -285,16 +268,6 @@ public final class UnderFileSystemBlockReader implements BlockReader {
   }
 
   /**
-<<<<<<< HEAD
-   * @return the URI of the UFS that this reader is currently reading from
-   */
-  public AlluxioURI getUfsUri() {
-    return mUfsUri;
-  }
-
-  /**
-||||||| merged common ancestors
-=======
    * @return the mount point URI of the UFS that this reader is currently reading from
    */
   public AlluxioURI getUfsMountPointUri() {
@@ -302,7 +275,6 @@ public final class UnderFileSystemBlockReader implements BlockReader {
   }
 
   /**
->>>>>>> enterprise-1.5
    * Updates the UFS input stream given an offset to read.
    *
    * @param offset the read offset within the block
@@ -315,13 +287,6 @@ public final class UnderFileSystemBlockReader implements BlockReader {
     }
 
     if (mUnderFileSystemInputStream == null && offset < mBlockMeta.getBlockSize()) {
-<<<<<<< HEAD
-      Ufs ufsInfo = mUfsManager.get(mBlockMeta.getMountId());
-      UnderFileSystem ufs = ufsInfo.getUfs();
-      mUfsUri = ufsInfo.getUfsMountPointUri();
-||||||| merged common ancestors
-      UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId());
-=======
       // ALLUXIO CS ADD
       if (mBlockMeta.getUser() != null && !mBlockMeta.getUser().isEmpty()) {
         // Before interacting with ufs manager, set the user.
@@ -331,7 +296,6 @@ public final class UnderFileSystemBlockReader implements BlockReader {
       UfsInfo ufsInfo = mUfsManager.get(mBlockMeta.getMountId());
       UnderFileSystem ufs = ufsInfo.getUfs();
       mUfsMountPointUri = ufsInfo.getUfsMountPointUri();
->>>>>>> enterprise-1.5
       mUnderFileSystemInputStream = ufs.open(mBlockMeta.getUnderFileSystemPath(),
           OpenOptions.defaults().setOffset(mBlockMeta.getOffset() + offset));
       mInStreamPos = offset;

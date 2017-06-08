@@ -217,22 +217,8 @@ public final class MetricsSystem {
     return Joiner.on(".").skipNulls().join(pieces);
   }
 
-<<<<<<< HEAD
   /**
    * Escapes a URI so that it is more suitable for being a part of a metric name.
-   *
-   * @param uri the URI to escape
-   * @return the string representing the escaped URI
-   */
-  public static String escapeURI(AlluxioURI uri) {
-    return uri.toString().replace("/", "_");
-  }
-
-||||||| merged common ancestors
-=======
-  /**
-   * Escapes a URI, replacing "/" with "_" so that when the URI is used in a metric name, the "/"
-   * won't be interpreted as a path separator.
    *
    * @param uri the URI to escape
    * @return the string representing the escaped URI
@@ -241,7 +227,6 @@ public final class MetricsSystem {
     return uri.toString().replace("/", "_");
   }
 
->>>>>>> enterprise-1.5
   // Some helper functions.
 
   /**

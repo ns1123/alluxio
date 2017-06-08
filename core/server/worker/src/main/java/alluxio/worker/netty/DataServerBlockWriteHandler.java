@@ -161,38 +161,10 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
 
   @Override
   protected void incrementMetrics(long bytesWritten) {
-<<<<<<< HEAD
-    Metrics.BYTES_WRITTEN_ALLUXIO.inc(bytesWritten);
-  }
-
-  /**
-   * Class that contains metrics for BlockDataServerHandler.
-   */
-  private static final class Metrics {
-    private static final Counter BYTES_WRITTEN_ALLUXIO =
-        MetricsSystem.workerCounter("BytesWrittenAlluxio");
-
-    private Metrics() {
-    } // prevent instantiation
-||||||| merged common ancestors
-    Metrics.BYTES_WRITTEN_REMOTE.inc(bytesWritten);
-  }
-
-  /**
-   * Class that contains metrics for BlockDataServerHandler.
-   */
-  private static final class Metrics {
-    private static final Counter BYTES_WRITTEN_REMOTE =
-        MetricsSystem.workerCounter("BytesWrittenRemote");
-
-    private Metrics() {
-    } // prevent instantiation
-=======
     Counter counter = ((BlockWriteRequestInternal) mRequest).mCounter;
     if (counter == null) {
       throw new IllegalStateException("metric counter is null");
     }
     counter.inc(bytesWritten);
->>>>>>> enterprise-1.5
   }
 }

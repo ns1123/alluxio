@@ -49,13 +49,7 @@ public final class WorkerUfsManager extends AbstractUfsManager {
    * ufs info.
    */
   @Override
-<<<<<<< HEAD
-  public Ufs get(long mountId) throws NotFoundException, UnavailableException {
-||||||| merged common ancestors
-  public UnderFileSystem get(long mountId) throws NotFoundException, UnavailableException {
-=======
   public UfsInfo get(long mountId) throws NotFoundException, UnavailableException {
->>>>>>> enterprise-1.5
     try {
       return super.get(mountId);
     } catch (NotFoundException e) {
@@ -70,24 +64,12 @@ public final class WorkerUfsManager extends AbstractUfsManager {
           String.format("Failed to get UFS info for mount point with id %d", mountId), e);
     }
     Preconditions.checkState((info.isSetUri() && info.isSetProperties()), "unknown mountId");
-<<<<<<< HEAD
-    Ufs ufs = super.addMount(mountId, new AlluxioURI(info.getUri()),
-||||||| merged common ancestors
-    UnderFileSystem ufs = super.addMount(mountId, info.getUri(),
-=======
     UfsInfo ufsInfo = super.addMount(mountId, new AlluxioURI(info.getUri()),
->>>>>>> enterprise-1.5
         UnderFileSystemConfiguration.defaults().setReadOnly(info.getProperties().isReadOnly())
             .setShared(info.getProperties().isShared())
             .setUserSpecifiedConf(info.getProperties().getProperties()));
     try {
-<<<<<<< HEAD
-      ufs.getUfs().connectFromWorker(
-||||||| merged common ancestors
-      ufs.connectFromWorker(
-=======
       ufsInfo.getUfs().connectFromWorker(
->>>>>>> enterprise-1.5
           NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
     } catch (IOException e) {
       removeMount(mountId);

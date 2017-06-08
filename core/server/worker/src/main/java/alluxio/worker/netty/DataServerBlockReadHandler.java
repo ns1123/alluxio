@@ -70,12 +70,7 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
    */
   private final class BlockReadRequestInternal extends ReadRequestInternal {
     BlockReader mBlockReader;
-<<<<<<< HEAD
-    Counter mBlockReaderMetricCounter;
-||||||| merged common ancestors
-=======
     Counter mCounter;
->>>>>>> enterprise-1.5
     final Protocol.OpenUfsBlockOptions mOpenUfsBlockOptions;
     final boolean mPromote;
 
@@ -279,55 +274,10 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
 
   @Override
   protected void incrementMetrics(long bytesRead) {
-<<<<<<< HEAD
-    BlockReadRequestInternal request = (BlockReadRequestInternal) mRequest;
-    if (request.mBlockReaderMetricCounter == null) {
-      if (request.mBlockReader instanceof UnderFileSystemBlockReader) {
-        UnderFileSystemBlockReader reader = (UnderFileSystemBlockReader) request.mBlockReader;
-        AlluxioURI ufsUri = reader.getUfsUri();
-        String metricName = String.format("BytesReadUfs-Ufs:%s", MetricsSystem.escapeURI(ufsUri));
-        request.mBlockReaderMetricCounter = MetricsSystem.workerCounter(metricName);
-      } else {
-        request.mBlockReaderMetricCounter = Metrics.BYTES_READ_ALLUXIO;
-      }
-||||||| merged common ancestors
-    if (((BlockReadRequestInternal) mRequest).mBlockReader instanceof UnderFileSystemBlockReader) {
-      Metrics.BYTES_READ_UFS.inc(bytesRead);
-    } else {
-      Metrics.BYTES_READ_REMOTE.inc(bytesRead);
-=======
     Counter counter = ((BlockReadRequestInternal) mRequest).mCounter;
     if (counter == null) {
       throw new IllegalStateException("metric counter is null");
->>>>>>> enterprise-1.5
     }
-<<<<<<< HEAD
-    request.mBlockReaderMetricCounter.inc(bytesRead);
-  }
-
-  /**
-   * Class that contains metrics for BlockDataServerHandler.
-   */
-  private static final class Metrics {
-    private static final Counter BYTES_READ_ALLUXIO =
-        MetricsSystem.workerCounter("BytesReadAlluxio");
-
-    private Metrics() {
-    } // prevent instantiation
-||||||| merged common ancestors
-  }
-
-  /**
-   * Class that contains metrics for BlockDataServerHandler.
-   */
-  private static final class Metrics {
-    private static final Counter BYTES_READ_UFS = MetricsSystem.workerCounter("BytesReadUFS");
-    private static final Counter BYTES_READ_REMOTE = MetricsSystem.workerCounter("BytesReadRemote");
-
-    private Metrics() {
-    } // prevent instantiation
-=======
     counter.inc(bytesRead);
->>>>>>> enterprise-1.5
   }
 }
