@@ -71,7 +71,8 @@ var (
 	ufsModulesFlag       string
 )
 
-var frameworks = []string{"flink", "hadoop", "spark"}
+var nonRecompiledFrameworks = []string{"flink", "hadoop"}
+var recompiledFrameworks = []string{"presto", "spark"}
 var webappDir = "core/server/common/src/main/webapp"
 var webappWar = "assembly/webapp.war"
 
@@ -309,7 +310,7 @@ func generateTarball() error {
 	// Create the directory for the server jar.
 	mkdir(filepath.Join(dstPath, "assembly"))
 	// Create directories for the client jars.
-	for _, framework := range frameworks {
+	for _, framework := range append(recompiledFrameworks, append(nonRecompiledFrameworks, "default")...) {
 		mkdir(filepath.Join(dstPath, "client", framework))
 	}
 	mkdir(filepath.Join(dstPath, "logs"))
@@ -325,7 +326,12 @@ func generateTarball() error {
 
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
 	chdir(filepath.Join(srcPath, "core/client/runtime"))
-	for _, framework := range frameworks {
+	run("building Alluxio default client jar", "mvn", getCommonMvnArgs()...)
+	run("adding Alluxio default client jar", "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("default/alluxio-%v-default-client.jar", version)))
+	for _, framework := range nonRecompiledFrameworks {
+		run(fmt.Sprintf("Creating symlink for %v client jar", framework), "ln", "-s", fmt.Sprintf("../default/alluxio-%v-default-client.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
+	}
+	for _, framework := range recompiledFrameworks {
 		clientArgs := getCommonMvnArgs()
 		if framework != "hadoop" {
 			clientArgs = append(clientArgs, fmt.Sprintf("-P%s", framework))
