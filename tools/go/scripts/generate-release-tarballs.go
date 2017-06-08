@@ -98,7 +98,7 @@ func validReleaseDistributions() []string {
 	for distribution, _ := range releaseDistributions {
 		result = append(result, distribution)
 	}
-	sort.String(result)
+	sort.Strings(result)
 	return result
 }
 
