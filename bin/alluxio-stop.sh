@@ -55,7 +55,7 @@ stop_job_master() {
 }
 
 stop_job_masters() {
-  ${LAUNCHER} "${BIN}/alluxio-masters.sh" "${BIN}/alluxio" "${BIN}/alluxio-stop.sh" "job_master"
+  ${LAUNCHER} "${BIN}/alluxio-masters.sh" "${BIN}/alluxio-stop.sh" "job_master"
 }
 
 stop_job_worker() {
@@ -63,7 +63,7 @@ stop_job_worker() {
 }
 
 stop_job_workers() {
-  ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio" "${BIN}/alluxio-stop.sh" "job_worker"
+  ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-stop.sh" "job_worker"
 }
 
 # ALLUXIO CS END
