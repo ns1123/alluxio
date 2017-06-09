@@ -860,7 +860,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             // ret.add(getFileInfoInternal(tempInodePath));
             // ALLUXIO CS WITH
             FileInfo fileInfo = getFileInfoInternal(tempInodePath);
-            populateCapability(fileInfo, tempInodePath);
+            if (fileInfo.isEncrypted()) {
+              // Capability should be attached for listStatus for encrypted files, so that
+              // Alluxio client can read the footer to get encryption layout and metadata.
+              populateCapability(fileInfo, tempInodePath);
+            }
             ret.add(fileInfo);
             // ALLUXIO CS END
           } finally {
@@ -872,7 +876,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         // ret.add(getFileInfoInternal(inodePath));
         // ALLUXIO CS WITH
         FileInfo fileInfo = getFileInfoInternal(inodePath);
-        populateCapability(fileInfo, inodePath);
+        if (fileInfo.isEncrypted()) {
+          // Capability should be attached for listStatus for encrypted files, so that
+          // Alluxio client can read the footer to get encryption layout and metadata.
+          populateCapability(fileInfo, inodePath);
+        }
         ret.add(fileInfo);
         // ALLUXIO CS END
       }
