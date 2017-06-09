@@ -87,7 +87,13 @@ public final class TempInodePathForDescendant extends LockedInodePath {
     if (mDescendantInode == null) {
       return super.getInodeList();
     }
-    throw new UnsupportedOperationException();
+    // ALLUXIO CS REPLACE
+    // throw new UnsupportedOperationException();
+    // ALLUXIO CS WITH
+    List<Inode<?>> inodeList = super.getInodeList();
+    inodeList.add(mDescendantInode);
+    return inodeList;
+    // ALLUXIO CS END
   }
 
   @Override
