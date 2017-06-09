@@ -8,37 +8,90 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 )
 
 const versionMarker = "${VERSION}"
 
-var hadoopProfiles = map[string]struct{}{
-	"hadoop-1.0": struct{}{},
-	"hadoop-1.2": struct{}{},
-	"hadoop-2.2": struct{}{},
-	"hadoop-2.3": struct{}{},
-	"hadoop-2.4": struct{}{},
-	"hadoop-2.5": struct{}{},
-	"hadoop-2.6": struct{}{},
-	"hadoop-2.7": struct{}{},
-	"hadoop-2.8": struct{}{},
-	"cdh-4.1":    struct{}{},
-	"cdh-5.4":    struct{}{},
-	"cdh-5.6":    struct{}{},
-	"cdh-5.8":    struct{}{},
-	"hdp-2.0":    struct{}{},
-	"hdp-2.1":    struct{}{},
-	"hdp-2.2":    struct{}{},
-	"hdp-2.3":    struct{}{},
-	"hdp-2.4":    struct{}{},
-	"hdp-2.5":    struct{}{},
-	"mapr-4.1":   struct{}{},
-	"mapr-5.0":   struct{}{},
-	"mapr-5.1":   struct{}{},
-	"mapr-5.2":   struct{}{},
+var versionRE = regexp.MustCompile("^(\\d+)\\.(\\d+)\\.(\\d+).?(.*)?$")
+
+type version struct {
+	major  int
+	minor  int
+	patch  int
+	suffix string
+}
+
+func ParseVersion(v string) version {
+	matches := versionRE.FindStringSubmatch(v)
+	major, err := strconv.Atoi(matches[1])
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse %v as number", matches[1]))
+	}
+	minor, err := strconv.Atoi(matches[2])
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse %v as number", matches[2]))
+	}
+	patch, err := strconv.Atoi(matches[3])
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse %v as number", matches[3]))
+	}
+	return version{
+		major:  major,
+		minor:  minor,
+		patch:  patch,
+		suffix: matches[4],
+	}
+}
+
+func (v version) String() string {
+	return fmt.Sprintf("%v.%v.%v%v", v.major, v.minor, v.patch, v.suffix)
+}
+
+func (v version) HadoopProfile() string {
+	switch v.major {
+	case 1:
+		return "hadoop-1"
+	case 2:
+		return "hadoop-2"
+	default:
+		panic(fmt.Sprintf("unexpected hadoop major version %v", v.major))
+	}
+}
+
+func (v version) HasHadoopKMS() bool {
+	return v.major > 2 || (v.major == 2 && v.minor > 5)
+}
+
+// hadoopProfiles maps hadoop profile labels to versions
+var hadoopProfiles = map[string]version{
+	"hadoop-1.0": ParseVersion("1.0.4"),
+	"hadoop-1.2": ParseVersion("1.2.1"),
+	"hadoop-2.2": ParseVersion("2.2.0"),
+	"hadoop-2.3": ParseVersion("2.3.0"),
+	"hadoop-2.4": ParseVersion("2.4.1"),
+	"hadoop-2.5": ParseVersion("2.5.2"),
+	"hadoop-2.6": ParseVersion("2.6.5"),
+	"hadoop-2.7": ParseVersion("2.7.3"),
+	"hadoop-2.8": ParseVersion("2.8.0"),
+	"cdh-4.1":    ParseVersion("2.0.0-mr1-cdh4.1.2"),
+	"cdh-5.4":    ParseVersion("2.6.0-cdh5.4.9"),
+	"cdh-5.6":    ParseVersion("2.6.0-cdh5.6.1"),
+	"cdh-5.8":    ParseVersion("2.6.0-cdh5.8.5"),
+	"hdp-2.0":    ParseVersion("2.2.0.2.0.6.3-7"),
+	"hdp-2.1":    ParseVersion("2.4.0.2.1.7.4-3"),
+	"hdp-2.2":    ParseVersion("2.6.0.2.2.9.18-1"),
+	"hdp-2.3":    ParseVersion("2.7.1.2.3.99.0-195"),
+	"hdp-2.4":    ParseVersion("2.7.1.2.4.4.1-9"),
+	"hdp-2.5":    ParseVersion("2.7.3.2.5.5.5-2"),
+	"mapr-4.1":   ParseVersion("2.5.1-mapr-1503"),
+	"mapr-5.0":   ParseVersion("2.7.0-mapr-1506"),
+	"mapr-5.1":   ParseVersion("2.7.0-mapr-1602"),
+	"mapr-5.2":   ParseVersion("2.7.0-mapr-1607"),
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-tarball.go
@@ -155,14 +208,19 @@ func generateTarballs() error {
 		profiles = validHadoopProfiles()
 	}
 	for _, profile := range profiles {
-		if _, ok := hadoopProfiles[profile]; !ok {
+		version, ok := hadoopProfiles[profile]
+		if !ok {
 			fmt.Fprintf(os.Stderr, "hadoop profile %s not recognized\n", profile)
 			continue
 		}
 		// TODO(chaomin): maybe append the OS type if native is enabled.
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, profile)
+		mvnArgs := []string{fmt.Sprintf("-Dhadoop.version=%v", version), fmt.Sprintf("-P%v", version.HadoopProfile())}
+		if version.HasHadoopKMS() {
+			mvnArgs = append(mvnArgs, "-Phadoop-kms")
+		}
 		generateTarballArgs := []string{
-			"-mvn-args", fmt.Sprintf("-P%v", profile),
+			"-mvn-args", strings.Join(mvnArgs, ","),
 			"-target", tarball,
 			"-ufs-modules", ufsModulesFlag,
 		}
