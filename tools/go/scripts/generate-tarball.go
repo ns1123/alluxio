@@ -18,7 +18,7 @@ import (
 const edition = "enterprise"
 const versionMarker = "${VERSION}"
 
-// Map from ufs profile to the name used in the generated tarball.
+// ufsModuleNames is a map from ufs profile to the name used in the generated tarball.
 var ufsModuleNames = map[string]string{
 	"ufs-hadoop-1.0":     "hdfsx-apache1_0",
 	"ufs-hadoop-1.2":     "hdfsx-apache1_2",
@@ -38,7 +38,7 @@ var ufsModuleNames = map[string]string{
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
-// Map from UFS module name to a bool indicating if this module is included by default
+// ufsModules is a map from UFS module name to a bool indicating if the module is included by default.
 var ufsModules = map[string]bool{
 	"ufs-hadoop-1.0":     false,
 	"ufs-hadoop-1.2":     true,
@@ -71,7 +71,7 @@ var (
 	ufsModulesFlag       string
 )
 
-// Map from framework to whether it requires recompilation.
+// frameworks is a map from framework to whether building a client for the framework requires recompilation.
 var frameworks = map[string]bool{
 	"flink": false,
 	"hadoop": false,
