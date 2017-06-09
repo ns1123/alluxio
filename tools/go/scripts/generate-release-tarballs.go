@@ -67,8 +67,8 @@ func (v version) HasHadoopKMS() bool {
 	return v.major > 2 || (v.major == 2 && v.minor > 5)
 }
 
-// hadoopProfiles maps hadoop profile labels to versions
-var hadoopProfiles = map[string]version{
+// hadoopDistributions maps hadoop distributions to versions
+var hadoopDistributions = map[string]version{
 	"hadoop-1.0": ParseVersion("1.0.4"),
 	"hadoop-1.2": ParseVersion("1.2.1"),
 	"hadoop-2.2": ParseVersion("2.2.0"),
@@ -115,15 +115,15 @@ var ufsModules = map[string]bool{
 }
 
 var (
-	callHomeFlag         bool
-	callHomeBucketFlag   string
-	debugFlag            bool
-	hadoopProfilesFlag   string
-	licenseCheckFlag     bool
-	licenseSecretKeyFlag string
-	nativeFlag           bool
-	proxyURLFlag         string
-	ufsModulesFlag       string
+	callHomeFlag            bool
+	callHomeBucketFlag      string
+	debugFlag               bool
+	hadoopDistributionsFlag string
+	licenseCheckFlag        bool
+	licenseSecretKeyFlag    string
+	nativeFlag              bool
+	proxyURLFlag            string
+	ufsModulesFlag          string
 )
 
 func init() {
@@ -136,7 +136,7 @@ func init() {
 	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
 	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
-	flag.StringVar(&hadoopProfilesFlag, "hadoop-profiles", strings.Join(validHadoopProfiles(), ","), "a comma-separated list of hadoop profiles to be used when generating different Alluxio distributions")
+	flag.StringVar(&hadoopDistributionsFlag, "hadoop-distributions", strings.Join(validhadoopDistributions(), ","), "a comma-separated list of hadoop distributions to generate Alluxio distributions for")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
@@ -146,10 +146,10 @@ func init() {
 	flag.Parse()
 }
 
-func validHadoopProfiles() []string {
+func validhadoopDistributions() []string {
 	result := []string{}
-	for profile, _ := range hadoopProfiles {
-		result = append(result, profile)
+	for distribution, _ := range hadoopDistributions {
+		result = append(result, distribution)
 	}
 	sort.Strings(result)
 	return result
@@ -201,20 +201,20 @@ func generateTarballs() error {
 	goScriptsDir := filepath.Dir(file)
 	generateTarballScript := filepath.Join(goScriptsDir, "generate-tarball.go")
 
-	var profiles []string
-	if hadoopProfilesFlag != "" {
-		profiles = strings.Split(hadoopProfilesFlag, ",")
+	var distributions []string
+	if hadoopDistributionsFlag != "" {
+		distributions = strings.Split(hadoopDistributionsFlag, ",")
 	} else {
-		profiles = validHadoopProfiles()
+		distributions = validhadoopDistributions()
 	}
-	for _, profile := range profiles {
-		version, ok := hadoopProfiles[profile]
+	for _, distribution := range distributions {
+		version, ok := hadoopDistributions[distribution]
 		if !ok {
-			fmt.Fprintf(os.Stderr, "hadoop profile %s not recognized\n", profile)
+			fmt.Fprintf(os.Stderr, "hadoop distribution %s not recognized\n", distribution)
 			continue
 		}
 		// TODO(chaomin): maybe append the OS type if native is enabled.
-		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, profile)
+		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
 		mvnArgs := []string{fmt.Sprintf("-Dhadoop.version=%v", version), fmt.Sprintf("-P%v", version.HadoopProfile())}
 		if version.HasHadoopKMS() {
 			mvnArgs = append(mvnArgs, "-Phadoop-kms")
@@ -244,7 +244,7 @@ func generateTarballs() error {
 		}
 		args := []string{"run", generateTarballScript}
 		args = append(args, generateTarballArgs...)
-		run(fmt.Sprintf("Generating distribution for profile %v at %v", profile, tarball), "go", args...)
+		run(fmt.Sprintf("Generating distribution for %v at %v", distribution, tarball), "go", args...)
 	}
 	return nil
 }
