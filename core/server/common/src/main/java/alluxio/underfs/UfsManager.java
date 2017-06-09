@@ -22,7 +22,7 @@ import java.io.Closeable;
  */
 public interface UfsManager extends Closeable {
   /** Container for a UFS and the URI for that UFS. */
-  class UfsInfo {
+  static class UfsInfo {
     private UnderFileSystem mUfs;
     private AlluxioURI mUfsMountPointUri;
 
