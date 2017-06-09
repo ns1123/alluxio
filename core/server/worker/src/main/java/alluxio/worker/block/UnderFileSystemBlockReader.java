@@ -69,7 +69,7 @@ public final class UnderFileSystemBlockReader implements BlockReader {
 
   /** The input stream to read from UFS. */
   private InputStream mUnderFileSystemInputStream;
-  /** The mount point uri of the UFS we are reading from. */
+  /** The mount point URI of the UFS we are reading from. */
   private AlluxioURI mUfsMountPointUri;
   /** The block writer to write the block to Alluxio. */
   private LocalFileBlockWriter mBlockWriter;
