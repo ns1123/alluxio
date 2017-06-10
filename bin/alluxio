@@ -338,6 +338,7 @@ function main {
   # ALLUXIO CS ADD
   "privileges")
     CLASS="alluxio.cli.privileges.Privileges"
+    CLASSPATH=${ALLUXIO_CLIENT_CLASSPATH}
     runJavaClass "$@"
   ;;
   # ALLUXIO CS END
