@@ -178,7 +178,8 @@ public final class MetricsSystem {
   // ALLUXIO CS ADD
 
   /**
-   * Builds metric registry name for worker instance. The pattern is instance.uniqueId.metricName.
+   * Builds metric registry name for job worker instance. The pattern is
+   * instance.uniqueId.metricName.
    *
    * @param name the metric name
    * @return the metric registry name
