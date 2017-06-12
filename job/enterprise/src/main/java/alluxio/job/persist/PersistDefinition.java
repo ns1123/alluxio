@@ -33,7 +33,6 @@ import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.wire.WorkerInfo;
 
-import com.codahale.metrics.Counter;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closer;
 import org.apache.commons.io.IOUtils;
@@ -181,9 +180,9 @@ public final class PersistDefinition
   }
 
   private void incrementPersistedMetric(AlluxioURI ufsMountPointUri, long bytes) {
-      String mountPoint = MetricsSystem.escape(ufsMountPointUri);
-      String metricName = String.format("BytesPersisted-Ufs:%s", mountPoint);
-      MetricsSystem.jobWorkerCounter(metricName).inc(bytes);
+    String mountPoint = MetricsSystem.escape(ufsMountPointUri);
+    String metricName = String.format("BytesPersisted-Ufs:%s", mountPoint);
+    MetricsSystem.jobWorkerCounter(metricName).inc(bytes);
   }
 
   @Override
