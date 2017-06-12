@@ -13,10 +13,14 @@ package alluxio.client.file.policy;
 
 import alluxio.Constants;
 import alluxio.client.block.BlockWorkerInfo;
+import alluxio.exception.ExceptionMessage;
+import alluxio.exception.status.UnavailableException;
 import alluxio.wire.WorkerNetAddress;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +30,9 @@ import java.util.List;
  */
 public final class SpecificHostPolicyTest {
   private static final int PORT = 1;
+
+  @Rule
+  public ExpectedException mExpectedException = ExpectedException.none();
 
   /**
    * Tests that the correct worker is returned when using the policy.
@@ -54,6 +61,9 @@ public final class SpecificHostPolicyTest {
         .setRpcPort(PORT).setDataPort(PORT).setWebPort(PORT), Constants.GB, 0));
     workerInfoList.add(new BlockWorkerInfo(new WorkerNetAddress().setHost("worker2")
         .setRpcPort(PORT).setDataPort(PORT).setWebPort(PORT), Constants.GB, 0));
-    Assert.assertNull(policy.getWorkerForNextBlock(workerInfoList, Constants.MB));
+    mExpectedException.expect(UnavailableException.class);
+    mExpectedException.expectMessage(ExceptionMessage.NO_SPACE_FOR_BLOCK_ON_WORKER
+        .getMessage(Constants.MB));
+    policy.getWorkerForNextBlock(workerInfoList, Constants.MB);
   }
 }
