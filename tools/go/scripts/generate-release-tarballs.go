@@ -136,7 +136,7 @@ func init() {
 	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
 	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
-	flag.StringVar(&hadoopDistributionsFlag, "hadoop-distributions", strings.Join(validhadoopDistributions(), ","), "a comma-separated list of hadoop distributions to generate Alluxio distributions for")
+	flag.StringVar(&hadoopDistributionsFlag, "hadoop-distributions", strings.Join(validHadoopDistributions(), ","), "a comma-separated list of hadoop distributions to generate Alluxio distributions for")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
@@ -146,7 +146,7 @@ func init() {
 	flag.Parse()
 }
 
-func validhadoopDistributions() []string {
+func validHadoopDistributions() []string {
 	result := []string{}
 	for distribution, _ := range hadoopDistributions {
 		result = append(result, distribution)
@@ -205,7 +205,7 @@ func generateTarballs() error {
 	if hadoopDistributionsFlag != "" {
 		distributions = strings.Split(hadoopDistributionsFlag, ",")
 	} else {
-		distributions = validhadoopDistributions()
+		distributions = validHadoopDistributions()
 	}
 	for _, distribution := range distributions {
 		version, ok := hadoopDistributions[distribution]
