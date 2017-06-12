@@ -25,12 +25,15 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
 import alluxio.job.util.SerializableVoid;
+import alluxio.metrics.MetricsSystem;
 import alluxio.security.authorization.Mode;
+import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.wire.WorkerInfo;
 
+import com.codahale.metrics.Counter;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closer;
 import org.apache.commons.io.IOUtils;
@@ -115,7 +118,8 @@ public final class PersistDefinition
     String ufsPath = config.getUfsPath();
 
     // check if the file is persisted in UFS and delete it, if we are overwriting it
-    UnderFileSystem ufs = context.getUfsManager().get(config.getMountId()).getUfs();
+    UfsManager.UfsInfo ufsInfo = context.getUfsManager().get(config.getMountId());
+    UnderFileSystem ufs = ufsInfo.getUfs();
     if (ufs == null) {
       throw new IOException("Failed to create UFS instance for " + ufsPath);
     }
@@ -131,7 +135,7 @@ public final class PersistDefinition
     }
 
     FileSystem fs = FileSystem.Factory.get();
-    long ret;
+    long bytesWritten;
     try (Closer closer = Closer.create()) {
       OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
       // Disable decryption when reading from Alluxio in order to directly copy ciphertext to UFS.
@@ -169,10 +173,17 @@ public final class PersistDefinition
       OutputStream out = closer.register(
           ufs.create(dstPath.toString(), CreateOptions.defaults().setOwner(uriStatus.getOwner())
               .setGroup(uriStatus.getGroup()).setMode(new Mode((short) uriStatus.getMode()))));
-      ret = IOUtils.copyLarge(in, out);
+      bytesWritten = IOUtils.copyLarge(in, out);
+      incrementPersistedMetric(ufsInfo.getUfsMountPointUri(), bytesWritten);
     }
-    LOG.info("Persisted file {} with size {}", ufsPath, ret);
+    LOG.info("Persisted file {} with size {}", ufsPath, bytesWritten);
     return null;
+  }
+
+  private void incrementPersistedMetric(AlluxioURI ufsMountPointUri, long bytes) {
+      String mountPoint = MetricsSystem.escape(ufsMountPointUri);
+      String metricName = String.format("BytesPersisted-Ufs:%s", mountPoint);
+      MetricsSystem.jobWorkerCounter(metricName).inc(bytes);
   }
 
   @Override

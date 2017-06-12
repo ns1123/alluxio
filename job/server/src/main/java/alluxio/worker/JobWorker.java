@@ -16,6 +16,7 @@ import alluxio.Server;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.metrics.MetricsSystem;
 import alluxio.underfs.UfsManager;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.wire.WorkerNetAddress;
@@ -84,6 +85,9 @@ public final class JobWorker extends AbstractWorker {
 
   @Override
   public void start(WorkerNetAddress address) throws IOException {
+    // Start serving metrics system, this will not block
+    MetricsSystem.startSinks();
+
     try {
       JobWorkerIdRegistry.registerWorker(mJobMasterClient, address);
     } catch (ConnectionFailedException e) {
