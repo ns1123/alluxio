@@ -17,7 +17,7 @@ import (
 
 const versionMarker = "${VERSION}"
 
-var versionRE = regexp.MustCompile("^(\\d+)\\.(\\d+)\\.(\\d+).?(.*)?$")
+var versionRE = regexp.MustCompile("^(\\d+)\\.(\\d+)\\.(\\d+)(.*)?$")
 
 type version struct {
 	major  int
