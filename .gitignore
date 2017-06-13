@@ -36,11 +36,14 @@
 /docs/api/
 /docs/serve/
 /journal/
-/lib/
-/core/client/fs/src/main/native/cmake/
 /logs/*.log*
 /logs/*.out*
 /underFSStorage/
 dependency-reduced-pom.xml
 target/
 tests.log*
+# ALLUXIO CS ADD
+/lib/
+/core/client/fs/src/main/native/cmake/
+# ALLUXIO CS END
+# ALLUXIO CS MODIFIED
