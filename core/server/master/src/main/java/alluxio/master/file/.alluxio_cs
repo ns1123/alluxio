@@ -1,4 +1,5 @@
 replication/
+FileSystemMasterJobServiceHandler.java
 PersistJob.java
 PersistRequest.java
 PrivilegedFileSystemMaster.java
