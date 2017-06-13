@@ -31,9 +31,6 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-
 /**
  * Hadoop KMS client.
  *
@@ -160,15 +157,13 @@ public class HadoopKmsClient implements KmsClient {
    */
   private EncryptionProto.CryptoKey createKey(KeyProvider provider, String name)
       throws IOException {
-    // TODO(cc): Only AES256/GCM/NoPadding is supported now.
+    // TODO(cc): Avoid hard coding the cipher type and block size.
     try {
       KeyProvider.Options options = new KeyProvider.Options(new Configuration());
-      String cipher = Constants.AES_GCM_NOPADDING;
-      options.setCipher(cipher);
+      options.setCipher(Constants.AES_GCM_NOPADDING);
       options.setBitLength(KEY_BIT_LENGTH);
       Map<String, String> attributes = new HashMap<>();
-      int blockSize = Cipher.getInstance(cipher).getBlockSize();
-      byte[] iv = new byte[blockSize];
+      byte[] iv = new byte[Constants.AES_GCM_NOPADDING_BLOCK_SIZE];
       createInitializationVector(iv);
       attributes.put(ATTRIBUTE_IV, new String(iv));
       options.setAttributes(attributes);
@@ -176,10 +171,10 @@ public class HadoopKmsClient implements KmsClient {
       return ProtoUtils.setKey(
         ProtoUtils.setIv(
             CRYPTO_KEY_PARTIAL_BUILDER
-                .setCipher(cipher),
+                .setCipher(Constants.AES_GCM_NOPADDING),
             iv),
         key).build();
-    } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+    } catch (NoSuchAlgorithmException e) {
       throw new IOException(e);
     }
   }

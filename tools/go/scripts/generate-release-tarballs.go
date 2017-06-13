@@ -8,34 +8,90 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 )
 
 const versionMarker = "${VERSION}"
 
-var releaseDistributions = map[string]string{
-	"hadoop1.0": "1.0.4",
-	"hadoop1.2": "1.2.1",
-	"hadoop2.2": "2.2.0",
-	"hadoop2.4": "2.4.1",
-	"hadoop2.6": "2.6.0",
-	"hadoop2.7": "2.7.2",
-	"cdh4":      "2.0.0-mr1-cdh4.1.2",
-	"cdh5.4":    "2.6.0-cdh5.4.9",
-	"cdh5.6":    "2.6.0-cdh5.6.1",
-	"cdh5.8":    "2.6.0-cdh5.8.5",
-	"hdp2.0":    "2.2.0.2.0.6.3-7",
-	"hdp2.1":    "2.4.0.2.1.7.4-3",
-	"hdp2.2":    "2.6.0.2.2.9.18-1",
-	"hdp2.3":    "2.7.1.2.3.99.0-195",
-	"hdp2.4":    "2.7.1.2.4.4.1-9",
-	"hdp2.5":    "2.7.3.2.5.5.5-2",
-	"mapr4.1":   "2.5.1-mapr-1503",
-	"mapr5.0":   "2.7.0-mapr-1506",
-	"mapr5.1":   "2.7.0-mapr-1602",
-	"mapr5.2":   "2.7.0-mapr-1607",
+var versionRE = regexp.MustCompile("^(\\d+)\\.(\\d+)\\.(\\d+)(.*)?$")
+
+type version struct {
+	major  int
+	minor  int
+	patch  int
+	suffix string
+}
+
+func ParseVersion(v string) version {
+	matches := versionRE.FindStringSubmatch(v)
+	major, err := strconv.Atoi(matches[1])
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse %v as number", matches[1]))
+	}
+	minor, err := strconv.Atoi(matches[2])
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse %v as number", matches[2]))
+	}
+	patch, err := strconv.Atoi(matches[3])
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse %v as number", matches[3]))
+	}
+	return version{
+		major:  major,
+		minor:  minor,
+		patch:  patch,
+		suffix: matches[4],
+	}
+}
+
+func (v version) String() string {
+	return fmt.Sprintf("%v.%v.%v%v", v.major, v.minor, v.patch, v.suffix)
+}
+
+func (v version) HadoopProfile() string {
+	switch v.major {
+	case 1:
+		return "hadoop-1"
+	case 2:
+		return "hadoop-2"
+	default:
+		panic(fmt.Sprintf("unexpected hadoop major version %v", v.major))
+	}
+}
+
+func (v version) HasHadoopKMS() bool {
+	return v.major > 2 || (v.major == 2 && v.minor > 5)
+}
+
+// hadoopDistributions maps hadoop distributions to versions
+var hadoopDistributions = map[string]version{
+	"hadoop-1.0": ParseVersion("1.0.4"),
+	"hadoop-1.2": ParseVersion("1.2.1"),
+	"hadoop-2.2": ParseVersion("2.2.0"),
+	"hadoop-2.3": ParseVersion("2.3.0"),
+	"hadoop-2.4": ParseVersion("2.4.1"),
+	"hadoop-2.5": ParseVersion("2.5.2"),
+	"hadoop-2.6": ParseVersion("2.6.5"),
+	"hadoop-2.7": ParseVersion("2.7.3"),
+	"hadoop-2.8": ParseVersion("2.8.0"),
+	"cdh-4.1":    ParseVersion("2.0.0-mr1-cdh4.1.2"),
+	"cdh-5.4":    ParseVersion("2.6.0-cdh5.4.9"),
+	"cdh-5.6":    ParseVersion("2.6.0-cdh5.6.1"),
+	"cdh-5.8":    ParseVersion("2.6.0-cdh5.8.5"),
+	"hdp-2.0":    ParseVersion("2.2.0.2.0.6.3-7"),
+	"hdp-2.1":    ParseVersion("2.4.0.2.1.7.4-3"),
+	"hdp-2.2":    ParseVersion("2.6.0.2.2.9.18-1"),
+	"hdp-2.3":    ParseVersion("2.7.1.2.3.99.0-195"),
+	"hdp-2.4":    ParseVersion("2.7.1.2.4.4.1-9"),
+	"hdp-2.5":    ParseVersion("2.7.3.2.5.5.5-2"),
+	"mapr-4.1":   ParseVersion("2.5.1-mapr-1503"),
+	"mapr-5.0":   ParseVersion("2.7.0-mapr-1506"),
+	"mapr-5.1":   ParseVersion("2.7.0-mapr-1602"),
+	"mapr-5.2":   ParseVersion("2.7.0-mapr-1607"),
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-tarball.go
@@ -59,15 +115,15 @@ var ufsModules = map[string]bool{
 }
 
 var (
-	callHomeFlag         bool
-	callHomeBucketFlag   string
-	debugFlag            bool
-	distributionsFlag    string
-	licenseCheckFlag     bool
-	licenseSecretKeyFlag string
-	nativeFlag           bool
-	proxyURLFlag         string
-	ufsModulesFlag       string
+	callHomeFlag            bool
+	callHomeBucketFlag      string
+	debugFlag               bool
+	hadoopDistributionsFlag string
+	licenseCheckFlag        bool
+	licenseSecretKeyFlag    string
+	nativeFlag              bool
+	proxyURLFlag            string
+	ufsModulesFlag          string
 )
 
 func init() {
@@ -80,7 +136,7 @@ func init() {
 	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
 	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
-	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions(), ","), "a comma-separated list of distributions to generate; the default is to generate all distributions")
+	flag.StringVar(&hadoopDistributionsFlag, "hadoop-distributions", strings.Join(validHadoopDistributions(), ","), "a comma-separated list of hadoop distributions to generate Alluxio distributions for")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
 	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
@@ -90,10 +146,10 @@ func init() {
 	flag.Parse()
 }
 
-func validDistributions() []string {
+func validHadoopDistributions() []string {
 	result := []string{}
-	for t := range releaseDistributions {
-		result = append(result, t)
+	for distribution, _ := range hadoopDistributions {
+		result = append(result, distribution)
 	}
 	sort.Strings(result)
 	return result
@@ -146,22 +202,22 @@ func generateTarballs() error {
 	generateTarballScript := filepath.Join(goScriptsDir, "generate-tarball.go")
 
 	var distributions []string
-	if distributionsFlag != "" {
-		distributions = strings.Split(distributionsFlag, ",")
+	if hadoopDistributionsFlag != "" {
+		distributions = strings.Split(hadoopDistributionsFlag, ",")
 	} else {
-		distributions = validDistributions()
+		distributions = validHadoopDistributions()
 	}
 	for _, distribution := range distributions {
-		hadoopVersion, ok := releaseDistributions[distribution]
+		version, ok := hadoopDistributions[distribution]
 		if !ok {
-			fmt.Fprintf(os.Stderr, "distribution %s not recognized\n", distribution)
+			fmt.Fprintf(os.Stderr, "hadoop distribution %s not recognized\n", distribution)
 			continue
 		}
 		// TODO(chaomin): maybe append the OS type if native is enabled.
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
-		mvnArgs := []string{fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion)}
-		if strings.HasPrefix(hadoopVersion, "1") {
-			mvnArgs = append(mvnArgs, "-Phadoop-1")
+		mvnArgs := []string{fmt.Sprintf("-Dhadoop.version=%v", version), fmt.Sprintf("-P%v", version.HadoopProfile())}
+		if version.HasHadoopKMS() {
+			mvnArgs = append(mvnArgs, "-Phadoop-kms")
 		}
 		generateTarballArgs := []string{
 			"-mvn-args", strings.Join(mvnArgs, ","),
@@ -188,7 +244,7 @@ func generateTarballs() error {
 		}
 		args := []string{"run", generateTarballScript}
 		args = append(args, generateTarballArgs...)
-		run(fmt.Sprintf("Generating distribution for %v-%v at %v", distribution, hadoopVersion, tarball), "go", args...)
+		run(fmt.Sprintf("Generating distribution for %v at %v", distribution, tarball), "go", args...)
 	}
 	return nil
 }
