@@ -128,7 +128,7 @@ public class OutStreamOptionsTest {
     WriteType writeType = WriteType.NONE;
     // ALLUXIO CS ADD
     alluxio.proto.security.EncryptionProto.Meta meta =
-        alluxio.client.EncryptionMetaFactory.create();
+        alluxio.client.util.EncryptionMetaTestUtils.create();
     // ALLUXIO CS END
 
     OutStreamOptions options = OutStreamOptions.defaults();

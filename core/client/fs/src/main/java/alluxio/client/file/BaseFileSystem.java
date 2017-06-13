@@ -120,7 +120,7 @@ public class BaseFileSystem implements FileSystem {
       // ALLUXIO CS ADD
       if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
-            alluxio.client.EncryptionMetaFactory.create(), options.getBlockSizeBytes());
+            alluxio.client.EncryptionMetaFactory.createLayout(), options.getBlockSizeBytes());
         options.setBlockSizeBytes(physicalBlockSize);
       }
       // ALLUXIO CS END

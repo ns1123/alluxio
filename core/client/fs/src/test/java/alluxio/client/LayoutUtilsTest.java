@@ -12,6 +12,7 @@
 package alluxio.client;
 
 import alluxio.Constants;
+import alluxio.client.util.EncryptionMetaTestUtils;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.proto.ProtoUtils;
@@ -419,7 +420,7 @@ public final class LayoutUtilsTest {
 
   @Test
   public void encodeAndDecodeWithFactoryCreatedMeta() throws Exception {
-    EncryptionProto.Meta expected = EncryptionMetaFactory.create();
+    EncryptionProto.Meta expected = EncryptionMetaTestUtils.create();
     byte[] encodedFooter = LayoutUtils.encodeFooter(expected);
     FileFooter.FileMetadata fileMetadata = LayoutUtils.decodeFooter(encodedFooter);
     Assert.assertEquals(expected,
