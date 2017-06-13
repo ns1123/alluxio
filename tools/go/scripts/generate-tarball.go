@@ -18,7 +18,7 @@ import (
 const edition = "enterprise"
 const versionMarker = "${VERSION}"
 
-// Map from ufs profile to the name used in the generated tarball.
+// ufsModuleNames is a map from ufs profile to the name used in the generated tarball.
 var ufsModuleNames = map[string]string{
 	"ufs-hadoop-1.0":     "hdfsx-apache1_0",
 	"ufs-hadoop-1.2":     "hdfsx-apache1_2",
@@ -38,7 +38,7 @@ var ufsModuleNames = map[string]string{
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
-// Map from UFS module name to a bool indicating if this module is included by default
+// ufsModules is a map from UFS module name to a bool indicating if the module is included by default.
 var ufsModules = map[string]bool{
 	"ufs-hadoop-1.0":     false,
 	"ufs-hadoop-1.2":     true,
@@ -71,7 +71,13 @@ var (
 	ufsModulesFlag       string
 )
 
-var frameworks = []string{"flink", "hadoop", "spark"}
+// frameworks is a map from framework to whether building a client for the framework requires recompilation.
+var frameworks = map[string]bool{
+	"flink": false,
+	"hadoop": false,
+	"presto": true,
+	"spark": true,
+}
 var webappDir = "core/server/common/src/main/webapp"
 var webappWar = "assembly/webapp.war"
 
@@ -209,32 +215,53 @@ func getVersion() (string, error) {
 
 func addAdditionalFiles(srcPath, dstPath, version string) {
 	chdir(srcPath)
-	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
-	// DOCKER
-	mkdir(filepath.Join(dstPath, "integration/docker/bin"))
-	for _, file := range []string{
-		"alluxio-master.sh",
-		"alluxio-job-master.sh",
-		"alluxio-job-worker.sh",
-		"alluxio-proxy.sh",
-		"alluxio-worker.sh",
-	} {
-		path := filepath.Join("integration/docker/bin", file)
+	pathsToCopy := []string {
+		// BIN
+		"bin/alluxio",
+		"bin/alluxio-masters.sh",
+		"bin/alluxio-mount.sh",
+		"bin/alluxio-start.sh",
+		"bin/alluxio-stop.sh",
+		"bin/alluxio-workers.sh",
+		// CONF
+		"conf/alluxio-env.sh.template",
+		"conf/alluxio-site.properties.template",
+		"conf/core-site.xml.template",
+		"conf/log4j.properties",
+		"conf/masters",
+		"conf/metrics.properties.template",
+		"conf/workers",
+		// LIBEXEC
+		"libexec/alluxio-config.sh",
+		"libexec/alluxio-layout.sh.template",
+		// DOCKER
+		"integration/docker/bin/alluxio-master.sh",
+		"integration/docker/bin/alluxio-job-master.sh",
+		"integration/docker/bin/alluxio-job-worker.sh",
+		"integration/docker/bin/alluxio-proxy.sh",
+		"integration/docker/bin/alluxio-worker.sh",
+		// MESOS
+		"integration/mesos/bin/alluxio-env-mesos.sh",
+		"integration/mesos/bin/alluxio-master-mesos.sh",
+		"integration/mesos/bin/alluxio-mesos-start.sh",
+		"integration/mesos/bin/alluxio-worker-mesos.sh",
+		"integration/mesos/bin/common.sh",
+	}
+	for _, path := range pathsToCopy {
+		mkdir(filepath.Join(dstPath, filepath.Dir(path)))
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
-	// cp -r docker-enterprise/. to copy the contents of the directory, not the directory itself.
-	run("copying docker-enterprise directory", "cp", "-r", "integration/docker-enterprise/.", filepath.Join(dstPath, "integration/docker"))
-	// MESOS
-	mkdir(filepath.Join(dstPath, "integration", "mesos", "bin"))
+	// DOCKER
+	mkdir(filepath.Join(dstPath, "integration/docker/conf"))
+	// Copy files from /docker-enterprise to /docker.
 	for _, file := range []string{
-		"alluxio-env-mesos.sh",
-		"alluxio-master-mesos.sh",
-		"alluxio-mesos-start.sh",
-		"alluxio-worker-mesos.sh",
-		"common.sh",
+		"Dockerfile",
+		"README.md",
+		"entrypoint.sh",
 	} {
-		path := filepath.Join("integration/mesos/bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
+		src := filepath.Join("integration/docker-enterprise", file)
+		dst := filepath.Join("integration/docker", file)
+		run(fmt.Sprintf("adding %v", src), "mv", src, filepath.Join(dstPath, dst))
 	}
 	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
@@ -309,7 +336,8 @@ func generateTarball() error {
 	// Create the directory for the server jar.
 	mkdir(filepath.Join(dstPath, "assembly"))
 	// Create directories for the client jars.
-	for _, framework := range frameworks {
+	mkdir(filepath.Join(dstPath, "client/default"))
+	for framework, _ := range frameworks {
 		mkdir(filepath.Join(dstPath, "client", framework))
 	}
 	mkdir(filepath.Join(dstPath, "logs"))
@@ -325,13 +353,15 @@ func generateTarball() error {
 
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
 	chdir(filepath.Join(srcPath, "core/client/runtime"))
-	for _, framework := range frameworks {
-		clientArgs := getCommonMvnArgs()
-		if framework != "hadoop" {
-			clientArgs = append(clientArgs, fmt.Sprintf("-P%s", framework))
+	run("building Alluxio default client jar", "mvn", getCommonMvnArgs()...)
+	run("adding Alluxio default client jar", "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("default/alluxio-%v-default-client.jar", version)))
+	for framework, recompile := range frameworks {
+		if recompile {
+			run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", getCommonMvnArgs()...)
+			run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
+		} else {
+			run(fmt.Sprintf("Creating symlink for %v client jar", framework), "ln", "-s", fmt.Sprintf("../default/alluxio-%v-default-client.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 		}
-		run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", clientArgs...)
-		run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 	}
 
 	// CREATE DISTRIBUTION TARBALL AND CLEANUP
