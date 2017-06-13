@@ -11,11 +11,9 @@
 
 package alluxio.client.security;
 
-import alluxio.Constants;
 import alluxio.client.LayoutUtils;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.security.kms.KmsClient;
-import alluxio.util.proto.ProtoUtils;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -42,17 +40,6 @@ public final class CryptoUtils {
    */
   public static EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
       throws IOException {
-    if (inputKey.equals(String.valueOf(Constants.INVALID_ENCRYPTION_ID))) {
-      // Save a call to actual KMS for invalid encryption id.
-      return ProtoUtils.setIv(
-          ProtoUtils.setKey(
-              EncryptionProto.CryptoKey.newBuilder()
-                  .setCipher(Constants.AES_GCM_NOPADDING)
-                  .setNeedsAuthTag(1)
-                  .setGenerationId("generationId"),
-              Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()),
-          Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
-    }
     return KmsClient.Factory.create().getCryptoKey(kms, encrypt, inputKey);
   }
 

@@ -35,9 +35,11 @@ public final class EncryptionMetaFactory {
    * @return the encryption meta
    */
   public static EncryptionProto.Meta create() throws IOException {
+    // Use an empty dummy crypto key for invalid encryption id because the key is never used.
     return create(Constants.INVALID_ENCRYPTION_ID, Constants.INVALID_ENCRYPTION_ID,
         LayoutUtils.toPhysicalBlockLength(
-          PARTIAL_META, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)));
+          PARTIAL_META, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)),
+        EncryptionProto.CryptoKey.newBuilder().build());
   }
 
   /**
