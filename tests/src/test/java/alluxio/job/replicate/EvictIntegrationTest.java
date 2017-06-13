@@ -73,7 +73,7 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
           throw new RuntimeException(e);
         }
       }
-    }, WaitForOptions.defaults().setTimeoutMs(5 * Constants.SECOND_MS));
+    }, WaitForOptions.defaults().setTimeout(5 * Constants.SECOND_MS));
     // block 2 should not be evicted
     Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.INSTANCE));
   }
@@ -91,7 +91,7 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
           throw new RuntimeException(e);
         }
       }
-    }, WaitForOptions.defaults().setTimeoutMs(5 * Constants.SECOND_MS));
+    }, WaitForOptions.defaults().setTimeout(5 * Constants.SECOND_MS));
     // block 1 should not be evicted
     Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.INSTANCE));
   }
