@@ -99,7 +99,6 @@ public class AbstractFileSystemTest {
   @After
   public void after() {
     HadoopClientTestUtils.resetClient();
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
