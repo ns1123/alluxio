@@ -13,7 +13,9 @@ package alluxio.hadoop;
 
 import alluxio.AlluxioURI;
 import alluxio.CommonTestUtils;
+import alluxio.Configuration;
 import alluxio.ConfigurationRule;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemContext;
@@ -98,6 +100,7 @@ public class AbstractFileSystemTest {
   @After
   public void after() {
     HadoopClientTestUtils.resetClient();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -137,6 +140,18 @@ public class AbstractFileSystemTest {
       final org.apache.hadoop.fs.FileSystem fs = org.apache.hadoop.fs.FileSystem.get(uri, conf);
       Assert.assertTrue(fs instanceof FaultTolerantFileSystem);
     }
+  }
+
+  /**
+   * Tests that using an alluxio-ft:/// URI is still possible after using an alluxio://host:port/
+   * URI.
+   */
+  @Test
+  public void loadRegularThenFaultTolerant() throws Exception {
+    Configuration.set(PropertyKey.ZOOKEEPER_ENABLED, "true");
+    Configuration.set(PropertyKey.ZOOKEEPER_ADDRESS, "host:2");
+    org.apache.hadoop.fs.FileSystem.get(URI.create(Constants.HEADER + "host:1/"), getConf());
+    org.apache.hadoop.fs.FileSystem.get(URI.create(Constants.HEADER_FT + "/"), getConf());
   }
 
   /**
