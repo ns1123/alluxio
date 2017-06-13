@@ -22,7 +22,6 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.LoginUserRule;
 import alluxio.PropertyKey;
-import alluxio.client.EncryptionMetaFactory;
 import alluxio.client.LayoutUtils;
 import alluxio.client.WriteType;
 import alluxio.client.block.AlluxioBlockStore;
@@ -32,6 +31,7 @@ import alluxio.client.block.stream.UnderFileSystemFileOutStream;
 import alluxio.client.file.options.GetStatusOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.util.ClientTestUtils;
+import alluxio.client.util.EncryptionMetaTestUtils;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.resource.DummyCloseableResource;
@@ -93,7 +93,7 @@ public final class CryptoFileOutStreamTest {
     GroupMappingServiceTestUtils.resetCache();
     ClientTestUtils.setSmallBufferSizes();
 
-    mMeta = EncryptionMetaFactory.create();
+    mMeta = EncryptionMetaTestUtils.create();
     mBlockLength = mMeta.getPhysicalBlockSize();
     // PowerMock enums and final classes
     mFileSystemContext = PowerMockito.mock(FileSystemContext.class);

@@ -11,7 +11,7 @@
 
 package alluxio.client.security;
 
-import alluxio.client.EncryptionMetaFactory;
+import alluxio.client.util.EncryptionMetaTestUtils;
 import alluxio.proto.security.EncryptionProto;
 
 import org.junit.Assert;
@@ -36,7 +36,7 @@ public final class EncryptionCacheTest {
     EncryptionCache cache = new EncryptionCache();
 
     long fileId = 5L;
-    EncryptionProto.Meta expected = EncryptionMetaFactory.create();
+    EncryptionProto.Meta expected = EncryptionMetaTestUtils.create();
     cache.put(fileId, expected);
 
     EncryptionProto.Meta actual = cache.get(fileId);
@@ -49,7 +49,7 @@ public final class EncryptionCacheTest {
     EncryptionCache cache = new EncryptionCache();
 
     long fileId = 5L;
-    EncryptionProto.Meta expected = EncryptionMetaFactory.create();
+    EncryptionProto.Meta expected = EncryptionMetaTestUtils.create();
     cache.put(fileId, expected);
 
     EncryptionProto.Meta actual = cache.get(fileId);

@@ -12,7 +12,7 @@
 package alluxio.client.security;
 
 import alluxio.Constants;
-import alluxio.client.EncryptionMetaFactory;
+import alluxio.client.util.EncryptionMetaTestUtils;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.proto.ProtoUtils;
 
@@ -67,7 +67,7 @@ public class CryptoUtilsTest {
         new String(new char[64 * Constants.KB]).replace('\0', 'a'),
         new String(new char[4 * Constants.MB]).replace('\0', 'b'),
     };
-    EncryptionProto.Meta meta = EncryptionMetaFactory.create();
+    EncryptionProto.Meta meta = EncryptionMetaTestUtils.create();
 
     for (final String plaintext : testcases) {
       ByteBuf ciphertext = CryptoUtils.encryptChunks(

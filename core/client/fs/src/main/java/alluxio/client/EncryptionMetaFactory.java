@@ -12,12 +12,10 @@
 package alluxio.client;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.security.CryptoUtils;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
-import alluxio.util.proto.ProtoUtils;
 
 import java.io.IOException;
 
@@ -29,27 +27,15 @@ public final class EncryptionMetaFactory {
       initializePartialFileMetadata();
   private static final EncryptionProto.Meta PARTIAL_META =
       initializePartialMeta();
-  private static final EncryptionProto.CryptoKey TESTING_CRYPTO_KEY =
-      ProtoUtils.setIv(
-          ProtoUtils.setKey(
-              EncryptionProto.CryptoKey.newBuilder()
-                  .setCipher(Constants.AES_GCM_NOPADDING)
-                  .setNeedsAuthTag(1)
-                  .setGenerationId("generationId"),
-              Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()),
-          Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
 
   /**
-   * Creates a new {@link EncryptionProto.Meta} from the configuration.
+   * Creates a new {@link EncryptionProto.Meta} from the configuration, only for layout purpose.
+   * Encryption id and crypto key are not set.
    *
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create() throws IOException {
-    // Use a dummy testing crypto key for invalid encryption id.
-    return create(Constants.INVALID_ENCRYPTION_ID, Constants.INVALID_ENCRYPTION_ID,
-        LayoutUtils.toPhysicalBlockLength(
-          PARTIAL_META, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)),
-        TESTING_CRYPTO_KEY);
+  public static EncryptionProto.Meta createLayout() throws IOException {
+    return PARTIAL_META;
   }
 
   /**
