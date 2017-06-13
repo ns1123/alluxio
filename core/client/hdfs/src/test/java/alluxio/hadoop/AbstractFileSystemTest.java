@@ -14,7 +14,6 @@ package alluxio.hadoop;
 import alluxio.AlluxioURI;
 import alluxio.CommonTestUtils;
 import alluxio.ConfigurationRule;
-import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemContext;
