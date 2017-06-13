@@ -13,7 +13,6 @@ package alluxio.hadoop;
 
 import alluxio.AlluxioURI;
 import alluxio.CommonTestUtils;
-import alluxio.Configuration;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
@@ -148,10 +147,14 @@ public class AbstractFileSystemTest {
    */
   @Test
   public void loadRegularThenFaultTolerant() throws Exception {
-    Configuration.set(PropertyKey.ZOOKEEPER_ENABLED, "true");
-    Configuration.set(PropertyKey.ZOOKEEPER_ADDRESS, "host:2");
-    org.apache.hadoop.fs.FileSystem.get(URI.create(Constants.HEADER + "host:1/"), getConf());
-    org.apache.hadoop.fs.FileSystem.get(URI.create(Constants.HEADER_FT + "/"), getConf());
+    try (Closeable c = new ConfigurationRule(ImmutableMap.of(
+        PropertyKey.ZOOKEEPER_ENABLED, "true",
+        PropertyKey.ZOOKEEPER_ADDRESS, "host:2")).toResource()) {
+      org.apache.hadoop.fs.FileSystem.get(URI.create(Constants.HEADER + "host:1/"), getConf());
+      org.apache.hadoop.fs.FileSystem fs =
+          org.apache.hadoop.fs.FileSystem.get(URI.create(Constants.HEADER_FT + "/"), getConf());
+      Assert.assertTrue(fs instanceof FaultTolerantFileSystem);
+    }
   }
 
   /**
