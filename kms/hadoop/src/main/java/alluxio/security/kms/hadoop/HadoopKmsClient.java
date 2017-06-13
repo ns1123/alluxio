@@ -112,13 +112,26 @@ public class HadoopKmsClient implements KmsClient {
     String keyName = ALLUXIO_KEY_NAME_PREFIX + inputKey;
     KeyProvider.KeyVersion keyVersion = keyProvider.getCurrentKey(keyName);
     if (keyVersion == null) {
-      // Key with name inputKey does not exist.
+      // The key does not exist.
       if (encrypt) {
-        return createKey(keyProvider, keyName);
+        try {
+          return createKey(keyProvider, keyName);
+        } catch (IOException e) {
+          // The key may have been created between the call to getCurrentKey and the call to
+          // createKey, which causes the IOException, if this is the situation, ignore this
+          // exception.
+          keyVersion = keyProvider.getCurrentKey(keyName);
+          if (keyVersion == null) {
+            throw e;
+          }
+          // Continue with the newly retrieved key.
+        }
+      } else {
+        // For decryption, the key should pre-exist.
+        throw new IOException("No key named " + keyName + " exists");
       }
-      throw new IOException("No key named " + keyName + " exists");
     }
-    // Key with name inputKey exists.
+    // The key exists.
     byte[] key = keyVersion.getMaterial();
     byte[] iv = new byte[0];
     KeyProvider.Metadata keyMetadata = keyProvider.getMetadata(keyName);
