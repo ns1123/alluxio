@@ -10,9 +10,7 @@
     See the NOTICE file distributed with this work for information regarding copyright ownership.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>alluxio-assembly</artifactId>
@@ -87,11 +85,11 @@
     </dependency>
     -->
     <!-- ALLUXIO CS REPLACE -->
-    <!--<dependency>-->
-      <!--<groupId>org.alluxio</groupId>-->
-      <!--<artifactId>alluxio-underfs-hdfs</artifactId>-->
-      <!--<version>${project.version}</version>-->
-    <!--</dependency>-->
+    <!-- <dependency> -->
+      <!-- <groupId>org.alluxio</groupId> -->
+      <!-- <artifactId>alluxio-underfs-hdfs</artifactId> -->
+      <!-- <version>${project.version}</version> -->
+    <!-- </dependency> -->
     <!-- ALLUXIO CS WITH -->
     <dependency>
       <groupId>org.alluxio</groupId>

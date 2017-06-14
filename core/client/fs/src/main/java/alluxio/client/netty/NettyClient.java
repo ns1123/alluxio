@@ -79,12 +79,9 @@ public final class NettyClient {
       boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
     }
 
-    // ALLUXIO CS REMOVE
-    // // After 10 missed heartbeat attempts and no write activity, the server will close the channel.
-    // final long timeoutMs = Configuration.getLong(PropertyKey.NETWORK_NETTY_HEARTBEAT_TIMEOUT_MS);
-    // final long heartbeatPeriodMs = Math.max(timeoutMs / 10, 1);
-    //
-    // ALLUXIO CS END
+    // After 10 missed heartbeat attempts and no write activity, the server will close the channel.
+    final long timeoutMs = Configuration.getLong(PropertyKey.NETWORK_NETTY_HEARTBEAT_TIMEOUT_MS);
+    final long heartbeatPeriodMs = Math.max(timeoutMs / 10, 1);
     boot.handler(new ChannelInitializer<Channel>() {
       @Override
       public void initChannel(Channel ch) throws Exception {
@@ -93,15 +90,13 @@ public final class NettyClient {
         pipeline.addLast(RPCMessage.createFrameDecoder());
         pipeline.addLast(ENCODER);
         pipeline.addLast(DECODER);
+        pipeline.addLast(new IdleStateHandler(0, heartbeatPeriodMs, 0, TimeUnit.MILLISECONDS));
+        pipeline.addLast(new IdleWriteHandler());
         // ALLUXIO CS ADD
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
             alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
           pipeline.addLast(KERBEROS_SASL_CLIENT_HANDLER);
         }
-        // ALLUXIO CS END
-        // ALLUXIO CS REMOVE
-        // pipeline.addLast(new IdleStateHandler(0, heartbeatPeriodMs, 0, TimeUnit.MILLISECONDS));
-        // pipeline.addLast(new IdleWriteHandler());
         // ALLUXIO CS END
       }
     });
@@ -133,12 +128,6 @@ public final class NettyClient {
         }
       }
     }
-    // After 10 missed heartbeat attempts and no write activity, the server will close the channel.
-    final long timeoutMs = Configuration.getLong(PropertyKey.NETWORK_NETTY_HEARTBEAT_TIMEOUT_MS);
-    final long heartbeatPeriodMs = Math.max(timeoutMs / 10, 1);
-    channel.pipeline()
-        .addLast(new IdleStateHandler(0, heartbeatPeriodMs, 0, TimeUnit.MILLISECONDS));
-    channel.pipeline().addLast(new IdleWriteHandler());
   }
   // ALLUXIO CS END
 }

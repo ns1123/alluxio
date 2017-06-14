@@ -98,50 +98,53 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     Configuration hdfsConf = createConfiguration(conf);
 
     // ALLUXIO CS ADD
+    // Set Hadoop UGI configuration will initialize UGI which triggers service loading
+    // Stash the classloader for service loading
+    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
+      UserGroupInformation.setConfiguration(hdfsConf);
+    } finally {
+      Thread.currentThread().setContextClassLoader(previousClassLoader);
+    }
+
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
-    mIsHdfsKerberized = hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase("KERBEROS");
+    // NOTE, hdfsConf.get("hadoop.security.authentication") may return null for hadoop 1.x
+    mIsHdfsKerberized = "KERBEROS".equalsIgnoreCase(hdfsConf.get("hadoop.security.authentication"));
     if (mIsHdfsKerberized) {
       try {
         switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
-          case MASTER:
-            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-                alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
-            break;
-          case WORKER:
-            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-                alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
-            break;
-          case JOB_MASTER:
-            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
-            break;
+          // Master and Worker are handled the same.
+          case MASTER: // intended to fall through
+          case WORKER: // intended to fall through
+          case JOB_MASTER: // intended to fall through
           case JOB_WORKER:
-            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC));
+            loginAsAlluxioServer();
             break;
           // Client and Proxy are handled the same.
-          case CLIENT:
+          case CLIENT: // intended to fall through
           case PROXY:
-            connectFromAlluxioClient();
+            loginAsAlluxioClient();
             break;
           default:
             throw new IllegalStateException(
                 "Unknown process type: " + alluxio.util.CommonUtils.PROCESS_TYPE.get());
         }
       } catch (IOException e) {
-        LOG.error("Login error: " + e);
+        LOG.error("Failed to Login", e);
       }
-
+      // Stash the classloader for service loading
+      previousClassLoader = Thread.currentThread().getContextClassLoader();
       try {
+        Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
         if (alluxio.util.CommonUtils.isAlluxioServer() && !mUser.isEmpty()
-            && !org.apache.hadoop.security.UserGroupInformation.getLoginUser().getShortUserName()
+            && !UserGroupInformation.getLoginUser().getShortUserName()
             .equals(mUser)) {
           // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
           // The Alluxio server user must be configured as a superuser proxy in HDFS configuration.
-          org.apache.hadoop.security.UserGroupInformation proxyUgi =
-              org.apache.hadoop.security.UserGroupInformation.createProxyUser(mUser,
-                  org.apache.hadoop.security.UserGroupInformation.getLoginUser());
+          UserGroupInformation proxyUgi =
+              UserGroupInformation.createProxyUser(mUser, UserGroupInformation.getLoginUser());
           LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
           HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<Void>() {
             @Override
@@ -163,15 +166,17 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
           });
         }
       } catch (IOException e) {
-        LOG.error("Exception thrown when trying to get FileSystem for {}", ufsPrefix, e);
-        throw new RuntimeException(e);
+        throw new RuntimeException(String.format(
+            "Failed to get Hadoop FileSystem client with Kerberos for %s", ufsPrefix), e);
+      } finally {
+        Thread.currentThread().setContextClassLoader(previousClassLoader);
       }
       return;
     }
     // ALLUXIO CS END
     Path path = new Path(ufsUri.toString());
     // Stash the classloader for service loading
-    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+    previousClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
@@ -179,9 +184,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       UserGroupInformation.setConfiguration(hdfsConf);
       mFileSystem = path.getFileSystem(hdfsConf);
     } catch (IOException e) {
-      LOG.warn("Exception thrown when trying to get FileSystem for {} : {}", ufsUri,
-          e.getMessage());
-      throw new RuntimeException("Failed to create Hadoop FileSystem", e);
+      throw new RuntimeException(
+          String.format("Failed to get Hadoop FileSystem client for %s", ufsUri), e);
     } finally {
       Thread.currentThread().setContextClassLoader(previousClassLoader);
     }
@@ -209,7 +213,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     Configuration hdfsConf;
     ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
     try {
-      // Reflection may be invoked
+      // Reflection may be invoked due to service loading
       Thread.currentThread().setContextClassLoader(HdfsUnderFileSystem.class.getClassLoader());
       hdfsConf = new Configuration();
     } finally {
@@ -433,7 +437,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
     //     masterPrincipal, host);
     // ALLUXIO CS WITH
-    connectFromAlluxioServer(host);
+    loginAsAlluxioServer();
     // ALLUXIO CS END
   }
 
@@ -453,12 +457,12 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
     // ALLUXIO CS WITH
-    connectFromAlluxioServer(host);
+    loginAsAlluxioServer();
     // ALLUXIO CS END
   }
   // ALLUXIO CS ADD
 
-  private void connectFromAlluxioServer(String host) throws IOException {
+  private void loginAsAlluxioServer() throws IOException {
     if (!mIsHdfsKerberized) {
       return;
     }
@@ -467,10 +471,10 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
-    login(principal, keytab, host);
+    login(principal, keytab);
   }
 
-  private void connectFromAlluxioClient() throws IOException {
+  private void loginAsAlluxioClient() throws IOException {
     if (!mIsHdfsKerberized) {
       return;
     }
@@ -479,7 +483,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
-    login(principal, keytab, null);
+    login(principal, keytab);
   }
   // ALLUXIO CS END
 
@@ -492,17 +496,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   //   SecurityUtil.login(conf, keytabFileKey.toString(), principalKey.toString(), hostname);
   // }
   // ALLUXIO CS WITH
-  private void login(String principal, String keytabFile, String hostname) throws IOException {
-    org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-    String ufsHdfsImpl = mUfsConf.getValue(PropertyKey.UNDERFS_HDFS_IMPL);
-    if (!StringUtils.isEmpty(ufsHdfsImpl)) {
-      conf.set("fs.hdfs.impl", ufsHdfsImpl);
-    }
-    conf.set("hadoop.security.authentication",
-        alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
-
-    org.apache.hadoop.security.UserGroupInformation.setConfiguration(conf);
-    org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
+  private void login(String principal, String keytabFile)
+      throws IOException {
+    UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
   }
   // ALLUXIO CS END
 

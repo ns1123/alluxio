@@ -856,13 +856,33 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           try {
             // the path to child for getPath should already be locked.
             tempInodePath.setDescendant(child, mInodeTree.getPath(child));
-            ret.add(getFileInfoInternal(tempInodePath));
+            // ALLUXIO CS REPLACE
+            // ret.add(getFileInfoInternal(tempInodePath));
+            // ALLUXIO CS WITH
+            FileInfo fileInfo = getFileInfoInternal(tempInodePath);
+            if (fileInfo.isEncrypted() && !fileInfo.isFolder()) {
+              // Capability should be attached in listStatus for encrypted files, so that
+              // Alluxio client can read the footer to get encryption layout and metadata.
+              populateCapability(fileInfo, tempInodePath);
+            }
+            ret.add(fileInfo);
+            // ALLUXIO CS END
           } finally {
             child.unlockRead();
           }
         }
       } else {
-        ret.add(getFileInfoInternal(inodePath));
+        // ALLUXIO CS REPLACE
+        // ret.add(getFileInfoInternal(inodePath));
+        // ALLUXIO CS WITH
+        FileInfo fileInfo = getFileInfoInternal(inodePath);
+        if (fileInfo.isEncrypted() && !fileInfo.isFolder()) {
+          // Capability should be attached in listStatus for encrypted files, so that
+          // Alluxio client can read the footer to get encryption layout and metadata.
+          populateCapability(fileInfo, inodePath);
+        }
+        ret.add(fileInfo);
+        // ALLUXIO CS END
       }
       Metrics.FILE_INFOS_GOT.inc();
       return ret;
@@ -2528,11 +2548,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       boolean replayed, MountOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException {
     AlluxioURI alluxioPath = inodePath.getUri();
-    UnderFileSystem ufs = mUfsManager.addMount(mountId, new AlluxioURI(ufsPath.toString()),
+    // Adding the mount point will not create the UFS instance and thus not connect to UFS
+    mUfsManager.addMount(mountId, new AlluxioURI(ufsPath.toString()),
         UnderFileSystemConfiguration.defaults().setReadOnly(options.isReadOnly())
-            .setShared(options.isShared()).setUserSpecifiedConf(options.getProperties())).getUfs();
+            .setShared(options.isShared()).setUserSpecifiedConf(options.getProperties()));
     try {
       if (!replayed) {
+        UnderFileSystem ufs = mUfsManager.get(mountId).getUfs();
         ufs.connectFromMaster(
             NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.MASTER_RPC));
         // Check that the ufsPath exists and is a directory

@@ -64,7 +64,7 @@ public class InStreamOptionsTest {
     // ALLUXIO CS ADD
     options.setEncrypted(true);
     alluxio.proto.security.EncryptionProto.Meta meta
-        = alluxio.client.EncryptionMetaFactory.create();
+        = alluxio.client.util.EncryptionMetaTestUtils.create();
     options.setEncryptionMeta(meta);
     // ALLUXIO CS END
 

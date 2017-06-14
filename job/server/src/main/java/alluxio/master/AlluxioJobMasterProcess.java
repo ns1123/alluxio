@@ -34,6 +34,7 @@ import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   private final int mPort;
 
   /** The socket for thrift rpc server. */
-  private final TServerSocket mTServerSocket;
+  private TServerSocket mTServerSocket;
 
   /** The transport provider to create thrift server transport. */
   private final TransportProvider mTransportProvider;
@@ -114,8 +115,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
       mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);
       // reset master port
       Configuration.set(PropertyKey.JOB_MASTER_RPC_PORT, Integer.toString(mPort));
-      mRpcAddress =
-          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
+      mRpcAddress = NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
 
       // Create master.
       createMaster();
@@ -193,8 +193,6 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
     if (mIsServing) {
       stopServing();
       stopMaster();
-      mTServerSocket.close();
-      mIsServing = false;
     }
   }
 
@@ -262,6 +260,16 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
       throw Throwables.propagate(e);
     }
 
+    try {
+      if (mTServerSocket != null) {
+        mTServerSocket.close();
+      }
+      mTServerSocket =
+          new TServerSocket(mRpcAddress,
+              Configuration.getInt(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
+    } catch (TTransportException e) {
+      throw new RuntimeException(e);
+    }
     // create master thrift service with the multiplexed processor.
     Args args = new Args(mTServerSocket).maxWorkerThreads(mMaxWorkerThreads)
         .minWorkerThreads(mMinWorkerThreads).processor(processor).transportFactory(transportFactory)
@@ -284,6 +292,10 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
     if (mMasterServiceServer != null) {
       mMasterServiceServer.stop();
       mMasterServiceServer = null;
+    }
+    if (mTServerSocket != null) {
+      mTServerSocket.close();
+      mTServerSocket = null;
     }
     if (mWebServer != null) {
       mWebServer.stop();

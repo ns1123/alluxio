@@ -194,6 +194,7 @@ public final class Constants {
 
   // Encryption
   public static final String AES_GCM_NOPADDING = "AES/GCM/NoPadding";
+  public static final int AES_GCM_NOPADDING_BLOCK_SIZE = 16; // bytes
   public static final long DEFAULT_CHUNK_SIZE = 64 * KB;
   public static final long DEFAULT_CHUNK_FOOTER_SIZE = 16L;
   public static final String ENCRYPTION_MAGIC = "ALLUXIO1";

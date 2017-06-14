@@ -12,16 +12,20 @@
 package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.JobIntegrationTest;
+import alluxio.util.CommonUtils;
+import alluxio.util.WaitForOptions;
 import alluxio.util.io.BufferUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.WorkerNetAddress;
 
+import com.google.common.base.Function;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +38,7 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
   private static final int TEST_BLOCK_SIZE = 100;
   private long mBlockId1;
   private long mBlockId2;
-  private WorkerNetAddress mWorker1;
-  private WorkerNetAddress mWorker2;
+  private WorkerNetAddress mWorker;
 
   @Before
   public void before() throws Exception {
@@ -54,25 +57,42 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
 
     BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, FileSystemContext.INSTANCE);
     BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, FileSystemContext.INSTANCE);
-    mWorker1 = blockInfo1.getLocations().get(0).getWorkerAddress();
-    mWorker2 = blockInfo2.getLocations().get(0).getWorkerAddress();
+    mWorker = blockInfo1.getLocations().get(0).getWorkerAddress();
   }
 
   @Test
-  public void evictFullBlock() throws Exception {
+  public void evictBlock1() throws Exception {
     // run the evict job for full block mBlockId1
     waitForJobToFinish(mJobMaster.run(new EvictConfig(mBlockId1, 1)));
-    Assert
-        .assertFalse(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker1, FileSystemContext.INSTANCE));
-    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker2, FileSystemContext.INSTANCE));
+    CommonUtils.waitFor("block 1 to be evicted", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        try {
+          return !AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.INSTANCE);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }, WaitForOptions.defaults().setTimeout(5 * Constants.SECOND_MS));
+    // block 2 should not be evicted
+    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.INSTANCE));
   }
 
   @Test
-  public void evictLastBlock() throws Exception {
+  public void evictBlock2() throws Exception {
     // run the evict job for the last block mBlockId2
     waitForJobToFinish(mJobMaster.run(new EvictConfig(mBlockId2, 1)));
-    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker1, FileSystemContext.INSTANCE));
-    Assert
-        .assertFalse(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker2, FileSystemContext.INSTANCE));
+    CommonUtils.waitFor("block 2 to be evicted", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        try {
+          return !AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.INSTANCE);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }, WaitForOptions.defaults().setTimeout(5 * Constants.SECOND_MS));
+    // block 1 should not be evicted
+    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.INSTANCE));
   }
 }

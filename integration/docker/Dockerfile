@@ -15,7 +15,7 @@ FROM openjdk:7-jdk-alpine
 RUN echo "The enterprise repo uses integration/docker-enterprise/Dockerfile instead of this file." && exit 1
 # ALLUXIO CS END
 
-ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.4.0/alluxio-1.4.0-bin.tar.gz
+ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.5.0/alluxio-1.5.0-bin.tar.gz
 
 RUN apk add --update bash && \
     rm -rf /var/cache/apk/*

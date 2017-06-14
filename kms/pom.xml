@@ -39,21 +39,7 @@
   <!-- Hadoop KMS only exists in Hadoop version >= 2.6.0 -->
   <profiles>
     <profile>
-      <id>hadoop-2.6</id>
-      <modules>
-        <module>hadoop</module>
-      </modules>
-    </profile>
-
-    <profile>
-      <id>hadoop-2.7</id>
-      <modules>
-        <module>hadoop</module>
-      </modules>
-    </profile>
-
-    <profile>
-      <id>hadoop-2.8</id>
+      <id>hadoop-kms</id>
       <modules>
         <module>hadoop</module>
       </modules>
