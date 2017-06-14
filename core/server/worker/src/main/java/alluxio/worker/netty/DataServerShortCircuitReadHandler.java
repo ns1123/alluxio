@@ -102,78 +102,6 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
   }
 
   /**
-   * Runnable for handling the expensive open block call logic.
-   */
-  final class BlockOpenRequestHandler implements Runnable {
-    Protocol.LocalBlockOpenRequest mRequest;
-    ChannelHandlerContext mContext;
-
-    private BlockOpenRequestHandler(ChannelHandlerContext ctx, Protocol.LocalBlockOpenRequest req) {
-      mContext = ctx;
-      mRequest = req;
-    }
-
-    @Override
-    public void run() {
-      RpcUtils.nettyRPCAndLog(LOG, new RpcUtils.NettyRPCCallable<Void>() {
-        @Override
-        public Void call() throws Exception {
-          // ALLUXIO CS ADD
-          Utils.checkAccessMode(mWorker, mContext, mRequest.getBlockId(), mRequest.getCapability(),
-              alluxio.security.authorization.Mode.Bits.READ);
-          // ALLUXIO CS END
-          if (mLockId == BlockLockManager.INVALID_LOCK_ID) {
-            mSessionId = IdUtils.createSessionId();
-            // TODO(calvin): Update the locking logic so this can be done better
-            if (mRequest.getPromote()) {
-              try {
-                mWorker.moveBlock(mSessionId, mRequest.getBlockId(), mStorageTierAssoc.getAlias(0));
-              } catch (BlockDoesNotExistException e) {
-                LOG.debug("Block {} to promote does not exist in Alluxio: {}",
-                    mRequest.getBlockId(), e.getMessage());
-              } catch (Exception e) {
-                LOG.warn("Failed to promote block {}: {}", mRequest.getBlockId(), e.getMessage());
-              }
-            }
-            mLockId = mWorker.lockBlock(mSessionId, mRequest.getBlockId());
-            mWorker.accessBlock(mSessionId, mRequest.getBlockId());
-          } else {
-            LOG.warn("Lock block {} without releasing previous block lock {}.",
-                mRequest.getBlockId(), mLockId);
-            throw new InvalidWorkerStateException(
-                ExceptionMessage.LOCK_NOT_RELEASED.getMessage(mLockId));
-          }
-          Protocol.LocalBlockOpenResponse response = Protocol.LocalBlockOpenResponse.newBuilder()
-              .setPath(mWorker.readBlock(mSessionId, mRequest.getBlockId(), mLockId))
-              .build();
-          mContext.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response)));
-
-          return null;
-        }
-
-        @Override
-        public void exceptionCaught(Throwable e) {
-          if (mLockId != BlockLockManager.INVALID_LOCK_ID) {
-            try {
-              mWorker.unlockBlock(mLockId);
-            } catch (BlockDoesNotExistException ee) {
-              LOG.error("Failed to unlock block {}.", mRequest.getBlockId(), e);
-            }
-            mLockId = BlockLockManager.INVALID_LOCK_ID;
-          }
-          mContext.writeAndFlush(
-              RPCProtoMessage.createResponse(AlluxioStatusException.fromThrowable(e)));
-        }
-
-        @Override
-        public String toString() {
-          return String.format("Session %d: open block: %s", mSessionId, mRequest.toString());
-        }
-      });
-    }
-  }
-
-  /**
    * Handles {@link Protocol.LocalBlockOpenRequest}. Since the open can be expensive, the work is
    * delegated to a threadpool. No exceptions should be thrown.
    *
@@ -182,8 +110,65 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
    */
   private void handleBlockOpenRequest(final ChannelHandlerContext ctx,
       final Protocol.LocalBlockOpenRequest request) {
-    BlockOpenRequestHandler handler = new BlockOpenRequestHandler(ctx, request);
-    mRpcExecutor.submit(handler);
+    mRpcExecutor.submit(new Runnable() {
+      @Override
+      public void run() {
+        RpcUtils.nettyRPCAndLog(LOG, new RpcUtils.NettyRPCCallable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            // ALLUXIO CS ADD
+            Utils.checkAccessMode(mWorker, ctx, request.getBlockId(), request.getCapability(),
+                alluxio.security.authorization.Mode.Bits.READ);
+            // ALLUXIO CS END
+            if (mLockId == BlockLockManager.INVALID_LOCK_ID) {
+              mSessionId = IdUtils.createSessionId();
+              // TODO(calvin): Update the locking logic so this can be done better
+              if (request.getPromote()) {
+                try {
+                  mWorker
+                      .moveBlock(mSessionId, request.getBlockId(), mStorageTierAssoc.getAlias(0));
+                } catch (BlockDoesNotExistException e) {
+                  LOG.debug("Block {} to promote does not exist in Alluxio: {}",
+                      request.getBlockId(), e.getMessage());
+                } catch (Exception e) {
+                  LOG.warn("Failed to promote block {}: {}", request.getBlockId(), e.getMessage());
+                }
+              }
+              mLockId = mWorker.lockBlock(mSessionId, request.getBlockId());
+              mWorker.accessBlock(mSessionId, request.getBlockId());
+            } else {
+              LOG.warn("Lock block {} without releasing previous block lock {}.",
+                  request.getBlockId(), mLockId);
+              throw new InvalidWorkerStateException(
+                  ExceptionMessage.LOCK_NOT_RELEASED.getMessage(mLockId));
+            }
+            Protocol.LocalBlockOpenResponse response = Protocol.LocalBlockOpenResponse.newBuilder()
+                .setPath(mWorker.readBlock(mSessionId, request.getBlockId(), mLockId)).build();
+            ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response)));
+            return null;
+          }
+
+          @Override
+          public void exceptionCaught(Throwable e) {
+            if (mLockId != BlockLockManager.INVALID_LOCK_ID) {
+              try {
+                mWorker.unlockBlock(mLockId);
+              } catch (BlockDoesNotExistException ee) {
+                LOG.error("Failed to unlock block {}.", request.getBlockId(), e);
+              }
+              mLockId = BlockLockManager.INVALID_LOCK_ID;
+            }
+            ctx.writeAndFlush(
+                RPCProtoMessage.createResponse(AlluxioStatusException.fromThrowable(e)));
+          }
+
+          @Override
+          public String toString() {
+            return String.format("Session %d: open block: %s", mSessionId, request.toString());
+          }
+        });
+      }
+    });
   }
 
   /**
