@@ -75,10 +75,6 @@ public class PrivilegeChecker {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    // The supergroup always has privileges.
-    if (groups.contains(mSupergroup)) {
-      return;
-    }
     for (String group : groups) {
       if (mPrivilegeMaster.hasPrivilege(group, privilege)) {
         return;

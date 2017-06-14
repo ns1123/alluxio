@@ -47,9 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,13 +91,8 @@ public final class PrivilegeMasterClientServiceHandler
                   + "group '%s'",
               group, mSupergroup, group));
         }
-        Set<Privilege> privileges;
-        if (group.equals(mSupergroup)) {
-          privileges = new HashSet<>(Arrays.asList(Privilege.values()));
-        } else {
-          privileges = mPrivilegeMaster.getPrivileges(group);
-        }
-        return new GetGroupPrivilegesTResponse(ClosedSourceThriftUtils.toThrift(privileges));
+        return new GetGroupPrivilegesTResponse(
+            ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getPrivileges(group)));
       }
     });
   }
@@ -116,13 +109,8 @@ public final class PrivilegeMasterClientServiceHandler
               "Only user '%s' and members of the supergroup '%s' can list privileges for user '%s'",
               user, mSupergroup, user));
         }
-        Set<Privilege> privileges;
-        if (inSupergroup(user)) {
-          privileges = new HashSet<>(Arrays.asList(Privilege.values()));
-        } else {
-          privileges = PrivilegeUtils.getUserPrivileges(mPrivilegeMaster, user);
-        }
-        return new GetUserPrivilegesTResponse(ClosedSourceThriftUtils.toThrift(privileges));
+        return new GetUserPrivilegesTResponse(ClosedSourceThriftUtils
+            .toThrift(PrivilegeUtils.getUserPrivileges(mPrivilegeMaster, user)));
       }
     });
   }
