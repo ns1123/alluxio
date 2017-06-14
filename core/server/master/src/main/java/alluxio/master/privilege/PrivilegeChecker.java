@@ -33,8 +33,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public class PrivilegeChecker {
   private final PrivilegeMaster mPrivilegeMaster;
-  private final String mSupergroup =
-      Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
 
   /**
    * @param privilegeMaster the privilege master
