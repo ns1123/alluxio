@@ -165,10 +165,10 @@
                   <pattern>com.jcraft.jsch</pattern>
                   <shadedPattern>${shading.prefix}.com.jcraft.jsch</shadedPattern>
                 </relocation>
-                <relocation>
-                  <pattern>com.mapr</pattern>
-                  <shadedPattern>${shading.prefix}.com.mapr</shadedPattern>
-                </relocation>
+                <!--<relocation>-->
+                  <!--<pattern>com.mapr</pattern>-->
+                  <!--<shadedPattern>${shading.prefix}.com.mapr</shadedPattern>-->
+                <!--</relocation>-->
                 <relocation>
                   <pattern>com.sun.activation</pattern>
                   <shadedPattern>${shading.prefix}.com.sun.activation</shadedPattern>

@@ -134,7 +134,8 @@ public enum HdfsVersion {
             "alluxio.underfs.hdfs.HdfsUnderFileOutputStream", // creates FSDataOutputStream
             "alluxio.underfs.hdfs.HdfsUnderFileInputStream", // creates FSDataInputStream
             "alluxio.underfs.hdfs.HdfsSecurityUtils", // util methods calls Hadoop classes
-            "alluxio.underfs.hdfsx." + mModuleName // shaded classes of transitive dependencies
+            "alluxio.underfs.hdfsx." + mModuleName, // shaded classes of transitive dependencies
+            "com.mapr"
         }, HdfsUnderFileSystemFactory.class.getClassLoader());
     return mClassLoader;
   }
