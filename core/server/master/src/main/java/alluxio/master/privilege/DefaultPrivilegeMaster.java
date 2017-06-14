@@ -139,7 +139,7 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
   public boolean hasPrivilege(String group, Privilege privilege) {
     Set<Privilege> privileges;
     try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
-      privileges = mGroupPrivileges.get(group);
+      privileges = getPrivileges(group);
     }
     return privileges != null && privileges.contains(privilege);
   }
