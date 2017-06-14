@@ -42,8 +42,8 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
   private static final Logger LOG =
       LoggerFactory.getLogger(DataServerShortCircuitReadHandler.class);
 
-  /** Executor service for block opens. */
-  private final ExecutorService mBlockOpenExecutor;
+  /** Executor service for execute the RPCs. */
+  private final ExecutorService mRpcExecutor;
   private final StorageTierAssoc mStorageTierAssoc = new WorkerStorageTierAssoc();
   /** The block worker. */
   private final BlockWorker mWorker;
@@ -54,10 +54,11 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
   /**
    * Creates an instance of {@link DataServerShortCircuitReadHandler}.
    *
+   * @param service the executor to execute the RPCs
    * @param blockWorker the block worker
    */
   DataServerShortCircuitReadHandler(ExecutorService service, BlockWorker blockWorker) {
-    mBlockOpenExecutor = service;
+    mRpcExecutor = service;
     mWorker = blockWorker;
     mLockId = BlockLockManager.INVALID_LOCK_ID;
   }
@@ -182,7 +183,7 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
   private void handleBlockOpenRequest(final ChannelHandlerContext ctx,
       final Protocol.LocalBlockOpenRequest request) {
     BlockOpenRequestHandler handler = new BlockOpenRequestHandler(ctx, request);
-    mBlockOpenExecutor.submit(handler);
+    mRpcExecutor.submit(handler);
   }
 
   /**
@@ -193,33 +194,40 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
    */
   private void handleBlockCloseRequest(final ChannelHandlerContext ctx,
       final Protocol.LocalBlockCloseRequest request) {
-    RpcUtils.nettyRPCAndLog(LOG, new RpcUtils.NettyRPCCallable<Void>() {
-
+    mRpcExecutor.submit(new Runnable() {
       @Override
-      public Void call() throws Exception {
-        // ALLUXIO CS ADD
-        Utils.checkAccessMode(mWorker, ctx, request.getBlockId(), request.getCapability(),
-            alluxio.security.authorization.Mode.Bits.READ);
-        // ALLUXIO CS END
-        if (mLockId != BlockLockManager.INVALID_LOCK_ID) {
-          mWorker.unlockBlock(mLockId);
-          mLockId = BlockLockManager.INVALID_LOCK_ID;
-        } else {
-          LOG.warn("Close a closed block {}.", request.getBlockId());
-        }
-        ctx.writeAndFlush(RPCProtoMessage.createOkResponse(null));
-        return null;
-      }
+      public void run() {
 
-      @Override
-      public void exceptionCaught(Throwable e) {
-        ctx.writeAndFlush(RPCProtoMessage.createResponse(AlluxioStatusException.fromThrowable(e)));
-        mLockId = BlockLockManager.INVALID_LOCK_ID;
-      }
+        RpcUtils.nettyRPCAndLog(LOG, new RpcUtils.NettyRPCCallable<Void>() {
 
-      @Override
-      public String toString() {
-        return String.format("Session %d: close block: %s", mSessionId, request.toString());
+          @Override
+          public Void call() throws Exception {
+            // ALLUXIO CS ADD
+            Utils.checkAccessMode(mWorker, ctx, request.getBlockId(), request.getCapability(),
+                alluxio.security.authorization.Mode.Bits.READ);
+            // ALLUXIO CS END
+            if (mLockId != BlockLockManager.INVALID_LOCK_ID) {
+              mWorker.unlockBlock(mLockId);
+              mLockId = BlockLockManager.INVALID_LOCK_ID;
+            } else {
+              LOG.warn("Close a closed block {}.", request.getBlockId());
+            }
+            ctx.writeAndFlush(RPCProtoMessage.createOkResponse(null));
+            return null;
+          }
+
+          @Override
+          public void exceptionCaught(Throwable e) {
+            ctx.writeAndFlush(
+                RPCProtoMessage.createResponse(AlluxioStatusException.fromThrowable(e)));
+            mLockId = BlockLockManager.INVALID_LOCK_ID;
+          }
+
+          @Override
+          public String toString() {
+            return String.format("Session %d: close block: %s", mSessionId, request.toString());
+          }
+        });
       }
     });
   }
