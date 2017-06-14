@@ -184,6 +184,10 @@ public class PropertyKey {
   public static final PropertyKey SWIFT_USER_KEY = create(Name.SWIFT_USER_KEY, null);
   public static final PropertyKey SWIFT_REGION_KEY = create(Name.SWIFT_REGION_KEY, null);
 
+  // Journal ufs related properties
+  public static final PropertyKey MASTER_JOURNAL_UFS_OPTION =
+      create(Template.MASTER_JOURNAL_UFS_OPTION, null);
+
   //
   // Mount table related properties
   //
@@ -236,8 +240,6 @@ public class PropertyKey {
       create(Name.MASTER_JOURNAL_TAILER_SHUTDOWN_QUIET_WAIT_TIME_MS, 5000);
   public static final PropertyKey MASTER_JOURNAL_TAILER_SLEEP_TIME_MS =
       create(Name.MASTER_JOURNAL_TAILER_SLEEP_TIME_MS, 1000);
-  public static final PropertyKey MASTER_JOURNAL_UFS_OPTION_PREFIX =
-      create(Name.MASTER_JOURNAL_UFS_OPTION_PREFIX, "alluxio.master.journal.ufs.option");
   public static final PropertyKey MASTER_JOURNAL_CHECKPOINT_PERIOD_ENTRIES =
       create(Name.MASTER_JOURNAL_CHECKPOINT_PERIOD_ENTRIES, 2000000);
   public static final PropertyKey MASTER_JOURNAL_GC_PERIOD_MS =
@@ -1075,8 +1077,6 @@ public class PropertyKey {
         "alluxio.master.journal.tailer.shutdown.quiet.wait.time.ms";
     public static final String MASTER_JOURNAL_TAILER_SLEEP_TIME_MS =
         "alluxio.master.journal.tailer.sleep.time.ms";
-    public static final String MASTER_JOURNAL_UFS_OPTION_PREFIX =
-        "alluxio.master.journal.ufs.option";
     public static final String MASTER_KEYTAB_KEY_FILE = "alluxio.master.keytab.file";
     public static final String MASTER_LINEAGE_CHECKPOINT_CLASS =
         "alluxio.master.lineage.checkpoint.class";
@@ -1525,6 +1525,8 @@ public class PropertyKey {
    */
   @ThreadSafe
   public enum Template {
+    MASTER_JOURNAL_UFS_OPTION("alluxio.master.journal.ufs.option",
+        "alluxio\\.master\\.journal\\.ufs\\.option"),
     MASTER_JOURNAL_UFS_OPTION_PROPERTY("alluxio.master.journal.ufs.option.%s",
         "alluxio\\.master\\.journal\\.ufs\\.option(\\.\\w+)++"),
     MASTER_MOUNT_TABLE_ALLUXIO("alluxio.master.mount.table.%s.alluxio",
