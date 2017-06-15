@@ -15,9 +15,11 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RpcUtils;
-import alluxio.RpcUtils.RpcCallable;
+import alluxio.RpcUtils.RpcCallableThrowsIOException;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.AlluxioException;
+import alluxio.exception.status.FailedPreconditionException;
+import alluxio.exception.status.PermissionDeniedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.thrift.AlluxioTException;
@@ -79,17 +81,18 @@ public final class PrivilegeMasterClientServiceHandler
   @Override
   public GetGroupPrivilegesTResponse getGroupPrivileges(final String group,
       GetGroupPrivilegesTOptions options) throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<GetGroupPrivilegesTResponse>() {
+    return RpcUtils.call(LOG, new RpcCallableThrowsIOException<GetGroupPrivilegesTResponse>() {
       @Override
-      public GetGroupPrivilegesTResponse call() throws AlluxioException {
+      public GetGroupPrivilegesTResponse call() throws AlluxioException, IOException {
         checkPrivilegesEnabled();
-        if (inSupergroup() || inGroup(group)) {
-          return new GetGroupPrivilegesTResponse(
-              ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getPrivileges(group)));
+        if (!inSupergroup(AuthenticatedClientUser.getClientUser()) && !inGroup(group)) {
+          throw new PermissionDeniedException(String.format(
+              "Only members of group '%s' and members of the supergroup '%s' can list privileges for "
+                  + "group '%s'",
+              group, mSupergroup, group));
         }
-        throw new RuntimeException(String.format(
-            "Only members of group '%s' and members of the supergroup '%s' can list privileges for "
-                + "group '%s'", group, mSupergroup, group));
+        return new GetGroupPrivilegesTResponse(
+            ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getPrivileges(group)));
       }
     });
   }
@@ -97,17 +100,17 @@ public final class PrivilegeMasterClientServiceHandler
   @Override
   public GetUserPrivilegesTResponse getUserPrivileges(final String user,
       GetUserPrivilegesTOptions options) throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<GetUserPrivilegesTResponse>() {
+    return RpcUtils.call(LOG, new RpcCallableThrowsIOException<GetUserPrivilegesTResponse>() {
       @Override
-      public GetUserPrivilegesTResponse call() throws AlluxioException {
+      public GetUserPrivilegesTResponse call() throws AlluxioException, IOException {
         checkPrivilegesEnabled();
-        if (inSupergroup() || isCurrentUser(user)) {
-          return new GetUserPrivilegesTResponse(ClosedSourceThriftUtils
-              .toThrift(PrivilegeUtils.getUserPrivileges(mPrivilegeMaster, user)));
+        if (!inSupergroup(AuthenticatedClientUser.getClientUser()) && !isCurrentUser(user)) {
+          throw new PermissionDeniedException(String.format(
+              "Only user '%s' and members of the supergroup '%s' can list privileges for user '%s'",
+              user, mSupergroup, user));
         }
-        throw new RuntimeException(String.format(
-            "Only user '%s' and members of the supergroup '%s' can list privileges for user '%s'",
-            user, mSupergroup, user));
+        return new GetUserPrivilegesTResponse(ClosedSourceThriftUtils
+            .toThrift(PrivilegeUtils.getUserPrivileges(mPrivilegeMaster, user)));
       }
     });
   }
@@ -115,37 +118,38 @@ public final class PrivilegeMasterClientServiceHandler
   @Override
   public GetGroupToPrivilegesMappingTResponse getGroupToPrivilegesMapping(
       GetGroupToPrivilegesMappingTOptions options) throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<GetGroupToPrivilegesMappingTResponse>() {
-      @Override
-      public GetGroupToPrivilegesMappingTResponse call() throws AlluxioException {
-        checkPrivilegesEnabled();
-        if (!inSupergroup()) {
-          throw new RuntimeException(String.format(
-              "Only members of the supergroup '%s' can list all privileges", mSupergroup));
-        }
-        Map<String, Set<Privilege>> privilegeMap = mPrivilegeMaster.getGroupToPrivilegesMapping();
-        Map<String, List<TPrivilege>> tprivilegeMap = new HashMap<>();
-        for (Map.Entry<String, Set<Privilege>> entry : privilegeMap.entrySet()) {
-          tprivilegeMap.put(entry.getKey(), ClosedSourceThriftUtils.toThrift(entry.getValue()));
-        }
-        return new GetGroupToPrivilegesMappingTResponse(tprivilegeMap);
-      }
-    });
+    return RpcUtils.call(LOG,
+        new RpcCallableThrowsIOException<GetGroupToPrivilegesMappingTResponse>() {
+          @Override
+          public GetGroupToPrivilegesMappingTResponse call() throws AlluxioException, IOException {
+            checkPrivilegesEnabled();
+            if (!inSupergroup(AuthenticatedClientUser.getClientUser())) {
+              throw new PermissionDeniedException(String.format(
+                  "Only members of the supergroup '%s' can list all privileges", mSupergroup));
+            }
+            Map<String, Set<Privilege>> privilegeMap =
+                mPrivilegeMaster.getGroupToPrivilegesMapping();
+            Map<String, List<TPrivilege>> tprivilegeMap = new HashMap<>();
+            for (Map.Entry<String, Set<Privilege>> entry : privilegeMap.entrySet()) {
+              tprivilegeMap.put(entry.getKey(), ClosedSourceThriftUtils.toThrift(entry.getValue()));
+            }
+            return new GetGroupToPrivilegesMappingTResponse(tprivilegeMap);
+          }
+        });
   }
 
   @Override
   public GrantPrivilegesTResponse grantPrivileges(final String group,
-      final List<TPrivilege> privileges, GrantPrivilegesTOptions options)
-      throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<GrantPrivilegesTResponse>() {
+      final List<TPrivilege> privileges, GrantPrivilegesTOptions options) throws TException {
+    return RpcUtils.call(LOG, new RpcCallableThrowsIOException<GrantPrivilegesTResponse>() {
       @Override
-      public GrantPrivilegesTResponse call() throws AlluxioException {
+      public GrantPrivilegesTResponse call() throws AlluxioException, IOException {
         checkPrivilegesEnabled();
-        if (inSupergroup()) {
+        if (inSupergroup(AuthenticatedClientUser.getClientUser())) {
           return new GrantPrivilegesTResponse(ClosedSourceThriftUtils.toThrift(mPrivilegeMaster
               .updatePrivileges(group, ClosedSourceThriftUtils.fromThrift(privileges), true)));
         }
-        throw new RuntimeException(
+        throw new PermissionDeniedException(
             String.format("Only members of the supergroup '%s' can grant privileges", mSupergroup));
       }
     });
@@ -153,75 +157,63 @@ public final class PrivilegeMasterClientServiceHandler
 
   @Override
   public RevokePrivilegesTResponse revokePrivileges(final String group,
-      final List<TPrivilege> privileges, RevokePrivilegesTOptions options)
-      throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<RevokePrivilegesTResponse>() {
+      final List<TPrivilege> privileges, RevokePrivilegesTOptions options) throws TException {
+    return RpcUtils.call(LOG, new RpcCallableThrowsIOException<RevokePrivilegesTResponse>() {
       @Override
-      public RevokePrivilegesTResponse call() throws AlluxioException {
+      public RevokePrivilegesTResponse call() throws AlluxioException, IOException {
         checkPrivilegesEnabled();
-        if (inSupergroup()) {
+        if (inSupergroup(AuthenticatedClientUser.getClientUser())) {
           return new RevokePrivilegesTResponse(ClosedSourceThriftUtils.toThrift(mPrivilegeMaster
               .updatePrivileges(group, ClosedSourceThriftUtils.fromThrift(privileges), false)));
         }
-        throw new RuntimeException(String
+        throw new PermissionDeniedException(String
             .format("Only members of the supergroup '%s' can revoke privileges", mSupergroup));
       }
     });
   }
 
   /**
-   * Checks whether privileges are enabled, throwing a runtime exception if they aren't.
+   * Checks whether privileges are enabled.
+   *
+   * @throws FailedPreconditionException if privileges are not enabled
    */
-  private void checkPrivilegesEnabled() {
+  private void checkPrivilegesEnabled() throws FailedPreconditionException {
     if (!Configuration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
-      throw new RuntimeException(
+      throw new FailedPreconditionException(
           String.format("Privilege controls are disabled. To enable them, set %s=true in master "
               + "configuration", PropertyKey.SECURITY_PRIVILEGES_ENABLED));
     }
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         .equals(AuthType.NOSASL)) {
-      throw new RuntimeException(String.format(
+      throw new FailedPreconditionException(String.format(
           "Privilege controls are disabled because authentication is disabled by %s=%s",
           PropertyKey.SECURITY_AUTHENTICATION_TYPE.toString(), AuthType.NOSASL.toString()));
     }
   }
 
   /**
-   * Checks that the current user is in the Alluxio supergroup. If they aren't, a runtime exception
-   * will be thrown.
+   * Checks that the given user is in the Alluxio supergroup.
    *
+   * @param user the user to check
    * @return whether the current authenticated user is in the supergroup
    */
-  private boolean inSupergroup() {
-    try {
-      String user = AuthenticatedClientUser.getClientUser();
-      return CommonUtils.getGroups(user).contains(mSupergroup);
-    } catch (AccessControlException | IOException e) {
-      throw new RuntimeException(e);
-    }
+  private boolean inSupergroup(String user) throws AccessControlException, IOException {
+    return CommonUtils.getGroups(user).contains(mSupergroup);
   }
 
   /**
    * @param user the user to check
    * @return whether the given user is the authenticated client user
    */
-  private boolean isCurrentUser(String user) {
-    try {
-      return user.equals(AuthenticatedClientUser.getClientUser());
-    } catch (AccessControlException e) {
-      throw new RuntimeException(e);
-    }
+  private boolean isCurrentUser(String user) throws AccessControlException {
+    return user.equals(AuthenticatedClientUser.getClientUser());
   }
 
   /**
    * @param group the group to check
    * @return whether the current authenticated client user is in the given group
    */
-  private boolean inGroup(String group) {
-    try {
-      return CommonUtils.getGroups(AuthenticatedClientUser.getClientUser()).contains(group);
-    } catch (AccessControlException | IOException e) {
-      throw new RuntimeException(e);
-    }
+  private boolean inGroup(String group) throws AccessControlException, IOException {
+    return CommonUtils.getGroups(AuthenticatedClientUser.getClientUser()).contains(group);
   }
 }
