@@ -21,20 +21,20 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Input stream implementation for {@link HdfsUnderFileSystem}.
+ * Input stream implementation for {@link MapRFSUnderFileSystem}.
  */
 @NotThreadSafe
-public class HdfsUnderFileInputStream extends FilterInputStream implements Seekable {
+public class MapRFSUnderFileInputStream extends FilterInputStream implements Seekable {
 
   /** The underlying stream to read data from. */
   private FSDataInputStream mStream;
 
   /**
-   * Creates a new instance of {@link HdfsUnderFileInputStream}.
+   * Creates a new instance of {@link MapRFSUnderFileInputStream}.
    *
    * @param stream the wrapped input stream
    */
-  public HdfsUnderFileInputStream(FSDataInputStream stream) {
+  public MapRFSUnderFileInputStream(FSDataInputStream stream) {
     super(stream);
     mStream = stream;
   }

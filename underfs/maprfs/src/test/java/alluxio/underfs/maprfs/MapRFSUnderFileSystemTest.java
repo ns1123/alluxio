@@ -21,11 +21,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests {@link HdfsUnderFileSystem}.
+ * Tests {@link MapRFSUnderFileSystem}.
  */
-public final class HdfsUnderFileSystemTest {
+public final class MapRFSUnderFileSystemTest {
 
-  private HdfsUnderFileSystem mHdfsUnderFileSystem;
+  private MapRFSUnderFileSystem mMapRFSUnderFileSystem;
 
   @Before
   public final void before() throws Exception {
@@ -33,27 +33,27 @@ public final class HdfsUnderFileSystemTest {
         .setUserSpecifiedConf(ImmutableMap.of("hadoop.security.group.mapping",
             "org.apache.hadoop.security.ShellBasedUnixGroupsMapping", "fs.hdfs.impl",
             PropertyKey.UNDERFS_HDFS_IMPL.getDefaultValue()));
-    mHdfsUnderFileSystem = HdfsUnderFileSystem.createInstance(new AlluxioURI("file:///"), conf);
+    mMapRFSUnderFileSystem = MapRFSUnderFileSystem.createInstance(new AlluxioURI("file:///"), conf);
   }
 
   /**
-   * Tests the {@link HdfsUnderFileSystem#getUnderFSType()} method. Confirm the UnderFSType for
-   * HdfsUnderFileSystem.
+   * Tests the {@link MapRFSUnderFileSystem#getUnderFSType()} method. Confirm the UnderFSType for
+   * MapRFSUnderFileSystem.
    */
   @Test
   public void getUnderFSType() throws Exception {
-    Assert.assertEquals("hdfs", mHdfsUnderFileSystem.getUnderFSType());
+    Assert.assertEquals("hdfs", mMapRFSUnderFileSystem.getUnderFSType());
   }
 
   /**
-   * Tests the {@link HdfsUnderFileSystem#createConfiguration} method.
+   * Tests the {@link MapRFSUnderFileSystem#createConfiguration} method.
    *
    * Checks the hdfs implements class and alluxio underfs config setting
    */
   @Test
   public void prepareConfiguration() throws Exception {
     UnderFileSystemConfiguration ufsConf = UnderFileSystemConfiguration.defaults();
-    org.apache.hadoop.conf.Configuration conf = HdfsUnderFileSystem.createConfiguration(ufsConf);
+    org.apache.hadoop.conf.Configuration conf = MapRFSUnderFileSystem.createConfiguration(ufsConf);
     Assert.assertEquals(ufsConf.getValue(PropertyKey.UNDERFS_HDFS_IMPL), conf.get("fs.hdfs.impl"));
     Assert.assertTrue(conf.getBoolean("fs.hdfs.impl.disable.cache", false));
   }

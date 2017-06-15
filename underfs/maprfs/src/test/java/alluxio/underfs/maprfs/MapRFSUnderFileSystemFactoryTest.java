@@ -18,9 +18,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Unit tests for the {@link HdfsUnderFileSystemFactory}.
+ * Unit tests for the {@link MapRFSUnderFileSystemFactory}.
  */
-public class HdfsUnderFileSystemFactoryTest {
+public class MapRFSUnderFileSystemFactoryTest {
 
   /**
    * This test ensures the HDFS UFS module correctly accepts paths that begin with hdfs://.
@@ -28,20 +28,8 @@ public class HdfsUnderFileSystemFactoryTest {
   @Test
   public void factory() {
     UnderFileSystemFactory factory =
-        UnderFileSystemFactoryRegistry.find("hdfs://localhost/test/path");
+        UnderFileSystemFactoryRegistry.find("maprfs://localhost/test/path");
     Assert.assertNotNull(
-        "A UnderFileSystemFactory should exist for HDFS paths when using this module", factory);
-
-    factory = UnderFileSystemFactoryRegistry.find("s3://localhost/test/path");
-    Assert.assertNull(
-        "A UnderFileSystemFactory should not exist for S3 paths when using this module", factory);
-
-    factory = UnderFileSystemFactoryRegistry.find("s3n://localhost/test/path");
-    Assert.assertNull(
-        "A UnderFileSystemFactory should not exist for S3 paths when using this module", factory);
-
-    factory = UnderFileSystemFactoryRegistry.find("alluxio://localhost:19999/test");
-    Assert.assertNull("A UnderFileSystemFactory should not exist for non supported paths when "
-        + "using this module", factory);
+        "A UnderFileSystemFactory should exist for MapR FS paths when using this module", factory);
   }
 }

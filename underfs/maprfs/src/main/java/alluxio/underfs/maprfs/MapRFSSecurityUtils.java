@@ -23,8 +23,8 @@ import java.security.PrivilegedExceptionAction;
  * A utility class that allows program code to run in a security context provided by the HDFS
  * security user and groups information.
  */
-public final class HdfsSecurityUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(HdfsSecurityUtils.class);
+public final class MapRFSSecurityUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(MapRFSSecurityUtils.class);
 
   /** The HDFS configuration. */
   private static Configuration sHdfsConf = new Configuration();
@@ -107,6 +107,6 @@ public final class HdfsSecurityUtils {
     T run() throws IOException;
   }
 
-  private HdfsSecurityUtils() {}  // prevent instantiation
+  private MapRFSSecurityUtils() {}  // prevent instantiation
 }
 

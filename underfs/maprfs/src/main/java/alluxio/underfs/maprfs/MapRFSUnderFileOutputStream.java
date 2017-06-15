@@ -13,18 +13,19 @@ package alluxio.underfs.maprfs;
 
 import org.apache.hadoop.fs.FSDataOutputStream;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
- * Output stream implementation for {@link HdfsUnderFileSystem}. This class is just a wrapper on top
+ * Output stream implementation for {@link MapRFSUnderFileSystem}. This class is just a wrapper on top
  * of an underlying {@link FSDataOutputStream}, except all calls to {@link #flush()} will be
  * converted to {@link FSDataOutputStream#sync()}. This is currently safe because all invocations of
  * flush intend the functionality to be sync.
  */
 @NotThreadSafe
-public class HdfsUnderFileOutputStream extends OutputStream {
+public class MapRFSUnderFileOutputStream extends OutputStream {
   /** Underlying output stream. */
   final FSDataOutputStream mOut;
 
@@ -33,7 +34,7 @@ public class HdfsUnderFileOutputStream extends OutputStream {
    *
    * @param out underlying stream to wrap
    */
-  public HdfsUnderFileOutputStream(FSDataOutputStream out) {
+  public MapRFSUnderFileOutputStream(FSDataOutputStream out) {
     mOut = out;
   }
 

@@ -62,9 +62,9 @@ import javax.annotation.concurrent.ThreadSafe;
  * HDFS {@link UnderFileSystem} implementation.
  */
 @ThreadSafe
-public class HdfsUnderFileSystem extends BaseUnderFileSystem
+public class MapRFSUnderFileSystem extends BaseUnderFileSystem
     implements AtomicFileOutputStreamCallback {
-  private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystem.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MapRFSUnderFileSystem.class);
   private static final int MAX_TRY = 5;
 
   private FileSystem mFileSystem;
@@ -80,10 +80,10 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
    * @param conf the configuration for Hadoop
    * @return a new HDFS {@link UnderFileSystem} instance
    */
-  public static HdfsUnderFileSystem createInstance(
+  public static MapRFSUnderFileSystem createInstance(
       AlluxioURI ufsUri, UnderFileSystemConfiguration conf) {
     Configuration hdfsConf = createConfiguration(conf);
-    return new HdfsUnderFileSystem(ufsUri, conf, hdfsConf);
+    return new MapRFSUnderFileSystem(ufsUri, conf, hdfsConf);
   }
 
   /**
@@ -93,7 +93,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
    * @param conf the configuration for this UFS
    * @param hdfsConf the configuration for HDFS
    */
-  HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
+  MapRFSUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
       Configuration hdfsConf) {
     super(ufsUri, conf);
     mUfsConf = conf;
@@ -143,7 +143,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
               org.apache.hadoop.security.UserGroupInformation.createProxyUser(mUser,
                   org.apache.hadoop.security.UserGroupInformation.getLoginUser());
           LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
-          HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<Void>() {
+          MapRFSSecurityUtils.runAs(proxyUgi, new MapRFSSecurityUtils.SecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
               Path path = new Path(ufsPrefix);
@@ -153,7 +153,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
           });
         } else {
           // Alluxio client runs HDFS operations as the current user.
-          HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.SecuredRunner<Void>() {
+          MapRFSSecurityUtils.runAsCurrentUser(new MapRFSSecurityUtils.SecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
               Path path = new Path(ufsPrefix);
@@ -259,7 +259,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     while (retryPolicy.attemptRetry()) {
       try {
         // TODO(chaomin): support creating HDFS files with specified block size and replication.
-        return new HdfsUnderFileOutputStream(FileSystem.create(mFileSystem, new Path(path),
+        return new MapRFSUnderFileOutputStream(FileSystem.create(mFileSystem, new Path(path),
             new FsPermission(options.getMode().toShort())));
       } catch (IOException e) {
         LOG.warn("Retry count {} : {} ", retryPolicy.getRetryCount(), e.getMessage());
@@ -543,7 +543,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
           inputStream.close();
           throw e;
         }
-        return new HdfsUnderFileInputStream(inputStream);
+        return new MapRFSUnderFileInputStream(inputStream);
       } catch (IOException e) {
         LOG.warn("{} try to open {} : {}", retryPolicy.getRetryCount(), path, e.getMessage());
         te = e;
