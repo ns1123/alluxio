@@ -357,10 +357,12 @@ func generateTarball() error {
 	run("adding Alluxio default client jar", "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("default/alluxio-%v-default-client.jar", version)))
 	for framework, recompile := range frameworks {
 		if recompile {
-			run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", getCommonMvnArgs()...)
+			clientArgs := getCommonMvnArgs()
+			clientArgs = append(clientArgs, fmt.Sprintf("-P%s", framework))
+			run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", clientArgs...)
 			run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 		} else {
-			run(fmt.Sprintf("Creating symlink for %v client jar", framework), "ln", "-s", fmt.Sprintf("../default/alluxio-%v-default-client.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
+			run(fmt.Sprintf("creating symlink for %v client jar", framework), "ln", "-s", fmt.Sprintf("../default/alluxio-%v-default-client.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 		}
 	}
 
