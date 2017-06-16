@@ -223,8 +223,9 @@ public final class FileSystemMasterTest {
     // ufs file still exists
     Assert.assertTrue(Files.exists(Paths.get(ufsMount.join("dir1").join("file1").getPath())));
     // verify the file is deleted
-    Assert.assertEquals(IdUtils.INVALID_FILE_ID,
-        mFileSystemMaster.getFileId(new AlluxioURI("/mnt/local/dir1/file1")));
+    mThrown.expect(FileDoesNotExistException.class);
+    mFileSystemMaster.getFileInfo(new AlluxioURI("/mnt/local/dir1/file1"),
+        GetStatusOptions.defaults().setLoadMetadataType(LoadMetadataType.Never));
   }
 
   /**
