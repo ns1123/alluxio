@@ -91,17 +91,17 @@
       <!-- <version>${project.version}</version> -->
     <!-- </dependency> -->
     <!-- ALLUXIO CS WITH -->
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-hdfsx-common</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-client</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    <!--<dependency>-->
+      <!--<groupId>org.alluxio</groupId>-->
+      <!--<artifactId>alluxio-underfs-hdfsx-common</artifactId>-->
+      <!--<version>${project.version}</version>-->
+      <!--<exclusions>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.hadoop</groupId>-->
+          <!--<artifactId>hadoop-client</artifactId>-->
+        <!--</exclusion>-->
+      <!--</exclusions>-->
+    <!--</dependency>-->
     <!-- ALLUXIO CS END -->
     <!-- ALLUXIO CS ADD -->
     <dependency>

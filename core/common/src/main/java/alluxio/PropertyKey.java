@@ -105,7 +105,7 @@ public class PropertyKey {
   public static final PropertyKey UNDERFS_HDFS_IMPL =
       create(Name.UNDERFS_HDFS_IMPL, "org.apache.hadoop.hdfs.DistributedFileSystem");
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
-      create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///,maprfs:///");
+      create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///");
   public static final PropertyKey UNDERFS_HDFS_REMOTE = create(Name.UNDERFS_HDFS_REMOTE, false);
   // ALLUXIO CS ADD
   public static final PropertyKey UNDERFS_HDFS_VERSION =

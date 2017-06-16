@@ -39,9 +39,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-// ALLUXIO CS REMOVE
-// import org.apache.hadoop.security.SecurityUtil;
-// ALLUXIO CS END
+import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,16 +60,13 @@ import javax.annotation.concurrent.ThreadSafe;
  * HDFS {@link UnderFileSystem} implementation.
  */
 @ThreadSafe
-public class MapRFSUnderFileSystem extends BaseUnderFileSystem
+public class HdfsUnderFileSystem extends BaseUnderFileSystem
     implements AtomicFileOutputStreamCallback {
-  private static final Logger LOG = LoggerFactory.getLogger(MapRFSUnderFileSystem.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystem.class);
   private static final int MAX_TRY = 5;
 
   private FileSystem mFileSystem;
   private UnderFileSystemConfiguration mUfsConf;
-  // ALLUXIO CS ADD
-  private final boolean mIsHdfsKerberized = false;
-  // ALLUXIO CS END
 
   /**
    * Factory method to constructs a new HDFS {@link UnderFileSystem} instance.
@@ -80,10 +75,10 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
    * @param conf the configuration for Hadoop
    * @return a new HDFS {@link UnderFileSystem} instance
    */
-  public static MapRFSUnderFileSystem createInstance(
+  public static HdfsUnderFileSystem createInstance(
       AlluxioURI ufsUri, UnderFileSystemConfiguration conf) {
     Configuration hdfsConf = createConfiguration(conf);
-    return new MapRFSUnderFileSystem(ufsUri, conf, hdfsConf);
+    return new HdfsUnderFileSystem(ufsUri, conf, hdfsConf);
   }
 
   /**
@@ -93,7 +88,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
    * @param conf the configuration for this UFS
    * @param hdfsConf the configuration for HDFS
    */
-  MapRFSUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
+  HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
       Configuration hdfsConf) {
     super(ufsUri, conf);
     mUfsConf = conf;
@@ -187,7 +182,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
     while (retryPolicy.attemptRetry()) {
       try {
         // TODO(chaomin): support creating HDFS files with specified block size and replication.
-        return new MapRFSUnderFileOutputStream(FileSystem.create(mFileSystem, new Path(path),
+        return new HdfsUnderFileOutputStream(FileSystem.create(mFileSystem, new Path(path),
             new FsPermission(options.getMode().toShort())));
       } catch (IOException e) {
         LOG.warn("Retry count {} : {} ", retryPolicy.getRetryCount(), e.getMessage());
@@ -325,93 +320,38 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
   }
 
   @Override
-  // ALLUXIO CS ADD
-  // TODO(chaomin): make connectFromMaster private and deprecate it.
-  // ALLUXIO CS END
   public void connectFromMaster(String host) throws IOException {
-    // ALLUXIO CS REPLACE
-    // if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
-    //     || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
-    //   return;
-    // }
-    // String masterKeytab = mUfsConf.getValue(PropertyKey.MASTER_KEYTAB_KEY_FILE);
-    // String masterPrincipal = mUfsConf.getValue(PropertyKey.MASTER_PRINCIPAL);
-    //
-    // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
-    //     masterPrincipal, host);
-    // ALLUXIO CS WITH
-    connectFromAlluxioServer(host);
-    // ALLUXIO CS END
+    if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
+        || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
+      return;
+    }
+    String masterKeytab = mUfsConf.getValue(PropertyKey.MASTER_KEYTAB_KEY_FILE);
+    String masterPrincipal = mUfsConf.getValue(PropertyKey.MASTER_PRINCIPAL);
+
+    login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
+        masterPrincipal, host);
   }
 
   @Override
-  // ALLUXIO CS ADD
-  // TODO(chaomin): make connectFromWorker private and deprecate it.
-  // ALLUXIO CS END
   public void connectFromWorker(String host) throws IOException {
-    // ALLUXIO CS REPLACE
-    // if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
-    //     || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
-    //   return;
-    // }
-    // String workerKeytab = mUfsConf.getValue(PropertyKey.WORKER_KEYTAB_FILE);
-    // String workerPrincipal = mUfsConf.getValue(PropertyKey.WORKER_PRINCIPAL);
-    //
-    // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
-    //     workerPrincipal, host);
-    // ALLUXIO CS WITH
-    connectFromAlluxioServer(host);
-    // ALLUXIO CS END
-  }
-  // ALLUXIO CS ADD
+    if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
+        || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
+      return;
+    }
+    String workerKeytab = mUfsConf.getValue(PropertyKey.WORKER_KEYTAB_FILE);
+    String workerPrincipal = mUfsConf.getValue(PropertyKey.WORKER_PRINCIPAL);
 
-  private void connectFromAlluxioServer(String host) throws IOException {
-    if (!mIsHdfsKerberized) {
-      return;
-    }
-    String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
-    if (principal.isEmpty() || keytab.isEmpty()) {
-      return;
-    }
-    login(principal, keytab, host);
+    login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
+        workerPrincipal, host);
   }
 
-  private void connectFromAlluxioClient() throws IOException {
-    if (!mIsHdfsKerberized) {
-      return;
-    }
-    String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-    String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-    if (principal.isEmpty() || keytab.isEmpty()) {
-      return;
-    }
-    login(principal, keytab, null);
-  }
-  // ALLUXIO CS END
-
-  // ALLUXIO CS REPLACE
-  // private void login(PropertyKey keytabFileKey, String keytabFile, PropertyKey principalKey,
-  //     String principal, String hostname) throws IOException {
-  //   org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-  //   conf.set(keytabFileKey.toString(), keytabFile);
-  //   conf.set(principalKey.toString(), principal);
-  //   SecurityUtil.login(conf, keytabFileKey.toString(), principalKey.toString(), hostname);
-  // }
-  // ALLUXIO CS WITH
-  private void login(String principal, String keytabFile, String hostname) throws IOException {
+  private void login(PropertyKey keytabFileKey, String keytabFile, PropertyKey principalKey,
+      String principal, String hostname) throws IOException {
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-    String ufsHdfsImpl = mUfsConf.getValue(PropertyKey.UNDERFS_HDFS_IMPL);
-    if (!StringUtils.isEmpty(ufsHdfsImpl)) {
-      conf.set("fs.hdfs.impl", ufsHdfsImpl);
-    }
-    conf.set("hadoop.security.authentication",
-        alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
-
-    org.apache.hadoop.security.UserGroupInformation.setConfiguration(conf);
-    org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
+    conf.set(keytabFileKey.toString(), keytabFile);
+    conf.set(principalKey.toString(), principal);
+    SecurityUtil.login(conf, keytabFileKey.toString(), principalKey.toString(), hostname);
   }
-  // ALLUXIO CS END
 
   @Override
   public boolean mkdirs(String path, MkdirsOptions options) throws IOException {
@@ -471,7 +411,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
           inputStream.close();
           throw e;
         }
-        return new MapRFSUnderFileInputStream(inputStream);
+        return new HdfsUnderFileInputStream(inputStream);
       } catch (IOException e) {
         LOG.warn("{} try to open {} : {}", retryPolicy.getRetryCount(), path, e.getMessage());
         te = e;
