@@ -1412,10 +1412,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
         }
         if (!failedToDelete) {
+          deletedInodes.add(delInode);
+          // ALLUXIO CS ADD
           if (delInode.isFile()) {
-            // Remove corresponding blocks from workers and delete metadata in master.
-            mBlockMaster.removeBlocks(((InodeFile) delInode).getBlockIds(), true /* delete */);
-            // ALLUXIO CS ADD
             long fileId = delInode.getId();
             // Remove the file from the set of files to persist.
             mPersistRequests.remove(fileId);
@@ -1424,8 +1423,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             if (job != null) {
               job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
             }
-            // ALLUXIO CS END
           }
+          // ALLUXIO CS END
           inodesToDelete.add(delInode);
         } else {
           unsafeInodes.add(delInode.getId());

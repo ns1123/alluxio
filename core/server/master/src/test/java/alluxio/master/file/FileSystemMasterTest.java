@@ -193,8 +193,12 @@ public final class FileSystemMasterTest {
     long blockId = createFileWithSingleBlock(NESTED_FILE_URI);
     mFileSystemMaster.delete(NESTED_FILE_URI, DeleteOptions.defaults().setRecursive(false));
 
-    mThrown.expect(BlockInfoException.class);
-    mBlockMaster.getBlockInfo(blockId);
+    try {
+      mBlockMaster.getBlockInfo(blockId);
+      Assert.fail("Expected blockInfo to fail");
+    } catch (BlockInfoException e) {
+      // expected
+    }
 
     // Update the heartbeat of removedBlockId received from worker 1
     Command heartbeat1 =
