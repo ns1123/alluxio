@@ -789,8 +789,6 @@ public class PropertyKey {
   //
   public static final PropertyKey JOB_MASTER_CLIENT_THREADS =
       create(Name.JOB_MASTER_CLIENT_THREADS, 1024);
-  public static final PropertyKey JOB_MASTER_FINISHED_JOB_CLEANUP =
-      create(Name.JOB_MASTER_FINISHED_JOB_CLEANUP, true);
   public static final PropertyKey JOB_MASTER_FINISHED_JOB_RETENTION_MS =
       create(Name.JOB_MASTER_FINISHED_JOB_RETENTION_MS, 300000);
   public static final PropertyKey JOB_MASTER_JOB_CAPACITY =
@@ -1481,8 +1479,6 @@ public class PropertyKey {
     //
     public static final String JOB_MASTER_CLIENT_THREADS =
         "alluxio.job.master.client.threads";
-    public static final String JOB_MASTER_FINISHED_JOB_CLEANUP =
-        "alluxio.job.master.finished.job.cleanup";
     public static final String JOB_MASTER_FINISHED_JOB_RETENTION_MS =
         "alluxio.job.master.finished.job.retention.ms";
     public static final String JOB_MASTER_JOB_CAPACITY = "alluxio.job.master.job.capacity";

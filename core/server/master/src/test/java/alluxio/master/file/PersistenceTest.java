@@ -378,7 +378,7 @@ public final class PersistenceTest {
       public Boolean apply(Void input) {
         try {
           FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
-          return fileInfo.getPersistenceState() == PersistenceState.PERSISTED.toString();
+          return fileInfo.getPersistenceState().equals(PersistenceState.PERSISTED.toString());
         } catch (FileDoesNotExistException | InvalidPathException | AccessControlException e) {
           return false;
         }
