@@ -11,7 +11,9 @@
 
 package alluxio.master.privilege;
 
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.master.AbstractMaster;
@@ -27,6 +29,7 @@ import alluxio.wire.Privilege;
 import org.apache.thrift.TProcessor;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,6 +56,7 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
    */
   @GuardedBy("mGroupPrivilegesLock")
   private final Map<String, Set<Privilege>> mGroupPrivileges;
+  private final String mSupergroup;
 
   /**
    * Creates a new instance of {@link DefaultPrivilegeMaster}.
@@ -65,6 +69,7 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
             .fixedThreadPoolExecutorServiceFactory(Constants.PRIVILEGE_MASTER_NAME, 1));
     mGroupPrivilegesLock = new ReentrantLock();
     mGroupPrivileges = new ConcurrentHashMap<>();
+    mSupergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
   }
 
   @Override
@@ -134,13 +139,16 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
   public boolean hasPrivilege(String group, Privilege privilege) {
     Set<Privilege> privileges;
     try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
-      privileges = mGroupPrivileges.get(group);
+      privileges = getPrivileges(group);
     }
     return privileges != null && privileges.contains(privilege);
   }
 
   @Override
   public Set<Privilege> getPrivileges(String group) {
+    if (group.equals(mSupergroup)) {
+      return new HashSet<>(Arrays.asList(Privilege.values()));
+    }
     try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
       Set<Privilege> privileges = mGroupPrivileges.get(group);
       return privileges == null ? new HashSet<Privilege>() : privileges;
@@ -159,8 +167,7 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
   }
 
   @Override
-  public Set<Privilege> updatePrivileges(String group, List<Privilege> privileges,
-      boolean grant) {
+  public Set<Privilege> updatePrivileges(String group, List<Privilege> privileges, boolean grant) {
     try (JournalContext journalContext = createJournalContext();
         LockResource r = new LockResource(mGroupPrivilegesLock)) {
       updatePrivilegesInternal(group, grant, privileges);
