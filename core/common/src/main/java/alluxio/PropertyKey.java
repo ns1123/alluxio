@@ -101,7 +101,8 @@ public class PropertyKey {
   public static final PropertyKey UNDERFS_GLUSTERFS_VOLUMES =
       create(Name.UNDERFS_GLUSTERFS_VOLUMES, null);
   public static final PropertyKey UNDERFS_HDFS_CONFIGURATION =
-      create(Name.UNDERFS_HDFS_CONFIGURATION, String.format("${%s}/core-site.xml", Name.CONF_DIR));
+      create(Name.UNDERFS_HDFS_CONFIGURATION,
+          String.format("${%s}/core-site.xml:${%s}/hdfs-site.xml", Name.CONF_DIR, Name.CONF_DIR));
   public static final PropertyKey UNDERFS_HDFS_IMPL =
       create(Name.UNDERFS_HDFS_IMPL, "org.apache.hadoop.hdfs.DistributedFileSystem");
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
