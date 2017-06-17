@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-underfs-hdfsx</artifactId>
-    <version>1.5.0-RC2</version>
+    <version>1.5.0-RC3</version>
   </parent>
   <artifactId>alluxio-underfs-hdfsx-hdp2_4</artifactId>
   <name>Alluxio Under File System - HDFS Distributions - HDP 2.4</name>
