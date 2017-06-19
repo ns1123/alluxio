@@ -176,7 +176,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
 
   @Override
   public String getUnderFSType() {
-    return "maprfs";
+    return "hdfs";
   }
 
   /**

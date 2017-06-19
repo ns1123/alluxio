@@ -42,7 +42,7 @@ public final class MapRFSUnderFileSystemTest {
    */
   @Test
   public void getUnderFSType() throws Exception {
-    Assert.assertEquals("maprfs", mMapRFSUnderFileSystem.getUnderFSType());
+    Assert.assertEquals("hdfs", mMapRFSUnderFileSystem.getUnderFSType());
   }
 
   /**
