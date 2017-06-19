@@ -52,6 +52,9 @@ public final class MetricsSystem {
   public static final String MASTER_INSTANCE = "master";
   public static final String WORKER_INSTANCE = "worker";
   public static final String CLIENT_INSTANCE = "client";
+  // ALLUXIO CS ADD
+  public static final String JOB_WORKER_INSTANCE = "job_worker";
+  // ALLUXIO CS END
 
   public static final MetricRegistry METRIC_REGISTRY;
 
@@ -172,6 +175,19 @@ public final class MetricsSystem {
   public static String getClientMetricName(String name) {
     return getMetricNameWithUniqueId(CLIENT_INSTANCE, name);
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Builds metric registry name for job worker instance. The pattern is
+   * instance.uniqueId.metricName.
+   *
+   * @param name the metric name
+   * @return the metric registry name
+   */
+  public static String getJobWorkerMetricName(String name) {
+    return getMetricNameWithUniqueId(JOB_WORKER_INSTANCE, name);
+  }
+  // ALLUXIO CS END
 
   /**
    * Builds unique metric registry names with unique ID (set to host name). The pattern is
@@ -218,14 +234,22 @@ public final class MetricsSystem {
   }
 
   /**
+<<<<<<< HEAD
    * Escapes a URI, replacing "/" with "_" so that when the URI is used in a metric name, the
    * "/" won't be interpreted as a path separator.
+||||||| merged common ancestors
+   * Escapes a URI, replacing "/" with "_" so that when the URI is used in a metric name, the "/"
+   * won't be interpreted as a path separator.
+=======
+   * Escapes a URI, replacing "/" and "." with "_" so that when the URI is used in a metric name,
+   * the "/" and "." won't be interpreted as path separators.
+>>>>>>> origin/enterprise-1.5
    *
    * @param uri the URI to escape
    * @return the string representing the escaped URI
    */
   public static String escape(AlluxioURI uri) {
-    return uri.toString().replace("/", "_");
+    return uri.toString().replace("/", "_").replace(".", "_");
   }
 
   // Some helper functions.
@@ -274,6 +298,16 @@ public final class MetricsSystem {
   public static Counter clientCounter(String name) {
     return METRIC_REGISTRY.counter(getClientMetricName(name));
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @param name the metric name
+   * @return the counter
+   */
+  public static Counter jobWorkerCounter(String name) {
+    return METRIC_REGISTRY.counter((getJobWorkerMetricName(name)));
+  }
+  // ALLUXIO CS END
 
   /**
    * Registers a gauge if it has not been registered.

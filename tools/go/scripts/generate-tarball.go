@@ -20,41 +20,41 @@ const versionMarker = "${VERSION}"
 
 // ufsModuleNames is a map from ufs profile to the name used in the generated tarball.
 var ufsModuleNames = map[string]string{
-	"ufs-hadoop-1.0":     "hdfsx-apache1_0",
-	"ufs-hadoop-1.2":     "hdfsx-apache1_2",
-	"ufs-hadoop-2.2":     "hdfsx-apache2_2",
-	"ufs-hadoop-2.3":     "hdfsx-apache2_3",
-	"ufs-hadoop-2.4":     "hdfsx-apache2_4",
-	"ufs-hadoop-2.5":     "hdfsx-apache2_5",
-	"ufs-hadoop-2.6":     "hdfsx-apache2_6",
-	"ufs-hadoop-2.7":     "hdfsx-apache2_7",
-	"ufs-hadoop-2.8":     "hdfsx-apache2_8",
-	"ufs-hadoop-cdh5.6":  "hdfsx-cdh5_6",
-	"ufs-hadoop-cdh5.8":  "hdfsx-cdh5_8",
-	"ufs-hadoop-cdh5.11": "hdfsx-cdh5_11",
-	"ufs-hadoop-hdp2.4":  "hdfsx-hdp2_4",
-	"ufs-hadoop-hdp2.5":  "hdfsx-hdp2_5",
-	"ufs-hadoop-mapr5.2": "hdfsx-mapr5_2",
+	"ufs-hadoop-1.0": "hdfsx-apache1_0",
+	"ufs-hadoop-1.2": "hdfsx-apache1_2",
+	"ufs-hadoop-2.2": "hdfsx-apache2_2",
+	"ufs-hadoop-2.3": "hdfsx-apache2_3",
+	"ufs-hadoop-2.4": "hdfsx-apache2_4",
+	"ufs-hadoop-2.5": "hdfsx-apache2_5",
+	"ufs-hadoop-2.6": "hdfsx-apache2_6",
+	"ufs-hadoop-2.7": "hdfsx-apache2_7",
+	"ufs-hadoop-2.8": "hdfsx-apache2_8",
+	"ufs-cdh-5.6":    "hdfsx-cdh5_6",
+	"ufs-cdh-5.8":    "hdfsx-cdh5_8",
+	"ufs-cdh-5.11":   "hdfsx-cdh5_11",
+	"ufs-hdp-2.4":    "hdfsx-hdp2_4",
+	"ufs-hdp-2.5":    "hdfsx-hdp2_5",
+	"ufs-mapr-5.2":   "hdfsx-mapr5_2",
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
 // ufsModules is a map from UFS module name to a bool indicating if the module is included by default.
 var ufsModules = map[string]bool{
-	"ufs-hadoop-1.0":     false,
-	"ufs-hadoop-1.2":     true,
-	"ufs-hadoop-2.2":     true,
-	"ufs-hadoop-2.3":     false,
-	"ufs-hadoop-2.4":     false,
-	"ufs-hadoop-2.5":     false,
-	"ufs-hadoop-2.6":     false,
-	"ufs-hadoop-2.7":     true,
-	"ufs-hadoop-2.8":     false,
-	"ufs-hadoop-cdh5.6":  false,
-	"ufs-hadoop-cdh5.8":  true,
-	"ufs-hadoop-cdh5.11": false,
-	"ufs-hadoop-hdp2.4":  false,
-	"ufs-hadoop-hdp2.5":  true,
-	"ufs-hadoop-mapr5.2": true,
+	"ufs-hadoop-1.0": false,
+	"ufs-hadoop-1.2": true,
+	"ufs-hadoop-2.2": true,
+	"ufs-hadoop-2.3": false,
+	"ufs-hadoop-2.4": false,
+	"ufs-hadoop-2.5": false,
+	"ufs-hadoop-2.6": false,
+	"ufs-hadoop-2.7": true,
+	"ufs-hadoop-2.8": false,
+	"ufs-cdh-5.6":    false,
+	"ufs-cdh-5.8":    true,
+	"ufs-cdh-5.11":   false,
+	"ufs-hdp-2.4":    false,
+	"ufs-hdp-2.5":    true,
+	"ufs-mapr-5.2":   true,
 }
 
 var (
@@ -357,10 +357,12 @@ func generateTarball() error {
 	run("adding Alluxio default client jar", "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("default/alluxio-%v-default-client.jar", version)))
 	for framework, recompile := range frameworks {
 		if recompile {
-			run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", getCommonMvnArgs()...)
+			clientArgs := getCommonMvnArgs()
+			clientArgs = append(clientArgs, fmt.Sprintf("-P%s", framework))
+			run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", clientArgs...)
 			run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 		} else {
-			run(fmt.Sprintf("Creating symlink for %v client jar", framework), "ln", "-s", fmt.Sprintf("../default/alluxio-%v-default-client.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
+			run(fmt.Sprintf("creating symlink for %v client jar", framework), "ln", "-s", fmt.Sprintf("../default/alluxio-%v-default-client.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 		}
 	}
 

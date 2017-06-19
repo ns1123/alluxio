@@ -63,7 +63,7 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
   @Before
   public void before() throws Exception {
     super.before();
-    mMeta = alluxio.client.EncryptionMetaFactory.create();
+    mMeta = alluxio.client.util.EncryptionMetaTestUtils.create();
   }
 
   @Override

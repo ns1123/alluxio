@@ -101,7 +101,8 @@ public class PropertyKey {
   public static final PropertyKey UNDERFS_GLUSTERFS_VOLUMES =
       create(Name.UNDERFS_GLUSTERFS_VOLUMES, null);
   public static final PropertyKey UNDERFS_HDFS_CONFIGURATION =
-      create(Name.UNDERFS_HDFS_CONFIGURATION, String.format("${%s}/core-site.xml", Name.CONF_DIR));
+      create(Name.UNDERFS_HDFS_CONFIGURATION,
+          String.format("${%s}/core-site.xml:${%s}/hdfs-site.xml", Name.CONF_DIR, Name.CONF_DIR));
   public static final PropertyKey UNDERFS_HDFS_IMPL =
       create(Name.UNDERFS_HDFS_IMPL, "org.apache.hadoop.hdfs.DistributedFileSystem");
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
@@ -402,12 +403,23 @@ public class PropertyKey {
   public static final PropertyKey WORKER_NETWORK_NETTY_FILE_WRITER_THREADS_MAX =
       create(Name.WORKER_NETWORK_NETTY_FILE_WRITER_THREADS_MAX, 1024);
   public static final PropertyKey WORKER_NETWORK_NETTY_RPC_THREADS_MAX =
+<<<<<<< HEAD
       create(Name.WORKER_NETWORK_NETTY_RPC_THREADS_MAX, 1024);
   // The default is set to 11. One client is reserved for some light weight operations such as
   // heartbeat. The other 10 clients are used by commitBlock issued from the worker to the block
   // master.
   public static final PropertyKey WORKER_BLOCK_MASTER_CLIENT_POOL_SIZE =
       create(Name.WORKER_BLOCK_MASTER_CLIENT_POOL_SIZE, 11);
+||||||| merged common ancestors
+      create(Name.WORKER_NETWORK_NETTY_RPC_THREADS_MAX, 1024);
+=======
+      create(Name.WORKER_NETWORK_NETTY_RPC_THREADS_MAX, 2048);
+  // The default is set to 11. One client is reserved for some light weight operations such as
+  // heartbeat. The other 10 clients are used by commitBlock issued from the worker to the block
+  // master.
+  public static final PropertyKey WORKER_BLOCK_MASTER_CLIENT_POOL_SIZE =
+      create(Name.WORKER_BLOCK_MASTER_CLIENT_POOL_SIZE, 11);
+>>>>>>> origin/enterprise-1.5
 
   public static final PropertyKey WORKER_PRINCIPAL = create(Name.WORKER_PRINCIPAL, null);
   public static final PropertyKey WORKER_RPC_PORT = create(Name.WORKER_RPC_PORT, 29998);
@@ -789,8 +801,6 @@ public class PropertyKey {
   //
   public static final PropertyKey JOB_MASTER_CLIENT_THREADS =
       create(Name.JOB_MASTER_CLIENT_THREADS, 1024);
-  public static final PropertyKey JOB_MASTER_FINISHED_JOB_CLEANUP =
-      create(Name.JOB_MASTER_FINISHED_JOB_CLEANUP, true);
   public static final PropertyKey JOB_MASTER_FINISHED_JOB_RETENTION_MS =
       create(Name.JOB_MASTER_FINISHED_JOB_RETENTION_MS, 300000);
   public static final PropertyKey JOB_MASTER_JOB_CAPACITY =
@@ -1481,8 +1491,6 @@ public class PropertyKey {
     //
     public static final String JOB_MASTER_CLIENT_THREADS =
         "alluxio.job.master.client.threads";
-    public static final String JOB_MASTER_FINISHED_JOB_CLEANUP =
-        "alluxio.job.master.finished.job.cleanup";
     public static final String JOB_MASTER_FINISHED_JOB_RETENTION_MS =
         "alluxio.job.master.finished.job.retention.ms";
     public static final String JOB_MASTER_JOB_CAPACITY = "alluxio.job.master.job.capacity";

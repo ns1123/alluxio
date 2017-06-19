@@ -64,6 +64,7 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
   public void evictBlock1() throws Exception {
     // run the evict job for full block mBlockId1
     waitForJobToFinish(mJobMaster.run(new EvictConfig(mBlockId1, 1)));
+<<<<<<< HEAD
     CommonUtils.waitFor("block 1 to be evicted", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
@@ -76,12 +77,31 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
     }, WaitForOptions.defaults().setTimeoutMs(5 * Constants.SECOND_MS));
     // block 2 should not be evicted
     Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.INSTANCE));
+||||||| merged common ancestors
+    Assert
+        .assertFalse(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker1, FileSystemContext.INSTANCE));
+    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker2, FileSystemContext.INSTANCE));
+=======
+    CommonUtils.waitFor("block 1 to be evicted", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        try {
+          return !AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.INSTANCE);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }, WaitForOptions.defaults().setTimeout(5 * Constants.SECOND_MS));
+    // block 2 should not be evicted
+    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.INSTANCE));
+>>>>>>> origin/enterprise-1.5
   }
 
   @Test
   public void evictBlock2() throws Exception {
     // run the evict job for the last block mBlockId2
     waitForJobToFinish(mJobMaster.run(new EvictConfig(mBlockId2, 1)));
+<<<<<<< HEAD
     CommonUtils.waitFor("block 2 to be evicted", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
@@ -94,5 +114,23 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
     }, WaitForOptions.defaults().setTimeoutMs(5 * Constants.SECOND_MS));
     // block 1 should not be evicted
     Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.INSTANCE));
+||||||| merged common ancestors
+    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker1, FileSystemContext.INSTANCE));
+    Assert
+        .assertFalse(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker2, FileSystemContext.INSTANCE));
+=======
+    CommonUtils.waitFor("block 2 to be evicted", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        try {
+          return !AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.INSTANCE);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }, WaitForOptions.defaults().setTimeout(5 * Constants.SECOND_MS));
+    // block 1 should not be evicted
+    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.INSTANCE));
+>>>>>>> origin/enterprise-1.5
   }
 }

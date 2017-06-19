@@ -12,7 +12,6 @@
 package alluxio.client;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.security.CryptoUtils;
 import alluxio.proto.layout.FileFooter;
@@ -30,14 +29,13 @@ public final class EncryptionMetaFactory {
       initializePartialMeta();
 
   /**
-   * Creates a new {@link EncryptionProto.Meta} from the configuration.
+   * Creates a new {@link EncryptionProto.Meta} from the configuration, only for layout purpose.
+   * Encryption id and crypto key are not set.
    *
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create() throws IOException {
-    return create(Constants.INVALID_ENCRYPTION_ID, Constants.INVALID_ENCRYPTION_ID,
-        LayoutUtils.toPhysicalBlockLength(
-          PARTIAL_META, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)));
+  public static EncryptionProto.Meta createLayout() throws IOException {
+    return PARTIAL_META;
   }
 
   /**
