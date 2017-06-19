@@ -40,6 +40,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -82,6 +83,28 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
           GrantPrivilegesOptions.defaults());
     }
     refreshPrivilegeClient();
+  }
+
+  @Test
+  public void superUserHasAllPrivileges() throws Exception {
+    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+      refreshPrivilegeClient();
+      List<Privilege> superUserPrivileges =
+          mPrivilegeClient.getUserPrivileges(SUPER_USER, GetUserPrivilegesOptions.defaults());
+      assertEquals(new HashSet<>(Arrays.asList(Privilege.values())),
+          new HashSet<>(superUserPrivileges));
+    }
+  }
+
+  @Test
+  public void superGroupHasAllPrivileges() throws Exception {
+    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+      refreshPrivilegeClient();
+      List<Privilege> superUserPrivileges =
+          mPrivilegeClient.getGroupPrivileges(mSupergroup, GetGroupPrivilegesOptions.defaults());
+      assertEquals(new HashSet<>(Arrays.asList(Privilege.values())),
+          new HashSet<>(superUserPrivileges));
+    }
   }
 
   @Test

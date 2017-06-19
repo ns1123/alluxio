@@ -16,12 +16,12 @@ import alluxio.clock.SystemClock;
 import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.JobDoesNotExistException;
 import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.job.JobConfig;
-import alluxio.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobIdGenerator;
 import alluxio.job.meta.JobInfo;
 import alluxio.job.meta.MasterWorkerInfo;
@@ -68,8 +68,6 @@ public final class JobMaster extends AbstractMaster {
   private static final long CAPACITY = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
   private static final long RETENTION_MS =
       Configuration.getLong(PropertyKey.JOB_MASTER_FINISHED_JOB_RETENTION_MS);
-  private static final boolean CLEANUP =
-      Configuration.getBoolean(PropertyKey.JOB_MASTER_FINISHED_JOB_CLEANUP);
 
   // Worker metadata management.
   private final IndexDefinition<MasterWorkerInfo> mIdIndex =
@@ -237,10 +235,6 @@ public final class JobMaster extends AbstractMaster {
       throw new JobDoesNotExistException(jobId);
     }
     JobInfo jobInfo = mIdToJobCoordinator.get(jobId).getJobInfo();
-    if (CLEANUP && jobInfo.getStatus().isFinished()) {
-      mFinishedJobs.remove(jobInfo);
-      mIdToJobCoordinator.remove(jobId);
-    }
     return new alluxio.job.wire.JobInfo(jobInfo);
   }
 

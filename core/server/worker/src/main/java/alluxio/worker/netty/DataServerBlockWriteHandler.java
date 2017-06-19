@@ -146,7 +146,7 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
     if (request.mBlockWriter == null) {
       request.mBlockWriter = mWorker.getTempBlockWriterRemote(request.mSessionId, request.mId);
       // ALLUXIO CS REPLACE
-      // mCounter = MetricsSystem.workerCounter("BytesWrittenAlluxio");
+      // request.mCounter = MetricsSystem.workerCounter("BytesWrittenAlluxio");
       // ALLUXIO CS WITH
       String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
       String metricName =

@@ -130,7 +130,7 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    */
   private void init(long offset) throws BlockDoesNotExistException, IOException {
     // ALLUXIO CS REMOVE
-    // UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId()).getUfs;
+    // UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId()).getUfs();
     // ufs.connectFromWorker(
     //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
     // if (!ufs.isFile(mBlockMeta.getUnderFileSystemPath())) {
