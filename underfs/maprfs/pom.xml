@@ -55,9 +55,13 @@
   <profiles>
     <!-- Profile to build this UFS module connecting to hdfs 2.7 -->
     <profile>
-      <id>hadoop-2.7</id>
+      <id>maprfs-5.2</id>
       <activation>
         <activeByDefault>true</activeByDefault>
+        <property>
+          <name>maprfs.version</name>
+          <value>5.2</value>
+        </property>
       </activation>
       <dependencies>
         <dependency>

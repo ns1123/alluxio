@@ -59,7 +59,7 @@ import java.util.Stack;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * HDFS {@link UnderFileSystem} implementation.
+ * MapR FS {@link UnderFileSystem} implementation.
  */
 @ThreadSafe
 public class MapRFSUnderFileSystem extends BaseUnderFileSystem
@@ -74,11 +74,11 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
   // ALLUXIO CS END
 
   /**
-   * Factory method to constructs a new HDFS {@link UnderFileSystem} instance.
+   * Factory method to constructs a new MapR FS {@link UnderFileSystem} instance.
    *
    * @param ufsUri the {@link AlluxioURI} for this UFS
    * @param conf the configuration for Hadoop
-   * @return a new HDFS {@link UnderFileSystem} instance
+   * @return a new MapR FS {@link UnderFileSystem} instance
    */
   public static MapRFSUnderFileSystem createInstance(
       AlluxioURI ufsUri, UnderFileSystemConfiguration conf) {
@@ -91,7 +91,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
    *
    * @param ufsUri the {@link AlluxioURI} for this UFS
    * @param conf the configuration for this UFS
-   * @param hdfsConf the configuration for HDFS
+   * @param hdfsConf the configuration for MapR FS
    */
   MapRFSUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
       Configuration hdfsConf) {
@@ -100,7 +100,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
     // ALLUXIO CS ADD
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
-    mIsHdfsKerberized = hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase("KERBEROS");
+    mIsHdfsKerberized = "KERBEROS".equalsIgnoreCase(hdfsConf.get("hadoop.security.authentication"));
     if (mIsHdfsKerberized) {
       try {
         switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
@@ -183,7 +183,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
 
   @Override
   public String getUnderFSType() {
-    return "hdfs";
+    return "maprfs";
   }
 
   /**
@@ -205,15 +205,6 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
     // Load HDFS site properties from the given file and overwrite the default HDFS conf,
     // the path of this file can be passed through --option
     hdfsConf.addResource(new Path(conf.getValue(PropertyKey.UNDERFS_HDFS_CONFIGURATION)));
-
-    // On Hadoop 2.x this is strictly unnecessary since it uses ServiceLoader to automatically
-    // discover available file system implementations. However this configuration setting is
-    // required for earlier Hadoop versions plus it is still honoured as an override even in 2.x so
-    // if present propagate it to the Hadoop configuration
-    String ufsHdfsImpl = conf.getValue(PropertyKey.UNDERFS_HDFS_IMPL);
-    if (!StringUtils.isEmpty(ufsHdfsImpl)) {
-      hdfsConf.set("fs.hdfs.impl", ufsHdfsImpl);
-    }
 
     // Disable HDFS client caching so that input configuration is respected. Configurable from
     // system property
