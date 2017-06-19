@@ -42,7 +42,7 @@ public final class MapRFSUnderFileSystemTest {
    */
   @Test
   public void getUnderFSType() throws Exception {
-    Assert.assertEquals("hdfs", mMapRFSUnderFileSystem.getUnderFSType());
+    Assert.assertEquals("maprfs", mMapRFSUnderFileSystem.getUnderFSType());
   }
 
   /**
@@ -54,7 +54,7 @@ public final class MapRFSUnderFileSystemTest {
   public void prepareConfiguration() throws Exception {
     UnderFileSystemConfiguration ufsConf = UnderFileSystemConfiguration.defaults();
     org.apache.hadoop.conf.Configuration conf = MapRFSUnderFileSystem.createConfiguration(ufsConf);
-    Assert.assertEquals(ufsConf.getValue(PropertyKey.UNDERFS_HDFS_IMPL), conf.get("fs.hdfs.impl"));
+    Assert.assertEquals("com.mapr.fs.MapRFileSystem", conf.get("fs.maprfs.impl"));
     Assert.assertTrue(conf.getBoolean("fs.hdfs.impl.disable.cache", false));
   }
 }
