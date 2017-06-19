@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-underfs-hdfsx</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.6.0-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-underfs-hdfsx-apache1_0</artifactId>
   <name>Alluxio Under File System - HDFS Distributions - Apache 1.0</name>

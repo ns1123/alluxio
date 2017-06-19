@@ -56,21 +56,13 @@ import java.util.Set;
  * Unit tests for {@link DefaultBlockWorker}.
  */
 @RunWith(PowerMockRunner.class)
-<<<<<<< HEAD
-@PrepareForTest(
-    {BlockMasterClient.class, FileSystemMasterClient.class, BlockHeartbeatReporter.class,
-        BlockMetricsReporter.class, BlockMeta.class, BlockStoreLocation.class, BlockStoreMeta.class,
-        StorageDir.class, Configuration.class, UnderFileSystem.class, BlockWorker.class,
-        Sessions.class})
-// ALLUXIO CS ADD
-@org.powermock.core.classloader.annotations.PowerMockIgnore({"javax.crypto.*", "javax.net.ssl.*"})
-// ALLUXIO CS END
-=======
 @PrepareForTest({BlockMasterClient.class, BlockMasterClientPool.class, FileSystemMasterClient.class,
     BlockHeartbeatReporter.class, BlockMetricsReporter.class, BlockMeta.class,
     BlockStoreLocation.class, BlockStoreMeta.class, StorageDir.class, Configuration.class,
     UnderFileSystem.class, BlockWorker.class, Sessions.class})
->>>>>>> alluxio/master
+// ALLUXIO CS ADD
+@org.powermock.core.classloader.annotations.PowerMockIgnore({"javax.crypto.*", "javax.net.ssl.*"})
+// ALLUXIO CS END
 public class BlockWorkerTest {
 
   /** Rule to create a new temporary folder during each test. */
