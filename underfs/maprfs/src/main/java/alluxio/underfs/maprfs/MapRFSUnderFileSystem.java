@@ -39,9 +39,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-// ALLUXIO CS REMOVE
-// import org.apache.hadoop.security.SecurityUtil;
-// ALLUXIO CS END
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,9 +66,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
 
   private FileSystem mFileSystem;
   private UnderFileSystemConfiguration mUfsConf;
-  // ALLUXIO CS ADD
   private final boolean mIsHdfsKerberized;
-  // ALLUXIO CS END
 
   /**
    * Factory method to constructs a new MapR FS {@link UnderFileSystem} instance.
@@ -97,7 +92,6 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
       Configuration hdfsConf) {
     super(ufsUri, conf);
     mUfsConf = conf;
-    // ALLUXIO CS ADD
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
     mIsHdfsKerberized = "KERBEROS".equalsIgnoreCase(hdfsConf.get("hadoop.security.authentication"));
@@ -168,7 +162,6 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
       }
       return;
     }
-    // ALLUXIO CS END
     Path path = new Path(ufsUri.toString());
     try {
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
@@ -388,45 +381,16 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
   }
 
   @Override
-  // ALLUXIO CS ADD
   // TODO(chaomin): make connectFromMaster private and deprecate it.
-  // ALLUXIO CS END
   public void connectFromMaster(String host) throws IOException {
-    // ALLUXIO CS REPLACE
-    // if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
-    //     || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
-    //   return;
-    // }
-    // String masterKeytab = mUfsConf.getValue(PropertyKey.MASTER_KEYTAB_KEY_FILE);
-    // String masterPrincipal = mUfsConf.getValue(PropertyKey.MASTER_PRINCIPAL);
-    //
-    // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
-    //     masterPrincipal, host);
-    // ALLUXIO CS WITH
     connectFromAlluxioServer(host);
-    // ALLUXIO CS END
   }
 
   @Override
-  // ALLUXIO CS ADD
   // TODO(chaomin): make connectFromWorker private and deprecate it.
-  // ALLUXIO CS END
   public void connectFromWorker(String host) throws IOException {
-    // ALLUXIO CS REPLACE
-    // if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
-    //     || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
-    //   return;
-    // }
-    // String workerKeytab = mUfsConf.getValue(PropertyKey.WORKER_KEYTAB_FILE);
-    // String workerPrincipal = mUfsConf.getValue(PropertyKey.WORKER_PRINCIPAL);
-    //
-    // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
-    //     workerPrincipal, host);
-    // ALLUXIO CS WITH
     connectFromAlluxioServer(host);
-    // ALLUXIO CS END
   }
-  // ALLUXIO CS ADD
 
   private void connectFromAlluxioServer(String host) throws IOException {
     if (!mIsHdfsKerberized) {
@@ -451,17 +415,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
     }
     login(principal, keytab, null);
   }
-  // ALLUXIO CS END
 
-  // ALLUXIO CS REPLACE
-  // private void login(PropertyKey keytabFileKey, String keytabFile, PropertyKey principalKey,
-  //     String principal, String hostname) throws IOException {
-  //   org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-  //   conf.set(keytabFileKey.toString(), keytabFile);
-  //   conf.set(principalKey.toString(), principal);
-  //   SecurityUtil.login(conf, keytabFileKey.toString(), principalKey.toString(), hostname);
-  // }
-  // ALLUXIO CS WITH
   private void login(String principal, String keytabFile, String hostname) throws IOException {
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
     String ufsHdfsImpl = mUfsConf.getValue(PropertyKey.UNDERFS_HDFS_IMPL);
@@ -474,7 +428,6 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
     org.apache.hadoop.security.UserGroupInformation.setConfiguration(conf);
     org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
   }
-  // ALLUXIO CS END
 
   @Override
   public boolean mkdirs(String path, MkdirsOptions options) throws IOException {

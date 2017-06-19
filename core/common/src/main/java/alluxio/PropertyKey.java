@@ -105,8 +105,13 @@ public class PropertyKey {
           String.format("${%s}/core-site.xml:${%s}/hdfs-site.xml", Name.CONF_DIR, Name.CONF_DIR));
   public static final PropertyKey UNDERFS_HDFS_IMPL =
       create(Name.UNDERFS_HDFS_IMPL, "org.apache.hadoop.hdfs.DistributedFileSystem");
+  // ALLUXIO CS REPLACE
+  // public static final PropertyKey UNDERFS_HDFS_PREFIXES =
+  //   create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///,maprfs:///");
+  // ALLUXIO CS WITH
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
       create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///");
+  // ALLUXIO CS END
   public static final PropertyKey UNDERFS_HDFS_REMOTE = create(Name.UNDERFS_HDFS_REMOTE, false);
   // ALLUXIO CS ADD
   public static final PropertyKey UNDERFS_HDFS_VERSION =

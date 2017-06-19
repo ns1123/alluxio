@@ -53,7 +53,7 @@
   </dependencies>
 
   <profiles>
-    <!-- Profile to build this UFS module connecting to hdfs 2.7 -->
+    <!-- Profile to build this UFS module connecting to maprfs-5.2 -->
     <profile>
       <id>maprfs-5.2</id>
       <activation>
