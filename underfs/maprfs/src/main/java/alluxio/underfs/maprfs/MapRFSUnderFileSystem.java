@@ -70,7 +70,7 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
   private FileSystem mFileSystem;
   private UnderFileSystemConfiguration mUfsConf;
   // ALLUXIO CS ADD
-  private final boolean mIsHdfsKerberized = false;
+  private final boolean mIsHdfsKerberized;
   // ALLUXIO CS END
 
   /**
@@ -97,6 +97,78 @@ public class MapRFSUnderFileSystem extends BaseUnderFileSystem
       Configuration hdfsConf) {
     super(ufsUri, conf);
     mUfsConf = conf;
+    // ALLUXIO CS ADD
+    final String ufsPrefix = ufsUri.toString();
+    final Configuration ufsHdfsConf = hdfsConf;
+    mIsHdfsKerberized = hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase("KERBEROS");
+    if (mIsHdfsKerberized) {
+      try {
+        switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
+          case MASTER:
+            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
+            break;
+          case WORKER:
+            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
+            break;
+          case JOB_MASTER:
+            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+            break;
+          case JOB_WORKER:
+            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC));
+            break;
+          // Client and Proxy are handled the same.
+          case CLIENT:
+          case PROXY:
+            connectFromAlluxioClient();
+            break;
+          default:
+            throw new IllegalStateException(
+                "Unknown process type: " + alluxio.util.CommonUtils.PROCESS_TYPE.get());
+        }
+      } catch (IOException e) {
+        LOG.error("Login error: " + e);
+      }
+
+      try {
+        if (alluxio.util.CommonUtils.isAlluxioServer() && !mUser.isEmpty()
+            && !org.apache.hadoop.security.UserGroupInformation.getLoginUser().getShortUserName()
+            .equals(mUser)) {
+          // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
+          // The Alluxio server user must be configured as a superuser proxy in HDFS configuration.
+          org.apache.hadoop.security.UserGroupInformation proxyUgi =
+              org.apache.hadoop.security.UserGroupInformation.createProxyUser(mUser,
+                  org.apache.hadoop.security.UserGroupInformation.getLoginUser());
+          LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
+          MapRFSSecurityUtils.runAs(proxyUgi, new MapRFSSecurityUtils.SecuredRunner<Void>() {
+            @Override
+            public Void run() throws IOException {
+              Path path = new Path(ufsPrefix);
+              mFileSystem = path.getFileSystem(ufsHdfsConf);
+              return null;
+            }
+          });
+        } else {
+          // Alluxio client runs HDFS operations as the current user.
+          MapRFSSecurityUtils.runAsCurrentUser(new MapRFSSecurityUtils.SecuredRunner<Void>() {
+            @Override
+            public Void run() throws IOException {
+              Path path = new Path(ufsPrefix);
+              mFileSystem = path.getFileSystem(ufsHdfsConf);
+              return null;
+            }
+          });
+        }
+      } catch (IOException e) {
+        LOG.error("Exception thrown when trying to get FileSystem for {}", ufsPrefix, e);
+        throw new RuntimeException(e);
+      }
+      return;
+    }
+    // ALLUXIO CS END
     Path path = new Path(ufsUri.toString());
     try {
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
