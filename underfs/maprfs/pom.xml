@@ -102,6 +102,7 @@
                       <include>com.google.protobuf:protobuf-java</include>
                       <include>com.jamesmurty.utils:java-xmlbuilder</include>
                       <include>com.jcraft:jsch</include>
+                      <include>com.mapr.hadoop:maprfs</include>
                       <include>com.sun.jersey:jersey-core</include>
                       <include>com.sun.jersey:jersey-json</include>
                       <include>com.sun.jersey:jersey-server</include>
@@ -140,10 +141,14 @@
                       <include>org.codehaus.jackson:jackson-xc</include>
                       <include>org.codehaus.jettison:jettison</include>
                       <include>org.fusesource.leveldbjni:leveldbjni-all</include>
+                      <include>org.json:json</include>
                       <include>org.mortbay.jetty:jetty-util</include>
                       <include>org.mortbay.jetty:jetty</include>
                       <include>org.tukaani:xz</include>
                       <include>org.xerial.snappy:snappy-java</include>
+                      <include>org.yaml:snakeyaml</include>
+                      <include>xalan:serializer</include>
+                      <include>xalan:xalan</include>
                       <include>xerces:xercesImpl</include>
                       <include>xml-apis:xml-apis</include>
                       <include>xmlenc:xmlenc</include>
@@ -174,6 +179,10 @@
                       <pattern>com.jcraft.jsch</pattern>
                       <shadedPattern>${shading.prefix}.com.jcraft.jsch</shadedPattern>
                     </relocation>
+                    <!--<relocation>-->
+                      <!--<pattern>com.mapr</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.com.mapr</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>com.sun.activation</pattern>
                       <shadedPattern>${shading.prefix}.com.sun.activation</shadedPattern>
@@ -205,6 +214,10 @@
                     <relocation>
                       <pattern>contribs.mx</pattern>
                       <shadedPattern>${shading.prefix}.contribs.mx</shadedPattern>
+                    </relocation>
+                    <relocation>
+                      <pattern>java_cup.runtime</pattern>
+                      <shadedPattern>${shading.prefix}.java_cup.runtime</shadedPattern>
                     </relocation>
                     <relocation>
                       <pattern>javax.activation</pattern>
@@ -258,6 +271,10 @@
                       <pattern>javax.xml.xpath</pattern>
                       <shadedPattern>${shading.prefix}.javax.xml.xpath</shadedPattern>
                     </relocation>
+                    <!--<relocation>-->
+                      <!--<pattern>mapr.fs</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.mapr.fs</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>net.iharder.base64</pattern>
                       <shadedPattern>${shading.prefix}.net.iharder.base64</shadedPattern>
@@ -265,6 +282,10 @@
                     <relocation>
                       <pattern>org.apache.avro</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.avro</shadedPattern>
+                    </relocation>
+                    <relocation>
+                      <pattern>org.apache.bcel</pattern>
+                      <shadedPattern>${shading.prefix}.org.apache.bcel</shadedPattern>
                     </relocation>
                     <relocation>
                       <pattern>org.apache.commons.beanutils</pattern>
@@ -332,24 +353,44 @@
                       <shadedPattern>${shading.prefix}.org.apache.jute</shadedPattern>
                     </relocation>
                     <relocation>
+                      <pattern>org.apache.regexp</pattern>
+                      <shadedPattern>${shading.prefix}.org.apache.regexp</shadedPattern>
+                    </relocation>
+                    <relocation>
                       <pattern>org.apache.wml</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.wml</shadedPattern>
+                    </relocation>
+                    <relocation>
+                      <pattern>org.apache.xalan</pattern>
+                      <shadedPattern>${shading.prefix}.org.apache.xalan</shadedPattern>
                     </relocation>
                     <relocation>
                       <pattern>org.apache.xerces</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.xerces</shadedPattern>
                     </relocation>
                     <relocation>
+                      <pattern>org.apache.xml.dtm</pattern>
+                      <shadedPattern>${shading.prefix}.org.apache.xml.dtm</shadedPattern>
+                    </relocation>
+                    <relocation>
+                      <pattern>org.apache.xml.res</pattern>
+                      <shadedPattern>${shading.prefix}.org.apache.xml.res</shadedPattern>
+                    </relocation>
+                    <relocation>
                       <pattern>org.apache.xml.serialize</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.xml.serialize</shadedPattern>
+                    </relocation>
+                    <relocation>
+                      <pattern>org.apache.xml.utils</pattern>
+                      <shadedPattern>${shading.prefix}.org.apache.xml.utils</shadedPattern>
                     </relocation>
                     <relocation>
                       <pattern>org.apache.xmlcommons</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.xmlcommons</shadedPattern>
                     </relocation>
                     <relocation>
-                      <pattern>org.apache.zookeeper</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.zookeeper</shadedPattern>
+                      <pattern>org.apache.xpath</pattern>
+                      <shadedPattern>${shading.prefix}.org.apache.xpath</shadedPattern>
                     </relocation>
                     <relocation>
                       <pattern>org.codehaus.jackson</pattern>
@@ -376,6 +417,10 @@
                       <shadedPattern>${shading.prefix}.org.jets3t.service</shadedPattern>
                     </relocation>
                     <relocation>
+                      <pattern>org.json</pattern>
+                      <shadedPattern>${shading.prefix}.org.json</shadedPattern>
+                    </relocation>
+                    <relocation>
                       <pattern>org.mortbay</pattern>
                       <shadedPattern>${shading.prefix}.org.mortbay</shadedPattern>
                     </relocation>
@@ -398,6 +443,10 @@
                     <relocation>
                       <pattern>org.xml.sax</pattern>
                       <shadedPattern>${shading.prefix}.org.xml.sax</shadedPattern>
+                    </relocation>
+                    <relocation>
+                      <pattern>org.yaml.snakeyaml</pattern>
+                      <shadedPattern>${shading.prefix}.org.yaml.snakeyaml</shadedPattern>
                     </relocation>
                     <relocation>
                       <pattern>org.znerd.xmlenc</pattern>
