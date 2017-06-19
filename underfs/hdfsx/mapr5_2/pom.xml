@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-underfs-hdfsx</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.6.0-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-underfs-hdfsx-mapr5_2</artifactId>
   <name>Alluxio Under File System - HDFS Distributions - MapR 5.2</name>
