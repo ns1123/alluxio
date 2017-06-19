@@ -234,16 +234,8 @@ public final class MetricsSystem {
   }
 
   /**
-<<<<<<< HEAD
    * Escapes a URI, replacing "/" with "_" so that when the URI is used in a metric name, the
    * "/" won't be interpreted as a path separator.
-||||||| merged common ancestors
-   * Escapes a URI, replacing "/" with "_" so that when the URI is used in a metric name, the "/"
-   * won't be interpreted as a path separator.
-=======
-   * Escapes a URI, replacing "/" and "." with "_" so that when the URI is used in a metric name,
-   * the "/" and "." won't be interpreted as path separators.
->>>>>>> origin/enterprise-1.5
    *
    * @param uri the URI to escape
    * @return the string representing the escaped URI

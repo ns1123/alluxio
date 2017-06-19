@@ -16,19 +16,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-underfs</artifactId>
-<<<<<<< HEAD
     <version>1.6.0-SNAPSHOT</version>
-||||||| merged common ancestors
-<<<<<<<<< Temporary merge branch 1
-    <version>1.5.0-SNAPSHOT</version>
-||||||||| merged common ancestors
-    <version>1.5.0-RC3</version>
-=========
-    <version>1.5.1-SNAPSHOT</version>
->>>>>>>>> Temporary merge branch 2
-=======
-    <version>1.5.0-SNAPSHOT</version>
->>>>>>> origin/enterprise-1.5
   </parent>
   <artifactId>alluxio-underfs-s3a</artifactId>
   <name>Alluxio Under File System - S3A</name>

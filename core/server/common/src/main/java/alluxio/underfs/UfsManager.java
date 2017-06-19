@@ -25,56 +25,28 @@ import java.io.Closeable;
  */
 public interface UfsManager extends Closeable {
   /** Container for a UFS and the URI for that UFS. */
-<<<<<<< HEAD:core/server/common/src/main/java/alluxio/underfs/UfsManager.java
-  static class UfsInfo {
-    private UnderFileSystem mUfs;
-    private AlluxioURI mUfsMountPointUri;
-||||||| merged common ancestors
-  static class UfsInfo {
-    private UnderFileSystem mUfsInfo;
-    private AlluxioURI mUfsMountPointUri;
-=======
   class UfsInfo {
     private UnderFileSystem mUfs;
     private final AlluxioURI mUfsMountPointUri;
     private final Supplier<UnderFileSystem> mUfsSupplier;
->>>>>>> origin/enterprise-1.5:core/common/src/main/java/alluxio/underfs/UfsManager.java
 
     /**
      * @param ufsSupplier the supplier function to create a new UFS instance
      * @param ufsMountPointUri the URI for the UFS path which is mounted in Alluxio
      */
-<<<<<<< HEAD:core/server/common/src/main/java/alluxio/underfs/UfsManager.java
-    public UfsInfo(UnderFileSystem ufs, AlluxioURI ufsMountPointUri) {
-      mUfs = ufs;
-      mUfsMountPointUri = ufsMountPointUri;
-||||||| merged common ancestors
-    public UfsInfo(UnderFileSystem ufs, AlluxioURI ufsMountPointUri) {
-      mUfsInfo = ufs;
-      mUfsMountPointUri = ufsMountPointUri;
-=======
     public UfsInfo(Supplier<UnderFileSystem> ufsSupplier, AlluxioURI ufsMountPointUri) {
       mUfsSupplier = Preconditions.checkNotNull(ufsSupplier, "ufsSupplier is null");
       mUfsMountPointUri = Preconditions.checkNotNull(ufsMountPointUri, "ufsMountPointUri is null");
->>>>>>> origin/enterprise-1.5:core/common/src/main/java/alluxio/underfs/UfsManager.java
     }
 
     /**
      * @return the UFS instance
      */
-<<<<<<< HEAD:core/server/common/src/main/java/alluxio/underfs/UfsManager.java
-    public UnderFileSystem getUfs() {
-      return mUfs;
-||||||| merged common ancestors
-    public UnderFileSystem getUfs() {
-      return mUfsInfo;
-=======
     public synchronized UnderFileSystem getUfs() {
       if (mUfs == null) {
         mUfs = mUfsSupplier.get();
       }
       return mUfs;
->>>>>>> origin/enterprise-1.5:core/common/src/main/java/alluxio/underfs/UfsManager.java
     }
 
     /**
