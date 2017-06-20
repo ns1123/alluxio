@@ -34,6 +34,9 @@
     <module>jdbc</module>
     <!-- ALLUXIO CS END -->
     <module>local</module>
+    <!-- ALLUXIO CS ADD -->
+    <module>maprfs</module>
+    <!-- ALLUXIO CS END -->
     <module>oss</module>
     <module>s3</module>
     <module>s3a</module>
