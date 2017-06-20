@@ -81,6 +81,7 @@ public final class Constants {
   public static final String HEADER_SWIFT = "swift://";
   // ALLUXIO CS ADD
   public static final String HEADER_JDBC = "jdbc:";
+  public static final String HEADER_MAPRFS = "maprfs://";
   // ALLUXIO CS END
   // Google Cloud Storage header convention is "gs://".
   // See https://cloud.google.com/storage/docs/cloud-console
