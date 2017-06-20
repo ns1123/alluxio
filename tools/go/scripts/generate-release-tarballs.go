@@ -97,21 +97,21 @@ var hadoopDistributions = map[string]version{
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-tarball.go
 // Map from UFS module name to a bool indicating if this module is included by default
 var ufsModules = map[string]bool{
-	"ufs-hadoop-1.0":     false,
-	"ufs-hadoop-1.2":     true,
-	"ufs-hadoop-2.2":     true,
-	"ufs-hadoop-2.3":     false,
-	"ufs-hadoop-2.4":     false,
-	"ufs-hadoop-2.5":     false,
-	"ufs-hadoop-2.6":     false,
-	"ufs-hadoop-2.7":     true,
-	"ufs-hadoop-2.8":     false,
-	"ufs-hadoop-cdh5.6":  false,
-	"ufs-hadoop-cdh5.8":  true,
-	"ufs-hadoop-cdh5.11": false,
-	"ufs-hadoop-hdp2.4":  false,
-	"ufs-hadoop-hdp2.5":  true,
-	"ufs-hadoop-mapr5.2": true,
+	"ufs-hadoop-1.0": false,
+	"ufs-hadoop-1.2": true,
+	"ufs-hadoop-2.2": true,
+	"ufs-hadoop-2.3": false,
+	"ufs-hadoop-2.4": false,
+	"ufs-hadoop-2.5": false,
+	"ufs-hadoop-2.6": false,
+	"ufs-hadoop-2.7": true,
+	"ufs-hadoop-2.8": false,
+	"ufs-cdh-5.6":    false,
+	"ufs-cdh-5.8":    true,
+	"ufs-cdh-5.11":   false,
+	"ufs-hdp-2.4":    false,
+	"ufs-hdp-2.5":    true,
+	"ufs-mapr-5.2":   true,
 }
 
 var (

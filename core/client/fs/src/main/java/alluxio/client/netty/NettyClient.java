@@ -90,14 +90,14 @@ public final class NettyClient {
         pipeline.addLast(RPCMessage.createFrameDecoder());
         pipeline.addLast(ENCODER);
         pipeline.addLast(DECODER);
+        pipeline.addLast(new IdleStateHandler(0, heartbeatPeriodMs, 0, TimeUnit.MILLISECONDS));
+        pipeline.addLast(new IdleWriteHandler());
         // ALLUXIO CS ADD
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
             alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
           pipeline.addLast(KERBEROS_SASL_CLIENT_HANDLER);
         }
         // ALLUXIO CS END
-        pipeline.addLast(new IdleStateHandler(0, heartbeatPeriodMs, 0, TimeUnit.MILLISECONDS));
-        pipeline.addLast(new IdleWriteHandler());
       }
     });
 

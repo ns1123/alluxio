@@ -14,7 +14,6 @@ package alluxio.client.file;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
-import alluxio.client.EncryptionMetaFactory;
 import alluxio.client.LayoutUtils;
 import alluxio.client.ReadType;
 import alluxio.client.block.AlluxioBlockStore;
@@ -27,6 +26,7 @@ import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.security.CryptoUtils;
 import alluxio.client.util.ClientTestUtils;
+import alluxio.client.util.EncryptionMetaTestUtils;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.security.EncryptionProto;
@@ -114,7 +114,7 @@ public final class CryptoFileInStreamTest {
   public void before() throws Exception {
     // Set logical block size to be 4 full chunks size.
     Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "256KB");
-    mMeta = EncryptionMetaFactory.create();
+    mMeta = EncryptionMetaTestUtils.create();
     // One full blocks, one partial block + 1st part of footer, and the 2nd part of footer in the
     // last physical block.
     mNumStreams = 3;
