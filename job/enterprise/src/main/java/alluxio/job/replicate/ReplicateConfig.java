@@ -100,4 +100,13 @@ public final class ReplicateConfig implements JobConfig {
   public int hashCode() {
     return Objects.hashCode(mBlockId, mPath, mReplicas);
   }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("blockId", mBlockId)
+        .add("path", mPath)
+        .add("replicas", mReplicas)
+        .toString();
+  }
 }
