@@ -30,7 +30,7 @@ public final class SpecificWorkerPolicyTest {
    * Tests that the specified worker is chosen.
    */
   @Test
-  public void getWorkerTest() throws Exception {
+  public void getWorkerTest() {
     List<BlockWorkerInfo> workerInfoList = Lists.newArrayList();
     WorkerNetAddress address =
         new WorkerNetAddress().setHost("worker1").setRpcPort(1).setDataPort(1).setWebPort(1);
