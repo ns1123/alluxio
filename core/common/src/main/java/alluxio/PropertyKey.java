@@ -335,13 +335,7 @@ public class PropertyKey {
   public static final PropertyKey WORKER_BLOCK_HEARTBEAT_INTERVAL_MS =
       create(Name.WORKER_BLOCK_HEARTBEAT_INTERVAL_MS, "1sec");
   public static final PropertyKey WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS =
-<<<<<<< HEAD
-      create(Name.WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS, "1min");
-||||||| merged common ancestors
-      create(Name.WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS, 60000);
-=======
-      create(Name.WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS, 300000);
->>>>>>> enterprise-1.5
+      create(Name.WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS, "5min");
   public static final PropertyKey WORKER_BLOCK_THREADS_MAX =
       create(Name.WORKER_BLOCK_THREADS_MAX, 2048);
   public static final PropertyKey WORKER_BLOCK_THREADS_MIN =

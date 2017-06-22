@@ -155,15 +155,10 @@
     <libthrift.version>0.9.3</libthrift.version>
     <license.header.path>build/license/</license.header.path>
     <log4j.version>1.2.17</log4j.version>
-<<<<<<< HEAD
-    <maven.version>3.3.9</maven.version>
-||||||| merged common ancestors
-=======
     <!-- ALLUXIO CS ADD -->
     <maprfs.version>5.2</maprfs.version>
     <!-- ALLUXIO CS END -->
     <maven.version>3.3.9</maven.version>
->>>>>>> enterprise-1.5
     <metrics.version>3.1.2</metrics.version>
     <powermock.version>1.6.1</powermock.version>
     <protobuf.version>2.5.0</protobuf.version>
