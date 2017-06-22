@@ -218,6 +218,7 @@ public final class AlluxioBlockStore {
     WorkerNetAddress address;
     FileWriteLocationPolicy locationPolicy = Preconditions.checkNotNull(options.getLocationPolicy(),
         PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
     // if (address == null) {
@@ -273,6 +274,17 @@ public final class AlluxioBlockStore {
     return BlockOutStream
         .createReplicatedBlockOutStream(mContext, blockId, blockSize, workerAddressList, options);
     // ALLUXIO CS END
+||||||| merged common ancestors
+    address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
+    return getOutStream(blockId, blockSize, address, options);
+=======
+    address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
+    if (address == null) {
+      throw new UnavailableException(
+          ExceptionMessage.NO_SPACE_FOR_BLOCK_ON_WORKER.getMessage(blockSize));
+    }
+    return getOutStream(blockId, blockSize, address, options);
+>>>>>>> FETCH_HEAD
   }
 
   /**
