@@ -111,7 +111,6 @@ var ufsModules = map[string]bool{
 	"ufs-cdh-5.11":   false,
 	"ufs-hdp-2.4":    false,
 	"ufs-hdp-2.5":    true,
-	"ufs-mapr-5.2":   true,
 }
 
 var (

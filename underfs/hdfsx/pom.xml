@@ -136,13 +136,6 @@
         <module>hdp2_5</module>
       </modules>
     </profile>
-
-    <profile>
-      <id>ufs-mapr-5.2</id>
-      <modules>
-        <module>mapr5_2</module>
-      </modules>
-    </profile>
   </profiles>
 
   <properties>

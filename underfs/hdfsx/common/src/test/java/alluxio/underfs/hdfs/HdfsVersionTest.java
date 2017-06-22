@@ -28,22 +28,58 @@ public class HdfsVersionTest {
   }
 
   @Test
-  public void findByMavenArtifect() throws Exception {
+  public void findByHadoopLabel() throws Exception {
     Assert.assertEquals(HdfsVersion.APACHE_1_0, HdfsVersion.find("1.0.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_1_0, HdfsVersion.find("hadoop-1.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_1_0, HdfsVersion.find("hadoop-1.0.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_1_0, HdfsVersion.find("hadoop1.0"));
     Assert.assertEquals(HdfsVersion.APACHE_1_2, HdfsVersion.find("1.2.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_1_2, HdfsVersion.find("hadoop-1.2"));
+    Assert.assertEquals(HdfsVersion.APACHE_1_2, HdfsVersion.find("hadoop-1.2.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_1_2, HdfsVersion.find("hadoop1.2"));
     Assert.assertEquals(HdfsVersion.APACHE_2_2, HdfsVersion.find("2.2.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_2, HdfsVersion.find("hadoop-2.2"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_2, HdfsVersion.find("hadoop-2.2.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_2, HdfsVersion.find("hadoop2.2"));
     Assert.assertEquals(HdfsVersion.APACHE_2_3, HdfsVersion.find("2.3.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_3, HdfsVersion.find("hadoop-2.3"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_3, HdfsVersion.find("hadoop-2.3.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_3, HdfsVersion.find("hadoop2.3"));
     Assert.assertEquals(HdfsVersion.APACHE_2_4, HdfsVersion.find("2.4.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_4, HdfsVersion.find("hadoop-2.4"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_4, HdfsVersion.find("hadoop-2.4.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_4, HdfsVersion.find("hadoop2.4"));
     Assert.assertEquals(HdfsVersion.APACHE_2_5, HdfsVersion.find("2.5.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_5, HdfsVersion.find("hadoop-2.5"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_5, HdfsVersion.find("hadoop-2.5.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_5, HdfsVersion.find("hadoop2.5"));
     Assert.assertEquals(HdfsVersion.APACHE_2_6, HdfsVersion.find("2.6.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_6, HdfsVersion.find("hadoop-2.6"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_6, HdfsVersion.find("hadoop-2.6.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_6, HdfsVersion.find("hadoop2.6"));
     Assert.assertEquals(HdfsVersion.APACHE_2_7, HdfsVersion.find("2.7.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_7, HdfsVersion.find("hadoop-2.7"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_7, HdfsVersion.find("hadoop-2.7.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_7, HdfsVersion.find("hadoop2.7"));
     Assert.assertEquals(HdfsVersion.APACHE_2_8, HdfsVersion.find("2.8.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_8, HdfsVersion.find("hadoop-2.8"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_8, HdfsVersion.find("hadoop-2.8.0"));
+    Assert.assertEquals(HdfsVersion.APACHE_2_8, HdfsVersion.find("hadoop2.8"));
     Assert.assertEquals(HdfsVersion.CDH_5_6, HdfsVersion.find("2.6.0-cdh5.6.0"));
+    Assert.assertEquals(HdfsVersion.CDH_5_6, HdfsVersion.find("cdh-5.6"));
+    Assert.assertEquals(HdfsVersion.CDH_5_6, HdfsVersion.find("cdh5.6"));
     Assert.assertEquals(HdfsVersion.CDH_5_8, HdfsVersion.find("2.6.0-cdh5.8.0"));
+    Assert.assertEquals(HdfsVersion.CDH_5_8, HdfsVersion.find("cdh-5.8"));
+    Assert.assertEquals(HdfsVersion.CDH_5_8, HdfsVersion.find("cdh5.8"));
     Assert.assertEquals(HdfsVersion.CDH_5_11, HdfsVersion.find("2.6.0-cdh5.11.0"));
+    Assert.assertEquals(HdfsVersion.CDH_5_11, HdfsVersion.find("cdh-5.11"));
+    Assert.assertEquals(HdfsVersion.CDH_5_11, HdfsVersion.find("cdh5.11"));
     Assert.assertEquals(HdfsVersion.HDP_2_4, HdfsVersion.find("2.7.1.2.4.0.0-169"));
+    Assert.assertEquals(HdfsVersion.HDP_2_4, HdfsVersion.find("hdp-2.4"));
+    Assert.assertEquals(HdfsVersion.HDP_2_4, HdfsVersion.find("hdp2.4"));
     Assert.assertEquals(HdfsVersion.HDP_2_5, HdfsVersion.find("2.7.3.2.5.0.0-1245"));
-    Assert.assertEquals(HdfsVersion.MAPR_5_2, HdfsVersion.find("2.7.0-mapr-1607"));
+    Assert.assertEquals(HdfsVersion.HDP_2_5, HdfsVersion.find("hdp-2.5"));
+    Assert.assertEquals(HdfsVersion.HDP_2_5, HdfsVersion.find("hdp2.5"));
   }
 
   @Test
