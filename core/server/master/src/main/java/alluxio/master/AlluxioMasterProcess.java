@@ -254,10 +254,11 @@ public class AlluxioMasterProcess implements MasterProcess {
   protected void startServing(String startMessage, String stopMessage) {
     MetricsSystem.startSinks();
     startServingWebServer();
-    LOG.info("{} version {} binding to {} {}", this, RuntimeConstants.VERSION, mRpcBindAddress,
-        startMessage);
+    LOG.info("{} version {} binding to {} @ {} {}", this, RuntimeConstants.VERSION, mRpcBindAddress,
+        mRpcConnectAddress, startMessage);
     startServingRPCServer();
-    LOG.info("{} version {} ended @ {}", this, RuntimeConstants.VERSION, stopMessage);
+    LOG.info("{} version {} ended @ {} {}", this, RuntimeConstants.VERSION, mRpcConnectAddress,
+        stopMessage);
   }
 
   /**
