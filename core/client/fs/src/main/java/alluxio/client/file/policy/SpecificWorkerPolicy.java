@@ -12,8 +12,6 @@
 package alluxio.client.file.policy;
 
 import alluxio.client.block.BlockWorkerInfo;
-import alluxio.exception.ExceptionMessage;
-import alluxio.exception.status.UnavailableException;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
@@ -21,7 +19,7 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A policy which only returns the worker that is specified by the config.
+ * Returns the worker that is specified by the config. Returns null if this worker is not available.
  */
 @ThreadSafe
 public final class SpecificWorkerPolicy implements FileWriteLocationPolicy {
@@ -38,13 +36,12 @@ public final class SpecificWorkerPolicy implements FileWriteLocationPolicy {
 
   @Override
   public WorkerNetAddress getWorkerForNextBlock(Iterable<BlockWorkerInfo> workerInfoList,
-      long blockSizeBytes) throws UnavailableException {
+      long blockSizeBytes) {
     for (BlockWorkerInfo info : workerInfoList) {
       if (info.getNetAddress().equals(mWorkerAddress)) {
         return info.getNetAddress();
       }
     }
-    throw new UnavailableException(
-        ExceptionMessage.NO_SPACE_FOR_BLOCK_ON_WORKER.getMessage(blockSizeBytes));
+    return null;
   }
 }

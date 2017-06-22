@@ -34,7 +34,6 @@ var ufsModuleNames = map[string]string{
 	"ufs-cdh-5.11":   "hdfsx-cdh5_11",
 	"ufs-hdp-2.4":    "hdfsx-hdp2_4",
 	"ufs-hdp-2.5":    "hdfsx-hdp2_5",
-	"ufs-mapr-5.2":   "hdfsx-mapr5_2",
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
@@ -54,7 +53,6 @@ var ufsModules = map[string]bool{
 	"ufs-cdh-5.11":   false,
 	"ufs-hdp-2.4":    false,
 	"ufs-hdp-2.5":    true,
-	"ufs-mapr-5.2":   true,
 }
 
 var (
@@ -251,7 +249,9 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		mkdir(filepath.Join(dstPath, filepath.Dir(path)))
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
-	// DOCKER
+
+	// Create empty directories for default UFS and Docker integration.
+	mkdir(filepath.Join(dstPath, "underFSStorage"))
 	mkdir(filepath.Join(dstPath, "integration/docker/conf"))
 	// Copy files from /docker-enterprise to /docker.
 	for _, file := range []string{

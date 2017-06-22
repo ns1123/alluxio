@@ -105,8 +105,13 @@ public class PropertyKey {
           String.format("${%s}/core-site.xml:${%s}/hdfs-site.xml", Name.CONF_DIR, Name.CONF_DIR));
   public static final PropertyKey UNDERFS_HDFS_IMPL =
       create(Name.UNDERFS_HDFS_IMPL, "org.apache.hadoop.hdfs.DistributedFileSystem");
+  // ALLUXIO CS REPLACE
+  // public static final PropertyKey UNDERFS_HDFS_PREFIXES =
+  //   create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///,maprfs:///");
+  // ALLUXIO CS WITH
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
-      create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///,maprfs:///");
+      create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///");
+  // ALLUXIO CS END
   public static final PropertyKey UNDERFS_HDFS_REMOTE = create(Name.UNDERFS_HDFS_REMOTE, false);
   // ALLUXIO CS ADD
   public static final PropertyKey UNDERFS_HDFS_VERSION =
@@ -330,7 +335,7 @@ public class PropertyKey {
   public static final PropertyKey WORKER_BLOCK_HEARTBEAT_INTERVAL_MS =
       create(Name.WORKER_BLOCK_HEARTBEAT_INTERVAL_MS, "1sec");
   public static final PropertyKey WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS =
-      create(Name.WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS, "1min");
+      create(Name.WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS, "5min");
   public static final PropertyKey WORKER_BLOCK_THREADS_MAX =
       create(Name.WORKER_BLOCK_THREADS_MAX, 2048);
   public static final PropertyKey WORKER_BLOCK_THREADS_MIN =
