@@ -227,17 +227,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     // Start serving metrics system, this will not block
     MetricsSystem.startSinks();
 
-<<<<<<< HEAD
-    // Start each worker
-||||||| merged common ancestors
-    // Start serving the web server, this will not block.
-    mWebServer.addHandler(mMetricsServlet.getHandler());
-    mWebServer.start();
-
-    // Start each worker
-=======
     // Start each worker. This must be done before starting the web or RPC servers.
->>>>>>> FETCH_HEAD
     // Requirement: NetAddress set in WorkerContext, so block worker can initialize BlockMasterSync
     // Consequence: worker id is granted
     startWorkers();
