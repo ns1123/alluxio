@@ -87,4 +87,11 @@ public final class EvictConfig implements JobConfig {
     return Objects.hashCode(mBlockId, mReplicas);
   }
 
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("blockId", mBlockId)
+        .add("replicas", mReplicas)
+        .toString();
+  }
 }

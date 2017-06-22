@@ -89,6 +89,9 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   private UfsManager mUfsManager;
 
   AlluxioJobMasterProcess() {
+    if (!Configuration.containsKey(PropertyKey.MASTER_HOSTNAME)) {
+      Configuration.set(PropertyKey.MASTER_HOSTNAME, NetworkAddressUtils.getLocalHostName());
+    }
     mUfsManager = new JobUfsManager();
     mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
     mMaxWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MAX);
