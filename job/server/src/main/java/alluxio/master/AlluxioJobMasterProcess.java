@@ -269,7 +269,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
       }
       mTServerSocket =
           new TServerSocket(mRpcAddress,
-              Configuration.getInt(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
+              (int) Configuration.getMs(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
     } catch (TTransportException e) {
       throw new RuntimeException(e);
     }
