@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-underfs</artifactId>
-    <version>1.5.0-RC5</version>
+    <version>1.5.0-A</version>
   </parent>
   <artifactId>alluxio-underfs-maprfs</artifactId>
   <name>Alluxio Under File System - MapR FS</name>
