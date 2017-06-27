@@ -74,7 +74,6 @@ public abstract class AbstractAlluxioShellTest extends BaseIntegrationTest {
     // ALLUXIO CS ADD
     mLocalAlluxioJobCluster.stop();
     // ALLUXIO CS END
-    System.setOut(mOldOutput);
   }
 
   @Before
