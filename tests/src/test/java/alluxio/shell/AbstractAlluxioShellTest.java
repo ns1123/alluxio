@@ -71,15 +71,10 @@ public abstract class AbstractAlluxioShellTest extends BaseIntegrationTest {
   @After
   public final void after() throws Exception {
     mFsShell.close();
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     mLocalAlluxioJobCluster.stop();
     // ALLUXIO CS END
     System.setOut(mOldOutput);
-||||||| merged common ancestors
-    System.setOut(mOldOutput);
-=======
->>>>>>> OPENSOURCE/master
   }
 
   @Before
