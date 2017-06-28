@@ -37,6 +37,9 @@ public final class SetReplicationCommand extends AbstractShellCommand {
   private static final Option REPLICATION_MIN_OPTION =
       Option.builder("min").required(false).numberOfArgs(1).desc("the minimum number of replicas")
           .build();
+  private static final Option RECURSIVE_OPTION =
+      Option.builder("R").required(false).hasArg(false).desc("set replication recursively")
+          .build();
 
   /**
    * @param fs the filesystem of Alluxio
