@@ -173,7 +173,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public void setAttribute(AlluxioURI path, SetAttributeOptions options)
-      throws FileDoesNotExistException, AccessControlException, InvalidPathException {
+      throws FileDoesNotExistException, AccessControlException, InvalidPathException, IOException {
     try {
       if (options.getPinned() != null) {
         mPrivilegeChecker.check(Privilege.PIN);
@@ -362,7 +362,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public FileSystemCommand workerHeartbeat(long workerId, List<Long> persistedFiles)
-      throws FileDoesNotExistException, InvalidPathException, AccessControlException {
+      throws FileDoesNotExistException, InvalidPathException, AccessControlException, IOException {
     return mFileSystemMaster.workerHeartbeat(workerId, persistedFiles);
   }
 
