@@ -24,7 +24,9 @@ cd "${SCRIPTS_DIR}"
 git pull
 
 # Install the gb tool and build and run the annotation tool.
-# Before installing gb using "go get", we need to unset GOBIN.
+# Before installing gb using "go get", we need to unset GOBIN
+# so that gb is installed as annotation/scripts/go/bin/gb
+# instead of ${GOBIN}/gb.
 unset GOBIN
 cd "${SCRIPTS_DIR}/go"
 GOPATH="${PWD}" go get github.com/constabulary/gb/...
