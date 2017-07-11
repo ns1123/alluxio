@@ -58,7 +58,7 @@ import java.util.Set;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BlockMasterClient.class, BlockMasterClientPool.class, FileSystemMasterClient.class,
     BlockHeartbeatReporter.class, BlockMetricsReporter.class, BlockMeta.class,
-    BlockStoreLocation.class, BlockStoreMeta.class, StorageDir.class, Configuration.class,
+    BlockStoreLocation.class, StorageDir.class, Configuration.class,
     UnderFileSystem.class, BlockWorker.class, Sessions.class})
 // ALLUXIO CS ADD
 @org.powermock.core.classloader.annotations.PowerMockIgnore({"javax.crypto.*", "javax.net.ssl.*"})
@@ -184,7 +184,7 @@ public class BlockWorkerTest {
     usedBytesOnTiers.put(tierAlias, usedBytes);
     BlockMeta blockMeta = PowerMockito.mock(BlockMeta.class);
     BlockStoreLocation blockStoreLocation = PowerMockito.mock(BlockStoreLocation.class);
-    BlockStoreMeta blockStoreMeta = PowerMockito.mock(BlockStoreMeta.class);
+    BlockStoreMeta blockStoreMeta = Mockito.mock(BlockStoreMeta.class);
 
     when(mBlockStore.lockBlock(sessionId, blockId)).thenReturn(lockId);
     when(mBlockStore.getBlockMeta(sessionId, blockId, lockId)).thenReturn(
@@ -218,7 +218,7 @@ public class BlockWorkerTest {
     usedBytesOnTiers.put(tierAlias, usedBytes);
     BlockMeta blockMeta = PowerMockito.mock(BlockMeta.class);
     BlockStoreLocation blockStoreLocation = PowerMockito.mock(BlockStoreLocation.class);
-    BlockStoreMeta blockStoreMeta = PowerMockito.mock(BlockStoreMeta.class);
+    BlockStoreMeta blockStoreMeta = Mockito.mock(BlockStoreMeta.class);
 
     when(mBlockStore.lockBlock(sessionId, blockId)).thenReturn(lockId);
     when(mBlockStore.getBlockMeta(sessionId, blockId, lockId)).thenReturn(blockMeta);
