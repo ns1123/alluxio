@@ -247,6 +247,7 @@
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
+<<<<<<< HEAD
       <artifactId>alluxio-underfs-fork</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -275,31 +276,22 @@
     <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
+||||||| merged common ancestors
+      <artifactId>alluxio-underfs-gcs</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-hdfs</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+=======
+>>>>>>> ce846b8b1d8e07a0f38c512074c140369caba644
       <artifactId>alluxio-underfs-local</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-oss</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-s3</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-s3a</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-swift</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
