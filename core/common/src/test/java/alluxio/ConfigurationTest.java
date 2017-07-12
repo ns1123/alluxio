@@ -429,13 +429,13 @@ public class ConfigurationTest {
     try (Closeable c = new SystemPropertyRule(PropertyKey.MASTER_HOSTNAME.toString(), "new_master")
         .toResource()) {
       Configuration.init();
-      Assert.assertEquals("new_master", Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
+      assertEquals("new_master", Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
     }
   }
 
   @Test
   public void jobMasterHostnameDefaultsToUnset() throws Exception {
-    Assert.assertFalse(Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME));
+    assertFalse(Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME));
   }
   // ALLUXIO CS END
 
