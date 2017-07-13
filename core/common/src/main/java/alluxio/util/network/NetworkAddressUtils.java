@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -492,6 +493,7 @@ public final class NetworkAddressUtils {
    *         hostname is embedded, or null if the given path is null or empty.
    * @throws UnknownHostException if the hostname cannot be resolved
    */
+  @Nullable
   public static AlluxioURI replaceHostName(AlluxioURI path) throws UnknownHostException {
     if (path == null) {
       return null;
@@ -516,6 +518,7 @@ public final class NetworkAddressUtils {
    * @return the canonical form of the hostname, or null if it is null or empty
    * @throws UnknownHostException if the given hostname cannot be resolved
    */
+  @Nullable
   public static String resolveHostName(String hostname) throws UnknownHostException {
     if (hostname == null || hostname.isEmpty()) {
       return null;
@@ -584,6 +587,7 @@ public final class NetworkAddressUtils {
    * @param address socket address to parse
    * @return InetSocketAddress of the String
    */
+  @Nullable
   public static InetSocketAddress parseInetSocketAddress(String address) throws IOException {
     if (address == null) {
       return null;
