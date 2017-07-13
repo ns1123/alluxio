@@ -25,8 +25,6 @@ import alluxio.client.file.options.OpenFileOptions;
 import alluxio.client.file.policy.LocalFirstPolicy;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UnderFileSystem;
-import alluxio.underfs.UnderFileSystemCluster;
-import alluxio.underfs.hdfs.LocalMiniDFSCluster;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
 
@@ -192,13 +190,7 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
     Assert.assertEquals(expectedPhysicalFileLength, ufsLen);
     try (InputStream is = ufs.open(checkpointPath)) {
       byte[] res = new byte[(int) ufsLen];
-      String underFSClass = UnderFileSystemCluster.getUnderFSClass();
-      if ((LocalMiniDFSCluster.class.getName().equals(underFSClass)) && 0 == res.length) {
-        // Returns -1 for zero-sized byte array to indicate no more bytes available here.
-        Assert.assertEquals(-1, is.read(res));
-      } else {
-        Assert.assertEquals(expectedPhysicalFileLength, is.read(res));
-      }
+      Assert.assertEquals(expectedPhysicalFileLength, is.read(res));
     }
   }
 }
