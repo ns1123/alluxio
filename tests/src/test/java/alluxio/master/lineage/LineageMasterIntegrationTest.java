@@ -39,6 +39,7 @@ import alluxio.wire.LineageInfo;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -91,36 +92,19 @@ public class LineageMasterIntegrationTest extends BaseIntegrationTest {
 
   @Before
   public void before() throws Exception {
-<<<<<<< HEAD
-    AuthenticatedClientUser.set("test");
     mJob = new CommandLineJob("test", new JobConf("output"));
     // ALLUXIO CS ADD
     mLocalAlluxioJobCluster = new alluxio.master.LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
     // ALLUXIO CS END
   }
-||||||| merged common ancestors
-    AuthenticatedClientUser.set("test");
-    mJob = new CommandLineJob("test", new JobConf("output"));
-  }
-=======
->>>>>>> alluxio/master
+  // ALLUXIO CS ADD
 
-<<<<<<< HEAD
   @After
   public void after() throws Exception {
-    // ALLUXIO CS ADD
     mLocalAlluxioJobCluster.stop();
-    // ALLUXIO CS END
-    AuthenticatedClientUser.remove();
-||||||| merged common ancestors
-  @After
-  public void after() throws Exception {
-    AuthenticatedClientUser.remove();
-=======
-    mJob = new CommandLineJob("test", new JobConf("output"));
->>>>>>> alluxio/master
   }
+  // ALLUXIO CS END
 
   @Test
   public void lineageCreation() throws Exception {
