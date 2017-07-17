@@ -39,7 +39,6 @@ import alluxio.wire.LineageInfo;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -100,7 +99,7 @@ public class LineageMasterIntegrationTest extends BaseIntegrationTest {
   }
   // ALLUXIO CS ADD
 
-  @After
+  @org.junit.After
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
   }
