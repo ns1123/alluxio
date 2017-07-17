@@ -12,6 +12,7 @@
 package alluxio.master.lineage;
 
 import alluxio.AlluxioURI;
+import alluxio.AuthenticatedUserRule;
 import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
@@ -31,7 +32,6 @@ import alluxio.client.lineage.options.DeleteLineageOptions;
 import alluxio.job.CommandLineJob;
 import alluxio.job.JobConf;
 import alluxio.master.file.meta.PersistenceState;
-import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.wire.LineageInfo;
@@ -39,7 +39,6 @@ import alluxio.wire.LineageInfo;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -87,8 +86,12 @@ public class LineageMasterIntegrationTest extends BaseIntegrationTest {
 
   private CommandLineJob mJob;
 
+  @Rule
+  public AuthenticatedUserRule mAuthenticatedUser = new AuthenticatedUserRule("test");
+
   @Before
   public void before() throws Exception {
+<<<<<<< HEAD
     AuthenticatedClientUser.set("test");
     mJob = new CommandLineJob("test", new JobConf("output"));
     // ALLUXIO CS ADD
@@ -96,13 +99,27 @@ public class LineageMasterIntegrationTest extends BaseIntegrationTest {
     mLocalAlluxioJobCluster.start();
     // ALLUXIO CS END
   }
+||||||| merged common ancestors
+    AuthenticatedClientUser.set("test");
+    mJob = new CommandLineJob("test", new JobConf("output"));
+  }
+=======
+>>>>>>> alluxio/master
 
+<<<<<<< HEAD
   @After
   public void after() throws Exception {
     // ALLUXIO CS ADD
     mLocalAlluxioJobCluster.stop();
     // ALLUXIO CS END
     AuthenticatedClientUser.remove();
+||||||| merged common ancestors
+  @After
+  public void after() throws Exception {
+    AuthenticatedClientUser.remove();
+=======
+    mJob = new CommandLineJob("test", new JobConf("output"));
+>>>>>>> alluxio/master
   }
 
   @Test
