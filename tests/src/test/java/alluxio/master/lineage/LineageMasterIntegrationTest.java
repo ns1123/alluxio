@@ -12,6 +12,7 @@
 package alluxio.master.lineage;
 
 import alluxio.AlluxioURI;
+import alluxio.AuthenticatedUserRule;
 import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
@@ -31,7 +32,6 @@ import alluxio.client.lineage.options.DeleteLineageOptions;
 import alluxio.job.CommandLineJob;
 import alluxio.job.JobConf;
 import alluxio.master.file.meta.PersistenceState;
-import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.wire.LineageInfo;
@@ -87,23 +87,24 @@ public class LineageMasterIntegrationTest extends BaseIntegrationTest {
 
   private CommandLineJob mJob;
 
+  @Rule
+  public AuthenticatedUserRule mAuthenticatedUser = new AuthenticatedUserRule("test");
+
   @Before
   public void before() throws Exception {
-    AuthenticatedClientUser.set("test");
     mJob = new CommandLineJob("test", new JobConf("output"));
     // ALLUXIO CS ADD
     mLocalAlluxioJobCluster = new alluxio.master.LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
     // ALLUXIO CS END
   }
+  // ALLUXIO CS ADD
 
   @After
   public void after() throws Exception {
-    // ALLUXIO CS ADD
     mLocalAlluxioJobCluster.stop();
-    // ALLUXIO CS END
-    AuthenticatedClientUser.remove();
   }
+  // ALLUXIO CS END
 
   @Test
   public void lineageCreation() throws Exception {
