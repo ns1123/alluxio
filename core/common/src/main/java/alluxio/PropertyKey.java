@@ -123,17 +123,6 @@ public class PropertyKey {
           .setDefaultValue(false)
           .build();
   public static final PropertyKey KEY_VALUE_PARTITION_SIZE_BYTES_MAX =
-<<<<<<< HEAD
-      create(Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX, "512MB");
-  // ALLUXIO CS ADD
-  public static final PropertyKey LIB_DIR =
-      create(Name.LIB_DIR, String.format("${%s}/lib", Name.HOME));
-  // ALLUXIO CS END
-  public static final PropertyKey LOGGER_TYPE = create(Name.LOGGER_TYPE, "Console");
-||||||| merged common ancestors
-      create(Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX, "512MB");
-  public static final PropertyKey LOGGER_TYPE = create(Name.LOGGER_TYPE, "Console");
-=======
       new Builder(Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX)
           .setDefaultValue("512MB")
           .build();
@@ -141,7 +130,6 @@ public class PropertyKey {
       new Builder(Name.LOGGER_TYPE)
           .setDefaultValue("Console")
           .build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
   public static final PropertyKey LOGS_DIR =
       new Builder(Name.LOGS_DIR)
           .setDefaultValue(String.format("${%s}/logs", Name.WORK_DIR))
@@ -248,40 +236,21 @@ public class PropertyKey {
               "${%s}/core-site.xml:${%s}/hdfs-site.xml", Name.CONF_DIR, Name.CONF_DIR))
           .build();
   public static final PropertyKey UNDERFS_HDFS_IMPL =
-<<<<<<< HEAD
-      create(Name.UNDERFS_HDFS_IMPL, "org.apache.hadoop.hdfs.DistributedFileSystem");
-  // ALLUXIO CS REPLACE
-  // public static final PropertyKey UNDERFS_HDFS_PREFIXES =
-  //     create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///,maprfs:///");
-  // ALLUXIO CS WITH
-||||||| merged common ancestors
-      create(Name.UNDERFS_HDFS_IMPL, "org.apache.hadoop.hdfs.DistributedFileSystem");
-=======
       new Builder(Name.UNDERFS_HDFS_IMPL)
           .setDefaultValue("org.apache.hadoop.hdfs.DistributedFileSystem")
           .build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
-<<<<<<< HEAD
-      create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///");
-  // ALLUXIO CS END
-  public static final PropertyKey UNDERFS_HDFS_REMOTE = create(Name.UNDERFS_HDFS_REMOTE, false);
-  // ALLUXIO CS ADD
-  public static final PropertyKey UNDERFS_HDFS_VERSION =
-      create(Name.UNDERFS_HDFS_VERSION, "2.2");
-  // ALLUXIO CS END
-||||||| merged common ancestors
-      create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///,maprfs:///");
-  public static final PropertyKey UNDERFS_HDFS_REMOTE = create(Name.UNDERFS_HDFS_REMOTE, false);
-=======
       new Builder(Name.UNDERFS_HDFS_PREFIXES)
-          .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
+          // ALLUXIO CS REPLACE
+          // .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
+          // ALLUXIO CS WITH
+          .setDefaultValue("hdfs://,glusterfs:///")
+          // ALLUXIO CS END
           .build();
   public static final PropertyKey UNDERFS_HDFS_REMOTE =
       new Builder(Name.UNDERFS_HDFS_REMOTE)
           .setDefaultValue(false)
           .build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
   public static final PropertyKey UNDERFS_OBJECT_STORE_SERVICE_THREADS =
       new Builder(Name.UNDERFS_OBJECT_STORE_SERVICE_THREADS)
           .setDefaultValue(20)
@@ -523,55 +492,16 @@ public class PropertyKey {
           .setDefaultValue("5min")
           .build();
   public static final PropertyKey MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
-<<<<<<< HEAD
-      create(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
-          String.format("${%s}/recompute.log", Name.LOGS_DIR));
-  // ALLUXIO CS ADD
-  public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
-      create(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS, 1000);
-  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
-      create(Name.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS, Constants.SECOND_MS);
-  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
-      create(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS, 0);
-  public static final PropertyKey MASTER_PERSISTENCE_MAX_INTERVAL_MS =
-      create(Name.MASTER_PERSISTENCE_MAX_INTERVAL_MS, Constants.HOUR_MS);
-  public static final PropertyKey MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
-      create(Name.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS, Constants.DAY_MS);
-  public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
-      create(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS, 1000);
-  // ALLUXIO CS END
-  public static final PropertyKey MASTER_PRINCIPAL = create(Name.MASTER_PRINCIPAL, null);
-  // ALLUXIO CS ADD
-  public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
-      create(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS, 60000);
-  // ALLUXIO CS END
-||||||| merged common ancestors
-      create(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
-          String.format("${%s}/recompute.log", Name.LOGS_DIR));
-  public static final PropertyKey MASTER_PRINCIPAL = create(Name.MASTER_PRINCIPAL, null);
-=======
       new Builder(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH)
           .setDefaultValue(String.format("${%s}/recompute.log", Name.LOGS_DIR))
           .build();
   public static final PropertyKey MASTER_PRINCIPAL = new Builder(Name.MASTER_PRINCIPAL).build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
   /**
    * @deprecated since version 1.4 and will be removed in version 2.0,
    * use USER_RPC_RETRY_MAX_NUM_RETRY instead.
    */
   @Deprecated
   public static final PropertyKey MASTER_RETRY =
-<<<<<<< HEAD
-      create(Name.MASTER_RETRY, String.format("${%s}", Name.USER_RPC_RETRY_MAX_NUM_RETRY));
-  public static final PropertyKey MASTER_RPC_PORT = create(Name.MASTER_RPC_PORT, 19998);
-  // ALLUXIO CS REPLACE
-  // public static final PropertyKey MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
-  //     create(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED, true);
-  // ALLUXIO CS WITH
-||||||| merged common ancestors
-      create(Name.MASTER_RETRY, String.format("${%s}", Name.USER_RPC_RETRY_MAX_NUM_RETRY));
-  public static final PropertyKey MASTER_RPC_PORT = create(Name.MASTER_RPC_PORT, 19998);
-=======
       new Builder(Name.MASTER_RETRY)
           .setDefaultValue(String.format("${%s}", Name.USER_RPC_RETRY_MAX_NUM_RETRY))
           .build();
@@ -579,18 +509,14 @@ public class PropertyKey {
       new Builder(Name.MASTER_RPC_PORT)
           .setDefaultValue(19998)
           .build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
   public static final PropertyKey MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
-<<<<<<< HEAD
-      create(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED, false);
-  // ALLUXIO CS END
-||||||| merged common ancestors
-      create(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED, true);
-=======
       new Builder(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)
-          .setDefaultValue(true)
+          // ALLUXIO CS REPLACE
+          // .setDefaultValue(true)
+          // ALLUXIO CS WITH
+          .setDefaultValue(false)
+          // ALLUXIO CS END
           .build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
   public static final PropertyKey MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS =
       new Builder(Name.MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS)
           .setDefaultValue("MEM")
@@ -813,27 +739,11 @@ public class PropertyKey {
           .setDefaultValue(11)
           .build();
 
-<<<<<<< HEAD
-  public static final PropertyKey WORKER_PRINCIPAL = create(Name.WORKER_PRINCIPAL, null);
-  public static final PropertyKey WORKER_RPC_PORT = create(Name.WORKER_RPC_PORT, 29998);
-  // ALLUXIO CS ADD
-  public static final PropertyKey WORKER_SECURE_RPC_BIND_HOST =
-      create(Name.WORKER_SECURE_RPC_BIND_HOST, "0.0.0.0");
-  public static final PropertyKey WORKER_SECURE_RPC_HOSTNAME =
-      create(Name.WORKER_SECURE_RPC_HOSTNAME, null);
-  public static final PropertyKey WORKER_SECURE_RPC_PORT =
-      create(Name.WORKER_SECURE_RPC_PORT, 29997);
-  // ALLUXIO CS END
-||||||| merged common ancestors
-  public static final PropertyKey WORKER_PRINCIPAL = create(Name.WORKER_PRINCIPAL, null);
-  public static final PropertyKey WORKER_RPC_PORT = create(Name.WORKER_RPC_PORT, 29998);
-=======
   public static final PropertyKey WORKER_PRINCIPAL = new Builder(Name.WORKER_PRINCIPAL).build();
   public static final PropertyKey WORKER_RPC_PORT =
       new Builder(Name.WORKER_RPC_PORT)
           .setDefaultValue(29998)
           .build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
   public static final PropertyKey WORKER_SESSION_TIMEOUT_MS =
       new Builder(Name.WORKER_SESSION_TIMEOUT_MS)
           .setDefaultValue("1min")
@@ -974,12 +884,6 @@ public class PropertyKey {
   //
   // User related properties
   //
-  // ALLUXIO CS ADD
-  public static final PropertyKey USER_BLOCK_FOOTER_SIZE_BYTES =
-      create(Name.USER_BLOCK_FOOTER_SIZE_BYTES, "0B");
-  public static final PropertyKey USER_BLOCK_HEADER_SIZE_BYTES =
-      create(Name.USER_BLOCK_HEADER_SIZE_BYTES, "0B");
-  // ALLUXIO CS END
   public static final PropertyKey USER_BLOCK_MASTER_CLIENT_THREADS =
       new Builder(Name.USER_BLOCK_MASTER_CLIENT_THREADS)
           .setDefaultValue(10)
@@ -1021,23 +925,9 @@ public class PropertyKey {
           .setDefaultValue(300 * Constants.SECOND_MS)
           .build();
   public static final PropertyKey USER_DATE_FORMAT_PATTERN =
-<<<<<<< HEAD
-      create(Name.USER_DATE_FORMAT_PATTERN, "MM-dd-yyyy HH:mm:ss:SSS");
-  // ALLUXIO CS ADD
-  public static final PropertyKey USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
-      create(Name.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B");
-  public static final PropertyKey USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES =
-      create(Name.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B");
-  public static final PropertyKey USER_ENCRYPTION_CHUNK_SIZE_BYTES =
-      create(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES, "64KB");
-  // ALLUXIO CS END
-||||||| merged common ancestors
-      create(Name.USER_DATE_FORMAT_PATTERN, "MM-dd-yyyy HH:mm:ss:SSS");
-=======
       new Builder(Name.USER_DATE_FORMAT_PATTERN)
           .setDefaultValue("MM-dd-yyyy HH:mm:ss:SSS")
           .build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
   public static final PropertyKey USER_FAILED_SPACE_REQUEST_LIMITS =
       new Builder(Name.USER_FAILED_SPACE_REQUEST_LIMITS)
           .setDefaultValue(3)
@@ -1071,23 +961,9 @@ public class PropertyKey {
           .setDefaultValue(true)
           .build();
   public static final PropertyKey USER_FILE_READ_TYPE_DEFAULT =
-<<<<<<< HEAD
-      create(Name.USER_FILE_READ_TYPE_DEFAULT, "CACHE_PROMOTE");
-  // ALLUXIO CS ADD
-  public static final PropertyKey USER_FILE_REPLICATION_MAX =
-      create(Name.USER_FILE_REPLICATION_MAX, -1 /* negative value means infinity */);
-  public static final PropertyKey USER_FILE_REPLICATION_MIN =
-      create(Name.USER_FILE_REPLICATION_MIN, 0);
-  public static final PropertyKey USER_FILE_REPLICATION_DURABLE =
-      create(Name.USER_FILE_REPLICATION_DURABLE, 1);
-  // ALLUXIO CS END
-||||||| merged common ancestors
-      create(Name.USER_FILE_READ_TYPE_DEFAULT, "CACHE_PROMOTE");
-=======
       new Builder(Name.USER_FILE_READ_TYPE_DEFAULT)
           .setDefaultValue("CACHE_PROMOTE")
           .build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
   public static final PropertyKey USER_FILE_SEEK_BUFFER_SIZE_BYTES =
       new Builder(Name.USER_FILE_SEEK_BUFFER_SIZE_BYTES)
           .setDefaultValue("1MB")
@@ -1330,147 +1206,7 @@ public class PropertyKey {
           .setDefaultValue("alluxio.security.group.provider.ShellBasedUnixGroupsMapping")
           .build();
   public static final PropertyKey SECURITY_LOGIN_USERNAME =
-<<<<<<< HEAD
-      create(Name.SECURITY_LOGIN_USERNAME, null);
-  // ALLUXIO CS ADD
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_URL =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_URL, "");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_SSL, "false");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE, "");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD, "");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE, "");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BIND_USER =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_USER, "");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD, "");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE, "");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BASE =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_BASE, "");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER,
-      "(&(objectClass=user)(sAMAccountName={0}))");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP, "(objectClass=group)");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT =
-        create(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT, "10000");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER, "member");
-  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME =
-      create(Name.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME, "cn");
-  public static final PropertyKey SECURITY_KERBEROS_AUTH_TO_LOCAL =
-      create(Name.SECURITY_KERBEROS_AUTH_TO_LOCAL, Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL);
-  public static final PropertyKey SECURITY_KERBEROS_LOGIN_PRINCIPAL =
-      create(Name.SECURITY_KERBEROS_LOGIN_PRINCIPAL, "");
-  public static final PropertyKey SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
-      create(Name.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, "");
-  public static final PropertyKey SECURITY_KERBEROS_SERVER_PRINCIPAL =
-      create(Name.SECURITY_KERBEROS_SERVER_PRINCIPAL, "");
-  public static final PropertyKey SECURITY_KERBEROS_SERVER_KEYTAB_FILE =
-      create(Name.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, "");
-  public static final PropertyKey SECURITY_KERBEROS_SERVICE_NAME =
-      create(Name.SECURITY_KERBEROS_SERVICE_NAME, "");
-  public static final PropertyKey SECURITY_KERBEROS_CLIENT_PRINCIPAL =
-      create(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-  public static final PropertyKey SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
-      create(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
-  public static final PropertyKey SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
-      create(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME, "");
-  public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
-      create(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED, false);
-  public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
-      create(Name.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS, Constants.HOUR_MS);
-  public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
-      create(Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS, Constants.DAY_MS);
-  public static final PropertyKey SECURITY_PRIVILEGES_ENABLED =
-      create(Name.SECURITY_PRIVILEGES_ENABLED, false);
-  // TODO(chaomin): switch to per mount point encryption knob
-  public static final PropertyKey SECURITY_ENCRYPTION_ENABLED =
-      create(Name.SECURITY_ENCRYPTION_ENABLED, false);
-  public static final PropertyKey SECURITY_ENCRYPTION_OPENSSL_ENABLED =
-      create(Name.SECURITY_ENCRYPTION_OPENSSL_ENABLED, false);
-  public static final PropertyKey SECURITY_KMS_ENDPOINT =
-      create(Name.SECURITY_KMS_ENDPOINT, "http://localhost:9000");
-  public static final PropertyKey SECURITY_KMS_PROVIDER =
-      create(Name.SECURITY_KMS_PROVIDER, Constants.KMS_DUMMY_PROVIDER_NAME);
-
-  //
-  // Native library
-  //
-  public static final PropertyKey NATIVE_LIBRARY_PATH =
-      create(Name.NATIVE_LIBRARY_PATH, String.format("${%s}/lib/native", Name.HOME));
-
-  //
-  // Job service
-  //
-  public static final PropertyKey JOB_MASTER_CLIENT_THREADS =
-      create(Name.JOB_MASTER_CLIENT_THREADS, 1024);
-  public static final PropertyKey JOB_MASTER_FINISHED_JOB_RETENTION_MS =
-      create(Name.JOB_MASTER_FINISHED_JOB_RETENTION_MS, 300000);
-  public static final PropertyKey JOB_MASTER_JOB_CAPACITY =
-      create(Name.JOB_MASTER_JOB_CAPACITY, 100000);
-  public static final PropertyKey JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
-      create(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS, 1000);
-  public static final PropertyKey JOB_MASTER_WORKER_TIMEOUT_MS =
-      create(Name.JOB_MASTER_WORKER_TIMEOUT_MS, 60000);
-
-  public static final PropertyKey JOB_MASTER_BIND_HOST =
-      create(Name.JOB_MASTER_BIND_HOST, "0.0.0.0");
-  public static final PropertyKey JOB_MASTER_HOSTNAME =
-      create(Name.JOB_MASTER_HOSTNAME, null);
-  public static final PropertyKey JOB_MASTER_LOST_WORKER_INTERVAL_MS =
-      create(Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS, 1000);
-  public static final PropertyKey JOB_MASTER_RPC_PORT =
-      create(Name.JOB_MASTER_RPC_PORT, 20001);
-  public static final PropertyKey JOB_MASTER_WEB_BIND_HOST =
-      create(Name.JOB_MASTER_WEB_BIND_HOST, "0.0.0.0");
-  public static final PropertyKey JOB_MASTER_WEB_HOSTNAME =
-      create(Name.JOB_MASTER_WEB_HOSTNAME, "${alluxio.job.master.hostname}");
-  public static final PropertyKey JOB_MASTER_WEB_PORT =
-      create(Name.JOB_MASTER_WEB_PORT, 20002);
-
-  public static final PropertyKey JOB_WORKER_BIND_HOST =
-      create(Name.JOB_WORKER_BIND_HOST, "0.0.0.0");
-  public static final PropertyKey JOB_WORKER_DATA_PORT =
-      create(Name.JOB_WORKER_DATA_PORT, 30002);
-  public static final PropertyKey JOB_WORKER_HOSTNAME =
-      create(Name.JOB_WORKER_HOSTNAME, null);
-  public static final PropertyKey JOB_WORKER_RPC_PORT =
-      create(Name.JOB_WORKER_RPC_PORT, 30001);
-  public static final PropertyKey JOB_WORKER_SECURE_RPC_PORT =
-      create(Name.JOB_WORKER_SECURE_RPC_PORT, 30004);
-  public static final PropertyKey JOB_WORKER_WEB_BIND_HOST =
-      create(Name.JOB_WORKER_WEB_BIND_HOST, "0.0.0.0");
-  public static final PropertyKey JOB_WORKER_WEB_HOSTNAME =
-      create(Name.JOB_WORKER_WEB_HOSTNAME, "${alluxio.job.worker.hostname}");
-  public static final PropertyKey JOB_WORKER_WEB_PORT =
-      create(Name.JOB_WORKER_WEB_PORT, 30003);
-
-  public static final PropertyKey ZOOKEEPER_JOB_ELECTION_PATH =
-      create(Name.ZOOKEEPER_JOB_ELECTION_PATH, "/job_election");
-  public static final PropertyKey ZOOKEEPER_JOB_LEADER_PATH =
-      create(Name.ZOOKEEPER_JOB_LEADER_PATH, "/job_leader");
-
-  //
-  // License check
-  //
-  public static final PropertyKey LICENSE_FILE =
-      create(Name.LICENSE_FILE, "${alluxio.home}/license.json");
-
-  //
-  // Call home
-  //
-  public static final PropertyKey CALL_HOME_ENABLED = create(Name.CALL_HOME_ENABLED, "true");
-  // ALLUXIO CS END
-||||||| merged common ancestors
-      create(Name.SECURITY_LOGIN_USERNAME, null);
-=======
       new Builder(Name.SECURITY_LOGIN_USERNAME).build();
->>>>>>> 2b4c2a0e234eecc390a16d5ba08aef5d51a45621
 
   //
   // Mesos and Yarn related properties
@@ -1537,6 +1273,233 @@ public class PropertyKey {
           .build();
 
   // ALLUXIO CS ADD
+  public static final PropertyKey LIB_DIR =
+      new Builder(Name.LIB_DIR)
+          .setDefaultValue(String.format("${%s}/lib", Name.HOME))
+          .build();
+
+  //
+  // UFS related CS properties
+  //
+  public static final PropertyKey UNDERFS_HDFS_VERSION =
+      new Builder(Name.UNDERFS_HDFS_VERSION)
+          .setDefaultValue("2.2")
+          .build();
+
+  //
+  // Master related CS properties
+  //
+  public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)
+          .setDefaultValue(1000)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS)
+          .setDefaultValue(Constants.SECOND_MS)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
+      new Builder(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS)
+          .setDefaultValue(0)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_MAX_INTERVAL_MS)
+          .setDefaultValue(Constants.HOUR_MS)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
+      new Builder(Name.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)
+          .setDefaultValue(Constants.DAY_MS)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)
+          .setDefaultValue(1000)
+          .build();
+  public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
+      new Builder(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS)
+          .setDefaultValue(60000)
+          .build();
+
+  //
+  // Worker related CS properties
+  //
+  public static final PropertyKey WORKER_SECURE_RPC_BIND_HOST =
+      new Builder(Name.WORKER_SECURE_RPC_BIND_HOST)
+          .setDefaultValue("0.0.0.0")
+          .build();
+  public static final PropertyKey WORKER_SECURE_RPC_HOSTNAME =
+      new Builder(Name.WORKER_SECURE_RPC_HOSTNAME).build();
+  public static final PropertyKey WORKER_SECURE_RPC_PORT =
+      new Builder(Name.WORKER_SECURE_RPC_PORT).setDefaultValue(29997).build();
+
+  //
+  // User realted CS properties
+  //
+  public static final PropertyKey USER_BLOCK_FOOTER_SIZE_BYTES =
+      new Builder(Name.USER_BLOCK_FOOTER_SIZE_BYTES).setDefaultValue("0B").build();
+  public static final PropertyKey USER_BLOCK_HEADER_SIZE_BYTES =
+      new Builder(Name.USER_BLOCK_HEADER_SIZE_BYTES).setDefaultValue("0B").build();
+  public static final PropertyKey USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
+      new Builder(Name.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES).setDefaultValue("16B").build();
+  public static final PropertyKey USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES =
+      new Builder(Name.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES).setDefaultValue("0B").build();
+  public static final PropertyKey USER_ENCRYPTION_CHUNK_SIZE_BYTES =
+      new Builder(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES).setDefaultValue("64KB").build();
+  public static final PropertyKey USER_FILE_REPLICATION_MAX =
+      new Builder(Name.USER_FILE_REPLICATION_MAX)
+          .setDefaultValue(-1 /* negative value means infinity */)
+          .build();
+  public static final PropertyKey USER_FILE_REPLICATION_MIN =
+      new Builder(Name.USER_FILE_REPLICATION_MIN).setDefaultValue(0).build();
+  public static final PropertyKey USER_FILE_REPLICATION_DURABLE =
+      new Builder(Name.USER_FILE_REPLICATION_DURABLE).setDefaultValue(1).build();
+
+  //
+  // Security related CS properties
+  //
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_URL =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_URL).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL).setDefaultValue("false").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD)
+          .setDefaultValue("").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE)
+          .setDefaultValue("")
+          .build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BIND_USER =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_USER).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BASE =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BASE).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER)
+          .setDefaultValue("(&(objectClass=user)(sAMAccountName={0}))").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP)
+          .setDefaultValue("(objectClass=group)").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT).setDefaultValue("10000").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER).setDefaultValue("member").build();
+  public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME =
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME).setDefaultValue("cn").build();
+  public static final PropertyKey SECURITY_KERBEROS_AUTH_TO_LOCAL =
+      new Builder(Name.SECURITY_KERBEROS_AUTH_TO_LOCAL)
+          .setDefaultValue(Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL).build();
+  public static final PropertyKey SECURITY_KERBEROS_LOGIN_PRINCIPAL =
+      new Builder(Name.SECURITY_KERBEROS_LOGIN_PRINCIPAL).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
+      new Builder(Name.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_KERBEROS_SERVER_PRINCIPAL =
+      new Builder(Name.SECURITY_KERBEROS_SERVER_PRINCIPAL).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_KERBEROS_SERVER_KEYTAB_FILE =
+      new Builder(Name.SECURITY_KERBEROS_SERVER_KEYTAB_FILE).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_KERBEROS_SERVICE_NAME =
+      new Builder(Name.SECURITY_KERBEROS_SERVICE_NAME).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_KERBEROS_CLIENT_PRINCIPAL =
+      new Builder(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
+      new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
+      new Builder(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
+      new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED).setDefaultValue(false).build();
+  public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
+      new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS)
+          .setDefaultValue(Constants.HOUR_MS).build();
+  public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
+      new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS)
+          .setDefaultValue(Constants.DAY_MS).build();
+  public static final PropertyKey SECURITY_PRIVILEGES_ENABLED =
+      new Builder(Name.SECURITY_PRIVILEGES_ENABLED).setDefaultValue(false).build();
+  // TODO(chaomin): switch to per mount point encryption knob
+  public static final PropertyKey SECURITY_ENCRYPTION_ENABLED =
+      new Builder(Name.SECURITY_ENCRYPTION_ENABLED).setDefaultValue(false).build();
+  public static final PropertyKey SECURITY_ENCRYPTION_OPENSSL_ENABLED =
+      new Builder(Name.SECURITY_ENCRYPTION_OPENSSL_ENABLED).setDefaultValue(false).build();
+  public static final PropertyKey SECURITY_KMS_ENDPOINT =
+      new Builder(Name.SECURITY_KMS_ENDPOINT).setDefaultValue("http://localhost:9000").build();
+  public static final PropertyKey SECURITY_KMS_PROVIDER =
+      new Builder(Name.SECURITY_KMS_PROVIDER)
+          .setDefaultValue(Constants.KMS_DUMMY_PROVIDER_NAME).build();
+
+  //
+  // Native library
+  //
+  public static final PropertyKey NATIVE_LIBRARY_PATH =
+      new Builder(Name.NATIVE_LIBRARY_PATH)
+          .setDefaultValue(String.format("${%s}/lib/native", Name.HOME)).build();
+
+  //
+  // Job service
+  //
+  public static final PropertyKey JOB_MASTER_CLIENT_THREADS =
+      new Builder(Name.JOB_MASTER_CLIENT_THREADS).setDefaultValue(1024).build();
+  public static final PropertyKey JOB_MASTER_FINISHED_JOB_RETENTION_MS =
+      new Builder(Name.JOB_MASTER_FINISHED_JOB_RETENTION_MS).setDefaultValue(300000).build();
+  public static final PropertyKey JOB_MASTER_JOB_CAPACITY =
+      new Builder(Name.JOB_MASTER_JOB_CAPACITY).setDefaultValue(100000).build();
+  public static final PropertyKey JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      new Builder(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS).setDefaultValue(1000).build();
+  public static final PropertyKey JOB_MASTER_WORKER_TIMEOUT_MS =
+      new Builder(Name.JOB_MASTER_WORKER_TIMEOUT_MS).setDefaultValue(60000).build();
+
+  public static final PropertyKey JOB_MASTER_BIND_HOST =
+      new Builder(Name.JOB_MASTER_BIND_HOST).setDefaultValue("0.0.0.0").build();
+  public static final PropertyKey JOB_MASTER_HOSTNAME =
+      new Builder(Name.JOB_MASTER_HOSTNAME).build();
+  public static final PropertyKey JOB_MASTER_LOST_WORKER_INTERVAL_MS =
+      new Builder(Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS).setDefaultValue(1000).build();
+  public static final PropertyKey JOB_MASTER_RPC_PORT =
+      new Builder(Name.JOB_MASTER_RPC_PORT).setDefaultValue(20001).build();
+  public static final PropertyKey JOB_MASTER_WEB_BIND_HOST =
+      new Builder(Name.JOB_MASTER_WEB_BIND_HOST).setDefaultValue("0.0.0.0").build();
+  public static final PropertyKey JOB_MASTER_WEB_HOSTNAME =
+      new Builder(Name.JOB_MASTER_WEB_HOSTNAME)
+          .setDefaultValue("${alluxio.job.master.hostname}").build();
+  public static final PropertyKey JOB_MASTER_WEB_PORT =
+      new Builder(Name.JOB_MASTER_WEB_PORT).setDefaultValue(20002).build();
+
+  public static final PropertyKey JOB_WORKER_BIND_HOST =
+      new Builder(Name.JOB_WORKER_BIND_HOST).setDefaultValue("0.0.0.0").build();
+  public static final PropertyKey JOB_WORKER_DATA_PORT =
+      new Builder(Name.JOB_WORKER_DATA_PORT).setDefaultValue(30002).build();
+  public static final PropertyKey JOB_WORKER_HOSTNAME =
+      new Builder(Name.JOB_WORKER_HOSTNAME).build();
+  public static final PropertyKey JOB_WORKER_RPC_PORT =
+      new Builder(Name.JOB_WORKER_RPC_PORT).setDefaultValue(30001).build();
+  public static final PropertyKey JOB_WORKER_SECURE_RPC_PORT =
+      new Builder(Name.JOB_WORKER_SECURE_RPC_PORT).setDefaultValue(30004).build();
+  public static final PropertyKey JOB_WORKER_WEB_BIND_HOST =
+      new Builder(Name.JOB_WORKER_WEB_BIND_HOST).setDefaultValue("0.0.0.0").build();
+  public static final PropertyKey JOB_WORKER_WEB_HOSTNAME =
+      new Builder(Name.JOB_WORKER_WEB_HOSTNAME)
+          .setDefaultValue("${alluxio.job.worker.hostname}").build();
+  public static final PropertyKey JOB_WORKER_WEB_PORT =
+      new Builder(Name.JOB_WORKER_WEB_PORT).setDefaultValue(30003).build();
+
+  public static final PropertyKey ZOOKEEPER_JOB_ELECTION_PATH =
+      new Builder(Name.ZOOKEEPER_JOB_ELECTION_PATH).setDefaultValue("/job_election").build();
+  public static final PropertyKey ZOOKEEPER_JOB_LEADER_PATH =
+      new Builder(Name.ZOOKEEPER_JOB_LEADER_PATH).setDefaultValue("/job_leader").build();
+
+  //
+  // License check
+  //
+  public static final PropertyKey LICENSE_FILE =
+      new Builder(Name.LICENSE_FILE).setDefaultValue("${alluxio.home}/license.json").build();
+
+  //
+  // Call home
+  //
+  public static final PropertyKey CALL_HOME_ENABLED =
+      new Builder(Name.CALL_HOME_ENABLED).setDefaultValue("true").build();
+
   static final java.util.Set<String> IMMUTABLE_KEYS;
 
   static {
