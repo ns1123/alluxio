@@ -1274,9 +1274,7 @@ public class PropertyKey {
 
   // ALLUXIO CS ADD
   public static final PropertyKey LIB_DIR =
-      new Builder(Name.LIB_DIR)
-          .setDefaultValue(String.format("${%s}/lib", Name.HOME))
-          .build();
+      new Builder(Name.LIB_DIR).setDefaultValue(String.format("${%s}/lib", Name.HOME)).build();
 
   //
   // UFS related CS properties
@@ -1331,7 +1329,7 @@ public class PropertyKey {
       new Builder(Name.WORKER_SECURE_RPC_PORT).setDefaultValue(29997).build();
 
   //
-  // User realted CS properties
+  // User related CS properties
   //
   public static final PropertyKey USER_BLOCK_FOOTER_SIZE_BYTES =
       new Builder(Name.USER_BLOCK_FOOTER_SIZE_BYTES).setDefaultValue("0B").build();
@@ -1363,7 +1361,8 @@ public class PropertyKey {
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE).setDefaultValue("").build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD =
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD)
-          .setDefaultValue("").build();
+          .setDefaultValue("")
+          .build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE =
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE)
           .setDefaultValue("")
@@ -1378,10 +1377,12 @@ public class PropertyKey {
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BASE).setDefaultValue("").build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER =
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER)
-          .setDefaultValue("(&(objectClass=user)(sAMAccountName={0}))").build();
+          .setDefaultValue("(&(objectClass=user)(sAMAccountName={0}))")
+          .build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP =
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP)
-          .setDefaultValue("(objectClass=group)").build();
+          .setDefaultValue("(objectClass=group)")
+          .build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT =
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT).setDefaultValue("10000").build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER =
@@ -1390,7 +1391,8 @@ public class PropertyKey {
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME).setDefaultValue("cn").build();
   public static final PropertyKey SECURITY_KERBEROS_AUTH_TO_LOCAL =
       new Builder(Name.SECURITY_KERBEROS_AUTH_TO_LOCAL)
-          .setDefaultValue(Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL).build();
+          .setDefaultValue(Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL)
+          .build();
   public static final PropertyKey SECURITY_KERBEROS_LOGIN_PRINCIPAL =
       new Builder(Name.SECURITY_KERBEROS_LOGIN_PRINCIPAL).setDefaultValue("").build();
   public static final PropertyKey SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
@@ -1411,10 +1413,12 @@ public class PropertyKey {
       new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED).setDefaultValue(false).build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
       new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS)
-          .setDefaultValue(Constants.HOUR_MS).build();
+          .setDefaultValue(Constants.HOUR_MS)
+          .build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
       new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS)
-          .setDefaultValue(Constants.DAY_MS).build();
+          .setDefaultValue(Constants.DAY_MS)
+          .build();
   public static final PropertyKey SECURITY_PRIVILEGES_ENABLED =
       new Builder(Name.SECURITY_PRIVILEGES_ENABLED).setDefaultValue(false).build();
   // TODO(chaomin): switch to per mount point encryption knob
@@ -1448,7 +1452,6 @@ public class PropertyKey {
       new Builder(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS).setDefaultValue(1000).build();
   public static final PropertyKey JOB_MASTER_WORKER_TIMEOUT_MS =
       new Builder(Name.JOB_MASTER_WORKER_TIMEOUT_MS).setDefaultValue(60000).build();
-
   public static final PropertyKey JOB_MASTER_BIND_HOST =
       new Builder(Name.JOB_MASTER_BIND_HOST).setDefaultValue("0.0.0.0").build();
   public static final PropertyKey JOB_MASTER_HOSTNAME =
@@ -1461,10 +1464,10 @@ public class PropertyKey {
       new Builder(Name.JOB_MASTER_WEB_BIND_HOST).setDefaultValue("0.0.0.0").build();
   public static final PropertyKey JOB_MASTER_WEB_HOSTNAME =
       new Builder(Name.JOB_MASTER_WEB_HOSTNAME)
-          .setDefaultValue("${alluxio.job.master.hostname}").build();
+          .setDefaultValue("${alluxio.job.master.hostname}")
+          .build();
   public static final PropertyKey JOB_MASTER_WEB_PORT =
       new Builder(Name.JOB_MASTER_WEB_PORT).setDefaultValue(20002).build();
-
   public static final PropertyKey JOB_WORKER_BIND_HOST =
       new Builder(Name.JOB_WORKER_BIND_HOST).setDefaultValue("0.0.0.0").build();
   public static final PropertyKey JOB_WORKER_DATA_PORT =
@@ -1482,7 +1485,6 @@ public class PropertyKey {
           .setDefaultValue("${alluxio.job.worker.hostname}").build();
   public static final PropertyKey JOB_WORKER_WEB_PORT =
       new Builder(Name.JOB_WORKER_WEB_PORT).setDefaultValue(30003).build();
-
   public static final PropertyKey ZOOKEEPER_JOB_ELECTION_PATH =
       new Builder(Name.ZOOKEEPER_JOB_ELECTION_PATH).setDefaultValue("/job_election").build();
   public static final PropertyKey ZOOKEEPER_JOB_LEADER_PATH =
@@ -1498,7 +1500,7 @@ public class PropertyKey {
   // Call home
   //
   public static final PropertyKey CALL_HOME_ENABLED =
-      new Builder(Name.CALL_HOME_ENABLED).setDefaultValue("true").build();
+      new Builder(Name.CALL_HOME_ENABLED).setDefaultValue(true).build();
 
   static final java.util.Set<String> IMMUTABLE_KEYS;
 

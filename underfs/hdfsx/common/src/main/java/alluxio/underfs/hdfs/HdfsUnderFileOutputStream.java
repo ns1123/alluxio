@@ -12,11 +12,9 @@
 package alluxio.underfs.hdfs;
 
 import org.apache.hadoop.fs.FSDataOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -28,10 +26,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 // TODO(binfan): dedup this file with HdfsUnderFileOutputStream.java in underfs-hdfs
 @NotThreadSafe
-public class HdfsUnderFileOutputStream extends OutputStream {
-  private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileOutputStream.class);
+public class HdfsUnderFileOutputStream extends FilterOutputStream {
   /** Underlying output stream. */
-  final FSDataOutputStream mOut;
+  private final FSDataOutputStream mOut;
 
   /**
    * Basic constructor.
@@ -39,32 +36,13 @@ public class HdfsUnderFileOutputStream extends OutputStream {
    * @param out underlying stream to wrap
    */
   public HdfsUnderFileOutputStream(FSDataOutputStream out) {
+    super(out);
     mOut = out;
-  }
-
-  @Override
-  public void close() throws IOException {
-    mOut.close();
   }
 
   @Override
   public void flush() throws IOException {
     // TODO(calvin): This functionality should be restricted to select output streams.
     mOut.sync();
-  }
-
-  @Override
-  public void write(int b) throws IOException {
-    mOut.write(b);
-  }
-
-  @Override
-  public void write(byte[] b) throws IOException {
-    mOut.write(b);
-  }
-
-  @Override
-  public void write(byte[] b, int off, int len) throws IOException {
-    mOut.write(b, off, len);
   }
 }
