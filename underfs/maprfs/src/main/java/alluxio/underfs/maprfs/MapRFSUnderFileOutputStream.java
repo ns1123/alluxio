@@ -13,8 +13,8 @@ package alluxio.underfs.maprfs;
 
 import org.apache.hadoop.fs.FSDataOutputStream;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -25,9 +25,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  * flush intend the functionality to be sync.
  */
 @NotThreadSafe
-public class MapRFSUnderFileOutputStream extends OutputStream {
+public class MapRFSUnderFileOutputStream extends FilterOutputStream {
   /** Underlying output stream. */
-  final FSDataOutputStream mOut;
+  private final FSDataOutputStream mOut;
 
   /**
    * Basic constructor.
@@ -35,32 +35,13 @@ public class MapRFSUnderFileOutputStream extends OutputStream {
    * @param out underlying stream to wrap
    */
   public MapRFSUnderFileOutputStream(FSDataOutputStream out) {
+    super(out);
     mOut = out;
-  }
-
-  @Override
-  public void close() throws IOException {
-    mOut.close();
   }
 
   @Override
   public void flush() throws IOException {
     // TODO(calvin): This functionality should be restricted to select output streams.
     mOut.sync();
-  }
-
-  @Override
-  public void write(int b) throws IOException {
-    mOut.write(b);
-  }
-
-  @Override
-  public void write(byte[] b) throws IOException {
-    mOut.write(b);
-  }
-
-  @Override
-  public void write(byte[] b, int off, int len) throws IOException {
-    mOut.write(b, off, len);
   }
 }
