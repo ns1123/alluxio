@@ -46,7 +46,7 @@ public class ExponentialTimerTest {
         CommonUtils.sleepMs(10);
       }
       long now = System.currentTimeMillis();
-      Assert.assertTrue(now - start > (1 << i - 1));
+      Assert.assertTrue(now - start >= (1 << i - 1));
     }
   }
 }
