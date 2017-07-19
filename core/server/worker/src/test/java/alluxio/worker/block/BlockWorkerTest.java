@@ -60,19 +60,11 @@ import java.util.Set;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BlockMasterClient.class, BlockMasterClientPool.class, FileSystemMasterClient.class,
     BlockHeartbeatReporter.class, BlockMetricsReporter.class, BlockMeta.class,
-<<<<<<< HEAD
-    BlockStoreLocation.class, StorageDir.class, Configuration.class,
-    UnderFileSystem.class, BlockWorker.class, Sessions.class})
+    BlockStoreLocation.class, StorageDir.class, Configuration.class, UnderFileSystem.class,
+    BlockWorker.class, Sessions.class})
 // ALLUXIO CS ADD
 @org.powermock.core.classloader.annotations.PowerMockIgnore({"javax.crypto.*", "javax.net.ssl.*"})
 // ALLUXIO CS END
-||||||| merged common ancestors
-    BlockStoreLocation.class, StorageDir.class, Configuration.class,
-    UnderFileSystem.class, BlockWorker.class, Sessions.class})
-=======
-    BlockStoreLocation.class, StorageDir.class, Configuration.class, UnderFileSystem.class,
-    BlockWorker.class, Sessions.class})
->>>>>>> 6080cbea9896d4676732648de2e0dec474699031
 public class BlockWorkerTest {
 
   private BlockMasterClient mBlockMasterClient;
