@@ -1407,6 +1407,10 @@ public class PropertyKey {
       new Builder(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL).setDefaultValue("").build();
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
       new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL =
+      new Builder(Name.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE =
+      new Builder(Name.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
   public static final PropertyKey SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
       new Builder(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME).setDefaultValue("").build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
@@ -2074,6 +2078,10 @@ public class PropertyKey {
         "alluxio.security.kerberos.client.principal";
     public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
         "alluxio.security.kerberos.client.keytab.file";
+    public static final String SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL =
+        "alluxio.security.underfs.hdfs.kerberos.client.principal";
+    public static final String SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE =
+        "alluxio.security.underfs.hdfs.kerberos.client.keytab.file";
     public static final String SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
         "alluxio.security.kerberos.unified.instance.name";
 
