@@ -468,8 +468,11 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (!mIsHdfsKerberized) {
       return;
     }
-    String principal = mUfsConf.getValue(PropertyKey.SECURITY_HDFS_KERBEROS_CLIENT_PRICIPAL);
-    String keytab = mUfsConf.getValue(PropertyKey.SECURITY_HDFS_KERBEROS_CLIENT_KEYTAB_FILE);
+    // TODO(yanqin): support multiple Kerberized HDFSs.
+    String principal =
+        mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab =
+        mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE);
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
