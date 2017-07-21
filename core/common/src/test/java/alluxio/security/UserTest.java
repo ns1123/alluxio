@@ -11,7 +11,10 @@
 
 package alluxio.security;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import java.util.Set;
@@ -46,11 +49,11 @@ public final class UserTest {
     Set<User> users = subject.getPrincipals(User.class);
 
     // Verification.
-    Assert.assertEquals(2, users.size());
+    assertEquals(2, users.size());
 
     // Test equals.
-    Assert.assertTrue(users.contains(new User("realUser")));
-    Assert.assertFalse(users.contains(new User("noExistingUser")));
+    assertTrue(users.contains(new User("realUser")));
+    assertFalse(users.contains(new User("noExistingUser")));
   }
 
   /**
@@ -66,14 +69,14 @@ public final class UserTest {
 
     // Fetch added users.
     Set<User> users = subject.getPrincipals(User.class);
-    Assert.assertEquals(3, users.size());
+    assertEquals(3, users.size());
 
     // Add similar user name without domain name.
     subject.getPrincipals().add(new User("admin"));
     subject.getPrincipals().add(new User("imap"));
 
     users = subject.getPrincipals(User.class);
-    Assert.assertEquals(5, users.size());
+    assertEquals(5, users.size());
   }
   // ALLUXIO CS ADD
 
@@ -82,7 +85,7 @@ public final class UserTest {
     try {
       Subject subject = new Subject();
       User user = new User(subject);
-      Assert.fail("creating User from an empty subject should fail");
+      org.junit.Assert.fail("creating User from an empty subject should fail");
     } catch (Exception e) {
       // Expected
     }
@@ -101,29 +104,29 @@ public final class UserTest {
     subject.getPrincipals().add(
         new javax.security.auth.kerberos.KerberosPrincipal("foo/admin@" + TEST_REALM));
     User user = new User(subject);
-    Assert.assertNotNull(user.getSubject());
-    Assert.assertEquals("[foo/admin@EXAMPLE.COM]",
+    org.junit.Assert.assertNotNull(user.getSubject());
+    assertEquals("[foo/admin@EXAMPLE.COM]",
         user.getSubject().getPrincipals(
             javax.security.auth.kerberos.KerberosPrincipal.class).toString());
-    Assert.assertEquals("foo", user.getName());
+    assertEquals("foo", user.getName());
 
     // Test equals.
-    Assert.assertTrue(user.equals(user));
-    Assert.assertFalse(user.equals(null));
+    assertTrue(user.equals(user));
+    assertFalse(user.equals(null));
 
     // Two principal in subject, for now User only takes the first principal as the user name.
     subject.getPrincipals().add(
         new javax.security.auth.kerberos.KerberosPrincipal("bar/admin@" + TEST_REALM));
     user = new User(subject);
-    Assert.assertNotNull(user.getSubject());
-    Assert.assertEquals(String.format("[foo/admin@%s, bar/admin@%s]", TEST_REALM, TEST_REALM),
+    org.junit.Assert.assertNotNull(user.getSubject());
+    assertEquals(String.format("[foo/admin@%s, bar/admin@%s]", TEST_REALM, TEST_REALM),
         user.getSubject().getPrincipals(
             javax.security.auth.kerberos.KerberosPrincipal.class).toString());
-    Assert.assertEquals("foo", user.getName());
+    assertEquals("foo", user.getName());
 
     // Test Equals.
-    Assert.assertTrue(user.equals(user));
-    Assert.assertFalse(user.equals(null));
+    assertTrue(user.equals(user));
+    assertFalse(user.equals(null));
   }
   // ALLUXIO CS END
 }

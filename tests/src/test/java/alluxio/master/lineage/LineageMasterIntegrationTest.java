@@ -12,6 +12,7 @@
 package alluxio.master.lineage;
 
 import alluxio.AlluxioURI;
+import alluxio.AuthenticatedUserRule;
 import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
@@ -31,7 +32,6 @@ import alluxio.client.lineage.options.DeleteLineageOptions;
 import alluxio.job.CommandLineJob;
 import alluxio.job.JobConf;
 import alluxio.master.file.meta.PersistenceState;
-import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.wire.LineageInfo;
@@ -39,7 +39,6 @@ import alluxio.wire.LineageInfo;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -87,27 +86,27 @@ public class LineageMasterIntegrationTest extends BaseIntegrationTest {
 
   private CommandLineJob mJob;
 
+  @Rule
+  public AuthenticatedUserRule mAuthenticatedUser = new AuthenticatedUserRule("test");
+
   @Before
   public void before() throws Exception {
-    AuthenticatedClientUser.set("test");
     mJob = new CommandLineJob("test", new JobConf("output"));
     // ALLUXIO CS ADD
     mLocalAlluxioJobCluster = new alluxio.master.LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
     // ALLUXIO CS END
   }
+  // ALLUXIO CS ADD
 
-  @After
+  @org.junit.After
   public void after() throws Exception {
-    // ALLUXIO CS ADD
     mLocalAlluxioJobCluster.stop();
-    // ALLUXIO CS END
-    AuthenticatedClientUser.remove();
   }
+  // ALLUXIO CS END
 
   @Test
   public void lineageCreation() throws Exception {
-
     try (LineageMasterClient lineageMasterClient = getLineageMasterClient()) {
       ArrayList<String> outFiles = new ArrayList<>();
       Collections.addAll(outFiles, OUT_FILE);
@@ -127,7 +126,6 @@ public class LineageMasterIntegrationTest extends BaseIntegrationTest {
   @org.junit.Ignore // lineage does not currently propagate ACL from client to server
   // ALLUXIO CS END
   public void lineageCompleteAndAsyncPersist() throws Exception {
-
     try (LineageMasterClient lineageMasterClient = getLineageMasterClient()) {
       ArrayList<String> outFiles = new ArrayList<>();
       Collections.addAll(outFiles, OUT_FILE);
@@ -151,7 +149,6 @@ public class LineageMasterIntegrationTest extends BaseIntegrationTest {
       // worker notifies the master
       status = getFileSystemMasterClient().getStatus(uri, GET_STATUS_OPTIONS);
       Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
-
     }
   }
 
