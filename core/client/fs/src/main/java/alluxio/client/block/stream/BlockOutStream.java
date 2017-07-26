@@ -21,12 +21,15 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NettyUtils;
+import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,6 +44,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class BlockOutStream extends OutputStream implements BoundedStream, Cancelable {
+  private static final Logger LOG = LoggerFactory.getLogger(BlockOutStream.class);
+
   private final Closer mCloser;
   /** Length of the stream. If unknown, set to Long.MAX_VALUE. */
   private final long mLength;
@@ -64,6 +69,7 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     if (CommonUtils.isLocalHost(address) && Configuration
         .getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED) && !NettyUtils
         .isDomainSocketSupported(address)) {
+      LOG.info("Creating short circuit output stream for block {} @ {}", blockId, address);
       return createLocalBlockOutStream(context, address, blockId, blockSize, options);
     } else {
       Protocol.WriteRequest writeRequestPartial =
@@ -75,6 +81,8 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).buildPartial();
       }
       // ALLUXIO CS END
+      LOG.info("Creating netty output stream for block {} @ {} from client {}", blockId, address,
+          NetworkAddressUtils.getClientHostName());
       return createNettyBlockOutStream(context, address, blockSize, writeRequestPartial, options);
     }
   }
@@ -89,7 +97,7 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
    * @param options the out stream options
    * @return the {@link BlockOutStream} created
    */
-  protected static BlockOutStream createLocalBlockOutStream(FileSystemContext context,
+  private static BlockOutStream createLocalBlockOutStream(FileSystemContext context,
       WorkerNetAddress address, long id, long length, OutStreamOptions options) throws IOException {
     long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
@@ -113,7 +121,7 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
    * @param options the out stream options
    * @return the {@link BlockOutStream} created
    */
-  protected static BlockOutStream createNettyBlockOutStream(FileSystemContext context,
+  private static BlockOutStream createNettyBlockOutStream(FileSystemContext context,
       WorkerNetAddress address, long length, Protocol.WriteRequest partialRequest,
       OutStreamOptions options) throws IOException {
     long packetSize =
