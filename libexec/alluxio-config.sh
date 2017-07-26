@@ -85,7 +85,6 @@ ALLUXIO_JAVA_OPTS+=" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.proper
 ALLUXIO_JAVA_OPTS+=" -Dorg.apache.jasper.compiler.disablejsr199=true"
 ALLUXIO_JAVA_OPTS+=" -Djava.net.preferIPv4Stack=true"
 
-<<<<<<< HEAD
 # ALLUXIO CS ADD
 # Job master specific parameters based on ALLUXIO_JAVA_OPTS.
 ALLUXIO_JOB_MASTER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
@@ -96,8 +95,6 @@ ALLUXIO_JOB_WORKER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
 ALLUXIO_JOB_WORKER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_JOB_WORKER_LOGGER:-JOB_WORKER_LOGGER}"
 
 # ALLUXIO CS END
-||||||| merged common ancestors
-=======
 ALLUXIO_CLIENT_CLASSPATH="${ALLUXIO_CONF_DIR}/:${ALLUXIO_CLASSPATH}:${ALLUXIO_ASSEMBLY_CLIENT_JAR}"
 ALLUXIO_SERVER_CLASSPATH="${ALLUXIO_CONF_DIR}/:${ALLUXIO_CLASSPATH}:${ALLUXIO_ASSEMBLY_SERVER_JAR}"
 
@@ -118,7 +115,6 @@ fi
 ## End reading site-properties
 ####################################################################################################
 
->>>>>>> OPENSOURCE/master
 # Master specific parameters based on ALLUXIO_JAVA_OPTS.
 ALLUXIO_MASTER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
 ALLUXIO_MASTER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_MASTER_LOGGER:-MASTER_LOGGER}"
