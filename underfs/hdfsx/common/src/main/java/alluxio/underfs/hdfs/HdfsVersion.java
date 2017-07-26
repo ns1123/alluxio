@@ -40,6 +40,8 @@ public enum HdfsVersion {
       "hdp2_4"),
   HDP_2_5("hdp-2.5", "(hdp-?2\\.5(\\.(\\d+))?|2\\.7\\.3\\.2\\.5\\.(\\d+)\\.(\\d+)-(.*)?)",
       "hdp2_5"),
+  HDP_2_6("hdp-2.6", "(hdp-?2\\.6(\\.(\\d+))?|2\\.7\\.3\\.2\\.6\\.(\\d+)\\.(\\d+)-(.*)?)",
+      "hdp2_6"),
   ;
 
   public static final String HDFS_JAR_FILENAME_FORMAT = "alluxio-underfs-hdfsx-%s-%s.jar";
