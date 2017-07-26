@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-kms</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0-B</version>
   </parent>
   <artifactId>alluxio-kms-dummy</artifactId>
   <name>Alluxio Key Management Service - Dummy</name>

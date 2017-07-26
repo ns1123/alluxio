@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-underfs-hdfsx</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0-B</version>
   </parent>
   <artifactId>alluxio-underfs-hdfsx-cdh5_11</artifactId>
   <name>Alluxio Under File System - HDFS Distributions - CDH 5.11</name>
