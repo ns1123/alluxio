@@ -115,6 +115,7 @@ public final class Configuration {
       }
     }
 
+<<<<<<< HEAD
     // TODO(andrew): get rid of the MASTER_ADDRESS property key
     if (containsKey(PropertyKey.MASTER_HOSTNAME)) {
       String masterHostname = get(PropertyKey.MASTER_HOSTNAME);
@@ -136,6 +137,19 @@ public final class Configuration {
     }
     // ALLUXIO CS END
 
+||||||| merged common ancestors
+    // TODO(andrew): get rid of the MASTER_ADDRESS property key
+    if (containsKey(PropertyKey.MASTER_HOSTNAME)) {
+      String masterHostname = get(PropertyKey.MASTER_HOSTNAME);
+      String masterPort = get(PropertyKey.MASTER_RPC_PORT);
+      boolean useZk = Boolean.parseBoolean(get(PropertyKey.ZOOKEEPER_ENABLED));
+      String masterAddress =
+          (useZk ? Constants.HEADER_FT : Constants.HEADER) + masterHostname + ":" + masterPort;
+      set(PropertyKey.MASTER_ADDRESS, masterAddress);
+    }
+
+=======
+>>>>>>> FETCH_HEAD
     validate();
   }
 

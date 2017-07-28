@@ -403,11 +403,7 @@ public class PropertyKey {
 
   /**
    * Master related properties.
-   *
-   * @deprecated since version 1.3 and will be removed in version 2.0, use MASTER_HOSTNAME instead.
    */
-  @Deprecated
-  public static final PropertyKey MASTER_ADDRESS = new Builder(Name.MASTER_ADDRESS).build();
   public static final PropertyKey MASTER_BIND_HOST =
       new Builder(Name.MASTER_BIND_HOST)
           .setDefaultValue("0.0.0.0")
@@ -1681,7 +1677,6 @@ public class PropertyKey {
     //
     // Master related properties
     //
-    public static final String MASTER_ADDRESS = "alluxio.master.address";
     public static final String MASTER_BIND_HOST = "alluxio.master.bind.host";
     public static final String MASTER_CONNECTION_TIMEOUT_MS =
         "alluxio.master.connection.timeout.ms";
