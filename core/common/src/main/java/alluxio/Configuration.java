@@ -115,15 +115,6 @@ public final class Configuration {
       }
     }
 
-    // TODO(andrew): get rid of the MASTER_ADDRESS property key
-    if (containsKey(PropertyKey.MASTER_HOSTNAME)) {
-      String masterHostname = get(PropertyKey.MASTER_HOSTNAME);
-      String masterPort = get(PropertyKey.MASTER_RPC_PORT);
-      boolean useZk = Boolean.parseBoolean(get(PropertyKey.ZOOKEEPER_ENABLED));
-      String masterAddress =
-          (useZk ? Constants.HEADER_FT : Constants.HEADER) + masterHostname + ":" + masterPort;
-      set(PropertyKey.MASTER_ADDRESS, masterAddress);
-    }
     // ALLUXIO CS ADD
 
     // Default job master hostname to Alluxio master hostname.
@@ -135,7 +126,6 @@ public final class Configuration {
       set(PropertyKey.JOB_WORKER_HOSTNAME, get(PropertyKey.WORKER_HOSTNAME));
     }
     // ALLUXIO CS END
-
     validate();
   }
 
