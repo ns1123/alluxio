@@ -282,6 +282,11 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
+  public List<AlluxioURI> getInAlluxioFiles() {
+    return mFileSystemMaster.getInMemoryFiles();
+  }
+
+  @Override
   public List<AlluxioURI> getInMemoryFiles() {
     return mFileSystemMaster.getInMemoryFiles();
   }

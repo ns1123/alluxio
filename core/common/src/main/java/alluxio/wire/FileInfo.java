@@ -58,6 +58,7 @@ public final class FileInfo implements Serializable {
   private alluxio.security.capability.Capability mCapability;
   private boolean mEncrypted;
   // ALLUXIO CS END
+  private int mInAlluxioPercentage;
 
   /**
    * Creates a new instance of {@link FileInfo}.
@@ -114,6 +115,7 @@ public final class FileInfo implements Serializable {
     }
     mEncrypted = fileInfo.isEncrypted();
     // ALLUXIO CS END
+    mInAlluxioPercentage = fileInfo.getInAlluxioPercentage();
   }
 
   /**
@@ -212,6 +214,13 @@ public final class FileInfo implements Serializable {
    */
   public int getInMemoryPercentage() {
     return mInMemoryPercentage;
+  }
+
+  /**
+   * @return the file in alluxio percentage
+   */
+  public int getInAlluxioPercentage() {
+    return mInAlluxioPercentage;
   }
 
   /**
@@ -445,6 +454,15 @@ public final class FileInfo implements Serializable {
   }
 
   /**
+   * @param inAlluxioPercentage the file in alluxio percentage to use
+   * @return the file information
+   */
+  public FileInfo setInAlluxioPercentage(int inAlluxioPercentage) {
+    mInAlluxioPercentage = inAlluxioPercentage;
+    return this;
+  }
+
+  /**
    * @param lastModificationTimeMs the last modification time (in milliseconds) to use
    * @return the file information
    */
@@ -589,10 +607,11 @@ public final class FileInfo implements Serializable {
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS REPLACE
-        // mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction), mMountId);
+        // mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction), mMountId,
+        // mInAlluxioPercentage);
         // ALLUXIO CS WITH
         mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
-        mEncrypted, ThriftUtils.toThrift(mTtlAction), mMountId);
+        mEncrypted, ThriftUtils.toThrift(mTtlAction), mMountId, mInAlluxioPercentage);
     if (mCapability != null) {
       info.setCapability(mCapability.toThrift());
     }
@@ -624,7 +643,7 @@ public final class FileInfo implements Serializable {
         && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
         && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction
-        && mMountId == that.mMountId;
+        && mMountId == that.mMountId && mInAlluxioPercentage == that.mInAlluxioPercentage;
   }
 
   @Override
@@ -635,7 +654,7 @@ public final class FileInfo implements Serializable {
         // ALLUXIO CS ADD
         mReplicationMax, mReplicationMin, mCapability, mEncrypted,
         // ALLUXIO CS END
-        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction);
+        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage);
   }
 
   @Override
@@ -653,7 +672,7 @@ public final class FileInfo implements Serializable {
         .add("capability", mCapability).add("encrypted", mEncrypted)
         // ALLUXIO CS END
         .add("fileBlockInfos", mFileBlockInfos)
-        .add("mountId", mMountId)
+        .add("mountId", mMountId).add("inAlluxioPercentage", mInAlluxioPercentage)
         .toString();
   }
 }
