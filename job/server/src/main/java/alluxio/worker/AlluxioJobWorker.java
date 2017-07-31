@@ -9,7 +9,7 @@
 
 package alluxio.worker;
 
-import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.ProcessUtils;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
@@ -44,7 +44,7 @@ public final class AlluxioJobWorker {
           "Cannot run alluxio job worker; master hostname is not "
               + "configured. Please modify %s to either set %s or configure zookeeper with "
               + "%s=true and %s=[comma-separated zookeeper master addresses]",
-          Configuration.SITE_PROPERTIES, PropertyKey.MASTER_HOSTNAME.toString(),
+          Constants.SITE_PROPERTIES, PropertyKey.MASTER_HOSTNAME.toString(),
           PropertyKey.ZOOKEEPER_ENABLED.toString(), PropertyKey.ZOOKEEPER_ADDRESS.toString()));
       System.exit(1);
     }
@@ -54,7 +54,7 @@ public final class AlluxioJobWorker {
           "Cannot run alluxio job worker; job master hostname is not "
               + "configured. Please modify %s to either set %s or configure zookeeper with "
               + "%s=true and %s=[comma-separated zookeeper master addresses]",
-          Configuration.SITE_PROPERTIES, PropertyKey.JOB_MASTER_HOSTNAME.toString(),
+          Constants.SITE_PROPERTIES, PropertyKey.JOB_MASTER_HOSTNAME.toString(),
           PropertyKey.ZOOKEEPER_ENABLED.toString(), PropertyKey.ZOOKEEPER_ADDRESS.toString()));
       System.exit(1);
     }
