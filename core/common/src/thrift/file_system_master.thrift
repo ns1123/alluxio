@@ -108,7 +108,7 @@ struct FileInfo {
   11: bool cacheable
   12: bool persisted
   13: list<i64> blockIds
-  15: i32 inMemoryPercentage
+  15: i32 inMemoryPercentage // deprecated (replaced by inAlluxioPercentage)
   16: i64 lastModificationTimeMs
   17: i64 ttl
   18: string owner
@@ -125,6 +125,7 @@ struct FileInfo {
   // ALLUXIO CS END
   24: common.TTtlAction ttlAction
   25: i64 mountId
+  26: i32 inAlluxioPercentage
 }
 
 struct MountTOptions {

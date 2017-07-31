@@ -70,6 +70,7 @@ public class FileInfoTest {
     // ALLUXIO CS END
     Assert.assertEquals(a.isPersisted(), b.isPersisted());
     Assert.assertEquals(a.isPinned(), b.isPinned());
+    Assert.assertEquals(a.getInAlluxioPercentage(), b.getInAlluxioPercentage());
     Assert.assertEquals(a, b);
   }
 
@@ -96,6 +97,7 @@ public class FileInfoTest {
       blockIds.add(random.nextLong());
     }
     int inMemoryPercentage = random.nextInt();
+    int inAlluxioPercentage = random.nextInt();
     long lastModificationTimeMs = random.nextLong();
     long ttl = random.nextLong();
     String userName = CommonUtils.randomAlphaNumString(random.nextInt(10));
@@ -143,6 +145,7 @@ public class FileInfoTest {
     result.setTtlAction(TtlAction.DELETE);
     result.setMountId(mountId);
     result.setUfsPath(ufsPath);
+    result.setInAlluxioPercentage(inAlluxioPercentage);
     return result;
   }
 }
