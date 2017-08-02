@@ -287,20 +287,14 @@ public class PropertyKey {
           .build();
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
       new Builder(Name.UNDERFS_HDFS_PREFIXES)
-<<<<<<< HEAD
           // ALLUXIO CS REPLACE
           // .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
           // ALLUXIO CS WITH
           .setDefaultValue("hdfs://,glusterfs:///")
           // ALLUXIO CS END
-||||||| merged common ancestors
-          .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
-=======
-          .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
           .setDescription("Optionally, specify which prefixes should run through the Apache "
               + "Hadoop implementation of UnderFileSystem. The delimiter is any whitespace "
               + "and/or ','.")
->>>>>>> f7edb0dbbf3686791cfeaa9865ffd1ed30ae866a
           .build();
   public static final PropertyKey UNDERFS_HDFS_REMOTE =
       new Builder(Name.UNDERFS_HDFS_REMOTE)
@@ -657,20 +651,14 @@ public class PropertyKey {
           .build();
   public static final PropertyKey MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
       new Builder(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)
-<<<<<<< HEAD
           // ALLUXIO CS REPLACE
           // .setDefaultValue(true)
           // ALLUXIO CS WITH
           .setDefaultValue(false)
           // ALLUXIO CS END
-||||||| merged common ancestors
-          .setDefaultValue(true)
-=======
-          .setDefaultValue(true)
           .setDescription("Whether the system should be checked for consistency with the "
               + "underlying storage on startup. During the time the check is running, Alluxio "
               + "will be in read only mode. Enabled by default.")
->>>>>>> f7edb0dbbf3686791cfeaa9865ffd1ed30ae866a
           .build();
   public static final PropertyKey MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS =
       new Builder(Name.MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS)
