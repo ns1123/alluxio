@@ -13,14 +13,9 @@ package alluxio.master.file;
 
 import alluxio.AlluxioURI;
 
-<<<<<<< HEAD
-import java.util.ArrayList;
-||||||| merged common ancestors
-=======
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
->>>>>>> alluxio/branch-1.5
 import java.util.List;
 
 /**
@@ -50,11 +45,6 @@ public final class StartupConsistencyCheck {
    * @return a result set to the disabled status
    */
   public static StartupConsistencyCheck disabled() {
-<<<<<<< HEAD
-    return new StartupConsistencyCheck(Status.DISABLED, new ArrayList<AlluxioURI>());
-||||||| merged common ancestors
-    return new StartupConsistencyCheck(Status.DISABLED, null);
-=======
     return new StartupConsistencyCheck(Status.DISABLED, new ArrayList<AlluxioURI>());
   }
 
@@ -63,7 +53,6 @@ public final class StartupConsistencyCheck {
    */
   public static StartupConsistencyCheck notStarted() {
     return new StartupConsistencyCheck(Status.NOT_STARTED, new ArrayList<AlluxioURI>());
->>>>>>> alluxio/branch-1.5
   }
 
   /**

@@ -11,12 +11,8 @@
 
 package alluxio.worker.block;
 
-<<<<<<< HEAD
-import alluxio.AlluxioURI;
-||||||| merged common ancestors
-=======
 import alluxio.AlluxioTestDirectory;
->>>>>>> alluxio/branch-1.5
+import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationRule;
 import alluxio.PropertyKey;
@@ -86,26 +82,10 @@ public final class UnderFileSystemBlockReaderTest {
 
     mAlluxioBlockStore = new TieredBlockStore();
     mUfsManager = Mockito.mock(UfsManager.class);
-<<<<<<< HEAD
     UfsInfo ufsInfo = new UfsInfo(
         Suppliers.ofInstance(UnderFileSystem.Factory.create(testFilePath)),
         new AlluxioURI(testFilePath));
-    Mockito.when(mAlluxioBlockStore
-        .createBlock(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(BlockStoreLocation.class),
-            Mockito.anyLong())).thenReturn(mTempBlockMeta);
-    Mockito.when(mTempBlockMeta.getPath()).thenReturn(mFolder.newFile().getAbsolutePath());
     Mockito.when(mUfsManager.get(Mockito.anyLong())).thenReturn(ufsInfo);
-||||||| merged common ancestors
-    Mockito.when(mAlluxioBlockStore
-        .createBlock(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(BlockStoreLocation.class),
-            Mockito.anyLong())).thenReturn(mTempBlockMeta);
-    Mockito.when(mTempBlockMeta.getPath()).thenReturn(mFolder.newFile().getAbsolutePath());
-    Mockito.when(mUfsManager.get(Mockito.anyLong()))
-        .thenReturn(UnderFileSystem.Factory.create(testFilePath));
-=======
-    Mockito.when(mUfsManager.get(Mockito.anyLong()))
-        .thenReturn(UnderFileSystem.Factory.create(testFilePath));
->>>>>>> alluxio/branch-1.5
 
     mOpenUfsBlockOptions = Protocol.OpenUfsBlockOptions.newBuilder().setMaxUfsReadConcurrency(10)
         .setBlockSize(TEST_BLOCK_SIZE).setOffsetInFile(TEST_BLOCK_SIZE).setUfsPath(testFilePath)

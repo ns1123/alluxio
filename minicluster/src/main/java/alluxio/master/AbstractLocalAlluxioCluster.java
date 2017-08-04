@@ -328,15 +328,9 @@ public abstract class AbstractLocalAlluxioCluster {
     Configuration.set(PropertyKey.WORKER_RPC_PORT, 0);
     Configuration.set(PropertyKey.WORKER_DATA_PORT, 0);
     Configuration.set(PropertyKey.WORKER_WEB_PORT, 0);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     Configuration.set(PropertyKey.WORKER_SECURE_RPC_PORT, 0);
     // ALLUXIO CS END
-    Configuration.set(PropertyKey.WORKER_DATA_FOLDER, "/datastore");
-||||||| merged common ancestors
-    Configuration.set(PropertyKey.WORKER_DATA_FOLDER, "/datastore");
-=======
->>>>>>> alluxio/branch-1.5
     Configuration.set(PropertyKey.WORKER_MEMORY_SIZE, DEFAULT_WORKER_MEMORY_BYTES);
     Configuration.set(PropertyKey.WORKER_BLOCK_HEARTBEAT_INTERVAL_MS, 15);
     Configuration.set(PropertyKey.WORKER_BLOCK_THREADS_MIN, 1);
