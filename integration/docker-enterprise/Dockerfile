@@ -11,7 +11,7 @@
 
 FROM openjdk:7-jdk-alpine
 
-ARG ALLUXIO_TARBALL=alluxio-enterprise-1.5.0-SNAPSHOT.tar.gz
+ARG ALLUXIO_TARBALL=alluxio-enterprise-1.5.0-C.tar.gz
 
 RUN apk add --update bash && \
     rm -rf /var/cache/apk/*
