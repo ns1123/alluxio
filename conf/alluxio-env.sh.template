@@ -40,7 +40,7 @@
 
 # Address of the under filesystem address. (Default: ${ALLUXIO_HOME}/underFSStorage)
 # E.g. "/my/local/path" to use local fs, "hdfs://localhost:9000/alluxio" to use a local hdfs
-# ALLUXIO_UNDERFS_ADDRESS
+#ALLUXIO_UNDERFS_ADDRESS=hdfs://localhost:9000/alluxio
 
 # How much memory to use per worker. (Default: 1GB)
 # E.g. "1000MB", "2GB"
