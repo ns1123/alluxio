@@ -2301,18 +2301,12 @@ public class PropertyKey {
         "alluxio.worker.block.master.client.pool.size";
     public static final String WORKER_PRINCIPAL = "alluxio.worker.principal";
     public static final String WORKER_RPC_PORT = "alluxio.worker.port";
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     public static final String WORKER_SECURE_RPC_BIND_HOST = "alluxio.worker.secure.rpc.bind.host";
     public static final String WORKER_SECURE_RPC_HOSTNAME = "alluxio.worker.secure.rpc.hostname";
     public static final String WORKER_SECURE_RPC_PORT = "alluxio.worker.secure.rpc.port";
     // ALLUXIO CS END
-    public static final String WORKER_SESSION_TIMEOUT_MS = "alluxio.worker.session.timeout.ms";
-||||||| merged common ancestors
-    public static final String WORKER_SESSION_TIMEOUT_MS = "alluxio.worker.session.timeout.ms";
-=======
     public static final String WORKER_SESSION_TIMEOUT_MS = "alluxio.worker.session.timeout";
->>>>>>> OPENSOURCE/master
     public static final String WORKER_TIERED_STORE_BLOCK_LOCK_READERS =
         "alluxio.worker.tieredstore.block.lock.readers";
     public static final String WORKER_TIERED_STORE_BLOCK_LOCKS =
@@ -2405,7 +2399,6 @@ public class PropertyKey {
     public static final String USER_FILE_WRITE_TYPE_DEFAULT = "alluxio.user.file.writetype.default";
     public static final String USER_FILE_WRITE_TIER_DEFAULT =
         "alluxio.user.file.write.tier.default";
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     public static final String USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
         "alluxio.encryption.chunk.footer.size.bytes";
@@ -2414,12 +2407,7 @@ public class PropertyKey {
     public static final String USER_ENCRYPTION_CHUNK_SIZE_BYTES =
         "alluxio.encryption.chunk.size.bytes";
     // ALLUXIO CS END
-    public static final String USER_HEARTBEAT_INTERVAL_MS = "alluxio.user.heartbeat.interval.ms";
-||||||| merged common ancestors
-    public static final String USER_HEARTBEAT_INTERVAL_MS = "alluxio.user.heartbeat.interval.ms";
-=======
     public static final String USER_HEARTBEAT_INTERVAL_MS = "alluxio.user.heartbeat.interval";
->>>>>>> OPENSOURCE/master
     public static final String USER_HOSTNAME = "alluxio.user.hostname";
     public static final String USER_LINEAGE_ENABLED = "alluxio.user.lineage.enabled";
     public static final String USER_LINEAGE_MASTER_CLIENT_THREADS =
