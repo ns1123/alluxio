@@ -429,6 +429,18 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       if (inodeFileEntry.hasTtl()) {
         mTtlBuckets.insert(InodeFile.fromJournalEntry(inodeFileEntry));
       }
+      // ALLUXIO CS ADD
+      if (PersistenceState.valueOf(inodeFileEntry.getPersistenceState()) ==
+          PersistenceState.TO_BE_PERSISTED) {
+        // The inode is not persisted yet. This state is snapshot.
+        long fileId = inodeFileEntry.getId();
+        mPersistRequests.put(fileId, new alluxio.time.ExponentialTimer(
+            Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
+            Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
+            Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
+            Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
+      }
+      // ALLUXIO CS END
     } else if (entry.hasInodeDirectory()) {
       try {
         // Add the directory to TTL buckets, the insert automatically rejects directory
