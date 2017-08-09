@@ -34,6 +34,7 @@ var ufsModuleNames = map[string]string{
 	"ufs-cdh-5.11":   "hdfsx-cdh5_11",
 	"ufs-hdp-2.4":    "hdfsx-hdp2_4",
 	"ufs-hdp-2.5":    "hdfsx-hdp2_5",
+	"ufs-hdp-2.6":    "hdfsx-hdp2_6",
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
@@ -53,6 +54,7 @@ var ufsModules = map[string]bool{
 	"ufs-cdh-5.11":   false,
 	"ufs-hdp-2.4":    false,
 	"ufs-hdp-2.5":    true,
+	"ufs-hdp-2.6":    false,
 }
 
 var (
