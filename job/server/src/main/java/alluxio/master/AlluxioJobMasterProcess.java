@@ -67,8 +67,11 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   /** The transport provider to create thrift server transport. */
   private final TransportProvider mTransportProvider;
 
-  /** The address for the rpc server. */
-  private final InetSocketAddress mRpcAddress;
+  /** The connect address for the rpc server. */
+  private final InetSocketAddress mRpcConnectAddress;
+
+  /** The bind address for the rpc server. */
+  private final InetSocketAddress mRpcBindAddress;
 
   /** The master managing all job related metadata. */
   protected JobMaster mJobMaster;
@@ -118,7 +121,8 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
       mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);
       // reset master port
       Configuration.set(PropertyKey.JOB_MASTER_RPC_PORT, Integer.toString(mPort));
-      mRpcAddress = NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
+      mRpcBindAddress = NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_RPC);
+      mRpcConnectAddress = NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
 
       // Create master.
       createMaster();
@@ -139,7 +143,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
 
   @Override
   public InetSocketAddress getRpcAddress() {
-    return mRpcAddress;
+    return mRpcConnectAddress;
   }
 
   @Override
@@ -192,7 +196,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
    * @throws Exception if stopping the master fails
    */
   public void stop() throws Exception {
-    LOG.info("Stopping RPC server on {} @ {}", this, mRpcAddress);
+    LOG.info("Stopping RPC server on {} @ {}", this, mRpcBindAddress);
     if (mIsServing) {
       stopServing();
       stopMaster();
@@ -223,10 +227,10 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
 
   protected void startServing(String startMessage, String stopMessage) {
     startServingWebServer();
-    LOG.info("{} version {} started @ {} {}", this, RuntimeConstants.VERSION, mRpcAddress,
-        startMessage);
+    LOG.info("{} version {} binding to {} @ {} {}", this, RuntimeConstants.VERSION, mRpcBindAddress,
+        mRpcConnectAddress, startMessage);
     startServingRPCServer();
-    LOG.info("{} version {} ended @ {} {}", this, RuntimeConstants.VERSION, mRpcAddress,
+    LOG.info("{} version {} ended @ {} {}", this, RuntimeConstants.VERSION, mRpcConnectAddress,
         stopMessage);
   }
 
@@ -268,7 +272,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
         mTServerSocket.close();
       }
       mTServerSocket =
-          new TServerSocket(mRpcAddress,
+          new TServerSocket(mRpcBindAddress,
               (int) Configuration.getMs(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
     } catch (TTransportException e) {
       throw new RuntimeException(e);

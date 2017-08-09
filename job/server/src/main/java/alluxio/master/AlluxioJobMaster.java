@@ -9,11 +9,8 @@
 
 package alluxio.master;
 
-import alluxio.Constants;
 import alluxio.ProcessUtils;
-import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.util.ConfigurationUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,19 +36,7 @@ public final class AlluxioJobMaster {
       System.exit(-1);
     }
 
-    if (!ConfigurationUtils.masterHostConfigured()) {
-      System.out.println(String.format(
-          "Cannot run alluxio job master; master hostname is not "
-              + "configured. Please modify %s to either set %s or configure zookeeper with "
-              + "%s=true and %s=[comma-separated zookeeper master addresses]",
-          Constants.SITE_PROPERTIES, PropertyKey.MASTER_HOSTNAME.toString(),
-          PropertyKey.ZOOKEEPER_ENABLED.toString(), PropertyKey.ZOOKEEPER_ADDRESS.toString()));
-      System.exit(1);
-    }
-
-    // ALLUXIO CS ADD
     alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.JOB_MASTER);
-    // ALLUXIO CS END
     JobMasterProcess process = JobMasterProcess.Factory.create();
     ProcessUtils.run(process);
   }

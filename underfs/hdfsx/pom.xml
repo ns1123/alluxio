@@ -136,6 +136,13 @@
         <module>hdp2_5</module>
       </modules>
     </profile>
+
+    <profile>
+      <id>ufs-hdp-2.6</id>
+      <modules>
+        <module>hdp2_6</module>
+      </modules>
+    </profile>
   </profiles>
 
   <properties>

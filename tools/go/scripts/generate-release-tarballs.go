@@ -88,6 +88,7 @@ var hadoopDistributions = map[string]version{
 	"hdp-2.3":    ParseVersion("2.7.1.2.3.99.0-195"),
 	"hdp-2.4":    ParseVersion("2.7.1.2.4.4.1-9"),
 	"hdp-2.5":    ParseVersion("2.7.3.2.5.5.5-2"),
+	"hdp-2.6":    ParseVersion("2.7.3.2.6.1.0-129"),
 	"mapr-4.1":   ParseVersion("2.5.1-mapr-1503"),
 	"mapr-5.0":   ParseVersion("2.7.0-mapr-1506"),
 	"mapr-5.1":   ParseVersion("2.7.0-mapr-1602"),
@@ -111,6 +112,7 @@ var ufsModules = map[string]bool{
 	"ufs-cdh-5.11":   false,
 	"ufs-hdp-2.4":    false,
 	"ufs-hdp-2.5":    true,
+	"ufs-hdp-2.6":    false,
 }
 
 var (
