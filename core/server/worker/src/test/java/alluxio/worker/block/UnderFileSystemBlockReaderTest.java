@@ -55,17 +55,6 @@ public final class UnderFileSystemBlockReaderTest {
   @Rule
   public TemporaryFolder mFolder = new TemporaryFolder();
 
-<<<<<<< HEAD
-  @Rule
-  public ConfigurationRule mConfigurationRule = new ConfigurationRule(new HashMap() {
-    {
-      put(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, AlluxioTestDirectory
-          .createTemporaryDirectory("UnderFileSystemBlockReaderTest").getAbsolutePath());
-    }
-  });
-
-||||||| merged common ancestors
-=======
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
@@ -84,7 +73,6 @@ public final class UnderFileSystemBlockReaderTest {
         }
       });
 
->>>>>>> origin/enterprise-1.5
   @Before
   public void before() throws Exception {
     String ufsFolder = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
@@ -97,20 +85,6 @@ public final class UnderFileSystemBlockReaderTest {
     UfsInfo ufsInfo = new UfsInfo(
         Suppliers.ofInstance(UnderFileSystem.Factory.create(testFilePath)),
         new AlluxioURI(testFilePath));
-<<<<<<< HEAD
-    Mockito.when(mAlluxioBlockStore
-        .createBlock(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(BlockStoreLocation.class),
-            Mockito.anyLong()))
-        .thenReturn(mTempBlockMeta);
-    Mockito.when(mTempBlockMeta.getPath())
-        .thenReturn(File.createTempFile("temp", null, new File(ufsFolder)).getAbsolutePath());
-||||||| merged common ancestors
-    Mockito.when(mAlluxioBlockStore
-        .createBlock(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(BlockStoreLocation.class),
-            Mockito.anyLong())).thenReturn(mTempBlockMeta);
-    Mockito.when(mTempBlockMeta.getPath()).thenReturn(mFolder.newFile().getAbsolutePath());
-=======
->>>>>>> origin/enterprise-1.5
     Mockito.when(mUfsManager.get(Mockito.anyLong())).thenReturn(ufsInfo);
 
     mOpenUfsBlockOptions = Protocol.OpenUfsBlockOptions.newBuilder().setMaxUfsReadConcurrency(10)
@@ -120,14 +94,6 @@ public final class UnderFileSystemBlockReaderTest {
         new UnderFileSystemBlockMeta(SESSION_ID, BLOCK_ID, mOpenUfsBlockOptions);
   }
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-  @After
-  public void after() throws Exception {
-    ConfigurationTestUtils.resetConfiguration();
-  }
-
-=======
   private void checkTempBlock(long start, long length) throws Exception {
     Assert.assertNotNull(mAlluxioBlockStore.getTempBlockMeta(SESSION_ID, BLOCK_ID));
     mAlluxioBlockStore.commitBlock(SESSION_ID, BLOCK_ID);
@@ -138,7 +104,6 @@ public final class UnderFileSystemBlockReaderTest {
     Assert.assertTrue(BufferUtils.equalIncreasingByteBuffer((int) start, (int) length, buffer));
   }
 
->>>>>>> origin/enterprise-1.5
   @Test
   public void readFullBlock() throws Exception {
     mReader = UnderFileSystemBlockReader

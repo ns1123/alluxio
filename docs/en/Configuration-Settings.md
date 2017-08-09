@@ -131,69 +131,9 @@ variables, including:
 </tr>
 </table>
 
-<<<<<<< HEAD
 For example, if you would like to setup an Alluxio master at `localhost` that talks to an HDFS
 cluster with a namenode also running at `localhost`, and enable Java remote debugging at port 7001,
 you can do so before starting master process using:
-||||||| merged common ancestors
-For example, if you would like to setup an Alluxio master at `localhost` that talks to an HDFS cluster with a namenode
-also running at `localhost`, and enable Java remote debugging at port 7001, you can do so before starting master process using:
-
-{% include Configuration-Settings/more-conf.md %}
-
-Users can either set these variables through shell or in `conf/alluxio-env.sh`. If this file does not exist yet,
-Alluxio can help you bootstrap the `conf/alluxio-env.sh` file by running
-
-{% include Common-Commands/bootstrapConf.md %}
-
-Alternatively, you can create one from a template we provided in the source code using:
-
-{% include Common-Commands/copy-alluxio-env.md %}
-
-### Property files
-
-> Alluxio site property file `alluxio-site.properties` can overwrite Alluxio configuration regardless the JVM is an Alluxio server process or a job using Alluxio client. For the site property file to be loaded, either the parent directory of this file is a part of the classpath of your target JVM process, or the file is in one of the pre-defined paths.
-
-Using Alluxio supported environment variables has two limitations:
-first it only provides basic Alluxio settings, and second it does not affect non-Alluxio JVMs like Spark or MapReduce.
-To address them, Alluxio uses site property file `alluxio-site.properties` for users to customize all supported configuration settings, regardless of the JVM process.
-On startup, Alluxio runtime checks if the configuration
-property file exists and if so, it uses the content to override the default configuration.
-To be specific, it searches `alluxio-site.properties` in `${HOME}/.alluxio/`, `/etc/alluxio/` (can be customized by changing the default value
-of `alluxio.site.conf.dir`) and the classpath of the relevant Java VM process in order, and skips the remaining paths once
-a file is found.
-
-For example, `${ALLUXIO_HOME}/conf/` is by default on the classpath of Alluxio master, worker and shell JVM processes.
-So you can simply create `${ALLUXIO_HOME}/conf/alluxio-site.properties` by
-=======
-For example, if you would like to setup an Alluxio master at `localhost` that talks to an HDFS cluster with a namenode
-also running at `localhost`, and enable Java remote debugging at port 7001, you can do so before starting master process using:
-
-{% include Configuration-Settings/more-conf.md %}
-
-Users can either set these variables through shell or in `conf/alluxio-env.sh`. If this file does
-not exist yet, you can create one from a template we provided in the source code using:
-
-```bash
-$ cp conf/alluxio-env.sh.template conf/alluxio-env.sh
-```
-
-### Property files
-
-> Alluxio site property file `alluxio-site.properties` can overwrite Alluxio configuration regardless the JVM is an Alluxio server process or a job using Alluxio client. For the site property file to be loaded, either the parent directory of this file is a part of the classpath of your target JVM process, or the file is in one of the pre-defined paths.
-
-Using Alluxio supported environment variables has two limitations:
-first it only provides basic Alluxio settings, and second it does not affect non-Alluxio JVMs like Spark or MapReduce.
-To address them, Alluxio uses site property file `alluxio-site.properties` for users to customize all supported configuration settings, regardless of the JVM process.
-On startup, Alluxio runtime checks if the configuration
-property file exists and if so, it uses the content to override the default configuration.
-To be specific, it searches `alluxio-site.properties` in `${HOME}/.alluxio/`, `/etc/alluxio/` (can be customized by changing the default value
-of `alluxio.site.conf.dir`) and the classpath of the relevant Java VM process in order, and skips the remaining paths once
-a file is found.
-
-For example, `${ALLUXIO_HOME}/conf/` is by default on the classpath of Alluxio master, worker and
-shell JVM processes. So you can simply create `${ALLUXIO_HOME}/conf/alluxio-site.properties` by
->>>>>>> origin/enterprise-1.5
 
 ```bash
 $ export ALLUXIO_MASTER_HOSTNAME="localhost"
@@ -201,23 +141,8 @@ $ export ALLUXIO_UNDERFS_ADDRESS="hdfs://localhost:9000"
 $ export ALLUXIO_MASTER_JAVA_OPTS="$ALLUXIO_JAVA_OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7001"
 ```
 
-<<<<<<< HEAD
 Users can either set these variables through the shell or in `conf/alluxio-env.sh`. If this file
 does not exist yet, you can create one by copying the template:
-||||||| merged common ancestors
-Then customize it to fit your configuration tuning needs to start Alluxio servers or to use Alluxio shell commands:
-
-{% include Common-Commands/copy-alluxio-site-properties.md %}
-
-For applications like Spark or MapReduce to use Alluxio property files, you can append the directory of your site property files to your application classpath.
-For example
-=======
-Then customize it to fit your configuration tuning needs to start Alluxio servers or to use Alluxio
-shell commands.
-
-For applications like Spark or MapReduce to use Alluxio property files, you can append the directory of your site property files to your application classpath.
-For example
->>>>>>> origin/enterprise-1.5
 
 ```bash
 $ cp conf/alluxio-env.sh.template conf/alluxio-env.sh

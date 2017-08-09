@@ -33,7 +33,8 @@ First of all, set `HIVE_AUX_JARS_PATH` either in shell or `conf/hive-env.sh`:
 export HIVE_AUX_JARS_PATH={{site.ALLUXIO_CLIENT_JAR_PATH}}:${HIVE_AUX_JARS_PATH}
 ```
 
-<<<<<<< HEAD
+Alternatively, advanced users can choose to compile this client jar from the source code. Follow the instructs [here](Building-Alluxio-Master-Branch.html#compute-framework-support) and use the generated jar at `{{site.ALLUXIO_CLIENT_JAR_PATH_BUILD}}` for the rest of this guide.
+
 ## Create Hive Tables on Alluxio
 
 There are different ways to integrate Hive with Alluxio, as storage for
@@ -42,13 +43,6 @@ newly created or existing tables. Alluxio can also be used as the default file s
 for Hive. In the following sections, we will describe how to use Hive with Alluxio for these use
 cases. Hive is running on Hadoop MapReduce in this documentation.
 *Tips：All the following Hive CLI examples are also applicable to Hive Beeline. You can try these commands out in Beeline shell.*
-||||||| merged common ancestors
-### Hive cli examples
-=======
-Alternatively, advanced users can choose to compile this client jar from the source code. Follow the instructs [here](Building-Alluxio-Master-Branch.html#compute-framework-support) and use the generated jar at `{{site.ALLUXIO_CLIENT_JAR_PATH_BUILD}}` for the rest of this guide.
-
-### Hive cli examples
->>>>>>> origin/enterprise-1.5
 
 ### Create New Tables from Files in Alluxio
 
