@@ -146,6 +146,13 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
       UfsFileWriteRequest request = context.getRequest();
       Preconditions.checkState(request != null);
       Protocol.CreateUfsFileOptions createUfsFileOptions = request.getCreateUfsFileOptions();
+      // ALLUXIO CS ADD
+      // Before interacting with the UFS manager, make sure the user is set.
+      String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+      if (user != null) {
+        alluxio.security.authentication.AuthenticatedClientUser.set(user);
+      }
+      // ALLUXIO CS END
       UfsInfo ufsInfo = mUfsManager.get(createUfsFileOptions.getMountId());
       UnderFileSystem ufs = ufsInfo.getUfs();
       context.setUnderFileSystem(ufs);
@@ -155,6 +162,11 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
               .setMode(new Mode((short) createUfsFileOptions.getMode()))));
       String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
       String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsString);
+      // ALLUXIO CS ADD
+      if (user != null) {
+        metricName = String.format("BytesWrittenUfs-Ufs:%s-User:%s", ufsString, user);
+      }
+      // ALLUXIO CS END
       Counter counter = MetricsSystem.workerCounter(metricName);
       context.setCounter(counter);
     }

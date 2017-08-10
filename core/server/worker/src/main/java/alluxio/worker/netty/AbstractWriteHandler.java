@@ -133,19 +133,13 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
     }
 
     // Validate the write request.
-<<<<<<< HEAD:core/server/worker/src/main/java/alluxio/worker/netty/DataServerWriteHandler.java
-    try {
-      validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
-    } catch (InvalidArgumentException e) {
-      pushAbortPacket(ctx.channel(), new Error(e, true));
-      return;
-    }
+    validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
     // ALLUXIO CS ADD
 
     // We only check permission for the first packet.
     if (msg.getMessage().asWriteRequest().getOffset() == 0) {
       try {
-        checkAccessMode(ctx, mRequest.mId, writeRequest.getCapability(),
+        checkAccessMode(ctx, mContext.getRequest().getId(), writeRequest.getCapability(),
             alluxio.security.authorization.Mode.Bits.WRITE);
       } catch (alluxio.exception.AccessControlException
           | alluxio.exception.InvalidCapabilityException e) {
@@ -155,16 +149,6 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
       }
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-    try {
-      validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
-    } catch (InvalidArgumentException e) {
-      pushAbortPacket(ctx.channel(), new Error(e, true));
-      return;
-    }
-=======
-    validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
->>>>>>> f2201813a96cd3dd5212e35110f8a280ab6c151d:core/server/worker/src/main/java/alluxio/worker/netty/AbstractWriteHandler.java
 
     try (LockResource lr = new LockResource(mLock)) {
       // If we have seen an error, return early and release the data. This can only

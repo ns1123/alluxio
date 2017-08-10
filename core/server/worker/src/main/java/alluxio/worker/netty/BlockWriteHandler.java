@@ -58,6 +58,17 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
     mWorker = blockWorker;
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
+  }
+
+  // ALLUXIO CS END
   @Override
   protected boolean acceptMessage(Object object) {
     if (!super.acceptMessage(object)) {
@@ -150,6 +161,14 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
         context.setBlockWriter(
             mWorker.getTempBlockWriterRemote(request.getSessionId(), request.getId()));
         context.setCounter(MetricsSystem.workerCounter("BytesWrittenAlluxio"));
+        // ALLUXIO CS REPLACE
+        // context.setCounter(MetricsSystem.workerCounter("BytesWrittenAlluxio"));
+        // ALLUXIO CS WITH
+        String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+        String metricName = user != null ? String.format("BytesWrittenAlluxio-User:%s", user)
+            : "BytesWrittenAlluxio";
+        context.setCounter(MetricsSystem.workerCounter(metricName));
+        // ALLUXIO CS END
       }
       Preconditions.checkState(context.getBlockWriter() != null);
       GatheringByteChannel outputChannel = context.getBlockWriter().getChannel();

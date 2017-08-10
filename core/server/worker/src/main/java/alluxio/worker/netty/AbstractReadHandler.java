@@ -222,23 +222,6 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
       }
     }
   }
-
-  /**
-<<<<<<< HEAD:core/server/worker/src/main/java/alluxio/worker/netty/DataServerReadHandler.java
-   * Resets all the states.
-   */
-  private void reset() {
-    try (LockResource lr = new LockResource(mLock)) {
-      Preconditions.checkState(mPacketReaderActive == false);
-      mPosToQueue = 0;
-      mPosToWrite = 0;
-      mEof = false;
-      mCancel = false;
-      mError = null;
-      mRequest = null;
-      mDone = false;
-    }
-  }
   // ALLUXIO CS ADD
 
   /**
@@ -261,25 +244,6 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
   // ALLUXIO CS END
 
   /**
-||||||| merged common ancestors
-   * Resets all the states.
-   */
-  private void reset() {
-    try (LockResource lr = new LockResource(mLock)) {
-      Preconditions.checkState(mPacketReaderActive == false);
-      mPosToQueue = 0;
-      mPosToWrite = 0;
-      mEof = false;
-      mCancel = false;
-      mError = null;
-      mRequest = null;
-      mDone = false;
-    }
-  }
-
-  /**
-=======
->>>>>>> f2201813a96cd3dd5212e35110f8a280ab6c151d:core/server/worker/src/main/java/alluxio/worker/netty/AbstractReadHandler.java
    * Checks whether this object should be processed by this handler.
    *
    * @param object the object

@@ -60,8 +60,7 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     pipeline.addLast("idleEventHandler", new IdleStateHandler(timeoutMs, 0, 0,
         TimeUnit.MILLISECONDS));
     pipeline.addLast("idleReadHandler", new IdleReadHandler());
-<<<<<<< HEAD
-    pipeline.addLast("heartbeatHandler", new DataServerHeartbeatHandler());
+    pipeline.addLast("heartbeatHandler", new HeartbeatHandler());
     // ALLUXIO CS ADD
 
     if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
@@ -72,11 +71,6 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
       pipeline.addLast(new ConnectionCountHandler(mWorkerProcess.getWorker(BlockWorker.class)));
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-    pipeline.addLast("heartbeatHandler", new DataServerHeartbeatHandler());
-=======
-    pipeline.addLast("heartbeatHandler", new HeartbeatHandler());
->>>>>>> f2201813a96cd3dd5212e35110f8a280ab6c151d
 
     // Block Handlers
     pipeline.addLast("blockReadHandler",
@@ -97,7 +91,7 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     // ALLUXIO CS ADD
 
     // RPC handler.
-    pipeline.addLast("dataServerRPCHandler", new DataServerRPCHandler(NettyExecutors.RPC_EXECUTOR,
+    pipeline.addLast("dataServerRPCHandler", new RPCHandler(NettyExecutors.RPC_EXECUTOR,
         mWorkerProcess.getWorker(BlockWorker.class)));
     // ALLUXIO CS END
 

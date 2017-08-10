@@ -156,7 +156,19 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
             BlockReader reader =
                 mWorker.readBlockRemote(request.getSessionId(), request.getId(), lockId);
             context.setBlockReader(reader);
-            context.setCounter(MetricsSystem.workerCounter("BytesReadAlluxio"));
+            // ALLUXIO CS REPLACE
+            // context.setCounter(MetricsSystem.workerCounter("BytesReadAlluxio"));
+            // ALLUXIO CS WITH
+            String user =
+                channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+            String metricName;
+            if (user != null) {
+              metricName = String.format("BytesReadAlluxio-User:%s", user);
+            } else {
+              metricName = "BytesReadAlluxio";
+            }
+            context.setCounter(MetricsSystem.workerCounter(metricName));
+            // ALLUXIO CS END
             mWorker.accessBlock(request.getSessionId(), request.getId());
             ((FileChannel) reader.getChannel()).position(request.getStart());
             return;
@@ -168,6 +180,12 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
 
         // When the block does not exist in Alluxio but exists in UFS, try to open the UFS block.
         Protocol.OpenUfsBlockOptions openUfsBlockOptions = request.getOpenUfsBlockOptions();
+        // ALLUXIO CS ADD
+        String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+        if (user != null) {
+          openUfsBlockOptions = openUfsBlockOptions.toBuilder().setUser(user).build();
+        }
+        // ALLUXIO CS END
         if (mWorker.openUfsBlock(request.getSessionId(), request.getId(), openUfsBlockOptions)) {
           try {
             BlockReader reader =
@@ -176,6 +194,11 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
                 ((UnderFileSystemBlockReader) reader).getUfsMountPointUri();
             String ufsString = MetricsSystem.escape(ufsMountPointUri);
             String metricName = String.format("BytesReadUfs-Ufs:%s", ufsString);
+            // ALLUXIO CS ADD
+            if (user != null) {
+              metricName = String.format("BytesReadUfs-Ufs:%s-User:%s", ufsString, user);
+            }
+            // ALLUXIO CS END
             context.setBlockReader(reader);
             context.setCounter(MetricsSystem.workerCounter(metricName));
             return;
@@ -210,6 +233,17 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
     mTransferType = fileTransferType;
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
+  }
+
+  // ALLUXIO CS END
   @Override
   protected BlockReadRequestContext createRequestContext(Protocol.ReadRequest request) {
     return new BlockReadRequestContext(request);
