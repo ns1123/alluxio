@@ -444,7 +444,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                      mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
               uri = inodePath.getUri();
             }
-          } catch(Exception e) {
+          } catch (Exception e) {
             throw new IOException(e);
           }
           addPersistJobs(fileId, inodeFileEntry.getPersistJobId(), uri,
