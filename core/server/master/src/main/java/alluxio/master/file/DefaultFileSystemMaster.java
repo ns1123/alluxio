@@ -429,6 +429,30 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       if (inodeFileEntry.hasTtl()) {
         mTtlBuckets.insert(InodeFile.fromJournalEntry(inodeFileEntry));
       }
+      // ALLUXIO CS ADD
+      if (PersistenceState.valueOf(inodeFileEntry.getPersistenceState())
+          == PersistenceState.TO_BE_PERSISTED) {
+        // This file should be persisted. A snapshot of the filesystem state is created (now
+        // replaying) before the file is persisted.
+        long fileId = inodeFileEntry.getId();
+        if (inodeFileEntry.getPersistJobId() != Constants.PERSISTENCE_INVALID_JOB_ID
+            && !Constants.PERSISTENCE_INVALID_UFS_PATH.equals(inodeFileEntry.getTempUfsPath())) {
+          // A persist job of this file is scheduled
+          AlluxioURI uri;
+          try (LockedInodePath inodePath = mInodeTree
+              .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+            uri = inodePath.getUri();
+          } catch (Exception e) {
+            throw new IOException(e);
+          }
+          addPersistJob(fileId, inodeFileEntry.getPersistJobId(), uri,
+              inodeFileEntry.getTempUfsPath());
+        } else {
+          // No persist job scheduled yet.
+          addFileIdToPersistRequests(fileId);
+        }
+      }
+      // ALLUXIO CS END
     } else if (entry.hasInodeDirectory()) {
       try {
         // Add the directory to TTL buckets, the insert automatically rejects directory
@@ -2848,14 +2872,40 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   private void scheduleAsyncPersistenceInternal(LockedInodePath inodePath) throws AlluxioException {
     inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
     // ALLUXIO CS ADD
-    long fileId = inodePath.getInode().getId();
+    addFileIdToPersistRequests(inodePath.getInode().getId());
+    // ALLUXIO CS END
+  }
+  // ALLUXIO CS ADD
+
+  /**
+   * @param fileId file ID to be persisted
+   */
+  private void addFileIdToPersistRequests(long fileId) {
     mPersistRequests.put(fileId, new alluxio.time.ExponentialTimer(
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
-    // ALLUXIO CS END
   }
+
+  /**
+   * @param fileId file ID
+   * @param jobId persist job ID
+   * @param uri Alluxio Uri of the file
+   * @param tempUfsPath temp UFS path
+   */
+  private void addPersistJob(long fileId, long jobId, AlluxioURI uri, String tempUfsPath) {
+    alluxio.time.ExponentialTimer timer = mPersistRequests.remove(fileId);
+    if (timer == null) {
+      timer = new alluxio.time.ExponentialTimer(
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS));
+    }
+    mPersistJobs.put(fileId, new PersistJob(jobId, fileId, uri, tempUfsPath, timer));
+  }
+  // ALLUXIO CS END
 
   @Override
   public FileSystemCommand workerHeartbeat(long workerId, List<Long> persistedFiles)
@@ -2915,18 +2965,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       file.setPersistJobId(options.getPersistJobId());
       file.setTempUfsPath(options.getTempUfsPath());
       if (replayed && options.getPersistJobId() != -1 && !options.getTempUfsPath().isEmpty()) {
-        long fileId = file.getId();
-        alluxio.time.ExponentialTimer timer = mPersistRequests.remove(fileId);
-        if (timer == null) {
-          timer = new alluxio.time.ExponentialTimer(
-              Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
-              Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
-              Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
-              Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS));
-        }
-        mPersistJobs.put(fileId,
-            new PersistJob(options.getPersistJobId(), fileId, inodePath.getUri(),
-                options.getTempUfsPath(), timer));
+        addPersistJob(file.getId(), options.getPersistJobId(), inodePath.getUri(),
+            options.getTempUfsPath());
       }
       inode.setLastModificationTimeMs(opTimeMs);
     }
