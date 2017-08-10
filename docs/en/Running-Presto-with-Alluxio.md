@@ -22,7 +22,7 @@ from the top level `alluxio` directory with the following command:
 mvn clean package -Ppresto -DskipTests
 ```
 
-Please [Download Presto](https://repo1.maven.org/maven2/com/facebook/presto/presto-server/)(this doc uses presto-0.170). Also, please complete Hive setup using 
+Please [Download Presto](https://repo1.maven.org/maven2/com/facebook/presto/presto-server/)(This doc uses presto-0.170). Also, please complete Hive setup using
 [Hive On Alluxio](http://www.alluxio.org/docs/master/en/Running-Hive-with-Alluxio.html)
 
 # Configuration

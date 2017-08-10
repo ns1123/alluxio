@@ -32,9 +32,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  * Netty handler that handles any stateless data server RPCs.
  */
 @NotThreadSafe
-class DataServerRPCHandler extends ChannelInboundHandlerAdapter {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(DataServerShortCircuitReadHandler.class);
+class RPCHandler extends ChannelInboundHandlerAdapter {
+  private static final Logger LOG = LoggerFactory.getLogger(RPCHandler.class);
 
   /** Executor service for stateless RPCs. */
   private final ExecutorService mRPCExecutor;
@@ -42,11 +41,11 @@ class DataServerRPCHandler extends ChannelInboundHandlerAdapter {
   private final BlockWorker mWorker;
 
   /**
-   * Creates an instance of {@link DataServerRPCHandler}.
+   * Creates an instance of {@link RPCHandler}.
    *
    * @param blockWorker the block worker
    */
-  DataServerRPCHandler(ExecutorService service, BlockWorker blockWorker) {
+  RPCHandler(ExecutorService service, BlockWorker blockWorker) {
     mRPCExecutor = service;
     mWorker = blockWorker;
   }
