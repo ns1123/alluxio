@@ -22,7 +22,14 @@ from the top level `alluxio` directory with the following command:
 mvn clean package -Ppresto -DskipTests
 ```
 
+<<<<<<< HEAD
 Please [Download Presto](https://repo1.maven.org/maven2/com/facebook/presto/presto-server/)(this doc uses presto-0.170). Also, please complete Hive setup using 
+||||||| merged common ancestors
+Please [Download Presto](https://repo1.maven.org/maven2/com/facebook/presto/presto-server/)(This doc uses presto-0.170). And have finished
+>>>>>>> Temporary merge branch 2
+=======
+Please [Download Presto](https://repo1.maven.org/maven2/com/facebook/presto/presto-server/)(This doc uses presto-0.170). Also, please complete Hive setup using
+>>>>>>> f2201813a96cd3dd5212e35110f8a280ab6c151d
 [Hive On Alluxio](http://www.alluxio.org/docs/master/en/Running-Hive-with-Alluxio.html)
 
 # Configuration

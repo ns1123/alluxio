@@ -60,6 +60,7 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     pipeline.addLast("idleEventHandler", new IdleStateHandler(timeoutMs, 0, 0,
         TimeUnit.MILLISECONDS));
     pipeline.addLast("idleReadHandler", new IdleReadHandler());
+<<<<<<< HEAD
     pipeline.addLast("heartbeatHandler", new DataServerHeartbeatHandler());
     // ALLUXIO CS ADD
 
@@ -71,22 +72,27 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
       pipeline.addLast(new ConnectionCountHandler(mWorkerProcess.getWorker(BlockWorker.class)));
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+    pipeline.addLast("heartbeatHandler", new DataServerHeartbeatHandler());
+=======
+    pipeline.addLast("heartbeatHandler", new HeartbeatHandler());
+>>>>>>> f2201813a96cd3dd5212e35110f8a280ab6c151d
 
     // Block Handlers
-    pipeline.addLast("dataServerBlockReadHandler",
-        new DataServerBlockReadHandler(NettyExecutors.BLOCK_READER_EXECUTOR,
+    pipeline.addLast("blockReadHandler",
+        new BlockReadHandler(NettyExecutors.BLOCK_READER_EXECUTOR,
             mWorkerProcess.getWorker(BlockWorker.class), mFileTransferType));
-    pipeline.addLast("dataServerBlockWriteHandler", new DataServerBlockWriteHandler(
+    pipeline.addLast("blockWriteHandler", new BlockWriteHandler(
         NettyExecutors.BLOCK_WRITER_EXECUTOR, mWorkerProcess.getWorker(BlockWorker.class)));
-    pipeline.addLast("dataServerShortCircuitReadHandler",
-        new DataServerShortCircuitReadHandler(NettyExecutors.RPC_EXECUTOR,
+    pipeline.addLast("shortCircuitBlockReadHandler",
+        new ShortCircuitBlockReadHandler(NettyExecutors.RPC_EXECUTOR,
             mWorkerProcess.getWorker(BlockWorker.class)));
-    pipeline.addLast("dataServerShortCircuitWriteHandler",
-        new DataServerShortCircuitWriteHandler(NettyExecutors.RPC_EXECUTOR,
+    pipeline.addLast("shortCircuitBlockWriteHandler",
+        new ShortCircuitBlockWriteHandler(NettyExecutors.RPC_EXECUTOR,
             mWorkerProcess.getWorker(BlockWorker.class)));
 
     // UFS Handlers
-    pipeline.addLast("dataServerUfsFileWriteHandler", new DataServerUfsFileWriteHandler(
+    pipeline.addLast("ufsFileWriteHandler", new UfsFileWriteHandler(
         NettyExecutors.FILE_WRITER_EXECUTOR, mWorkerProcess.getUfsManager()));
     // ALLUXIO CS ADD
 
@@ -96,7 +102,6 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     // ALLUXIO CS END
 
     // Unsupported Message Handler
-    pipeline.addLast("dataServerUnsupportedMessageHandler", new
-        DataServerUnsupportedMessageHandler());
+    pipeline.addLast("unsupportedMessageHandler", new UnsupportedMessageHandler());
   }
 }
