@@ -430,15 +430,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         mTtlBuckets.insert(InodeFile.fromJournalEntry(inodeFileEntry));
       }
       // ALLUXIO CS ADD
-      if (PersistenceState.valueOf(inodeFileEntry.getPersistenceState()) ==
-          PersistenceState.TO_BE_PERSISTED) {
+      if (PersistenceState.valueOf(inodeFileEntry.getPersistenceState())
+          == PersistenceState.TO_BE_PERSISTED) {
         // The inode is not persisted yet. This state is snapshot.
-        long fileId = inodeFileEntry.getId();
-        mPersistRequests.put(fileId, new alluxio.time.ExponentialTimer(
-            Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
-            Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
-            Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
-            Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
+        addFileIdToPersistRequests(inodeFileEntry.getId());
       }
       // ALLUXIO CS END
     } else if (entry.hasInodeDirectory()) {
@@ -2861,13 +2856,22 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
     // ALLUXIO CS ADD
     long fileId = inodePath.getInode().getId();
+    addFileIdToPersistRequests(fileId);
+    // ALLUXIO CS END
+  }
+  // ALLUXIO CS ADD
+
+  /**
+   * @param fileId file ID to be persisted
+   */
+  private void addFileIdToPersistRequests(long fileId) {
     mPersistRequests.put(fileId, new alluxio.time.ExponentialTimer(
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
-    // ALLUXIO CS END
   }
+  // ALLUXIO CS END
 
   @Override
   public FileSystemCommand workerHeartbeat(long workerId, List<Long> persistedFiles)
