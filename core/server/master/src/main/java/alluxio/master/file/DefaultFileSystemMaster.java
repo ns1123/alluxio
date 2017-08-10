@@ -440,14 +440,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           // A persist job of this file is scheduled
           AlluxioURI uri;
           try {
-            try (LockedInodePath inodePath =
-                     mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+            try (LockedInodePath inodePath = mInodeTree
+                .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
               uri = inodePath.getUri();
             }
           } catch (Exception e) {
             throw new IOException(e);
           }
-          addPersistJobs(fileId, inodeFileEntry.getPersistJobId(), uri,
+          addPersistJob(fileId, inodeFileEntry.getPersistJobId(), uri,
               inodeFileEntry.getTempUfsPath());
         } else {
           // No persist job scheduled yet.
@@ -2896,7 +2896,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    * @param uri Alluxio Uri of the file
    * @param tempUfsPath temp UFS path
    */
-  private void addPersistJobs(long fileId, long jobId, AlluxioURI uri, String tempUfsPath) {
+  private void addPersistJob(long fileId, long jobId, AlluxioURI uri, String tempUfsPath) {
     alluxio.time.ExponentialTimer timer = mPersistRequests.remove(fileId);
     if (timer == null) {
       timer = new alluxio.time.ExponentialTimer(
@@ -2967,7 +2967,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       file.setPersistJobId(options.getPersistJobId());
       file.setTempUfsPath(options.getTempUfsPath());
       if (replayed && options.getPersistJobId() != -1 && !options.getTempUfsPath().isEmpty()) {
-        addPersistJobs(file.getId(), options.getPersistJobId(), inodePath.getUri(),
+        addPersistJob(file.getId(), options.getPersistJobId(), inodePath.getUri(),
             options.getTempUfsPath());
       }
       inode.setLastModificationTimeMs(opTimeMs);
