@@ -439,11 +439,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             && !Constants.PERSISTENCE_INVALID_UFS_PATH.equals(inodeFileEntry.getTempUfsPath())) {
           // A persist job of this file is scheduled
           AlluxioURI uri;
-          try {
-            try (LockedInodePath inodePath = mInodeTree
-                .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
-              uri = inodePath.getUri();
-            }
+          try (LockedInodePath inodePath = mInodeTree
+              .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+            uri = inodePath.getUri();
           } catch (Exception e) {
             throw new IOException(e);
           }
