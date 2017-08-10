@@ -160,7 +160,6 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
       if (context.getBlockWriter() == null) {
         context.setBlockWriter(
             mWorker.getTempBlockWriterRemote(request.getSessionId(), request.getId()));
-        context.setCounter(MetricsSystem.workerCounter("BytesWrittenAlluxio"));
         // ALLUXIO CS REPLACE
         // context.setCounter(MetricsSystem.workerCounter("BytesWrittenAlluxio"));
         // ALLUXIO CS WITH
