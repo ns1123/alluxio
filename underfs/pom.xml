@@ -36,6 +36,7 @@
     <module>local</module>
     <!-- ALLUXIO CS ADD -->
     <module>maprfs</module>
+    <module>wasb</module>
     <!-- ALLUXIO CS END -->
     <module>oss</module>
     <module>s3</module>
