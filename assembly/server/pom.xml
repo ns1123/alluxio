@@ -71,11 +71,6 @@
       <artifactId>alluxio-underfs-fork</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-wasb</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
