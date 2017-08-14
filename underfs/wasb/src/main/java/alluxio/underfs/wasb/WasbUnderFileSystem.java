@@ -36,7 +36,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.security.SecurityUtil;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +62,7 @@ public final class WasbUnderFileSystem extends BaseUnderFileSystem
 
   private FileSystem mFileSystem;
   private UnderFileSystemConfiguration mUfsConf;
+  private final boolean mIsHdfsKerberized;
 
   /**
    * Constant for the wasb URI scheme.
@@ -101,10 +102,87 @@ public final class WasbUnderFileSystem extends BaseUnderFileSystem
    * @param wasbConf the configuration for this Wasb UFS
    */
   private WasbUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
-      Configuration wasbConf) {
+      final Configuration wasbConf) {
     super(ufsUri, conf);
     mUfsConf = conf;
-    Path path = new Path(ufsUri.toString());
+    final Path path = new Path(ufsUri.toString());
+
+    // Set Hadoop UGI configuration will initialize UGI which triggers service loading
+    // Stash the classloader for service loading
+    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      Thread.currentThread().setContextClassLoader(wasbConf.getClassLoader());
+      UserGroupInformation.setConfiguration(wasbConf);
+    } finally {
+      Thread.currentThread().setContextClassLoader(previousClassLoader);
+    }
+
+    mIsHdfsKerberized = "KERBEROS".equalsIgnoreCase(wasbConf.get("hadoop.security.authentication"));
+    if (mIsHdfsKerberized) {
+      try {
+        switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
+          // Master and Worker are handled the same.
+          case MASTER: // intended to fall through
+          case WORKER: // intended to fall through
+          case JOB_MASTER: // intended to fall through
+          case JOB_WORKER:
+            loginAsAlluxioServer();
+            break;
+          // Client and Proxy are handled the same.
+          case CLIENT: // intended to fall through
+          case PROXY:
+            loginAsAlluxioClient();
+            break;
+          default:
+            throw new IllegalStateException(
+                "Unknown process type: " + alluxio.util.CommonUtils.PROCESS_TYPE.get());
+        }
+      } catch (IOException e) {
+        LOG.error("Failed to Login", e);
+      }
+      // Stash the classloader for service loading
+      previousClassLoader = Thread.currentThread().getContextClassLoader();
+      try {
+        Thread.currentThread().setContextClassLoader(wasbConf.getClassLoader());
+        if (alluxio.util.CommonUtils.isAlluxioServer() && !mUser.isEmpty()
+            && !UserGroupInformation.getLoginUser().getShortUserName()
+            .equals(mUser)) {
+          // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
+          // The Alluxio server user must be configured as a superuser proxy in HDFS configuration.
+          UserGroupInformation proxyUgi =
+              UserGroupInformation.createProxyUser(mUser, UserGroupInformation.getLoginUser());
+          LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
+          WasbSecurityUtils.runAs(proxyUgi, new WasbSecurityUtils.SecuredRunner<Void>() {
+            @Override
+            public Void run() throws IOException {
+              mFileSystem = path.getFileSystem(wasbConf);
+              return null;
+            }
+          });
+        } else {
+          // Alluxio client runs HDFS operations as the current user.
+          WasbSecurityUtils.runAsCurrentUser(new WasbSecurityUtils.SecuredRunner<Void>() {
+            @Override
+            public Void run() throws IOException {
+              mFileSystem = path.getFileSystem(wasbConf);
+              return null;
+            }
+          });
+        }
+      } catch (IOException e) {
+        throw new RuntimeException(String.format(
+            "Failed to get Hadoop FileSystem client with Kerberos for %s", path), e);
+      } finally {
+        Thread.currentThread().setContextClassLoader(previousClassLoader);
+      }
+      return;
+    }
+
+
+
+
+
+
     try {
       mFileSystem = path.getFileSystem(wasbConf);
     } catch (IOException e) {
@@ -135,9 +213,8 @@ public final class WasbUnderFileSystem extends BaseUnderFileSystem
     RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
     while (retryPolicy.attemptRetry()) {
       try {
-        // TODO(chaomin): support creating HDFS files with specified block size and replication.
-        return FileSystem.create(mFileSystem, new Path(path),
-            new FsPermission(options.getMode().toShort()));
+        return FileSystem
+            .create(mFileSystem, new Path(path), new FsPermission(options.getMode().toShort()));
       } catch (IOException e) {
         LOG.warn("Retry count {} : {} ", retryPolicy.getRetryCount(), e.getMessage());
         te = e;
@@ -269,36 +346,40 @@ public final class WasbUnderFileSystem extends BaseUnderFileSystem
 
   @Override
   public void connectFromMaster(String host) throws IOException {
-    if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
-        || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
-      return;
-    }
-    String masterKeytab = mUfsConf.getValue(PropertyKey.MASTER_KEYTAB_KEY_FILE);
-    String masterPrincipal = mUfsConf.getValue(PropertyKey.MASTER_PRINCIPAL);
-
-    login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
-        masterPrincipal, host);
+    loginAsAlluxioServer();
   }
 
   @Override
   public void connectFromWorker(String host) throws IOException {
-    if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
-        || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
-      return;
-    }
-    String workerKeytab = mUfsConf.getValue(PropertyKey.WORKER_KEYTAB_FILE);
-    String workerPrincipal = mUfsConf.getValue(PropertyKey.WORKER_PRINCIPAL);
-
-    login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
-        workerPrincipal, host);
+    loginAsAlluxioServer();
   }
 
-  private void login(PropertyKey keytabFileKey, String keytabFile, PropertyKey principalKey,
-      String principal, String hostname) throws IOException {
-    org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-    conf.set(keytabFileKey.toString(), keytabFile);
-    conf.set(principalKey.toString(), principal);
-    SecurityUtil.login(conf, keytabFileKey.toString(), principalKey.toString(), hostname);
+  private void loginAsAlluxioServer() throws IOException {
+    if (!mIsHdfsKerberized) {
+      return;
+    }
+    String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+    if (principal.isEmpty() || keytab.isEmpty()) {
+      return;
+    }
+    login(principal, keytab);
+  }
+
+  private void loginAsAlluxioClient() throws IOException {
+    if (!mIsHdfsKerberized) {
+      return;
+    }
+    String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+    if (principal.isEmpty() || keytab.isEmpty()) {
+      return;
+    }
+    login(principal, keytab);
+  }
+
+  private void login(String principal, String keytabFile) throws IOException {
+    UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
   }
 
   @Override
