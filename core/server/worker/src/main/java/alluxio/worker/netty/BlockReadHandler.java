@@ -156,19 +156,15 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
             BlockReader reader =
                 mWorker.readBlockRemote(request.getSessionId(), request.getId(), lockId);
             context.setBlockReader(reader);
-            // ALLUXIO CS REPLACE
-            // context.setCounter(MetricsSystem.workerCounter("BytesReadAlluxio"));
-            // ALLUXIO CS WITH
+            String metricName = "BytesReadAlluxio";
+            // ALLUXIO CS ADD
             String user =
                 channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
-            String metricName;
             if (user != null) {
               metricName = String.format("BytesReadAlluxio-User:%s", user);
-            } else {
-              metricName = "BytesReadAlluxio";
             }
-            context.setCounter(MetricsSystem.workerCounter(metricName));
             // ALLUXIO CS END
+            context.setCounter(MetricsSystem.workerCounter(metricName));
             mWorker.accessBlock(request.getSessionId(), request.getId());
             ((FileChannel) reader.getChannel()).position(request.getStart());
             return;
