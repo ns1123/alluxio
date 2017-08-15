@@ -41,6 +41,9 @@
     <module>s3</module>
     <module>s3a</module>
     <module>swift</module>
+    <!-- ALLUXIO CS ADD -->
+    <module>wasb</module>
+    <!-- ALLUXIO CS END -->
   </modules>
 
   <properties>
