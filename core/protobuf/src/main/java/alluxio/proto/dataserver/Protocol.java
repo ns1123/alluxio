@@ -26,6 +26,14 @@ public final class Protocol {
      * <code>UFS_FILE = 1;</code>
      */
     UFS_FILE(1, 1),
+    /**
+     * <code>UFS_BLOCK = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    UFS_BLOCK(2, 1000),
     ;
 
     /**
@@ -36,6 +44,14 @@ public final class Protocol {
      * <code>UFS_FILE = 1;</code>
      */
     public static final int UFS_FILE_VALUE = 1;
+    /**
+     * <code>UFS_BLOCK = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public static final int UFS_BLOCK_VALUE = 1000;
 
 
     public final int getNumber() { return value; }
@@ -44,6 +60,7 @@ public final class Protocol {
       switch (value) {
         case 0: return ALLUXIO_BLOCK;
         case 1: return UFS_FILE;
+        case 1000: return UFS_BLOCK;
         default: return null;
       }
     }
@@ -11565,8 +11582,8 @@ public final class Protocol {
       "st\022\020\n\010block_id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\n" +
       "capability\030\351\007 \001(\0132\".alluxio.proto.securi" +
       "ty.Capability\"\'\n\022RemoveBlockRequest\022\021\n\010b" +
-      "lock_id\030\351\007 \001(\003*.\n\013RequestType\022\021\n\rALLUXIO" +
-      "_BLOCK\020\000\022\014\n\010UFS_FILE\020\001"
+      "lock_id\030\351\007 \001(\003*>\n\013RequestType\022\021\n\rALLUXIO" +
+      "_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\016\n\tUFS_BLOCK\020\350\007"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
