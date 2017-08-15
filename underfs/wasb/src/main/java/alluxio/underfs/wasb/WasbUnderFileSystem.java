@@ -178,11 +178,6 @@ public final class WasbUnderFileSystem extends BaseUnderFileSystem
       return;
     }
 
-
-
-
-
-
     try {
       mFileSystem = path.getFileSystem(wasbConf);
     } catch (IOException e) {
