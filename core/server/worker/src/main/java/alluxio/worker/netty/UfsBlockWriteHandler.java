@@ -18,6 +18,7 @@ import alluxio.WorkerStorageTierAssoc;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.InternalException;
 import alluxio.exception.status.InvalidArgumentException;
+import alluxio.exception.status.NotFoundException;
 import alluxio.metrics.MetricsSystem;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
@@ -30,6 +31,9 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.util.network.NettyUtils;
 import alluxio.worker.block.BlockWorker;
+import alluxio.worker.block.io.BlockReader;
+import alluxio.worker.block.io.LocalFileBlockReader;
+import alluxio.worker.block.meta.TempBlockMeta;
 
 import com.codahale.metrics.Counter;
 import com.google.common.base.Preconditions;
@@ -44,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -69,10 +74,12 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
    * EOF: the end of file.
    * CANCEL: the write request is cancelled by the client.
    * ABORT: a non-recoverable error is detected, abort this channel.
+   * LOCAL: the payload is already written previously to Alluxio tiered storage on this worker.
    */
   private static final ByteBuf EOF = Unpooled.buffer(0);
   private static final ByteBuf CANCEL = Unpooled.buffer(0);
   private static final ByteBuf ABORT = Unpooled.buffer(0);
+  private static final ByteBuf LOCAL = Unpooled.buffer(0);
 
   private ReentrantLock mLock = new ReentrantLock();
 
@@ -167,9 +174,12 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
         buf = EOF;
       } else if (writeRequest.getCancel()) {
         buf = CANCEL;
+      } else if (writeRequest.getOffset() == 0) {
+        // FDW fallback specific ADD
+        buf = LOCAL;
+        // FDW fallback specific END
       } else {
         DataBuffer dataBuffer = msg.getPayloadDataBuffer();
-        // FIXME!
         Preconditions.checkState(dataBuffer != null && dataBuffer.getLength() > 0);
         Preconditions.checkState(dataBuffer.getNettyOutput() instanceof ByteBuf);
         buf = (ByteBuf) dataBuffer.getNettyOutput();
@@ -215,11 +225,13 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
   @GuardedBy("mLock")
   private void validateWriteRequest(Protocol.WriteRequest request, DataBuffer payload)
       throws InvalidArgumentException {
+    // writes must be sequential
     if (request.getOffset() != mContext.getPosToQueue()) {
       throw new InvalidArgumentException(String.format(
           "Offsets do not match [received: %d, expected: %d].",
           request.getOffset(), mContext.getPosToQueue()));
     }
+    // cancel / eof message shouldn't have payload
     if (payload != null && payload.getLength() > 0 && (request.getCancel() || request.getEof())) {
       throw new InvalidArgumentException("Found data in a cancel/eof message.");
     }
@@ -289,6 +301,38 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
             NettyUtils.enableAutoRead(mChannel);
           }
         }
+
+        // FDW fallback specific ADD
+        // First part of the block is read from the local block store.
+        if (buf == LOCAL) {
+          long sessionId = mContext.getRequest().getSessionId();
+          long blockId = mContext.getRequest().getId();
+          TempBlockMeta block = mWorker.getBlockStore().getTempBlockMeta(sessionId, blockId);
+          if (block == null) {
+            pushAbortPacket(mChannel,
+                new Error(new NotFoundException("block " + blockId + "not found"), true));
+            continue;
+          }
+          try (BlockReader reader = new LocalFileBlockReader(block.getPath())) {
+            ByteBuffer fileBuffer = reader.read(0, reader.getLength());
+            buf = Unpooled.wrappedBuffer(fileBuffer);
+            int readableBytes = buf.readableBytes();
+            writeBuf(mChannel, buf, mContext.getPosToWrite());
+            incrementMetrics(readableBytes);
+          } catch (IOException e) {
+            pushAbortPacket(mChannel,
+                new Error(AlluxioStatusException.fromIOException(e), true));
+          } catch (Exception e) {
+            LOG.warn("Failed to write packet {}", e.getMessage());
+            Throwables.propagateIfPossible(e);
+            pushAbortPacket(mChannel,
+                new Error(AlluxioStatusException.fromCheckedException(e), true));
+          } finally {
+            release(buf);
+          }
+          continue;
+        }
+        // FDW fallback specific END
 
         try {
           int readableBytes = buf.readableBytes();
@@ -376,7 +420,6 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
      * @param pos the pos
      */
     private void writeBuf(Channel channel, ByteBuf buf, long pos) throws Exception {
-      Preconditions.checkState(mContext != null);
       if (mContext.getOutputStream() == null) {
         createUfsFile(mContext, channel);
       }
@@ -387,7 +430,6 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
     private void createUfsFile(UfsBlockWriteRequestContext context, Channel channel)
         throws IOException {
       UfsBlockWriteRequest request = context.getRequest();
-      Preconditions.checkState(request != null);
       Protocol.CreateUfsFileOptions createUfsFileOptions = request.getCreateUfsFileOptions();
       // Before interacting with the UFS manager, make sure the user is set.
       String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
@@ -483,7 +525,7 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
    * @param buf the netty byte buffer
    */
   private static void release(ByteBuf buf) {
-    if (buf != null && buf != EOF && buf != CANCEL && buf != ABORT) {
+    if (buf != null && buf != EOF && buf != CANCEL && buf != ABORT && buf != LOCAL) {
       buf.release();
     }
   }
