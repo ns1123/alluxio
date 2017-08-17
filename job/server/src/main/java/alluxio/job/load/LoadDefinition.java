@@ -102,8 +102,9 @@ public final class LoadDefinition
           getBlockWorkersWithoutBlock(availableBlockWorkers, blockInfo);
       int neededReplicas = config.getReplication() - blockInfo.getBlockInfo().getLocations().size();
       if (blockWorkersWithoutBlock.size() < neededReplicas) {
-        throw new FailedPreconditionException("Failed to find enough block workers to replicate " +
-        "to. Needed " + neededReplicas + " but only found " + blockWorkersWithoutBlock.size());
+        throw new FailedPreconditionException(String.format(
+            "Failed to find enough block workers to replicate to. Needed %s but only found %s",
+            neededReplicas, blockWorkersWithoutBlock.size()));
       }
       Collections.shuffle(blockWorkersWithoutBlock);
       for (int i = 0; i < neededReplicas; i++) {
