@@ -13,8 +13,6 @@ package alluxio.worker.netty;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
-import alluxio.StorageTierAssoc;
-import alluxio.WorkerStorageTierAssoc;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.InternalException;
 import alluxio.exception.status.InvalidArgumentException;
@@ -29,6 +27,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
+import alluxio.util.io.PathUtils;
 import alluxio.util.network.NettyUtils;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.io.BlockReader;
@@ -99,8 +98,20 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
   /** The Block Worker which handles blocks stored in the Alluxio storage of the worker. */
   private final BlockWorker mWorker;
   private final UfsManager mUfsManager;
-  /** An object storing the mapping of tier aliases to ordinals. */
-  private final StorageTierAssoc mStorageTierAssoc = new WorkerStorageTierAssoc();
+
+  // FDW fallback specific ADD
+  private static final String MAGIC_NUMBER = "1D91AC0E";
+
+  /**
+   * @param workerId worker ID
+   * @param blockId block ID
+   * @return the UFS path of a block
+   */
+  public static String getUfsPath(long workerId, long blockId) {
+    return String.format(".alluxio_blocks_%s/%s/%s", MAGIC_NUMBER, workerId, blockId);
+  }
+  // FDW fallback specific END
+
 
   /**
    * Creates an instance of {@link UfsBlockWriteHandler}.
@@ -384,7 +395,7 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
      */
     private void completeRequest(Channel channel) throws Exception {
       if (mContext.getOutputStream() == null) {
-        createUfsFile(mContext, channel);
+        createUfsFile(channel);
       }
       Preconditions.checkState(mContext.getOutputStream() != null);
       mContext.getOutputStream().close();
@@ -395,11 +406,10 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
      * Cancels this write. This is called when the client issues a cancel request.
      */
     private void cancelRequest() throws Exception {
-      UfsBlockWriteRequest request = mContext.getRequest();
       // TODO(calvin): Consider adding cancel to the ufs stream api.
       if (mContext.getOutputStream() != null && mContext.getUnderFileSystem() != null) {
         mContext.getOutputStream().close();
-        mContext.getUnderFileSystem().deleteFile(request.getUfsPath());
+        mContext.getUnderFileSystem().deleteFile(mContext.getUfsPath());
         mContext.setOutputStream(null);
       }
     }
@@ -421,15 +431,14 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
      */
     private void writeBuf(Channel channel, ByteBuf buf, long pos) throws Exception {
       if (mContext.getOutputStream() == null) {
-        createUfsFile(mContext, channel);
+        createUfsFile(channel);
       }
 
       buf.readBytes(mContext.getOutputStream(), buf.readableBytes());
     }
 
-    private void createUfsFile(UfsBlockWriteRequestContext context, Channel channel)
-        throws IOException {
-      UfsBlockWriteRequest request = context.getRequest();
+    private void createUfsFile(Channel channel) throws IOException {
+      UfsBlockWriteRequest request = mContext.getRequest();
       Protocol.CreateUfsFileOptions createUfsFileOptions = request.getCreateUfsFileOptions();
       // Before interacting with the UFS manager, make sure the user is set.
       String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
@@ -438,12 +447,15 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
       }
       UfsManager.UfsInfo ufsInfo = mUfsManager.get(createUfsFileOptions.getMountId());
       UnderFileSystem ufs = ufsInfo.getUfs();
-      context.setUnderFileSystem(ufs);
-      context.setOutputStream(ufs.create(request.getUfsPath(),
+      mContext.setUnderFileSystem(ufs);
+      String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
+      String ufsPath = PathUtils.concatPath(
+          ufsString, getUfsPath(mWorker.getWorkerId().get(), request.getId()));
+      mContext.setOutputStream(ufs.create(ufsPath,
           CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
               .setGroup(createUfsFileOptions.getGroup())
               .setMode(new Mode((short) createUfsFileOptions.getMode()))));
-      String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
+      mContext.setUfsPath(ufsPath);
       String metricName;
       if (user == null) {
         metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsString);
@@ -451,7 +463,7 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
         metricName = String.format("BytesWrittenUfs-Ufs:%s-User:%s", ufsString, user);
       }
       Counter counter = MetricsSystem.workerCounter(metricName);
-      context.setCounter(counter);
+      mContext.setCounter(counter);
     }
 
     /**

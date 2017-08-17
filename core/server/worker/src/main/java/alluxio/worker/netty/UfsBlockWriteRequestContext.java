@@ -28,6 +28,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class UfsBlockWriteRequestContext extends WriteRequestContext<UfsBlockWriteRequest> {
   private UnderFileSystem mUnderFileSystem;
   private OutputStream mOutputStream;
+  private String mUfsPath;
 
   UfsBlockWriteRequestContext(Protocol.WriteRequest request) {
     super(new UfsBlockWriteRequest(request));
@@ -51,6 +52,14 @@ public final class UfsBlockWriteRequestContext extends WriteRequestContext<UfsBl
   }
 
   /**
+   * @return the UFS path of the block
+   */
+  @Nullable
+  public String getUfsPath() {
+    return mUfsPath;
+  }
+
+  /**
    * @param outputStream output stream to set
    */
   public void setOutputStream(OutputStream outputStream) {
@@ -62,5 +71,12 @@ public final class UfsBlockWriteRequestContext extends WriteRequestContext<UfsBl
    */
   public void setUnderFileSystem(UnderFileSystem underFileSystem) {
     mUnderFileSystem = underFileSystem;
+  }
+
+  /**
+   * @param ufsPath UFS path to set
+   */
+  public void setUfsPath(String ufsPath) {
+    mUfsPath = ufsPath;
   }
 }
