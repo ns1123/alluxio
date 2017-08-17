@@ -19,6 +19,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.client.file.policy.SpecificWorkerPolicy;
+import alluxio.exception.status.FailedPreconditionException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -101,7 +102,8 @@ public final class LoadDefinition
           getBlockWorkersWithoutBlock(availableBlockWorkers, blockInfo);
       int neededReplicas = config.getReplication() - blockInfo.getBlockInfo().getLocations().size();
       if (blockWorkersWithoutBlock.size() < neededReplicas) {
-        throw new RuntimeException("Failed to find enough block workers to replicate to");
+        throw new FailedPreconditionException("Failed to find enough block workers to replicate " +
+        "to. Needed " + neededReplicas + " but only found " + blockWorkersWithoutBlock.size());
       }
       Collections.shuffle(blockWorkersWithoutBlock);
       for (int i = 0; i < neededReplicas; i++) {
