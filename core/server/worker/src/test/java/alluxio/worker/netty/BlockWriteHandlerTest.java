@@ -11,34 +11,23 @@
 
 package alluxio.worker.netty;
 
-import alluxio.EmbeddedNoExceptionChannel;
 import alluxio.network.protocol.RPCProtoMessage;
-import alluxio.network.protocol.databuffer.DataBuffer;
-import alluxio.network.protocol.databuffer.DataNettyBufferV2;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.status.Status.PStatus;
-import alluxio.util.io.BufferUtils;
-import alluxio.util.proto.ProtoMessage;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.io.BlockWriter;
 import alluxio.worker.block.io.LocalFileBlockWriter;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Random;
-
 /**
  * Unit tests for {@link BlockWriteHandler}.
  */
 public final class BlockWriteHandlerTest extends WriteHandlerTest {
-  private final Random mRandom = new Random();
-
   private BlockWorker mBlockWorker;
   private BlockWriter mBlockWriter;
 
@@ -56,11 +45,7 @@ public final class BlockWriteHandlerTest extends WriteHandlerTest {
     mBlockWriter = new LocalFileBlockWriter(mFile);
     Mockito.when(mBlockWorker.getTempBlockWriterRemote(Mockito.anyLong(), Mockito.anyLong()))
         .thenReturn(mBlockWriter);
-    mChecksum = 0;
-
     mChannel = new EmbeddedChannel(
-        new BlockWriteHandler(NettyExecutors.BLOCK_WRITER_EXECUTOR, mBlockWorker));
-    mChannelNoException = new EmbeddedNoExceptionChannel(
         new BlockWriteHandler(NettyExecutors.BLOCK_WRITER_EXECUTOR, mBlockWorker));
   }
 
@@ -69,35 +54,16 @@ public final class BlockWriteHandlerTest extends WriteHandlerTest {
    */
   @Test
   public void writeFailure() throws Exception {
-    mChannelNoException.writeInbound(buildWriteRequest(0, PACKET_SIZE));
+    mChannel.writeInbound(newWriteRequest(0, newDataBuffer(PACKET_SIZE)));
     mBlockWriter.close();
-    mChannelNoException.writeInbound(buildWriteRequest(PACKET_SIZE, PACKET_SIZE));
-    Object writeResponse = waitForResponse(mChannelNoException);
+    mChannel.writeInbound(newWriteRequest(PACKET_SIZE, newDataBuffer(PACKET_SIZE)));
+    Object writeResponse = waitForResponse(mChannel);
     Assert.assertTrue(writeResponse instanceof RPCProtoMessage);
-    checkWriteResponse(writeResponse, PStatus.FAILED_PRECONDITION);
+    checkWriteResponse(PStatus.FAILED_PRECONDITION, writeResponse);
   }
 
   @Override
-  protected RPCProtoMessage buildWriteRequest(long offset, int len) {
-    Protocol.WriteRequest writeRequest =
-        Protocol.WriteRequest.newBuilder().setId(1L).setOffset(offset)
-            .setType(Protocol.RequestType.ALLUXIO_BLOCK).build();
-    DataBuffer buffer = null;
-    if (len > 0) {
-      ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer(len);
-      for (int i = 0; i < len; i++) {
-        byte value = (byte) (mRandom.nextInt() % Byte.MAX_VALUE);
-        buf.writeByte(value);
-        mChecksum += BufferUtils.byteToInt(value);
-      }
-      buffer = new DataNettyBufferV2(buf);
-    }
-    if (len == EOF) {
-      writeRequest = writeRequest.toBuilder().setEof(true).build();
-    }
-    if (len == CANCEL) {
-      writeRequest = writeRequest.toBuilder().setCancel(true).build();
-    }
-    return new RPCProtoMessage(new ProtoMessage(writeRequest), buffer);
+  protected Protocol.RequestType getWriteRequestType() {
+    return Protocol.RequestType.ALLUXIO_BLOCK;
   }
 }
