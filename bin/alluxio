@@ -34,6 +34,7 @@ function printUsage {
   echo -e "  killAll <WORD>\t Kill processes containing the WORD."
   echo -e "  copyDir <PATH>\t Copy the PATH to all worker nodes."
   echo -e "  clearCache    \t Clear OS buffer cache of the machine."
+  echo -e "  confDocGen    \t Generate configuration docs."
   echo -e "  thriftGen     \t Generate all thrift code."
   # ALLUXIO CS ADD
   echo -e "  privileges    \t Command line tool for interacting with privileges."
@@ -329,6 +330,12 @@ function main {
   ;;
   "copyDir")
     copyDir "$@"
+  ;;
+  "confDocGen")
+    CLASS="alluxio.cli.ConfigurationDocGenerator"
+    CLASSPATH=${ALLUXIO_CLIENT_CLASSPATH}
+    ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
+    runJavaClass "$@"
   ;;
   "thriftGen")
     declare -a thriftSrcPaths=($(find "${BIN}/.." -name "*.thrift" -print0 | xargs -0 -n1 dirname | sort | uniq))
