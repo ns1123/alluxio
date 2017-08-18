@@ -173,8 +173,17 @@ public final class Configuration {
       for (Map.Entry<?, ?> entry : properties.entrySet()) {
         String key = entry.getKey().toString();
         String value = entry.getValue().toString();
+<<<<<<< HEAD
         if (PropertyKey.isValid(key) && !(hideKeys && PropertyKey.IMMUTABLE_KEYS.contains(key))) {
           PROPERTIES.put(key, value);
+||||||| merged common ancestors
+        if (PropertyKey.isValid(key)) {
+          PROPERTIES.put(key, value);
+=======
+        if (PropertyKey.isValid(key)) {
+          // Get the true name for the property key in case it is an alias.
+          PROPERTIES.put(PropertyKey.fromString(key).getName(), value);
+>>>>>>> alluxio/master
         }
       }
     }
