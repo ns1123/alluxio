@@ -29,7 +29,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -37,10 +41,12 @@ import java.io.OutputStream;
  */
 public final class UfsFileWriteHandlerTest extends WriteHandlerTest {
   private OutputStream mOutputStream;
+  /** The file used to hold the data written by the test. */
+  private File mFile;
 
   @Before
   public void before() throws Exception {
-    mFile = mTestFolder.newFile().getPath();
+    mFile = mTestFolder.newFile();
     mOutputStream = new FileOutputStream(mFile);
     UnderFileSystem mockUfs = Mockito.mock(UnderFileSystem.class);
     UfsManager ufsManager = Mockito.mock(UfsManager.class);
@@ -48,7 +54,6 @@ public final class UfsFileWriteHandlerTest extends WriteHandlerTest {
     Mockito.when(ufsManager.get(Mockito.anyLong())).thenReturn(ufsInfo);
     Mockito.when(mockUfs.create(Mockito.anyString(), Mockito.any(CreateOptions.class)))
         .thenReturn(mOutputStream);
-
     mChannel = new EmbeddedChannel(
         new UfsFileWriteHandler(NettyExecutors.FILE_WRITER_EXECUTOR, ufsManager));
   }
@@ -75,7 +80,7 @@ public final class UfsFileWriteHandlerTest extends WriteHandlerTest {
     Protocol.CreateUfsFileOptions createUfsFileOptions = Protocol.CreateUfsFileOptions.newBuilder()
         .setUfsPath("/test").setOwner("owner").setGroup("group").setMode(0).build();
     Protocol.WriteRequest writeRequest =
-        Protocol.WriteRequest.newBuilder().setId(1L).setOffset(offset)
+        Protocol.WriteRequest.newBuilder().setId(TEST_ID).setOffset(offset)
             .setCreateUfsFileOptions(createUfsFileOptions).setType(Protocol.RequestType.UFS_FILE)
             .build();
     return new RPCProtoMessage(new ProtoMessage(writeRequest), buffer);
@@ -84,5 +89,10 @@ public final class UfsFileWriteHandlerTest extends WriteHandlerTest {
   @Override
   protected Protocol.RequestType getWriteRequestType() {
     return Protocol.RequestType.UFS_FILE;
+  }
+
+  @Override
+  protected InputStream getWriteDataStream() throws IOException {
+    return new FileInputStream(mFile);
   }
 }

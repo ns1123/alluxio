@@ -114,9 +114,6 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
     @Override
     protected void completeRequest(BlockWriteRequestContext context, Channel channel)
         throws Exception {
-      if (context == null) {
-        return;
-      }
       WriteRequest request = context.getRequest();
       if (context.getBlockWriter() != null) {
         context.getBlockWriter().close();
@@ -126,9 +123,6 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
 
     @Override
     protected void cancelRequest(BlockWriteRequestContext context) throws Exception {
-      if (context == null) {
-        return;
-      }
       WriteRequest request = context.getRequest();
       if (context.getBlockWriter() != null) {
         context.getBlockWriter().close();
@@ -138,9 +132,6 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
 
     @Override
     protected void cleanupRequest(BlockWriteRequestContext context) throws Exception {
-      if (context == null) {
-        return;
-      }
       WriteRequest request = context.getRequest();
       mWorker.cleanupSession(request.getSessionId());
     }
@@ -148,7 +139,6 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
     @Override
     protected void writeBuf(BlockWriteRequestContext context, Channel channel, ByteBuf buf,
         long pos) throws Exception {
-      Preconditions.checkState(context != null);
       WriteRequest request = context.getRequest();
       long bytesReserved = context.getBytesReserved();
       if (bytesReserved < pos) {

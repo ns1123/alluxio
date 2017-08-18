@@ -32,7 +32,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 
@@ -40,6 +44,8 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
   private OutputStream mOutputStream;
   private BlockWorker mBlockWorker;
   private BlockStore mBlockStore;
+  /** The file used to hold the data written by the test. */
+  private File mFile;
 
   @Rule
   public ConfigurationRule mConfigurationRule =
@@ -57,7 +63,7 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
 
   @Before
   public void before() throws Exception {
-    mFile = mTestFolder.newFile().getPath();
+    mFile = mTestFolder.newFile();
     mOutputStream = new FileOutputStream(mFile);
     mBlockStore = new TieredBlockStore();
     mBlockWorker = Mockito.mock(BlockWorker.class);
@@ -90,5 +96,10 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
   @Override
   protected Protocol.RequestType getWriteRequestType() {
     return Protocol.RequestType.UFS_BLOCK;
+  }
+
+  @Override
+  protected InputStream getWriteDataStream() throws IOException {
+    return new FileInputStream(mFile);
   }
 }

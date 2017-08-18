@@ -11,7 +11,6 @@
 
 package alluxio.worker.netty;
 
-import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.status.Status.PStatus;
 import alluxio.worker.block.BlockWorker;
@@ -19,10 +18,14 @@ import alluxio.worker.block.io.BlockWriter;
 import alluxio.worker.block.io.LocalFileBlockWriter;
 
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Unit tests for {@link BlockWriteHandler}.
@@ -30,9 +33,11 @@ import org.mockito.Mockito;
 public final class BlockWriteHandlerTest extends WriteHandlerTest {
   private BlockWorker mBlockWorker;
   private BlockWriter mBlockWriter;
+  private File mFile;
 
   @Before
   public void before() throws Exception {
+    mFile = mTestFolder.newFile();
     mBlockWorker = Mockito.mock(BlockWorker.class);
     Mockito.doNothing().when(mBlockWorker)
         .createBlockRemote(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString(),
@@ -41,29 +46,29 @@ public final class BlockWriteHandlerTest extends WriteHandlerTest {
         .requestSpace(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong());
     Mockito.doNothing().when(mBlockWorker).abortBlock(Mockito.anyLong(), Mockito.anyLong());
     Mockito.doNothing().when(mBlockWorker).commitBlock(Mockito.anyLong(), Mockito.anyLong());
-    mFile = mTestFolder.newFile().getPath();
-    mBlockWriter = new LocalFileBlockWriter(mFile);
+    mBlockWriter = new LocalFileBlockWriter(mFile.getPath());
     Mockito.when(mBlockWorker.getTempBlockWriterRemote(Mockito.anyLong(), Mockito.anyLong()))
         .thenReturn(mBlockWriter);
     mChannel = new EmbeddedChannel(
         new BlockWriteHandler(NettyExecutors.BLOCK_WRITER_EXECUTOR, mBlockWorker));
   }
 
-  /**
-   * Tests write failure.
-   */
   @Test
   public void writeFailure() throws Exception {
     mChannel.writeInbound(newWriteRequest(0, newDataBuffer(PACKET_SIZE)));
     mBlockWriter.close();
     mChannel.writeInbound(newWriteRequest(PACKET_SIZE, newDataBuffer(PACKET_SIZE)));
     Object writeResponse = waitForResponse(mChannel);
-    Assert.assertTrue(writeResponse instanceof RPCProtoMessage);
     checkWriteResponse(PStatus.FAILED_PRECONDITION, writeResponse);
   }
 
   @Override
   protected Protocol.RequestType getWriteRequestType() {
     return Protocol.RequestType.ALLUXIO_BLOCK;
+  }
+
+  @Override
+  protected InputStream getWriteDataStream() throws IOException {
+    return new FileInputStream(mFile);
   }
 }

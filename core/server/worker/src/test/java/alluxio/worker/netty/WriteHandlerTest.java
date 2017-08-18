@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.InputStream;
 import java.util.Random;
 
 /**
@@ -42,10 +42,8 @@ import java.util.Random;
 public abstract class WriteHandlerTest {
   private static final Random RANDOM = new Random();
   protected static final int PACKET_SIZE = 1024;
+  protected static final long TEST_ID = 1L;
   protected EmbeddedChannel mChannel;
-
-  /** The file used to hold the data written by the test. */
-  protected String mFile;
 
   @Rule
   public TemporaryFolder mTestFolder = new TemporaryFolder();
@@ -73,7 +71,7 @@ public abstract class WriteHandlerTest {
 
     Object writeResponse = waitForResponse(mChannel);
     checkWriteResponse(PStatus.OK, writeResponse);
-    checkFileContent(checksum, len);
+    checkWriteData(checksum, len);
   }
 
   @Test
@@ -93,7 +91,7 @@ public abstract class WriteHandlerTest {
     checkWriteResponse(PStatus.CANCELED, writeResponse);
     // Our current implementation does not really abort the file when the write is cancelled.
     // The client issues another request to block worker to abort it.
-    checkFileContent(checksum, len);
+    checkWriteData(checksum, len);
   }
 
   @Test
@@ -114,14 +112,14 @@ public abstract class WriteHandlerTest {
   /**
    * Checks the given write response is expected and matches the given error code.
    *
-   * @param statusExpected the expected status code
+   * @param expectedStatus the expected status code
    * @param writeResponse the write response
    */
-  protected void checkWriteResponse(PStatus statusExpected, Object writeResponse) {
+  protected void checkWriteResponse(PStatus expectedStatus, Object writeResponse) {
     Assert.assertTrue(writeResponse instanceof RPCProtoMessage);
     ProtoMessage response = ((RPCProtoMessage) writeResponse).getMessage();
     Assert.assertTrue(response.isResponse());
-    Assert.assertEquals(statusExpected, response.asResponse().getStatus());
+    Assert.assertEquals(expectedStatus, response.asResponse().getStatus());
   }
 
   /**
@@ -130,20 +128,19 @@ public abstract class WriteHandlerTest {
    * @param expectedChecksum the expected checksum of the file
    * @param size the file size in bytes
    */
-  protected void checkFileContent(long expectedChecksum, long size) throws IOException {
+  protected void checkWriteData(long expectedChecksum, long size) throws IOException {
     long actualChecksum = 0;
     long actualSize = 0;
 
     byte[] buffer = new byte[(int) Math.min(Constants.KB, size)];
-    int bytesRead;
-    try (RandomAccessFile file = new RandomAccessFile(mFile, "r")) {
-      do {
-        bytesRead = file.read(buffer);
+    try (InputStream input = getWriteDataStream()) {
+      int bytesRead;
+      while ((bytesRead = input.read(buffer)) >= 0) {
         for (int i = 0; i < bytesRead; i++) {
           actualChecksum += BufferUtils.byteToInt(buffer[i]);
           actualSize++;
         }
-      } while (bytesRead >= 0);
+      }
     }
 
     Assert.assertEquals(expectedChecksum, actualChecksum);
@@ -173,7 +170,7 @@ public abstract class WriteHandlerTest {
    */
   protected RPCProtoMessage newWriteRequest(long offset, DataBuffer buffer) {
     Protocol.WriteRequest writeRequest =
-        Protocol.WriteRequest.newBuilder().setId(1L).setOffset(offset)
+        Protocol.WriteRequest.newBuilder().setId(TEST_ID).setOffset(offset)
             .setType(getWriteRequestType()).build();
     return new RPCProtoMessage(new ProtoMessage(writeRequest), buffer);
   }
@@ -204,6 +201,11 @@ public abstract class WriteHandlerTest {
    * @return the write type of the request
    */
   protected abstract Protocol.RequestType getWriteRequestType();
+
+  /**
+   * @return the data written as an InputStream
+   */
+  protected abstract InputStream getWriteDataStream() throws IOException ;
 
   /**
    * @param len length of the data buffer
