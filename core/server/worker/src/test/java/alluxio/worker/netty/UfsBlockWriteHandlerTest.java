@@ -15,16 +15,20 @@ import alluxio.AlluxioTestDirectory;
 import alluxio.AlluxioURI;
 import alluxio.ConfigurationRule;
 import alluxio.PropertyKey;
+import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.status.Status;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.worker.block.BlockStore;
+import alluxio.worker.block.BlockStoreLocation;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.TieredBlockStore;
+import alluxio.worker.block.io.BlockWriter;
 
 import com.google.common.base.Suppliers;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.After;
 import org.junit.Before;
@@ -39,8 +43,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
+  private static final long TEST_SESSION_ID = 123L;
+  private static final long TEST_WORKER_ID = 456L;
+
   private OutputStream mOutputStream;
   private BlockWorker mBlockWorker;
   private BlockStore mBlockStore;
@@ -67,8 +75,9 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
     mOutputStream = new FileOutputStream(mFile);
     mBlockStore = new TieredBlockStore();
     mBlockWorker = Mockito.mock(BlockWorker.class);
-
     Mockito.when(mBlockWorker.getBlockStore()).thenReturn(mBlockStore);
+    Mockito.when(mBlockWorker.getWorkerId()).thenReturn(
+        new AtomicReference<>(TEST_WORKER_ID));
     UnderFileSystem mockUfs = Mockito.mock(UnderFileSystem.class);
     UfsManager ufsManager = Mockito.mock(UfsManager.class);
     UfsManager.UfsInfo ufsInfo =
@@ -91,6 +100,26 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
     mChannel.writeInbound(newWriteRequest(0, newDataBuffer(PACKET_SIZE)));
     Object writeResponse = waitForResponse(mChannel);
     checkWriteResponse(Status.PStatus.NOT_FOUND, writeResponse);
+  }
+
+  @Test
+  public void tempBlockWritten() throws Exception {
+    // create a temp block first
+    mBlockStore.createBlock(TEST_SESSION_ID, TEST_BLOCK_ID,
+        BlockStoreLocation.anyDirInTier("MEM"), PACKET_SIZE);
+    BlockWriter writer = mBlockStore.getBlockWriter(TEST_SESSION_ID, TEST_BLOCK_ID);
+    DataBuffer bufferPart1 = newDataBuffer(PACKET_SIZE);
+    long checksum = getChecksum(bufferPart1);
+    writer.transferFrom((ByteBuf) bufferPart1.getNettyOutput());
+    writer.close();
+    DataBuffer bufferPart2 = newDataBuffer(PACKET_SIZE);
+    checksum += getChecksum(bufferPart2);
+    mChannel.writeInbound(newWriteRequest(0, null));
+    mChannel.writeInbound(newWriteRequest(PACKET_SIZE, bufferPart2));
+    mChannel.writeInbound(newEofRequest(PACKET_SIZE * 2));
+    Object writeResponse = waitForResponse(mChannel);
+    checkWriteResponse(Status.PStatus.OK, writeResponse);
+    checkWriteData(checksum, PACKET_SIZE * 2);
   }
 
   @Override

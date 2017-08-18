@@ -42,7 +42,8 @@ import java.util.Random;
 public abstract class WriteHandlerTest {
   private static final Random RANDOM = new Random();
   protected static final int PACKET_SIZE = 1024;
-  protected static final long TEST_ID = 1L;
+  protected static final long TEST_BLOCK_ID = 1L;
+  protected static final long TEST_MOUNT_ID = 10L;
   protected EmbeddedChannel mChannel;
 
   @Rule
@@ -161,6 +162,11 @@ public abstract class WriteHandlerTest {
     }, WaitForOptions.defaults().setTimeoutMs(Constants.MINUTE_MS));
   }
 
+  protected Protocol.WriteRequest writeRequestBuilder(long offset) {
+    return Protocol.WriteRequest.newBuilder().setId(TEST_BLOCK_ID).setOffset(offset)
+            .setType(getWriteRequestType()).build();
+  }
+
   /**
    * Builds the write request.
    *
@@ -169,9 +175,7 @@ public abstract class WriteHandlerTest {
    * @return the write request
    */
   protected RPCProtoMessage newWriteRequest(long offset, DataBuffer buffer) {
-    Protocol.WriteRequest writeRequest =
-        Protocol.WriteRequest.newBuilder().setId(TEST_ID).setOffset(offset)
-            .setType(getWriteRequestType()).build();
+    Protocol.WriteRequest writeRequest = writeRequestBuilder(offset);
     return new RPCProtoMessage(new ProtoMessage(writeRequest), buffer);
   }
 
@@ -181,9 +185,9 @@ public abstract class WriteHandlerTest {
    * @return a new Eof write request
    */
   protected RPCProtoMessage newEofRequest(long offset) {
-    return new RPCProtoMessage(new ProtoMessage(
-        Protocol.WriteRequest.newBuilder().setOffset(offset).setEof(true)
-            .setType(getWriteRequestType()).build()), null);
+    Protocol.WriteRequest writeRequest =
+        writeRequestBuilder(offset).toBuilder().setEof(true).build();
+    return new RPCProtoMessage(new ProtoMessage(writeRequest), null);
   }
 
   /**
@@ -192,9 +196,9 @@ public abstract class WriteHandlerTest {
    * @return a new cancel write request
    */
   protected RPCProtoMessage newCancelRequest(long offset) {
-    return new RPCProtoMessage(new ProtoMessage(
-        Protocol.WriteRequest.newBuilder().setOffset(offset).setCancel(true)
-            .setType(getWriteRequestType()).build()), null);
+    Protocol.WriteRequest writeRequest =
+        writeRequestBuilder(offset).toBuilder().setCancel(true).build();
+    return new RPCProtoMessage(new ProtoMessage(writeRequest), null);
   }
 
   /**

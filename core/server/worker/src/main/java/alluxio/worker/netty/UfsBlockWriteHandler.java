@@ -170,6 +170,7 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
     validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
 
     try (LockResource lr = new LockResource(mLock)) {
+
       // If we have seen an error, return early and release the data. This can only
       // happen for those mis-behaving clients who first sends some invalid requests, then
       // then some random data. It can leak memory if we do not release buffers here.
@@ -233,15 +234,15 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
    * @param request the block write request
    * @throws InvalidArgumentException if the write request is invalid
    */
-  @GuardedBy("mLock")
+  //@GuardedBy("mLock")
   private void validateWriteRequest(Protocol.WriteRequest request, DataBuffer payload)
       throws InvalidArgumentException {
     // writes must be sequential
-    if (request.getOffset() != mContext.getPosToQueue()) {
-      throw new InvalidArgumentException(String.format(
-          "Offsets do not match [received: %d, expected: %d].",
-          request.getOffset(), mContext.getPosToQueue()));
-    }
+//    if (request.getOffset() != mContext.getPosToQueue()) {
+//      throw new InvalidArgumentException(String.format(
+//          "Offsets do not match [received: %d, expected: %d].",
+//          request.getOffset(), mContext.getPosToQueue()));
+//    }
     // cancel / eof message shouldn't have payload
     if (payload != null && payload.getLength() > 0 && (request.getCancel() || request.getEof())) {
       throw new InvalidArgumentException("Found data in a cancel/eof message.");
@@ -321,7 +322,7 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
           TempBlockMeta block = mWorker.getBlockStore().getTempBlockMeta(sessionId, blockId);
           if (block == null) {
             pushAbortPacket(mChannel,
-                new Error(new NotFoundException("block " + blockId + "not found"), true));
+                new Error(new NotFoundException("block " + blockId + " not found"), true));
             continue;
           }
           try (BlockReader reader = new LocalFileBlockReader(block.getPath())) {

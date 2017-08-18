@@ -68,10 +68,12 @@ message WriteRequest {
   optional bool eof = 5;
   optional bool cancel = 6;
 
-  // This is only applicable for ufs writes.
+  // This is only applicable for ufs block writes.
   optional CreateUfsFileOptions create_ufs_file_options = 7;
   // ALLUXIO CS ADD
   optional alluxio.proto.security.Capability capability = 1000;
+  // This is only applicable for ufs block writes.
+  optional CreateUfsBlockOptions create_ufs_block_options = 1001;
   // ALLUXIO CS END
 }
 
@@ -84,6 +86,15 @@ message CreateUfsFileOptions {
   optional int32 mode = 4;
   optional int64 mount_id = 5;
 }
+// ALLUXIO CS ADD
+
+// Options to create a block file.
+// next available: 3
+message CreateUfsBlockOptions {
+  optional int64 size_written = 1;
+  optional int64 mount_id = 2;
+}
+// ALLUXIO CS END
 
 // The response.
 // next available id: 3

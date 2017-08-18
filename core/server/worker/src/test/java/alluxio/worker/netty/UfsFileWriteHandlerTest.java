@@ -12,15 +12,12 @@
 package alluxio.worker.netty;
 
 import alluxio.AlluxioURI;
-import alluxio.network.protocol.RPCProtoMessage;
-import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.status.Status.PStatus;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UfsManager.UfsInfo;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
-import alluxio.util.proto.ProtoMessage;
 
 import com.google.common.base.Suppliers;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -51,7 +48,7 @@ public final class UfsFileWriteHandlerTest extends WriteHandlerTest {
     UnderFileSystem mockUfs = Mockito.mock(UnderFileSystem.class);
     UfsManager ufsManager = Mockito.mock(UfsManager.class);
     UfsInfo ufsInfo = new UfsInfo(Suppliers.ofInstance(mockUfs), AlluxioURI.EMPTY_URI);
-    Mockito.when(ufsManager.get(Mockito.anyLong())).thenReturn(ufsInfo);
+    Mockito.when(ufsManager.get(TEST_MOUNT_ID)).thenReturn(ufsInfo);
     Mockito.when(mockUfs.create(Mockito.anyString(), Mockito.any(CreateOptions.class)))
         .thenReturn(mOutputStream);
     mChannel = new EmbeddedChannel(
@@ -76,14 +73,12 @@ public final class UfsFileWriteHandlerTest extends WriteHandlerTest {
   }
 
   @Override
-  protected RPCProtoMessage newWriteRequest(long offset, DataBuffer buffer) {
-    Protocol.CreateUfsFileOptions createUfsFileOptions = Protocol.CreateUfsFileOptions.newBuilder()
-        .setUfsPath("/test").setOwner("owner").setGroup("group").setMode(0).build();
-    Protocol.WriteRequest writeRequest =
-        Protocol.WriteRequest.newBuilder().setId(TEST_ID).setOffset(offset)
-            .setCreateUfsFileOptions(createUfsFileOptions).setType(Protocol.RequestType.UFS_FILE)
-            .build();
-    return new RPCProtoMessage(new ProtoMessage(writeRequest), buffer);
+  protected Protocol.WriteRequest writeRequestBuilder(long offset) {
+    Protocol.CreateUfsFileOptions createUfsFileOptions =
+        Protocol.CreateUfsFileOptions.newBuilder().setUfsPath("/test").setOwner("owner")
+            .setGroup("group").setMode(0).setMountId(TEST_MOUNT_ID).build();
+    return super.writeRequestBuilder(offset).toBuilder()
+        .setCreateUfsFileOptions(createUfsFileOptions).build();
   }
 
   @Override
