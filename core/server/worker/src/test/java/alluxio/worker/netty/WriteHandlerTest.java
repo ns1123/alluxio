@@ -162,7 +162,7 @@ public abstract class WriteHandlerTest {
     }, WaitForOptions.defaults().setTimeoutMs(Constants.MINUTE_MS));
   }
 
-  protected Protocol.WriteRequest writeRequestBuilder(long offset) {
+  protected Protocol.WriteRequest newWriteRequestProto(long offset) {
     return Protocol.WriteRequest.newBuilder().setId(TEST_BLOCK_ID).setOffset(offset)
             .setType(getWriteRequestType()).build();
   }
@@ -175,7 +175,7 @@ public abstract class WriteHandlerTest {
    * @return the write request
    */
   protected RPCProtoMessage newWriteRequest(long offset, DataBuffer buffer) {
-    Protocol.WriteRequest writeRequest = writeRequestBuilder(offset);
+    Protocol.WriteRequest writeRequest = newWriteRequestProto(offset);
     return new RPCProtoMessage(new ProtoMessage(writeRequest), buffer);
   }
 
@@ -186,7 +186,7 @@ public abstract class WriteHandlerTest {
    */
   protected RPCProtoMessage newEofRequest(long offset) {
     Protocol.WriteRequest writeRequest =
-        writeRequestBuilder(offset).toBuilder().setEof(true).build();
+        newWriteRequestProto(offset).toBuilder().setEof(true).build();
     return new RPCProtoMessage(new ProtoMessage(writeRequest), null);
   }
 
@@ -197,7 +197,7 @@ public abstract class WriteHandlerTest {
    */
   protected RPCProtoMessage newCancelRequest(long offset) {
     Protocol.WriteRequest writeRequest =
-        writeRequestBuilder(offset).toBuilder().setCancel(true).build();
+        newWriteRequestProto(offset).toBuilder().setCancel(true).build();
     return new RPCProtoMessage(new ProtoMessage(writeRequest), null);
   }
 

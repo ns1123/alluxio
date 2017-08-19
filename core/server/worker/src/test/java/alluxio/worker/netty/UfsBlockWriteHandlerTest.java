@@ -48,12 +48,14 @@ import java.util.concurrent.atomic.AtomicReference;
 public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
   private static final long TEST_SESSION_ID = 123L;
   private static final long TEST_WORKER_ID = 456L;
+  private static final int PARTIAL_WRITTEN = 512;
 
   private OutputStream mOutputStream;
   private BlockWorker mBlockWorker;
   private BlockStore mBlockStore;
   /** The file used to hold the data written by the test. */
   private File mFile;
+  long mPartialChecksum;
 
   @Rule
   public ConfigurationRule mConfigurationRule =
@@ -88,6 +90,15 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
 
     mChannel = new EmbeddedChannel(
         new UfsBlockWriteHandler(NettyExecutors.FILE_WRITER_EXECUTOR, mBlockWorker, ufsManager));
+
+    // create a partial block in block store first
+    mBlockStore.createBlock(TEST_SESSION_ID, TEST_BLOCK_ID,
+        BlockStoreLocation.anyDirInTier("MEM"), PACKET_SIZE);
+    BlockWriter writer = mBlockStore.getBlockWriter(TEST_SESSION_ID, TEST_BLOCK_ID);
+    DataBuffer buffer = newDataBuffer(PARTIAL_WRITTEN);
+    mPartialChecksum = getChecksum(buffer);
+    writer.transferFrom((ByteBuf) buffer.getNettyOutput());
+    writer.close();
   }
 
   @After
@@ -97,29 +108,30 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
 
   @Test
   public void noTempBlockFound() throws Exception {
-    mChannel.writeInbound(newWriteRequest(0, newDataBuffer(PACKET_SIZE)));
-    Object writeResponse = waitForResponse(mChannel);
-    checkWriteResponse(Status.PStatus.NOT_FOUND, writeResponse);
+//    mChannel.writeInbound(newWriteRequest(0, newDataBuffer(PACKET_SIZE)));
+//    Object writeResponse = waitForResponse(mChannel);
+//    checkWriteResponse(Status.PStatus.NOT_FOUND, writeResponse);
   }
 
   @Test
   public void tempBlockWritten() throws Exception {
-    // create a temp block first
-    mBlockStore.createBlock(TEST_SESSION_ID, TEST_BLOCK_ID,
-        BlockStoreLocation.anyDirInTier("MEM"), PACKET_SIZE);
-    BlockWriter writer = mBlockStore.getBlockWriter(TEST_SESSION_ID, TEST_BLOCK_ID);
-    DataBuffer bufferPart1 = newDataBuffer(PACKET_SIZE);
-    long checksum = getChecksum(bufferPart1);
-    writer.transferFrom((ByteBuf) bufferPart1.getNettyOutput());
-    writer.close();
-    DataBuffer bufferPart2 = newDataBuffer(PACKET_SIZE);
-    checksum += getChecksum(bufferPart2);
+    DataBuffer buffer = newDataBuffer(PACKET_SIZE);
+    long checksum = mPartialChecksum + getChecksum(buffer);
     mChannel.writeInbound(newWriteRequest(0, null));
-    mChannel.writeInbound(newWriteRequest(PACKET_SIZE, bufferPart2));
-    mChannel.writeInbound(newEofRequest(PACKET_SIZE * 2));
+    mChannel.writeInbound(newWriteRequest(PARTIAL_WRITTEN, buffer));
+    mChannel.writeInbound(newEofRequest(PARTIAL_WRITTEN + PACKET_SIZE ));
     Object writeResponse = waitForResponse(mChannel);
     checkWriteResponse(Status.PStatus.OK, writeResponse);
-    checkWriteData(checksum, PACKET_SIZE * 2);
+    checkWriteData(checksum, PARTIAL_WRITTEN + PACKET_SIZE);
+  }
+
+  @Override
+  protected Protocol.WriteRequest newWriteRequestProto(long offset) {
+    Protocol.CreateUfsBlockOptions createUfsBlockOptions =
+        Protocol.CreateUfsBlockOptions.newBuilder().setMountId(TEST_MOUNT_ID)
+            .setSizeWritten(PARTIAL_WRITTEN).build();
+    return super.newWriteRequestProto(offset).toBuilder()
+        .setCreateUfsBlockOptions(createUfsBlockOptions).build();
   }
 
   @Override

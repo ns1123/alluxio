@@ -73,11 +73,11 @@ public final class UfsFileWriteHandlerTest extends WriteHandlerTest {
   }
 
   @Override
-  protected Protocol.WriteRequest writeRequestBuilder(long offset) {
+  protected Protocol.WriteRequest newWriteRequestProto(long offset) {
     Protocol.CreateUfsFileOptions createUfsFileOptions =
         Protocol.CreateUfsFileOptions.newBuilder().setUfsPath("/test").setOwner("owner")
             .setGroup("group").setMode(0).setMountId(TEST_MOUNT_ID).build();
-    return super.writeRequestBuilder(offset).toBuilder()
+    return super.newWriteRequestProto(offset).toBuilder()
         .setCreateUfsFileOptions(createUfsFileOptions).build();
   }
 
