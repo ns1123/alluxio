@@ -23,7 +23,6 @@ import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.resource.LockResource;
-import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
@@ -186,9 +185,10 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
         buf = EOF;
       } else if (writeRequest.getCancel()) {
         buf = CANCEL;
-      } else if (writeRequest.getOffset() == 0) {
+      } else if (writeRequest.getOffset() == 0 && msg.getPayloadDataBuffer() == null) {
         // FDW fallback specific ADD
         buf = LOCAL;
+        mContext.setPosToQueue(mContext.getRequest().getCreateUfsBlockOptions().getSizeWritten());
         // FDW fallback specific END
       } else {
         DataBuffer dataBuffer = msg.getPayloadDataBuffer();
@@ -234,15 +234,15 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
    * @param request the block write request
    * @throws InvalidArgumentException if the write request is invalid
    */
-  //@GuardedBy("mLock")
+  @GuardedBy("mLock")
   private void validateWriteRequest(Protocol.WriteRequest request, DataBuffer payload)
       throws InvalidArgumentException {
     // writes must be sequential
-//    if (request.getOffset() != mContext.getPosToQueue()) {
-//      throw new InvalidArgumentException(String.format(
-//          "Offsets do not match [received: %d, expected: %d].",
-//          request.getOffset(), mContext.getPosToQueue()));
-//    }
+    if (request.getOffset() != mContext.getPosToQueue()) {
+      throw new InvalidArgumentException(String.format(
+          "Offsets do not match [received: %d, expected: %d].",
+          request.getOffset(), mContext.getPosToQueue()));
+    }
     // cancel / eof message shouldn't have payload
     if (payload != null && payload.getLength() > 0 && (request.getCancel() || request.getEof())) {
       throw new InvalidArgumentException("Found data in a cancel/eof message.");
@@ -326,7 +326,10 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
             continue;
           }
           try (BlockReader reader = new LocalFileBlockReader(block.getPath())) {
-            ByteBuffer fileBuffer = reader.read(0, reader.getLength());
+            long a = reader.getLength();
+            long b = mContext.getPosToQueue();
+            Preconditions.checkState(reader.getLength() >= mContext.getPosToQueue());
+            ByteBuffer fileBuffer = reader.read(0, mContext.getPosToQueue());
             buf = Unpooled.wrappedBuffer(fileBuffer);
             int readableBytes = buf.readableBytes();
             writeBuf(mChannel, buf, mContext.getPosToWrite());
@@ -440,22 +443,19 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
 
     private void createUfsFile(Channel channel) throws IOException {
       UfsBlockWriteRequest request = mContext.getRequest();
-      Protocol.CreateUfsFileOptions createUfsFileOptions = request.getCreateUfsFileOptions();
+      Protocol.CreateUfsBlockOptions createUfsBlockOptions = request.getCreateUfsBlockOptions();
       // Before interacting with the UFS manager, make sure the user is set.
       String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
       if (user != null) {
         alluxio.security.authentication.AuthenticatedClientUser.set(user);
       }
-      UfsManager.UfsInfo ufsInfo = mUfsManager.get(createUfsFileOptions.getMountId());
+      UfsManager.UfsInfo ufsInfo = mUfsManager.get(createUfsBlockOptions.getMountId());
       UnderFileSystem ufs = ufsInfo.getUfs();
       mContext.setUnderFileSystem(ufs);
       String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
       String ufsPath = PathUtils.concatPath(
           ufsString, getUfsPath(mWorker.getWorkerId().get(), request.getId()));
-      mContext.setOutputStream(ufs.create(ufsPath,
-          CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
-              .setGroup(createUfsFileOptions.getGroup())
-              .setMode(new Mode((short) createUfsFileOptions.getMode()))));
+      mContext.setOutputStream(ufs.create(ufsPath, CreateOptions.defaults()));
       mContext.setUfsPath(ufsPath);
       String metricName;
       if (user == null) {

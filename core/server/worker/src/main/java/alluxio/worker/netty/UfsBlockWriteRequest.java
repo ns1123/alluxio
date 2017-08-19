@@ -20,26 +20,17 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class UfsBlockWriteRequest extends WriteRequest {
-  private final String mUfsPath;
-  private final Protocol.CreateUfsFileOptions mCreateUfsFileOptions;
+  private final Protocol.CreateUfsBlockOptions mCreateUfsBlockOptions;
 
   UfsBlockWriteRequest(Protocol.WriteRequest request) {
     super(request);
-    mUfsPath = request.getCreateUfsFileOptions().getUfsPath();
-    mCreateUfsFileOptions = request.getCreateUfsFileOptions();
-  }
-
-  /**
-   * @return the UFS path
-   */
-  public String getUfsPath() {
-    return mUfsPath;
+    mCreateUfsBlockOptions = request.getCreateUfsBlockOptions();
   }
 
   /**
    * @return the options to create UFS file
    */
-  public Protocol.CreateUfsFileOptions getCreateUfsFileOptions() {
-    return mCreateUfsFileOptions;
+  public Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions() {
+    return mCreateUfsBlockOptions;
   }
 }
