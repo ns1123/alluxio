@@ -174,7 +174,8 @@ public final class Configuration {
         String key = entry.getKey().toString();
         String value = entry.getValue().toString();
         if (PropertyKey.isValid(key) && !(hideKeys && PropertyKey.IMMUTABLE_KEYS.contains(key))) {
-          PROPERTIES.put(key, value);
+          // Get the true name for the property key in case it is an alias.
+          PROPERTIES.put(PropertyKey.fromString(key).getName(), value);
         }
       }
     }
