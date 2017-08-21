@@ -15,7 +15,8 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.master.journal.Journal;
+import alluxio.master.journal.JournalSystem;
+import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.TransportProvider;
@@ -99,11 +100,14 @@ public class AlluxioMasterProcess implements MasterProcess {
   /** The start time for when the master started serving the RPC server. */
   private long mStartTimeMs = -1;
 
+  /** The journal system for writing journal entries and restoring master state. */
+  protected final JournalSystem mJournalSystem;
+
   /**
-   * Creates a {@link AlluxioMasterProcess} by the classes in the same packet of
-   * {@link AlluxioMasterProcess} or the subclasses of {@link AlluxioMasterProcess}.
+   * Creates a new {@link AlluxioMasterProcess}.
    */
-  AlluxioMasterProcess() {
+  AlluxioMasterProcess(JournalSystem journalSystem) {
+    mJournalSystem = Preconditions.checkNotNull(journalSystem, "journalSystem");
     mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
     mMaxWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MAX);
     int connectionTimeout = (int) Configuration.getMs(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS);
@@ -138,10 +142,13 @@ public class AlluxioMasterProcess implements MasterProcess {
       mRpcBindAddress = NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC);
       mRpcConnectAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC);
 
-      // Check that journals of each service have been formatted.
-      MasterUtils.checkJournalFormatted();
+      if (!mJournalSystem.isFormatted()) {
+        throw new RuntimeException(
+            String.format("Journal %s has not been formatted!", mJournalSystem));
+      }
       // Create masters.
       mRegistry = new MasterRegistry();
+<<<<<<< HEAD
       MasterUtils.createMasters(new Journal.Factory(MasterUtils.getJournalLocation()), mRegistry);
       // ALLUXIO CS ADD
 
@@ -150,6 +157,11 @@ public class AlluxioMasterProcess implements MasterProcess {
         mRegistry.get(alluxio.master.callhome.CallHomeMaster.class).setMaster(this);
       }
       // ALLUXIO CS END
+||||||| merged common ancestors
+      MasterUtils.createMasters(new Journal.Factory(MasterUtils.getJournalLocation()), mRegistry);
+=======
+      MasterUtils.createMasters(mJournalSystem, mRegistry);
+>>>>>>> OPENSOURCE/master
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -193,14 +205,16 @@ public class AlluxioMasterProcess implements MasterProcess {
     CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
-        return mThriftServer != null && mThriftServer.isServing()
-            && mWebServer != null && mWebServer.getServer().isRunning();
+        return mThriftServer != null && mThriftServer.isServing() && mWebServer != null
+            && mWebServer.getServer().isRunning();
       }
     }, WaitForOptions.defaults().setTimeoutMs(10000));
   }
 
   @Override
   public void start() throws Exception {
+    mJournalSystem.start();
+    mJournalSystem.setMode(Mode.PRIMARY);
     startMasters(true);
     startServing();
   }
@@ -210,6 +224,7 @@ public class AlluxioMasterProcess implements MasterProcess {
     if (mIsServing) {
       stopServing();
       stopMasters();
+      mJournalSystem.stop();
       mIsServing = false;
     }
   }
@@ -223,14 +238,15 @@ public class AlluxioMasterProcess implements MasterProcess {
   protected void startMasters(boolean isLeader) {
     try {
       mRegistry.start(isLeader);
+      LOG.info("All masters started");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   /**
-   * Stops all masters, including lineage master, block master and fileSystem master and
-   * additional masters.
+   * Stops all masters, including lineage master, block master and fileSystem master and additional
+   * masters.
    */
   protected void stopMasters() {
     try {
@@ -245,8 +261,8 @@ public class AlluxioMasterProcess implements MasterProcess {
   }
 
   /**
-   * Starts serving, letting {@link MetricsSystem} start sink and starting the web ui server and
-   * RPC Server.
+   * Starts serving, letting {@link MetricsSystem} start sink and starting the web ui server and RPC
+   * Server.
    *
    * @param startMessage empty string or the message that the master gains the leadership
    * @param stopMessage empty string or the message that the master loses the leadership
@@ -262,8 +278,8 @@ public class AlluxioMasterProcess implements MasterProcess {
   }
 
   /**
-   * Starts serving web ui server, resetting master web port, adding the metrics servlet to the
-   * web server and starting web ui.
+   * Starts serving web ui server, resetting master web port, adding the metrics servlet to the web
+   * server and starting web ui.
    */
   protected void startServingWebServer() {
     mWebServer = new MasterWebServer(ServiceType.MASTER_WEB.getServiceName(),
@@ -296,8 +312,7 @@ public class AlluxioMasterProcess implements MasterProcess {
     }
     // register meta services
     processor.registerProcessor(Constants.META_MASTER_SERVICE_NAME,
-        new MetaMasterClientService.Processor<>(
-        new MetaMasterClientServiceHandler(this)));
+        new MetaMasterClientService.Processor<>(new MetaMasterClientServiceHandler(this)));
 
     // Return a TTransportFactory based on the authentication type
     TTransportFactory transportFactory;
@@ -312,9 +327,8 @@ public class AlluxioMasterProcess implements MasterProcess {
       if (mTServerSocket != null) {
         mTServerSocket.close();
       }
-      mTServerSocket =
-          new TServerSocket(mRpcBindAddress,
-              (int) Configuration.getMs(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
+      mTServerSocket = new TServerSocket(mRpcBindAddress,
+          (int) Configuration.getMs(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
     } catch (TTransportException e) {
       throw new RuntimeException(e);
     }

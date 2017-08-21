@@ -18,14 +18,13 @@ import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.FileSystemMasterFactory;
 import alluxio.master.file.StartupConsistencyCheck.Status;
-import alluxio.master.journal.Journal;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
+import alluxio.master.journal.JournalSystem.Mode;
+import alluxio.master.journal.JournalTestUtils;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 
 import com.google.common.base.Function;
-
-import java.net.URI;
 
 public class MasterTestUtils {
 
@@ -60,12 +59,24 @@ public class MasterTestUtils {
       throws Exception {
     String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     MasterRegistry registry = new MasterRegistry();
+<<<<<<< HEAD
     JournalFactory factory = new Journal.Factory(new URI(masterJournal));
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, factory);
     // ALLUXIO CS END
     new BlockMasterFactory().create(registry, factory);
     new FileSystemMasterFactory().create(registry, factory);
+||||||| merged common ancestors
+    JournalFactory factory = new Journal.Factory(new URI(masterJournal));
+    new BlockMasterFactory().create(registry, factory);
+    new FileSystemMasterFactory().create(registry, factory);
+=======
+    JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
+    new BlockMasterFactory().create(registry, journalSystem);
+    new FileSystemMasterFactory().create(registry, journalSystem);
+    journalSystem.start();
+    journalSystem.setMode(isLeader ? Mode.PRIMARY : Mode.SECONDARY);
+>>>>>>> OPENSOURCE/master
     registry.start(isLeader);
     return registry;
   }
