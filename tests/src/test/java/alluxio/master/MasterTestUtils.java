@@ -59,24 +59,14 @@ public class MasterTestUtils {
       throws Exception {
     String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     MasterRegistry registry = new MasterRegistry();
-<<<<<<< HEAD
-    JournalFactory factory = new Journal.Factory(new URI(masterJournal));
-    // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, factory);
-    // ALLUXIO CS END
-    new BlockMasterFactory().create(registry, factory);
-    new FileSystemMasterFactory().create(registry, factory);
-||||||| merged common ancestors
-    JournalFactory factory = new Journal.Factory(new URI(masterJournal));
-    new BlockMasterFactory().create(registry, factory);
-    new FileSystemMasterFactory().create(registry, factory);
-=======
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, journalSystem);
+    // ALLUXIO CS END
     new BlockMasterFactory().create(registry, journalSystem);
     new FileSystemMasterFactory().create(registry, journalSystem);
     journalSystem.start();
     journalSystem.setMode(isLeader ? Mode.PRIMARY : Mode.SECONDARY);
->>>>>>> OPENSOURCE/master
     registry.start(isLeader);
     return registry;
   }

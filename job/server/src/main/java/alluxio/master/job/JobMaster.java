@@ -29,7 +29,7 @@ import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
 import alluxio.master.job.command.CommandManager;
-import alluxio.master.journal.noop.NoopJournal;
+import alluxio.master.journal.JournalSystem;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
@@ -106,10 +106,11 @@ public final class JobMaster extends AbstractMaster {
   /**
    * Creates a new instance of {@link JobMaster}.
    *
+   * @param journalSystem the journal system to use for tracking master operations
    * @param ufsManager the ufs manager
    */
-  public JobMaster(UfsManager ufsManager) {
-    super(new NoopJournal(), new SystemClock(), ExecutorServiceFactories
+  public JobMaster(JournalSystem journalSystem, UfsManager ufsManager) {
+    super(journalSystem, new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mCommandManager = new CommandManager();
@@ -152,6 +153,9 @@ public final class JobMaster extends AbstractMaster {
 
   @Override
   public void processJournalEntry(JournalEntry entry) throws IOException {}
+
+  @Override
+  public void resetState() {}
 
   @Override
   public Iterator<JournalEntry> getJournalEntryIterator() {

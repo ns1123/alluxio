@@ -31,8 +31,8 @@ import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.GetStatusOptions;
-import alluxio.master.journal.Journal;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
+import alluxio.master.journal.JournalTestUtils;
 import alluxio.master.privilege.PrivilegeMasterFactory;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
@@ -44,6 +44,7 @@ import alluxio.util.SecurityUtils;
 import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.wire.FileInfo;
+import alluxio.worker.job.JobMasterClientConfig;
 
 import com.google.common.base.Function;
 import org.junit.After;
@@ -60,7 +61,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.io.File;
-import java.net.URI;
 import java.util.Map;
 import java.util.Random;
 
@@ -428,14 +428,18 @@ public final class PersistenceTest {
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-    JournalFactory journalFactory = new Journal.Factory(new URI(mJournalFolder.getAbsolutePath()));
-    new PrivilegeMasterFactory().create(mRegistry, journalFactory);
-    new BlockMasterFactory().create(mRegistry, journalFactory);
-    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalFactory);
+    JournalSystem journalSystem =
+        JournalTestUtils.createJournalSystem(mJournalFolder.getAbsolutePath());
+    new PrivilegeMasterFactory().create(mRegistry, journalSystem);
+    new BlockMasterFactory().create(mRegistry, journalSystem);
+    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem);
+    journalSystem.start();
+    journalSystem.setMode(JournalSystem.Mode.PRIMARY);
     mRegistry.start(true);
     mMockJobMasterClient = Mockito.mock(JobMasterClient.class);
     PowerMockito.mockStatic(JobMasterClient.Factory.class);
-    Mockito.when(JobMasterClient.Factory.create()).thenReturn(mMockJobMasterClient);
+    Mockito.when(JobMasterClient.Factory.create(Mockito.any(JobMasterClientConfig.class)))
+        .thenReturn(mMockJobMasterClient);
   }
 
   private void stopServices() throws Exception {

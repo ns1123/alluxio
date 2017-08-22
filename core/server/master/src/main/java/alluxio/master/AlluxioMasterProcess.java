@@ -148,20 +148,13 @@ public class AlluxioMasterProcess implements MasterProcess {
       }
       // Create masters.
       mRegistry = new MasterRegistry();
-<<<<<<< HEAD
-      MasterUtils.createMasters(new Journal.Factory(MasterUtils.getJournalLocation()), mRegistry);
+      MasterUtils.createMasters(mJournalSystem, mRegistry);
       // ALLUXIO CS ADD
-
       if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
           && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED)) {
         mRegistry.get(alluxio.master.callhome.CallHomeMaster.class).setMaster(this);
       }
       // ALLUXIO CS END
-||||||| merged common ancestors
-      MasterUtils.createMasters(new Journal.Factory(MasterUtils.getJournalLocation()), mRegistry);
-=======
-      MasterUtils.createMasters(mJournalSystem, mRegistry);
->>>>>>> OPENSOURCE/master
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

@@ -183,24 +183,12 @@ public final class PermissionCheckTest {
     Configuration.set(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, mTestFolder.newFolder());
     GroupMappingServiceTestUtils.resetCache();
     mRegistry = new MasterRegistry();
-<<<<<<< HEAD
-    JournalFactory factory =
-        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, factory);
-    // ALLUXIO CS END
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, factory);
-    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, factory);
-||||||| merged common ancestors
-    JournalFactory factory =
-        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, factory);
-    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, factory);
-=======
     JournalSystem journalSystem = new NoopJournalSystem();
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem);
+    // ALLUXIO CS END
     mBlockMaster = new BlockMasterFactory().create(mRegistry, journalSystem);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem);
->>>>>>> OPENSOURCE/master
     mRegistry.start(true);
 
     createDirAndFileForTest();

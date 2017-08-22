@@ -1900,19 +1900,11 @@ public final class FileSystemMasterTest {
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-<<<<<<< HEAD
-    mJournalFactory = new Journal.Factory(new URI(mJournalFolder));
-    // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalFactory);
-    // ALLUXIO CS END
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalFactory);
-||||||| merged common ancestors
-    mJournalFactory = new Journal.Factory(new URI(mJournalFolder));
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalFactory);
-=======
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem);
+    // ALLUXIO CS END
     mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalSystem);
->>>>>>> OPENSOURCE/master
     mExecutorService = Executors
         .newFixedThreadPool(2, ThreadFactoryUtils.build("DefaultFileSystemMasterTest-%d", true));
     mFileSystemMaster = new DefaultFileSystemMaster(mBlockMaster, mJournalSystem,

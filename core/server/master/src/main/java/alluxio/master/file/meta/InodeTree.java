@@ -1049,39 +1049,8 @@ public class InodeTree implements JournalEntryIterable {
     InodeDirectory directory = InodeDirectory.fromJournalEntry(entry);
     if (directory.getName().equals(ROOT_INODE_NAME)) {
       // This is the root inode. Clear all the state, and set the root.
-<<<<<<< HEAD
-      // For backwards-compatibility:
-      // Empty owner in journal entry indicates that previous journal has no security. In this
-      // case, the journal is allowed to be applied to the new inode with security turned on.
-      if (SecurityUtils.isSecurityEnabled() && mRoot != null && !directory.getOwner().isEmpty()
-          && !mRoot.getOwner().equals(directory.getOwner())) {
-        // user is not the owner of journal root entry
-        throw new AccessControlException(
-            ExceptionMessage.PERMISSION_DENIED.getMessage("Unauthorized user on root"));
-      }
-      mInodes.clear();
-      mPinnedInodeFileIds.clear();
-      // ALLUXIO CS ADD
-      mReplicationLimitedFileIds.clear();
-      // ALLUXIO CS END
-      mRoot = directory;
-||||||| merged common ancestors
-      // For backwards-compatibility:
-      // Empty owner in journal entry indicates that previous journal has no security. In this
-      // case, the journal is allowed to be applied to the new inode with security turned on.
-      if (SecurityUtils.isSecurityEnabled() && mRoot != null && !directory.getOwner().isEmpty()
-          && !mRoot.getOwner().equals(directory.getOwner())) {
-        // user is not the owner of journal root entry
-        throw new AccessControlException(
-            ExceptionMessage.PERMISSION_DENIED.getMessage("Unauthorized user on root"));
-      }
-      mInodes.clear();
-      mPinnedInodeFileIds.clear();
-      mRoot = directory;
-=======
       reset();
       setRoot(directory);
->>>>>>> OPENSOURCE/master
       // If journal entry has no security enabled, change the replayed inode permission to be 0777
       // for backwards-compatibility.
       if (SecurityUtils.isSecurityEnabled() && mRoot.getOwner().isEmpty()
@@ -1099,6 +1068,9 @@ public class InodeTree implements JournalEntryIterable {
   public void reset() {
     mRoot = null;
     mInodes.clear();
+    // ALLUXIO CS ADD
+    mReplicationLimitedFileIds.clear();
+    // ALLUXIO CS END
     mPinnedInodeFileIds.clear();
   }
 

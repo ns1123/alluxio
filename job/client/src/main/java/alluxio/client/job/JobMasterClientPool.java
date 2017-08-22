@@ -12,6 +12,7 @@ package alluxio.client.job;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.resource.ResourcePool;
+import alluxio.worker.job.JobMasterClientConfig;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -46,7 +47,7 @@ public final class JobMasterClientPool extends ResourcePool<JobMasterClient> {
 
   @Override
   protected JobMasterClient createNewResource() {
-    JobMasterClient client = JobMasterClient.Factory.create();
+    JobMasterClient client = JobMasterClient.Factory.create(JobMasterClientConfig.defaults());
     mClientList.add(client);
     return client;
   }

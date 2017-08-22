@@ -25,7 +25,7 @@ import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
 import alluxio.proto.journal.Journal;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
@@ -73,7 +73,7 @@ public class LicenseMaster extends AbstractMaster {
       ImmutableSet.<Class<? extends Server>>of(BlockMaster.class);
 
   private BlockMaster mBlockMaster;
-  private final LicenseCheck mLicenseCheck;
+  private LicenseCheck mLicenseCheck;
   private License mLicense;
 
   /**
@@ -86,12 +86,11 @@ public class LicenseMaster extends AbstractMaster {
    * Creates a new instance of {@link LicenseMaster}.
    *
    * @param registry the master registry
-   * @param journalFactory the factory for the journal to use for tracking master operations
+   * @param journalSystem the journal system to use for tracking master operations
    */
-  public LicenseMaster(MasterRegistry registry, JournalFactory journalFactory) {
-    super(journalFactory.create(Constants.LICENSE_MASTER_NAME), new SystemClock(),
-        ExecutorServiceFactories
-            .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
+  public LicenseMaster(MasterRegistry registry, JournalSystem journalSystem) {
+    super(journalSystem, new SystemClock(), ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
     mBlockMaster = registry.get(BlockMaster.class);
     mLicenseCheck = new LicenseCheck();
     mLicense = new License();
@@ -123,6 +122,12 @@ public class LicenseMaster extends AbstractMaster {
     } else {
       throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
     }
+  }
+
+  @Override
+  public void resetState() {
+    mLicenseCheck = new LicenseCheck();
+    mLicense = new License();
   }
 
   @Override

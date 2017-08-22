@@ -26,7 +26,7 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.MasterProcess;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
 import alluxio.master.license.License;
 import alluxio.master.license.LicenseMaster;
 import alluxio.proto.journal.Journal;
@@ -94,12 +94,11 @@ public final class CallHomeMaster extends AbstractMaster {
    * Creates a new instance of {@link CallHomeMaster}.
    *
    * @param registry the master registry
-   * @param journalFactory the factory for the journal to use for tracking master operations
+   * @param journalSystem the journal system to use for tracking master operations
    */
-  public CallHomeMaster(MasterRegistry registry, JournalFactory journalFactory) {
-    super(journalFactory.create(Constants.CALL_HOME_MASTER_NAME), new SystemClock(),
-        ExecutorServiceFactories
-            .fixedThreadPoolExecutorServiceFactory(Constants.CALL_HOME_MASTER_NAME, 2));
+  public CallHomeMaster(MasterRegistry registry, JournalSystem journalSystem) {
+    super(journalSystem, new SystemClock(), ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.CALL_HOME_MASTER_NAME, 2));
     registry.add(CallHomeMaster.class, this);
   }
 
@@ -146,6 +145,9 @@ public final class CallHomeMaster extends AbstractMaster {
   public void processJournalEntry(Journal.JournalEntry entry) throws IOException {
     // No journal.
   }
+
+  @Override
+  public void resetState() {}
 
   @Override
   public Iterator<Journal.JournalEntry> getJournalEntryIterator() {

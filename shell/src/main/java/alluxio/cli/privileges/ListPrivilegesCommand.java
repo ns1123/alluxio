@@ -15,9 +15,8 @@ import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GetGroupPrivilegesOptions;
 import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.Privilege;
+import alluxio.worker.job.JobMasterClientConfig;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -56,8 +55,8 @@ public final class ListPrivilegesCommand implements Callable<String> {
    * @throws Exception if the command fails
    */
   public String call() throws Exception {
-    PrivilegeMasterClient client = PrivilegeMasterClient.Factory.create(null,
-        NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC));
+    PrivilegeMasterClient client =
+        PrivilegeMasterClient.Factory.create(JobMasterClientConfig.defaults());
 
     if (mGroup != null && mUser != null) {
       throw new IllegalArgumentException("Cannot specify both user and group");

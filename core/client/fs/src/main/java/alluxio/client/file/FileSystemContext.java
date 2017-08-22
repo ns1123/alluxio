@@ -71,18 +71,12 @@ public final class FileSystemContext implements Closeable {
   private final ConcurrentHashMapV8<SocketAddress, NettyChannelPool>
       mNettyChannelPools = new ConcurrentHashMapV8<>();
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   private alluxio.client.security.EncryptionCache mEncryptionCache =
       new alluxio.client.security.EncryptionCache();
 
   // ALLUXIO CS END
-  /** The shared master address associated with the {@link FileSystemContext}. */
-||||||| merged common ancestors
-  /** The shared master address associated with the {@link FileSystemContext}. */
-=======
   /** The shared master inquire client associated with the {@link FileSystemContext}. */
->>>>>>> OPENSOURCE/master
   @GuardedBy("this")
   private MasterInquireClient mMasterInquireClient;
 

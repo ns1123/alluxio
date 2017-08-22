@@ -58,6 +58,18 @@ public final class JournalEntryAssociation {
         || entry.hasLineage()) {
       return Constants.LINEAGE_MASTER_NAME;
     }
+    // ALLUXIO CS ADD
+    if (entry.hasLicenseCheck()) {
+      return Constants.LICENSE_MASTER_NAME;
+    }
+    if (entry.hasPrivilegeUpdate()) {
+      return Constants.PRIVILEGE_MASTER_NAME;
+    }
+    if (entry.hasFinishJob()
+        || entry.hasStartJob()) {
+      return Constants.JOB_MASTER_NAME;
+    }
+    // ALLUXIO CS END
     throw new InvalidJournalEntryException("Unrecognized journal entry: " + entry);
   }
 
