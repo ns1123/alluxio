@@ -27,10 +27,9 @@ import alluxio.job.meta.JobInfo;
 import alluxio.job.meta.MasterWorkerInfo;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
-import alluxio.master.AbstractMaster;
+import alluxio.master.AbstractNonJournaledMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.journal.JournalSystem;
-import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.RegisterCommand;
@@ -63,7 +62,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * The master that handles all job managing operations.
  */
 @ThreadSafe
-public final class JobMaster extends AbstractMaster {
+public final class JobMaster extends AbstractNonJournaledMaster {
   private static final Logger LOG = LoggerFactory.getLogger(JobMaster.class);
   private static final long CAPACITY = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
   private static final long RETENTION_MS =
@@ -149,21 +148,6 @@ public final class JobMaster extends AbstractMaster {
   @Override
   public String getName() {
     return Constants.JOB_MASTER_NAME;
-  }
-
-  @Override
-  public void processJournalEntry(JournalEntry entry) throws IOException {
-    // No journal.
-  }
-
-  @Override
-  public void resetState() {
-    // No journal.
-  }
-
-  @Override
-  public Iterator<JournalEntry> getJournalEntryIterator() {
-    return CommonUtils.nullIterator();
   }
 
   /**

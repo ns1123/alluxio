@@ -436,34 +436,6 @@ public final class CommonUtils {
     };
   }
 
-  // ALLUXIO CS ADD
-  /**
-   * Returns an iterator that has nothing to iterate on.
-   *
-   * @param <T> the type of the element
-   * @return the iterator
-   */
-  public static <T> Iterator<T> nullIterator() {
-    return new Iterator<T>() {
-      @Override
-      public boolean hasNext() {
-        return false;
-      }
-
-      @Override
-      public T next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
-        return null;
-      }
-
-      @Override
-      public void remove() {}
-    };
-  }
-
-  // ALLUXIO CS END
   /**
    * Executes the given callables, waiting for them to complete (or time out). If a callable throws
    * an exception, that exception will be re-thrown from this method.

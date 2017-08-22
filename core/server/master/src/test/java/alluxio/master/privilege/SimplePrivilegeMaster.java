@@ -12,10 +12,8 @@
 package alluxio.master.privilege;
 
 import alluxio.clock.SystemClock;
-import alluxio.master.AbstractMaster;
+import alluxio.master.AbstractNonJournaledMaster;
 import alluxio.master.journal.JournalSystem;
-import alluxio.proto.journal.Journal.JournalEntry;
-import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactory;
 import alluxio.wire.Privilege;
 
@@ -24,7 +22,6 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +29,8 @@ import java.util.Set;
 /**
  * A privilege checker controlled by a privileges map defined at construction.
  */
-public final class SimplePrivilegeMaster extends AbstractMaster implements PrivilegeMaster {
+public final class SimplePrivilegeMaster extends AbstractNonJournaledMaster
+    implements PrivilegeMaster {
   private final Map<String, Set<Privilege>> mGroupToPrivilegeMap;
 
   SimplePrivilegeMaster(Map<String, Set<Privilege>> groupToPrivilegeMap) {
@@ -44,12 +42,6 @@ public final class SimplePrivilegeMaster extends AbstractMaster implements Privi
   @Override
   public Map<String, Set<Privilege>> getGroupToPrivilegesMapping() {
     return mGroupToPrivilegeMap;
-  }
-
-  @Override
-  public Iterator<JournalEntry> getJournalEntryIterator() {
-    // No Journal
-    return CommonUtils.nullIterator();
   }
 
   @Override
@@ -72,16 +64,6 @@ public final class SimplePrivilegeMaster extends AbstractMaster implements Privi
   public boolean hasPrivilege(String group, Privilege privilege) {
     Set<Privilege> privileges = mGroupToPrivilegeMap.get(group);
     return privileges != null && privileges.contains(privilege);
-  }
-
-  @Override
-  public void processJournalEntry(JournalEntry entry) throws IOException {
-    // No journal.
-  }
-
-  @Override
-  public void resetState() {
-    // No journal.
   }
 
   @Override
