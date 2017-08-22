@@ -11,14 +11,18 @@
 
 package alluxio.worker.netty;
 
+import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.underfs.UnderFileSystem;
 
 import com.google.common.base.Preconditions;
 
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -26,6 +30,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class UfsBlockWriteRequestContext extends WriteRequestContext<UfsBlockWriteRequest> {
+  /** The buffer for packets read from the channel. */
+  @GuardedBy("AbstractWriteHandler#mLock")
+  private Queue<DataBuffer> mDataBufferPackets = new LinkedList<>();
   private UnderFileSystem mUnderFileSystem;
   private OutputStream mOutputStream;
   private String mUfsPath;
@@ -33,6 +40,13 @@ public final class UfsBlockWriteRequestContext extends WriteRequestContext<UfsBl
   UfsBlockWriteRequestContext(Protocol.WriteRequest request) {
     super(new UfsBlockWriteRequest(request));
     Preconditions.checkState(request.getOffset() == 0);
+  }
+
+  /**
+   * @return the data buffer packet queue
+   */
+  public Queue<DataBuffer> getDataBufferPackets() {
+    return mDataBufferPackets;
   }
 
   /**

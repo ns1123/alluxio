@@ -55,7 +55,7 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
   private BlockStore mBlockStore;
   /** The file used to hold the data written by the test. */
   private File mFile;
-  long mPartialChecksum;
+  private long mPartialChecksum;
 
   @Rule
   public ConfigurationRule mConfigurationRule =
@@ -108,9 +108,11 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
 
   @Test
   public void noTempBlockFound() throws Exception {
-//    mChannel.writeInbound(newWriteRequest(0, newDataBuffer(PACKET_SIZE)));
-//    Object writeResponse = waitForResponse(mChannel);
-//    checkWriteResponse(Status.PStatus.NOT_FOUND, writeResponse);
+    // remove the block partially created
+    mBlockStore.abortBlock(TEST_SESSION_ID, TEST_BLOCK_ID);
+    mChannel.writeInbound(newWriteRequest(0, null));
+    Object writeResponse = waitForResponse(mChannel);
+    checkWriteResponse(Status.PStatus.NOT_FOUND, writeResponse);
   }
 
   @Test

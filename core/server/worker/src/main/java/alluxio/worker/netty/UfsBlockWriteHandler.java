@@ -21,6 +21,8 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
+import alluxio.network.protocol.databuffer.DataFileChannel;
+import alluxio.network.protocol.databuffer.DataNettyBufferV2;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.resource.LockResource;
 import alluxio.underfs.UfsManager;
@@ -29,8 +31,6 @@ import alluxio.underfs.options.CreateOptions;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NettyUtils;
 import alluxio.worker.block.BlockWorker;
-import alluxio.worker.block.io.BlockReader;
-import alluxio.worker.block.io.LocalFileBlockReader;
 import alluxio.worker.block.meta.TempBlockMeta;
 
 import com.codahale.metrics.Counter;
@@ -42,11 +42,14 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.FileRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -74,11 +77,9 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
    * ABORT: a non-recoverable error is detected, abort this channel.
    * LOCAL: the payload is already written previously to Alluxio tiered storage on this worker.
    */
-  private static final ByteBuf EOF = Unpooled.buffer(0);
-  private static final ByteBuf CANCEL = Unpooled.buffer(0);
-  private static final ByteBuf ABORT = Unpooled.buffer(0);
-  private static final ByteBuf LOCAL = Unpooled.buffer(0);
-
+  private static final DataBuffer EOF = new DataNettyBufferV2(Unpooled.buffer(0));
+  private static final DataBuffer CANCEL = new DataNettyBufferV2(Unpooled.buffer(0));
+  private static final DataBuffer ABORT = new DataNettyBufferV2(Unpooled.buffer(0));
   private ReentrantLock mLock = new ReentrantLock();
 
   /**
@@ -98,7 +99,6 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
   private final BlockWorker mWorker;
   private final UfsManager mUfsManager;
 
-  // FDW fallback specific ADD
   private static final String MAGIC_NUMBER = "1D91AC0E";
 
   /**
@@ -109,8 +109,6 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
   public static String getUfsPath(long workerId, long blockId) {
     return String.format(".alluxio_blocks_%s/%s/%s", MAGIC_NUMBER, workerId, blockId);
   }
-  // FDW fallback specific END
-
 
   /**
    * Creates an instance of {@link UfsBlockWriteHandler}.
@@ -165,10 +163,9 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
       }
     }
 
-    // Validate the write request.
-    validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
-
     try (LockResource lr = new LockResource(mLock)) {
+      // Validate the write request.
+      validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
 
       // If we have seen an error, return early and release the data. This can only
       // happen for those mis-behaving clients who first sends some invalid requests, then
@@ -180,28 +177,37 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
         return;
       }
 
-      ByteBuf buf;
+      DataBuffer buf;
       if (writeRequest.getEof()) {
         buf = EOF;
       } else if (writeRequest.getCancel()) {
         buf = CANCEL;
       } else if (writeRequest.getOffset() == 0 && msg.getPayloadDataBuffer() == null) {
         // FDW fallback specific ADD
-        buf = LOCAL;
-        mContext.setPosToQueue(mContext.getRequest().getCreateUfsBlockOptions().getSizeWritten());
+        long sessionId = mContext.getRequest().getSessionId();
+        long blockId = mContext.getRequest().getId();
+        TempBlockMeta block = mWorker.getBlockStore().getTempBlockMeta(sessionId, blockId);
+        if (block == null) {
+          pushAbortPacket(ctx.channel(),
+              new Error(new NotFoundException("block " + blockId + " not found"), true));
+          return;
+        }
+        long size = mContext.getRequest().getCreateUfsBlockOptions().getSizeWritten();
+        buf = new DataFileChannel(new File(block.getPath()),0, size);
+        mContext.setPosToQueue(size);
         // FDW fallback specific END
       } else {
         DataBuffer dataBuffer = msg.getPayloadDataBuffer();
         Preconditions.checkState(dataBuffer != null && dataBuffer.getLength() > 0);
         Preconditions.checkState(dataBuffer.getNettyOutput() instanceof ByteBuf);
-        buf = (ByteBuf) dataBuffer.getNettyOutput();
+        buf = dataBuffer;
         mContext.setPosToQueue(mContext.getPosToQueue() + buf.readableBytes());
       }
       if (!mContext.isPacketWriterActive()) {
         mContext.setPacketWriterActive(true);
         mPacketWriterExecutor.submit(new UfsBlockPacketWriter(mContext, ctx.channel(), mUfsManager));
       }
-      mContext.getPackets().offer(buf);
+      mContext.getDataBufferPackets().offer(buf);
       if (tooManyPacketsInFlight()) {
         NettyUtils.disableAutoRead(ctx.channel());
       }
@@ -225,7 +231,7 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
    */
   @GuardedBy("mLock")
   private boolean tooManyPacketsInFlight() {
-    return mContext.getPackets().size() >= MAX_PACKETS_IN_FLIGHT;
+    return mContext.getDataBufferPackets().size() >= MAX_PACKETS_IN_FLIGHT;
   }
 
   /**
@@ -288,9 +294,9 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
       boolean abort;
 
       while (true) {
-        ByteBuf buf;
+        DataBuffer buf;
         try (LockResource lr = new LockResource(mLock)) {
-          buf = mContext.getPackets().poll();
+          buf = mContext.getDataBufferPackets().poll();
           if (buf == null || buf == EOF || buf == CANCEL || buf == ABORT) {
             eof = buf == EOF;
             cancel = buf == CANCEL;
@@ -313,41 +319,6 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
             NettyUtils.enableAutoRead(mChannel);
           }
         }
-
-        // FDW fallback specific ADD
-        // First part of the block is read from the local block store.
-        if (buf == LOCAL) {
-          long sessionId = mContext.getRequest().getSessionId();
-          long blockId = mContext.getRequest().getId();
-          TempBlockMeta block = mWorker.getBlockStore().getTempBlockMeta(sessionId, blockId);
-          if (block == null) {
-            pushAbortPacket(mChannel,
-                new Error(new NotFoundException("block " + blockId + " not found"), true));
-            continue;
-          }
-          try (BlockReader reader = new LocalFileBlockReader(block.getPath())) {
-            long a = reader.getLength();
-            long b = mContext.getPosToQueue();
-            Preconditions.checkState(reader.getLength() >= mContext.getPosToQueue());
-            ByteBuffer fileBuffer = reader.read(0, mContext.getPosToQueue());
-            buf = Unpooled.wrappedBuffer(fileBuffer);
-            int readableBytes = buf.readableBytes();
-            writeBuf(mChannel, buf, mContext.getPosToWrite());
-            incrementMetrics(readableBytes);
-          } catch (IOException e) {
-            pushAbortPacket(mChannel,
-                new Error(AlluxioStatusException.fromIOException(e), true));
-          } catch (Exception e) {
-            LOG.warn("Failed to write packet {}", e.getMessage());
-            Throwables.propagateIfPossible(e);
-            pushAbortPacket(mChannel,
-                new Error(AlluxioStatusException.fromCheckedException(e), true));
-          } finally {
-            release(buf);
-          }
-          continue;
-        }
-        // FDW fallback specific END
 
         try {
           int readableBytes = buf.readableBytes();
@@ -430,15 +401,23 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
      * Writes the buffer.
      *
      * @param channel the netty channel
-     * @param buf the buffer
+     * @param dataBuffer the buffer
      * @param pos the pos
      */
-    private void writeBuf(Channel channel, ByteBuf buf, long pos) throws Exception {
+    private void writeBuf(Channel channel, DataBuffer dataBuffer, long pos) throws Exception {
       if (mContext.getOutputStream() == null) {
         createUfsFile(channel);
       }
 
-      buf.readBytes(mContext.getOutputStream(), buf.readableBytes());
+      OutputStream stream = mContext.getOutputStream();
+      if (dataBuffer instanceof DataNettyBufferV2) {
+        ByteBuf buf = (ByteBuf) dataBuffer.getNettyOutput();
+        buf.readBytes(stream, buf.readableBytes());
+      } else if (dataBuffer instanceof DataFileChannel) {
+        // FDW fallback specific ADD
+        ((FileRegion) dataBuffer.getNettyOutput()).transferTo(Channels.newChannel(stream), 0);
+        // FDW fallback specific END
+      }
     }
 
     private void createUfsFile(Channel channel) throws IOException {
@@ -524,7 +503,7 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
         return;
       }
       mContext.setError(error);
-      mContext.getPackets().offer(ABORT);
+      mContext.getDataBufferPackets().offer(ABORT);
       if (!mContext.isPacketWriterActive()) {
         mContext.setPacketWriterActive(true);
         mPacketWriterExecutor.submit(new UfsBlockPacketWriter(mContext, channel, mUfsManager));
@@ -537,8 +516,8 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
    *
    * @param buf the netty byte buffer
    */
-  private static void release(ByteBuf buf) {
-    if (buf != null && buf != EOF && buf != CANCEL && buf != ABORT && buf != LOCAL) {
+  private static void release(DataBuffer buf) {
+    if (buf != null && buf != EOF && buf != CANCEL && buf != ABORT) {
       buf.release();
     }
   }
