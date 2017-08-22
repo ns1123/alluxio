@@ -78,7 +78,7 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
       ImmutableSet.<Class<? extends Server>>of(BlockMaster.class, LicenseMaster.class);
   private static final String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX"; // RFC3339
 
-  /** The Alluxio master process handle. */
+  /** The Alluxio master process. */
   private MasterProcess mMasterProcess;
 
   /**
@@ -207,8 +207,8 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
       info.setUptime(mMasterProcess.getUptimeMs());
       info.setClusterVersion(RuntimeConstants.VERSION);
       // Set ufs information.
-      String ufsRoot = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
-      UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsRoot);
+      String ufsRoot = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
+      UnderFileSystem ufs = UnderFileSystem.Factory.createForRoot();
       info.setUfsType(ufs.getUnderFSType());
       info.setUfsSize(ufs.getSpace(ufsRoot, UnderFileSystem.SpaceType.SPACE_TOTAL));
       // Set storage tiers.
