@@ -80,7 +80,9 @@ public final class SimplePrivilegeMaster extends AbstractMaster implements Privi
   }
 
   @Override
-  public void resetState() {}
+  public void resetState() {
+    // No journal.
+  }
 
   @Override
   public void start(Boolean unused) throws IOException {}

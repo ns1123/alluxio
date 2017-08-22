@@ -98,7 +98,9 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
 
   @Override
   public void resetState() {
-    mGroupPrivileges.clear();
+    try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
+      mGroupPrivileges.clear();
+    }
   }
 
   @Override

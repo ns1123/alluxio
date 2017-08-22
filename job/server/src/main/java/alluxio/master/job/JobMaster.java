@@ -152,10 +152,14 @@ public final class JobMaster extends AbstractMaster {
   }
 
   @Override
-  public void processJournalEntry(JournalEntry entry) throws IOException {}
+  public void processJournalEntry(JournalEntry entry) throws IOException {
+    // No journal.
+  }
 
   @Override
-  public void resetState() {}
+  public void resetState() {
+    // No journal.
+  }
 
   @Override
   public Iterator<JournalEntry> getJournalEntryIterator() {
