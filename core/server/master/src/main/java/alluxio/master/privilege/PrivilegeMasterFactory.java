@@ -14,7 +14,7 @@ package alluxio.master.privilege;
 import alluxio.Constants;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -45,10 +45,10 @@ public final class PrivilegeMasterFactory implements MasterFactory {
   }
 
   @Override
-  public PrivilegeMaster create(MasterRegistry registry, JournalFactory journalFactory) {
-    Preconditions.checkArgument(journalFactory != null, "journal factory may not be null");
+  public PrivilegeMaster create(MasterRegistry registry, JournalSystem journalSystem) {
+    Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} ", DefaultPrivilegeMaster.class.getName());
-    PrivilegeMaster privilegeMaster = new DefaultPrivilegeMaster(journalFactory);
+    PrivilegeMaster privilegeMaster = new DefaultPrivilegeMaster(journalSystem);
     registry.add(PrivilegeMaster.class, privilegeMaster);
     return privilegeMaster;
   }

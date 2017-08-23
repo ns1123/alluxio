@@ -13,8 +13,7 @@ package alluxio.cli.privileges;
 
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
+import alluxio.master.MasterClientConfig;
 import alluxio.wire.Privilege;
 
 import com.beust.jcommander.Parameter;
@@ -68,8 +67,8 @@ public final class GrantPrivilegesCommand implements Callable<String> {
         }
       }
     }
-    PrivilegeMasterClient client = PrivilegeMasterClient.Factory.create(null,
-        NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC));
+    PrivilegeMasterClient client =
+        PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
     List<Privilege> newPrivileges =
         client.grantPrivileges(mGroup, privileges, GrantPrivilegesOptions.defaults());
     return ListPrivilegesCommand.formatPrivileges(mGroup, newPrivileges);

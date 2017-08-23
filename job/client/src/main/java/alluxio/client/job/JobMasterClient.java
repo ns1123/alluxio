@@ -9,9 +9,10 @@
 
 package alluxio.client.job;
 
-import alluxio.MasterClient;
+import alluxio.Client;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
+import alluxio.worker.job.JobMasterClientConfig;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * Interface for job service clients to communicate with the job master.
  */
-public interface JobMasterClient extends MasterClient {
+public interface JobMasterClient extends Client {
 
   /**
    * Factory for {@link JobMasterClient}.
@@ -31,10 +32,11 @@ public interface JobMasterClient extends MasterClient {
     /**
      * Factory method for {@link JobMasterClient}.
      *
+     * @param conf job master client configuration
      * @return a new {@link JobMasterClient} instance
      */
-    public static JobMasterClient create() {
-      return RetryHandlingJobMasterClient.create();
+    public static JobMasterClient create(JobMasterClientConfig conf) {
+      return new RetryHandlingJobMasterClient(conf);
     }
   }
 

@@ -16,6 +16,7 @@ import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.retry.CountingRetry;
 import alluxio.util.CommonUtils;
+import alluxio.worker.job.JobMasterClientConfig;
 
 import com.google.common.base.Function;
 import org.slf4j.Logger;
@@ -57,7 +58,8 @@ public final class JobThriftClientUtils {
     CountingRetry retryPolicy = new CountingRetry(attempts);
     while (retryPolicy.attemptRetry()) {
       long jobId;
-      try (JobMasterClient client = JobMasterClient.Factory.create()) {
+      try (JobMasterClient client =
+          JobMasterClient.Factory.create(JobMasterClientConfig.defaults())) {
         jobId = client.run(config);
       } catch (Exception e) {
         // job could not be started, retry
@@ -124,7 +126,8 @@ public final class JobThriftClientUtils {
       @Override
       public Boolean apply(Void input) {
         JobInfo jobInfo;
-        try (JobMasterClient client = JobMasterClient.Factory.create()) {
+        try (JobMasterClient client =
+            JobMasterClient.Factory.create(JobMasterClientConfig.defaults())) {
           jobInfo = client.getStatus(jobId);
         } catch (Exception e) {
           LOG.warn("Failed to get status for job (jobId={})", jobId, e);

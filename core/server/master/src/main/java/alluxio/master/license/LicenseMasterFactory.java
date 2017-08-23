@@ -15,7 +15,7 @@ import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -46,12 +46,12 @@ public final class LicenseMasterFactory implements MasterFactory {
   }
 
   @Override
-  public LicenseMaster create(MasterRegistry registry, JournalFactory journalFactory) {
+  public LicenseMaster create(MasterRegistry registry, JournalSystem journalSystem) {
     if (!isEnabled()) {
       return null;
     }
-    Preconditions.checkArgument(journalFactory != null, "journal factory may not be null");
+    Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} ", LicenseMaster.class.getName());
-    return new LicenseMaster(registry, journalFactory);
+    return new LicenseMaster(registry, journalSystem);
   }
 }

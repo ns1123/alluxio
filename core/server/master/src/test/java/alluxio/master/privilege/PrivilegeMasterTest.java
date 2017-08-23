@@ -16,8 +16,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.master.MasterRegistry;
-import alluxio.master.journal.Journal;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
+import alluxio.master.journal.JournalSystem.Mode;
+import alluxio.master.journal.JournalTestUtils;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PPrivilege;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
@@ -30,7 +31,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -51,10 +51,11 @@ public final class PrivilegeMasterTest {
   @Before
   public void before() throws Exception {
     mRegistry = new MasterRegistry();
-    JournalFactory factory =
-        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    mMaster = new PrivilegeMasterFactory().create(mRegistry, factory);
+    JournalSystem journalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
+    mMaster = new PrivilegeMasterFactory().create(mRegistry, journalSystem);
     mRegistry.add(PrivilegeMaster.class, mMaster);
+    journalSystem.start();
+    journalSystem.setMode(Mode.PRIMARY);
     mRegistry.start(true);
   }
 

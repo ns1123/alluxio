@@ -12,10 +12,7 @@
 package alluxio.master.journal.noop;
 
 import alluxio.master.journal.Journal;
-import alluxio.master.journal.JournalReader;
-import alluxio.master.journal.JournalWriter;
-import alluxio.master.journal.options.JournalReaderOptions;
-import alluxio.master.journal.options.JournalWriterOptions;
+import alluxio.proto.journal.Journal.JournalEntry;
 
 import java.io.IOException;
 import java.net.URI;
@@ -41,25 +38,11 @@ public class NoopJournal implements Journal {
   }
 
   @Override
-  public JournalReader getReader(JournalReaderOptions options) {
-    return new NoopJournalReader();
-  }
+  public void write(JournalEntry entry) throws IOException {}
 
   @Override
-  public JournalWriter getWriter(JournalWriterOptions options) {
-    return new NoopJournalWriter();
-  }
+  public void flush() throws IOException {}
 
   @Override
-  public long getNextSequenceNumberToCheckpoint() throws IOException {
-    return 0;
-  }
-
-  @Override
-  public boolean isFormatted() throws IOException {
-    return true;
-  }
-
-  @Override
-  public void format() throws IOException {}
+  public void close() throws IOException {}
 }

@@ -17,15 +17,14 @@ import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
+import alluxio.master.MasterClientConfig;
 import alluxio.wire.Privilege;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.security.auth.Subject;
 
 /**
  * A client to use for interacting with a privilege master.
@@ -42,12 +41,11 @@ public interface PrivilegeMasterClient extends Client {
     /**
      * Factory method for {@link PrivilegeMasterClient}.
      *
-     * @param subject the parent subject
-     * @param masterAddress the master address
+     * @param conf master client configuration
      * @return a new {@link PrivilegeMasterClient} instance
      */
-    public static PrivilegeMasterClient create(Subject subject, InetSocketAddress masterAddress) {
-      return RetryHandlingPrivilegeMasterClient.create(subject, masterAddress);
+    public static PrivilegeMasterClient create(MasterClientConfig conf) {
+      return new RetryHandlingPrivilegeMasterClient(conf);
     }
   }
 

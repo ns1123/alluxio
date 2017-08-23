@@ -22,16 +22,14 @@ import alluxio.clock.SystemClock;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.master.AbstractMaster;
+import alluxio.master.AbstractNonJournaledMaster;
 import alluxio.master.MasterProcess;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
 import alluxio.master.license.License;
 import alluxio.master.license.LicenseMaster;
-import alluxio.proto.journal.Journal;
 import alluxio.underfs.UnderFileSystem;
-import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,7 +60,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,7 +72,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * backend.
  */
 @ThreadSafe
-public final class CallHomeMaster extends AbstractMaster {
+public final class CallHomeMaster extends AbstractNonJournaledMaster {
   private static final Logger LOG = LoggerFactory.getLogger(CallHomeMaster.class);
   private static final Set<Class<? extends Server>> DEPS =
       ImmutableSet.<Class<? extends Server>>of(BlockMaster.class, LicenseMaster.class);
@@ -94,12 +91,11 @@ public final class CallHomeMaster extends AbstractMaster {
    * Creates a new instance of {@link CallHomeMaster}.
    *
    * @param registry the master registry
-   * @param journalFactory the factory for the journal to use for tracking master operations
+   * @param journalSystem the journal system to use for tracking master operations
    */
-  public CallHomeMaster(MasterRegistry registry, JournalFactory journalFactory) {
-    super(journalFactory.create(Constants.CALL_HOME_MASTER_NAME), new SystemClock(),
-        ExecutorServiceFactories
-            .fixedThreadPoolExecutorServiceFactory(Constants.CALL_HOME_MASTER_NAME, 2));
+  public CallHomeMaster(MasterRegistry registry, JournalSystem journalSystem) {
+    super(journalSystem, new SystemClock(), ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.CALL_HOME_MASTER_NAME, 2));
     registry.add(CallHomeMaster.class, this);
   }
 
@@ -142,17 +138,6 @@ public final class CallHomeMaster extends AbstractMaster {
     return new HashMap<>();
   }
 
-  @Override
-  public void processJournalEntry(Journal.JournalEntry entry) throws IOException {
-    // No journal.
-  }
-
-  @Override
-  public Iterator<Journal.JournalEntry> getJournalEntryIterator() {
-    // No Journal
-    return CommonUtils.nullIterator();
-  }
-
   /**
    * Collects and saves call home information during the heartbeat.
    */
@@ -171,8 +156,8 @@ public final class CallHomeMaster extends AbstractMaster {
      */
     public CallHomeExecutor(MasterProcess masterProcess) {
       mMasterProcess = masterProcess;
-      mBlockMaster = mMasterProcess.getMaster(BlockMaster.class);
-      mLicenseMaster = mMasterProcess.getMaster(LicenseMaster.class);
+      mBlockMaster = masterProcess.getMaster(BlockMaster.class);
+      mLicenseMaster = masterProcess.getMaster(LicenseMaster.class);
     }
 
     @Override

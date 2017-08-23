@@ -19,9 +19,8 @@ import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
+import alluxio.master.MasterClientConfig;
 import alluxio.security.group.GroupMappingService;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.Privilege;
 
 import org.junit.Rule;
@@ -82,8 +81,8 @@ public class PrivilegesTest extends BaseIntegrationTest {
    * @param privileges the privileges
    */
   protected void grantPrivileges(String group, Privilege... privileges) throws Exception {
-    PrivilegeMasterClient client = PrivilegeMasterClient.Factory.create(null,
-        NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC));
+    PrivilegeMasterClient client =
+        PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
     client.grantPrivileges(group, Arrays.asList(privileges), GrantPrivilegesOptions.defaults());
   }
 

@@ -10,11 +10,16 @@
 package alluxio.master;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.Process;
 import alluxio.PropertyKey;
 import alluxio.master.job.JobMaster;
+import alluxio.master.journal.JournalSystem;
+import alluxio.master.journal.JournalUtils;
+import alluxio.util.URIUtils;
 
 import java.net.InetSocketAddress;
+import java.net.URI;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -27,14 +32,20 @@ public interface JobMasterProcess extends Process {
    */
   @ThreadSafe
   final class Factory {
+
     /**
      * @return a new instance of {@link JobMasterProcess}
      */
     public static JobMasterProcess create() {
+      URI journalLocation = JournalUtils.getJournalLocation();
+      JournalSystem journalSystem = new JournalSystem.Builder()
+          .setLocation(URIUtils.appendPathOrDie(journalLocation, Constants.JOB_JOURNAL_NAME))
+          .build();
       if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-        return new FaultTolerantAlluxioJobMasterProcess();
+        PrimarySelector primarySelector = PrimarySelector.Factory.createZkJobPrimarySelector();
+        return new FaultTolerantAlluxioJobMasterProcess(journalSystem, primarySelector);
       }
-      return new AlluxioJobMasterProcess();
+      return new AlluxioJobMasterProcess(journalSystem);
     }
 
     private Factory() {} // prevent instantiation
