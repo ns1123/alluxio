@@ -15,6 +15,7 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.BoundedStream;
 import alluxio.client.Cancelable;
+import alluxio.client.WriteType;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.exception.PreconditionMessage;
@@ -72,18 +73,24 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
       LOG.info("Creating short circuit output stream for block {} @ {}", blockId, address);
       return createLocalBlockOutStream(context, address, blockId, blockSize, options);
     } else {
-      Protocol.WriteRequest writeRequestPartial =
+      Protocol.WriteRequest.Builder writeRequestBuilder =
           Protocol.WriteRequest.newBuilder().setId(blockId).setTier(options.getWriteTier())
-              .setType(Protocol.RequestType.ALLUXIO_BLOCK).buildPartial();
+              .setType(Protocol.RequestType.ALLUXIO_BLOCK);
       // ALLUXIO CS ADD
+      if (options.getWriteType() == WriteType.ASYNC_THROUGH &&
+          Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
+        Protocol.CreateUfsBlockOptions ufsBlockOptions =
+            Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId()).build();
+        writeRequestBuilder.setCreateUfsBlockOptions(ufsBlockOptions);
+      }
       if (options.getCapabilityFetcher() != null) {
-        writeRequestPartial = writeRequestPartial.toBuilder()
-            .setCapability(options.getCapabilityFetcher().getCapability().toProto()).buildPartial();
+        writeRequestBuilder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
       }
       // ALLUXIO CS END
       LOG.info("Creating netty output stream for block {} @ {} from client {}", blockId, address,
           NetworkAddressUtils.getClientHostName());
-      return createNettyBlockOutStream(context, address, blockSize, writeRequestPartial, options);
+      return createNettyBlockOutStream(context, address, blockSize,
+          writeRequestBuilder.buildPartial(), options);
     }
   }
 
