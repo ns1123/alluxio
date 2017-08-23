@@ -19,10 +19,10 @@ import javax.annotation.concurrent.ThreadSafe;
  * The UFS File write request internal representation.
  */
 @ThreadSafe
-public final class UfsBlockWriteRequest extends WriteRequest {
+public final class BlockWriteRequest extends WriteRequest {
   private final Protocol.CreateUfsBlockOptions mCreateUfsBlockOptions;
 
-  UfsBlockWriteRequest(Protocol.WriteRequest request) {
+  BlockWriteRequest(Protocol.WriteRequest request) {
     super(request);
     mCreateUfsBlockOptions = request.getCreateUfsBlockOptions();
   }

@@ -76,8 +76,14 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     pipeline.addLast("blockReadHandler",
         new BlockReadHandler(NettyExecutors.BLOCK_READER_EXECUTOR,
             mWorkerProcess.getWorker(BlockWorker.class), mFileTransferType));
+    // ALLUXIO CS REPLACE
+    // pipeline.addLast("blockWriteHandler", new BlockWriteHandler(
+    //     NettyExecutors.BLOCK_WRITER_EXECUTOR, mWorkerProcess.getWorker(BlockWorker.class)));
+    // ALLUXIO CS WITH
     pipeline.addLast("blockWriteHandler", new BlockWriteHandler(
-        NettyExecutors.BLOCK_WRITER_EXECUTOR, mWorkerProcess.getWorker(BlockWorker.class)));
+        NettyExecutors.BLOCK_WRITER_EXECUTOR, mWorkerProcess.getWorker(BlockWorker.class),
+        mWorkerProcess.getUfsManager()));
+    // ALLUXIO CS END
     pipeline.addLast("shortCircuitBlockReadHandler",
         new ShortCircuitBlockReadHandler(NettyExecutors.RPC_EXECUTOR,
             mWorkerProcess.getWorker(BlockWorker.class)));

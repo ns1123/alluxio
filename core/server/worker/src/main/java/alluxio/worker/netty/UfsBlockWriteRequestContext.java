@@ -29,7 +29,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * The block write request internal representation.
  */
 @NotThreadSafe
-public final class UfsBlockWriteRequestContext extends WriteRequestContext<UfsBlockWriteRequest> {
+public final class UfsBlockWriteRequestContext extends WriteRequestContext<BlockWriteRequest> {
   /** The buffer for packets read from the channel. */
   @GuardedBy("AbstractWriteHandler#mLock")
   private Queue<DataBuffer> mDataBufferPackets = new LinkedList<>();
@@ -38,7 +38,7 @@ public final class UfsBlockWriteRequestContext extends WriteRequestContext<UfsBl
   private String mUfsPath;
 
   UfsBlockWriteRequestContext(Protocol.WriteRequest request) {
-    super(new UfsBlockWriteRequest(request));
+    super(new BlockWriteRequest(request));
     Preconditions.checkState(request.getOffset() == 0);
   }
 
