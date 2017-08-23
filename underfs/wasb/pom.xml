@@ -79,7 +79,7 @@
         <artifactId>maven-shade-plugin</artifactId>
         <executions>
           <execution>
-            <id>shade-hdfs</id>
+            <id>shade-wasb</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
