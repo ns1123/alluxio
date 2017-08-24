@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.cli;
+package alluxio.cli.fs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -17,7 +17,6 @@ import static org.junit.Assert.assertTrue;
 import alluxio.AlluxioURI;
 import alluxio.BaseIntegrationTest;
 import alluxio.ConfigurationTestUtils;
-import alluxio.cli.fs.FileSystemShell;
 import alluxio.client.file.FileSystem;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.MultiMasterLocalAlluxioCluster;
