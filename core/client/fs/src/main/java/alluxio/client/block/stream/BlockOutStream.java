@@ -114,7 +114,7 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     }
     // ALLUXIO CS END
     PacketWriter packetWriter =
-        LocalFilePacketWriter.create(context, address, id, packetSize, options);
+        LocalFilePacketWriter.create(context, address, id, options);
     return new BlockOutStream(packetWriter, length);
   }
 
@@ -202,7 +202,7 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
               options.getEncryptionMeta(), packetSize);
         }
         PacketWriter packetWriter =
-            LocalFilePacketWriter.create(context, address, blockId, packetSize, options);
+            LocalFilePacketWriter.create(context, address, blockId, options);
         packetWriters.add(packetWriter);
       } else {
         long packetSize =

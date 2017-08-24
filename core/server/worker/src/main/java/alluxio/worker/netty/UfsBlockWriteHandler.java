@@ -190,7 +190,7 @@ public final class UfsBlockWriteHandler extends ChannelInboundHandlerAdapter {
         Preconditions.checkState(dataBuffer != null && dataBuffer.getLength() > 0);
         Preconditions.checkState(dataBuffer.getNettyOutput() instanceof ByteBuf);
         buf = dataBuffer;
-        mContext.setPosToQueue(mContext.getPosToQueue() + buf.readableBytes());
+        mContext.setPosToQueue(mContext.getPosToQueue() + buf.getLength());
       }
       if (!mContext.isPacketWriterActive()) {
         mContext.setPacketWriterActive(true);
