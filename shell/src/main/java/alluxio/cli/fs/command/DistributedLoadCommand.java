@@ -9,10 +9,9 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.shell.command.enterprise;
+package alluxio.cli.fs.command;
 
 import alluxio.AlluxioURI;
-import alluxio.cli.fs.command.WithWildCardPathCommand;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.job.JobThriftClientUtils;

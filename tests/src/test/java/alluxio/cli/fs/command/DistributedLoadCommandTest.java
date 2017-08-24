@@ -9,10 +9,11 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.shell.command.enterprise;
+package alluxio.cli.fs.command;
 
 import alluxio.AlluxioURI;
 import alluxio.cli.fs.AbstractAlluxioShellTest;
+import alluxio.cli.fs.command.DistributedLoadCommand;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileSystemTestUtils;
 import alluxio.client.file.URIStatus;

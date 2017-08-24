@@ -9,11 +9,10 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.shell.command.enterprise;
+package alluxio.cli.fs.command;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
-import alluxio.cli.fs.command.AbstractFileSystemCommand;
 import alluxio.client.file.FileSystem;
 import alluxio.client.job.JobThriftClientUtils;
 import alluxio.exception.AlluxioException;
