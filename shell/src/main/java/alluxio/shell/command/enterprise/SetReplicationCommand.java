@@ -12,10 +12,11 @@
 package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
+import alluxio.cli.fs.command.AbstractFileSystemCommand;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.exception.AlluxioException;
-import alluxio.shell.command.AbstractShellCommand;
+import alluxio.exception.status.InvalidArgumentException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -29,7 +30,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Changes the replication level of a file or directory specified by args.
  */
 @ThreadSafe
-public final class SetReplicationCommand extends AbstractShellCommand {
+public final class SetReplicationCommand extends AbstractFileSystemCommand {
 
   private static final Option REPLICATION_MAX_OPTION =
       Option.builder("max").required(false).numberOfArgs(1).desc("the maximum number of replicas")
@@ -65,12 +66,11 @@ public final class SetReplicationCommand extends AbstractShellCommand {
   }
 
   @Override
-  public boolean validateArgs(String... args) {
-    boolean valid = args.length >= getNumOfArgs();
-    if (!valid) {
-      System.out.println(getCommandName() + " takes " + getNumOfArgs() + " argument at least\n");
+  public void validateArgs(String... args) throws InvalidArgumentException {
+    if (args.length < getNumOfArgs()) {
+      throw new InvalidArgumentException(
+          getCommandName() + " takes " + getNumOfArgs() + " argument at least\n");
     }
-    return valid;
   }
 
   /**

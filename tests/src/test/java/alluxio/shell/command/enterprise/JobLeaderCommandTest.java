@@ -11,7 +11,7 @@
 
 package alluxio.shell.command.enterprise;
 
-import alluxio.shell.AbstractAlluxioShellTest;
+import alluxio.cli.fs.AbstractAlluxioShellTest;
 
 import org.junit.Assert;
 import org.junit.Test;

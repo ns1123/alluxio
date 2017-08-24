@@ -13,11 +13,11 @@ package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
+import alluxio.cli.fs.command.AbstractFileSystemCommand;
 import alluxio.client.file.FileSystem;
 import alluxio.client.job.JobThriftClientUtils;
 import alluxio.exception.AlluxioException;
 import alluxio.job.move.MoveConfig;
-import alluxio.shell.command.AbstractShellCommand;
 
 import org.apache.commons.cli.CommandLine;
 
@@ -29,7 +29,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Renames a file or directory specified by args. Will fail if the new path name already exists.
  */
 @ThreadSafe
-public final class DistributedMvCommand extends AbstractShellCommand {
+public final class DistributedMvCommand extends AbstractFileSystemCommand {
 
   /**
    * @param fs the filesystem of Alluxio

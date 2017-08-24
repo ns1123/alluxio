@@ -43,6 +43,14 @@ public final class CommandUtils {
     Map<String, Command> commandsMap = new HashMap<>();
     Reflections reflections = new Reflections(Command.class.getPackage().getName());
     for (Class<? extends Command> cls : reflections.getSubTypesOf(Command.class)) {
+      // ALLUXIO CS ADD
+      if (cls.getSimpleName().equals("CreateLineageCommand")
+          || cls.getSimpleName().equals("DeleteLineageCommand")
+          || cls.getSimpleName().equals("ListLineagesCommand")
+          || cls.getSimpleName().equals("LoadMetadataCommand")) {
+        continue;
+      }
+      // ALLUXIO CS END
       if (cls.getPackage().getName().startsWith(pkgName)
           && !Modifier.isAbstract(cls.getModifiers())) {
         // Only instantiate a concrete class

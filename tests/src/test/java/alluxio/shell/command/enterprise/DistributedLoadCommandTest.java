@@ -12,11 +12,11 @@
 package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
+import alluxio.cli.fs.AbstractAlluxioShellTest;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileSystemTestUtils;
 import alluxio.client.file.URIStatus;
 import alluxio.exception.AlluxioException;
-import alluxio.shell.AbstractAlluxioShellTest;
 
 import org.junit.Assert;
 import org.junit.Test;

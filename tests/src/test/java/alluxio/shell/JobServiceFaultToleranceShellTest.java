@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 import alluxio.AlluxioURI;
 import alluxio.BaseIntegrationTest;
 import alluxio.ConfigurationTestUtils;
-import alluxio.cli.AlluxioShell;
+import alluxio.cli.fs.FileSystemShell;
 import alluxio.client.file.FileSystem;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.MultiMasterLocalAlluxioCluster;
@@ -64,7 +64,7 @@ public final class JobServiceFaultToleranceShellTest extends BaseIntegrationTest
       out.write("Hello".getBytes());
     }
 
-    try (AlluxioShell shell = new AlluxioShell()) {
+    try (FileSystemShell shell = new FileSystemShell()) {
       int exitCode = shell.run("distributedMv", "/test", "/test2");
       assertEquals("Command failed, output: " + mOutput.toString(), 0, exitCode);
     }

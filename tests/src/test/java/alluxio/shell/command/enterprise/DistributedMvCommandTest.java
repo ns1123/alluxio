@@ -13,8 +13,8 @@ package alluxio.shell.command.enterprise;
 
 import static org.junit.Assert.assertEquals;
 
-import alluxio.shell.AbstractAlluxioShellTest;
-import alluxio.shell.command.MvCommand;
+import alluxio.cli.fs.AbstractAlluxioShellTest;
+import alluxio.cli.fs.command.MvCommand;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Joiner;

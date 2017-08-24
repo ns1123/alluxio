@@ -218,57 +218,9 @@ public final class FileSystemShellUtils {
    * @param fileSystem the {@link FileSystem} instance to construct the command
    * @return a mapping from command name to command instance
    */
-<<<<<<< HEAD:shell/src/main/java/alluxio/shell/AlluxioShellUtils.java
-  public static Map<String, ShellCommand> loadCommands(FileSystem fileSystem) {
-    Map<String, ShellCommand> commandsMap = new HashMap<>();
-    String pkgName = ShellCommand.class.getPackage().getName();
-    Reflections reflections = new Reflections(pkgName);
-    for (Class<? extends ShellCommand> cls : reflections.getSubTypesOf(ShellCommand.class)) {
-      // ALLUXIO CS ADD
-      if (cls.getSimpleName().equals("CreateLineageCommand")
-          || cls.getSimpleName().equals("DeleteLineageCommand")
-          || cls.getSimpleName().equals("ListLineagesCommand")
-          || cls.getSimpleName().equals("LoadMetadataCommand")) {
-        continue;
-      }
-      // ALLUXIO CS END
-      // Only instantiate a concrete class
-      if (!Modifier.isAbstract(cls.getModifiers())) {
-        ShellCommand cmd;
-        try {
-          cmd = CommonUtils.createNewClassInstance(cls, new Class[] {FileSystem.class},
-              new Object[] {fileSystem});
-        } catch (Exception e) {
-          throw Throwables.propagate(e);
-        }
-        commandsMap.put(cmd.getCommandName(), cmd);
-      }
-    }
-    return commandsMap;
-||||||| merged common ancestors
-  public static Map<String, ShellCommand> loadCommands(FileSystem fileSystem) {
-    Map<String, ShellCommand> commandsMap = new HashMap<>();
-    String pkgName = ShellCommand.class.getPackage().getName();
-    Reflections reflections = new Reflections(pkgName);
-    for (Class<? extends ShellCommand> cls : reflections.getSubTypesOf(ShellCommand.class)) {
-      // Only instantiate a concrete class
-      if (!Modifier.isAbstract(cls.getModifiers())) {
-        ShellCommand cmd;
-        try {
-          cmd = CommonUtils.createNewClassInstance(cls, new Class[] {FileSystem.class},
-              new Object[] {fileSystem});
-        } catch (Exception e) {
-          throw Throwables.propagate(e);
-        }
-        commandsMap.put(cmd.getCommandName(), cmd);
-      }
-    }
-    return commandsMap;
-=======
   public static Map<String, Command> loadCommands(FileSystem fileSystem) {
     return CommandUtils.loadCommands(FileSystemShell.class.getPackage().getName(),
         new Class[] {FileSystem.class}, new Object[] {fileSystem});
->>>>>>> OPENSOURCE/master:shell/src/main/java/alluxio/cli/fs/FileSystemShellUtils.java
   }
 
   /**

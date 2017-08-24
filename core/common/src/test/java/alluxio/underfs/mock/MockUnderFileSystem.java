@@ -133,6 +133,11 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public boolean isObjectStorage() {
+    return false;
+  }
+
+  @Override
   public UfsStatus[] listStatus(String path) throws IOException {
     return null;
   }

@@ -12,12 +12,12 @@
 package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
+import alluxio.cli.fs.command.WithWildCardPathCommand;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.job.JobThriftClientUtils;
 import alluxio.exception.AlluxioException;
 import alluxio.job.load.LoadConfig;
-import alluxio.shell.command.WithWildCardPathCommand;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

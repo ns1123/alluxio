@@ -11,9 +11,9 @@
 
 package alluxio.shell.command.enterprise;
 
+import alluxio.cli.fs.command.AbstractFileSystemCommand;
 import alluxio.client.file.FileSystem;
 import alluxio.master.MasterInquireClient;
-import alluxio.shell.command.AbstractShellCommand;
 
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Prints the current leader master host name.
  */
 @ThreadSafe
-public final class JobLeaderCommand extends AbstractShellCommand {
+public final class JobLeaderCommand extends AbstractFileSystemCommand {
   private static final Logger LOG = LoggerFactory.getLogger(JobLeaderCommand.class);
 
   /**

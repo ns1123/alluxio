@@ -12,11 +12,11 @@
 package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
+import alluxio.cli.fs.AbstractAlluxioShellTest;
+import alluxio.cli.fs.FileSystemShellUtilsTest;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileSystemTestUtils;
 import alluxio.client.file.URIStatus;
-import alluxio.shell.AbstractAlluxioShellTest;
-import alluxio.shell.AlluxioShellUtilsTest;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
@@ -140,7 +140,7 @@ public final class SetReplicationCommandTest extends AbstractAlluxioShellTest {
 
   @Test
   public void setReplicationRecursively() throws Exception {
-    String testDir = AlluxioShellUtilsTest.resetFileHierarchy(mFileSystem);
+    String testDir = FileSystemShellUtilsTest.resetFileHierarchy(mFileSystem);
     int ret =
         mFsShell.run("setReplication", "-R", "-min", "2", PathUtils.concatPath(testDir, "foo"));
     Assert.assertEquals(0, ret);

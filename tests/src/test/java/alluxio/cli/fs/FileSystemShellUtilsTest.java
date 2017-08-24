@@ -277,8 +277,7 @@ public final class FileSystemShellUtilsTest {
     }
 
     int expectSize = 0;
-<<<<<<< HEAD:tests/src/test/java/alluxio/shell/AlluxioShellUtilsTest.java
-    for (Class<? extends ShellCommand> cls : cmdSet) {
+    for (Class<? extends Command> cls : cmdSet) {
       // ALLUXIO CS ADD
       if (cls.getSimpleName().equals("CreateLineageCommand")
           || cls.getSimpleName().equals("DeleteLineageCommand")
@@ -287,15 +286,8 @@ public final class FileSystemShellUtilsTest {
         continue;
       }
       // ALLUXIO CS END
-      if (!Modifier.isAbstract(cls.getModifiers())) {
-||||||| merged common ancestors
-    for (Class<? extends ShellCommand> cls : cmdSet) {
-      if (!Modifier.isAbstract(cls.getModifiers())) {
-=======
-    for (Class<? extends Command> cls : cmdSet) {
       if (cls.getPackage().getName().startsWith(FileSystemShell.class.getPackage().getName())
           && !Modifier.isAbstract(cls.getModifiers())) {
->>>>>>> OPENSOURCE/master:tests/src/test/java/alluxio/cli/fs/FileSystemShellUtilsTest.java
         expectSize++;
       }
     }
