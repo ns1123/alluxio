@@ -70,12 +70,18 @@ public final class LocalFilePacketWriter implements PacketWriter {
    * @param context the file system context
    * @param address the worker network address
    * @param blockId the block ID
-   * @param packetSize the packet size
    * @param options the output stream options
    * @return the {@link LocalFilePacketWriter} created
    */
   public static LocalFilePacketWriter create(FileSystemContext context, WorkerNetAddress address,
-      long blockId, long packetSize, OutStreamOptions options) throws IOException {
+      long blockId, OutStreamOptions options) throws IOException {
+    long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
+    }
+    // ALLUXIO CS END
     return new LocalFilePacketWriter(context, address, blockId, packetSize, options);
   }
 
@@ -216,5 +222,15 @@ public final class LocalFilePacketWriter implements PacketWriter {
             .setOnlyReserveSpace(true).build()));
     mPosReserved += toReserve;
   }
+  // ALLUXIO CS ADD
+
+
+  /**
+   * @return the block writer
+   */
+  public alluxio.worker.block.io.BlockWriter getWriter() {
+    return mWriter;
+  }
+  // ALLUXIO CS END
 }
 
