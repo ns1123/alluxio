@@ -478,6 +478,11 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public boolean isObjectStorage() {
+    return false;
+  }
+
+  @Override
   public UfsStatus[] listStatus(final String path) throws IOException {
     AtomicReference<UfsStatus[]> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(

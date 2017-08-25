@@ -39,8 +39,10 @@ public final class Constants {
   public static final String ANSI_CYAN = "\u001B[36m";
   public static final String ANSI_WHITE = "\u001B[37m";
 
+  public static final String EXTENSION_JAR = ".jar";
+
   public static final String LS_FORMAT_PERMISSION = "%-15s";
-  public static final String LS_FORMAT_FILE_SIZE = "%-10s";
+  public static final String LS_FORMAT_FILE_SIZE = "%-15s";
   public static final String LS_FORMAT_CREATE_TIME = "%-25s";
   public static final String LS_FORMAT_FILE_TYPE = "%-15s";
   public static final String LS_FORMAT_USER_NAME = "%-15s";
@@ -76,7 +78,6 @@ public final class Constants {
   public static final String HEADER_OSS = "oss://";
 
   public static final String HEADER_S3 = "s3://";
-  public static final String HEADER_S3N = "s3n://";
   public static final String HEADER_S3A = "s3a://";
   public static final String HEADER_SWIFT = "swift://";
   // ALLUXIO CS ADD

@@ -1,0 +1,4 @@
+DistributedLoadCommandTest.java
+DistributedMvCommandTest.java
+JobLeaderCommandTest.java
+SetReplicationCommandTest.java
