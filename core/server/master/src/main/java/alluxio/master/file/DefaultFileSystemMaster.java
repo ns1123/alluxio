@@ -808,25 +808,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
     Metrics.GET_FILE_INFO_OPS.inc();
     try (JournalContext journalContext = createJournalContext();
-<<<<<<< HEAD
-         LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.READ)) {
-      mPermissionChecker.checkPermission(Mode.Bits.READ, inodePath);
-      if (inodePath.fullPathExists()) {
-        // The file already exists, so metadata does not need to be loaded.
-        // ALLUXIO CS REPLACE
-        // return getFileInfoInternal(inodePath);
-        // ALLUXIO CS WITH
-        FileInfo fileInfo = getFileInfoInternal(inodePath);
-        populateCapability(fileInfo, inodePath);
-        return fileInfo;
-        // ALLUXIO CS END
-||||||| merged common ancestors
-         LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.READ)) {
-      mPermissionChecker.checkPermission(Mode.Bits.READ, inodePath);
-      if (inodePath.fullPathExists()) {
-        // The file already exists, so metadata does not need to be loaded.
-        return getFileInfoInternal(inodePath);
-=======
          LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.READ);
          FileSystemMasterAuditContext auditContext =
              createAuditContext("getFileInfo", path, null, inodePath.getInodeOrNull())) {
@@ -835,38 +816,21 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       } catch (AccessControlException e) {
         auditContext.setAllowed(false);
         throw e;
->>>>>>> OPENSOURCE/master
       }
       // If the file already exists, then metadata does not need to be loaded,
       // otherwise load metadata.
       if (!inodePath.fullPathExists()) {
         checkLoadMetadataOptions(options.getLoadMetadataType(), inodePath.getUri());
-
-<<<<<<< HEAD
-      loadMetadataIfNotExistAndJournal(inodePath,
-          LoadMetadataOptions.defaults().setCreateAncestors(true), journalContext);
-      ensureFullPathAndUpdateCache(inodePath);
-      // ALLUXIO CS REPLACE
-      // return getFileInfoInternal(inodePath);
-      // ALLUXIO CS WITH
-      FileInfo fileInfo = getFileInfoInternal(inodePath);
-      populateCapability(fileInfo, inodePath);
-      return fileInfo;
-      // ALLUXIO CS END
-||||||| merged common ancestors
-      loadMetadataIfNotExistAndJournal(inodePath,
-          LoadMetadataOptions.defaults().setCreateAncestors(true), journalContext);
-      ensureFullPathAndUpdateCache(inodePath);
-      return getFileInfoInternal(inodePath);
-=======
         loadMetadataIfNotExistAndJournal(inodePath,
             LoadMetadataOptions.defaults().setCreateAncestors(true), journalContext);
         ensureFullPathAndUpdateCache(inodePath);
       }
       FileInfo fileInfo = getFileInfoInternal(inodePath);
+      // ALLUXIO CS ADD
+      populateCapability(fileInfo, inodePath);
+      // ALLUXIO CS END
       auditContext.setSrcInode(inodePath.getInode()).setSucceeded(true);
       return fileInfo;
->>>>>>> OPENSOURCE/master
     }
   }
 
