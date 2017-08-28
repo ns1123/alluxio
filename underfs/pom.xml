@@ -27,7 +27,6 @@
     <module>fork</module>
     <!-- ALLUXIO CS END -->
     <module>gcs</module>
-    <module>glusterfs</module>
     <module>hdfs</module>
     <!-- ALLUXIO CS ADD -->
     <module>hdfsx</module>
