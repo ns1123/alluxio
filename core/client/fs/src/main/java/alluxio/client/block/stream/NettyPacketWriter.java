@@ -123,6 +123,14 @@ public final class NettyPacketWriter implements PacketWriter {
     long packetSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
     Channel nettyChannel = context.acquireNettyChannel(address);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
+    }
+    // TODO(peis): Move this logic to NettyClient.
+    alluxio.client.netty.NettyClient.waitForChannelReady(nettyChannel);
+    // ALLUXIO CS END
     return new NettyPacketWriter(context, address, id, length, packetSize, type, options,
         nettyChannel);
   }
@@ -154,23 +162,14 @@ public final class NettyPacketWriter implements PacketWriter {
               .setMode(options.getMode().toShort()).setMountId(options.getMountId()).build();
       builder.setCreateUfsFileOptions(ufsFileOptions);
     }
-    mPartialRequest = builder.buildPartial();
-    mPacketSize = packetSize;
-<<<<<<< HEAD
-    mChannel = mContext.acquireNettyChannel(address);
     // ALLUXIO CS ADD
-    // TODO(peis): Move this logic to NettyClient.
-    try {
-      alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
-    } catch (IOException e) {
-      throw AlluxioStatusException.fromIOException(e);
+    if (options.getCapabilityFetcher() != null) {
+      builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-    mChannel = mContext.acquireNettyChannel(address);
-=======
+    mPartialRequest = builder.buildPartial();
+    mPacketSize = packetSize;
     mChannel = channel;
->>>>>>> 825e48ead8069ce0c6088fb7714d96f801c870f9
     mChannel.pipeline().addLast(new PacketWriteHandler());
   }
 

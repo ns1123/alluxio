@@ -79,14 +79,6 @@
       <artifactId>alluxio-underfs-gcs</artifactId>
       <version>${project.version}</version>
     </dependency>
-<<<<<<< HEAD
-    <!-- Removed to prevent colliding on core-default.xml
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-glusterfs</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    -->
     <!-- ALLUXIO CS REPLACE -->
     <!-- <dependency> -->
       <!-- <groupId>org.alluxio</groupId> -->
@@ -107,16 +99,6 @@
     </dependency>
     <!-- ALLUXIO CS END -->
     <!-- ALLUXIO CS ADD -->
-||||||| merged common ancestors
-    <!-- Removed to prevent colliding on core-default.xml
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-glusterfs</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    -->
-=======
->>>>>>> 825e48ead8069ce0c6088fb7714d96f801c870f9
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-jdbc</artifactId>

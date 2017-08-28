@@ -167,22 +167,15 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
       }
       if (context.getBlockWriter() == null) {
         String metricName = "BytesWrittenAlluxio";
+        // ALLUXIO CS ADD
+        String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+        if (user != null) {
+          metricName = String.format("BytesWrittenAlluxio-User:%s", user);
+        }
+        // ALLUXIO CS END
         context.setBlockWriter(
             mWorker.getTempBlockWriterRemote(request.getSessionId(), request.getId()));
-<<<<<<< HEAD
-        // ALLUXIO CS REPLACE
-        // context.setCounter(MetricsSystem.workerCounter("BytesWrittenAlluxio"));
-        // ALLUXIO CS WITH
-        String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
-        String metricName = user != null ? String.format("BytesWrittenAlluxio-User:%s", user)
-            : "BytesWrittenAlluxio";
         context.setCounter(MetricsSystem.workerCounter(metricName));
-        // ALLUXIO CS END
-||||||| merged common ancestors
-        context.setCounter(MetricsSystem.workerCounter("BytesWrittenAlluxio"));
-=======
-        context.setCounter(MetricsSystem.workerCounter(metricName));
->>>>>>> 825e48ead8069ce0c6088fb7714d96f801c870f9
       }
       Preconditions.checkState(context.getBlockWriter() != null);
       GatheringByteChannel outputChannel = context.getBlockWriter().getChannel();

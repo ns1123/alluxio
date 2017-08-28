@@ -77,6 +77,12 @@ public final class LocalFilePacketWriter implements PacketWriter {
       long blockId, OutStreamOptions options) throws IOException {
     long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
 
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), packetSize);
+    }
+    // ALLUXIO CS END
     Closer closer = Closer.create();
     try {
       final Channel channel = context.acquireNettyChannel(address);
@@ -87,9 +93,20 @@ public final class LocalFilePacketWriter implements PacketWriter {
         }
       });
 
-      ProtoMessage createRequest = new ProtoMessage(
+      // ALLUXIO CS REPLACE
+      // ProtoMessage createRequest = new ProtoMessage(
+      //     Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId)
+      //         .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES).build());
+      // ALLUXIO CS WITH
+      Protocol.LocalBlockCreateRequest.Builder builder =
           Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId)
-              .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES).build());
+              .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES);
+      if (options.getCapabilityFetcher() != null) {
+        builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
+      }
+      ProtoMessage createRequest = new ProtoMessage(builder.build());
+      alluxio.client.netty.NettyClient.waitForChannelReady(channel);
+      // ALLUXIO CS END
       NettyRPCContext nettyRPCContext =
           NettyRPCContext.defaults().setChannel(channel).setTimeout(WRITE_TIMEOUT_MS);
       ProtoMessage message = NettyRPC.call(nettyRPCContext, createRequest);
@@ -184,58 +201,9 @@ public final class LocalFilePacketWriter implements PacketWriter {
     mChannel = channel;
     mCloser = closer;
     mOptions = options;
-<<<<<<< HEAD
-    Protocol.LocalBlockCreateRequest request =
-        Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId)
-            .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES).build();
-    // ALLUXIO CS ADD
-    if (mOptions.getCapabilityFetcher() != null) {
-      request = request.toBuilder()
-          .setCapability(mOptions.getCapabilityFetcher().getCapability().toProto()).build();
-    }
-    try {
-      alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
-    } catch (Exception e) {
-      throw CommonUtils.closeAndRethrow(mCloser, e);
-    }
-    // ALLUXIO CS END
-
-    try {
-      mCreateRequest = new ProtoMessage(request);
-      mNettyRPCContext =
-          NettyRPCContext.defaults().setChannel(mChannel).setTimeout(WRITE_TIMEOUT_MS);
-
-      ProtoMessage message = NettyRPC.call(mNettyRPCContext, mCreateRequest);
-      Preconditions.checkState(message.isLocalBlockCreateResponse());
-      mWriter = mCloser
-          .register(new LocalFileBlockWriter(message.asLocalBlockCreateResponse().getPath()));
-    } catch (Exception e) {
-      throw CommonUtils.closeAndRethrow(mCloser, e);
-    }
-
-||||||| merged common ancestors
-    Protocol.LocalBlockCreateRequest request =
-        Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId)
-            .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES).build();
-
-    try {
-      mCreateRequest = new ProtoMessage(request);
-      mNettyRPCContext =
-          NettyRPCContext.defaults().setChannel(mChannel).setTimeout(WRITE_TIMEOUT_MS);
-
-      ProtoMessage message = NettyRPC.call(mNettyRPCContext, mCreateRequest);
-      Preconditions.checkState(message.isLocalBlockCreateResponse());
-      mWriter = mCloser
-          .register(new LocalFileBlockWriter(message.asLocalBlockCreateResponse().getPath()));
-    } catch (Exception e) {
-      throw CommonUtils.closeAndRethrow(mCloser, e);
-    }
-
-=======
     mWriter = writer;
     mCreateRequest = createRequest;
     mNettyRPCContext = nettyRPCContext;
->>>>>>> 825e48ead8069ce0c6088fb7714d96f801c870f9
     mPosReserved += FILE_BUFFER_BYTES;
     mBlockId = blockId;
     mPacketSize = packetSize;

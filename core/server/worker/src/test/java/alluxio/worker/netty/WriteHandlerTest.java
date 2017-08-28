@@ -57,19 +57,9 @@ public abstract class WriteHandlerTest {
     checkWriteResponse(PStatus.OK, writeResponse);
   }
 
-<<<<<<< HEAD
   /**
    * Writes an non-empty file.
    */
-  // ALLUXIO CS ADD
-  @org.junit.Ignore("https://tachyonnexus.atlassian.net/browse/TNE-780")
-  // ALLUXIO CS END
-||||||| merged common ancestors
-  /**
-   * Writes an non-empty file.
-   */
-=======
->>>>>>> 825e48ead8069ce0c6088fb7714d96f801c870f9
   @Test
   public void writeNonEmptyFile() throws Exception {
     long len = 0;
