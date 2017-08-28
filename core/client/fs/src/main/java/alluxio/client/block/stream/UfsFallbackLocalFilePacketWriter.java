@@ -27,7 +27,7 @@ import java.io.IOException;
  * A packet writer that writes to local first and fallback to UFS block writes when the block
  * storage on this local worker is full.
  */
-public class UfsFallbackLocalFilePacketWriter implements PacketWriter {
+public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
   private static final Logger LOG = LoggerFactory.getLogger(LocalFilePacketWriter.class);
   private final LocalFilePacketWriter mLocalFilePacketWriter;
   private final FileSystemContext mContext;
