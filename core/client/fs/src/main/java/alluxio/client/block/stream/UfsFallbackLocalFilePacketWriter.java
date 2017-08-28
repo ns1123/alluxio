@@ -32,37 +32,36 @@ public class UfsFallbackLocalFilePacketWriter implements PacketWriter {
   private final LocalFilePacketWriter mLocalFilePacketWriter;
   private final FileSystemContext mContext;
   private final WorkerNetAddress mWorkerNetAddress;
-  private final Protocol.WriteRequest mRequestType;
   private final long mBlockSize;
-  private final long mPacketSize;
+  private final long mBlockId;
+  private final OutStreamOptions mOutStreamOptions;
   private NettyPacketWriter mNettyPacketWriter;
-  private boolean mWritingToLocal = true;
+  private boolean mIsWritingToLocal = true;
 
 
   public static UfsFallbackLocalFilePacketWriter create(FileSystemContext context,
-      WorkerNetAddress address, long blockId, long blockSize, long packetSize,
+      WorkerNetAddress address, long blockId, long blockSize,
       OutStreamOptions options) throws IOException {
     LocalFilePacketWriter localFilePacketWriter =
         LocalFilePacketWriter.create(context, address, blockId, options);
     return new UfsFallbackLocalFilePacketWriter(localFilePacketWriter, context, address, blockId,
-        blockSize, packetSize, options);
+        blockSize, options);
   }
 
-  public UfsFallbackLocalFilePacketWriter(LocalFilePacketWriter localFilePacketWriter,
+  private UfsFallbackLocalFilePacketWriter(LocalFilePacketWriter localFilePacketWriter,
       FileSystemContext context, final WorkerNetAddress address, long blockId, long blockSize,
-      long packetSize, OutStreamOptions options) {
+      OutStreamOptions options) {
     mLocalFilePacketWriter = localFilePacketWriter;
+    mBlockId = blockId;
     mContext = context;
     mWorkerNetAddress = address;
     mBlockSize = blockSize;
-    mRequestType = Protocol.WriteRequest.newBuilder().setId(blockId).setTier(options.getWriteTier())
-        .setType(Protocol.RequestType.UFS_BLOCK).buildPartial();
-    mPacketSize = packetSize;
+    mOutStreamOptions = options;
   }
 
   @Override
   public void writePacket(ByteBuf packet) throws IOException {
-    if (mWritingToLocal) {
+    if (mIsWritingToLocal) {
       try {
         mLocalFilePacketWriter.writePacket(packet);
       } catch (ResourceExhaustedException e) {
@@ -71,18 +70,19 @@ public class UfsFallbackLocalFilePacketWriter implements PacketWriter {
       // Close the writer to close the temp block on ramdisk
       mLocalFilePacketWriter.getWriter().close();
       mNettyPacketWriter =
-          new NettyPacketWriter(mContext, mWorkerNetAddress, mBlockSize, mRequestType, mPacketSize);
+          NettyPacketWriter.create(mContext, mWorkerNetAddress, mBlockId, mBlockSize,
+              Protocol.RequestType.UFS_BLOCK, mOutStreamOptions);
 
       // Clean up the state of the temp block
       mLocalFilePacketWriter.cancel();
-      mWritingToLocal = false;
+      mIsWritingToLocal = false;
     }
     mNettyPacketWriter.writePacket(packet);
   }
 
   @Override
   public void flush() throws IOException {
-    if (!mWritingToLocal) {
+    if (!mIsWritingToLocal) {
       mLocalFilePacketWriter.flush();
     }
     mNettyPacketWriter.flush();
@@ -90,7 +90,7 @@ public class UfsFallbackLocalFilePacketWriter implements PacketWriter {
 
   @Override
   public int packetSize() {
-    if (!mWritingToLocal) {
+    if (!mIsWritingToLocal) {
       return mLocalFilePacketWriter.packetSize();
     }
     return mNettyPacketWriter.packetSize();
@@ -98,7 +98,7 @@ public class UfsFallbackLocalFilePacketWriter implements PacketWriter {
 
   @Override
   public long pos() {
-    if (!mWritingToLocal) {
+    if (!mIsWritingToLocal) {
       return mLocalFilePacketWriter.pos();
     }
     return mNettyPacketWriter.pos();
@@ -106,7 +106,7 @@ public class UfsFallbackLocalFilePacketWriter implements PacketWriter {
 
   @Override
   public void cancel() throws IOException {
-    if (!mWritingToLocal) {
+    if (!mIsWritingToLocal) {
       mLocalFilePacketWriter.cancel();
     }
     mNettyPacketWriter.cancel();
@@ -114,7 +114,7 @@ public class UfsFallbackLocalFilePacketWriter implements PacketWriter {
 
   @Override
   public void close() throws IOException {
-    if (!mWritingToLocal) {
+    if (!mIsWritingToLocal) {
       mLocalFilePacketWriter.close();
     }
     mLocalFilePacketWriter.close();

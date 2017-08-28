@@ -25,10 +25,9 @@ import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.exception.ExceptionMessage;
+import alluxio.master.MasterClientConfig;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.Privilege;
 
 import org.junit.Before;
@@ -73,8 +72,7 @@ public final class FileSystemPrivilegesIntegrationTest {
 
   @Before
   public void before() throws Exception {
-    mPrivilegeClient = PrivilegeMasterClient.Factory.create(null,
-        NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC));
+    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
     try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
       refreshFileSystemClient();
       FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, CreateFileOptions.defaults()

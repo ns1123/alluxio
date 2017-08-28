@@ -16,12 +16,15 @@ import alluxio.proto.dataserver.Protocol;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The UFS File write request internal representation.
+ * The block write request internal representation.
  */
 @ThreadSafe
 public final class BlockWriteRequest extends WriteRequest {
   private final Protocol.CreateUfsBlockOptions mCreateUfsBlockOptions;
 
+  /**
+   * @param request block request in proto
+   */
   BlockWriteRequest(Protocol.WriteRequest request) {
     super(request);
     mCreateUfsBlockOptions = request.getCreateUfsBlockOptions();

@@ -19,6 +19,7 @@ import alluxio.job.TestJobConfig;
 import alluxio.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobInfo;
 import alluxio.master.job.command.CommandManager;
+import alluxio.master.journal.noop.NoopJournalSystem;
 import alluxio.underfs.UfsManager;
 
 import com.google.common.collect.Maps;
@@ -53,7 +54,7 @@ public final class JobMasterTest {
   public void before() throws Exception {
     // Can't use ConfigurationRule due to conflicts with PowerMock.
     Configuration.set(PropertyKey.JOB_MASTER_JOB_CAPACITY, TEST_JOB_MASTER_JOB_CAPACITY);
-    mJobMaster = new JobMaster(Mockito.mock(UfsManager.class));
+    mJobMaster = new JobMaster(new NoopJournalSystem(), Mockito.mock(UfsManager.class));
     mJobMaster.start(true);
   }
 

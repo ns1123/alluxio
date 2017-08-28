@@ -16,6 +16,8 @@ import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientServiceHandler;
+import alluxio.master.journal.JournalSystem;
+import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.JobMasterClientService;
@@ -85,17 +87,21 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   /** The start time for when the master started serving the RPC server. */
   private long mStartTimeMs = -1;
 
+  /** The journal system for writing journal entries and restoring master state. */
+  protected final JournalSystem mJournalSystem;
+
   /** The web server. */
   private JobMasterWebServer mWebServer = null;
 
   /** The manager for all ufs. */
   private UfsManager mUfsManager;
 
-  AlluxioJobMasterProcess() {
+  AlluxioJobMasterProcess(JournalSystem journalSystem) {
     if (!Configuration.containsKey(PropertyKey.MASTER_HOSTNAME)) {
       Configuration.set(PropertyKey.MASTER_HOSTNAME, NetworkAddressUtils.getLocalHostName());
     }
     mUfsManager = new JobUfsManager();
+    mJournalSystem = Preconditions.checkNotNull(journalSystem, "journalSystem");
     mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
     mMaxWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MAX);
 
@@ -133,7 +139,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   }
 
   protected void createMaster() {
-    mJobMaster = new JobMaster(mUfsManager);
+    mJobMaster = new JobMaster(mJournalSystem, mUfsManager);
   }
 
   @Override
@@ -186,6 +192,8 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
    * @throws Exception if starting the master fails
    */
   public void start() throws Exception {
+    mJournalSystem.start();
+    mJournalSystem.setMode(Mode.PRIMARY);
     startMaster(true);
     startServing();
   }
@@ -200,6 +208,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
     if (mIsServing) {
       stopServing();
       stopMaster();
+      mJournalSystem.stop();
     }
   }
 

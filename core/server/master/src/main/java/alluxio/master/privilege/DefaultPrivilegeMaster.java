@@ -18,7 +18,7 @@ import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.master.AbstractMaster;
 import alluxio.master.journal.JournalContext;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
 import alluxio.resource.LockResource;
@@ -61,12 +61,11 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
   /**
    * Creates a new instance of {@link DefaultPrivilegeMaster}.
    *
-   * @param journalFactory the factory for the journal to use for tracking master operations
+   * @param journalSystem the journal system to use for tracking master operations
    */
-  DefaultPrivilegeMaster(JournalFactory journalFactory) {
-    super(journalFactory.create(Constants.PRIVILEGE_MASTER_NAME), new SystemClock(),
-        ExecutorServiceFactories
-            .fixedThreadPoolExecutorServiceFactory(Constants.PRIVILEGE_MASTER_NAME, 1));
+  DefaultPrivilegeMaster(JournalSystem journalSystem) {
+    super(journalSystem, new SystemClock(), ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.PRIVILEGE_MASTER_NAME, 1));
     mGroupPrivilegesLock = new ReentrantLock();
     mGroupPrivileges = new ConcurrentHashMap<>();
     mSupergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
@@ -94,6 +93,13 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
           PrivilegeUtils.fromProto(update.getPrivilegeList()));
     } else {
       throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
+    }
+  }
+
+  @Override
+  public void resetState() {
+    try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
+      mGroupPrivileges.clear();
     }
   }
 

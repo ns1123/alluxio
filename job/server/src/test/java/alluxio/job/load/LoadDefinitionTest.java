@@ -211,7 +211,8 @@ public class LoadDefinitionTest {
           JOB_WORKERS, mMockJobMasterContext);
       Assert.fail();
     } catch (Exception e) {
-      Assert.assertEquals("Failed to find enough block workers to replicate to", e.getMessage());
+      Assert.assertEquals("Failed to find enough block workers to replicate to. Needed 5 but only "
+          + "found 4. Available workers without the block: " + BLOCK_WORKERS, e.getMessage());
     }
   }
 

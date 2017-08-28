@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -174,7 +175,8 @@ public final class Configuration {
         String key = entry.getKey().toString();
         String value = entry.getValue().toString();
         if (PropertyKey.isValid(key) && !(hideKeys && PropertyKey.IMMUTABLE_KEYS.contains(key))) {
-          PROPERTIES.put(key, value);
+          // Get the true name for the property key in case it is an alias.
+          PROPERTIES.put(PropertyKey.fromString(key).getName(), value);
         }
       }
     }
@@ -196,7 +198,8 @@ public final class Configuration {
     //     String key = entry.getKey().toString();
     //     String value = entry.getValue().toString();
     //     if (PropertyKey.isValid(key)) {
-    //       PROPERTIES.put(key, value);
+    //       // Get the true name for the property key in case it is an alias.
+    //       PROPERTIES.put(PropertyKey.fromString(key).getName(), value);
     //     }
     //   }
     // }
@@ -378,7 +381,12 @@ public final class Configuration {
   public static <T extends Enum<T>> T getEnum(PropertyKey key, Class<T> enumType) {
     String rawValue = get(key);
 
-    return Enum.valueOf(enumType, rawValue);
+    try {
+      return Enum.valueOf(enumType, rawValue);
+    } catch (IllegalArgumentException e) {
+      throw new RuntimeException(ExceptionMessage.UNKNOWN_ENUM.getMessage(rawValue,
+          Arrays.toString(enumType.getEnumConstants())));
+    }
   }
 
   /**

@@ -27,7 +27,6 @@
     <module>fork</module>
     <!-- ALLUXIO CS END -->
     <module>gcs</module>
-    <module>glusterfs</module>
     <module>hdfs</module>
     <!-- ALLUXIO CS ADD -->
     <module>hdfsx</module>
@@ -38,7 +37,6 @@
     <module>maprfs</module>
     <!-- ALLUXIO CS END -->
     <module>oss</module>
-    <module>s3</module>
     <module>s3a</module>
     <module>swift</module>
   </modules>

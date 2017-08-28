@@ -9,82 +9,86 @@
 
 package alluxio.master;
 
-import alluxio.Configuration;
-import alluxio.LeaderSelectorClient;
-import alluxio.PropertyKey;
+import alluxio.master.journal.JournalSystem;
+import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.util.CommonUtils;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
- * The fault tolerant version of {@link AlluxioJobMaster} that uses Zookeeper and standby masters.
+ * The fault tolerant version of {@link AlluxioJobMaster} that uses zookeeper and standby masters.
  */
-public final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess {
+@NotThreadSafe
+final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess {
   private static final Logger LOG =
       LoggerFactory.getLogger(FaultTolerantAlluxioJobMasterProcess.class);
 
-  /** The Zookeeper client that handles selecting the leader. */
-  private LeaderSelectorClient mLeaderSelectorClient = null;
+  private PrimarySelector mLeaderSelector;
+  private Thread mServingThread;
 
   /**
-   * Creates a new {@link FaultTolerantAlluxioJobMasterProcess}.
+   * Creates a {@link FaultTolerantAlluxioJobMasterProcess}.
    */
-  FaultTolerantAlluxioJobMasterProcess() {
-    Preconditions.checkArgument(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
-
-    // Set up Zookeeper specific functionality.
+  protected FaultTolerantAlluxioJobMasterProcess(JournalSystem journalSystem,
+      PrimarySelector leaderSelector) {
+    super(journalSystem);
     try {
-      // InetSocketAddress.toString causes test issues, so build the string by hand
-      String zkName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_MASTER_RPC) + ":"
-          + getRpcAddress().getPort();
-      String zkAddress = Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS);
-      String zkElectionPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_ELECTION_PATH);
-      String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
-      mLeaderSelectorClient =
-          new LeaderSelectorClient(zkAddress, zkElectionPath, zkLeaderPath, zkName);
-
+      stopServing();
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
+    mLeaderSelector = Preconditions.checkNotNull(leaderSelector, "leaderSelector");
+    mServingThread = null;
   }
 
   @Override
   public void start() throws Exception {
+    mJournalSystem.start();
     try {
-      mLeaderSelectorClient.start();
+      mLeaderSelector.start(getRpcAddress());
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      LOG.error(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
 
-    Thread currentThread = Thread.currentThread();
-    mLeaderSelectorClient.setCurrentMasterThread(currentThread);
-    boolean started = false;
-
     while (!Thread.interrupted()) {
-      if (mLeaderSelectorClient.isLeader()) {
-        stopServing();
-        stopMaster();
-
-        startMaster(true);
-        started = true;
-        startServing("(gained leadership)", "(lost leadership)");
+      if (mLeaderSelector.isPrimary()) {
+        if (mServingThread == null) {
+          LOG.info("Transitioning from secondary to primary");
+          mJournalSystem.setMode(Mode.PRIMARY);
+          stopMaster();
+          LOG.info("Secondary stopped");
+          startMaster(true);
+          mServingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+              startServing("(gained leadership)", "(lost leadership)");
+            }
+          }, "MasterServingThread");
+          mServingThread.start();
+          LOG.info("Primary started");
+        }
       } else {
         // This master should be standby, and not the leader
-        if (isServing() || !started) {
+        if (mServingThread != null) {
+          LOG.info("Transitioning from primary to secondary");
           // Need to transition this master to standby mode.
+          mServingThread.interrupt();
+          mServingThread.join();
+          mServingThread = null;
           stopServing();
           stopMaster();
-
+          mJournalSystem.setMode(Mode.SECONDARY);
+          LOG.info("Primary stopped");
           startMaster(false);
-          started = true;
+          LOG.info("Secondary started");
         }
         // This master is already in standby mode. No further actions needed.
       }
@@ -96,8 +100,8 @@ public final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMaster
   @Override
   public void stop() throws Exception {
     super.stop();
-    if (mLeaderSelectorClient != null) {
-      mLeaderSelectorClient.close();
+    if (mLeaderSelector != null) {
+      mLeaderSelector.stop();
     }
   }
 
@@ -106,7 +110,7 @@ public final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMaster
     CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
-        return (!mLeaderSelectorClient.isLeader() || isServing());
+        return (!mLeaderSelector.isPrimary() || isServing());
       }
     });
   }

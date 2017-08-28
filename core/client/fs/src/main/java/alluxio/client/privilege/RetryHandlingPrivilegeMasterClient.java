@@ -19,6 +19,7 @@ import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
+import alluxio.master.MasterClientConfig;
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.PrivilegeMasterClientService;
 import alluxio.thrift.TPrivilege;
@@ -28,13 +29,11 @@ import alluxio.wire.Privilege;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.security.auth.Subject;
 
 /**
  * A wrapper for the thrift client to interact with the privilege master, used by Alluxio clients.
@@ -51,16 +50,10 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
   /**
    * Creates a new {@link RetryHandlingFileSystemMasterClient} instance.
    *
-   * @param subject the subject
-   * @param masterAddress the master address
+   * @param conf master client configuration
    */
-  protected static RetryHandlingPrivilegeMasterClient create(Subject subject,
-      InetSocketAddress masterAddress) {
-    return new RetryHandlingPrivilegeMasterClient(subject, masterAddress);
-  }
-
-  private RetryHandlingPrivilegeMasterClient(Subject subject, InetSocketAddress masterAddress) {
-    super(subject, masterAddress);
+  public  RetryHandlingPrivilegeMasterClient(MasterClientConfig conf) {
+    super(conf);
   }
 
   @Override

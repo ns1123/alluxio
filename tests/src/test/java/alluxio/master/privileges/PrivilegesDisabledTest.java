@@ -24,8 +24,7 @@ import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
+import alluxio.master.MasterClientConfig;
 import alluxio.wire.Privilege;
 
 import org.junit.Before;
@@ -46,8 +45,7 @@ public final class PrivilegesDisabledTest extends BaseIntegrationTest {
 
   @Before
   public void before() {
-    mPrivilegeClient = PrivilegeMasterClient.Factory.create(null,
-        NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC));
+    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
   }
 
   @Test

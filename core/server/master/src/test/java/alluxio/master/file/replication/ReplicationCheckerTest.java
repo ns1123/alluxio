@@ -27,8 +27,8 @@ import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
-import alluxio.master.journal.Journal;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
+import alluxio.master.journal.JournalTestUtils;
 import alluxio.master.journal.NoopJournalContext;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
@@ -46,7 +46,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -111,15 +110,16 @@ public final class ReplicationCheckerTest {
   @Before
   public void before() throws Exception {
     MasterRegistry registry = new MasterRegistry();
-    JournalFactory journalFactory =
-        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
+    JournalSystem journalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
 
-    mBlockMaster = new BlockMasterFactory().create(registry, journalFactory);
+    mBlockMaster = new BlockMasterFactory().create(registry, journalSystem);
     InodeDirectoryIdGenerator directoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
     UfsManager manager = Mockito.mock(UfsManager.class);
     MountTable mountTable = new MountTable(manager);
     mInodeTree = new InodeTree(mBlockMaster, directoryIdGenerator, mountTable);
 
+    journalSystem.start();
+    journalSystem.setMode(JournalSystem.Mode.PRIMARY);
     mBlockMaster.start(true);
 
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");

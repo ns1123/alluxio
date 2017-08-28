@@ -18,6 +18,7 @@ import alluxio.WorkerStorageTierAssoc;
 import alluxio.metrics.MetricsSystem;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
+import alluxio.underfs.UfsManager;
 import alluxio.worker.block.BlockWorker;
 
 import com.google.common.base.Preconditions;
@@ -49,9 +50,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
   private final BlockWorker mWorker;
   /** An object storing the mapping of tier aliases to ordinals. */
   private final StorageTierAssoc mStorageTierAssoc = new WorkerStorageTierAssoc();
-  // ALLUXIO CS ADD
-  private alluxio.underfs.UfsManager mUfsManager;
-  // ALLUXIO CS END
+  private final UfsManager mUfsManager;
 
   /**
    * Creates an instance of {@link BlockWriteHandler}.
@@ -60,11 +59,9 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
    * @param blockWorker the block worker
    */
   BlockWriteHandler(ExecutorService executorService, BlockWorker blockWorker) {
-    super(executorService);
-    mWorker = blockWorker;
+    this(executorService, blockWorker, null);
   }
 
-  // ALLUXIO CS ADD
   /**
    * Creates an instance of {@link BlockWriteHandler}.
    *
@@ -73,12 +70,13 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
    * @param ufsManager the UFS manager
    */
   BlockWriteHandler(ExecutorService executorService, BlockWorker blockWorker,
-      alluxio.underfs.UfsManager ufsManager) {
+      UfsManager ufsManager) {
     super(executorService);
     mWorker = blockWorker;
     mUfsManager = ufsManager;
   }
 
+  // ALLUXIO CS ADD
   @Override
   protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
       alluxio.proto.security.CapabilityProto.Capability capability,
@@ -173,8 +171,6 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
         context.setBytesReserved(bytesReserved + bytesToReserve);
       }
       if (context.getBlockWriter() == null) {
-        context.setBlockWriter(
-            mWorker.getTempBlockWriterRemote(request.getSessionId(), request.getId()));
         String metricName = "BytesWrittenAlluxio";
         // ALLUXIO CS ADD
         String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
@@ -182,6 +178,8 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
           metricName = String.format("BytesWrittenAlluxio-User:%s", user);
         }
         // ALLUXIO CS END
+        context.setBlockWriter(
+            mWorker.getTempBlockWriterRemote(request.getSessionId(), request.getId()));
         context.setCounter(MetricsSystem.workerCounter(metricName));
       }
       Preconditions.checkState(context.getBlockWriter() != null);

@@ -57,6 +57,9 @@ public abstract class WriteHandlerTest {
     checkWriteResponse(PStatus.OK, writeResponse);
   }
 
+  /**
+   * Writes an non-empty file.
+   */
   @Test
   public void writeNonEmptyFile() throws Exception {
     long len = 0;
@@ -164,7 +167,7 @@ public abstract class WriteHandlerTest {
 
   protected Protocol.WriteRequest newWriteRequestProto(long offset) {
     return Protocol.WriteRequest.newBuilder().setId(TEST_BLOCK_ID).setOffset(offset)
-            .setType(getWriteRequestType()).build();
+        .setType(getWriteRequestType()).build();
   }
 
   /**
@@ -209,7 +212,7 @@ public abstract class WriteHandlerTest {
   /**
    * @return the data written as an InputStream
    */
-  protected abstract InputStream getWriteDataStream() throws IOException ;
+  protected abstract InputStream getWriteDataStream() throws IOException;
 
   /**
    * @param len length of the data buffer

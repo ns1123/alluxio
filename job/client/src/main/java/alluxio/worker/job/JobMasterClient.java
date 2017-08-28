@@ -9,7 +9,7 @@
 
 package alluxio.worker.job;
 
-import alluxio.MasterClient;
+import alluxio.Client;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.thrift.JobCommand;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Interface for job service workers to communicate with the job master.
  */
-public interface JobMasterClient extends MasterClient {
+public interface JobMasterClient extends Client {
 
   /**
    * Factory for {@link JobMasterClient}.
@@ -34,10 +34,11 @@ public interface JobMasterClient extends MasterClient {
     /**
      * Factory method for {@link JobMasterClient}.
      *
+     * @param conf job master client configuration
      * @return a new {@link JobMasterClient} instance
      */
-    public static JobMasterClient create() {
-      return RetryHandlingJobMasterClient.create();
+    public static JobMasterClient create(JobMasterClientConfig conf) {
+      return new RetryHandlingJobMasterClient(conf);
     }
   }
 

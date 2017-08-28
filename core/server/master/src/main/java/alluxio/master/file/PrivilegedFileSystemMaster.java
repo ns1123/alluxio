@@ -41,7 +41,7 @@ import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.JournalSystem;
 import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.proto.journal.Journal;
@@ -84,11 +84,11 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
    *
    * @param blockMaster the block master
    * @param privilegeMaster the privilege master
-   * @param journalFactory the journal factory
+   * @param journalSystem the journal system
    */
   PrivilegedFileSystemMaster(BlockMaster blockMaster, PrivilegeMaster privilegeMaster,
-      JournalFactory journalFactory) {
-    mFileSystemMaster = new DefaultFileSystemMaster(blockMaster, journalFactory);
+      JournalSystem journalSystem) {
+    mFileSystemMaster = new DefaultFileSystemMaster(blockMaster, journalSystem);
     mPrivilegeChecker = new PrivilegeChecker(privilegeMaster);
   }
 
@@ -130,6 +130,11 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public void processJournalEntry(Journal.JournalEntry entry) throws IOException {
     mFileSystemMaster.processJournalEntry(entry);
+  }
+
+  @Override
+  public void resetState() {
+    mFileSystemMaster.resetState();
   }
 
   @Override

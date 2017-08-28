@@ -26,9 +26,8 @@ import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
+import alluxio.master.MasterClientConfig;
 import alluxio.security.group.GroupMappingService;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.Privilege;
 
 import org.junit.Before;
@@ -200,8 +199,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
    * for the new user.
    */
   private void refreshPrivilegeClient() throws Exception {
-    mPrivilegeClient = PrivilegeMasterClient.Factory.create(null,
-        NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC));
+    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
   }
 
   /**

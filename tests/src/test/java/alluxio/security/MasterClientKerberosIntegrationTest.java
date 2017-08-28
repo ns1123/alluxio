@@ -20,6 +20,7 @@ import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.GetStatusOptions;
 import alluxio.exception.status.UnauthenticatedException;
+import alluxio.master.MasterClientConfig;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.network.NetworkAddressUtils;
@@ -117,8 +118,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     String filename = "/kerberos-file1";
-    FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-        .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
+    FileSystemMasterClient masterClient =
+          FileSystemMasterClient.Factory.create(MasterClientConfig.defaults());
     Assert.assertFalse(masterClient.isConnected());
     masterClient.connect();
     Assert.assertTrue(masterClient.isConnected());
@@ -137,8 +138,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
-    FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-        .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
+    FileSystemMasterClient masterClient =
+          FileSystemMasterClient.Factory.create(MasterClientConfig.defaults());
     Assert.assertFalse(masterClient.isConnected());
 
     // Get the current context class loader to retrieve the classpath URLs.
@@ -168,8 +169,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
     boolean isConnected;
     try {
-      FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-          .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
+      FileSystemMasterClient masterClient =
+          FileSystemMasterClient.Factory.create(MasterClientConfig.defaults());
       masterClient.connect();
       isConnected = masterClient.isConnected();
     } catch (UnauthenticatedException e) {
@@ -190,8 +191,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
     boolean isConnected;
     try {
-      FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-          .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
+      FileSystemMasterClient masterClient =
+          FileSystemMasterClient.Factory.create(MasterClientConfig.defaults());
       masterClient.connect();
       isConnected = masterClient.isConnected();
     } catch (UnauthenticatedException e) {
