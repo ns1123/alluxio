@@ -57,9 +57,6 @@ public abstract class WriteHandlerTest {
     checkWriteResponse(PStatus.OK, writeResponse);
   }
 
-  /**
-   * Writes an non-empty file.
-   */
   @Test
   public void writeNonEmptyFile() throws Exception {
     long len = 0;
