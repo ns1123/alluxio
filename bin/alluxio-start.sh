@@ -179,7 +179,6 @@ stop() {
   ${BIN}/alluxio-stop.sh $1
 }
 
-<<<<<<< HEAD
 # ALLUXIO CS ADD
 start_job_master() {
   if [[ "$1" == "-f" ]]; then
@@ -226,8 +225,6 @@ start_job_workers() {
 }
 
 # ALLUXIO CS END
-||||||| merged common ancestors
-=======
 start_logserver() {
     echo "Starting logserver @ $(hostname -f)."
     (nohup "${JAVA}" -cp ${CLASSPATH} \
@@ -238,7 +235,6 @@ start_logserver() {
     sleep 1
 }
 
->>>>>>> alluxio/master
 start_master() {
   if [[ "$1" == "-f" ]]; then
     ${LAUNCHER} ${BIN}/alluxio format

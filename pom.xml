@@ -202,18 +202,14 @@
     <module>keyvalue</module>
     <module>logserver</module>
     <module>minicluster</module>
-<<<<<<< HEAD
     <!-- ALLUXIO CS ADD -->
     <module>job</module>
     <module>kms</module>
     <module>security</module>
     <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-=======
     <module>shell</module>
     <module>tests</module>
     <module>underfs</module>
->>>>>>> alluxio/master
   </modules>
 
   <dependencyManagement>
