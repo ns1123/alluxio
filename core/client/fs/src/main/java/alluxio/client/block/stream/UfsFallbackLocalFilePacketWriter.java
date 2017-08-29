@@ -23,10 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * A packet writer that writes to local first and fallback to UFS block writes when the block
  * storage on this local worker is full.
  */
+@NotThreadSafe
 public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
   private static final Logger LOG = LoggerFactory.getLogger(LocalFilePacketWriter.class);
   private final LocalFilePacketWriter mLocalFilePacketWriter;

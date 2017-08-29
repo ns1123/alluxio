@@ -194,11 +194,12 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
    * A packet writer that falls back to write the block to UFS in case the local block store is
    * full.
    */
+  @NotThreadSafe
   public class UfsFallbackBlockPacketWriter extends PacketWriter {
-    /** The Block writer writing to the Alluxio storage of the local worker. */
+    /** The block writer writing to the Alluxio storage of the local worker. */
     private final BlockPacketWriter mBlockPacketWriter;
-    private final alluxio.underfs.UfsManager mUfsManager;
-    private boolean mIsFallback = false;
+    private final UfsManager mUfsManager;
+    private boolean mIsWritingToLocal = true;
 
     /**
      * @param context context of this packet writer
@@ -217,7 +218,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
     @Override
     protected void completeRequest(BlockWriteRequestContext context, Channel channel)
         throws Exception {
-      if (!mIsFallback) {
+      if (mIsWritingToLocal) {
         mBlockPacketWriter.completeRequest(context, channel);
         return;
       }
@@ -228,7 +229,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
 
     @Override
     protected void cancelRequest(BlockWriteRequestContext context) throws Exception {
-      if (!mIsFallback) {
+      if (mIsWritingToLocal) {
         mBlockPacketWriter.cancelRequest(context);
         return;
       }
@@ -241,7 +242,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
 
     @Override
     protected void cleanupRequest(BlockWriteRequestContext context) throws Exception {
-      if (!mIsFallback) {
+      if (mIsWritingToLocal) {
         mBlockPacketWriter.cleanupRequest(context);
         return;
       }
@@ -252,7 +253,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
     @Override
     protected void writeBuf(BlockWriteRequestContext context, Channel channel, ByteBuf buf,
         long pos) throws Exception {
-      if (!mIsFallback) {
+      if (mIsWritingToLocal) {
         try {
           mBlockPacketWriter.writeBuf(context, channel, buf, pos);
           return;
@@ -271,7 +272,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
         createUfsBlock(context, channel, pos);
         // close the original block writer and remove the temp file
         mBlockPacketWriter.cancelRequest(context);
-        mIsFallback = true;
+        mIsWritingToLocal = false;
       }
       Preconditions.checkState(context.getOutputStream() != null);
       java.io.OutputStream stream = context.getOutputStream();
@@ -287,7 +288,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
       if (user != null) {
         alluxio.security.authentication.AuthenticatedClientUser.set(user);
       }
-      alluxio.underfs.UfsManager.UfsInfo ufsInfo =
+      UfsManager.UfsInfo ufsInfo =
           mUfsManager.get(createUfsBlockOptions.getMountId());
       alluxio.underfs.UnderFileSystem ufs = ufsInfo.getUfs();
       context.setUnderFileSystem(ufs);

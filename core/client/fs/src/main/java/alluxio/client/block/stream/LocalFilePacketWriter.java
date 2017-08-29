@@ -226,7 +226,6 @@ public final class LocalFilePacketWriter implements PacketWriter {
   }
   // ALLUXIO CS ADD
 
-
   /**
    * @return the block writer
    */
