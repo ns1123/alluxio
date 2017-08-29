@@ -11,17 +11,11 @@
 
 package alluxio.client.block.stream;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.client.BoundedStream;
 import alluxio.client.Cancelable;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.exception.PreconditionMessage;
-import alluxio.proto.dataserver.Protocol;
-import alluxio.util.CommonUtils;
-import alluxio.util.network.NettyUtils;
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
@@ -66,30 +60,8 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
    */
   public static BlockOutStream create(FileSystemContext context, long blockId, long blockSize,
       WorkerNetAddress address, OutStreamOptions options) throws IOException {
-    PacketWriter packetWriter;
-    if (CommonUtils.isLocalHost(address) && Configuration
-        .getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED) && !NettyUtils
-        .isDomainSocketSupported(address)) {
-      // ALLUXIO CS ADD
-      if (options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH &&
-          Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
-        LOG.info("Creating UFS-fallback short circuit output stream for block {} @ {}", blockId,
-            address);
-        packetWriter = UfsFallbackLocalFilePacketWriter.create(
-            context, address, blockId, blockSize, options);
-        return new BlockOutStream(packetWriter, blockSize);
-      }
-      // ALLUXIO CS END
-      LOG.info("Creating short circuit output stream for block {} @ {}", blockId, address);
-      packetWriter =
-          LocalFilePacketWriter.create(context, address, blockId, options);
-    } else {
-      LOG.info("Creating netty output stream for block {} @ {} from client {}", blockId, address,
-          NetworkAddressUtils.getClientHostName());
-      packetWriter = NettyPacketWriter
-          .create(context, address, blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK,
-              options);
-    }
+    PacketWriter packetWriter =
+        PacketWriter.Factory.create(context, blockId, blockSize, address, options);
     return new BlockOutStream(packetWriter, blockSize);
   }
 
@@ -136,16 +108,9 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
       OutStreamOptions options) throws IOException {
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (WorkerNetAddress address: workerNetAddresses) {
-      if (alluxio.util.CommonUtils.isLocalHost(address)) {
-        PacketWriter packetWriter =
-            LocalFilePacketWriter.create(context, address, blockId, options);
-        packetWriters.add(packetWriter);
-      } else {
-        PacketWriter packetWriter = NettyPacketWriter
-            .create(context, address, blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK,
-                options);
-        packetWriters.add(packetWriter);
-      }
+      PacketWriter packetWriter =
+            PacketWriter.Factory.create(context, blockId, blockSize, address, options);
+      packetWriters.add(packetWriter);
     }
     return new BlockOutStream(packetWriters, blockSize);
   }

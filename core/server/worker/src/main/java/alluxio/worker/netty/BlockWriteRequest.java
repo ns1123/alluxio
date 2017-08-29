@@ -20,15 +20,30 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class BlockWriteRequest extends WriteRequest {
+  /** Which tier this block writes to. */
+  private final int mTier;
+  // ALLUXIO CS ADD
   private final Protocol.CreateUfsBlockOptions mCreateUfsBlockOptions;
+  // ALLUXIO CS END
 
   /**
    * @param request block request in proto
    */
   BlockWriteRequest(Protocol.WriteRequest request) {
     super(request);
+    mTier = request.getTier();
+    // ALLUXIO CS ADD
     mCreateUfsBlockOptions = request.getCreateUfsBlockOptions();
+    // ALLUXIO CS END
   }
+
+  /**
+   * @return the tier this block is writing to
+   */
+  public int getTier() {
+    return mTier;
+  }
+  // ALLUXIO CS ADD
 
   /**
    * @return the options to create UFS file
@@ -36,4 +51,5 @@ public final class BlockWriteRequest extends WriteRequest {
   public Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions() {
     return mCreateUfsBlockOptions;
   }
+  // ALLUXIO CS END
 }
