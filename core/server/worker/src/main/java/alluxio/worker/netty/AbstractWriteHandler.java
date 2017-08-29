@@ -119,38 +119,44 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
 
     RPCProtoMessage msg = (RPCProtoMessage) object;
     Protocol.WriteRequest writeRequest = msg.getMessage().asWriteRequest();
-    // Only initialize (open the writers) if this is the first packet in the block/file.
-    if (writeRequest.getOffset() == 0) {
-
-      // Expected state: context equals null as this handler is new for request, or the previous
-      // context is not active (done / cancel / abort). Otherwise, notify the client an illegal
-      // state. Note that, we reset the context before validation msg as validation may require to
-      // update error in context.
-      try (LockResource lr = new LockResource(mLock)) {
-        Preconditions.checkState(mContext == null || !mContext.isPacketWriterActive());
-        mContext = createRequestContext(writeRequest);
-      }
-    }
-
-    // Validate the write request.
-    validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
-    // ALLUXIO CS ADD
-
-    // We only check permission for the first packet.
-    if (msg.getMessage().asWriteRequest().getOffset() == 0) {
-      try {
-        checkAccessMode(ctx, mContext.getRequest().getId(), writeRequest.getCapability(),
-            alluxio.security.authorization.Mode.Bits.WRITE);
-      } catch (alluxio.exception.AccessControlException
-          | alluxio.exception.InvalidCapabilityException e) {
-        pushAbortPacket(ctx.channel(),
-            new Error(new alluxio.exception.status.PermissionDeniedException(e), true));
-        return;
-      }
-    }
-    // ALLUXIO CS END
 
     try (LockResource lr = new LockResource(mLock)) {
+      boolean isPreviousContextNull = mContext == null;
+      if (isPreviousContextNull) {
+        // When mContext is null, create a new one as catching exceptions and replying errors
+        // leverages data structures in context, regardless of the request is valid or not.
+        // TODO(binfan): remove the dependency on an instantiated request context which is required
+        // to reply errors to client side.
+        mContext = createRequestContext(writeRequest);
+      }
+      // Only initialize (open the writers) if this is the first packet in the block/file.
+      if (writeRequest.getOffset() == 0) {
+        // Expected state: context equals null as this handler is new for request, or the previous
+        // context is not active (done / cancel / abort). Otherwise, notify the client an illegal
+        // state. Note that, we reset the context before validation msg as validation may require to
+        // update error in context.
+        Preconditions.checkState(isPreviousContextNull || mContext.isDoneUnsafe());
+        initRequestContext(mContext);
+      }
+
+      // Validate the write request.
+      validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
+      // ALLUXIO CS ADD
+
+      // We only check permission for the first packet.
+      if (msg.getMessage().asWriteRequest().getOffset() == 0) {
+        try {
+          checkAccessMode(ctx, mContext.getRequest().getId(), writeRequest.getCapability(),
+              alluxio.security.authorization.Mode.Bits.WRITE);
+        } catch (alluxio.exception.AccessControlException
+            | alluxio.exception.InvalidCapabilityException e) {
+          pushAbortPacket(ctx.channel(),
+              new Error(new alluxio.exception.status.PermissionDeniedException(e), true));
+          return;
+        }
+      }
+      // ALLUXIO CS END
+
       // If we have seen an error, return early and release the data. This can only
       // happen for those mis-behaving clients who first sends some invalid requests, then
       // then some random data. It can leak memory if we do not release buffers here.
@@ -366,6 +372,7 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
      */
     private void replySuccess() {
       NettyUtils.enableAutoRead(mChannel);
+      mContext.setDoneUnsafe(true);
       mChannel.writeAndFlush(RPCProtoMessage.createOkResponse(null))
           .addListeners(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
@@ -375,6 +382,7 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
      */
     private void replyCancel() {
       NettyUtils.enableAutoRead(mChannel);
+      mContext.setDoneUnsafe(true);
       mChannel.writeAndFlush(RPCProtoMessage.createCancelResponse())
           .addListeners(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
@@ -412,9 +420,9 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
    */
   private void pushAbortPacket(Channel channel, Error error) {
     try (LockResource lr = new LockResource(mLock)) {
-      if (mContext == null || mContext.getError() != null) {
-        // Note, network errors may be bubbling up through channelUnregistered to reach here before
-        // mContext is initialized.
+      if (mContext == null || mContext.getError() != null || mContext.isDoneUnsafe()) {
+        // Note, we may reach here via channelUnregistered due to network errors bubbling up before
+        // mContext is initialized, or channel garbage collection after the request is finished.
         return;
       }
       mContext.setError(error);
@@ -472,11 +480,18 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
   }
 
   /**
-   * Initializes the handler if necessary.
+   * Creates a new request context. This method must be exception free.
    *
    * @param msg the block write request
    */
-  protected abstract T createRequestContext(Protocol.WriteRequest msg) throws Exception;
+  protected abstract T createRequestContext(Protocol.WriteRequest msg);
+
+  /**
+   * Initializes the given request context.
+   *
+   * @param context the created request context
+   */
+  protected abstract void initRequestContext(T context) throws Exception;
 
   /**
    * Creates a read writer.
