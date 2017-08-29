@@ -12,17 +12,6 @@
 package alluxio.cli.fs.command;
 // ALLUXIO CS REMOVE
 //
-// import java.io.IOException;
-//
-// import org.apache.commons.cli.CommandLine;
-//
-// import alluxio.AlluxioURI;
-// import alluxio.cli.fs.command.WithWildCardPathCommand;
-// import alluxio.client.file.FileSystemContext;
-// import alluxio.client.lineage.LineageContext;
-// import alluxio.client.lineage.LineageFileSystem;
-// import alluxio.exception.AlluxioException;package alluxio.cli.fs.command;
-//
 // import alluxio.AlluxioURI;
 // import alluxio.client.file.FileSystem;
 // import alluxio.client.file.FileSystemContext;
