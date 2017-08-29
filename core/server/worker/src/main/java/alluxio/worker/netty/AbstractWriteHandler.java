@@ -139,31 +139,23 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         initRequestContext(mContext);
       }
 
-<<<<<<< HEAD
-    // Validate the write request.
-    validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
-    // ALLUXIO CS ADD
-
-    // We only check permission for the first packet.
-    if (msg.getMessage().asWriteRequest().getOffset() == 0) {
-      try {
-        checkAccessMode(ctx, mContext.getRequest().getId(), writeRequest.getCapability(),
-            alluxio.security.authorization.Mode.Bits.WRITE);
-      } catch (alluxio.exception.AccessControlException
-          | alluxio.exception.InvalidCapabilityException e) {
-        pushAbortPacket(ctx.channel(),
-            new Error(new alluxio.exception.status.PermissionDeniedException(e), true));
-        return;
-      }
-    }
-    // ALLUXIO CS END
-||||||| merged common ancestors
-    // Validate the write request.
-    validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
-=======
       // Validate the write request.
       validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
->>>>>>> 6bf29c29045ed39957fd1dd3ea0226ca1c9daae7
+      // ALLUXIO CS ADD
+
+      // We only check permission for the first packet.
+      if (msg.getMessage().asWriteRequest().getOffset() == 0) {
+        try {
+          checkAccessMode(ctx, mContext.getRequest().getId(), writeRequest.getCapability(),
+              alluxio.security.authorization.Mode.Bits.WRITE);
+        } catch (alluxio.exception.AccessControlException
+            | alluxio.exception.InvalidCapabilityException e) {
+          pushAbortPacket(ctx.channel(),
+              new Error(new alluxio.exception.status.PermissionDeniedException(e), true));
+          return;
+        }
+      }
+      // ALLUXIO CS END
 
       // If we have seen an error, return early and release the data. This can only
       // happen for those mis-behaving clients who first sends some invalid requests, then

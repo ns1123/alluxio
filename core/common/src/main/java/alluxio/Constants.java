@@ -160,7 +160,10 @@ public final class Constants {
   public static final int SECOND_TIER = 1;
   public static final int LAST_TIER = -1;
 
-<<<<<<< HEAD
+  // S3 northbound API constants
+  public static final String S3_DELETE_IN_ALLUXIO_ONLY = "ALLUXIO_ONLY";
+  public static final String S3_DELETE_IN_ALLUXIO_AND_UFS = "ALLUXIO_AND_UFS";
+
   // ALLUXIO CS ADD
   // Replication
   public static final int REPLICATION_MAX_INFINITY = -1;
@@ -219,12 +222,5 @@ public final class Constants {
   public static final String NATIVE_ALLUXIO_LIB_NAME = "alluxio";
 
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-  // S3 northbound API constants
-  public static final String S3_DELETE_IN_ALLUXIO_ONLY = "ALLUXIO_ONLY";
-  public static final String S3_DELETE_IN_ALLUXIO_AND_UFS = "ALLUXIO_AND_UFS";
-
->>>>>>> 6bf29c29045ed39957fd1dd3ea0226ca1c9daae7
   private Constants() {} // prevent instantiation
 }

@@ -108,16 +108,9 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
       OutStreamOptions options) throws IOException {
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (WorkerNetAddress address: workerNetAddresses) {
-      if (alluxio.util.CommonUtils.isLocalHost(address)) {
-        PacketWriter packetWriter =
-            LocalFilePacketWriter.create(context, address, blockId, options);
-        packetWriters.add(packetWriter);
-      } else {
-        PacketWriter packetWriter = NettyPacketWriter
-            .create(context, address, blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK,
-                options);
-        packetWriters.add(packetWriter);
-      }
+      PacketWriter packetWriter =
+            PacketWriter.Factory.create(context, blockId, blockSize, address, options);
+      packetWriters.add(packetWriter);
     }
     return new BlockOutStream(packetWriters, blockSize);
   }
