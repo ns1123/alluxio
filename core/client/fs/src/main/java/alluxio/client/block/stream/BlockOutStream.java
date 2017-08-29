@@ -70,6 +70,16 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     if (CommonUtils.isLocalHost(address) && Configuration
         .getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED) && !NettyUtils
         .isDomainSocketSupported(address)) {
+      // ALLUXIO CS ADD
+      if (options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH &&
+          Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
+        LOG.info("Creating UFS-fallback short circuit output stream for block {} @ {}", blockId,
+            address);
+        packetWriter = UfsFallbackLocalFilePacketWriter.create(
+            context, address, blockId, blockSize, options);
+        return new BlockOutStream(packetWriter, blockSize);
+      }
+      // ALLUXIO CS END
       LOG.info("Creating short circuit output stream for block {} @ {}", blockId, address);
       packetWriter =
           LocalFilePacketWriter.create(context, address, blockId, options);

@@ -166,8 +166,8 @@ public final class NettyPacketWriter implements PacketWriter {
     if (options.getCapabilityFetcher() != null) {
       builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
     }
-    if (options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH &&
-        Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
+    if (type == Protocol.RequestType.UFS_BLOCK) {
+      // Fill in the corresponding UFS info in the write request in case of fallback
       Protocol.CreateUfsBlockOptions ufsBlockOptions =
           Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId()).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
