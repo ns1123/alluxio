@@ -195,20 +195,25 @@
   </properties>
 
   <modules>
-    <module>underfs</module>
-    <module>core</module>
-    <module>keyvalue</module>
-    <module>shell</module>
-    <module>examples</module>
-    <module>tests</module>
-    <module>integration</module>
     <module>assembly</module>
+    <module>core</module>
+    <module>examples</module>
+    <module>integration</module>
+    <module>keyvalue</module>
+    <module>logserver</module>
     <module>minicluster</module>
+<<<<<<< HEAD
     <!-- ALLUXIO CS ADD -->
     <module>job</module>
     <module>kms</module>
     <module>security</module>
     <!-- ALLUXIO CS END -->
+||||||| merged common ancestors
+=======
+    <module>shell</module>
+    <module>tests</module>
+    <module>underfs</module>
+>>>>>>> alluxio/master
   </modules>
 
   <dependencyManagement>
@@ -370,7 +375,7 @@
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
-        <version>1.2.16</version>
+        <version>${log4j.version}</version>
       </dependency>
       <dependency>
         <groupId>net.java.dev.jets3t</groupId>

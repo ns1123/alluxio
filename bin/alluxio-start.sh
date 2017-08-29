@@ -90,6 +90,10 @@ ensure_dirs() {
     echo "ALLUXIO_LOGS_DIR: ${ALLUXIO_LOGS_DIR}"
     mkdir -p ${ALLUXIO_LOGS_DIR}
   fi
+  if [[ "${alluxio_remote_logging_enabled}" == "true" && ! -d "${ALLUXIO_LOGSERVER_LOGS_DIR}" ]]; then
+    echo "ALLUXIO_LOGSERVER_LOGS_DIR: ${ALLUXIO_LOGSERVER_LOGS_DIR}"
+    mkdir -p ${ALLUXIO_LOGSERVER_LOGS_DIR}
+  fi
 }
 
 get_env() {
@@ -175,6 +179,7 @@ stop() {
   ${BIN}/alluxio-stop.sh $1
 }
 
+<<<<<<< HEAD
 # ALLUXIO CS ADD
 start_job_master() {
   if [[ "$1" == "-f" ]]; then
@@ -221,6 +226,19 @@ start_job_workers() {
 }
 
 # ALLUXIO CS END
+||||||| merged common ancestors
+=======
+start_logserver() {
+    echo "Starting logserver @ $(hostname -f)."
+    (nohup "${JAVA}" -cp ${CLASSPATH} \
+     ${ALLUXIO_LOGSERVER_JAVA_OPTS} \
+     alluxio.logserver.AlluxioLogServer "${ALLUXIO_LOGSERVER_LOGS_DIR}" > ${ALLUXIO_LOGS_DIR}/logserver.out 2>&1) &
+    # Wait for 1s before starting other Alluxio servers, otherwise may cause race condition
+    # leading to connection errors.
+    sleep 1
+}
+
+>>>>>>> alluxio/master
 start_master() {
   if [[ "$1" == "-f" ]]; then
     ${LAUNCHER} ${BIN}/alluxio format
@@ -383,6 +401,9 @@ main() {
         stop all
         sleep 1
       fi
+      if [[ "${alluxio_remote_logging_enabled}" == "true" ]]; then
+          start_logserver
+      fi
       start_masters "${FORMAT}"
       # ALLUXIO CS ADD
       start_job_masters
@@ -398,6 +419,9 @@ main() {
       if [[ "${killonstart}" != "no" ]]; then
         stop local
         sleep 1
+      fi
+      if [[ "${alluxio_remote_logging_enabled}" == "true" ]]; then
+          start_logserver
       fi
       start_master "${FORMAT}"
       ALLUXIO_MASTER_SECONDARY=true
@@ -453,6 +477,9 @@ main() {
       ;;
     workers)
       start_workers "${MOPT}"
+      ;;
+    logserver)
+      start_logserver
       ;;
     *)
     echo "Error: Invalid ACTION: ${ACTION}" >&2
