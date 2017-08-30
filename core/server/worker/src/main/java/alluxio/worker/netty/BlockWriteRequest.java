@@ -33,7 +33,11 @@ public final class BlockWriteRequest extends WriteRequest {
     super(request);
     mTier = request.getTier();
     // ALLUXIO CS ADD
-    mCreateUfsBlockOptions = request.getCreateUfsBlockOptions();
+    if (request.hasCreateUfsBlockOptions()) {
+      mCreateUfsBlockOptions = request.getCreateUfsBlockOptions();
+    } else {
+      mCreateUfsBlockOptions = null;
+    }
     // ALLUXIO CS END
   }
 
@@ -46,10 +50,18 @@ public final class BlockWriteRequest extends WriteRequest {
   // ALLUXIO CS ADD
 
   /**
-   * @return the options to create UFS file
+   * @return the options to create blocks in UFS
    */
+  @javax.annotation.Nullable
   public Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions() {
     return mCreateUfsBlockOptions;
+  }
+
+  /**
+   * @return whether the request has the options to create blocks in UFS
+   */
+  public boolean hasCreateUfsBlockOptions() {
+    return mCreateUfsBlockOptions != null;
   }
   // ALLUXIO CS END
 }

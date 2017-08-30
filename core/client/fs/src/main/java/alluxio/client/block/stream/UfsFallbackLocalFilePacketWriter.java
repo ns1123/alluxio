@@ -72,11 +72,14 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
   @Override
   public void writePacket(ByteBuf packet) throws IOException {
     if (mIsWritingToLocal) {
+      long pos = mLocalFilePacketWriter.pos();
       try {
-        mLocalFilePacketWriter.writePacket(packet);
+        packet.retain(); // increase the refcount by 1
+        mLocalFilePacketWriter.writePacket(packet); // this will release packet by 1 regardless
         return;
       } catch (ResourceExhaustedException e) {
         LOG.warn("Not enough space on local worker, fallback to write block {} to UFS", mBlockId);
+        mIsWritingToLocal = false;
       }
       try {
         // Close the writer to close the temp block on ramdisk
@@ -84,10 +87,9 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         mLocalFilePacketWriter.getWriter().close();
         mNettyPacketWriter = NettyPacketWriter
             .create(mContext, mWorkerNetAddress, mBlockId, mBlockSize,
-                Protocol.RequestType.UFS_BLOCK, mOutStreamOptions);
+                Protocol.RequestType.UFS_BLOCK, mOutStreamOptions.setSizeWritten(pos));
         // Clean up the state of the temp block
         mLocalFilePacketWriter.cancel();
-        mIsWritingToLocal = false;
       } catch (Exception e) {
         throw new IOException("Failed to switch to writing to UFS", e);
       }
@@ -99,39 +101,44 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
   public void flush() throws IOException {
     if (mIsWritingToLocal) {
       mLocalFilePacketWriter.flush();
+    } else {
+      mNettyPacketWriter.flush();
     }
-    mNettyPacketWriter.flush();
   }
 
   @Override
   public int packetSize() {
     if (mIsWritingToLocal) {
       return mLocalFilePacketWriter.packetSize();
+    } else {
+      return mNettyPacketWriter.packetSize();
     }
-    return mNettyPacketWriter.packetSize();
   }
 
   @Override
   public long pos() {
     if (mIsWritingToLocal) {
       return mLocalFilePacketWriter.pos();
+    } else {
+      return mNettyPacketWriter.pos();
     }
-    return mNettyPacketWriter.pos();
   }
 
   @Override
   public void cancel() throws IOException {
     if (mIsWritingToLocal) {
       mLocalFilePacketWriter.cancel();
+    } else {
+      mNettyPacketWriter.cancel();
     }
-    mNettyPacketWriter.cancel();
   }
 
   @Override
   public void close() throws IOException {
     if (mIsWritingToLocal) {
       mLocalFilePacketWriter.close();
+    } else {
+      mNettyPacketWriter.close();
     }
-    mNettyPacketWriter.close();
   }
 }

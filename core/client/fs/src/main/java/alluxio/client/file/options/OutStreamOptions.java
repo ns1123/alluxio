@@ -56,6 +56,7 @@ public final class OutStreamOptions {
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   private boolean mEncrypted;
   private alluxio.proto.security.EncryptionProto.Meta mEncryptionMeta;
+  private long mSizeWritten;
   // ALLUXIO CS END
   private String mUfsPath;
   private long mMountId;
@@ -91,6 +92,7 @@ public final class OutStreamOptions {
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     mEncrypted = false;
     mEncryptionMeta = null;
+    mSizeWritten = 0;
     // ALLUXIO CS END
   }
 
@@ -393,6 +395,22 @@ public final class OutStreamOptions {
     return this;
   }
 
+  /**
+   * @return the number of bytes written in block store
+   */
+  public long getSizeWritten() {
+    return mSizeWritten;
+  }
+
+  /**
+   * Sets the number of bytes written in block store.
+   *
+   * @param sizeWritten the number of bytes
+   */
+  public OutStreamOptions  setSizeWritten(long sizeWritten) {
+    mSizeWritten = sizeWritten;
+    return this;
+  }
   // ALLUXIO CS END
   /**
    * @param mode the permission
@@ -427,6 +445,7 @@ public final class OutStreamOptions {
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         && Objects.equal(mEncrypted, that.mEncrypted)
         && Objects.equal(mEncryptionMeta, that.mEncryptionMeta)
+        && Objects.equal(mSizeWritten, that.mSizeWritten)
         // ALLUXIO CS END
         && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mWriteTier, that.mWriteTier)
@@ -451,6 +470,7 @@ public final class OutStreamOptions {
         mCapabilityFetcher,
         mEncrypted,
         mEncryptionMeta,
+        mSizeWritten,
         // ALLUXIO CS END
         mUfsPath,
         mWriteTier,
@@ -479,6 +499,7 @@ public final class OutStreamOptions {
         .add("capabilityFetcher", mCapabilityFetcher)
         .add("encrypted", mEncrypted)
         .add("encryptionMeta", mEncryptionMeta)
+        .add("sizeWritten", mSizeWritten)
         // ALLUXIO CS END
         .toString();
   }

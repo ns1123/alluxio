@@ -223,34 +223,34 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
         throws Exception {
       if (mIsWritingToLocal) {
         mBlockPacketWriter.completeRequest(context, channel);
-        return;
+      } else {
+        Preconditions.checkNotNull(context.getOutputStream());
+        context.getOutputStream().close();
+        context.setOutputStream(null);
       }
-      Preconditions.checkState(context.getOutputStream() != null);
-      context.getOutputStream().close();
-      context.setOutputStream(null);
     }
 
     @Override
     protected void cancelRequest(BlockWriteRequestContext context) throws Exception {
       if (mIsWritingToLocal) {
         mBlockPacketWriter.cancelRequest(context);
-        return;
+      } else {
+        Preconditions.checkNotNull(context.getOutputStream());
+        Preconditions.checkNotNull(context.getUnderFileSystem());
+        context.getOutputStream().close();
+        context.getUnderFileSystem().deleteFile(context.getUfsPath());
+        context.setOutputStream(null);
       }
-      Preconditions.checkState(context.getOutputStream() != null);
-      Preconditions.checkState(context.getUnderFileSystem() != null);
-      context.getOutputStream().close();
-      context.getUnderFileSystem().deleteFile(context.getUfsPath());
-      context.setOutputStream(null);
     }
 
     @Override
     protected void cleanupRequest(BlockWriteRequestContext context) throws Exception {
       if (mIsWritingToLocal) {
         mBlockPacketWriter.cleanupRequest(context);
-        return;
+      } else {
+        Preconditions.checkNotNull(context.getOutputStream());
+        cancelRequest(context);
       }
-      Preconditions.checkState(context.getOutputStream() != null);
-      cancelRequest(context);
     }
 
     @Override
@@ -261,13 +261,14 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
           mBlockPacketWriter.writeBuf(context, channel, buf, pos);
           return;
         } catch (alluxio.exception.WorkerOutOfSpaceException e) {
-          if (context.getRequest().getCreateUfsBlockOptions() == null) {
+          if (context.getRequest().hasCreateUfsBlockOptions()) {
             // we are not supposed to fall back, re-throw the error
             throw e;
           }
           // Not enough space
           LOG.warn("Not enough space to write block {} to local worker, fallback to UFS",
               context.getRequest().getId());
+          mIsWritingToLocal = false;
         }
         // close the block writer first
         context.getBlockWriter().close();
@@ -275,9 +276,8 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
         createUfsBlock(context, channel, pos);
         // close the original block writer and remove the temp file
         mBlockPacketWriter.cancelRequest(context);
-        mIsWritingToLocal = false;
       }
-      Preconditions.checkState(context.getOutputStream() != null);
+      Preconditions.checkNotNull(context.getOutputStream());
       java.io.OutputStream stream = context.getOutputStream();
       buf.readBytes(stream, buf.readableBytes());
     }
