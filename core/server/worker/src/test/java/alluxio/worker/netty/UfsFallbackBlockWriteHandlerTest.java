@@ -131,14 +131,14 @@ public class UfsFallbackBlockWriteHandlerTest extends WriteHandlerTest {
   protected Protocol.WriteRequest newWriteRequestProto(long offset) {
     Protocol.CreateUfsBlockOptions createUfsBlockOptions =
         Protocol.CreateUfsBlockOptions.newBuilder().setMountId(TEST_MOUNT_ID)
-            .setSizeWritten(PARTIAL_WRITTEN).build();
+            .setBytesInBlockStore(PARTIAL_WRITTEN).build();
     return super.newWriteRequestProto(offset).toBuilder()
         .setCreateUfsBlockOptions(createUfsBlockOptions).build();
   }
 
   @Override
   protected Protocol.RequestType getWriteRequestType() {
-    return Protocol.RequestType.UFS_BLOCK;
+    return Protocol.RequestType.UFS_FALLBACK_BLOCK;
   }
 
   @Override

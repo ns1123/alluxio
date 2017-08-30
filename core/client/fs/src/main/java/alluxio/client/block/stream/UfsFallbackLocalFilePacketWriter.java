@@ -87,8 +87,10 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         mLocalFilePacketWriter.getWriter().close();
         mNettyPacketWriter = NettyPacketWriter
             .create(mContext, mWorkerNetAddress, mBlockId, mBlockSize,
-                Protocol.RequestType.UFS_BLOCK, mOutStreamOptions);
-        //
+                Protocol.RequestType.UFS_FALLBACK_BLOCK, mOutStreamOptions);
+        // Instruct the server to write the existing data from temp block.
+        // We could not cancel mLocalFilePacketWriter now as the signal may arrive and be acted
+        // after the cancel here.
         mNettyPacketWriter.writeFallbackInitPacket(pos);
       } catch (Exception e) {
         throw new IOException("Failed to switch to writing to UFS", e);

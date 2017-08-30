@@ -27,13 +27,13 @@ public final class Protocol {
      */
     UFS_FILE(1, 1),
     /**
-     * <code>UFS_BLOCK = 1000;</code>
+     * <code>UFS_FALLBACK_BLOCK = 1000;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
      * </pre>
      */
-    UFS_BLOCK(2, 1000),
+    UFS_FALLBACK_BLOCK(2, 1000),
     ;
 
     /**
@@ -45,13 +45,13 @@ public final class Protocol {
      */
     public static final int UFS_FILE_VALUE = 1;
     /**
-     * <code>UFS_BLOCK = 1000;</code>
+     * <code>UFS_FALLBACK_BLOCK = 1000;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
      * </pre>
      */
-    public static final int UFS_BLOCK_VALUE = 1000;
+    public static final int UFS_FALLBACK_BLOCK_VALUE = 1000;
 
 
     public final int getNumber() { return value; }
@@ -60,7 +60,7 @@ public final class Protocol {
       switch (value) {
         case 0: return ALLUXIO_BLOCK;
         case 1: return UFS_FILE;
-        case 1000: return UFS_BLOCK;
+        case 1000: return UFS_FALLBACK_BLOCK;
         default: return null;
       }
     }
@@ -2793,7 +2793,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * This is only applicable for ufs writes.
      * </pre>
      */
     boolean hasCreateUfsFileOptions();
@@ -2801,7 +2801,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * This is only applicable for ufs writes.
      * </pre>
      */
     alluxio.proto.dataserver.Protocol.CreateUfsFileOptions getCreateUfsFileOptions();
@@ -2809,7 +2809,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * This is only applicable for ufs writes.
      * </pre>
      */
     alluxio.proto.dataserver.Protocol.CreateUfsFileOptionsOrBuilder getCreateUfsFileOptionsOrBuilder();
@@ -3156,7 +3156,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * This is only applicable for ufs writes.
      * </pre>
      */
     public boolean hasCreateUfsFileOptions() {
@@ -3166,7 +3166,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * This is only applicable for ufs writes.
      * </pre>
      */
     public alluxio.proto.dataserver.Protocol.CreateUfsFileOptions getCreateUfsFileOptions() {
@@ -3176,7 +3176,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * This is only applicable for ufs writes.
      * </pre>
      */
     public alluxio.proto.dataserver.Protocol.CreateUfsFileOptionsOrBuilder getCreateUfsFileOptionsOrBuilder() {
@@ -3887,7 +3887,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * This is only applicable for ufs writes.
        * </pre>
        */
       public boolean hasCreateUfsFileOptions() {
@@ -3897,7 +3897,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * This is only applicable for ufs writes.
        * </pre>
        */
       public alluxio.proto.dataserver.Protocol.CreateUfsFileOptions getCreateUfsFileOptions() {
@@ -3911,7 +3911,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * This is only applicable for ufs writes.
        * </pre>
        */
       public Builder setCreateUfsFileOptions(alluxio.proto.dataserver.Protocol.CreateUfsFileOptions value) {
@@ -3931,7 +3931,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * This is only applicable for ufs writes.
        * </pre>
        */
       public Builder setCreateUfsFileOptions(
@@ -3949,7 +3949,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * This is only applicable for ufs writes.
        * </pre>
        */
       public Builder mergeCreateUfsFileOptions(alluxio.proto.dataserver.Protocol.CreateUfsFileOptions value) {
@@ -3972,7 +3972,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * This is only applicable for ufs writes.
        * </pre>
        */
       public Builder clearCreateUfsFileOptions() {
@@ -3989,7 +3989,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * This is only applicable for ufs writes.
        * </pre>
        */
       public alluxio.proto.dataserver.Protocol.CreateUfsFileOptions.Builder getCreateUfsFileOptionsBuilder() {
@@ -4001,7 +4001,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * This is only applicable for ufs writes.
        * </pre>
        */
       public alluxio.proto.dataserver.Protocol.CreateUfsFileOptionsOrBuilder getCreateUfsFileOptionsOrBuilder() {
@@ -4015,7 +4015,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 7;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * This is only applicable for ufs writes.
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
@@ -5307,23 +5307,41 @@ public final class Protocol {
   public interface CreateUfsBlockOptionsOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // optional int64 size_written = 1;
+    // optional int64 bytes_in_block_store = 1;
     /**
-     * <code>optional int64 size_written = 1;</code>
+     * <code>optional int64 bytes_in_block_store = 1;</code>
+     *
+     * <pre>
+     * the number of bytes previously written to block store
+     * zero if no previous temp block created
+     * </pre>
      */
-    boolean hasSizeWritten();
+    boolean hasBytesInBlockStore();
     /**
-     * <code>optional int64 size_written = 1;</code>
+     * <code>optional int64 bytes_in_block_store = 1;</code>
+     *
+     * <pre>
+     * the number of bytes previously written to block store
+     * zero if no previous temp block created
+     * </pre>
      */
-    long getSizeWritten();
+    long getBytesInBlockStore();
 
     // optional int64 mount_id = 2;
     /**
      * <code>optional int64 mount_id = 2;</code>
+     *
+     * <pre>
+     * mount ID of the UFS to write to
+     * </pre>
      */
     boolean hasMountId();
     /**
      * <code>optional int64 mount_id = 2;</code>
+     *
+     * <pre>
+     * mount ID of the UFS to write to
+     * </pre>
      */
     long getMountId();
   }
@@ -5331,7 +5349,7 @@ public final class Protocol {
    * Protobuf type {@code alluxio.proto.dataserver.CreateUfsBlockOptions}
    *
    * <pre>
-   * Options to create a block file.
+   * Options to create a block file in UFS.
    * next available: 3
    * </pre>
    */
@@ -5385,7 +5403,7 @@ public final class Protocol {
             }
             case 8: {
               bitField0_ |= 0x00000001;
-              sizeWritten_ = input.readInt64();
+              bytesInBlockStore_ = input.readInt64();
               break;
             }
             case 16: {
@@ -5433,20 +5451,30 @@ public final class Protocol {
     }
 
     private int bitField0_;
-    // optional int64 size_written = 1;
-    public static final int SIZE_WRITTEN_FIELD_NUMBER = 1;
-    private long sizeWritten_;
+    // optional int64 bytes_in_block_store = 1;
+    public static final int BYTES_IN_BLOCK_STORE_FIELD_NUMBER = 1;
+    private long bytesInBlockStore_;
     /**
-     * <code>optional int64 size_written = 1;</code>
+     * <code>optional int64 bytes_in_block_store = 1;</code>
+     *
+     * <pre>
+     * the number of bytes previously written to block store
+     * zero if no previous temp block created
+     * </pre>
      */
-    public boolean hasSizeWritten() {
+    public boolean hasBytesInBlockStore() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional int64 size_written = 1;</code>
+     * <code>optional int64 bytes_in_block_store = 1;</code>
+     *
+     * <pre>
+     * the number of bytes previously written to block store
+     * zero if no previous temp block created
+     * </pre>
      */
-    public long getSizeWritten() {
-      return sizeWritten_;
+    public long getBytesInBlockStore() {
+      return bytesInBlockStore_;
     }
 
     // optional int64 mount_id = 2;
@@ -5454,19 +5482,27 @@ public final class Protocol {
     private long mountId_;
     /**
      * <code>optional int64 mount_id = 2;</code>
+     *
+     * <pre>
+     * mount ID of the UFS to write to
+     * </pre>
      */
     public boolean hasMountId() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
      * <code>optional int64 mount_id = 2;</code>
+     *
+     * <pre>
+     * mount ID of the UFS to write to
+     * </pre>
      */
     public long getMountId() {
       return mountId_;
     }
 
     private void initFields() {
-      sizeWritten_ = 0L;
+      bytesInBlockStore_ = 0L;
       mountId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
@@ -5482,7 +5518,7 @@ public final class Protocol {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt64(1, sizeWritten_);
+        output.writeInt64(1, bytesInBlockStore_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt64(2, mountId_);
@@ -5498,7 +5534,7 @@ public final class Protocol {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(1, sizeWritten_);
+          .computeInt64Size(1, bytesInBlockStore_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -5586,7 +5622,7 @@ public final class Protocol {
      * Protobuf type {@code alluxio.proto.dataserver.CreateUfsBlockOptions}
      *
      * <pre>
-     * Options to create a block file.
+     * Options to create a block file in UFS.
      * next available: 3
      * </pre>
      */
@@ -5625,7 +5661,7 @@ public final class Protocol {
 
       public Builder clear() {
         super.clear();
-        sizeWritten_ = 0L;
+        bytesInBlockStore_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000001);
         mountId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -5660,7 +5696,7 @@ public final class Protocol {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.sizeWritten_ = sizeWritten_;
+        result.bytesInBlockStore_ = bytesInBlockStore_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
@@ -5681,8 +5717,8 @@ public final class Protocol {
 
       public Builder mergeFrom(alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions other) {
         if (other == alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance()) return this;
-        if (other.hasSizeWritten()) {
-          setSizeWritten(other.getSizeWritten());
+        if (other.hasBytesInBlockStore()) {
+          setBytesInBlockStore(other.getBytesInBlockStore());
         }
         if (other.hasMountId()) {
           setMountId(other.getMountId());
@@ -5714,35 +5750,55 @@ public final class Protocol {
       }
       private int bitField0_;
 
-      // optional int64 size_written = 1;
-      private long sizeWritten_ ;
+      // optional int64 bytes_in_block_store = 1;
+      private long bytesInBlockStore_ ;
       /**
-       * <code>optional int64 size_written = 1;</code>
+       * <code>optional int64 bytes_in_block_store = 1;</code>
+       *
+       * <pre>
+       * the number of bytes previously written to block store
+       * zero if no previous temp block created
+       * </pre>
        */
-      public boolean hasSizeWritten() {
+      public boolean hasBytesInBlockStore() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional int64 size_written = 1;</code>
+       * <code>optional int64 bytes_in_block_store = 1;</code>
+       *
+       * <pre>
+       * the number of bytes previously written to block store
+       * zero if no previous temp block created
+       * </pre>
        */
-      public long getSizeWritten() {
-        return sizeWritten_;
+      public long getBytesInBlockStore() {
+        return bytesInBlockStore_;
       }
       /**
-       * <code>optional int64 size_written = 1;</code>
+       * <code>optional int64 bytes_in_block_store = 1;</code>
+       *
+       * <pre>
+       * the number of bytes previously written to block store
+       * zero if no previous temp block created
+       * </pre>
        */
-      public Builder setSizeWritten(long value) {
+      public Builder setBytesInBlockStore(long value) {
         bitField0_ |= 0x00000001;
-        sizeWritten_ = value;
+        bytesInBlockStore_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int64 size_written = 1;</code>
+       * <code>optional int64 bytes_in_block_store = 1;</code>
+       *
+       * <pre>
+       * the number of bytes previously written to block store
+       * zero if no previous temp block created
+       * </pre>
        */
-      public Builder clearSizeWritten() {
+      public Builder clearBytesInBlockStore() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        sizeWritten_ = 0L;
+        bytesInBlockStore_ = 0L;
         onChanged();
         return this;
       }
@@ -5751,18 +5807,30 @@ public final class Protocol {
       private long mountId_ ;
       /**
        * <code>optional int64 mount_id = 2;</code>
+       *
+       * <pre>
+       * mount ID of the UFS to write to
+       * </pre>
        */
       public boolean hasMountId() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
        * <code>optional int64 mount_id = 2;</code>
+       *
+       * <pre>
+       * mount ID of the UFS to write to
+       * </pre>
        */
       public long getMountId() {
         return mountId_;
       }
       /**
        * <code>optional int64 mount_id = 2;</code>
+       *
+       * <pre>
+       * mount ID of the UFS to write to
+       * </pre>
        */
       public Builder setMountId(long value) {
         bitField0_ |= 0x00000002;
@@ -5772,6 +5840,10 @@ public final class Protocol {
       }
       /**
        * <code>optional int64 mount_id = 2;</code>
+       *
+       * <pre>
+       * mount ID of the UFS to write to
+       * </pre>
        */
       public Builder clearMountId() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -12304,34 +12376,35 @@ public final class Protocol {
       "eUfsBlockOptions\"f\n\024CreateUfsFileOptions" +
       "\022\020\n\010ufs_path\030\001 \001(\t\022\r\n\005owner\030\002 \001(\t\022\r\n\005gro" +
       "up\030\003 \001(\t\022\014\n\004mode\030\004 \001(\005\022\020\n\010mount_id\030\005 \001(\003" +
-      "\"?\n\025CreateUfsBlockOptions\022\024\n\014size_writte" +
-      "n\030\001 \001(\003\022\020\n\010mount_id\030\002 \001(\003\"J\n\010Response\022-\n" +
-      "\006status\030\001 \001(\0162\035.alluxio.proto.status.PSt" +
-      "atus\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMessage\022>\n" +
-      "\005state\030\001 \001(\0162/.alluxio.proto.dataserver.",
-      "SaslMessage.SaslState\022\r\n\005token\030\002 \001(\014\"5\n\t" +
-      "SaslState\022\013\n\007SUCCESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\t" +
-      "CHALLENGE\020\002\"i\n\014ReadResponse\0229\n\004type\030\001 \001(" +
-      "\0162+.alluxio.proto.dataserver.ReadRespons" +
-      "e.Type\"\036\n\004Type\022\026\n\022UFS_READ_HEARTBEAT\020\001\"\013" +
-      "\n\tHeartbeat\"s\n\025LocalBlockOpenRequest\022\020\n\010" +
-      "block_id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\0227\n\ncapab" +
+      "\"G\n\025CreateUfsBlockOptions\022\034\n\024bytes_in_bl" +
+      "ock_store\030\001 \001(\003\022\020\n\010mount_id\030\002 \001(\003\"J\n\010Res" +
+      "ponse\022-\n\006status\030\001 \001(\0162\035.alluxio.proto.st" +
+      "atus.PStatus\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMe" +
+      "ssage\022>\n\005state\030\001 \001(\0162/.alluxio.proto.dat",
+      "aserver.SaslMessage.SaslState\022\r\n\005token\030\002" +
+      " \001(\014\"5\n\tSaslState\022\013\n\007SUCCESS\020\000\022\014\n\010INITIA" +
+      "TE\020\001\022\r\n\tCHALLENGE\020\002\"i\n\014ReadResponse\0229\n\004t" +
+      "ype\030\001 \001(\0162+.alluxio.proto.dataserver.Rea" +
+      "dResponse.Type\"\036\n\004Type\022\026\n\022UFS_READ_HEART" +
+      "BEAT\020\001\"\013\n\tHeartbeat\"s\n\025LocalBlockOpenReq" +
+      "uest\022\020\n\010block_id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\022" +
+      "7\n\ncapability\030\351\007 \001(\0132\".alluxio.proto.sec" +
+      "urity.Capability\"&\n\026LocalBlockOpenRespon" +
+      "se\022\014\n\004path\030\001 \001(\t\"c\n\026LocalBlockCloseReque",
+      "st\022\020\n\010block_id\030\001 \001(\003\0227\n\ncapability\030\351\007 \001(" +
+      "\0132\".alluxio.proto.security.Capability\"\250\001" +
+      "\n\027LocalBlockCreateRequest\022\020\n\010block_id\030\001 " +
+      "\001(\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020space_to_reserve\030\004 " +
+      "\001(\003\022\032\n\022only_reserve_space\030\005 \001(\010\0227\n\ncapab" +
       "ility\030\351\007 \001(\0132\".alluxio.proto.security.Ca" +
-      "pability\"&\n\026LocalBlockOpenResponse\022\014\n\004pa" +
-      "th\030\001 \001(\t\"c\n\026LocalBlockCloseRequest\022\020\n\010bl",
-      "ock_id\030\001 \001(\003\0227\n\ncapability\030\351\007 \001(\0132\".allu" +
-      "xio.proto.security.Capability\"\250\001\n\027LocalB" +
-      "lockCreateRequest\022\020\n\010block_id\030\001 \001(\003\022\014\n\004t" +
-      "ier\030\003 \001(\005\022\030\n\020space_to_reserve\030\004 \001(\003\022\032\n\022o" +
-      "nly_reserve_space\030\005 \001(\010\0227\n\ncapability\030\351\007" +
-      " \001(\0132\".alluxio.proto.security.Capability" +
-      "\"(\n\030LocalBlockCreateResponse\022\014\n\004path\030\001 \001" +
-      "(\t\"v\n\031LocalBlockCompleteRequest\022\020\n\010block" +
-      "_id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapability\030" +
-      "\351\007 \001(\0132\".alluxio.proto.security.Capabili",
-      "ty\"\'\n\022RemoveBlockRequest\022\021\n\010block_id\030\351\007 " +
-      "\001(\003*>\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n" +
-      "\010UFS_FILE\020\001\022\016\n\tUFS_BLOCK\020\350\007"
+      "pability\"(\n\030LocalBlockCreateResponse\022\014\n\004" +
+      "path\030\001 \001(\t\"v\n\031LocalBlockCompleteRequest\022" +
+      "\020\n\010block_id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncap" +
+      "ability\030\351\007 \001(\0132\".alluxio.proto.security.",
+      "Capability\"\'\n\022RemoveBlockRequest\022\021\n\010bloc" +
+      "k_id\030\351\007 \001(\003*G\n\013RequestType\022\021\n\rALLUXIO_BL" +
+      "OCK\020\000\022\014\n\010UFS_FILE\020\001\022\027\n\022UFS_FALLBACK_BLOC" +
+      "K\020\350\007"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -12367,7 +12440,7 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_CreateUfsBlockOptions_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_CreateUfsBlockOptions_descriptor,
-              new java.lang.String[] { "SizeWritten", "MountId", });
+              new java.lang.String[] { "BytesInBlockStore", "MountId", });
           internal_static_alluxio_proto_dataserver_Response_descriptor =
             getDescriptor().getMessageTypes().get(5);
           internal_static_alluxio_proto_dataserver_Response_fieldAccessorTable = new

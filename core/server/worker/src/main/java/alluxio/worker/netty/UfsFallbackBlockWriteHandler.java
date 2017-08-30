@@ -92,7 +92,7 @@ public final class UfsFallbackBlockWriteHandler
       return false;
     }
     Protocol.WriteRequest request = message.getMessage().asWriteRequest();
-    return request.getType() == Protocol.RequestType.UFS_BLOCK;
+    return request.getType() == Protocol.RequestType.UFS_FALLBACK_BLOCK;
   }
 
   @Override
@@ -113,8 +113,8 @@ public final class UfsFallbackBlockWriteHandler
         new BlockWriteRequestContext(msg, FILE_BUFFER_SIZE);
     BlockWriteRequest request = context.getRequest();
     if (request.hasCreateUfsBlockOptions()
-        && request.getCreateUfsBlockOptions().hasSizeWritten()
-        && request.getCreateUfsBlockOptions().getSizeWritten() > 0) {
+        && request.getCreateUfsBlockOptions().hasBytesInBlockStore()
+        && request.getCreateUfsBlockOptions().getBytesInBlockStore() > 0) {
       // this is already a UFS fallback from short-circuit write
       context.setWritingToLocal(false);
     }

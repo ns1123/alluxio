@@ -13,7 +13,7 @@ enum RequestType {
   ALLUXIO_BLOCK = 0;
   UFS_FILE = 1;
   // ALLUXIO CS ADD
-  UFS_BLOCK = 1000;
+  UFS_FALLBACK_BLOCK = 1000;
   // ALLUXIO CS END
 }
 

@@ -167,9 +167,9 @@ public final class NettyPacketWriter implements PacketWriter {
         && options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH
         && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
       // When writing Alluxio blocks and UFS fallback is enabled, use the fallback-enabled endpoint
-      builder.setType(Protocol.RequestType.UFS_BLOCK);
+      builder.setType(Protocol.RequestType.UFS_FALLBACK_BLOCK);
     }
-    if (builder.getType() == Protocol.RequestType.UFS_BLOCK) {
+    if (builder.getType() == Protocol.RequestType.UFS_FALLBACK_BLOCK) {
     Protocol.CreateUfsBlockOptions ufsBlockOptions =
           Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId()).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
@@ -238,16 +238,17 @@ public final class NettyPacketWriter implements PacketWriter {
    * @param pos number of bytes already written to block store
    */
   public void writeFallbackInitPacket(long pos) {
-    Preconditions.checkState(mPartialRequest.getType() == Protocol.RequestType.UFS_BLOCK);
+    Preconditions.checkState(mPartialRequest.getType()
+        == Protocol.RequestType.UFS_FALLBACK_BLOCK);
     Protocol.CreateUfsBlockOptions ufsBlockOptions = mPartialRequest.getCreateUfsBlockOptions()
-        .toBuilder().setSizeWritten(pos).build();
+        .toBuilder().setBytesInBlockStore(pos).build();
     Protocol.WriteRequest writeRequest = mPartialRequest.toBuilder().setOffset(0)
         .setCreateUfsBlockOptions(ufsBlockOptions).build();
     mChannel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(writeRequest), null))
         .addListener(new WriteListener(pos));
   }
 
-  // ALLUXIO CD END
+  // ALLUXIO CS END
   @Override
   public void cancel() {
     if (mClosed) {

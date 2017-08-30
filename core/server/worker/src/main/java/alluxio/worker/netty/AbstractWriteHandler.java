@@ -180,10 +180,10 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
       // ALLUXIO CS ADD
       } else if (writeRequest.hasCreateUfsBlockOptions()
           && writeRequest.getOffset() == 0
-          && writeRequest.getCreateUfsBlockOptions().hasSizeWritten()) {
+          && writeRequest.getCreateUfsBlockOptions().hasBytesInBlockStore()) {
         // This is the init packet sent from a client falling back from failed short-circuit write.
         buf = UFS_FALLBACK_INIT;
-        mUfsFallbackInitBytes = writeRequest.getCreateUfsBlockOptions().getSizeWritten();
+        mUfsFallbackInitBytes = writeRequest.getCreateUfsBlockOptions().getBytesInBlockStore();
         mContext.setPosToQueue(
             mContext.getPosToQueue() + mUfsFallbackInitBytes);
       // ALLUXIO CS END
