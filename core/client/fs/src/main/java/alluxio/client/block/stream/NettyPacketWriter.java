@@ -237,7 +237,7 @@ public final class NettyPacketWriter implements PacketWriter {
    *
    * @param pos number of bytes already written to block store
    */
-  public void writeUfsFallbackPacket(long pos) {
+  public void writeFallbackInitPacket(long pos) {
     Preconditions.checkState(mPartialRequest.getType() == Protocol.RequestType.UFS_BLOCK);
     Protocol.CreateUfsBlockOptions ufsBlockOptions = mPartialRequest.getCreateUfsBlockOptions()
         .toBuilder().setSizeWritten(pos).build();

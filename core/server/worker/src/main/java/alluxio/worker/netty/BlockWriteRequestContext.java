@@ -25,6 +25,7 @@ public final class BlockWriteRequestContext extends WriteRequestContext<BlockWri
   private BlockWriter mBlockWriter;
   private long mBytesReserved;
   // ALLUXIO CS ADD
+  private boolean mIsWritingToLocal = true;
   private alluxio.underfs.UnderFileSystem mUnderFileSystem;
   private java.io.OutputStream mOutputStream;
   private String mUfsPath;
@@ -66,6 +67,13 @@ public final class BlockWriteRequestContext extends WriteRequestContext<BlockWri
   // ALLUXIO CS ADD
 
   /**
+   * @return is the current request writing to UFS
+   */
+  public boolean isWritingToLocal() {
+    return mIsWritingToLocal;
+  }
+
+  /**
    * @return the UFS path of the block
    */
   @Nullable
@@ -86,6 +94,14 @@ public final class BlockWriteRequestContext extends WriteRequestContext<BlockWri
   @Nullable
   public alluxio.underfs.UnderFileSystem getUnderFileSystem() {
     return mUnderFileSystem;
+  }
+
+
+  /**
+   * @param writingToLocal whether the current request is writing to UFS
+   */
+  public void setWritingToLocal(boolean writingToLocal) {
+    mIsWritingToLocal = writingToLocal;
   }
 
   /**

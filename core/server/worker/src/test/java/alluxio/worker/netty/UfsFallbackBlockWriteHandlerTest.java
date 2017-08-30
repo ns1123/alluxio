@@ -45,7 +45,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
+public class UfsFallbackBlockWriteHandlerTest extends WriteHandlerTest {
   private static final long TEST_SESSION_ID = 123L;
   private static final long TEST_WORKER_ID = 456L;
   private static final int PARTIAL_WRITTEN = 512;
@@ -62,10 +62,10 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
       new ConfigurationRule(new HashMap<PropertyKey, String>() {
         {
           put(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS,
-              AlluxioTestDirectory.createTemporaryDirectory("UfsBlockWriteHandlerTest-RootUfs")
+              AlluxioTestDirectory.createTemporaryDirectory("UfsFallbackBlockWriteHandlerTest-RootUfs")
                   .getAbsolutePath());
           put(PropertyKey.WORKER_TIERED_STORE_LEVEL0_DIRS_PATH, AlluxioTestDirectory
-              .createTemporaryDirectory("UfsBlockWriteHandlerTest-WorkerDataFolder")
+              .createTemporaryDirectory("UfsFallbackBlockWriteHandlerTest-WorkerDataFolder")
               .getAbsolutePath());
           put(PropertyKey.WORKER_TIERED_STORE_LEVELS, "1");
         }
@@ -89,7 +89,7 @@ public class UfsBlockWriteHandlerTest extends WriteHandlerTest {
         .thenReturn(mOutputStream);
 
     mChannel = new EmbeddedChannel(
-        new UfsBlockWriteHandler(NettyExecutors.FILE_WRITER_EXECUTOR, mBlockWorker, ufsManager));
+        new UfsFallbackBlockWriteHandler(NettyExecutors.FILE_WRITER_EXECUTOR, mBlockWorker, ufsManager));
 
     // create a partial block in block store first
     mBlockStore.createBlock(TEST_SESSION_ID, TEST_BLOCK_ID,

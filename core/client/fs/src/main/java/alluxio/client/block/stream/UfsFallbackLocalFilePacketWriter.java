@@ -89,7 +89,7 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
             .create(mContext, mWorkerNetAddress, mBlockId, mBlockSize,
                 Protocol.RequestType.UFS_BLOCK, mOutStreamOptions);
         //
-        mNettyPacketWriter.writeUfsFallbackPacket(pos);
+        mNettyPacketWriter.writeFallbackInitPacket(pos);
       } catch (Exception e) {
         throw new IOException("Failed to switch to writing to UFS", e);
       }
