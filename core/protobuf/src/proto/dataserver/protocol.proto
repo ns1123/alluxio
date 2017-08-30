@@ -92,9 +92,11 @@ message CreateUfsFileOptions {
 // next available: 3
 message CreateUfsBlockOptions {
   // the number of bytes previously written to block store
-  optional int64 size_written = 1;
+  // zero if no previous temp block created
+  optional int64 bytes_in_block_store = 1;
   // mount ID of the UFS to write to
   optional int64 mount_id = 2;
+
 }
 // ALLUXIO CS END
 

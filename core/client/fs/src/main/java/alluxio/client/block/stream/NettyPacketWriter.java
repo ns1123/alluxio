@@ -163,14 +163,15 @@ public final class NettyPacketWriter implements PacketWriter {
       builder.setCreateUfsFileOptions(ufsFileOptions);
     }
     // ALLUXIO CS ADD
-    if (type == Protocol.RequestType.UFS_BLOCK
-        || (type == Protocol.RequestType.ALLUXIO_BLOCK
+    if (type == Protocol.RequestType.ALLUXIO_BLOCK
         && options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH
-        && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) ) {
-      // Fill in the corresponding UFS info in the write request in case of fallback
-      Protocol.CreateUfsBlockOptions ufsBlockOptions =
-          Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId())
-              .setSizeWritten(options.getSizeWritten()).build();
+        && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
+      // When writing Alluxio blocks and UFS fallback is enabled, use the fallback-enabled endpoint
+      builder.setType(Protocol.RequestType.UFS_BLOCK);
+    }
+    if (builder.getType() == Protocol.RequestType.UFS_BLOCK) {
+    Protocol.CreateUfsBlockOptions ufsBlockOptions =
+          Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId()).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
     }
     if (options.getCapabilityFetcher() != null) {
@@ -229,6 +230,24 @@ public final class NettyPacketWriter implements PacketWriter {
         .addListener(new WriteListener(offset + len));
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Notifies the server UFS fallback endpoint to start writing a new block by resuming the given
+   * number of bytes from block store.
+   *
+   * @param pos number of bytes already written to block store
+   */
+  public void writeUfsFallbackPacket(long pos) {
+    Preconditions.checkState(mPartialRequest.getType() == Protocol.RequestType.UFS_BLOCK);
+    Protocol.CreateUfsBlockOptions ufsBlockOptions = mPartialRequest.getCreateUfsBlockOptions()
+        .toBuilder().setSizeWritten(pos).build();
+    Protocol.WriteRequest writeRequest = mPartialRequest.toBuilder().setOffset(0)
+        .setCreateUfsBlockOptions(ufsBlockOptions).build();
+    mChannel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(writeRequest), null))
+        .addListener(new WriteListener(pos));
+  }
+
+  // ALLUXIO CD END
   @Override
   public void cancel() {
     if (mClosed) {
