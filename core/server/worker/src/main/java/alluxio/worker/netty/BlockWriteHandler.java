@@ -160,6 +160,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
     @Override
     protected void writeBuf(BlockWriteRequestContext context, Channel channel, ByteBuf buf,
         long pos) throws Exception {
+      Preconditions.checkState(context != null);
       WriteRequest request = context.getRequest();
       long bytesReserved = context.getBytesReserved();
       if (bytesReserved < pos) {

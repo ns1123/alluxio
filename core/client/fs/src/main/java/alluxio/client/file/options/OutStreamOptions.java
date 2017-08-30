@@ -392,6 +392,7 @@ public final class OutStreamOptions {
     mCapabilityFetcher = fetcher;
     return this;
   }
+
   // ALLUXIO CS END
   /**
    * @param mode the permission

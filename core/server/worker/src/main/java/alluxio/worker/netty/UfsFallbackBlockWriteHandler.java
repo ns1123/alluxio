@@ -16,7 +16,6 @@ import alluxio.PropertyKey;
 import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.metrics.MetricsSystem;
-import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.underfs.UfsManager;
@@ -76,22 +75,12 @@ public final class UfsFallbackBlockWriteHandler
     Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
   }
 
-  /**
-   * Checks whether this object should be processed by this handler.
-   *
-   * @param object the object
-   * @return true if this object should be processed
-   */
   @Override
   protected boolean acceptMessage(Object object) {
-    if (!(object instanceof RPCProtoMessage)) {
+    if (!super.acceptMessage(object)) {
       return false;
     }
-    RPCProtoMessage message = (RPCProtoMessage) object;
-    if (message.getType() != RPCMessage.Type.RPC_WRITE_REQUEST) {
-      return false;
-    }
-    Protocol.WriteRequest request = message.getMessage().asWriteRequest();
+    Protocol.WriteRequest request = ((RPCProtoMessage) object).getMessage().asWriteRequest();
     return request.getType() == Protocol.RequestType.UFS_FALLBACK_BLOCK;
   }
 

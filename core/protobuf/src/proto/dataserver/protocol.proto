@@ -96,7 +96,6 @@ message CreateUfsBlockOptions {
   optional int64 bytes_in_block_store = 1;
   // mount ID of the UFS to write to
   optional int64 mount_id = 2;
-
 }
 // ALLUXIO CS END
 

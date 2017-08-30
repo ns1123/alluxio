@@ -170,7 +170,7 @@ public final class NettyPacketWriter implements PacketWriter {
       builder.setType(Protocol.RequestType.UFS_FALLBACK_BLOCK);
     }
     if (builder.getType() == Protocol.RequestType.UFS_FALLBACK_BLOCK) {
-    Protocol.CreateUfsBlockOptions ufsBlockOptions =
+      Protocol.CreateUfsBlockOptions ufsBlockOptions =
           Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId()).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
     }
