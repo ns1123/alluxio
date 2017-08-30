@@ -151,7 +151,9 @@ public final class CryptoFileInStreamTest {
             public BlockInStream answer(InvocationOnMock invocation) throws Throwable {
               long i = (Long) invocation.getArguments()[0];
               byte[] input = getBlockData((int) i);
-              return new TestBlockInStream(input, i, input.length, false);
+              // TODO(chaomin): add more sources
+              return new TestBlockInStream(input, i, input.length, false,
+                  BlockInStream.BlockInStreamSource.LOCAL);
             }
           });
       Mockito.when(mBlockStore.getOutStream(Mockito.eq((long) i), Mockito.anyLong(),
