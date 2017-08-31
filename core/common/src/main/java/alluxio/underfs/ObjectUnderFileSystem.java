@@ -424,8 +424,20 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
 
   @Override
   public boolean isFile(String path) throws IOException {
-    // Directly try to get the file metadata, if we fail it either is a folder or does not exist
-    return !isRoot(path) && (getObjectStatus(stripPrefixIfPresent(path)) != null);
+    if (isRoot(path)) {
+      // Root is always a directory.
+      return false;
+    }
+    ObjectStatus status = getObjectStatus(stripPrefixIfPresent(path));
+    if (status == null) {
+      // If no file metadata, it either is a folder or does not exist.
+      return false;
+    }
+    if ((status.getContentLength() == 0) && (getObjectListingChunkForPath(path, true) != null)) {
+      // 0-length content, but is a prefix for other objects.
+      return false;
+    }
+    return true;
   }
 
   @Override
