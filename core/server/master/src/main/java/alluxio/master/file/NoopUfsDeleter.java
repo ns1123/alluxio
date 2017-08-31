@@ -23,6 +23,11 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class NoopUfsDeleter implements UfsDeleter {
   public static final NoopUfsDeleter INSTANCE = new NoopUfsDeleter();
 
+  /**
+   * Constructs an instance of {@link NoopUfsDeleter}.
+   */
+  public NoopUfsDeleter() {}
+
   @Override
   public boolean delete(AlluxioURI alluxioUri, Inode inode) {
     return true;
