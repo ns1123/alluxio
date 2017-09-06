@@ -58,7 +58,8 @@ public final class NettySecretKeyWriter {
                   .setExpirationTimeMs(capabilityKey.getExpirationTimeMs()),
               capabilityKey.getEncodedKey()).build();
       NettyRPC.call(NettyRPCContext.defaults().setChannel(channel).setTimeout(
-          Configuration.getLong(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS)), new ProtoMessage(request));
+          Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS)),
+          new ProtoMessage(request));
     } catch (Exception e) {
       Metrics.NETTY_SECRET_KEY_WRITE_FAILURES.inc();
       throw new IOException(e);
