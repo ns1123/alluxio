@@ -248,14 +248,14 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
 
     // NOTE, adding S3 credentials in system properties to HDFS conf for backward compatibility.
     // TODO(binfan): remove this as it can be set in mount options through --option
-    String accessKeyConf = PropertyKey.S3N_ACCESS_KEY.toString();
+    String accessKeyConf = PropertyKey.S3A_ACCESS_KEY.toString();
     if (System.getProperty(accessKeyConf) != null
-        && !conf.containsKey(PropertyKey.S3N_ACCESS_KEY)) {
+        && !conf.containsKey(PropertyKey.S3A_ACCESS_KEY)) {
       hdfsConf.set(accessKeyConf, System.getProperty(accessKeyConf));
     }
-    String secretKeyConf = PropertyKey.S3N_SECRET_KEY.toString();
+    String secretKeyConf = PropertyKey.S3A_SECRET_KEY.toString();
     if (System.getProperty(secretKeyConf) != null
-        && !conf.containsKey(PropertyKey.S3N_SECRET_KEY)) {
+        && !conf.containsKey(PropertyKey.S3A_SECRET_KEY)) {
       hdfsConf.set(secretKeyConf, System.getProperty(secretKeyConf));
     }
     // Set all parameters passed through --option
