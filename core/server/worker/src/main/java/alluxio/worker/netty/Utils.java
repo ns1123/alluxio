@@ -28,7 +28,7 @@ public final class Utils {
       && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
       .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
 
-  /** Magic number to write UFS block to UFS*/
+  /** Magic number to write UFS block to UFS. */
   private static final String MAGIC_NUMBER = "1D91AC0E";
 
   /**
@@ -63,12 +63,11 @@ public final class Utils {
   }
 
   /**
-   * @param workerId worker ID
    * @param blockId block ID
    * @return the UFS path of a block
    */
-  public static String getUfsPath(long workerId, long blockId) {
-    return String.format(".alluxio_blocks_%s/%s/%s", MAGIC_NUMBER, workerId, blockId);
+  public static String getUfsPath(long blockId) {
+    return String.format(".alluxio_blocks_%s/%s/", MAGIC_NUMBER, blockId);
   }
 
   private Utils() {}  // prevent instantiation

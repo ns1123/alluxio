@@ -163,13 +163,15 @@ public final class NettyPacketWriter implements PacketWriter {
       builder.setCreateUfsFileOptions(ufsFileOptions);
     }
     // ALLUXIO CS ADD
-    if (type == Protocol.RequestType.ALLUXIO_BLOCK
+    // two cases to use UFS_FALLBACK_BLOCK endpoint:
+    // (1) this writer is created by the fallback of short-circuit writer, or
+    // (2) write type is async and UFS tier is enabled
+    if ((builder.getType() == Protocol.RequestType.UFS_FALLBACK_BLOCK)
+        || (type == Protocol.RequestType.ALLUXIO_BLOCK
         && options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH
-        && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
-      // When writing Alluxio blocks and UFS fallback is enabled, use the fallback-enabled endpoint
+        && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED))) {
+      // Overwrite to use the fallback-enabled endpoint
       builder.setType(Protocol.RequestType.UFS_FALLBACK_BLOCK);
-    }
-    if (builder.getType() == Protocol.RequestType.UFS_FALLBACK_BLOCK) {
       Protocol.CreateUfsBlockOptions ufsBlockOptions =
           Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId()).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
@@ -244,6 +246,9 @@ public final class NettyPacketWriter implements PacketWriter {
         .toBuilder().setBytesInBlockStore(pos).build();
     Protocol.WriteRequest writeRequest = mPartialRequest.toBuilder().setOffset(0)
         .setCreateUfsBlockOptions(ufsBlockOptions).build();
+    try (LockResource lr = new LockResource(mLock)) {
+      mPosToQueue = pos;
+    }
     mChannel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(writeRequest), null))
         .addListener(new WriteListener(pos));
   }

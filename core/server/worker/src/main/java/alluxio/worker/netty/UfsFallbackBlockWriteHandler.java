@@ -15,18 +15,36 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
+import alluxio.exception.AccessControlException;
+import alluxio.exception.InvalidCapabilityException;
+import alluxio.exception.WorkerOutOfSpaceException;
+import alluxio.exception.status.NotFoundException;
 import alluxio.metrics.MetricsSystem;
+import alluxio.netty.NettyAttributes;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
+import alluxio.proto.security.CapabilityProto;
+import alluxio.security.authentication.AuthenticatedClientUser;
+import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
+import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.options.CreateOptions;
+import alluxio.util.io.PathUtils;
 import alluxio.worker.block.BlockWorker;
+import alluxio.worker.block.meta.TempBlockMeta;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.FileRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
 import java.util.concurrent.ExecutorService;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -67,11 +85,9 @@ public final class UfsFallbackBlockWriteHandler
   }
 
   @Override
-  protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
-      alluxio.proto.security.CapabilityProto.Capability capability,
-      alluxio.security.authorization.Mode.Bits accessMode)
-      throws alluxio.exception.InvalidCapabilityException,
-      alluxio.exception.AccessControlException {
+  protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
+      CapabilityProto.Capability capability, Mode.Bits accessMode)
+      throws InvalidCapabilityException, AccessControlException {
     Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
   }
 
@@ -85,8 +101,7 @@ public final class UfsFallbackBlockWriteHandler
   }
 
   @Override
-  protected PacketWriter createPacketWriter(BlockWriteRequestContext context,
-      Channel channel) {
+  protected PacketWriter createPacketWriter(BlockWriteRequestContext context, Channel channel) {
     if (context.isWritingToLocal()) {
       // not fallback yet, starting with the block packet writer
       return new UfsFallbackBlockPacketWriter(context, channel, mUfsManager,
@@ -98,12 +113,10 @@ public final class UfsFallbackBlockWriteHandler
 
   @Override
   protected BlockWriteRequestContext createRequestContext(Protocol.WriteRequest msg) {
-    BlockWriteRequestContext context =
-        new BlockWriteRequestContext(msg, FILE_BUFFER_SIZE);
+    BlockWriteRequestContext context = new BlockWriteRequestContext(msg, FILE_BUFFER_SIZE);
     BlockWriteRequest request = context.getRequest();
-    if (request.hasCreateUfsBlockOptions()
-        && request.getCreateUfsBlockOptions().hasBytesInBlockStore()
-        && request.getCreateUfsBlockOptions().getBytesInBlockStore() > 0) {
+    if (request.hasCreateUfsBlockOptions() && request.getCreateUfsBlockOptions()
+        .hasBytesInBlockStore() && request.getCreateUfsBlockOptions().getBytesInBlockStore() > 0) {
       // this is already a UFS fallback from short-circuit write
       context.setWritingToLocal(false);
     }
@@ -133,9 +146,8 @@ public final class UfsFallbackBlockWriteHandler
      * @param ufsManager UFS manager
      * @param blockPacketWriter local block store writer
      */
-    public UfsFallbackBlockPacketWriter(BlockWriteRequestContext context,
-        Channel channel, alluxio.underfs.UfsManager ufsManager,
-        BlockWriteHandler.BlockPacketWriter blockPacketWriter) {
+    public UfsFallbackBlockPacketWriter(BlockWriteRequestContext context, Channel channel,
+        UfsManager ufsManager, BlockWriteHandler.BlockPacketWriter blockPacketWriter) {
       super(context, channel);
       mBlockPacketWriter = blockPacketWriter;
       mUfsManager = Preconditions.checkNotNull(ufsManager);
@@ -189,7 +201,7 @@ public final class UfsFallbackBlockWriteHandler
         try {
           mBlockPacketWriter.writeBuf(context, channel, buf, pos);
           return;
-        } catch (alluxio.exception.WorkerOutOfSpaceException e) {
+        } catch (WorkerOutOfSpaceException e) {
           if (context.getRequest().hasCreateUfsBlockOptions()) {
             // we are not supposed to fall back, re-throw the error
             throw e;
@@ -207,27 +219,34 @@ public final class UfsFallbackBlockWriteHandler
         mBlockPacketWriter.cancelRequest(context);
       }
       Preconditions.checkNotNull(context.getOutputStream());
-      java.io.OutputStream stream = context.getOutputStream();
+      OutputStream stream = context.getOutputStream();
       buf.readBytes(stream, buf.readableBytes());
     }
 
+    /**
+     * Creates a UFS block and initialize it with bytes read from block store.
+     *
+     * @param context context of this request
+     * @param channel netty channel
+     * @param pos number of bytes in block store to write in the UFS block
+     */
     private void createUfsBlock(BlockWriteRequestContext context, Channel channel, long pos)
         throws Exception {
       BlockWriteRequest request = context.getRequest();
       Protocol.CreateUfsBlockOptions createUfsBlockOptions = request.getCreateUfsBlockOptions();
       // Before interacting with the UFS manager, make sure the user is set.
-      String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+      String user = channel.attr(NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
       if (user != null) {
-        alluxio.security.authentication.AuthenticatedClientUser.set(user);
+        AuthenticatedClientUser.set(user);
       }
       UfsManager.UfsInfo ufsInfo = mUfsManager.get(createUfsBlockOptions.getMountId());
-      alluxio.underfs.UnderFileSystem ufs = ufsInfo.getUfs();
+      UnderFileSystem ufs = ufsInfo.getUfs();
       context.setUnderFileSystem(ufs);
       String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
-      String ufsPath = alluxio.util.io.PathUtils
-          .concatPath(ufsString, Utils.getUfsPath(mWorker.getWorkerId().get(), request.getId()));
-      java.io.OutputStream ufsOutputStream =
-          ufs.create(ufsPath, alluxio.underfs.options.CreateOptions.defaults());
+      String ufsPath = PathUtils.concatPath(ufsString, Utils.getUfsPath(request.getId()));
+      // Set the atomic flag to be true to ensure only the creation of this file is atomic on close.
+      OutputStream ufsOutputStream =
+          ufs.create(ufsPath, CreateOptions.defaults().setEnsureAtomic(true));
       context.setOutputStream(ufsOutputStream);
       context.setUfsPath(ufsPath);
       String metricName;
@@ -241,14 +260,12 @@ public final class UfsFallbackBlockWriteHandler
 
       long sessionId = context.getRequest().getSessionId();
       long blockId = context.getRequest().getId();
-      alluxio.worker.block.meta.TempBlockMeta block =
-          mWorker.getBlockStore().getTempBlockMeta(sessionId, blockId);
+      TempBlockMeta block = mWorker.getBlockStore().getTempBlockMeta(sessionId, blockId);
       if (block == null) {
-        throw new alluxio.exception.status.NotFoundException("block " + blockId + " not found");
+        throw new NotFoundException("block " + blockId + " not found");
       }
-      io.netty.channel.FileRegion fileRegion =
-          new io.netty.channel.DefaultFileRegion(new java.io.File(block.getPath()), 0, pos);
-      fileRegion.transferTo(java.nio.channels.Channels.newChannel(ufsOutputStream), 0);
+      FileRegion fileRegion = new DefaultFileRegion(new File(block.getPath()), 0, pos);
+      fileRegion.transferTo(Channels.newChannel(ufsOutputStream), 0);
       fileRegion.release();
     }
   }
