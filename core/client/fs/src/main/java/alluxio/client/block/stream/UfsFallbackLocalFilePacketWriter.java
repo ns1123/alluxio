@@ -74,8 +74,12 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
     if (mIsWritingToLocal) {
       long pos = mLocalFilePacketWriter.pos();
       try {
-        packet.retain(); // refcount++
-        mLocalFilePacketWriter.writePacket(packet); // refcount-- inside
+        // packet.refcount++ to ensure packet not garbage-collected if writePacket fails
+        packet.retain();
+        // packet.refcount-- inside regardless of exception
+        mLocalFilePacketWriter.writePacket(packet);
+        // packet.refcount-- on success
+        packet.release();
         return;
       } catch (ResourceExhaustedException e) {
         LOG.warn("Not enough space on local worker, fallback to write block {} to UFS", mBlockId);
@@ -95,6 +99,8 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         // after the cancel here.
         mNettyPacketWriter.writeFallbackInitPacket(pos);
       } catch (Exception e) {
+        // packet.refcount-- on exception
+        packet.release();
         throw new IOException("Failed to switch to writing block " + mBlockId + " to UFS", e);
       }
     }
