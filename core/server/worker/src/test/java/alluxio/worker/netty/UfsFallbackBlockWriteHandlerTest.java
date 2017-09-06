@@ -121,7 +121,7 @@ public class UfsFallbackBlockWriteHandlerTest extends WriteHandlerTest {
     long checksum = mPartialChecksum + getChecksum(buffer);
     mChannel.writeInbound(newWriteRequest(0, null));
     mChannel.writeInbound(newWriteRequest(PARTIAL_WRITTEN, buffer));
-    mChannel.writeInbound(newEofRequest(PARTIAL_WRITTEN + PACKET_SIZE ));
+    mChannel.writeInbound(newEofRequest(PARTIAL_WRITTEN + PACKET_SIZE));
     Object writeResponse = waitForResponse(mChannel);
     checkWriteResponse(Status.PStatus.OK, writeResponse);
     checkWriteData(checksum, PARTIAL_WRITTEN + PACKET_SIZE);

@@ -96,7 +96,6 @@ public final class BlockWriteRequestContext extends WriteRequestContext<BlockWri
     return mUnderFileSystem;
   }
 
-
   /**
    * @param writingToLocal whether the current request is writing to UFS
    */
