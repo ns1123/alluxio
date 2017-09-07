@@ -64,7 +64,7 @@ public final class NettySecureRpcClient {
 
   /** The maximum number of milliseconds to wait for a response from the server. */
   public static final long TIMEOUT_MS =
-      Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
+      Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
 
   private NettySecureRpcClient() {} // prevent instantiation
 

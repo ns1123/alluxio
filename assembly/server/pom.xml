@@ -76,6 +76,11 @@
     <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-logserver</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-gcs</artifactId>
       <version>${project.version}</version>
     </dependency>
