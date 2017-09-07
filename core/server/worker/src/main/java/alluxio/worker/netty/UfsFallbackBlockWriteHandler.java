@@ -105,7 +105,7 @@ public final class UfsFallbackBlockWriteHandler
     if (context.isWritingToLocal()) {
       // not fallback yet, starting with the block packet writer
       return new UfsFallbackBlockPacketWriter(context, channel, mUfsManager,
-          mBlockWriteHandler.new BlockPacketWriter(context, channel, mWorker));
+          mBlockWriteHandler.createPacketWriter(context, channel));
     } else {
       return new UfsFallbackBlockPacketWriter(context, channel, mUfsManager, null);
     }
@@ -126,8 +126,10 @@ public final class UfsFallbackBlockWriteHandler
   @Override
   protected void initRequestContext(BlockWriteRequestContext context) throws Exception {
     BlockWriteRequest request = context.getRequest();
-    mWorker.createBlockRemote(request.getSessionId(), request.getId(),
-        mStorageTierAssoc.getAlias(request.getTier()), FILE_BUFFER_SIZE);
+    if (context.isWritingToLocal()) {
+      mWorker.createBlockRemote(request.getSessionId(), request.getId(),
+          mStorageTierAssoc.getAlias(request.getTier()), FILE_BUFFER_SIZE);
+    }
   }
 
   /**
@@ -137,7 +139,7 @@ public final class UfsFallbackBlockWriteHandler
   @NotThreadSafe
   public class UfsFallbackBlockPacketWriter extends PacketWriter {
     /** The block writer writing to the Alluxio storage of the local worker. */
-    private final BlockWriteHandler.BlockPacketWriter mBlockPacketWriter;
+    private final PacketWriter mBlockPacketWriter;
     private final UfsManager mUfsManager;
 
     /**
@@ -147,7 +149,7 @@ public final class UfsFallbackBlockWriteHandler
      * @param blockPacketWriter local block store writer
      */
     public UfsFallbackBlockPacketWriter(BlockWriteRequestContext context, Channel channel,
-        UfsManager ufsManager, BlockWriteHandler.BlockPacketWriter blockPacketWriter) {
+        UfsManager ufsManager, PacketWriter blockPacketWriter) {
       super(context, channel);
       mBlockPacketWriter = blockPacketWriter;
       mUfsManager = Preconditions.checkNotNull(ufsManager);

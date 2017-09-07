@@ -166,7 +166,7 @@ public final class NettyPacketWriter implements PacketWriter {
     // two cases to use UFS_FALLBACK_BLOCK endpoint:
     // (1) this writer is created by the fallback of short-circuit writer, or
     // (2) write type is async and UFS tier is enabled
-    if ((builder.getType() == Protocol.RequestType.UFS_FALLBACK_BLOCK)
+    if ((type == Protocol.RequestType.UFS_FALLBACK_BLOCK)
         || (type == Protocol.RequestType.ALLUXIO_BLOCK
         && options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH
         && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED))) {
