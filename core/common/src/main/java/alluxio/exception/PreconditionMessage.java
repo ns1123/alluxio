@@ -20,7 +20,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public enum PreconditionMessage {
-  ASYNC_JOURNAL_WRITER_NULL("AsyncJournalWriter cannot be null"),
   COMMAND_LINE_LINEAGE_ONLY("Only command line jobs are supported by createLineage"),
   EMPTY_FILE_INFO_LIST_FOR_PERMISSION_CHECK(
       "The passed-in file info list can not be empty when checking permission"),

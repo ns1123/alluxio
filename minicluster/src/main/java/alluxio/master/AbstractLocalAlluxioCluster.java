@@ -20,6 +20,7 @@ import alluxio.cli.Format;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.util.ClientTestUtils;
+import alluxio.network.PortUtils;
 import alluxio.proxy.ProxyProcess;
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.LoginUserTestUtils;
@@ -270,7 +271,7 @@ public abstract class AbstractLocalAlluxioCluster {
     Configuration.set(PropertyKey.MASTER_HOSTNAME, mHostname);
     Configuration.set(PropertyKey.MASTER_RPC_PORT, 0);
     Configuration.set(PropertyKey.MASTER_WEB_PORT, 0);
-    Configuration.set(PropertyKey.MASTER_TTL_CHECKER_INTERVAL_MS, 1000);
+    Configuration.set(PropertyKey.MASTER_TTL_CHECKER_INTERVAL_MS, "1sec");
     Configuration.set(PropertyKey.MASTER_WORKER_THREADS_MIN, 1);
     Configuration.set(PropertyKey.MASTER_WORKER_THREADS_MAX, 100);
     Configuration.set(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED, false);

@@ -23,6 +23,9 @@
   <description>Alluxio core services</description>
 
   <modules>
+    <!-- ALLUXIO CS ADD -->
+    <module>raft</module>
+    <!-- ALLUXIO CS END -->
     <module>common</module>
     <module>master</module>
     <module>proxy</module>

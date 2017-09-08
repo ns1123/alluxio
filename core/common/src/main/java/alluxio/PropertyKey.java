@@ -604,13 +604,25 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey MASTER_JOURNAL_FOLDER =
       new Builder(Name.MASTER_JOURNAL_FOLDER)
           .setDefaultValue(String.format("${%s}/journal", Name.WORK_DIR))
-          .setDescription("The path to store master journal logs.")
+          // ALLUXIO CS REPLACE
+          // .setDescription("The path to store master journal logs.")
+          // ALLUXIO CS WITH
+          .setDescription("The path to store master journal logs. When using the UFS journal this "
+              + "could be a URI like hdfs://namenode:port/alluxio/journal. When using the Raft "
+              + "journal this must be a local path")
+          // ALLUXIO CS END
           .build();
   public static final PropertyKey MASTER_JOURNAL_TYPE =
       new Builder(Name.MASTER_JOURNAL_TYPE)
           .setDefaultValue("UFS")
+          // ALLUXIO CS REPLACE
+          // .setDescription("The type of journal to use. Valid options are UFS (store journal in "
+          //     + "UFS) and NOOP (do not use a journal).")
+          // ALLUXIO CS WITH
           .setDescription("The type of journal to use. Valid options are UFS (store journal in "
-              + "UFS) and NOOP (do not use a journal).")
+              + "UFS), RAFT (use a journal embedded in the masters), and NOOP (do not use a "
+              + "journal)")
+          // ALLUXIO CS END
           .build();
   /**
    * @deprecated since 1.5.0 and will be removed in 2.0.
@@ -1894,6 +1906,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   //
   // Master related CS properties
   //
+  public static final PropertyKey MASTER_JOURNAL_RAFT_ADDRESSES =
+      new Builder(Name.MASTER_JOURNAL_RAFT_ADDRESSES)
+          .setDescription("A list of addresses of all masters in the Raft cluster. Required when "
+              + "using the Raft journal")
+          .setDefaultValue(String.format("localhost:${%s}", Name.MASTER_RAFT_PORT))
+          .build();
   public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
       new Builder(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)
           .setDefaultValue(1000)
@@ -1918,9 +1936,27 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)
           .setDefaultValue(1000)
           .build();
+  public static final PropertyKey MASTER_RAFT_PORT =
+      new Builder(Name.MASTER_RAFT_PORT)
+          .setDescription("The port to bind for Raft communication with other masters.")
+          .setDefaultValue(19200)
+          .build();
+  public static final PropertyKey MASTER_RAFT_SNAPSHOT_TIME =
+      new Builder(Name.MASTER_RAFT_SNAPSHOT_TIME)
+          .setDescription(
+              "The hh:mm:ss+hh:mm time at which to perform daily master state snapshots. "
+                  + "This time is in ISO-8601 format. The +hh:mm is time zone offset.")
+          .setDefaultValue("00:00:00+00:00").build();
   public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
       new Builder(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS)
           .setDefaultValue(60000)
+          .build();
+  public static final PropertyKey MASTER_RPC_ADDRESSES =
+      new Builder(Name.MASTER_RPC_ADDRESSES).setDescription(
+          "A list of comma-separated host:port RPC addresses where the client should look for "
+              + "masters when using multiple masters without Zookeeper. This property is not "
+              + "used when Zookeeper is enabled, since Zookeeper already stores the master "
+              + "addresses.")
           .build();
 
   //
@@ -2071,6 +2107,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS).setDefaultValue(1000).build();
   public static final PropertyKey JOB_MASTER_RPC_PORT =
       new Builder(Name.JOB_MASTER_RPC_PORT).setDefaultValue(20001).build();
+  public static final PropertyKey JOB_MASTER_RPC_ADDRESSES =
+      new Builder(Name.JOB_MASTER_RPC_ADDRESSES).build();
+  public static final PropertyKey JOB_MASTER_JOURNAL_RAFT_ADDRESSES =
+      new Builder(Name.JOB_MASTER_JOURNAL_RAFT_ADDRESSES)
+          .setDefaultValue(String.format("localhost:${%s}", Name.JOB_MASTER_RAFT_PORT)).build();
+  public static final PropertyKey JOB_MASTER_RAFT_PORT =
+      new Builder(Name.JOB_MASTER_RAFT_PORT).setDefaultValue(20003).build();
   public static final PropertyKey JOB_MASTER_WEB_BIND_HOST =
       new Builder(Name.JOB_MASTER_WEB_BIND_HOST).setDefaultValue("0.0.0.0").build();
   public static final PropertyKey JOB_MASTER_WEB_HOSTNAME =
@@ -2304,6 +2347,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.journal.tailer.shutdown.quiet.wait.time";
     public static final String MASTER_JOURNAL_TAILER_SLEEP_TIME_MS =
         "alluxio.master.journal.tailer.sleep.time";
+    // ALLUXIO CS ADD
+    public static final String MASTER_RPC_ADDRESSES = "alluxio.master.rpc.addresses";
+    public static final String MASTER_JOURNAL_RAFT_ADDRESSES =
+        "alluxio.master.journal.raft.addresses";
+    public static final String MASTER_RAFT_PORT = "alluxio.master.journal.raft.port";
+    public static final String MASTER_RAFT_SNAPSHOT_TIME = "alluxio.master.raft.snapshot.time";
+    // ALLUXIO CS END
     public static final String MASTER_KEYTAB_KEY_FILE = "alluxio.master.keytab.file";
     public static final String MASTER_LINEAGE_CHECKPOINT_CLASS =
         "alluxio.master.lineage.checkpoint.class";
@@ -2725,6 +2775,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String JOB_MASTER_LOST_WORKER_INTERVAL_MS =
         "alluxio.job.master.lost.worker.interval.ms";
     public static final String JOB_MASTER_RPC_PORT = "alluxio.job.master.rpc.port";
+    public static final String JOB_MASTER_RPC_ADDRESSES = "alluxio.job.master.rpc.addresses";
+    public static final String JOB_MASTER_JOURNAL_RAFT_ADDRESSES =
+        "alluxio.job.master.journal.raft.addresses";
+    public static final String JOB_MASTER_RAFT_PORT = "alluxio.job.master.raft.port";
     public static final String JOB_MASTER_WEB_BIND_HOST = "alluxio.job.master.web.bind.host";
     public static final String JOB_MASTER_WEB_HOSTNAME = "alluxio.job.master.web.hostname";
     public static final String JOB_MASTER_WEB_PORT = "alluxio.job.master.web.port";

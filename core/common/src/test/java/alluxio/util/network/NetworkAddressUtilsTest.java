@@ -177,6 +177,9 @@ public class NetworkAddressUtilsTest {
     // connect host and wildcard bind host with port
     switch (service) {
       // ALLUXIO CS ADD
+      case JOB_MASTER_RAFT:
+        Configuration.set(PropertyKey.JOB_MASTER_RAFT_PORT, "20000");
+        break;
       case JOB_MASTER_RPC:
         Configuration.set(PropertyKey.JOB_MASTER_RPC_PORT, "20000");
         break;
@@ -188,6 +191,9 @@ public class NetworkAddressUtilsTest {
         break;
       case JOB_WORKER_WEB:
         Configuration.set(PropertyKey.JOB_WORKER_WEB_PORT, "20000");
+        break;
+      case MASTER_RAFT:
+        Configuration.set(PropertyKey.MASTER_RAFT_PORT, "20000");
         break;
       // ALLUXIO CS END
       case MASTER_RPC:
