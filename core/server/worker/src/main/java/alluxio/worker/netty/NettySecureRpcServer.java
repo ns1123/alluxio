@@ -104,7 +104,7 @@ public final class NettySecureRpcServer {
   public void close() throws IOException {
     int quietPeriodSecs =
         Configuration.getInt(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD);
-    int timeoutSecs = Configuration.getInt(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_TIMEOUT);
+    long timeoutSecs = Configuration.getMs(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_TIMEOUT);
 
     // The following steps are needed to shut down the secure RPC server:
     //
