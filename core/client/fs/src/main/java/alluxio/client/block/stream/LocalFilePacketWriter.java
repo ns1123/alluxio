@@ -224,14 +224,5 @@ public final class LocalFilePacketWriter implements PacketWriter {
             .setOnlyReserveSpace(true).build()));
     mPosReserved += toReserve;
   }
-  // ALLUXIO CS ADD
-
-  /**
-   * @return the block writer
-   */
-  public alluxio.worker.block.io.BlockWriter getWriter() {
-    return mWriter;
-  }
-  // ALLUXIO CS END
 }
 

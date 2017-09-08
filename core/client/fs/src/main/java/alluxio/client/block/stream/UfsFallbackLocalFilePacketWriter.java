@@ -32,7 +32,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
   private static final Logger LOG = LoggerFactory.getLogger(UfsFallbackLocalFilePacketWriter.class);
-  private final LocalFilePacketWriter mLocalFilePacketWriter;
+  private final PacketWriter mLocalFilePacketWriter;
   private final FileSystemContext mContext;
   private final WorkerNetAddress mWorkerNetAddress;
   private final long mBlockSize;
@@ -58,7 +58,7 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         blockSize, options);
   }
 
-  private UfsFallbackLocalFilePacketWriter(LocalFilePacketWriter localFilePacketWriter,
+  UfsFallbackLocalFilePacketWriter(PacketWriter localFilePacketWriter,
       FileSystemContext context, final WorkerNetAddress address, long blockId, long blockSize,
       OutStreamOptions options) {
     mLocalFilePacketWriter = localFilePacketWriter;
@@ -90,14 +90,17 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         mLocalFilePacketWriter.flush();
         // Close the block writer. We do not close the mLocalFilePacketWriter to prevent the worker
         // completes the block, commit it and remove it.
-        mLocalFilePacketWriter.getWriter().close();
+        //mLocalFilePacketWriter.getWriter().close();
         mNettyPacketWriter = NettyPacketWriter
             .create(mContext, mWorkerNetAddress, mBlockId, mBlockSize,
                 Protocol.RequestType.UFS_FALLBACK_BLOCK, mOutStreamOptions);
-        // Instruct the server to write the existing data from temp block.
-        // We could not cancel mLocalFilePacketWriter now as the message may arrive and be acted
-        // after the cancel here.
-        mNettyPacketWriter.writeFallbackInitPacket(pos);
+        // Instruct the server to write the previously transferred data from temp block to UFS only
+        // when there is data already written.
+        // Note that, we can not cancel mLocalFilePacketWriter now as the cancel message may
+        // arrive and clean the temp block before it is written to UFS.
+        if (pos > 0) {
+          mNettyPacketWriter.writeFallbackInitPacket(pos);
+        }
       } catch (Exception e) {
         // packet.refcount-- on exception
         packet.release();
