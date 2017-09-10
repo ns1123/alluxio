@@ -102,9 +102,9 @@ public final class NettySecureRpcServer {
    * @throws IOException if fails to close Netty channel or EventLoopGroup
    */
   public void close() throws IOException {
-    int quietPeriodSecs =
-        Configuration.getInt(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD);
-    int timeoutSecs = Configuration.getInt(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_TIMEOUT);
+    long quietPeriodMs =
+        Configuration.getMs(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD);
+    long timeoutMs = Configuration.getMs(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_TIMEOUT);
 
     // The following steps are needed to shut down the secure RPC server:
     //
@@ -118,19 +118,19 @@ public final class NettySecureRpcServer {
 
     boolean completed;
     completed =
-        mChannelFuture.channel().close().awaitUninterruptibly(timeoutSecs, TimeUnit.SECONDS);
+        mChannelFuture.channel().close().awaitUninterruptibly(timeoutMs, TimeUnit.MILLISECONDS);
     if (!completed) {
       LOG.warn("Closing the channel timed out.");
     }
     completed =
-        mBootstrap.group().shutdownGracefully(quietPeriodSecs, timeoutSecs, TimeUnit.SECONDS)
-            .awaitUninterruptibly(timeoutSecs, TimeUnit.SECONDS);
+        mBootstrap.group().shutdownGracefully(quietPeriodMs, timeoutMs, TimeUnit.MILLISECONDS)
+            .awaitUninterruptibly(timeoutMs, TimeUnit.MILLISECONDS);
     if (!completed) {
       LOG.warn("Forced group shutdown because graceful shutdown timed out.");
     }
     completed =
-        mBootstrap.childGroup().shutdownGracefully(quietPeriodSecs, timeoutSecs, TimeUnit.SECONDS)
-            .awaitUninterruptibly(timeoutSecs, TimeUnit.SECONDS);
+        mBootstrap.childGroup().shutdownGracefully(quietPeriodMs, timeoutMs, TimeUnit.MILLISECONDS)
+            .awaitUninterruptibly(timeoutMs, TimeUnit.MILLISECONDS);
     if (!completed) {
       LOG.warn("Forced child group shutdown because graceful shutdown timed out.");
     }
