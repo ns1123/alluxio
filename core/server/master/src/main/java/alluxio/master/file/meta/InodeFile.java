@@ -243,7 +243,7 @@ public final class InodeFile extends Inode<InodeFile> {
    * @return the updated object
    */
   public InodeFile setBlockIds(List<Long> blockIds) {
-    mBlocks = new ArrayList<>(Preconditions.checkNotNull(blockIds));
+    mBlocks = new ArrayList<>(Preconditions.checkNotNull(blockIds, "blockIds"));
     return getThis();
   }
 
