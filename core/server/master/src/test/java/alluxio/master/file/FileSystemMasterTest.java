@@ -1787,36 +1787,17 @@ public final class FileSystemMasterTest {
 
     FileSystemCommand command =
         mFileSystemMaster.workerHeartbeat(mWorkerId1, Lists.newArrayList(fileId));
-<<<<<<< HEAD
-    Assert.assertEquals(CommandType.Persist, command.getCommandType());
+    assertEquals(CommandType.Persist, command.getCommandType());
     // ALLUXIO CS REPLACE
-    // Assert.assertEquals(1,
+    // assertEquals(1,
     //     command.getCommandOptions().getPersistOptions().getPersistFiles().size());
-    // Assert.assertEquals(fileId,
+    // assertEquals(fileId,
     //     command.getCommandOptions().getPersistOptions().getPersistFiles().get(0).getFileId());
-    // Assert.assertEquals(blockId, (long) command.getCommandOptions().getPersistOptions()
+    // assertEquals(blockId, (long) command.getCommandOptions().getPersistOptions()
     //     .getPersistFiles().get(0).getBlockIds().get(0));
     // ALLUXIO CS WITH
-    Assert
-        .assertEquals(0, command.getCommandOptions().getPersistOptions().getPersistFiles().size());
+    assertEquals(0, command.getCommandOptions().getPersistOptions().getPersistFiles().size());
     // ALLUXIO CS END
-||||||| merged common ancestors
-    Assert.assertEquals(CommandType.Persist, command.getCommandType());
-    Assert.assertEquals(1,
-        command.getCommandOptions().getPersistOptions().getPersistFiles().size());
-    Assert.assertEquals(fileId,
-        command.getCommandOptions().getPersistOptions().getPersistFiles().get(0).getFileId());
-    Assert.assertEquals(blockId, (long) command.getCommandOptions().getPersistOptions()
-        .getPersistFiles().get(0).getBlockIds().get(0));
-=======
-    assertEquals(CommandType.Persist, command.getCommandType());
-    assertEquals(1,
-        command.getCommandOptions().getPersistOptions().getPersistFiles().size());
-    assertEquals(fileId,
-        command.getCommandOptions().getPersistOptions().getPersistFiles().get(0).getFileId());
-    assertEquals(blockId, (long) command.getCommandOptions().getPersistOptions()
-        .getPersistFiles().get(0).getBlockIds().get(0));
->>>>>>> alluxio/master
   }
 
   /**
