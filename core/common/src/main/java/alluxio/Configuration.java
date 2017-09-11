@@ -32,6 +32,7 @@ import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -108,6 +109,7 @@ public final class Configuration {
           ConfigurationUtils.searchPropertiesFile(Constants.SITE_PROPERTIES, confPathList);
       // Update site properties and system properties in order
       if (siteProps != null) {
+        discardIgnoredSiteProperties(siteProps);
         merge(siteProps);
         merge(systemProps);
       }
@@ -183,6 +185,7 @@ public final class Configuration {
     checkUserFileBufferBytes();
   }
 
+<<<<<<< HEAD
   // ALLUXIO CS END
   /**
    * Merges the current configuration properties with alternate properties. A property from the new
@@ -209,6 +212,32 @@ public final class Configuration {
     // ALLUXIO CS END
   }
 
+||||||| merged common ancestors
+=======
+  /**
+   * Iterates a set of site properties and discards those that user should not use.
+   *
+   * @param siteProperties the set of site properties to check
+   */
+  private static void discardIgnoredSiteProperties(Map<?, ?> siteProperties) {
+    Iterator<? extends Map.Entry<?, ?>> iter = siteProperties.entrySet().iterator();
+    while (iter.hasNext()) {
+      Map.Entry<?, ?> entry  = iter.next();
+      String key = entry.getKey().toString();
+      if (PropertyKey.isValid(key)) {
+        PropertyKey propertyKey = PropertyKey.fromString(key);
+        if (propertyKey.isIgnoredSiteProperty()) {
+          iter.remove();
+          LOG.warn("{} is not accepted in alluxio-site.properties, "
+              + "and must be specified as a JVM property. "
+              + "If no JVM property is present, Alluxio will use default value '{}'.",
+              key, propertyKey.getDefaultValue());
+        }
+      }
+    }
+  }
+
+>>>>>>> alluxio/master
   // Public accessor methods
 
   // TODO(binfan): this method should be hidden and only used during initialization and tests.
