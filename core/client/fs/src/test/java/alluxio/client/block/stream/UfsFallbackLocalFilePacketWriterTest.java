@@ -2,6 +2,7 @@ package alluxio.client.block.stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import alluxio.ConfigurationRule;
 import alluxio.Constants;
@@ -174,7 +175,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
     Future<WriteSummary> actualLocal;
     long blockSize = PACKET_SIZE * 1024 + PACKET_SIZE / 3;
     try (PacketWriter writer = create(blockSize, blockSize)) {
-      expected = writeFile(writer, blockSize);
+      expected = writeData(writer, blockSize);
       actualLocal = getLocalWrite(mBuffer);
       expected.get();
     }
@@ -188,7 +189,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
     Future<WriteSummary> actualUfs;
     long blockSize = PACKET_SIZE * 1024 + PACKET_SIZE / 3;
     try (PacketWriter writer = create(blockSize, 1)) {
-      expected = writeFile(writer, blockSize);
+      expected = writeData(writer, blockSize);
       actualLocal = getLocalWrite(mBuffer);
       actualUfs = getUfsWrite(mChannel);
       expected.get();
@@ -206,7 +207,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
     Future<WriteSummary> actualUfs;
     long blockSize = PACKET_SIZE * 1024 + PACKET_SIZE / 3;
     try (PacketWriter writer = create(blockSize, PACKET_SIZE)) {
-      expected = writeFile(writer, blockSize);
+      expected = writeData(writer, blockSize);
       actualLocal = getLocalWrite(mBuffer);
       actualUfs = getUfsWrite(mChannel);
       expected.get();
@@ -225,7 +226,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
     Future<WriteSummary> actualUfs;
     long blockSize = PACKET_SIZE * 1024 + PACKET_SIZE / 3;
     try (PacketWriter writer = create(blockSize, PACKET_SIZE * 1024)) {
-      expected = writeFile(writer, blockSize);
+      expected = writeData(writer, blockSize);
       actualLocal = getLocalWrite(mBuffer);
       actualUfs = getUfsWrite(mChannel);
       expected.get();
@@ -237,24 +238,31 @@ public class UfsFallbackLocalFilePacketWriterTest {
         actualLocal.get().getChecksum() + actualUfs.get().getChecksum());
   }
 
-  @Test
+  @Test(timeout = 1000 * 60)
   public void flush() throws Exception {
+    long blockSize = PACKET_SIZE * 1024 + PACKET_SIZE / 3;
+    try (PacketWriter writer = create(blockSize, PACKET_SIZE)) {
+      Future<WriteSummary> expected;
+      expected = writeData(writer, PACKET_SIZE);
+      expected.get();
+      writer.flush();
+      assertEquals(PACKET_SIZE, mBuffer.position());
+    }
   }
 
-  @Test
-  public void packetSize() throws Exception {
-  }
-
-  @Test
+  @Test(timeout = 1000 * 60)
   public void pos() throws Exception {
-  }
-
-  @Test
-  public void cancel() throws Exception {
-  }
-
-  @Test
-  public void close() throws Exception {
+    long blockSize = PACKET_SIZE * 2 + PACKET_SIZE / 3;
+    try (PacketWriter writer = create(blockSize, PACKET_SIZE)) {
+      byte[] data = new byte[1];
+      Future<WriteSummary> actualUfs = getUfsWrite(mChannel);
+      for (long pos = 0; pos < blockSize ; pos++) {
+        assertEquals(pos, writer.pos());
+        ByteBuf buf = Unpooled.wrappedBuffer(data);
+        writer.writePacket(buf);
+      }
+      actualUfs.get();
+    }
   }
 
   class WriteSummary {
@@ -304,7 +312,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
    * @param length the length
    * @return the checksum
    */
-  private Future<WriteSummary> writeFile(final PacketWriter writer, final long length)
+  private Future<WriteSummary> writeData(final PacketWriter writer, final long length)
       throws Exception {
     return EXECUTOR.submit(new Callable<WriteSummary>() {
       @Override
@@ -320,7 +328,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
             try {
               writer.writePacket(buf);
             } catch (Exception e) {
-              Assert.fail(e.getMessage());
+              fail(e.getMessage());
               throw e;
             }
             remaining -= bytesToWrite;
@@ -332,7 +340,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
           return new WriteSummary(length, checksum);
         } catch (Throwable throwable) {
           LOG.error("Failed to write file.", throwable);
-          Assert.fail();
+          fail("Failed to write file." + throwable.getMessage());
           throw throwable;
         }
       }
@@ -389,7 +397,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
             }
           }
         } catch (Throwable throwable) {
-          Assert.fail("Failed to verify write requests." + throwable.getMessage());
+          fail("Failed to verify write requests." + throwable.getMessage());
           throw throwable;
         }
       }
