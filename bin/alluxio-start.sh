@@ -90,10 +90,6 @@ ensure_dirs() {
     echo "ALLUXIO_LOGS_DIR: ${ALLUXIO_LOGS_DIR}"
     mkdir -p ${ALLUXIO_LOGS_DIR}
   fi
-  if [[ "${alluxio_remote_logging_enabled}" == "true" && ! -d "${ALLUXIO_LOGSERVER_LOGS_DIR}" ]]; then
-    echo "ALLUXIO_LOGSERVER_LOGS_DIR: ${ALLUXIO_LOGSERVER_LOGS_DIR}"
-    mkdir -p ${ALLUXIO_LOGSERVER_LOGS_DIR}
-  fi
 }
 
 get_env() {
@@ -226,6 +222,11 @@ start_job_workers() {
 
 # ALLUXIO CS END
 start_logserver() {
+    if [[ ! -d "${ALLUXIO_LOGSERVER_LOGS_DIR}" ]]; then
+        echo "ALLUXIO_LOGSERVER_LOGS_DIR: ${ALLUXIO_LOGSERVER_LOGS_DIR}"
+        mkdir -p ${ALLUXIO_LOGSERVER_LOGS_DIR}
+    fi
+
     echo "Starting logserver @ $(hostname -f)."
     (nohup "${JAVA}" -cp ${CLASSPATH} \
      ${ALLUXIO_LOGSERVER_JAVA_OPTS} \
@@ -397,9 +398,6 @@ main() {
         stop all
         sleep 1
       fi
-      if [[ "${alluxio_remote_logging_enabled}" == "true" ]]; then
-          start_logserver
-      fi
       start_masters "${FORMAT}"
       # ALLUXIO CS ADD
       start_job_masters
@@ -415,9 +413,6 @@ main() {
       if [[ "${killonstart}" != "no" ]]; then
         stop local
         sleep 1
-      fi
-      if [[ "${alluxio_remote_logging_enabled}" == "true" ]]; then
-          start_logserver
       fi
       start_master "${FORMAT}"
       ALLUXIO_MASTER_SECONDARY=true

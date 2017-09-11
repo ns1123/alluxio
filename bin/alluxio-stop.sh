@@ -114,7 +114,6 @@ case "${WHAT}" in
     stop_job_masters
     # ALLUXIO CS END
     stop_masters
-    stop_logserver
     ;;
   local)
     stop_proxy
@@ -127,7 +126,6 @@ case "${WHAT}" in
     stop_master
     ALLUXIO_MASTER_SECONDARY=false
     stop_master
-    stop_logserver
     ;;
 # ALLUXIO CS ADD
   job_master)
