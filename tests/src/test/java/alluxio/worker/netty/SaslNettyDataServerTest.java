@@ -61,7 +61,7 @@ public final class SaslNettyDataServerTest extends BaseIntegrationTest {
 
   @Rule
   public ConfigurationRule mRule = new ConfigurationRule(ImmutableMap.of(
-      PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD, "0"));
+      PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD, "0sec"));
 
   @BeforeClass
   public static void beforeClass() throws Exception {
