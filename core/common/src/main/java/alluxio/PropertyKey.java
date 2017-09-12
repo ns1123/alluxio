@@ -1859,9 +1859,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey INTEGRATION_MESOS_USER =
       new Builder(Name.INTEGRATION_MESOS_USER)
-          .setDescription("The Mesos user for the Alluxio Mesos Framework. Empty string will "
-              + "prompt Mesos to use the current user")
-          .setDefaultValue("")
+          .setDescription("The Mesos user for the Alluxio Mesos Framework. Defaults to the current "
+              + "user")
           .build();
   public static final PropertyKey INTEGRATION_WORKER_RESOURCE_CPU =
       new Builder(Name.INTEGRATION_WORKER_RESOURCE_CPU)
