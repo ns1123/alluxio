@@ -185,7 +185,6 @@ public final class Configuration {
     checkUserFileBufferBytes();
   }
 
-<<<<<<< HEAD
   // ALLUXIO CS END
   /**
    * Merges the current configuration properties with alternate properties. A property from the new
@@ -212,8 +211,6 @@ public final class Configuration {
     // ALLUXIO CS END
   }
 
-||||||| merged common ancestors
-=======
   /**
    * Iterates a set of site properties and discards those that user should not use.
    *
@@ -237,7 +234,6 @@ public final class Configuration {
     }
   }
 
->>>>>>> alluxio/branch-1.6
   // Public accessor methods
 
   // TODO(binfan): this method should be hidden and only used during initialization and tests.
