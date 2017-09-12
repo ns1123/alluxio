@@ -9,6 +9,7 @@
 
 package alluxio.master;
 
+import alluxio.master.PrimarySelector.State;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.util.CommonUtils;
@@ -59,41 +60,35 @@ final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess
     }
 
     while (!Thread.interrupted()) {
-      if (mLeaderSelector.isPrimary()) {
-        if (mServingThread == null) {
-          LOG.info("Transitioning from secondary to primary");
-          mJournalSystem.setMode(Mode.PRIMARY);
-          stopMaster();
-          LOG.info("Secondary stopped");
-          startMaster(true);
-          mServingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-              startServing("(gained leadership)", "(lost leadership)");
-            }
-          }, "MasterServingThread");
-          mServingThread.start();
-          LOG.info("Primary started");
-        }
+      if (mServingThread == null) {
+        // We are in secondary mode. Nothing to do until we become the primary.
+        mLeaderSelector.waitForState(State.PRIMARY);
+        LOG.info("Transitioning from secondary to primary");
+        mJournalSystem.setMode(Mode.PRIMARY);
+        stopMaster();
+        LOG.info("Secondary stopped");
+        startMaster(true);
+        mServingThread = new Thread(new Runnable() {
+          @Override
+          public void run() {
+            startServing("(gained leadership)", "(lost leadership)");
+          }
+        }, "MasterServingThread");
+        mServingThread.start();
+        LOG.info("Primary started");
       } else {
-        // This master should be standby, and not the leader
-        if (mServingThread != null) {
-          LOG.info("Transitioning from primary to secondary");
-          // Need to transition this master to standby mode.
-          mServingThread.interrupt();
-          mServingThread.join();
-          mServingThread = null;
-          stopServing();
-          stopMaster();
-          mJournalSystem.setMode(Mode.SECONDARY);
-          LOG.info("Primary stopped");
-          startMaster(false);
-          LOG.info("Secondary started");
-        }
-        // This master is already in standby mode. No further actions needed.
+        // We are in primary mode. Nothing to do until we become the secondary.
+        mLeaderSelector.waitForState(State.SECONDARY);
+        LOG.info("Transitioning from primary to secondary");
+        stopServing();
+        mServingThread.join();
+        mServingThread = null;
+        stopMaster();
+        mJournalSystem.setMode(Mode.SECONDARY);
+        LOG.info("Primary stopped");
+        startMaster(false);
+        LOG.info("Secondary started");
       }
-
-      CommonUtils.sleepMs(LOG, 100);
     }
   }
 
@@ -110,7 +105,7 @@ final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess
     CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
-        return (!mLeaderSelector.isPrimary() || isServing());
+        return (mServingThread == null || isServing());
       }
     });
   }
