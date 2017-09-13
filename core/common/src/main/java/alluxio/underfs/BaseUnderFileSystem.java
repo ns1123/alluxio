@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -56,7 +57,7 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
    * @param ufsConf UFS configuration
    */
   protected BaseUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf) {
-    mUri = Preconditions.checkNotNull(uri);
+    mUri = Preconditions.checkNotNull(uri, "uri");
     // ALLUXIO CS ADD
     if (alluxio.util.CommonUtils.isAlluxioServer()) {
       mUser = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
@@ -66,7 +67,7 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
       mGroup = alluxio.util.SecurityUtils.getGroupFromLoginModule();
     }
     // ALLUXIO CS END
-    mUfsConf = Preconditions.checkNotNull(ufsConf);
+    mUfsConf = Preconditions.checkNotNull(ufsConf, "ufsConf");
   }
 
   @Override
@@ -90,6 +91,7 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  @Nullable
   public UfsStatus[] listStatus(String path, ListOptions options) throws IOException {
     if (!options.isRecursive()) {
       return listStatus(path);

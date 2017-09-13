@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -202,6 +203,7 @@ public abstract class RPCMessage implements EncodedMessage {
    *
    * @return The DataBuffer representing the payload
    */
+  @Nullable
   public DataBuffer getPayloadDataBuffer() {
     return null;
   }
