@@ -79,14 +79,28 @@ ALLUXIO_JAVA_OPTS+=" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.proper
 ALLUXIO_JAVA_OPTS+=" -Dorg.apache.jasper.compiler.disablejsr199=true"
 ALLUXIO_JAVA_OPTS+=" -Djava.net.preferIPv4Stack=true"
 
+ALLUXIO_LOGSERVER_LOGS_DIR="${ALLUXIO_LOGSERVER_LOGS_DIR:-${ALLUXIO_HOME}/logs}"
+if [[ -n "${ALLUXIO_LOGSERVER_HOSTNAME}" ]]; then
+    ALLUXIO_JAVA_OPTS+=" -Dalluxio.logserver.hostname=${ALLUXIO_LOGSERVER_HOSTNAME}"
+fi
+if [[ -n "${ALLUXIO_LOGSERVER_PORT}" ]]; then
+    ALLUXIO_JAVA_OPTS+=" -Dalluxio.logserver.port=${ALLUXIO_LOGSERVER_PORT}"
+fi
+
 # ALLUXIO CS ADD
 # Job master specific parameters based on ALLUXIO_JAVA_OPTS.
 ALLUXIO_JOB_MASTER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
 ALLUXIO_JOB_MASTER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_JOB_MASTER_LOGGER:-JOB_MASTER_LOGGER}"
+if [[ -n "${ALLUXIO_LOGSERVER_HOSTNAME}" && -n "${ALLUXIO_LOGSERVER_PORT}" ]]; then
+    ALLUXIO_JOB_MASTER_JAVA_OPTS+=" -Dalluxio.remote.logger.type=REMOTE_JOB_MASTER_LOGGER"
+fi
 
 # Job worker specific parameters based on ALLUXIO_JAVA_OPTS.
 ALLUXIO_JOB_WORKER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
 ALLUXIO_JOB_WORKER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_JOB_WORKER_LOGGER:-JOB_WORKER_LOGGER}"
+if [[ -n "${ALLUXIO_LOGSERVER_HOSTNAME}" && -n "${ALLUXIO_LOGSERVER_PORT}" ]]; then
+    ALLUXIO_JOB_WORKER_JAVA_OPTS+=" -Dalluxio.remote.logger.type=REMOTE_JOB_WORKER_LOGGER"
+fi
 
 # ALLUXIO CS END
 ALLUXIO_LOGSERVER_LOGS_DIR="${ALLUXIO_LOGSERVER_LOGS_DIR:-${ALLUXIO_HOME}/logs}"
