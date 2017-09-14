@@ -118,19 +118,19 @@ public final class NettySecureRpcServer {
 
     boolean completed;
     completed =
-        mChannelFuture.channel().close().awaitUninterruptibly(timeoutMs, TimeUnit.SECONDS);
+        mChannelFuture.channel().close().awaitUninterruptibly(timeoutMs, TimeUnit.MILLISECONDS);
     if (!completed) {
       LOG.warn("Closing the channel timed out.");
     }
     completed =
-        mBootstrap.group().shutdownGracefully(quietPeriodMs, timeoutMs, TimeUnit.SECONDS)
-            .awaitUninterruptibly(timeoutMs, TimeUnit.SECONDS);
+        mBootstrap.group().shutdownGracefully(quietPeriodMs, timeoutMs, TimeUnit.MILLISECONDS)
+            .awaitUninterruptibly(timeoutMs, TimeUnit.MILLISECONDS);
     if (!completed) {
       LOG.warn("Forced group shutdown because graceful shutdown timed out.");
     }
     completed =
-        mBootstrap.childGroup().shutdownGracefully(quietPeriodMs, timeoutMs, TimeUnit.SECONDS)
-            .awaitUninterruptibly(timeoutMs, TimeUnit.SECONDS);
+        mBootstrap.childGroup().shutdownGracefully(quietPeriodMs, timeoutMs, TimeUnit.MILLISECONDS)
+            .awaitUninterruptibly(timeoutMs, TimeUnit.MILLISECONDS);
     if (!completed) {
       LOG.warn("Forced child group shutdown because graceful shutdown timed out.");
     }
