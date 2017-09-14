@@ -63,10 +63,13 @@ public final class Utils {
   }
 
   /**
+   * For a given block ID, derives the corresponding UFS file of this block if it falls back to
+   * be stored in UFS.
+   *
    * @param blockId block ID
    * @return the UFS path of a block
    */
-  public static String getUfsPath(long blockId) {
+  public static String getUfsBlockPath(long blockId) {
     return String.format(".alluxio_blocks_%s/%s/", MAGIC_NUMBER, blockId);
   }
 

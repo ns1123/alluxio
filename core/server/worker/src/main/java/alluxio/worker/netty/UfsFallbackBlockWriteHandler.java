@@ -245,7 +245,7 @@ public final class UfsFallbackBlockWriteHandler
       UnderFileSystem ufs = ufsInfo.getUfs();
       context.setUnderFileSystem(ufs);
       String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
-      String ufsPath = PathUtils.concatPath(ufsString, Utils.getUfsPath(request.getId()));
+      String ufsPath = PathUtils.concatPath(ufsString, Utils.getUfsBlockPath(request.getId()));
       // Set the atomic flag to be true to ensure only the creation of this file is atomic on close.
       OutputStream ufsOutputStream =
           ufs.create(ufsPath, CreateOptions.defaults().setEnsureAtomic(true));
