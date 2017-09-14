@@ -79,16 +79,10 @@ ALLUXIO_JAVA_OPTS+=" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.proper
 ALLUXIO_JAVA_OPTS+=" -Dorg.apache.jasper.compiler.disablejsr199=true"
 ALLUXIO_JAVA_OPTS+=" -Djava.net.preferIPv4Stack=true"
 
-# ALLUXIO CS ADD
-# Job master specific parameters based on ALLUXIO_JAVA_OPTS.
-ALLUXIO_JOB_MASTER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
-ALLUXIO_JOB_MASTER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_JOB_MASTER_LOGGER:-JOB_MASTER_LOGGER}"
-
-# Job worker specific parameters based on ALLUXIO_JAVA_OPTS.
-ALLUXIO_JOB_WORKER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
-ALLUXIO_JOB_WORKER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_JOB_WORKER_LOGGER:-JOB_WORKER_LOGGER}"
-
-# ALLUXIO CS END
+<<<<<<< HEAD
+||||||| merged common ancestors
+<<<<<<<<< Temporary merge branch 1
+=======
 ALLUXIO_LOGSERVER_LOGS_DIR="${ALLUXIO_LOGSERVER_LOGS_DIR:-${ALLUXIO_HOME}/logs}"
 if [[ -n "${ALLUXIO_LOGSERVER_HOSTNAME}" ]]; then
     ALLUXIO_JAVA_OPTS+=" -Dalluxio.logserver.hostname=${ALLUXIO_LOGSERVER_HOSTNAME}"
@@ -97,6 +91,72 @@ if [[ -n "${ALLUXIO_LOGSERVER_PORT}" ]]; then
     ALLUXIO_JAVA_OPTS+=" -Dalluxio.logserver.port=${ALLUXIO_LOGSERVER_PORT}"
 fi
 
+>>>>>>> origin/enterprise-1.6
+# ALLUXIO CS ADD
+# Job master specific parameters based on ALLUXIO_JAVA_OPTS.
+ALLUXIO_JOB_MASTER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
+ALLUXIO_JOB_MASTER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_JOB_MASTER_LOGGER:-JOB_MASTER_LOGGER}"
+if [[ -n "${ALLUXIO_LOGSERVER_HOSTNAME}" && -n "${ALLUXIO_LOGSERVER_PORT}" ]]; then
+    ALLUXIO_JOB_MASTER_JAVA_OPTS+=" -Dalluxio.remote.logger.type=REMOTE_JOB_MASTER_LOGGER"
+fi
+
+# Job worker specific parameters based on ALLUXIO_JAVA_OPTS.
+ALLUXIO_JOB_WORKER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
+ALLUXIO_JOB_WORKER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_JOB_WORKER_LOGGER:-JOB_WORKER_LOGGER}"
+<<<<<<< HEAD
+
+# ALLUXIO CS END
+ALLUXIO_LOGSERVER_LOGS_DIR="${ALLUXIO_LOGSERVER_LOGS_DIR:-${ALLUXIO_HOME}/logs}"
+if [[ -n "${ALLUXIO_LOGSERVER_HOSTNAME}" ]]; then
+    ALLUXIO_JAVA_OPTS+=" -Dalluxio.logserver.hostname=${ALLUXIO_LOGSERVER_HOSTNAME}"
+fi
+if [[ -n "${ALLUXIO_LOGSERVER_PORT}" ]]; then
+    ALLUXIO_JAVA_OPTS+=" -Dalluxio.logserver.port=${ALLUXIO_LOGSERVER_PORT}"
+||||||| merged common ancestors
+
+# ALLUXIO CS END
+ALLUXIO_CLIENT_CLASSPATH="${ALLUXIO_CONF_DIR}/:${ALLUXIO_CLASSPATH}:${ALLUXIO_ASSEMBLY_CLIENT_JAR}"
+ALLUXIO_SERVER_CLASSPATH="${ALLUXIO_CONF_DIR}/:${ALLUXIO_CLASSPATH}:${ALLUXIO_ASSEMBLY_SERVER_JAR}"
+
+####################################################################################################
+## Start reading site-properties to set certain variables.
+####################################################################################################
+function getConf {
+  "${JAVA}" -cp ${ALLUXIO_CLIENT_CLASSPATH} ${ALLUXIO_JAVA_OPTS} alluxio.cli.GetConf "$1"
+}
+
+if [[ -z "${ALLUXIO_LOGS_DIR}" ]]; then
+  ALLUXIO_LOGS_DIR=$(getConf "alluxio.logs.dir")
+  ALLUXIO_JAVA_OPTS+=" -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR}"
+||||||||| merged common ancestors
+ALLUXIO_CLIENT_CLASSPATH="${ALLUXIO_CONF_DIR}/:${ALLUXIO_CLASSPATH}:${ALLUXIO_ASSEMBLY_CLIENT_JAR}"
+ALLUXIO_SERVER_CLASSPATH="${ALLUXIO_CONF_DIR}/:${ALLUXIO_CLASSPATH}:${ALLUXIO_ASSEMBLY_SERVER_JAR}"
+
+####################################################################################################
+## Start reading site-properties to set certain variables.
+####################################################################################################
+function getConf {
+  "${JAVA}" -cp ${ALLUXIO_CLIENT_CLASSPATH} ${ALLUXIO_JAVA_OPTS} alluxio.cli.GetConf "$1"
+}
+
+if [[ -z "${ALLUXIO_LOGS_DIR}" ]]; then
+  ALLUXIO_LOGS_DIR=$(getConf "alluxio.logs.dir")
+  ALLUXIO_JAVA_OPTS+=" -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR}"
+=========
+ALLUXIO_LOGSERVER_LOGS_DIR="${ALLUXIO_LOGSERVER_LOGS_DIR:-${ALLUXIO_HOME}/logs}"
+if [[ -n "${ALLUXIO_LOGSERVER_HOSTNAME}" ]]; then
+    ALLUXIO_JAVA_OPTS+=" -Dalluxio.logserver.hostname=${ALLUXIO_LOGSERVER_HOSTNAME}"
+>>>>>>>>> Temporary merge branch 2
+fi
+if [[ -n "${ALLUXIO_LOGSERVER_PORT}" ]]; then
+    ALLUXIO_JAVA_OPTS+=" -Dalluxio.logserver.port=${ALLUXIO_LOGSERVER_PORT}"
+=======
+if [[ -n "${ALLUXIO_LOGSERVER_HOSTNAME}" && -n "${ALLUXIO_LOGSERVER_PORT}" ]]; then
+    ALLUXIO_JOB_WORKER_JAVA_OPTS+=" -Dalluxio.remote.logger.type=REMOTE_JOB_WORKER_LOGGER"
+>>>>>>> origin/enterprise-1.6
+fi
+
+# ALLUXIO CS END
 ALLUXIO_CLIENT_CLASSPATH="${ALLUXIO_CONF_DIR}/:${ALLUXIO_CLASSPATH}:${ALLUXIO_ASSEMBLY_CLIENT_JAR}"
 ALLUXIO_SERVER_CLASSPATH="${ALLUXIO_CONF_DIR}/:${ALLUXIO_CLASSPATH}:${ALLUXIO_ASSEMBLY_SERVER_JAR}"
 
