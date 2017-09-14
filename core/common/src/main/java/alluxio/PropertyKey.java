@@ -1955,6 +1955,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.USER_FILE_REPLICATION_MIN).setDefaultValue(0).build();
   public static final PropertyKey USER_FILE_REPLICATION_DURABLE =
       new Builder(Name.USER_FILE_REPLICATION_DURABLE).setDefaultValue(1).build();
+  public static final PropertyKey USER_FILE_UFS_TIER_ENABLED =
+      new Builder(Name.USER_FILE_UFS_TIER_ENABLED).setDefaultValue(false).build();
 
   //
   // Security related CS properties
@@ -2532,6 +2534,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String USER_FILE_REPLICATION_MIN = "alluxio.user.file.replication.min";
     public static final String USER_FILE_REPLICATION_DURABLE =
         "alluxio.user.file.replication.durable";
+    public static final String USER_FILE_UFS_TIER_ENABLED = "alluxio.user.file.ufs.tier.enabled";
     // ALLUXIO CS END
     public static final String USER_FILE_SEEK_BUFFER_SIZE_BYTES =
         "alluxio.user.file.seek.buffer.size.bytes";

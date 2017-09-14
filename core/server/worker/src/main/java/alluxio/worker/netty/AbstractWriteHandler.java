@@ -88,6 +88,11 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
   private static final ByteBuf EOF = Unpooled.buffer(0);
   private static final ByteBuf CANCEL = Unpooled.buffer(0);
   private static final ByteBuf ABORT = Unpooled.buffer(0);
+  // ALLUXIO CS ADD
+  protected static final ByteBuf UFS_FALLBACK_INIT = Unpooled.buffer(0);
+  @GuardedBy("mLock")
+  protected long mUfsFallbackInitBytes = 0;
+  // ALLUXIO CS END
 
   private ReentrantLock mLock = new ReentrantLock();
 
@@ -178,6 +183,16 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         buf = EOF;
       } else if (writeRequest.getCancel()) {
         buf = CANCEL;
+      // ALLUXIO CS ADD
+      } else if (writeRequest.hasCreateUfsBlockOptions()
+          && writeRequest.getOffset() == 0
+          && writeRequest.getCreateUfsBlockOptions().hasBytesInBlockStore()) {
+        // This is the init packet sent from a client falling back from a failed short-circuit block
+        // write.
+        buf = UFS_FALLBACK_INIT;
+        mUfsFallbackInitBytes = writeRequest.getCreateUfsBlockOptions().getBytesInBlockStore();
+        mContext.setPosToQueue(mContext.getPosToQueue() + mUfsFallbackInitBytes);
+      // ALLUXIO CS END
       } else {
         DataBuffer dataBuffer = msg.getPayloadDataBuffer();
         Preconditions.checkState(dataBuffer != null && dataBuffer.getLength() > 0);
@@ -297,7 +312,16 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         }
 
         try {
-          int readableBytes = buf.readableBytes();
+          // ALLUXIO CS REPLACE
+          // int readableBytes = buf.readableBytes();
+          // ALLUXIO CS WITH
+          long readableBytes;
+          if (buf == UFS_FALLBACK_INIT) {
+            readableBytes = mUfsFallbackInitBytes;
+          } else {
+            readableBytes = buf.readableBytes();
+          }
+          // ALLUXIO CS END
           mContext.setPosToWrite(mContext.getPosToWrite() + readableBytes);
           writeBuf(mContext, mChannel, buf, mContext.getPosToWrite());
           incrementMetrics(readableBytes);
