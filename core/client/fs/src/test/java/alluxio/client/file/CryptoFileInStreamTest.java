@@ -19,6 +19,7 @@ import alluxio.client.ReadType;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.stream.BlockInStream;
+import alluxio.client.block.stream.BlockInStream.BlockInStreamSource;
 import alluxio.client.block.stream.BlockOutStream;
 import alluxio.client.block.stream.TestBlockInStream;
 import alluxio.client.block.stream.TestBlockOutStream;
@@ -151,9 +152,16 @@ public final class CryptoFileInStreamTest {
             public BlockInStream answer(InvocationOnMock invocation) throws Throwable {
               long i = (Long) invocation.getArguments()[0];
               byte[] input = getBlockData((int) i);
+<<<<<<< HEAD
               // TODO(chaomin): add more sources
               return new TestBlockInStream(input, i, input.length, false,
                   BlockInStream.BlockInStreamSource.LOCAL);
+||||||| merged common ancestors
+              return new TestBlockInStream(input, i, input.length, false);
+=======
+              return new TestBlockInStream(input, i, input.length, false,
+                  BlockInStreamSource.LOCAL);
+>>>>>>> origin/enterprise-1.5
             }
           });
       Mockito.when(mBlockStore.getOutStream(Mockito.eq((long) i), Mockito.anyLong(),

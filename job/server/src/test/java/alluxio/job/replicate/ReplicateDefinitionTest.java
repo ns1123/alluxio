@@ -24,6 +24,7 @@ import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.stream.BlockInStream;
+import alluxio.client.block.stream.BlockInStream.BlockInStreamSource;
 import alluxio.client.block.stream.BlockOutStream;
 import alluxio.client.block.stream.TestBlockInStream;
 import alluxio.client.block.stream.TestBlockOutStream;
@@ -58,8 +59,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.nio.ByteBuffer;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -229,8 +230,14 @@ public final class ReplicateDefinitionTest {
     byte[] input = BufferUtils.getIncreasingByteArray(0, (int) TEST_BLOCK_SIZE);
 
     TestBlockInStream mockInStream =
+<<<<<<< HEAD:job/server/src/test/java/alluxio/job/replicate/ReplicateDefinitionTest.java
         new TestBlockInStream(input, TEST_BLOCK_ID, input.length, false,
             BlockInStream.BlockInStreamSource.LOCAL);
+||||||| merged common ancestors
+        new TestBlockInStream(input, TEST_BLOCK_ID, input.length, false);
+=======
+        new TestBlockInStream(input, TEST_BLOCK_ID, input.length, false, BlockInStreamSource.LOCAL);
+>>>>>>> origin/enterprise-1.5:job/enterprise/src/test/java/alluxio/job/replicate/ReplicateDefinitionTest.java
     TestBlockOutStream mockOutStream =
         new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_SIZE);
     mThrown.expect(NoWorkerException.class);
@@ -244,8 +251,14 @@ public final class ReplicateDefinitionTest {
     byte[] input = BufferUtils.getIncreasingByteArray(0, (int) TEST_BLOCK_SIZE);
 
     TestBlockInStream mockInStream =
+<<<<<<< HEAD:job/server/src/test/java/alluxio/job/replicate/ReplicateDefinitionTest.java
         new TestBlockInStream(input, TEST_BLOCK_ID, input.length, false,
             BlockInStream.BlockInStreamSource.LOCAL);
+||||||| merged common ancestors
+        new TestBlockInStream(input, TEST_BLOCK_ID, input.length, false);
+=======
+        new TestBlockInStream(input, TEST_BLOCK_ID, input.length, false, BlockInStreamSource.LOCAL);
+>>>>>>> origin/enterprise-1.5:job/enterprise/src/test/java/alluxio/job/replicate/ReplicateDefinitionTest.java
     TestBlockOutStream mockOutStream =
         new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_SIZE);
     BlockWorkerInfo localBlockWorker = new BlockWorkerInfo(LOCAL_ADDRESS, TEST_BLOCK_SIZE, 0);
