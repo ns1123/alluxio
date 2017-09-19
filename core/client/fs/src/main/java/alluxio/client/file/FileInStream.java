@@ -486,12 +486,10 @@ public class FileInStream extends InputStream
       updateBlockInStream(currentBlockId);
       // ALLUXIO CS REPLACE
       // if (PASSIVE_CACHE_ENABLED) {
-      // WITH
-      int blocks =
-          mStatus.getFileBlockInfos().get((int) (mPos % mBlockSize)).getBlockInfo().getLocations()
-              .size();
-      boolean overReplicated =
-          mStatus.getReplicationMax() > 0 && blocks >= mStatus.getReplicationMax();
+      // ALLUXIO CS WITH
+      boolean overReplicated = mStatus.getReplicationMax() > 0 &&
+          mStatus.getFileBlockInfos().get((int) (mPos / mBlockSize)).getBlockInfo().getLocations()
+              .size() >= mStatus.getReplicationMax();
       if (PASSIVE_CACHE_ENABLED && !overReplicated) {
       // ALLUXIO CS END
         updateCacheStream(currentBlockId);
