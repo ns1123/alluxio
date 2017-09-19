@@ -43,4 +43,13 @@ public class WasbUnderFileInputStream extends FilterInputStream implements Seeka
   public void seek(long position) throws IOException {
     mStream.seek(position);
   }
+
+  @Override
+  public long getPos() {
+    try {
+      return mStream.getPos();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
