@@ -484,7 +484,14 @@ public class FileInStream extends InputStream
       // The following two function handle negative currentBlockId (i.e. the end of file)
       // correctly.
       updateBlockInStream(currentBlockId);
-      if (PASSIVE_CACHE_ENABLED) {
+      // ALLUXIO CS REPLACE
+      // if (PASSIVE_CACHE_ENABLED) {
+      // ALLUXIO CS WITH
+      boolean overReplicated = mStatus.getReplicationMax() > 0
+          && mStatus.getFileBlockInfos().get((int) (mPos / mBlockSize)).getBlockInfo()
+              .getLocations().size() >= mStatus.getReplicationMax();
+      if (PASSIVE_CACHE_ENABLED && !overReplicated) {
+      // ALLUXIO CS END
         updateCacheStream(currentBlockId);
       }
       mStreamBlockId = currentBlockId;
