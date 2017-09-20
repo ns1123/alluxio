@@ -52,6 +52,10 @@ message OpenUfsBlockOptions {
   optional bool no_cache = 6;
   // The client does not need to set this. This is set by the worker.
   optional string user = 7;
+  // ALLUXIO CS ADD
+  // If set to true, the block is possibly stored as a UFS block.
+  optional bool ufs_block = 1000;
+  // ALLUXIO CS END
 }
 
 // The write request.
