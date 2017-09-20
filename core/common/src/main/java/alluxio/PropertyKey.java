@@ -1957,7 +1957,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey USER_FILE_REPLICATION_DURABLE =
       new Builder(Name.USER_FILE_REPLICATION_DURABLE).setDefaultValue(1).build();
   public static final PropertyKey USER_FILE_UFS_TIER_ENABLED =
-      new Builder(Name.USER_FILE_UFS_TIER_ENABLED).setDefaultValue(false).build();
+      new Builder(Name.USER_FILE_UFS_TIER_ENABLED)
+          .setDescription("When workers run out of available space, whether the client can skip "
+              + "writing the file to Alluxio and fallback to UFS without stopping the application "
+              + "to write. This property only works when write type is ASYNC_THROUGH.")
+          .setDefaultValue(false).build();
 
   //
   // Security related CS properties

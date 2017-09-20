@@ -32,6 +32,7 @@ import alluxio.exception.status.NotFoundException;
 import alluxio.master.block.BlockId;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.wire.WorkerNetAddress;
+import alluxio.worker.netty.WorkerUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -588,6 +589,19 @@ public class FileInStream extends InputStream
               .setNoCache(!mInStreamOptions.getAlluxioStorageType().isStore())
               .setMountId(mStatus.getMountId()).build();
     }
+    // ALLUXIO CS ADD
+    // In case it is possible to fallback to read UFS blocks, also fill in the options.
+    if (Configuration.getBoolean(alluxio.PropertyKey.USER_FILE_UFS_TIER_ENABLED)
+      && mStatus.getPersistenceState().equals("TO_BE_PERSISTED")) {
+      long blockStart = BlockId.getSequenceNumber(blockId) * mBlockSize;
+      openUfsBlockOptions =
+          Protocol.OpenUfsBlockOptions.newBuilder().setUfsPath(WorkerUtils.getUfsBlockPath(blockId))
+              .setOffsetInFile(0).setBlockSize(getBlockSize(blockStart))
+              .setMaxUfsReadConcurrency(mInStreamOptions.getMaxUfsReadConcurrency())
+              .setNoCache(!mInStreamOptions.getAlluxioStorageType().isStore())
+              .setMountId(mStatus.getMountId()).build();
+    }
+    // ALLUXIO CS END
     return mBlockStore.getInStream(blockId, openUfsBlockOptions, mInStreamOptions);
   }
 

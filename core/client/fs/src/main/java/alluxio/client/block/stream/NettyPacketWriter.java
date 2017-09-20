@@ -170,11 +170,12 @@ public final class NettyPacketWriter implements PacketWriter {
         || (type == Protocol.RequestType.ALLUXIO_BLOCK
         && options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH
         && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED))) {
-      // Overwrite to use the fallback-enabled endpoint
-      builder.setType(Protocol.RequestType.UFS_FALLBACK_BLOCK);
       Protocol.CreateUfsBlockOptions ufsBlockOptions =
-          Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId()).build();
+          Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId())
+          .setFallback(type == Protocol.RequestType.UFS_FALLBACK_BLOCK).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
+      // Overwrite to use the fallback-enabled endpoint in case (2)
+      builder.setType(Protocol.RequestType.UFS_FALLBACK_BLOCK);
     }
     if (options.getCapabilityFetcher() != null) {
       builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());

@@ -33,6 +33,7 @@ import alluxio.util.io.PathUtils;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.meta.TempBlockMeta;
 
+import com.codahale.metrics.Counter;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -115,11 +116,9 @@ public final class UfsFallbackBlockWriteHandler
   protected BlockWriteRequestContext createRequestContext(Protocol.WriteRequest msg) {
     BlockWriteRequestContext context = new BlockWriteRequestContext(msg, FILE_BUFFER_SIZE);
     BlockWriteRequest request = context.getRequest();
-    if (request.hasCreateUfsBlockOptions() && request.getCreateUfsBlockOptions()
-        .hasBytesInBlockStore() && request.getCreateUfsBlockOptions().getBytesInBlockStore() > 0) {
-      // this is already a UFS fallback from short-circuit write
-      context.setWritingToLocal(false);
-    }
+    Preconditions.checkState(request.hasCreateUfsBlockOptions());
+    // if it is already a UFS fallback from short-circuit write, avoid writing to local again
+    context.setWritingToLocal(!request.getCreateUfsBlockOptions().getFallback());
     return context;
   }
 
@@ -193,22 +192,13 @@ public final class UfsFallbackBlockWriteHandler
     @Override
     protected void writeBuf(BlockWriteRequestContext context, Channel channel, ByteBuf buf,
         long pos) throws Exception {
-      if (buf == AbstractWriteHandler.UFS_FALLBACK_INIT) {
-        // prepare the UFS block and transfer data from the temp block to UFS
-        createUfsBlock(context, channel, pos);
-        context.setWritingToLocal(false);
-        return;
-      }
       if (context.isWritingToLocal()) {
+        Preconditions.checkNotNull(context.getBlockWriter());
+        long posBeforeWrite = context.getBlockWriter().getPosition();
         try {
           mBlockPacketWriter.writeBuf(context, channel, buf, pos);
           return;
         } catch (WorkerOutOfSpaceException e) {
-          if (context.getRequest().hasCreateUfsBlockOptions()) {
-            // we are not supposed to fall back, re-throw the error
-            throw e;
-          }
-          // Not enough space
           LOG.warn("Not enough space to write block {} to local worker, fallback to UFS",
               context.getRequest().getId());
           context.setWritingToLocal(false);
@@ -216,13 +206,20 @@ public final class UfsFallbackBlockWriteHandler
         // close the block writer first
         context.getBlockWriter().close();
         // prepare the UFS block and transfer data from the temp block to UFS
-        createUfsBlock(context, channel, pos);
+        createUfsBlock(context, channel);
+        transferToUfsBlock(context, posBeforeWrite);
         // close the original block writer and remove the temp file
         mBlockPacketWriter.cancelRequest(context);
       }
-      Preconditions.checkNotNull(context.getOutputStream());
-      OutputStream stream = context.getOutputStream();
-      buf.readBytes(stream, buf.readableBytes());
+      if (context.getOutputStream() == null) {
+        createUfsBlock(context, channel);
+      }
+      if (buf == AbstractWriteHandler.UFS_FALLBACK_INIT) {
+        // transfer data from the temp block to UFS
+        transferToUfsBlock(context, pos);
+      } else {
+        buf.readBytes(context.getOutputStream(), buf.readableBytes());
+      }
     }
 
     /**
@@ -230,9 +227,8 @@ public final class UfsFallbackBlockWriteHandler
      *
      * @param context context of this request
      * @param channel netty channel
-     * @param pos number of bytes in block store to write in the UFS block
      */
-    private void createUfsBlock(BlockWriteRequestContext context, Channel channel, long pos)
+    private void createUfsBlock(BlockWriteRequestContext context, Channel channel)
         throws Exception {
       BlockWriteRequest request = context.getRequest();
       Protocol.CreateUfsBlockOptions createUfsBlockOptions = request.getCreateUfsBlockOptions();
@@ -245,10 +241,11 @@ public final class UfsFallbackBlockWriteHandler
       UnderFileSystem ufs = ufsInfo.getUfs();
       context.setUnderFileSystem(ufs);
       String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
-      String ufsPath = PathUtils.concatPath(ufsString, Utils.getUfsBlockPath(request.getId()));
+      String ufsPath = PathUtils
+          .concatPath(ufsInfo.getUfsMountPointUri(), WorkerUtils.getUfsBlockPath(request.getId()));
       // Set the atomic flag to be true to ensure only the creation of this file is atomic on close.
       OutputStream ufsOutputStream =
-          ufs.create(ufsPath, CreateOptions.defaults().setEnsureAtomic(true));
+          ufs.create(ufsPath, CreateOptions.defaults().setEnsureAtomic(true).setCreateParent(true));
       context.setOutputStream(ufsOutputStream);
       context.setUfsPath(ufsPath);
       String metricName;
@@ -257,8 +254,18 @@ public final class UfsFallbackBlockWriteHandler
       } else {
         metricName = String.format("BytesWrittenUfs-Ufs:%s-User:%s", ufsString, user);
       }
-      com.codahale.metrics.Counter counter = MetricsSystem.workerCounter(metricName);
+      Counter counter = MetricsSystem.workerCounter(metricName);
       context.setCounter(counter);
+    }
+
+    /**
+     * Transfers data from block store to UFS.
+     *
+     * @param context context of this request
+     * @param pos number of bytes in block store to write in the UFS block
+     */
+    private void transferToUfsBlock(BlockWriteRequestContext context, long pos) throws Exception {
+      OutputStream ufsOutputStream = context.getOutputStream();
 
       long sessionId = context.getRequest().getSessionId();
       long blockId = context.getRequest().getId();

@@ -141,8 +141,8 @@ class ShortCircuitBlockWriteHandler extends ChannelInboundHandlerAdapter {
           @Override
           public void exceptionCaught(Throwable throwable) {
             if (mSessionId != INVALID_SESSION_ID) {
-              mBlockWorker.cleanupSession(mSessionId);
-              mSessionId = INVALID_SESSION_ID;
+              //mBlockWorker.cleanupSession(mSessionId);
+              //mSessionId = INVALID_SESSION_ID;
             }
             ctx.writeAndFlush(
                 RPCProtoMessage.createResponse(AlluxioStatusException.fromThrowable(throwable)));

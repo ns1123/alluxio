@@ -39,7 +39,7 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
   private final long mBlockId;
   private final OutStreamOptions mOutStreamOptions;
   private NettyPacketWriter mNettyPacketWriter;
-  private boolean mIsWritingToLocal = true;
+  private boolean mIsWritingToLocal;
 
   /**
    * @param context the file system context
@@ -52,21 +52,34 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
   public static UfsFallbackLocalFilePacketWriter create(FileSystemContext context,
       WorkerNetAddress address, long blockId, long blockSize, OutStreamOptions options)
       throws IOException {
-    LocalFilePacketWriter localFilePacketWriter =
-        LocalFilePacketWriter.create(context, address, blockId, options);
-    return new UfsFallbackLocalFilePacketWriter(localFilePacketWriter, context, address, blockId,
+    try {
+      LocalFilePacketWriter localFilePacketWriter =
+          LocalFilePacketWriter.create(context, address, blockId, options);
+      return new UfsFallbackLocalFilePacketWriter(localFilePacketWriter, null, context, address,
+          blockId, blockSize, options);
+    } catch (ResourceExhaustedException e) {
+      LOG.warn("Fallback to create block {} on UFS: {}", blockId, e.getMessage());
+    }
+    // Failed to create the local writer due to insufficient space, fallback to netty packet writer
+    // directly
+    NettyPacketWriter nettyPacketWriter = NettyPacketWriter
+        .create(context, address, blockId, blockSize, Protocol.RequestType.UFS_FALLBACK_BLOCK,
+            options);
+    return new UfsFallbackLocalFilePacketWriter(null, nettyPacketWriter, context, address, blockId,
         blockSize, options);
   }
 
   UfsFallbackLocalFilePacketWriter(PacketWriter localFilePacketWriter,
-      FileSystemContext context, final WorkerNetAddress address, long blockId, long blockSize,
-      OutStreamOptions options) {
+      NettyPacketWriter nettyPacketWriter, FileSystemContext context,
+      final WorkerNetAddress address, long blockId, long blockSize, OutStreamOptions options) {
     mLocalFilePacketWriter = localFilePacketWriter;
+    mNettyPacketWriter = nettyPacketWriter;
     mBlockId = blockId;
     mContext = context;
     mWorkerNetAddress = address;
     mBlockSize = blockSize;
     mOutStreamOptions = options;
+    mIsWritingToLocal = mLocalFilePacketWriter != null;
   }
 
   @Override
@@ -82,12 +95,18 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         packet.release();
         return;
       } catch (ResourceExhaustedException e) {
-        LOG.warn("Not enough space on local worker, fallback to write block {} to UFS", mBlockId);
+        LOG.warn("Fallback to write block {} to UFS: {}", mBlockId, e.getMessage());
         mIsWritingToLocal = false;
       }
       try {
         // Flush the writer to ensure the temp block is updated before packet
-        mLocalFilePacketWriter.flush();
+        if (pos == 0) {
+          mLocalFilePacketWriter.cancel();
+        } else {
+          // Note that, we can not cancel mLocalFilePacketWriter now as the cancel message may
+          // arrive and clean the temp block before it is written to UFS.
+          mLocalFilePacketWriter.flush();
+        }
         // Close the block writer. We do not close the mLocalFilePacketWriter to prevent the worker
         // completes the block, commit it and remove it.
         //mLocalFilePacketWriter.getWriter().close();
@@ -96,8 +115,6 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
                 Protocol.RequestType.UFS_FALLBACK_BLOCK, mOutStreamOptions);
         // Instruct the server to write the previously transferred data from temp block to UFS only
         // when there is data already written.
-        // Note that, we can not cancel mLocalFilePacketWriter now as the cancel message may
-        // arrive and clean the temp block before it is written to UFS.
         if (pos > 0) {
           mNettyPacketWriter.writeFallbackInitPacket(pos);
         }
@@ -143,7 +160,9 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
       mLocalFilePacketWriter.cancel();
     } else {
       // Clean up the state of previous temp block left over
-      mLocalFilePacketWriter.cancel();
+      if (mLocalFilePacketWriter != null) {
+        mLocalFilePacketWriter.cancel();
+      }
       mNettyPacketWriter.cancel();
     }
   }
@@ -154,7 +173,9 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
       mLocalFilePacketWriter.close();
     } else {
       // Clean up the state of previous temp block left over
-      mLocalFilePacketWriter.cancel();
+      if (mLocalFilePacketWriter != null) {
+        mLocalFilePacketWriter.cancel();
+      }
       mNettyPacketWriter.close();
     }
   }

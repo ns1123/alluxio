@@ -155,8 +155,8 @@ public class UfsFallbackLocalFilePacketWriterTest {
     mBuffer = ByteBuffer.allocate((int) workerCapacity);
     mLocalWriter = new FixedCapacityTestPacketWriter(mBuffer);
     PacketWriter writer =
-        new UfsFallbackLocalFilePacketWriter(mLocalWriter, mContext, mAddress, BLOCK_ID, blockSize,
-            OutStreamOptions.defaults().setMountId(MOUNT_ID));
+        new UfsFallbackLocalFilePacketWriter(mLocalWriter, null, mContext, mAddress, BLOCK_ID,
+            blockSize, OutStreamOptions.defaults().setMountId(MOUNT_ID));
     return writer;
   }
 
