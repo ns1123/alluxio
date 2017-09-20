@@ -96,6 +96,9 @@ message CreateUfsBlockOptions {
   optional int64 bytes_in_block_store = 1;
   // mount ID of the UFS to write to
   optional int64 mount_id = 2;
+  // true if the write request is already a fallback from
+  // a failed short-circuit write.
+  optional bool fallback = 3;
 }
 // ALLUXIO CS END
 

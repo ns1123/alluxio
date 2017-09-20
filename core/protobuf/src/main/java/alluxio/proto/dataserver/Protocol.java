@@ -5344,6 +5344,26 @@ public final class Protocol {
      * </pre>
      */
     long getMountId();
+
+    // optional bool fallback = 3;
+    /**
+     * <code>optional bool fallback = 3;</code>
+     *
+     * <pre>
+     * true if the write request is already a fallback from
+     * a failed short-circuit write.
+     * </pre>
+     */
+    boolean hasFallback();
+    /**
+     * <code>optional bool fallback = 3;</code>
+     *
+     * <pre>
+     * true if the write request is already a fallback from
+     * a failed short-circuit write.
+     * </pre>
+     */
+    boolean getFallback();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.CreateUfsBlockOptions}
@@ -5409,6 +5429,11 @@ public final class Protocol {
             case 16: {
               bitField0_ |= 0x00000002;
               mountId_ = input.readInt64();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              fallback_ = input.readBool();
               break;
             }
           }
@@ -5501,9 +5526,36 @@ public final class Protocol {
       return mountId_;
     }
 
+    // optional bool fallback = 3;
+    public static final int FALLBACK_FIELD_NUMBER = 3;
+    private boolean fallback_;
+    /**
+     * <code>optional bool fallback = 3;</code>
+     *
+     * <pre>
+     * true if the write request is already a fallback from
+     * a failed short-circuit write.
+     * </pre>
+     */
+    public boolean hasFallback() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional bool fallback = 3;</code>
+     *
+     * <pre>
+     * true if the write request is already a fallback from
+     * a failed short-circuit write.
+     * </pre>
+     */
+    public boolean getFallback() {
+      return fallback_;
+    }
+
     private void initFields() {
       bytesInBlockStore_ = 0L;
       mountId_ = 0L;
+      fallback_ = false;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -5523,6 +5575,9 @@ public final class Protocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt64(2, mountId_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBool(3, fallback_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -5539,6 +5594,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(2, mountId_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, fallback_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -5665,6 +5724,8 @@ public final class Protocol {
         bitField0_ = (bitField0_ & ~0x00000001);
         mountId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000002);
+        fallback_ = false;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -5701,6 +5762,10 @@ public final class Protocol {
           to_bitField0_ |= 0x00000002;
         }
         result.mountId_ = mountId_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.fallback_ = fallback_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -5722,6 +5787,9 @@ public final class Protocol {
         }
         if (other.hasMountId()) {
           setMountId(other.getMountId());
+        }
+        if (other.hasFallback()) {
+          setFallback(other.getFallback());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -5848,6 +5916,59 @@ public final class Protocol {
       public Builder clearMountId() {
         bitField0_ = (bitField0_ & ~0x00000002);
         mountId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // optional bool fallback = 3;
+      private boolean fallback_ ;
+      /**
+       * <code>optional bool fallback = 3;</code>
+       *
+       * <pre>
+       * true if the write request is already a fallback from
+       * a failed short-circuit write.
+       * </pre>
+       */
+      public boolean hasFallback() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bool fallback = 3;</code>
+       *
+       * <pre>
+       * true if the write request is already a fallback from
+       * a failed short-circuit write.
+       * </pre>
+       */
+      public boolean getFallback() {
+        return fallback_;
+      }
+      /**
+       * <code>optional bool fallback = 3;</code>
+       *
+       * <pre>
+       * true if the write request is already a fallback from
+       * a failed short-circuit write.
+       * </pre>
+       */
+      public Builder setFallback(boolean value) {
+        bitField0_ |= 0x00000004;
+        fallback_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool fallback = 3;</code>
+       *
+       * <pre>
+       * true if the write request is already a fallback from
+       * a failed short-circuit write.
+       * </pre>
+       */
+      public Builder clearFallback() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        fallback_ = false;
         onChanged();
         return this;
       }
@@ -12376,35 +12497,35 @@ public final class Protocol {
       "eUfsBlockOptions\"f\n\024CreateUfsFileOptions" +
       "\022\020\n\010ufs_path\030\001 \001(\t\022\r\n\005owner\030\002 \001(\t\022\r\n\005gro" +
       "up\030\003 \001(\t\022\014\n\004mode\030\004 \001(\005\022\020\n\010mount_id\030\005 \001(\003" +
-      "\"G\n\025CreateUfsBlockOptions\022\034\n\024bytes_in_bl" +
-      "ock_store\030\001 \001(\003\022\020\n\010mount_id\030\002 \001(\003\"J\n\010Res" +
-      "ponse\022-\n\006status\030\001 \001(\0162\035.alluxio.proto.st" +
-      "atus.PStatus\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMe" +
-      "ssage\022>\n\005state\030\001 \001(\0162/.alluxio.proto.dat",
-      "aserver.SaslMessage.SaslState\022\r\n\005token\030\002" +
-      " \001(\014\"5\n\tSaslState\022\013\n\007SUCCESS\020\000\022\014\n\010INITIA" +
-      "TE\020\001\022\r\n\tCHALLENGE\020\002\"i\n\014ReadResponse\0229\n\004t" +
-      "ype\030\001 \001(\0162+.alluxio.proto.dataserver.Rea" +
-      "dResponse.Type\"\036\n\004Type\022\026\n\022UFS_READ_HEART" +
-      "BEAT\020\001\"\013\n\tHeartbeat\"s\n\025LocalBlockOpenReq" +
-      "uest\022\020\n\010block_id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\022" +
-      "7\n\ncapability\030\351\007 \001(\0132\".alluxio.proto.sec" +
-      "urity.Capability\"&\n\026LocalBlockOpenRespon" +
-      "se\022\014\n\004path\030\001 \001(\t\"c\n\026LocalBlockCloseReque",
-      "st\022\020\n\010block_id\030\001 \001(\003\0227\n\ncapability\030\351\007 \001(" +
-      "\0132\".alluxio.proto.security.Capability\"\250\001" +
-      "\n\027LocalBlockCreateRequest\022\020\n\010block_id\030\001 " +
-      "\001(\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020space_to_reserve\030\004 " +
-      "\001(\003\022\032\n\022only_reserve_space\030\005 \001(\010\0227\n\ncapab" +
-      "ility\030\351\007 \001(\0132\".alluxio.proto.security.Ca" +
-      "pability\"(\n\030LocalBlockCreateResponse\022\014\n\004" +
-      "path\030\001 \001(\t\"v\n\031LocalBlockCompleteRequest\022" +
-      "\020\n\010block_id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncap" +
-      "ability\030\351\007 \001(\0132\".alluxio.proto.security.",
-      "Capability\"\'\n\022RemoveBlockRequest\022\021\n\010bloc" +
-      "k_id\030\351\007 \001(\003*G\n\013RequestType\022\021\n\rALLUXIO_BL" +
-      "OCK\020\000\022\014\n\010UFS_FILE\020\001\022\027\n\022UFS_FALLBACK_BLOC" +
-      "K\020\350\007"
+      "\"Y\n\025CreateUfsBlockOptions\022\034\n\024bytes_in_bl" +
+      "ock_store\030\001 \001(\003\022\020\n\010mount_id\030\002 \001(\003\022\020\n\010fal" +
+      "lback\030\003 \001(\010\"J\n\010Response\022-\n\006status\030\001 \001(\0162" +
+      "\035.alluxio.proto.status.PStatus\022\017\n\007messag" +
+      "e\030\002 \001(\t\"\223\001\n\013SaslMessage\022>\n\005state\030\001 \001(\0162/",
+      ".alluxio.proto.dataserver.SaslMessage.Sa" +
+      "slState\022\r\n\005token\030\002 \001(\014\"5\n\tSaslState\022\013\n\007S" +
+      "UCCESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\tCHALLENGE\020\002\"i\n" +
+      "\014ReadResponse\0229\n\004type\030\001 \001(\0162+.alluxio.pr" +
+      "oto.dataserver.ReadResponse.Type\"\036\n\004Type" +
+      "\022\026\n\022UFS_READ_HEARTBEAT\020\001\"\013\n\tHeartbeat\"s\n" +
+      "\025LocalBlockOpenRequest\022\020\n\010block_id\030\001 \001(\003" +
+      "\022\017\n\007promote\030\002 \001(\010\0227\n\ncapability\030\351\007 \001(\0132\"" +
+      ".alluxio.proto.security.Capability\"&\n\026Lo" +
+      "calBlockOpenResponse\022\014\n\004path\030\001 \001(\t\"c\n\026Lo",
+      "calBlockCloseRequest\022\020\n\010block_id\030\001 \001(\003\0227" +
+      "\n\ncapability\030\351\007 \001(\0132\".alluxio.proto.secu" +
+      "rity.Capability\"\250\001\n\027LocalBlockCreateRequ" +
+      "est\022\020\n\010block_id\030\001 \001(\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020s" +
+      "pace_to_reserve\030\004 \001(\003\022\032\n\022only_reserve_sp" +
+      "ace\030\005 \001(\010\0227\n\ncapability\030\351\007 \001(\0132\".alluxio" +
+      ".proto.security.Capability\"(\n\030LocalBlock" +
+      "CreateResponse\022\014\n\004path\030\001 \001(\t\"v\n\031LocalBlo" +
+      "ckCompleteRequest\022\020\n\010block_id\030\001 \001(\003\022\016\n\006c" +
+      "ancel\030\002 \001(\010\0227\n\ncapability\030\351\007 \001(\0132\".allux",
+      "io.proto.security.Capability\"\'\n\022RemoveBl" +
+      "ockRequest\022\021\n\010block_id\030\351\007 \001(\003*G\n\013Request" +
+      "Type\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\027\n" +
+      "\022UFS_FALLBACK_BLOCK\020\350\007"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -12440,7 +12561,7 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_CreateUfsBlockOptions_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_CreateUfsBlockOptions_descriptor,
-              new java.lang.String[] { "BytesInBlockStore", "MountId", });
+              new java.lang.String[] { "BytesInBlockStore", "MountId", "Fallback", });
           internal_static_alluxio_proto_dataserver_Response_descriptor =
             getDescriptor().getMessageTypes().get(5);
           internal_static_alluxio_proto_dataserver_Response_fieldAccessorTable = new
