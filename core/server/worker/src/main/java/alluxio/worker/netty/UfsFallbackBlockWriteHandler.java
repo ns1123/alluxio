@@ -160,6 +160,7 @@ public final class UfsFallbackBlockWriteHandler
       if (context.isWritingToLocal()) {
         mBlockPacketWriter.completeRequest(context, channel);
       } else {
+        mWorker.commitBlockInUfs(context.getRequest().getId(), context.getPosToQueue());
         Preconditions.checkNotNull(context.getOutputStream());
         context.getOutputStream().close();
         context.setOutputStream(null);
@@ -212,6 +213,7 @@ public final class UfsFallbackBlockWriteHandler
         mBlockPacketWriter.cancelRequest(context);
       }
       if (context.getOutputStream() == null) {
+        Preconditions.checkState(context.getPosToQueue() == 0);
         createUfsBlock(context, channel);
       }
       if (buf == AbstractWriteHandler.UFS_FALLBACK_INIT) {

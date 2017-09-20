@@ -92,6 +92,25 @@ public final class BlockMasterClient extends AbstractMasterClient {
     });
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Commits a block in Ufs.
+   *
+   * @param blockId the block id being committed
+   * @param length the length of the block being committed
+   */
+  public synchronized void commitBlockInUfs(final long blockId, final long length)
+      throws IOException {
+    retryRPC(new RpcCallable<Void>() {
+      @Override
+      public Void call() throws TException {
+        mClient.commitBlockInUfs(blockId, length, new alluxio.thrift.CommitBlockInUfsTOptions());
+        return null;
+      }
+    });
+  }
+
+  // ALLUXIO CS END
   /**
    * Returns a worker id for a workers net address.
    *

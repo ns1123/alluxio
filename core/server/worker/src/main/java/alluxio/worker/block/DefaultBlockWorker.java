@@ -327,6 +327,21 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
     }
   }
 
+  // ALLUXIO CS ADD
+
+  @Override
+  public void commitBlockInUfs(long blockId, long length) throws IOException {
+    BlockMasterClient blockMasterClient = mBlockMasterClientPool.acquire();
+    try {
+      blockMasterClient.commitBlockInUfs(blockId, length);
+    } catch (Exception e) {
+      throw new IOException(ExceptionMessage.FAILED_COMMIT_BLOCK_TO_MASTER.getMessage(blockId), e);
+    } finally {
+      mBlockMasterClientPool.release(blockMasterClient);
+    }
+  }
+
+  // ALLUXIO CS END
   @Override
   public String createBlock(long sessionId, long blockId, String tierAlias, long initialBytes)
       throws BlockAlreadyExistsException, WorkerOutOfSpaceException, IOException {
