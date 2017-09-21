@@ -194,8 +194,8 @@ public final class UfsFallbackBlockWriteHandler
     protected void writeBuf(BlockWriteRequestContext context, Channel channel, ByteBuf buf,
         long pos) throws Exception {
       if (context.isWritingToLocal()) {
-        Preconditions.checkNotNull(context.getBlockWriter());
-        long posBeforeWrite = context.getBlockWriter().getPosition();
+        long posBeforeWrite =
+            context.getBlockWriter() == null ? 0 : context.getBlockWriter().getPosition();
         try {
           mBlockPacketWriter.writeBuf(context, channel, buf, pos);
           return;
@@ -205,10 +205,14 @@ public final class UfsFallbackBlockWriteHandler
           context.setWritingToLocal(false);
         }
         // close the block writer first
-        context.getBlockWriter().close();
+        if (context.getBlockWriter() != null) {
+          context.getBlockWriter().close();
+        }
         // prepare the UFS block and transfer data from the temp block to UFS
         createUfsBlock(context, channel);
-        transferToUfsBlock(context, posBeforeWrite);
+        if (posBeforeWrite > 0) {
+          transferToUfsBlock(context, posBeforeWrite);
+        }
         // close the original block writer and remove the temp file
         mBlockPacketWriter.cancelRequest(context);
       }

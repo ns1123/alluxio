@@ -145,6 +145,12 @@ public class FileOutStream extends AbstractOutStream {
             bos.cancel();
           }
         } else {
+          // ALLUXIO CS ADD
+          // Note, this is a workaround to prevent commit(blockN-1) and write(blockN)
+          // race, in worse case, this may result in commit(blockN-1) completes earlier than
+          // write(blockN), and blockN evicts the committed blockN-1 and causing file lost.
+          mCurrentBlockOutStream.close();
+          // ALLUXIO CS END
           for (BlockOutStream bos : mPreviousBlockOutStreams) {
             bos.close();
           }
