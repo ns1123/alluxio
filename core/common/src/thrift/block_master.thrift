@@ -81,7 +81,7 @@ struct CommitBlockTResponse {}
 struct CommitBlockInUfsTOptions {}
 struct CommitBlockInUfsTResponse {}
 
-// ALLUXIO CS ADD
+// ALLUXIO CS END
 struct GetWorkerIdTOptions {}
 struct GetWorkerIdTResponse {
   1: i64 workerId
