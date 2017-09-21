@@ -256,7 +256,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
     try (PacketWriter writer = create(blockSize, PACKET_SIZE)) {
       byte[] data = new byte[1];
       Future<WriteSummary> actualUfs = getUfsWrite(mChannel);
-      for (long pos = 0; pos < blockSize ; pos++) {
+      for (long pos = 0; pos < blockSize; pos++) {
         assertEquals(pos, writer.pos());
         ByteBuf buf = Unpooled.wrappedBuffer(data);
         writer.writePacket(buf);

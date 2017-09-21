@@ -591,7 +591,7 @@ public class FileInStream extends InputStream
     // ALLUXIO CS ADD
     // In case it is possible to fallback to read UFS blocks, also fill in the options.
     if (Configuration.getBoolean(alluxio.PropertyKey.USER_FILE_UFS_TIER_ENABLED)
-      && mStatus.getPersistenceState().equals("TO_BE_PERSISTED")) {
+        && mStatus.getPersistenceState().equals("TO_BE_PERSISTED")) {
       long blockStart = BlockId.getSequenceNumber(blockId) * mBlockSize;
       openUfsBlockOptions =
           Protocol.OpenUfsBlockOptions.newBuilder().setUfsBlock(true)
