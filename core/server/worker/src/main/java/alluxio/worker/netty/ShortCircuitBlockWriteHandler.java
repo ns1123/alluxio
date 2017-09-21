@@ -147,6 +147,7 @@ class ShortCircuitBlockWriteHandler extends ChannelInboundHandlerAdapter {
                   && request.hasCleanupOnFailure() && !request.getCleanupOnFailure()) {
                 ctx.writeAndFlush(RPCProtoMessage
                     .createResponse(AlluxioStatusException.fromThrowable(throwable)));
+                return;
               }
               // ALLUXIO CS END
               mBlockWorker.cleanupSession(mSessionId);
