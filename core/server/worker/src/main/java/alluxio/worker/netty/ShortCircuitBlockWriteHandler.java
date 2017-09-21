@@ -141,8 +141,16 @@ class ShortCircuitBlockWriteHandler extends ChannelInboundHandlerAdapter {
           @Override
           public void exceptionCaught(Throwable throwable) {
             if (mSessionId != INVALID_SESSION_ID) {
-              //mBlockWorker.cleanupSession(mSessionId);
-              //mSessionId = INVALID_SESSION_ID;
+              // ALLUXIO CS ADD
+              // In case the client is a UfsFallbackPacketWriter, DO NOT clean the temp blocks.
+              if (throwable instanceof alluxio.exception.WorkerOutOfSpaceException
+                  && request.hasCleanupOnFailure() && !request.getCleanupOnFailure()) {
+                ctx.writeAndFlush(RPCProtoMessage
+                    .createResponse(AlluxioStatusException.fromThrowable(throwable)));
+              }
+              // ALLUXIO CS END
+              mBlockWorker.cleanupSession(mSessionId);
+              mSessionId = INVALID_SESSION_ID;
             }
             ctx.writeAndFlush(
                 RPCProtoMessage.createResponse(AlluxioStatusException.fromThrowable(throwable)));

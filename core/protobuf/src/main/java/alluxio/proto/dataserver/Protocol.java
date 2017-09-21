@@ -10029,6 +10029,24 @@ public final class Protocol {
      * </pre>
      */
     alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
+
+    // optional bool cleanup_on_failure = 1002;
+    /**
+     * <code>optional bool cleanup_on_failure = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
+     */
+    boolean hasCleanupOnFailure();
+    /**
+     * <code>optional bool cleanup_on_failure = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
+     */
+    boolean getCleanupOnFailure();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.LocalBlockCreateRequest}
@@ -10116,6 +10134,11 @@ public final class Protocol {
                 capability_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000010;
+              break;
+            }
+            case 8016: {
+              bitField0_ |= 0x00000020;
+              cleanupOnFailure_ = input.readBool();
               break;
             }
           }
@@ -10264,12 +10287,37 @@ public final class Protocol {
       return capability_;
     }
 
+    // optional bool cleanup_on_failure = 1002;
+    public static final int CLEANUP_ON_FAILURE_FIELD_NUMBER = 1002;
+    private boolean cleanupOnFailure_;
+    /**
+     * <code>optional bool cleanup_on_failure = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
+     */
+    public boolean hasCleanupOnFailure() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional bool cleanup_on_failure = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
+     */
+    public boolean getCleanupOnFailure() {
+      return cleanupOnFailure_;
+    }
+
     private void initFields() {
       blockId_ = 0L;
       tier_ = 0;
       spaceToReserve_ = 0L;
       onlyReserveSpace_ = false;
       capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+      cleanupOnFailure_ = false;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -10297,6 +10345,9 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeMessage(1001, capability_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeBool(1002, cleanupOnFailure_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -10326,6 +10377,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1001, capability_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(1002, cleanupOnFailure_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -10462,6 +10517,8 @@ public final class Protocol {
           capabilityBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000010);
+        cleanupOnFailure_ = false;
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -10514,6 +10571,10 @@ public final class Protocol {
         } else {
           result.capability_ = capabilityBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.cleanupOnFailure_ = cleanupOnFailure_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -10544,6 +10605,9 @@ public final class Protocol {
         }
         if (other.hasCapability()) {
           mergeCapability(other.getCapability());
+        }
+        if (other.hasCleanupOnFailure()) {
+          setCleanupOnFailure(other.getCleanupOnFailure());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -10871,6 +10935,55 @@ public final class Protocol {
           capability_ = null;
         }
         return capabilityBuilder_;
+      }
+
+      // optional bool cleanup_on_failure = 1002;
+      private boolean cleanupOnFailure_ ;
+      /**
+       * <code>optional bool cleanup_on_failure = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public boolean hasCleanupOnFailure() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional bool cleanup_on_failure = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public boolean getCleanupOnFailure() {
+        return cleanupOnFailure_;
+      }
+      /**
+       * <code>optional bool cleanup_on_failure = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public Builder setCleanupOnFailure(boolean value) {
+        bitField0_ |= 0x00000020;
+        cleanupOnFailure_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool cleanup_on_failure = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public Builder clearCleanupOnFailure() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        cleanupOnFailure_ = false;
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.LocalBlockCreateRequest)
@@ -12635,19 +12748,19 @@ public final class Protocol {
       "ity.Capability\"&\n\026LocalBlockOpenResponse",
       "\022\014\n\004path\030\001 \001(\t\"c\n\026LocalBlockCloseRequest" +
       "\022\020\n\010block_id\030\001 \001(\003\0227\n\ncapability\030\351\007 \001(\0132" +
-      "\".alluxio.proto.security.Capability\"\250\001\n\027" +
+      "\".alluxio.proto.security.Capability\"\305\001\n\027" +
       "LocalBlockCreateRequest\022\020\n\010block_id\030\001 \001(" +
       "\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020space_to_reserve\030\004 \001(" +
       "\003\022\032\n\022only_reserve_space\030\005 \001(\010\0227\n\ncapabil" +
       "ity\030\351\007 \001(\0132\".alluxio.proto.security.Capa" +
-      "bility\"(\n\030LocalBlockCreateResponse\022\014\n\004pa" +
-      "th\030\001 \001(\t\"v\n\031LocalBlockCompleteRequest\022\020\n" +
-      "\010block_id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapab",
-      "ility\030\351\007 \001(\0132\".alluxio.proto.security.Ca" +
-      "pability\"\'\n\022RemoveBlockRequest\022\021\n\010block_" +
-      "id\030\351\007 \001(\003*G\n\013RequestType\022\021\n\rALLUXIO_BLOC" +
-      "K\020\000\022\014\n\010UFS_FILE\020\001\022\027\n\022UFS_FALLBACK_BLOCK\020" +
-      "\350\007"
+      "bility\022\033\n\022cleanup_on_failure\030\352\007 \001(\010\"(\n\030L" +
+      "ocalBlockCreateResponse\022\014\n\004path\030\001 \001(\t\"v\n" +
+      "\031LocalBlockCompleteRequest\022\020\n\010block_id\030\001",
+      " \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapability\030\351\007 \001(" +
+      "\0132\".alluxio.proto.security.Capability\"\'\n" +
+      "\022RemoveBlockRequest\022\021\n\010block_id\030\351\007 \001(\003*G" +
+      "\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_" +
+      "FILE\020\001\022\027\n\022UFS_FALLBACK_BLOCK\020\350\007"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -12731,7 +12844,7 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_LocalBlockCreateRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_LocalBlockCreateRequest_descriptor,
-              new java.lang.String[] { "BlockId", "Tier", "SpaceToReserve", "OnlyReserveSpace", "Capability", });
+              new java.lang.String[] { "BlockId", "Tier", "SpaceToReserve", "OnlyReserveSpace", "Capability", "CleanupOnFailure", });
           internal_static_alluxio_proto_dataserver_LocalBlockCreateResponse_descriptor =
             getDescriptor().getMessageTypes().get(13);
           internal_static_alluxio_proto_dataserver_LocalBlockCreateResponse_fieldAccessorTable = new
