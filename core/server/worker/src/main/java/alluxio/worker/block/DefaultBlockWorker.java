@@ -118,6 +118,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
 
   // ALLUXIO CS ADD
   private final alluxio.worker.security.CapabilityCache mCapabilityCache;
+  private final UfsManager mUfsManager;
   // ALLUXIO CS END
   /**
    * Constructs a default block worker.
@@ -159,6 +160,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
         new alluxio.worker.security.CapabilityCache(
             alluxio.worker.security.CapabilityCache.Options.defaults()
                 .setCapabilityKey(new alluxio.security.capability.CapabilityKey()));
+    mUfsManager = ufsManager;
     // ALLUXIO CS END
     mUnderFileSystemBlockStore = new UnderFileSystemBlockStore(mBlockStore, ufsManager);
 
@@ -525,6 +527,22 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
   @Override
   public boolean openUfsBlock(long sessionId, long blockId, Protocol.OpenUfsBlockOptions options)
       throws BlockAlreadyExistsException {
+    // ALLUXIO CS ADD
+    if (!options.hasUfsPath() && options.hasUfsBlock() && options.getUfsBlock()) {
+      // This is a fallback UFS block read. Reset the UFS block path according to the UfsBlock flag.
+      UfsManager.UfsInfo ufsInfo;
+      try {
+        ufsInfo = mUfsManager.get(options.getMountId());
+      } catch (alluxio.exception.status.NotFoundException
+          | alluxio.exception.status.UnavailableException e) {
+        LOG.warn("Can not open UFS block: mount id {} not found",
+            options.getMountId(), e.getMessage());
+        return false;
+      }
+      options = options.toBuilder().setUfsPath(
+          alluxio.worker.netty.Utils.getUfsBlockPath(ufsInfo, blockId)).build();
+    }
+    // ALLUXIO CS END
     return mUnderFileSystemBlockStore.acquireAccess(sessionId, blockId, options);
   }
 

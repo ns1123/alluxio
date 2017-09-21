@@ -29,7 +29,6 @@ import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
-import alluxio.util.io.PathUtils;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.meta.TempBlockMeta;
 
@@ -172,6 +171,7 @@ public final class UfsFallbackBlockWriteHandler
       if (context.isWritingToLocal()) {
         mBlockPacketWriter.cancelRequest(context);
       } else {
+        // Fixme: cancel the block in UFS
         Preconditions.checkNotNull(context.getOutputStream());
         Preconditions.checkNotNull(context.getUnderFileSystem());
         context.getOutputStream().close();
@@ -213,7 +213,6 @@ public final class UfsFallbackBlockWriteHandler
         mBlockPacketWriter.cancelRequest(context);
       }
       if (context.getOutputStream() == null) {
-        Preconditions.checkState(context.getPosToQueue() == 0);
         createUfsBlock(context, channel);
       }
       if (buf == AbstractWriteHandler.UFS_FALLBACK_INIT) {
@@ -243,8 +242,7 @@ public final class UfsFallbackBlockWriteHandler
       UnderFileSystem ufs = ufsInfo.getUfs();
       context.setUnderFileSystem(ufs);
       String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
-      String ufsPath = PathUtils
-          .concatPath(ufsInfo.getUfsMountPointUri(), WorkerUtils.getUfsBlockPath(request.getId()));
+      String ufsPath = Utils.getUfsBlockPath(ufsInfo, request.getId());
       // Set the atomic flag to be true to ensure only the creation of this file is atomic on close.
       OutputStream ufsOutputStream =
           ufs.create(ufsPath, CreateOptions.defaults().setEnsureAtomic(true).setCreateParent(true));

@@ -32,7 +32,6 @@ import alluxio.exception.status.NotFoundException;
 import alluxio.master.block.BlockId;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.wire.WorkerNetAddress;
-import alluxio.worker.netty.WorkerUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -595,7 +594,7 @@ public class FileInStream extends InputStream
       && mStatus.getPersistenceState().equals("TO_BE_PERSISTED")) {
       long blockStart = BlockId.getSequenceNumber(blockId) * mBlockSize;
       openUfsBlockOptions =
-          Protocol.OpenUfsBlockOptions.newBuilder().setUfsPath(WorkerUtils.getUfsBlockPath(blockId))
+          Protocol.OpenUfsBlockOptions.newBuilder().setUfsBlock(true)
               .setOffsetInFile(0).setBlockSize(getBlockSize(blockStart))
               .setMaxUfsReadConcurrency(mInStreamOptions.getMaxUfsReadConcurrency())
               .setNoCache(!mInStreamOptions.getAlluxioStorageType().isStore())
