@@ -160,9 +160,10 @@ public final class UfsFallbackBlockWriteHandler
         mBlockPacketWriter.completeRequest(context, channel);
       } else {
         mWorker.commitBlockInUfs(context.getRequest().getId(), context.getPosToQueue());
-        Preconditions.checkNotNull(context.getOutputStream());
-        context.getOutputStream().close();
-        context.setOutputStream(null);
+        if (context.getOutputStream() != null) {
+          context.getOutputStream().close();
+          context.setOutputStream(null);
+        }
       }
     }
 
@@ -171,12 +172,13 @@ public final class UfsFallbackBlockWriteHandler
       if (context.isWritingToLocal()) {
         mBlockPacketWriter.cancelRequest(context);
       } else {
-        // Fixme: cancel the block in UFS
-        Preconditions.checkNotNull(context.getOutputStream());
-        Preconditions.checkNotNull(context.getUnderFileSystem());
-        context.getOutputStream().close();
-        context.getUnderFileSystem().deleteFile(context.getUfsPath());
-        context.setOutputStream(null);
+        if (context.getOutputStream() != null) {
+          context.getOutputStream().close();
+          context.setOutputStream(null);
+        }
+        if (context.getUnderFileSystem() != null) {
+          context.getUnderFileSystem().deleteFile(context.getUfsPath());
+        }
       }
     }
 
@@ -185,7 +187,6 @@ public final class UfsFallbackBlockWriteHandler
       if (context.isWritingToLocal()) {
         mBlockPacketWriter.cleanupRequest(context);
       } else {
-        Preconditions.checkNotNull(context.getOutputStream());
         cancelRequest(context);
       }
     }
