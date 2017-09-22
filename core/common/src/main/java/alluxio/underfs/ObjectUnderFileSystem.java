@@ -140,7 +140,7 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
    */
   public interface ObjectListingChunk {
     /**
-     * Objects in a pseudo-directory which may be a file or a directory.
+     * Returns objects in a pseudo-directory which may be a file or a directory.
      *
      * @return a list of object statuses
      */
@@ -154,7 +154,7 @@ public abstract class ObjectUnderFileSystem extends BaseUnderFileSystem {
     String[] getCommonPrefixes();
 
     /**
-     * Get next chunk of object listings.
+     * Gets next chunk of object listings.
      *
      * @return null if listing did not find anything or is done, otherwise return new
      * {@link ObjectListingChunk} for the next chunk
