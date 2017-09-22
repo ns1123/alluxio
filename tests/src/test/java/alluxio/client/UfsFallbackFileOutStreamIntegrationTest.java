@@ -24,6 +24,7 @@ import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -105,6 +106,7 @@ public class UfsFallbackFileOutStreamIntegrationTest extends AbstractFileOutStre
     }
   }
 
+  @Ignore("https://tachyonnexus.atlassian.net/browse/AE-232")
   @Test
   public void nettyWrite() throws Exception {
     try (Closeable c = new ConfigurationRule(new HashMap<PropertyKey, String>() {
