@@ -47,7 +47,6 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
 
   private final List<PacketWriter> mPacketWriters;
   private boolean mClosed;
-  private long mBlockId;
 
   /**
    * Creates an {@link BlockOutStream}.

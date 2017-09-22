@@ -101,8 +101,9 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         mIsWritingToLocal = false;
       }
       try {
-        // Flush the writer to ensure the temp block is updated before packet
         if (pos == 0) {
+          // Nothing has been written to temp block, we can cancel this failed local writer and
+          // cleanup the temp block.
           mLocalFilePacketWriter.cancel();
         } else {
           // Note that, we can not cancel mLocalFilePacketWriter now as the cancel message may

@@ -579,7 +579,15 @@ public class FileInStream extends InputStream
    */
   private BlockInStream getBlockInStream(long blockId) throws IOException {
     Protocol.OpenUfsBlockOptions openUfsBlockOptions = null;
-    if (mStatus.isPersisted()) {
+    boolean readFromUfs = mStatus.isPersisted();
+    // ALLUXIO CS ADD
+    // In case it is possible to fallback to read UFS blocks, also fill in the options.
+    boolean blockPersisted
+        = Configuration.getBoolean(alluxio.PropertyKey.USER_FILE_UFS_TIER_ENABLED)
+        && mStatus.getPersistenceState().equals("TO_BE_PERSISTED");
+    readFromUfs = readFromUfs || blockPersisted;
+    // ALLUXIO CS END
+    if (readFromUfs) {
       long blockStart = BlockId.getSequenceNumber(blockId) * mBlockSize;
       openUfsBlockOptions =
           Protocol.OpenUfsBlockOptions.newBuilder().setUfsPath(mStatus.getUfsPath())
@@ -589,16 +597,11 @@ public class FileInStream extends InputStream
               .setMountId(mStatus.getMountId()).build();
     }
     // ALLUXIO CS ADD
-    // In case it is possible to fallback to read UFS blocks, also fill in the options.
-    if (Configuration.getBoolean(alluxio.PropertyKey.USER_FILE_UFS_TIER_ENABLED)
-        && mStatus.getPersistenceState().equals("TO_BE_PERSISTED")) {
-      long blockStart = BlockId.getSequenceNumber(blockId) * mBlockSize;
-      openUfsBlockOptions =
-          Protocol.OpenUfsBlockOptions.newBuilder().setUfsBlock(true)
-              .setOffsetInFile(0).setBlockSize(getBlockSize(blockStart))
-              .setMaxUfsReadConcurrency(mInStreamOptions.getMaxUfsReadConcurrency())
-              .setNoCache(!mInStreamOptions.getAlluxioStorageType().isStore())
-              .setMountId(mStatus.getMountId()).build();
+    // On client-side, we do not have enough mount information to fill in the UFS file path.
+    // Instead, we unset the ufsPath field and fill in a flag ufsBlock to indicate the UFS file
+    // path can be derived from mount id and the block ID.
+    if (blockPersisted) {
+      openUfsBlockOptions.toBuilder().clearUfsPath().setBlockInUfsTier(true).build();
     }
     // ALLUXIO CS END
     return mBlockStore.getInStream(blockId, openUfsBlockOptions, mInStreamOptions);

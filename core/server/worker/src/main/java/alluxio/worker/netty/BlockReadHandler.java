@@ -150,8 +150,8 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
         // if (request.isPersisted()) {
         // ALLUXIO CS WITH
         if (request.isPersisted() || (request.getOpenUfsBlockOptions() != null && request
-            .getOpenUfsBlockOptions().hasUfsBlock() && request.getOpenUfsBlockOptions()
-            .getUfsBlock())) {
+            .getOpenUfsBlockOptions().hasBlockInUfsTier() && request.getOpenUfsBlockOptions()
+            .getBlockInUfsTier())) {
         // ALLUXIO CS END
           lockId = mWorker.lockBlockNoException(request.getSessionId(), request.getId());
         } else {

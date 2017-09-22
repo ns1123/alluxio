@@ -528,7 +528,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
   public boolean openUfsBlock(long sessionId, long blockId, Protocol.OpenUfsBlockOptions options)
       throws BlockAlreadyExistsException {
     // ALLUXIO CS ADD
-    if (!options.hasUfsPath() && options.hasUfsBlock() && options.getUfsBlock()) {
+    if (!options.hasUfsPath() && options.hasBlockInUfsTier() && options.getBlockInUfsTier()) {
       // This is a fallback UFS block read. Reset the UFS block path according to the UfsBlock flag.
       UfsManager.UfsInfo ufsInfo;
       try {
