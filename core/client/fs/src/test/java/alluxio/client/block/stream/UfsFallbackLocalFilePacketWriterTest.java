@@ -400,16 +400,17 @@ public class UfsFallbackLocalFilePacketWriterTest {
       public WriteSummary call() {
         long checksum = 0;
         long pos = 0;
-        while (true) {
-          synchronized (buffer) {
-            int len = buffer.position();
-            while (pos < len) {
-              checksum += BufferUtils.byteToInt(buffer.get((int) pos));
-              pos++;
-            }
+        CommonUtils.waitFor("Writing to local completes", new Function<Void, Boolean>() {
+          @Override
+          public Boolean apply(Void input) {
+            return mLocalWriter.isClosed();
           }
-          if (mLocalWriter.isClosed()) {
-            break;
+        });
+        synchronized (buffer) {
+          int len = buffer.position();
+          while (pos < len) {
+            checksum += BufferUtils.byteToInt(buffer.get((int) pos));
+            pos++;
           }
         }
         return new WriteSummary(pos, checksum);
