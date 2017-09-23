@@ -304,10 +304,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
 
       WriteSummary that = (WriteSummary) o;
 
-      if (mBytes != that.mBytes) {
-        return false;
-      }
-      return mChecksum == that.mChecksum;
+      return mChecksum == that.mChecksum && mBytes == that.mBytes;
     }
 
     @Override
