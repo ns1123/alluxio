@@ -33,7 +33,6 @@ import alluxio.util.io.BufferUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -190,7 +189,8 @@ public class UfsFallbackLocalFilePacketWriterTest {
       actualLocal = getLocalWrite(mBuffer);
       expected.get();
     }
-    assertEquals(expected.get(), actualLocal.get());
+    assertEquals(expected.get().getBytes(), actualLocal.get().getBytes());
+    assertEquals(expected.get().getChecksum(), actualLocal.get().getChecksum());
   }
 
   @Test(timeout = 1000 * 60)
@@ -208,7 +208,8 @@ public class UfsFallbackLocalFilePacketWriterTest {
     assertEquals(blockSize, expected.get().getBytes());
     assertEquals(0, actualLocal.get().getBytes());
     assertEquals(blockSize, actualUfs.get().getBytes());
-    assertEquals(expected.get(), actualUfs.get());
+    assertEquals(expected.get().getBytes(), actualUfs.get().getBytes());
+    assertEquals(expected.get().getChecksum(), actualUfs.get().getChecksum());
   }
 
   @Test(timeout = 1000 * 60)
@@ -291,25 +292,6 @@ public class UfsFallbackLocalFilePacketWriterTest {
 
     public long getChecksum() {
       return mChecksum;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (!(o instanceof WriteSummary)) {
-        return false;
-      }
-
-      WriteSummary that = (WriteSummary) o;
-
-      return mChecksum == that.mChecksum && mBytes == that.mBytes;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(mBytes, mChecksum);
     }
   }
 
