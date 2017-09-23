@@ -233,7 +233,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		"conf/workers",
 		// LIBEXEC
 		"libexec/alluxio-config.sh",
-		"libexec/alluxio-layout.sh.template",
 		// DOCKER
 		"integration/docker/bin/alluxio-master.sh",
 		"integration/docker/bin/alluxio-job-master.sh",
