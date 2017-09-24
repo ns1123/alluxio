@@ -247,6 +247,8 @@ public class FileInStream extends InputStream
         mPos += bytesRead;
         bytesLeftToRead -= bytesRead;
         currentOffset += bytesRead;
+      } else {
+        return bytesRead;
       }
     }
 
@@ -598,9 +600,11 @@ public class FileInStream extends InputStream
     // ALLUXIO CS ADD
     // On client-side, we do not have enough mount information to fill in the UFS file path.
     // Instead, we unset the ufsPath field and fill in a flag ufsBlock to indicate the UFS file
-    // path can be derived from mount id and the block ID.
+    // path can be derived from mount id and the block ID. Also because the entire file is only
+    // one block, we set the offset in file to be zero.
     if (storedAsUfsBlock) {
-      openUfsBlockOptions.toBuilder().clearUfsPath().setBlockInUfsTier(true).build();
+      openUfsBlockOptions = openUfsBlockOptions.toBuilder().clearUfsPath().setBlockInUfsTier(true)
+          .setOffsetInFile(0).build();
     }
     // ALLUXIO CS END
     return mBlockStore.getInStream(blockId, openUfsBlockOptions, mInStreamOptions);
