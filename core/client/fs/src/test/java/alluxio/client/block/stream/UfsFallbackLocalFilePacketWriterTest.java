@@ -1,3 +1,14 @@
+/*
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
+ */
+
 package alluxio.client.block.stream;
 
 import static org.junit.Assert.assertEquals;
@@ -22,7 +33,6 @@ import alluxio.util.io.BufferUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -155,8 +165,8 @@ public class UfsFallbackLocalFilePacketWriterTest {
     mBuffer = ByteBuffer.allocate((int) workerCapacity);
     mLocalWriter = new FixedCapacityTestPacketWriter(mBuffer);
     PacketWriter writer =
-        new UfsFallbackLocalFilePacketWriter(mLocalWriter, mContext, mAddress, BLOCK_ID, blockSize,
-            OutStreamOptions.defaults().setMountId(MOUNT_ID));
+        new UfsFallbackLocalFilePacketWriter(mLocalWriter, null, mContext, mAddress, BLOCK_ID,
+            blockSize, OutStreamOptions.defaults().setMountId(MOUNT_ID));
     return writer;
   }
 
@@ -179,7 +189,8 @@ public class UfsFallbackLocalFilePacketWriterTest {
       actualLocal = getLocalWrite(mBuffer);
       expected.get();
     }
-    assertEquals(expected.get(), actualLocal.get());
+    assertEquals(expected.get().getBytes(), actualLocal.get().getBytes());
+    assertEquals(expected.get().getChecksum(), actualLocal.get().getChecksum());
   }
 
   @Test(timeout = 1000 * 60)
@@ -197,7 +208,8 @@ public class UfsFallbackLocalFilePacketWriterTest {
     assertEquals(blockSize, expected.get().getBytes());
     assertEquals(0, actualLocal.get().getBytes());
     assertEquals(blockSize, actualUfs.get().getBytes());
-    assertEquals(expected.get(), actualUfs.get());
+    assertEquals(expected.get().getBytes(), actualUfs.get().getBytes());
+    assertEquals(expected.get().getChecksum(), actualUfs.get().getChecksum());
   }
 
   @Test(timeout = 1000 * 60)
@@ -256,7 +268,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
     try (PacketWriter writer = create(blockSize, PACKET_SIZE)) {
       byte[] data = new byte[1];
       Future<WriteSummary> actualUfs = getUfsWrite(mChannel);
-      for (long pos = 0; pos < blockSize ; pos++) {
+      for (long pos = 0; pos < blockSize; pos++) {
         assertEquals(pos, writer.pos());
         ByteBuf buf = Unpooled.wrappedBuffer(data);
         writer.writePacket(buf);
@@ -280,28 +292,6 @@ public class UfsFallbackLocalFilePacketWriterTest {
 
     public long getChecksum() {
       return mChecksum;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (!(o instanceof WriteSummary)) {
-        return false;
-      }
-
-      WriteSummary that = (WriteSummary) o;
-
-      if (mBytes != that.mBytes) {
-        return false;
-      }
-      return mChecksum == that.mChecksum;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(mBytes, mChecksum);
     }
   }
 
@@ -410,16 +400,17 @@ public class UfsFallbackLocalFilePacketWriterTest {
       public WriteSummary call() {
         long checksum = 0;
         long pos = 0;
-        while (true) {
-          synchronized (buffer) {
-            int len = buffer.position();
-            while (pos < len) {
-              checksum += BufferUtils.byteToInt(buffer.get((int) pos));
-              pos++;
-            }
+        CommonUtils.waitFor("Writing to local completes", new Function<Void, Boolean>() {
+          @Override
+          public Boolean apply(Void input) {
+            return mLocalWriter.isClosed();
           }
-          if (mLocalWriter.isClosed()) {
-            break;
+        });
+        synchronized (buffer) {
+          int len = buffer.position();
+          while (pos < len) {
+            checksum += BufferUtils.byteToInt(buffer.get((int) pos));
+            pos++;
           }
         }
         return new WriteSummary(pos, checksum);

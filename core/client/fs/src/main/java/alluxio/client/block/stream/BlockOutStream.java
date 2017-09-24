@@ -231,6 +231,9 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
 
   @Override
   public void close() throws IOException {
+    if (mClosed) {
+      return;
+    }
     try {
       updateCurrentPacket(true);
     } catch (Throwable t) {

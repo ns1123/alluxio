@@ -15,6 +15,8 @@ import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.proto.security.CapabilityProto;
 import alluxio.security.authorization.Mode;
+import alluxio.underfs.UfsManager;
+import alluxio.util.io.PathUtils;
 import alluxio.worker.block.BlockWorker;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -66,11 +68,13 @@ public final class Utils {
    * For a given block ID, derives the corresponding UFS file of this block if it falls back to
    * be stored in UFS.
    *
+   * @param ufsInfo the UFS information for the mount point backing this file
    * @param blockId block ID
    * @return the UFS path of a block
    */
-  public static String getUfsBlockPath(long blockId) {
-    return String.format(".alluxio_blocks_%s/%s/", MAGIC_NUMBER, blockId);
+  public static String getUfsBlockPath(UfsManager.UfsInfo ufsInfo, long blockId) {
+    return PathUtils.concatPath(ufsInfo.getUfsMountPointUri(),
+        String.format(".alluxio_blocks_%s/%s/", MAGIC_NUMBER, blockId));
   }
 
   private Utils() {}  // prevent instantiation

@@ -1641,6 +1641,26 @@ public final class Protocol {
      */
     com.google.protobuf.ByteString
         getUserBytes();
+
+    // optional bool block_in_ufs_tier = 1000;
+    /**
+     * <code>optional bool block_in_ufs_tier = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * If set to true, the block is possibly stored as a UFS block.
+     * </pre>
+     */
+    boolean hasBlockInUfsTier();
+    /**
+     * <code>optional bool block_in_ufs_tier = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * If set to true, the block is possibly stored as a UFS block.
+     * </pre>
+     */
+    boolean getBlockInUfsTier();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.OpenUfsBlockOptions}
@@ -1731,6 +1751,11 @@ public final class Protocol {
             case 58: {
               bitField0_ |= 0x00000040;
               user_ = input.readBytes();
+              break;
+            }
+            case 8000: {
+              bitField0_ |= 0x00000080;
+              blockInUfsTier_ = input.readBool();
               break;
             }
           }
@@ -1975,6 +2000,32 @@ public final class Protocol {
       }
     }
 
+    // optional bool block_in_ufs_tier = 1000;
+    public static final int BLOCK_IN_UFS_TIER_FIELD_NUMBER = 1000;
+    private boolean blockInUfsTier_;
+    /**
+     * <code>optional bool block_in_ufs_tier = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * If set to true, the block is possibly stored as a UFS block.
+     * </pre>
+     */
+    public boolean hasBlockInUfsTier() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>optional bool block_in_ufs_tier = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * If set to true, the block is possibly stored as a UFS block.
+     * </pre>
+     */
+    public boolean getBlockInUfsTier() {
+      return blockInUfsTier_;
+    }
+
     private void initFields() {
       ufsPath_ = "";
       offsetInFile_ = 0L;
@@ -1983,6 +2034,7 @@ public final class Protocol {
       mountId_ = 0L;
       noCache_ = false;
       user_ = "";
+      blockInUfsTier_ = false;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2016,6 +2068,9 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBytes(7, getUserBytes());
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        output.writeBool(1000, blockInUfsTier_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2053,6 +2108,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(7, getUserBytes());
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(1000, blockInUfsTier_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2189,6 +2248,8 @@ public final class Protocol {
         bitField0_ = (bitField0_ & ~0x00000020);
         user_ = "";
         bitField0_ = (bitField0_ & ~0x00000040);
+        blockInUfsTier_ = false;
+        bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
 
@@ -2245,6 +2306,10 @@ public final class Protocol {
           to_bitField0_ |= 0x00000040;
         }
         result.user_ = user_;
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000080;
+        }
+        result.blockInUfsTier_ = blockInUfsTier_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2285,6 +2350,9 @@ public final class Protocol {
           bitField0_ |= 0x00000040;
           user_ = other.user_;
           onChanged();
+        }
+        if (other.hasBlockInUfsTier()) {
+          setBlockInUfsTier(other.getBlockInUfsTier());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2694,6 +2762,59 @@ public final class Protocol {
   }
   bitField0_ |= 0x00000040;
         user_ = value;
+        onChanged();
+        return this;
+      }
+
+      // optional bool block_in_ufs_tier = 1000;
+      private boolean blockInUfsTier_ ;
+      /**
+       * <code>optional bool block_in_ufs_tier = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * If set to true, the block is possibly stored as a UFS block.
+       * </pre>
+       */
+      public boolean hasBlockInUfsTier() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>optional bool block_in_ufs_tier = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * If set to true, the block is possibly stored as a UFS block.
+       * </pre>
+       */
+      public boolean getBlockInUfsTier() {
+        return blockInUfsTier_;
+      }
+      /**
+       * <code>optional bool block_in_ufs_tier = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * If set to true, the block is possibly stored as a UFS block.
+       * </pre>
+       */
+      public Builder setBlockInUfsTier(boolean value) {
+        bitField0_ |= 0x00000080;
+        blockInUfsTier_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool block_in_ufs_tier = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * If set to true, the block is possibly stored as a UFS block.
+       * </pre>
+       */
+      public Builder clearBlockInUfsTier() {
+        bitField0_ = (bitField0_ & ~0x00000080);
+        blockInUfsTier_ = false;
         onChanged();
         return this;
       }
@@ -5344,6 +5465,26 @@ public final class Protocol {
      * </pre>
      */
     long getMountId();
+
+    // optional bool fallback = 3;
+    /**
+     * <code>optional bool fallback = 3;</code>
+     *
+     * <pre>
+     * true if the write request is already a fallback from
+     * a failed short-circuit write.
+     * </pre>
+     */
+    boolean hasFallback();
+    /**
+     * <code>optional bool fallback = 3;</code>
+     *
+     * <pre>
+     * true if the write request is already a fallback from
+     * a failed short-circuit write.
+     * </pre>
+     */
+    boolean getFallback();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.CreateUfsBlockOptions}
@@ -5409,6 +5550,11 @@ public final class Protocol {
             case 16: {
               bitField0_ |= 0x00000002;
               mountId_ = input.readInt64();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              fallback_ = input.readBool();
               break;
             }
           }
@@ -5501,9 +5647,36 @@ public final class Protocol {
       return mountId_;
     }
 
+    // optional bool fallback = 3;
+    public static final int FALLBACK_FIELD_NUMBER = 3;
+    private boolean fallback_;
+    /**
+     * <code>optional bool fallback = 3;</code>
+     *
+     * <pre>
+     * true if the write request is already a fallback from
+     * a failed short-circuit write.
+     * </pre>
+     */
+    public boolean hasFallback() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional bool fallback = 3;</code>
+     *
+     * <pre>
+     * true if the write request is already a fallback from
+     * a failed short-circuit write.
+     * </pre>
+     */
+    public boolean getFallback() {
+      return fallback_;
+    }
+
     private void initFields() {
       bytesInBlockStore_ = 0L;
       mountId_ = 0L;
+      fallback_ = false;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -5523,6 +5696,9 @@ public final class Protocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt64(2, mountId_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBool(3, fallback_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -5539,6 +5715,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(2, mountId_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, fallback_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -5665,6 +5845,8 @@ public final class Protocol {
         bitField0_ = (bitField0_ & ~0x00000001);
         mountId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000002);
+        fallback_ = false;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -5701,6 +5883,10 @@ public final class Protocol {
           to_bitField0_ |= 0x00000002;
         }
         result.mountId_ = mountId_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.fallback_ = fallback_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -5722,6 +5908,9 @@ public final class Protocol {
         }
         if (other.hasMountId()) {
           setMountId(other.getMountId());
+        }
+        if (other.hasFallback()) {
+          setFallback(other.getFallback());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -5848,6 +6037,59 @@ public final class Protocol {
       public Builder clearMountId() {
         bitField0_ = (bitField0_ & ~0x00000002);
         mountId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // optional bool fallback = 3;
+      private boolean fallback_ ;
+      /**
+       * <code>optional bool fallback = 3;</code>
+       *
+       * <pre>
+       * true if the write request is already a fallback from
+       * a failed short-circuit write.
+       * </pre>
+       */
+      public boolean hasFallback() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bool fallback = 3;</code>
+       *
+       * <pre>
+       * true if the write request is already a fallback from
+       * a failed short-circuit write.
+       * </pre>
+       */
+      public boolean getFallback() {
+        return fallback_;
+      }
+      /**
+       * <code>optional bool fallback = 3;</code>
+       *
+       * <pre>
+       * true if the write request is already a fallback from
+       * a failed short-circuit write.
+       * </pre>
+       */
+      public Builder setFallback(boolean value) {
+        bitField0_ |= 0x00000004;
+        fallback_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool fallback = 3;</code>
+       *
+       * <pre>
+       * true if the write request is already a fallback from
+       * a failed short-circuit write.
+       * </pre>
+       */
+      public Builder clearFallback() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        fallback_ = false;
         onChanged();
         return this;
       }
@@ -9787,6 +10029,24 @@ public final class Protocol {
      * </pre>
      */
     alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
+
+    // optional bool cleanup_on_failure = 1002;
+    /**
+     * <code>optional bool cleanup_on_failure = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
+     */
+    boolean hasCleanupOnFailure();
+    /**
+     * <code>optional bool cleanup_on_failure = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
+     */
+    boolean getCleanupOnFailure();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.LocalBlockCreateRequest}
@@ -9874,6 +10134,11 @@ public final class Protocol {
                 capability_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000010;
+              break;
+            }
+            case 8016: {
+              bitField0_ |= 0x00000020;
+              cleanupOnFailure_ = input.readBool();
               break;
             }
           }
@@ -10022,12 +10287,37 @@ public final class Protocol {
       return capability_;
     }
 
+    // optional bool cleanup_on_failure = 1002;
+    public static final int CLEANUP_ON_FAILURE_FIELD_NUMBER = 1002;
+    private boolean cleanupOnFailure_;
+    /**
+     * <code>optional bool cleanup_on_failure = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
+     */
+    public boolean hasCleanupOnFailure() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional bool cleanup_on_failure = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
+     */
+    public boolean getCleanupOnFailure() {
+      return cleanupOnFailure_;
+    }
+
     private void initFields() {
       blockId_ = 0L;
       tier_ = 0;
       spaceToReserve_ = 0L;
       onlyReserveSpace_ = false;
       capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+      cleanupOnFailure_ = false;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -10055,6 +10345,9 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeMessage(1001, capability_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeBool(1002, cleanupOnFailure_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -10084,6 +10377,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1001, capability_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(1002, cleanupOnFailure_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -10220,6 +10517,8 @@ public final class Protocol {
           capabilityBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000010);
+        cleanupOnFailure_ = false;
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -10272,6 +10571,10 @@ public final class Protocol {
         } else {
           result.capability_ = capabilityBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.cleanupOnFailure_ = cleanupOnFailure_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -10302,6 +10605,9 @@ public final class Protocol {
         }
         if (other.hasCapability()) {
           mergeCapability(other.getCapability());
+        }
+        if (other.hasCleanupOnFailure()) {
+          setCleanupOnFailure(other.getCleanupOnFailure());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -10629,6 +10935,55 @@ public final class Protocol {
           capability_ = null;
         }
         return capabilityBuilder_;
+      }
+
+      // optional bool cleanup_on_failure = 1002;
+      private boolean cleanupOnFailure_ ;
+      /**
+       * <code>optional bool cleanup_on_failure = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public boolean hasCleanupOnFailure() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional bool cleanup_on_failure = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public boolean getCleanupOnFailure() {
+        return cleanupOnFailure_;
+      }
+      /**
+       * <code>optional bool cleanup_on_failure = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public Builder setCleanupOnFailure(boolean value) {
+        bitField0_ |= 0x00000020;
+        cleanupOnFailure_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool cleanup_on_failure = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public Builder clearCleanupOnFailure() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        cleanupOnFailure_ = false;
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.LocalBlockCreateRequest)
@@ -12360,51 +12715,52 @@ public final class Protocol {
       "ufs_block_options\030\006 \001(\0132-.alluxio.proto." +
       "dataserver.OpenUfsBlockOptions\0227\n\ncapabi" +
       "lity\030\350\007 \001(\0132\".alluxio.proto.security.Cap" +
-      "ability\"\243\001\n\023OpenUfsBlockOptions\022\020\n\010ufs_p",
+      "ability\"\277\001\n\023OpenUfsBlockOptions\022\020\n\010ufs_p",
       "ath\030\001 \001(\t\022\026\n\016offset_in_file\030\002 \001(\003\022\022\n\nblo" +
       "ck_size\030\003 \001(\003\022\035\n\025maxUfsReadConcurrency\030\004" +
       " \001(\005\022\017\n\007mountId\030\005 \001(\003\022\020\n\010no_cache\030\006 \001(\010\022" +
-      "\014\n\004user\030\007 \001(\t\"\350\002\n\014WriteRequest\0223\n\004type\030\001" +
-      " \001(\0162%.alluxio.proto.dataserver.RequestT" +
-      "ype\022\n\n\002id\030\002 \001(\003\022\016\n\006offset\030\003 \001(\003\022\014\n\004tier\030" +
-      "\004 \001(\005\022\013\n\003eof\030\005 \001(\010\022\016\n\006cancel\030\006 \001(\010\022O\n\027cr" +
-      "eate_ufs_file_options\030\007 \001(\0132..alluxio.pr" +
-      "oto.dataserver.CreateUfsFileOptions\0227\n\nc" +
-      "apability\030\350\007 \001(\0132\".alluxio.proto.securit",
-      "y.Capability\022R\n\030create_ufs_block_options" +
-      "\030\351\007 \001(\0132/.alluxio.proto.dataserver.Creat" +
-      "eUfsBlockOptions\"f\n\024CreateUfsFileOptions" +
-      "\022\020\n\010ufs_path\030\001 \001(\t\022\r\n\005owner\030\002 \001(\t\022\r\n\005gro" +
-      "up\030\003 \001(\t\022\014\n\004mode\030\004 \001(\005\022\020\n\010mount_id\030\005 \001(\003" +
-      "\"G\n\025CreateUfsBlockOptions\022\034\n\024bytes_in_bl" +
-      "ock_store\030\001 \001(\003\022\020\n\010mount_id\030\002 \001(\003\"J\n\010Res" +
-      "ponse\022-\n\006status\030\001 \001(\0162\035.alluxio.proto.st" +
-      "atus.PStatus\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMe" +
-      "ssage\022>\n\005state\030\001 \001(\0162/.alluxio.proto.dat",
-      "aserver.SaslMessage.SaslState\022\r\n\005token\030\002" +
-      " \001(\014\"5\n\tSaslState\022\013\n\007SUCCESS\020\000\022\014\n\010INITIA" +
-      "TE\020\001\022\r\n\tCHALLENGE\020\002\"i\n\014ReadResponse\0229\n\004t" +
-      "ype\030\001 \001(\0162+.alluxio.proto.dataserver.Rea" +
-      "dResponse.Type\"\036\n\004Type\022\026\n\022UFS_READ_HEART" +
-      "BEAT\020\001\"\013\n\tHeartbeat\"s\n\025LocalBlockOpenReq" +
-      "uest\022\020\n\010block_id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\022" +
-      "7\n\ncapability\030\351\007 \001(\0132\".alluxio.proto.sec" +
-      "urity.Capability\"&\n\026LocalBlockOpenRespon" +
-      "se\022\014\n\004path\030\001 \001(\t\"c\n\026LocalBlockCloseReque",
-      "st\022\020\n\010block_id\030\001 \001(\003\0227\n\ncapability\030\351\007 \001(" +
-      "\0132\".alluxio.proto.security.Capability\"\250\001" +
-      "\n\027LocalBlockCreateRequest\022\020\n\010block_id\030\001 " +
-      "\001(\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020space_to_reserve\030\004 " +
-      "\001(\003\022\032\n\022only_reserve_space\030\005 \001(\010\0227\n\ncapab" +
-      "ility\030\351\007 \001(\0132\".alluxio.proto.security.Ca" +
-      "pability\"(\n\030LocalBlockCreateResponse\022\014\n\004" +
-      "path\030\001 \001(\t\"v\n\031LocalBlockCompleteRequest\022" +
-      "\020\n\010block_id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncap" +
-      "ability\030\351\007 \001(\0132\".alluxio.proto.security.",
-      "Capability\"\'\n\022RemoveBlockRequest\022\021\n\010bloc" +
-      "k_id\030\351\007 \001(\003*G\n\013RequestType\022\021\n\rALLUXIO_BL" +
-      "OCK\020\000\022\014\n\010UFS_FILE\020\001\022\027\n\022UFS_FALLBACK_BLOC" +
-      "K\020\350\007"
+      "\014\n\004user\030\007 \001(\t\022\032\n\021block_in_ufs_tier\030\350\007 \001(" +
+      "\010\"\350\002\n\014WriteRequest\0223\n\004type\030\001 \001(\0162%.allux" +
+      "io.proto.dataserver.RequestType\022\n\n\002id\030\002 " +
+      "\001(\003\022\016\n\006offset\030\003 \001(\003\022\014\n\004tier\030\004 \001(\005\022\013\n\003eof" +
+      "\030\005 \001(\010\022\016\n\006cancel\030\006 \001(\010\022O\n\027create_ufs_fil" +
+      "e_options\030\007 \001(\0132..alluxio.proto.dataserv" +
+      "er.CreateUfsFileOptions\0227\n\ncapability\030\350\007",
+      " \001(\0132\".alluxio.proto.security.Capability" +
+      "\022R\n\030create_ufs_block_options\030\351\007 \001(\0132/.al" +
+      "luxio.proto.dataserver.CreateUfsBlockOpt" +
+      "ions\"f\n\024CreateUfsFileOptions\022\020\n\010ufs_path" +
+      "\030\001 \001(\t\022\r\n\005owner\030\002 \001(\t\022\r\n\005group\030\003 \001(\t\022\014\n\004" +
+      "mode\030\004 \001(\005\022\020\n\010mount_id\030\005 \001(\003\"Y\n\025CreateUf" +
+      "sBlockOptions\022\034\n\024bytes_in_block_store\030\001 " +
+      "\001(\003\022\020\n\010mount_id\030\002 \001(\003\022\020\n\010fallback\030\003 \001(\010\"" +
+      "J\n\010Response\022-\n\006status\030\001 \001(\0162\035.alluxio.pr" +
+      "oto.status.PStatus\022\017\n\007message\030\002 \001(\t\"\223\001\n\013",
+      "SaslMessage\022>\n\005state\030\001 \001(\0162/.alluxio.pro" +
+      "to.dataserver.SaslMessage.SaslState\022\r\n\005t" +
+      "oken\030\002 \001(\014\"5\n\tSaslState\022\013\n\007SUCCESS\020\000\022\014\n\010" +
+      "INITIATE\020\001\022\r\n\tCHALLENGE\020\002\"i\n\014ReadRespons" +
+      "e\0229\n\004type\030\001 \001(\0162+.alluxio.proto.dataserv" +
+      "er.ReadResponse.Type\"\036\n\004Type\022\026\n\022UFS_READ" +
+      "_HEARTBEAT\020\001\"\013\n\tHeartbeat\"s\n\025LocalBlockO" +
+      "penRequest\022\020\n\010block_id\030\001 \001(\003\022\017\n\007promote\030" +
+      "\002 \001(\010\0227\n\ncapability\030\351\007 \001(\0132\".alluxio.pro" +
+      "to.security.Capability\"&\n\026LocalBlockOpen",
+      "Response\022\014\n\004path\030\001 \001(\t\"c\n\026LocalBlockClos" +
+      "eRequest\022\020\n\010block_id\030\001 \001(\003\0227\n\ncapability" +
+      "\030\351\007 \001(\0132\".alluxio.proto.security.Capabil" +
+      "ity\"\305\001\n\027LocalBlockCreateRequest\022\020\n\010block" +
+      "_id\030\001 \001(\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020space_to_rese" +
+      "rve\030\004 \001(\003\022\032\n\022only_reserve_space\030\005 \001(\010\0227\n" +
+      "\ncapability\030\351\007 \001(\0132\".alluxio.proto.secur" +
+      "ity.Capability\022\033\n\022cleanup_on_failure\030\352\007 " +
+      "\001(\010\"(\n\030LocalBlockCreateResponse\022\014\n\004path\030" +
+      "\001 \001(\t\"v\n\031LocalBlockCompleteRequest\022\020\n\010bl",
+      "ock_id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapabili" +
+      "ty\030\351\007 \001(\0132\".alluxio.proto.security.Capab" +
+      "ility\"\'\n\022RemoveBlockRequest\022\021\n\010block_id\030" +
+      "\351\007 \001(\003*G\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000" +
+      "\022\014\n\010UFS_FILE\020\001\022\027\n\022UFS_FALLBACK_BLOCK\020\350\007"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -12422,7 +12778,7 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_OpenUfsBlockOptions_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_OpenUfsBlockOptions_descriptor,
-              new java.lang.String[] { "UfsPath", "OffsetInFile", "BlockSize", "MaxUfsReadConcurrency", "MountId", "NoCache", "User", });
+              new java.lang.String[] { "UfsPath", "OffsetInFile", "BlockSize", "MaxUfsReadConcurrency", "MountId", "NoCache", "User", "BlockInUfsTier", });
           internal_static_alluxio_proto_dataserver_WriteRequest_descriptor =
             getDescriptor().getMessageTypes().get(2);
           internal_static_alluxio_proto_dataserver_WriteRequest_fieldAccessorTable = new
@@ -12440,7 +12796,7 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_CreateUfsBlockOptions_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_CreateUfsBlockOptions_descriptor,
-              new java.lang.String[] { "BytesInBlockStore", "MountId", });
+              new java.lang.String[] { "BytesInBlockStore", "MountId", "Fallback", });
           internal_static_alluxio_proto_dataserver_Response_descriptor =
             getDescriptor().getMessageTypes().get(5);
           internal_static_alluxio_proto_dataserver_Response_fieldAccessorTable = new
@@ -12488,7 +12844,7 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_LocalBlockCreateRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_LocalBlockCreateRequest_descriptor,
-              new java.lang.String[] { "BlockId", "Tier", "SpaceToReserve", "OnlyReserveSpace", "Capability", });
+              new java.lang.String[] { "BlockId", "Tier", "SpaceToReserve", "OnlyReserveSpace", "Capability", "CleanupOnFailure", });
           internal_static_alluxio_proto_dataserver_LocalBlockCreateResponse_descriptor =
             getDescriptor().getMessageTypes().get(13);
           internal_static_alluxio_proto_dataserver_LocalBlockCreateResponse_fieldAccessorTable = new

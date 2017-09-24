@@ -15,12 +15,14 @@ import alluxio.AlluxioTestDirectory;
 import alluxio.AlluxioURI;
 import alluxio.ConfigurationRule;
 import alluxio.PropertyKey;
+import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.status.Status;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
+import alluxio.util.proto.ProtoMessage;
 import alluxio.worker.block.BlockStore;
 import alluxio.worker.block.BlockStoreLocation;
 import alluxio.worker.block.BlockWorker;
@@ -86,7 +88,8 @@ public class UfsFallbackBlockWriteHandlerTest extends WriteHandlerTest {
         new UfsManager.UfsInfo(Suppliers.ofInstance(mockUfs), AlluxioURI.EMPTY_URI);
     Mockito.when(ufsManager.get(Mockito.anyLong())).thenReturn(ufsInfo);
     Mockito.when(mockUfs.create(Mockito.anyString(), Mockito.any(CreateOptions.class)))
-        .thenReturn(mOutputStream);
+        .thenReturn(mOutputStream)
+        .thenReturn(new FileOutputStream(mFile, true));
 
     mChannel = new EmbeddedChannel(
         new UfsFallbackBlockWriteHandler(NettyExecutors.FILE_WRITER_EXECUTOR, mBlockWorker, ufsManager));
@@ -110,7 +113,7 @@ public class UfsFallbackBlockWriteHandlerTest extends WriteHandlerTest {
   public void noTempBlockFound() throws Exception {
     // remove the block partially created
     mBlockStore.abortBlock(TEST_SESSION_ID, TEST_BLOCK_ID);
-    mChannel.writeInbound(newWriteRequest(0, null));
+    mChannel.writeInbound(newFallbackInitRequest(PARTIAL_WRITTEN));
     Object writeResponse = waitForResponse(mChannel);
     checkWriteResponse(Status.PStatus.NOT_FOUND, writeResponse);
   }
@@ -119,7 +122,7 @@ public class UfsFallbackBlockWriteHandlerTest extends WriteHandlerTest {
   public void tempBlockWritten() throws Exception {
     DataBuffer buffer = newDataBuffer(PACKET_SIZE);
     long checksum = mPartialChecksum + getChecksum(buffer);
-    mChannel.writeInbound(newWriteRequest(0, null));
+    mChannel.writeInbound(newFallbackInitRequest(PARTIAL_WRITTEN));
     mChannel.writeInbound(newWriteRequest(PARTIAL_WRITTEN, buffer));
     mChannel.writeInbound(newEofRequest(PARTIAL_WRITTEN + PACKET_SIZE));
     Object writeResponse = waitForResponse(mChannel);
@@ -127,11 +130,21 @@ public class UfsFallbackBlockWriteHandlerTest extends WriteHandlerTest {
     checkWriteData(checksum, PARTIAL_WRITTEN + PACKET_SIZE);
   }
 
+  protected RPCProtoMessage newFallbackInitRequest(long bytesInBlockStore) {
+    Protocol.CreateUfsBlockOptions createUfsBlockOptions =
+        newWriteRequestProto(0).getCreateUfsBlockOptions().toBuilder()
+            .setBytesInBlockStore(bytesInBlockStore)
+            .build();
+    Protocol.WriteRequest request = super.newWriteRequestProto(0).toBuilder()
+        .setCreateUfsBlockOptions(createUfsBlockOptions).build();
+    return new RPCProtoMessage(new ProtoMessage(request), null);
+  }
+
   @Override
   protected Protocol.WriteRequest newWriteRequestProto(long offset) {
     Protocol.CreateUfsBlockOptions createUfsBlockOptions =
-        Protocol.CreateUfsBlockOptions.newBuilder().setMountId(TEST_MOUNT_ID)
-            .setBytesInBlockStore(PARTIAL_WRITTEN).build();
+        Protocol.CreateUfsBlockOptions.newBuilder().setMountId(TEST_MOUNT_ID).setFallback(true)
+            .build();
     return super.newWriteRequestProto(offset).toBuilder()
         .setCreateUfsBlockOptions(createUfsBlockOptions).build();
   }

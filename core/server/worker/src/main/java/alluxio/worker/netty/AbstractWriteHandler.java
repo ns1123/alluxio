@@ -312,21 +312,19 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         }
 
         try {
-          // ALLUXIO CS REPLACE
-          // int readableBytes = buf.readableBytes();
-          // ALLUXIO CS WITH
-          long readableBytes;
+          int readableBytes = buf.readableBytes();
+          // ALLUXIO CS ADD
           if (buf == UFS_FALLBACK_INIT) {
-            readableBytes = mUfsFallbackInitBytes;
-          } else {
-            readableBytes = buf.readableBytes();
+            buf.retain(); // prevent the release in final destruct UFS_FALLBACK_INIT
+            readableBytes = (int) mUfsFallbackInitBytes;
           }
           // ALLUXIO CS END
           mContext.setPosToWrite(mContext.getPosToWrite() + readableBytes);
           writeBuf(mContext, mChannel, buf, mContext.getPosToWrite());
           incrementMetrics(readableBytes);
         } catch (Exception e) {
-          LOG.warn("Failed to write packet {}", e.getMessage());
+          //LOG.warn("Failed to write packet {}", e.getMessage());
+          LOG.warn("Failed to write packet {}", e);
           Throwables.propagateIfPossible(e);
           pushAbortPacket(mChannel,
               new Error(AlluxioStatusException.fromCheckedException(e), true));

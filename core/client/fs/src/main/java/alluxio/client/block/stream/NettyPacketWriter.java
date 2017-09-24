@@ -164,16 +164,18 @@ public final class NettyPacketWriter implements PacketWriter {
     }
     // ALLUXIO CS ADD
     // two cases to use UFS_FALLBACK_BLOCK endpoint:
-    // (1) this writer is created by the fallback of short-circuit writer, or
-    // (2) write type is async and UFS tier is enabled
-    if ((type == Protocol.RequestType.UFS_FALLBACK_BLOCK)
-        || (type == Protocol.RequestType.ALLUXIO_BLOCK
+    // (1) this writer is created by the fallback of a short-circuit writer, or
+    boolean alreadyFallback = type == Protocol.RequestType.UFS_FALLBACK_BLOCK;
+    // (2) the write type is async when UFS tier is enabled.
+    boolean possibleToFallback = type == Protocol.RequestType.ALLUXIO_BLOCK
         && options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH
-        && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED))) {
-      // Overwrite to use the fallback-enabled endpoint
+        && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED);
+    if (alreadyFallback || possibleToFallback) {
+      // Overwrite to use the fallback-enabled endpoint in case (2)
       builder.setType(Protocol.RequestType.UFS_FALLBACK_BLOCK);
       Protocol.CreateUfsBlockOptions ufsBlockOptions =
-          Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId()).build();
+          Protocol.CreateUfsBlockOptions.newBuilder().setMountId(options.getMountId())
+          .setFallback(alreadyFallback).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
     }
     if (options.getCapabilityFetcher() != null) {
