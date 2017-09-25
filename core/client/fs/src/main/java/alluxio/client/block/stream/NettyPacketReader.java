@@ -296,7 +296,7 @@ public final class NettyPacketReader implements PacketReader {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-      LOG.error("Exception caught while reading from {}.", mReadRequest.getBlockId(), cause);
+      LOG.error("Exception caught while reading block {}:", mReadRequest.getBlockId(), cause);
 
       // NOTE: The netty I/O thread associated with mChannel is the only thread that can update
       // mPacketReaderException and push to mPackets. So it is safe to do the following without
@@ -311,7 +311,7 @@ public final class NettyPacketReader implements PacketReader {
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) {
-      LOG.warn("Channel {} is closed while reading from {}.", mChannel, mReadRequest.getBlockId());
+      LOG.warn("Channel {} is closed while reading block {}.", mChannel, mReadRequest.getBlockId());
 
       // NOTE: The netty I/O thread associated with mChannel is the only thread that can update
       // mPacketReaderException and push to mPackets. So it is safe to do the following without
