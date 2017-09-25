@@ -171,7 +171,7 @@ func chdir(path string) {
 }
 
 func getCommonMvnArgs() []string {
-	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos"}
+	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos", "-PprivateS3"}
 	if profilesFlag != "" {
 		for _, profile := range strings.Split(profilesFlag, ",") {
 			args = append(args, fmt.Sprintf("-P%s", profile))
