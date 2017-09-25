@@ -18,11 +18,13 @@ import alluxio.underfs.UnderFileSystemFactory;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Integration Tests for HdfsUnderFileSystemFactory.
  */
+@Ignore("https://tachyonnexus.atlassian.net/browse/AE-227")
 public class HdfsUnderFileSystemFactoryIntegrationTest {
 
   @Test
