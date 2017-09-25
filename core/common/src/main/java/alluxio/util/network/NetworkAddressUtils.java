@@ -67,6 +67,12 @@ public final class NetworkAddressUtils {
   public enum ServiceType {
     // ALLUXIO CS ADD
     /**
+     * Job master Raft service (Netty).
+     */
+    JOB_MASTER_RAFT("Alluxio Job Master Raft service", PropertyKey.JOB_MASTER_HOSTNAME,
+        PropertyKey.JOB_MASTER_BIND_HOST, PropertyKey.JOB_MASTER_RAFT_PORT),
+
+    /**
      * Job master RPC service (Thrift).
      */
     JOB_MASTER_RPC("Alluxio Job Manager Master RPC service", PropertyKey.JOB_MASTER_HOSTNAME,
@@ -89,6 +95,12 @@ public final class NetworkAddressUtils {
      */
     JOB_WORKER_WEB("Alluxio Job Manager Worker Web service", PropertyKey.JOB_WORKER_WEB_HOSTNAME,
         PropertyKey.JOB_WORKER_WEB_BIND_HOST, PropertyKey.JOB_WORKER_WEB_PORT),
+
+    /**
+     * Master Raft service (Netty).
+     */
+    MASTER_RAFT("Alluxio Master Raft service", PropertyKey.MASTER_HOSTNAME,
+        PropertyKey.MASTER_BIND_HOST, PropertyKey.MASTER_RAFT_PORT),
 
     // ALLUXIO CS END
     /**

@@ -37,7 +37,15 @@ public final class AlluxioJobMaster {
     }
 
     alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.JOB_MASTER);
-    JobMasterProcess process = JobMasterProcess.Factory.create();
+    JobMasterProcess process;
+    try {
+      process = JobMasterProcess.Factory.create();
+    } catch (Throwable t) {
+      LOG.error("Failed to create job master process", t);
+      // Exit to stop any non-daemon threads.
+      System.exit(-1);
+      throw t;
+    }
     ProcessUtils.run(process);
   }
 

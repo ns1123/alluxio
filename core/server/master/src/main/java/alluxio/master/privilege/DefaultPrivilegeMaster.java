@@ -177,12 +177,12 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
     try (JournalContext journalContext = createJournalContext();
         LockResource r = new LockResource(mGroupPrivilegesLock)) {
       updatePrivilegesInternal(group, grant, privileges);
-      appendJournalEntry(JournalEntry.newBuilder().setPrivilegeUpdate(
+      journalContext.append(JournalEntry.newBuilder().setPrivilegeUpdate(
           PrivilegeUpdateEntry.newBuilder()
           .setGroup(group)
           .setGrant(grant)
           .addAllPrivilege(PrivilegeUtils.toProto(privileges)))
-          .build(), journalContext);
+          .build());
       return getPrivileges(group);
     }
   }

@@ -731,7 +731,7 @@
         <artifactId>powermock-module-junit4-rule</artifactId>
         <version>${powermock.version}</version>
         <scope>test</scope>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-reflect</artifactId>
@@ -1311,6 +1311,15 @@
         </executions>
       </plugin>
     </plugins>
+    <!-- ALLUXIO CS ADD -->
+    <extensions>
+      <extension>
+        <groupId>org.kuali.maven.wagons</groupId>
+        <artifactId>maven-s3-wagon</artifactId>
+        <version>1.2.1</version>
+      </extension>
+    </extensions>
+    <!-- ALLUXIO CS END -->
   </build>
 
   <reporting>
@@ -1326,6 +1335,17 @@
   </reporting>
 
   <profiles>
+    <!-- ALLUXIO CS ADD -->
+    <profile>
+      <id>privateS3</id>
+      <repositories>
+        <repository>
+          <id>maven.alluxio</id>
+          <url>s3://maven.alluxio/release</url>
+        </repository>
+      </repositories>
+    </profile>
+    <!-- ALLUXIO CS END -->
     <profile>
       <!-- Turn off doclint for java8 and later -->
       <id>doclint-java8-disable</id>

@@ -163,6 +163,7 @@ public interface JournalSystem {
       mLocation = location;
       return this;
     }
+
     /**
      * @param quietTimeMs before upgrading from SECONDARY to PRIMARY mode, the journal will wait
      *        until this duration has passed without any journal entries being written.
@@ -184,6 +185,14 @@ public interface JournalSystem {
           return new NoopJournalSystem();
         case UFS:
           return new UfsJournalSystem(mLocation, mQuietTimeMs);
+        // ALLUXIO CS ADD
+        case RAFT:
+          return new alluxio.master.journal.raft.RaftJournalSystemWrapper(
+              alluxio.master.journal.raft.RaftJournalConfiguration.defaults(
+                  alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RAFT)
+                  .setPath(new java.io.File(mLocation.getPath()))
+                  .setQuietTimeMs(mQuietTimeMs));
+        // ALLUXIO CS END
         default:
           throw new IllegalStateException("Unrecognized journal type: " + journalType);
       }
