@@ -420,7 +420,7 @@ main() {
       # start_master
       # ALLUXIO CS WITH
       # We only start a secondary master when using a UFS journal.
-      local journal_type=$(${BIN}/alluxio getConf ${ALLUXIO_MASTER_JAVA_OPTS}
+      local journal_type=$(${BIN}/alluxio getConf ${ALLUXIO_MASTER_JAVA_OPTS} \
                            alluxio.master.journal.type | awk '{print toupper($0)}')
       if [[ ${journal_type} == "UFS" ]]; then
           start_master
