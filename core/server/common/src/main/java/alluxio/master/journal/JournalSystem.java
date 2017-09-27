@@ -186,7 +186,7 @@ public interface JournalSystem {
         case UFS:
           return new UfsJournalSystem(mLocation, mQuietTimeMs);
         // ALLUXIO CS ADD
-        case RAFT:
+        case EMBEDDED:
           return new alluxio.master.journal.raft.RaftJournalSystemWrapper(
               alluxio.master.journal.raft.RaftJournalConfiguration.defaults(
                   alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RAFT)

@@ -620,7 +620,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           //     + "UFS) and NOOP (do not use a journal).")
           // ALLUXIO CS WITH
           .setDescription("The type of journal to use. Valid options are UFS (store journal in "
-              + "UFS), RAFT (use a journal embedded in the masters), and NOOP (do not use a "
+              + "UFS), EMBEDDED (use a journal embedded in the masters), and NOOP (do not use a "
               + "journal)")
           // ALLUXIO CS END
           .build();
