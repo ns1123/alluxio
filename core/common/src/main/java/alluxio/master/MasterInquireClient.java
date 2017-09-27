@@ -85,7 +85,8 @@ public interface MasterInquireClient extends AutoCloseable {
      *
      * If {@link PropertyKey#MASTER_RPC_ADDRESSES} is explicitly set, we parse and use those
      * addresses. Otherwise, we combine the hostnames in
-     * {@link PropertyKey#MASTER_JOURNAL_RAFT_ADDRESSES} with {@link PropertyKey#MASTER_RAFT_PORT}
+     * {@link PropertyKey#MASTER_EMBEDDED_JOURNAL_ADDRESSES} with
+     * {@link PropertyKey#MASTER_EMBEDDED_JOURNAL_PORT}
      *
      * @return the master rpc addresses
      */
@@ -104,14 +105,15 @@ public interface MasterInquireClient extends AutoCloseable {
      *
      * If {@link PropertyKey#JOB_MASTER_RPC_ADDRESSES} is explicitly set, we parse and use those
      * addresses. Otherwise, we combine the hostnames in
-     * {@link PropertyKey#JOB_MASTER_JOURNAL_RAFT_ADDRESSES} with
-     * {@link PropertyKey#JOB_MASTER_RAFT_PORT}
+     * {@link PropertyKey#JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES} with
+     * {@link PropertyKey#JOB_MASTER_EMBEDDED_JOURNAL_PORT}
      *
      * @return the job master rpc addresses
      */
     private static List<InetSocketAddress> getJobRpcAddresses() {
       if (Configuration.containsKey(PropertyKey.JOB_MASTER_RPC_ADDRESSES)) {
-        List<String> rpcAddresses = Configuration.getList(PropertyKey.JOB_MASTER_RPC_ADDRESSES, ",");
+        List<String> rpcAddresses =
+            Configuration.getList(PropertyKey.JOB_MASTER_RPC_ADDRESSES, ",");
         return getRpcInetSocketAddresses(rpcAddresses);
       } else {
         return getRpcAddressesFromRaftAddresses(
@@ -142,7 +144,8 @@ public interface MasterInquireClient extends AutoCloseable {
      */
     private static List<InetSocketAddress> getRpcAddressesFromRaftAddresses(int rpcPort) {
       List<InetSocketAddress> inetSocketAddresses = new java.util.ArrayList<>();
-      for (String address : Configuration.getList(PropertyKey.MASTER_JOURNAL_RAFT_ADDRESSES, ",")) {
+      for (String address : Configuration.getList(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES,
+          ",")) {
         try {
           String rpcHost = NetworkAddressUtils.parseInetSocketAddress(address).getHostName();
           inetSocketAddresses.add(new InetSocketAddress(rpcHost, rpcPort));

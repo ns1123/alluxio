@@ -206,7 +206,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
 
   private void scheduleSnapshots() {
     LocalTime snapshotTime =
-        LocalTime.parse(Configuration.get(PropertyKey.MASTER_RAFT_SNAPSHOT_TIME),
+        LocalTime.parse(Configuration.get(PropertyKey.MASTER_EMBEDDED_JOURNAL_SNAPSHOT_TIME),
             DateTimeFormatter.ISO_OFFSET_TIME);
     LocalTime now = LocalTime.now(Clock.systemUTC());
     Duration timeUntilNextSnapshot;
