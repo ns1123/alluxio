@@ -134,10 +134,10 @@ public class RaftJournalConfiguration {
   private static List<InetSocketAddress> defaultClusterAddresses(ServiceType serviceType) {
     PropertyKey addressKey;
     if (serviceType.equals(ServiceType.MASTER_RAFT)) {
-      addressKey = PropertyKey.MASTER_JOURNAL_RAFT_ADDRESSES;
+      addressKey = PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES;
     } else {
       Preconditions.checkState(serviceType.equals(ServiceType.JOB_MASTER_RAFT));
-      addressKey = PropertyKey.JOB_MASTER_JOURNAL_RAFT_ADDRESSES;
+      addressKey = PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES;
     }
     List<String> addresses = Configuration.getList(addressKey, ",");
     List<InetSocketAddress> inetAddresses = new ArrayList<>();
