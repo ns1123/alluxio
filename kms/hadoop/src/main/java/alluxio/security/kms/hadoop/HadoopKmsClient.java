@@ -99,13 +99,15 @@ public class HadoopKmsClient implements KmsClient {
     }
 
     Configuration conf = new Configuration();
-    String principal = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-    String keytabFile = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-    if (!principal.isEmpty() && !keytabFile.isEmpty()) {
-      // Login Hadoop with Alluxio client kerberos principal and keytab.
-      conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
-      UserGroupInformation.setConfiguration(conf);
-      UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
+    if (alluxio.Configuration.getBoolean(PropertyKey.SECURITY_KMS_KERBEROS_ENABLED)) {
+      String principal = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      String keytabFile = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      if (!principal.isEmpty() && !keytabFile.isEmpty()) {
+        // Login Hadoop with Alluxio client kerberos principal and keytab.
+        conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
+        UserGroupInformation.setConfiguration(conf);
+        UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
+      }
     }
 
     KeyProvider keyProvider = KMSClientProvider.Factory.get(kmsEndpoint, conf);

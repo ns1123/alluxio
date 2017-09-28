@@ -2042,6 +2042,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey SECURITY_KMS_PROVIDER =
       new Builder(Name.SECURITY_KMS_PROVIDER)
           .setDefaultValue(Constants.KMS_DUMMY_PROVIDER_NAME).build();
+  public static final PropertyKey SECURITY_KMS_KERBEROS_ENABLED =
+      new Builder(Name.SECURITY_KMS_KERBEROS_ENABLED).setDefaultValue(false).build();
 
   //
   // Native library
@@ -2701,6 +2703,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.security.encryption.openssl.enabled";
     public static final String SECURITY_KMS_ENDPOINT = "alluxio.security.kms.endpoint";
     public static final String SECURITY_KMS_PROVIDER = "alluxio.security.kms.provider";
+    public static final String SECURITY_KMS_KERBEROS_ENABLED =
+        "alluxio.security.kms.kerberos.enabled";
 
     //
     // Native library
