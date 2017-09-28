@@ -1947,7 +1947,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               "The hh:mm:ss+hh:mm time at which to perform daily master state snapshots when using "
                   + "the embedded journal. This time is in ISO-8601 format. The +hh:mm is time "
                   + "zone offset.")
-          .setDefaultValue("00:00:00+00:00").build();
+          .setDefaultValue("09:00:00+00:00").build();
   public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
       new Builder(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS)
           .setDefaultValue(60000)
