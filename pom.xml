@@ -1127,7 +1127,7 @@
             <include>alluxio/worker/block/evictor/LRUEvictor.java</include>
             <include>alluxio/worker/block/evictor/PartialLRUEvictor.java</include>
           </sourceFileIncludes>
-          <sourcepath>${basedir}/core/client/src/main/java/:${basedir}/core/common/src/main/java/:${basedir}/core/server/worker/src/main/java/</sourcepath>
+          <sourcepath>${basedir}/core/client/fs/src/main/java/:${basedir}/core/common/src/main/java/:${basedir}/core/server/worker/src/main/java/</sourcepath>
         </configuration>
         <!-- ALLUXIO CS END -->
       </plugin>
