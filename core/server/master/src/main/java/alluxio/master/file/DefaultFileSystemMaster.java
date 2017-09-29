@@ -3628,7 +3628,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           try {
             alluxio.util.UnderFileSystemUtils.deleteFileIfExists(ufsInfo.getUfs(), ufsBlockPath);
           } catch (Exception e) {
-            LOG.error("Failed to clean up staging UFS block file {}", ufsBlockPath);
+            LOG.warn("Failed to clean up staging UFS block file {}", ufsBlockPath, e.getMessage());
           }
         }
       }
