@@ -3556,7 +3556,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     private void handleSuccess(PersistJob job) {
       long fileId = job.getFileId();
       String tempUfsPath = job.getTempUfsPath();
-      List<Long> blockIds = Collections.emptyList();
+      List<Long> blockIds = new ArrayList<>();
       UfsManager.UfsInfo ufsInfo = null;
       try (JournalContext journalContext = createJournalContext();
           LockedInodePath inodePath = mInodeTree
