@@ -187,9 +187,15 @@ public interface JournalSystem {
           return new UfsJournalSystem(mLocation, mQuietTimeMs);
         // ALLUXIO CS ADD
         case EMBEDDED:
+          alluxio.util.network.NetworkAddressUtils.ServiceType serviceType;
+          if (alluxio.util.CommonUtils.PROCESS_TYPE.get()
+              .equals(alluxio.util.CommonUtils.ProcessType.MASTER)) {
+            serviceType = alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RAFT;
+          } else {
+            serviceType = alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RAFT;
+          }
           return new alluxio.master.journal.raft.RaftJournalSystemWrapper(
-              alluxio.master.journal.raft.RaftJournalConfiguration.defaults(
-                  alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RAFT)
+              alluxio.master.journal.raft.RaftJournalConfiguration.defaults(serviceType)
                   .setPath(new java.io.File(mLocation.getPath()))
                   .setQuietTimeMs(mQuietTimeMs));
         // ALLUXIO CS END

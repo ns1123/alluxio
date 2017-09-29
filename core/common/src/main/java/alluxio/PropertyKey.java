@@ -1908,8 +1908,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   //
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_ADDRESSES =
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_ADDRESSES)
-          .setDescription("A list of addresses of all masters in the cluster. Required when "
-              + "using the embedded journal")
+          .setDescription("A comma-separated list of journal addresses for all masters in the "
+              + "cluster. The format is 'hostname1:port1,hostname2:port2,...'. Required when using "
+              + "the embedded journal")
           .setDefaultValue(String.format("localhost:${%s}", Name.MASTER_EMBEDDED_JOURNAL_PORT))
           .build();
   public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
@@ -1938,7 +1939,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_PORT =
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_PORT)
-          .setDescription("The port to bind for embedded journal communication with other masters.")
+          .setDescription("The port to use for embedded journal communication with other masters.")
           .setDefaultValue(19200)
           .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_SNAPSHOT_TIME =
@@ -2118,10 +2119,16 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.JOB_MASTER_RPC_ADDRESSES).build();
   public static final PropertyKey JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES =
       new Builder(Name.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES)
-          .setDefaultValue(String.format("localhost:${%s}", Name.JOB_MASTER_EMBEDDED_JOURNAL_PORT))
+          .setDescription("A comma-separated list of journal addresses for all job masters in the "
+              + "cluster. The format is 'hostname1:port1,hostname2:port2,...'. Defaults to the "
+              + "journal addresses set for the Alluxio masters, but with the job master embedded "
+              + "journal port.")
           .build();
   public static final PropertyKey JOB_MASTER_EMBEDDED_JOURNAL_PORT =
-      new Builder(Name.JOB_MASTER_EMBEDDED_JOURNAL_PORT).setDefaultValue(20003).build();
+      new Builder(Name.JOB_MASTER_EMBEDDED_JOURNAL_PORT)
+          .setDescription(
+              "The port to use for embedded journal communication with other job masters.")
+          .setDefaultValue(20003).build();
   public static final PropertyKey JOB_MASTER_WEB_BIND_HOST =
       new Builder(Name.JOB_MASTER_WEB_BIND_HOST).setDefaultValue("0.0.0.0").build();
   public static final PropertyKey JOB_MASTER_WEB_HOSTNAME =

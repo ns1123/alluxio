@@ -299,7 +299,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     }
     initServer();
     try {
-      mServer.join(getClusterAddresses(mConf)).get();
+      mServer.bootstrap(getClusterAddresses(mConf)).get();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException("Interrupted while rejoining Raft cluster");
@@ -307,9 +307,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       LOG.error("Failed to rejoin Raft cluster with addresses {} while stepping down. Exiting to "
           + "prevent inconsistency", getClusterAddresses(mConf), e);
       System.exit(-1);
-    }
-    for (RaftJournal journal : mJournals.values()) {
-      journal.getStateMachine().resetState();
     }
     mSnapshotAllowed.set(true);
   }
