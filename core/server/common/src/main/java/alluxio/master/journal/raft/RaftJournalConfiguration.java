@@ -142,7 +142,7 @@ public class RaftJournalConfiguration {
       // master port.
       if (!Configuration.containsKey(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES)) {
         List<InetSocketAddress> addrs = defaultClusterAddresses(ServiceType.MASTER_RAFT);
-        List<InetSocketAddress> jobAddrs = new ArrayList<>();
+        List<InetSocketAddress> jobAddrs = new ArrayList<>(addrs.size());
         int port = NetworkAddressUtils.getPort(ServiceType.JOB_MASTER_RAFT);
         for (InetSocketAddress addr : addrs) {
           jobAddrs.add(new InetSocketAddress(addr.getHostName(), port));
