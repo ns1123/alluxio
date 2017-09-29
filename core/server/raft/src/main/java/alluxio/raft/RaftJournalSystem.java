@@ -535,6 +535,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
         mStateLock.lock();
         try {
           State newState = getState();
+          LOG.info("Journal transitioned to state {}, Primary selector transitioning to {}", state,
+              newState);
           if (mState != newState) {
             mState = newState;
             mStateCond.signalAll();
