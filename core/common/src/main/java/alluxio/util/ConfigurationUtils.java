@@ -181,8 +181,8 @@ public final class ConfigurationUtils {
   public static boolean jobMasterHostConfigured() {
     boolean usingZk = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
         && Configuration.containsKey(PropertyKey.ZOOKEEPER_ADDRESS);
-    return Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME) || usingZk ||
-        getJobMasterRpcAddresses().size() > 1;
+    return Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME) || usingZk
+        || getJobMasterRpcAddresses().size() > 1;
   }
   // ALLUXIO CS END
 
@@ -196,8 +196,8 @@ public final class ConfigurationUtils {
     // ALLUXIO CS REPLACE
     // return Configuration.containsKey(PropertyKey.MASTER_HOSTNAME) || usingZk;
     // ALLUXIO CS WITH
-    return Configuration.containsKey(PropertyKey.MASTER_HOSTNAME) || usingZk ||
-        getMasterRpcAddresses().size() > 1;
+    return Configuration.containsKey(PropertyKey.MASTER_HOSTNAME) || usingZk
+        || getMasterRpcAddresses().size() > 1;
     // ALLUXIO CS END
   }
 }
