@@ -22,8 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -40,7 +38,7 @@ public final class ConfigurationUtils {
    *
    * @return the master rpc addresses
    */
-  public static List<java.net.InetSocketAddress> getMasterRpcAddresses() {
+  public static java.util.List<java.net.InetSocketAddress> getMasterRpcAddresses() {
     if (Configuration.containsKey(PropertyKey.MASTER_RPC_ADDRESSES)) {
       return parseInetSocketAddresses(Configuration.getList(PropertyKey.MASTER_RPC_ADDRESSES, ","));
     } else {
@@ -55,7 +53,7 @@ public final class ConfigurationUtils {
    *
    * @return the job master rpc addresses
    */
-  public static List<java.net.InetSocketAddress> getJobMasterRpcAddresses() {
+  public static java.util.List<java.net.InetSocketAddress> getJobMasterRpcAddresses() {
     int jobRpcPort = alluxio.util.network.NetworkAddressUtils
         .getPort(alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC);
     if (Configuration.containsKey(PropertyKey.JOB_MASTER_RPC_ADDRESSES)) {
@@ -76,11 +74,12 @@ public final class ConfigurationUtils {
    * @return a list of inet addresses using the hostnames from addressesKey with the port
    *         overridePort
    */
-  private static List<java.net.InetSocketAddress> getRpcAddresses(PropertyKey addressesKey,
-      int overridePort) {
-    List<java.net.InetSocketAddress> addresses =
+  private static java.util.List<java.net.InetSocketAddress> getRpcAddresses(
+      PropertyKey addressesKey, int overridePort) {
+    java.util.List<java.net.InetSocketAddress> addresses =
         parseInetSocketAddresses(Configuration.getList(addressesKey, ","));
-    List<java.net.InetSocketAddress> newAddresses = new ArrayList<>(addresses.size());
+    java.util.List<java.net.InetSocketAddress> newAddresses =
+        new java.util.ArrayList<>(addresses.size());
     for (java.net.InetSocketAddress addr : addresses) {
       newAddresses.add(new java.net.InetSocketAddress(addr.getHostName(), overridePort));
     }
@@ -91,8 +90,9 @@ public final class ConfigurationUtils {
    * @param addresses a list of address strings in the form "hostname:port"
    * @return a list of InetSocketAddresses representing the given address strings
    */
-  private static List<java.net.InetSocketAddress> parseInetSocketAddresses(List<String> addresses) {
-    List<java.net.InetSocketAddress> inetSocketAddresses =
+  private static java.util.List<java.net.InetSocketAddress> parseInetSocketAddresses(
+      java.util.List<String> addresses) {
+    java.util.List<java.net.InetSocketAddress> inetSocketAddresses =
         new java.util.ArrayList<>(addresses.size());
     for (String address : addresses) {
       try {
