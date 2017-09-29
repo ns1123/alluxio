@@ -17,7 +17,6 @@ import alluxio.exception.status.UnavailableException;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -57,8 +56,9 @@ public interface MasterInquireClient extends AutoCloseable {
             Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH),
             Configuration.get(PropertyKey.ZOOKEEPER_LEADER_PATH));
         // ALLUXIO CS ADD
-      } else if (getRpcAddresses().size() > 1) {
-        return new PollingMasterInquireClient(getRpcAddresses());
+      } else if (alluxio.util.ConfigurationUtils.getMasterRpcAddresses().size() > 1) {
+        return new PollingMasterInquireClient(
+            alluxio.util.ConfigurationUtils.getMasterRpcAddresses());
         // ALLUXIO CS END
       } else {
         return new SingleMasterInquireClient(
@@ -72,89 +72,15 @@ public interface MasterInquireClient extends AutoCloseable {
         return ZkMasterInquireClient.getClient(Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS),
             Configuration.get(PropertyKey.ZOOKEEPER_JOB_ELECTION_PATH),
             Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
-      } else if (getJobRpcAddresses().size() > 1) {
-        return new PollingMasterInquireClient(getJobRpcAddresses());
+      } else if (alluxio.util.ConfigurationUtils.getJobMasterRpcAddresses().size() > 1) {
+        return new PollingMasterInquireClient(
+            alluxio.util.ConfigurationUtils.getJobMasterRpcAddresses());
       } else {
         return new SingleMasterInquireClient(
             NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
       }
     }
 
-    /**
-     * Gets the RPC addresses of all masters based on the configuration.
-     *
-     * If {@link PropertyKey#MASTER_RPC_ADDRESSES} is explicitly set, we parse and use those
-     * addresses. Otherwise, we combine the hostnames in
-     * {@link PropertyKey#MASTER_EMBEDDED_JOURNAL_ADDRESSES} with
-     * {@link PropertyKey#MASTER_EMBEDDED_JOURNAL_PORT}
-     *
-     * @return the master rpc addresses
-     */
-    private static List<InetSocketAddress> getRpcAddresses() {
-      if (Configuration.containsKey(PropertyKey.MASTER_RPC_ADDRESSES)) {
-        List<String> rpcAddresses = Configuration.getList(PropertyKey.MASTER_RPC_ADDRESSES, ",");
-        return getRpcInetSocketAddresses(rpcAddresses);
-      } else {
-        return getRpcAddressesFromRaftAddresses(
-            NetworkAddressUtils.getPort(ServiceType.MASTER_RPC));
-      }
-    }
-
-    /**
-     * Gets the RPC addresses of all job masters based on the configuration.
-     *
-     * If {@link PropertyKey#JOB_MASTER_RPC_ADDRESSES} is explicitly set, we parse and use those
-     * addresses. Otherwise, we combine the hostnames in
-     * {@link PropertyKey#JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES} with
-     * {@link PropertyKey#JOB_MASTER_EMBEDDED_JOURNAL_PORT}
-     *
-     * @return the job master rpc addresses
-     */
-    private static List<InetSocketAddress> getJobRpcAddresses() {
-      if (Configuration.containsKey(PropertyKey.JOB_MASTER_RPC_ADDRESSES)) {
-        List<String> rpcAddresses =
-            Configuration.getList(PropertyKey.JOB_MASTER_RPC_ADDRESSES, ",");
-        return getRpcInetSocketAddresses(rpcAddresses);
-      } else {
-        return getRpcAddressesFromRaftAddresses(
-            NetworkAddressUtils.getPort(ServiceType.JOB_MASTER_RPC));
-      }
-    }
-
-    /**
-     * @param rpcAddresses a list of RPC address strings
-     * @return a list of InetSocketAddresses representing the given address strings
-     */
-    private static List<InetSocketAddress> getRpcInetSocketAddresses(List<String> rpcAddresses) {
-      List<InetSocketAddress> inetSocketAddresses = new java.util.ArrayList<>(rpcAddresses.size());
-      for (String address : rpcAddresses) {
-        try {
-          inetSocketAddresses.add(NetworkAddressUtils.parseInetSocketAddress(address));
-        } catch (IOException e) {
-          throw new IllegalArgumentException("Failed to parse host:port: " + address, e);
-        }
-      }
-      return inetSocketAddresses;
-    }
-
-    /**
-     * @param rpcPort an RPC port
-     * @return a list of InetSocketAddresses combining the configured Raft hostnames with the given
-     *         RPC port
-     */
-    private static List<InetSocketAddress> getRpcAddressesFromRaftAddresses(int rpcPort) {
-      List<InetSocketAddress> inetSocketAddresses = new java.util.ArrayList<>();
-      for (String address : Configuration.getList(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES,
-          ",")) {
-        try {
-          String rpcHost = NetworkAddressUtils.parseInetSocketAddress(address).getHostName();
-          inetSocketAddresses.add(new InetSocketAddress(rpcHost, rpcPort));
-        } catch (IOException e) {
-          throw new IllegalArgumentException("Failed to parse host:port: " + address, e);
-        }
-      }
-      return inetSocketAddresses;
-    }
     // ALLUXIO CS END
     private Factory() {} // Not intended for instantiation.
   }
