@@ -14,7 +14,10 @@ package alluxio.worker;
 import alluxio.underfs.UfsManager;
 import alluxio.util.io.PathUtils;
 
-public class Utils {
+/**
+ * Block related utils methods.
+ */
+public final class BlockUtils {
   /** Magic number to write UFS block to UFS. */
   private static final String MAGIC_NUMBER = "1D91AC0E";
 
@@ -28,9 +31,8 @@ public class Utils {
    */
   public static String getUfsBlockPath(UfsManager.UfsInfo ufsInfo, long blockId) {
     return PathUtils.concatPath(ufsInfo.getUfsMountPointUri(),
-        String.format(".alluxio_blocks_%s/%s/", MAGIC_NUMBER, blockId));
+        String.format(".alluxio_blocks_%s/%s", MAGIC_NUMBER, blockId));
   }
 
-
-  private Utils() {}  // prevent instantiation
+  private BlockUtils() {}  // prevent instantiation
 }

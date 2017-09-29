@@ -3556,7 +3556,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     private void handleSuccess(PersistJob job) {
       long fileId = job.getFileId();
       String tempUfsPath = job.getTempUfsPath();
-      List<Long> blockIds = new ArrayList<>();
+      List<Long> blockIds = Collections.emptyList();
       UfsManager.UfsInfo ufsInfo = null;
       try (JournalContext journalContext = createJournalContext();
           LockedInodePath inodePath = mInodeTree
@@ -3595,7 +3595,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
 
             // Save state for possible cleanup
-            blockIds = new ArrayList<>(inode.getBlockIds());
+            blockIds.addAll(inode.getBlockIds());
             ufsInfo = mUfsManager.get(resolution.getMountId());
             break;
           default:
@@ -3620,16 +3620,15 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         mPersistJobs.remove(fileId);
       }
 
-      // Cleanup possible staging UFS files due to fast durable write fallback
+      // Cleanup possible staging UFS blocks files due to fast durable write fallback.
       // Note that this is best effort
-      for (long blockId : blockIds) {
-        String ufsBlockPath = "";
-        try {
-          ufsBlockPath = alluxio.worker.Utils.getUfsBlockPath(ufsInfo, blockId);
-          alluxio.util.UnderFileSystemUtils.deleteFileIfExists(ufsInfo.getUfs(), ufsBlockPath);
-        } catch (Exception e) {
-          if (!ufsBlockPath.isEmpty()) {
-            LOG.error("Can not remove staging file {}", ufsBlockPath);
+      if (ufsInfo != null) {
+        for (long blockId : blockIds) {
+          String ufsBlockPath = alluxio.worker.BlockUtils.getUfsBlockPath(ufsInfo, blockId);
+          try {
+            alluxio.util.UnderFileSystemUtils.deleteFileIfExists(ufsInfo.getUfs(), ufsBlockPath);
+          } catch (Exception e) {
+            LOG.error("Failed to clean up staging UFS block file {}", ufsBlockPath);
           }
         }
       }

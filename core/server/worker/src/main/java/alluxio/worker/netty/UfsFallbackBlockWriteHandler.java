@@ -29,6 +29,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
+import alluxio.worker.BlockUtils;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.meta.TempBlockMeta;
 
@@ -247,7 +248,7 @@ public final class UfsFallbackBlockWriteHandler
       UnderFileSystem ufs = ufsInfo.getUfs();
       context.setUnderFileSystem(ufs);
       String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
-      String ufsPath = alluxio.worker.Utils.getUfsBlockPath(ufsInfo, request.getId());
+      String ufsPath = BlockUtils.getUfsBlockPath(ufsInfo, request.getId());
       // Set the atomic flag to be true to ensure only the creation of this file is atomic on close.
       OutputStream ufsOutputStream =
           ufs.create(ufsPath, CreateOptions.defaults().setEnsureAtomic(true).setCreateParent(true));
