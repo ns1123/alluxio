@@ -3556,6 +3556,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     private void handleSuccess(PersistJob job) {
       long fileId = job.getFileId();
       String tempUfsPath = job.getTempUfsPath();
+      List<Long> blockIds = new ArrayList<>();
+      UfsManager.UfsInfo ufsInfo = null;
       try (JournalContext journalContext = createJournalContext();
           LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
@@ -3591,6 +3593,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                     .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
                     .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
             journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
+
+            // Save state for possible cleanup
+            blockIds = new ArrayList<>(inode.getBlockIds());
+            ufsInfo = mUfsManager.get(resolution.getMountId());
             break;
           default:
             throw new IllegalStateException(
@@ -3612,6 +3618,20 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         mPersistRequests.put(fileId, job.getTimer());
       } finally {
         mPersistJobs.remove(fileId);
+      }
+
+      // Cleanup possible staging UFS files due to fast durable write fallback
+      // Note that this is best effort
+      for (long blockId : blockIds) {
+        String ufsBlockPath = "";
+        try {
+          ufsBlockPath = alluxio.worker.Utils.getUfsBlockPath(ufsInfo, blockId);
+          alluxio.util.UnderFileSystemUtils.deleteFileIfExists(ufsInfo.getUfs(), ufsBlockPath);
+        } catch (Exception e) {
+          if (!ufsBlockPath.isEmpty()) {
+            LOG.error("Can not remove staging file {}", ufsBlockPath);
+          }
+        }
       }
     }
 

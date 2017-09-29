@@ -540,7 +540,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
         return false;
       }
       options = options.toBuilder().setUfsPath(
-          alluxio.worker.netty.Utils.getUfsBlockPath(ufsInfo, blockId)).build();
+          alluxio.worker.Utils.getUfsBlockPath(ufsInfo, blockId)).build();
     }
     // ALLUXIO CS END
     return mUnderFileSystemBlockStore.acquireAccess(sessionId, blockId, options);
