@@ -206,7 +206,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
 
   private void scheduleSnapshots() {
     LocalTime snapshotTime =
-        LocalTime.parse(Configuration.get(PropertyKey.MASTER_RAFT_SNAPSHOT_TIME),
+        LocalTime.parse(Configuration.get(PropertyKey.MASTER_EMBEDDED_JOURNAL_SNAPSHOT_TIME),
             DateTimeFormatter.ISO_OFFSET_TIME);
     LocalTime now = LocalTime.now(Clock.systemUTC());
     Duration timeUntilNextSnapshot;
@@ -299,7 +299,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     }
     initServer();
     try {
-      mServer.join(getClusterAddresses(mConf)).get();
+      mServer.bootstrap(getClusterAddresses(mConf)).get();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException("Interrupted while rejoining Raft cluster");
@@ -307,9 +307,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       LOG.error("Failed to rejoin Raft cluster with addresses {} while stepping down. Exiting to "
           + "prevent inconsistency", getClusterAddresses(mConf), e);
       System.exit(-1);
-    }
-    for (RaftJournal journal : mJournals.values()) {
-      journal.getStateMachine().resetState();
     }
     mSnapshotAllowed.set(true);
   }
@@ -538,6 +535,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
         mStateLock.lock();
         try {
           State newState = getState();
+          LOG.info("Journal transitioned to state {}, Primary selector transitioning to {}", state,
+              newState);
           if (mState != newState) {
             mState = newState;
             mStateCond.signalAll();

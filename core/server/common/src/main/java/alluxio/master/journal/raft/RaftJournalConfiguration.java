@@ -134,10 +134,22 @@ public class RaftJournalConfiguration {
   private static List<InetSocketAddress> defaultClusterAddresses(ServiceType serviceType) {
     PropertyKey addressKey;
     if (serviceType.equals(ServiceType.MASTER_RAFT)) {
-      addressKey = PropertyKey.MASTER_JOURNAL_RAFT_ADDRESSES;
+      addressKey = PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES;
     } else {
       Preconditions.checkState(serviceType.equals(ServiceType.JOB_MASTER_RAFT));
-      addressKey = PropertyKey.JOB_MASTER_JOURNAL_RAFT_ADDRESSES;
+      // If the job master embedded journal addresses aren't explicitly configured, default to
+      // using the same hostnames as the alluxio master embedded journal addresses, but with the job
+      // master port.
+      if (!Configuration.containsKey(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES)) {
+        List<InetSocketAddress> addrs = defaultClusterAddresses(ServiceType.MASTER_RAFT);
+        List<InetSocketAddress> jobAddrs = new ArrayList<>(addrs.size());
+        int port = NetworkAddressUtils.getPort(ServiceType.JOB_MASTER_RAFT);
+        for (InetSocketAddress addr : addrs) {
+          jobAddrs.add(new InetSocketAddress(addr.getHostName(), port));
+        }
+        return jobAddrs;
+      }
+      addressKey = PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES;
     }
     List<String> addresses = Configuration.getList(addressKey, ",");
     List<InetSocketAddress> inetAddresses = new ArrayList<>();

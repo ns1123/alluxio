@@ -16,7 +16,7 @@ package alluxio.master.journal;
  */
 public enum JournalType {
   // ALLUXIO CS ADD
-  RAFT,
+  EMBEDDED,
   // ALLUXIO CS END
   NOOP,
   UFS,
