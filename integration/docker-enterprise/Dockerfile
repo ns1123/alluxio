@@ -11,7 +11,13 @@
 
 FROM openjdk:7-jdk-alpine
 
+<<<<<<< HEAD
 ARG ALLUXIO_TARBALL=alluxio-enterprise-1.6.0-RC0.tar.gz
+||||||| merged common ancestors
+ARG ALLUXIO_TARBALL=alluxio-enterprise-1.5.0-SNAPSHOT.tar.gz
+=======
+ARG ALLUXIO_TARBALL=alluxio-enterprise-1.6.0-SNAPSHOT.tar.gz
+>>>>>>> origin/enterprise-1.6
 
 RUN apk add --update bash && \
     rm -rf /var/cache/apk/*
