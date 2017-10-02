@@ -1937,6 +1937,20 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)
           .setDefaultValue(1000)
           .build();
+  public static final PropertyKey MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT =
+      new Builder(Name.MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT)
+          .setDescription(
+              "The election timeout for the embedded journal. When this period elapses without a "
+                  + "master receiving any messages, the master will attempt to become the primary.")
+          .setDefaultValue("750ms")
+          .build();
+  public static final PropertyKey MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL =
+      new Builder(Name.MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL)
+          .setDescription(
+              "The period between sending heartbeats from the embedded journal primary to "
+                  + "followers. This must not exceed the election timeout.")
+          .setDefaultValue("250ms")
+          .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_PORT =
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_PORT)
           .setDescription("The port to use for embedded journal communication with other masters.")
@@ -1948,7 +1962,16 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               "The hh:mm:ss+hh:mm time at which to perform daily master state snapshots when using "
                   + "the embedded journal. This time is in ISO-8601 format. The +hh:mm is time "
                   + "zone offset.")
-          .setDefaultValue("09:00:00+00:00").build();
+          .setDefaultValue("09:00:00+00:00")
+          .build();
+  public static final PropertyKey MASTER_EMBEDDED_JOURNAL_STORAGE_LEVEL =
+      new Builder(Name.MASTER_EMBEDDED_JOURNAL_STORAGE_LEVEL)
+          .setDescription("The storage level for storing embedded journal logs. Use DISK for "
+              + "maximum durability. Use MAPPED for better performance, but some risk of losing state "
+              + "in case of power loss or host failure. Use MEMORY for optimal performance, but no "
+              + "state persistence across cluster restarts.")
+          .setDefaultValue("DISK")
+          .build();
   public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
       new Builder(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS)
           .setDefaultValue(60000)
@@ -2366,10 +2389,16 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_RPC_ADDRESSES = "alluxio.master.rpc.addresses";
     public static final String MASTER_EMBEDDED_JOURNAL_ADDRESSES =
         "alluxio.master.embedded.journal.addresses";
+    public static final String MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT =
+        "alluxio.master.embedded.journal.election.timeout";
+    public static final String MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL =
+        "alluxio.master.embedded.journal.heartbeat.interval";
     public static final String MASTER_EMBEDDED_JOURNAL_PORT =
         "alluxio.master.embedded.journal.port";
     public static final String MASTER_EMBEDDED_JOURNAL_SNAPSHOT_TIME =
         "alluxio.master.embedded.journal.snapshot.time";
+    public static final String MASTER_EMBEDDED_JOURNAL_STORAGE_LEVEL =
+        "alluxio.master.embedded.journal.storage.level";
     // ALLUXIO CS END
     public static final String MASTER_KEYTAB_KEY_FILE = "alluxio.master.keytab.file";
     public static final String MASTER_LINEAGE_CHECKPOINT_CLASS =

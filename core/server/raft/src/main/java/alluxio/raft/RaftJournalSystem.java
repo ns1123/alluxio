@@ -183,7 +183,9 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
         mConf.getMaxLogSize(), Integer.MAX_VALUE);
     LOG.debug("Creating journal with max segment size {}", mConf.getMaxLogSize());
     Storage storage =
-        Storage.builder().withDirectory(mConf.getPath()).withStorageLevel(StorageLevel.DISK)
+        Storage.builder()
+            .withDirectory(mConf.getPath())
+            .withStorageLevel(StorageLevel.valueOf(mConf.getStorageLevel().name()))
             // Minor compaction happens anyway after snapshotting. We only free entries when
             // snapshotting, so there is no benefit to regular minor compaction cycles. We set a
             // high value because infinity is not allowed. If we set this too high it will overflow.
@@ -192,6 +194,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
             .build();
     mServer = CopycatServer.builder(getLocalAddress(mConf))
         .withStorage(storage)
+        .withElectionTimeout(Duration.ofMillis(mConf.getElectionTimeoutMs()))
+        .withHeartbeatInterval(Duration.ofMillis(mConf.getHeartbeatIntervalMs()))
         .withSnapshotAllowed(mSnapshotAllowed)
         .withSerializer(createSerializer())
         .withTransport(new NettyTransport())
