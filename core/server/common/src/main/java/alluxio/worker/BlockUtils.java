@@ -19,7 +19,7 @@ import alluxio.util.io.PathUtils;
  */
 public final class BlockUtils {
   /** Magic number to write UFS block to UFS. */
-  private static final String MAGIC_NUMBER = "1D91AC0E";
+  private static final long MAGIC_NUMBER = 0x1D91AC0E01AB0165L;
 
   /**
    * For a given block ID, derives the corresponding UFS file of this block if it falls back to
@@ -31,7 +31,7 @@ public final class BlockUtils {
    */
   public static String getUfsBlockPath(UfsManager.UfsInfo ufsInfo, long blockId) {
     return PathUtils.concatPath(ufsInfo.getUfsMountPointUri(),
-        String.format(".alluxio_blocks_%s/%s", MAGIC_NUMBER, blockId));
+        PathUtils.temporaryFileName(MAGIC_NUMBER, ".alluxio_ufs_blocks"), blockId);
   }
 
   private BlockUtils() {}  // prevent instantiation
