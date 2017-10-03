@@ -21,7 +21,6 @@ import alluxio.EmbeddedChannels;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
-import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.network.protocol.databuffer.DataNettyBufferV2;
@@ -85,7 +84,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
         mIsLocalWorkerFull = true;
       }
       if (mIsLocalWorkerFull) {
-        throw new ResourceExhaustedException("no more space!");
+        throw new IOException("No space left on device");
       }
       synchronized (mBuffer) {
         super.writePacket(packet);
