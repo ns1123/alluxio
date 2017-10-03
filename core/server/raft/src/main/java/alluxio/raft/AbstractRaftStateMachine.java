@@ -87,7 +87,6 @@ public abstract class AbstractRaftStateMachine extends StateMachine implements S
 
   @Override
   public void install(SnapshotReader snapshotReader) {
-    LOG.info("Installing snapshot");
     resetState();
     JournalEntryStreamReader reader =
         new JournalEntryStreamReader(new SnapshotReaderStream(snapshotReader));
