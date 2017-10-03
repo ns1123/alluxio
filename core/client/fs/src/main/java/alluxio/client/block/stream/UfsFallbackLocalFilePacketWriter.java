@@ -59,7 +59,7 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
           blockId, blockSize, options);
     } catch (ResourceExhaustedException e) {
       LOG.warn("Fallback to create new block {} in UFS due to a failure of insufficient space on "
-          + "the local worker: [{}]", blockId, e.getMessage());
+          + "the local worker: {}", blockId, e.getMessage());
     }
     // Failed to create the local writer due to insufficient space, fallback to netty packet writer
     // directly
@@ -96,11 +96,12 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         packet.release();
         return;
       } catch (IOException e) {
-        if (!e.getMessage().startsWith("No space left on device")) {
+        if (!(e instanceof ResourceExhaustedException)
+          && !e.getMessage().startsWith("No space left on device")) {
           throw e;
         }
         LOG.warn("Fallback to write to UFS for block {} due to a failure of insufficient space "
-            + "on the local worker: [{}]", mBlockId, e.getMessage());
+            + "on the local worker: {}", mBlockId, e.getMessage());
         mIsWritingToLocal = false;
       }
       try {
