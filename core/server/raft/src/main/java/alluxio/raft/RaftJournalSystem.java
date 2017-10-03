@@ -384,7 +384,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
    * @return a primary selector backed by leadership within the Raft cluster
    */
   public PrimarySelector getPrimarySelector() {
-    return new RaftPrimarySelector();
+    return mPrimarySelector;
   }
 
   /**
