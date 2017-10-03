@@ -1948,7 +1948,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL)
           .setDescription(
               "The period between sending heartbeats from the embedded journal primary to "
-                  + "followers. This must not exceed the election timeout.")
+                  + "followers. This must not exceed the election timeout "
+                  + "(alluxio.master.embedded.journal.election.timeout).")
           .setDefaultValue("250ms")
           .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_PORT =
