@@ -17,7 +17,6 @@ import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidCapabilityException;
-import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.metrics.MetricsSystem;
 import alluxio.netty.NettyAttributes;
@@ -203,9 +202,8 @@ public final class UfsFallbackBlockWriteHandler
         try {
           mBlockPacketWriter.writeBuf(context, channel, buf, pos);
           return;
-        } catch (IOException | WorkerOutOfSpaceException e) {
-          if (e instanceof IOException &&
-              !e.getMessage().startsWith("No space left on device")) {
+        } catch (IOException e) {
+          if (!e.getMessage().startsWith("No space left on device")) {
             throw e;
           }
           LOG.warn("Not enough space to write block {} to local worker, fallback to UFS. "

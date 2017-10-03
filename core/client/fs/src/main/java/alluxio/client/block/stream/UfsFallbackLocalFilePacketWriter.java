@@ -96,14 +96,12 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         packet.release();
         return;
       } catch (IOException e) {
-        if (e instanceof  ResourceExhaustedException
-            || e.getMessage().startsWith("No space left on device")) {
-          LOG.warn("Fallback to write to UFS for block {} due to a failure of insufficient space "
-              + "on the local worker: [{}]", mBlockId, e.getMessage());
-          mIsWritingToLocal = false;
-        } else {
+        if (!e.getMessage().startsWith("No space left on device")) {
           throw e;
         }
+        LOG.warn("Fallback to write to UFS for block {} due to a failure of insufficient space "
+            + "on the local worker: [{}]", mBlockId, e.getMessage());
+        mIsWritingToLocal = false;
       }
       try {
         if (pos == 0) {
