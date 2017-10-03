@@ -131,9 +131,15 @@ public class FileInStream extends InputStream
     mInStreamOptions = options;
     mOutStreamOptions = OutStreamOptions.defaults();
     // ALLUXIO CS ADD
+    // Need to explicitly set the capability in outStreamOptions when caching passively.
     if (mStatus.getCapability() != null) {
       mOutStreamOptions.setCapabilityFetcher(new alluxio.client.security.CapabilityFetcher(
           context, mStatus.getPath(), mStatus.getCapability()));
+    }
+    // Inherit the encryption metadata from InStreamOptions if the file is encrypted.
+    mOutStreamOptions.setEncrypted(options.isEncrypted());
+    if (options.isEncrypted()) {
+      mOutStreamOptions.setEncryptionMeta(options.getEncryptionMeta());
     }
     // ALLUXIO CS END
     mBlockSize = status.getBlockSizeBytes();
