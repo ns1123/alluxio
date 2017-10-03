@@ -29,11 +29,22 @@ import java.util.List;
  * Configuration for the Raft journal system.
  */
 public class RaftJournalConfiguration {
-  private File mPath;
-  private long mQuietTimeMs;
   private List<InetSocketAddress> mClusterAddresses;
+  private long mElectionTimeoutMs;
+  private long mHeartbeatIntervalMs;
   private InetSocketAddress mLocalAddress;
   private long mMaxLogSize;
+  private File mPath;
+  private long mQuietTimeMs;
+  private StorageLevel mStorageLevel;
+
+  /**
+   * Enum corresponding to io.atomix.copycat.server.storage.StorageLevel. We cannot use that class
+   * here because the atomix module requires Java 8.
+   */
+  public enum StorageLevel {
+    DISK, MAPPED, MEMORY;
+  }
 
   /**
    * @param serviceType either master raft service or job master raft service
@@ -41,12 +52,53 @@ public class RaftJournalConfiguration {
    */
   public static RaftJournalConfiguration defaults(ServiceType serviceType) {
     return new RaftJournalConfiguration()
+        .setClusterAddresses(defaultClusterAddresses(serviceType))
+        .setElectionTimeoutMs(
+            Configuration.getMs(PropertyKey.MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT))
+        .setHeartbeatIntervalMs(
+            Configuration.getMs(PropertyKey.MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL))
+        .setLocalAddress(NetworkAddressUtils.getConnectAddress(serviceType))
+        .setMaxLogSize(Configuration.getBytes(PropertyKey.MASTER_JOURNAL_LOG_SIZE_BYTES_MAX))
         .setPath(new File(JournalUtils.getJournalLocation().getPath()))
         .setQuietTimeMs(
             Configuration.getMs(PropertyKey.MASTER_JOURNAL_TAILER_SHUTDOWN_QUIET_WAIT_TIME_MS))
-        .setClusterAddresses(defaultClusterAddresses(serviceType))
-        .setLocalAddress(NetworkAddressUtils.getConnectAddress(serviceType))
-        .setMaxLogSize(Configuration.getBytes(PropertyKey.MASTER_JOURNAL_LOG_SIZE_BYTES_MAX));
+        .setStorageLevel(Configuration.getEnum(PropertyKey.MASTER_EMBEDDED_JOURNAL_STORAGE_LEVEL,
+            StorageLevel.class));
+  }
+
+  /**
+   * @return addresses of all nodes in the Raft cluster
+   */
+  public List<InetSocketAddress> getClusterAddresses() {
+    return mClusterAddresses;
+  }
+
+  /**
+   * @return election timeout
+   */
+  public long getElectionTimeoutMs() {
+    return mElectionTimeoutMs;
+  }
+
+  /**
+   * @return heartbeat interval
+   */
+  public long getHeartbeatIntervalMs() {
+    return mHeartbeatIntervalMs;
+  }
+
+  /**
+   * @return address of this Raft cluster node
+   */
+  public InetSocketAddress getLocalAddress() {
+    return mLocalAddress;
+  }
+
+  /**
+   * @return max log file size
+   */
+  public long getMaxLogSize() {
+    return mMaxLogSize;
   }
 
   /**
@@ -65,24 +117,55 @@ public class RaftJournalConfiguration {
   }
 
   /**
-   * @return addresses of all nodes in the Raft cluster
+   * @return storage level
    */
-  public List<InetSocketAddress> getClusterAddresses() {
-    return mClusterAddresses;
+  public StorageLevel getStorageLevel() {
+    return mStorageLevel;
   }
 
   /**
-   * @return address of this Raft cluster node
+   * @param clusterAddresses addresses of all nodes in the Raft cluster
+   * @return the updated configuration
    */
-  public InetSocketAddress getLocalAddress() {
-    return mLocalAddress;
+  public RaftJournalConfiguration setClusterAddresses(List<InetSocketAddress> clusterAddresses) {
+    mClusterAddresses = clusterAddresses;
+    return this;
   }
 
   /**
-   * @return max log file size
+   * @param electionTimeoutMs election timeout
+   * @return the updated configuration
    */
-  public long getMaxLogSize() {
-    return mMaxLogSize;
+  public RaftJournalConfiguration setElectionTimeoutMs(long electionTimeoutMs) {
+    mElectionTimeoutMs = electionTimeoutMs;
+    return this;
+  }
+
+  /**
+   * @param heartbeatIntervalMs heartbeat interval
+   * @return the updated configuration
+   */
+  public RaftJournalConfiguration setHeartbeatIntervalMs(long heartbeatIntervalMs) {
+    mHeartbeatIntervalMs = heartbeatIntervalMs;
+    return this;
+  }
+
+  /**
+   * @param localAddress address of this Raft cluster node
+   * @return the updated configuration
+   */
+  public RaftJournalConfiguration setLocalAddress(InetSocketAddress localAddress) {
+    mLocalAddress = localAddress;
+    return this;
+  }
+
+  /**
+   * @param maxLogSize maximum log file size
+   * @return the updated configuration
+   */
+  public RaftJournalConfiguration setMaxLogSize(long maxLogSize) {
+    mMaxLogSize = maxLogSize;
+    return this;
   }
 
   /**
@@ -105,29 +188,11 @@ public class RaftJournalConfiguration {
   }
 
   /**
-   * @param clusterAddresses addresses of all nodes in the Raft cluster
+   * @param storageLevel storage level
    * @return the updated configuration
    */
-  public RaftJournalConfiguration setClusterAddresses(List<InetSocketAddress> clusterAddresses) {
-    mClusterAddresses = clusterAddresses;
-    return this;
-  }
-
-  /**
-   * @param localAddress address of this Raft cluster node
-   * @return the updated configuration
-   */
-  public RaftJournalConfiguration setLocalAddress(InetSocketAddress localAddress) {
-    mLocalAddress = localAddress;
-    return this;
-  }
-
-  /**
-   * @param maxLogSize maximum log file size
-   * @return the updated configuration
-   */
-  public RaftJournalConfiguration setMaxLogSize(long maxLogSize) {
-    mMaxLogSize = maxLogSize;
+  public RaftJournalConfiguration setStorageLevel(StorageLevel storageLevel) {
+    mStorageLevel = storageLevel;
     return this;
   }
 
