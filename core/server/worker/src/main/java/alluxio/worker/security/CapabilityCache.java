@@ -226,10 +226,15 @@ public final class CapabilityCache implements Closeable {
     if (content == null) {
       throw new InvalidCapabilityException(ExceptionMessage.CAPABILITY_EXPIRED.getMessage());
     }
-    if (!content.mAccessMode.imply(accessRequested)) {
+    // TODO(chaomin): for now we relax the write permission check to make passive caching work
+    // with read-only permission. This is acceptable because Alluxio is write-once for now.
+    // Once Alluxio supports append or random-write, we should re-enforce this permission and
+    // find a way to tell whether the write is caching due to read, or actual file content write.
+    Mode.Bits relaxedAccessRequested = accessRequested.and(Mode.Bits.WRITE.not());
+    if (!content.mAccessMode.imply(relaxedAccessRequested)) {
       throw new AccessControlException(String.format(
           "Permission denied. %s is not allowed to access fileId (%d) with access mode %s "
-              + "(allowed mode: %s).", user, fileId, accessRequested, content.mAccessMode));
+              + "(allowed mode: %s).", user, fileId, relaxedAccessRequested, content.mAccessMode));
     }
   }
 
