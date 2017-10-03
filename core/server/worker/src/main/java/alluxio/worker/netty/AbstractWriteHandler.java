@@ -323,7 +323,7 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
           writeBuf(mContext, mChannel, buf, mContext.getPosToWrite());
           incrementMetrics(readableBytes);
         } catch (Exception e) {
-          LOG.warn("Failed to write packet {}", e.getMessage());
+          LOG.warn("Failed to write packet: {}", e.getMessage());
           Throwables.propagateIfPossible(e);
           pushAbortPacket(mChannel,
               new Error(AlluxioStatusException.fromCheckedException(e), true));
