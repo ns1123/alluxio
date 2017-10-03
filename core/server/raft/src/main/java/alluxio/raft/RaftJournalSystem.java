@@ -136,6 +136,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private final AtomicLong mLastUpdateMs;
   private final ScheduledExecutorService mExecutorService;
 
+  private final RaftPrimarySelector mPrimarySelector;
   private CopycatServer mServer;
 
   /*
@@ -162,6 +163,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mJournalStateLock = new ReentrantReadWriteLock(true);
     mExecutorService =
         Executors.newScheduledThreadPool(1, ThreadFactoryUtils.build("raft-snapshot", true));
+    mPrimarySelector = new RaftPrimarySelector();
   }
 
   /**
@@ -203,9 +205,11 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           for (RaftJournal journal : mJournals.values()) {
             journal.getStateMachine().resetState();
           }
+          LOG.info("Created new journal state machine");
           return new RaftStateMachine();
         })
         .build();
+    mPrimarySelector.init();
   }
 
   private void scheduleSnapshots() {
@@ -389,6 +393,13 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
    */
   public class RaftStateMachine extends AbstractRaftStateMachine {
     @Override
+    protected void resetState() {
+      for (RaftJournal journal : mJournals.values()) {
+        journal.getStateMachine().resetState();
+      }
+    }
+
+    @Override
     protected void applyJournalEntry(JournalEntry entry) {
       mLastUpdateMs.set(System.currentTimeMillis());
       // The primary mutates state directly instead of going through the Raft cluster.
@@ -532,7 +543,11 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     /**
      * Constructs a new {@link RaftPrimarySelector}.
      */
-    public RaftPrimarySelector() {
+    private RaftPrimarySelector() {
+      mState = State.SECONDARY;
+    }
+
+    private void init() {
       // We must register the callback before initializing mState in case the state changes
       // immediately after initializing mState.
       mServer.onStateChange(state -> {
