@@ -534,7 +534,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   /**
    * A primary selector backed by a Raft consensus cluster.
    */
-  private class RaftPrimarySelector implements PrimarySelector {
+  private final class RaftPrimarySelector implements PrimarySelector {
     @GuardedBy("mStateLock")
     private State mState;
     private final Lock mStateLock = new ReentrantLock();
