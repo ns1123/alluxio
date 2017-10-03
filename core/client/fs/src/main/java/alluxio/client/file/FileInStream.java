@@ -130,6 +130,12 @@ public class FileInStream extends InputStream
     mStatus = status;
     mInStreamOptions = options;
     mOutStreamOptions = OutStreamOptions.defaults();
+    // ALLUXIO CS ADD
+    if (mStatus.getCapability() != null) {
+      mOutStreamOptions.setCapabilityFetcher(new alluxio.client.security.CapabilityFetcher(
+          context, mStatus.getPath(), mStatus.getCapability()));
+    }
+    // ALLUXIO CS END
     mBlockSize = status.getBlockSizeBytes();
     mFileLength = status.getLength();
     mContext = context;
