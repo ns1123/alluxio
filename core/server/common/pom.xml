@@ -36,18 +36,14 @@
     <dependency>
       <groupId>io.atomix.copycat.alluxio</groupId>
       <artifactId>copycat-server</artifactId>
-      <version>1.2.9</version>
     </dependency>
     <dependency>
       <groupId>io.atomix.copycat.alluxio</groupId>
       <artifactId>copycat-client</artifactId>
-      <version>1.2.9</version>
     </dependency>
     <dependency>
       <groupId>io.atomix.catalyst</groupId>
       <artifactId>catalyst-netty</artifactId>
-      <!-- catalyst-netty is versioned independently of other Atomix services -->
-      <version>1.2.1</version>
     </dependency>
     <!-- ALLUXIO CS END -->
     <dependency>
