@@ -124,7 +124,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
           // Client and Proxy are handled the same.
           case CLIENT:
           case PROXY:
-            connectFromAlluxioClient();
+            loginAsAlluxioClient();
             break;
           default:
             throw new IllegalStateException(
@@ -405,7 +405,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
     //     masterPrincipal, host);
     // ALLUXIO CS WITH
-    connectFromAlluxioServer(host);
+    loginAsAlluxioServer(host);
     // ALLUXIO CS END
   }
 
@@ -425,24 +425,32 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
     // ALLUXIO CS WITH
-    connectFromAlluxioServer(host);
+    loginAsAlluxioServer(host);
     // ALLUXIO CS END
   }
   // ALLUXIO CS ADD
 
-  private void connectFromAlluxioServer(String host) throws IOException {
+  private void loginAsAlluxioServer(String host) throws IOException {
     if (!mIsHdfsKerberized) {
       return;
     }
-    String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+    // TODO(yanqin): support multiple Kerberized HDFSs.
+    String principal =
+        mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab;
+    if (principal.isEmpty()) {
+      principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+      keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+    } else {
+      keytab = mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE);
+    }
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
     login(principal, keytab, host);
   }
 
-  private void connectFromAlluxioClient() throws IOException {
+  private void loginAsAlluxioClient() throws IOException {
     if (!mIsHdfsKerberized) {
       return;
     }
