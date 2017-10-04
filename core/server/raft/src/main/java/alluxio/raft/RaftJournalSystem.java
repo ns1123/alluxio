@@ -136,6 +136,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private final AtomicLong mLastUpdateMs;
   private final ScheduledExecutorService mExecutorService;
 
+  private final RaftPrimarySelector mPrimarySelector;
   private CopycatServer mServer;
 
   /*
@@ -162,6 +163,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mJournalStateLock = new ReentrantReadWriteLock(true);
     mExecutorService =
         Executors.newScheduledThreadPool(1, ThreadFactoryUtils.build("raft-snapshot", true));
+    mPrimarySelector = new RaftPrimarySelector();
   }
 
   /**
@@ -203,9 +205,11 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           for (RaftJournal journal : mJournals.values()) {
             journal.getStateMachine().resetState();
           }
+          LOG.info("Created new journal state machine");
           return new RaftStateMachine();
         })
         .build();
+    mPrimarySelector.init();
   }
 
   private void scheduleSnapshots() {
@@ -380,7 +384,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
    * @return a primary selector backed by leadership within the Raft cluster
    */
   public PrimarySelector getPrimarySelector() {
-    return new RaftPrimarySelector();
+    return mPrimarySelector;
   }
 
   /**
@@ -388,6 +392,13 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
    * machine will be forwarded to the appropriate internal master.
    */
   public class RaftStateMachine extends AbstractRaftStateMachine {
+    @Override
+    protected void resetState() {
+      for (RaftJournal journal : mJournals.values()) {
+        journal.getStateMachine().resetState();
+      }
+    }
+
     @Override
     protected void applyJournalEntry(JournalEntry entry) {
       mLastUpdateMs.set(System.currentTimeMillis());
@@ -523,7 +534,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   /**
    * A primary selector backed by a Raft consensus cluster.
    */
-  private class RaftPrimarySelector implements PrimarySelector {
+  private final class RaftPrimarySelector implements PrimarySelector {
     @GuardedBy("mStateLock")
     private State mState;
     private final Lock mStateLock = new ReentrantLock();
@@ -532,7 +543,11 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     /**
      * Constructs a new {@link RaftPrimarySelector}.
      */
-    public RaftPrimarySelector() {
+    private RaftPrimarySelector() {
+      mState = State.SECONDARY;
+    }
+
+    private void init() {
       // We must register the callback before initializing mState in case the state changes
       // immediately after initializing mState.
       mServer.onStateChange(state -> {
