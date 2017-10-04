@@ -135,7 +135,11 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       }
 
       try {
-        if (alluxio.util.CommonUtils.isAlluxioServer() && !mUser.isEmpty()
+        boolean isImpersonationEnabled =
+            Boolean.valueOf(
+                conf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
+        if (isImpersonationEnabled
+            && alluxio.util.CommonUtils.isAlluxioServer() && !mUser.isEmpty()
             && !org.apache.hadoop.security.UserGroupInformation.getLoginUser().getShortUserName()
             .equals(mUser)) {
           // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
