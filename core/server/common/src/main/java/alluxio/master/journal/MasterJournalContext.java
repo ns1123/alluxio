@@ -72,6 +72,12 @@ public final class MasterJournalContext implements JournalContext {
         return;
       } catch (IOException e) {
         LOG.warn("Journal flush failed. retrying...", e);
+      } catch (Throwable e) {
+        LOG.error("Journal flush failed. Terminating process to prevent inconsistency.", e);
+        if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
+          throw new RuntimeException("Journal flush failed", e);
+        }
+        System.exit(-1);
       }
     }
     LOG.error(
