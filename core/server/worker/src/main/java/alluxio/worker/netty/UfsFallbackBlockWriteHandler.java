@@ -44,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
 import java.util.concurrent.ExecutorService;
@@ -203,10 +202,7 @@ public final class UfsFallbackBlockWriteHandler
         try {
           mBlockPacketWriter.writeBuf(context, channel, buf, pos);
           return;
-        } catch (IOException | WorkerOutOfSpaceException e) {
-          if (e instanceof IOException && !e.getMessage().startsWith("No space left on device")) {
-            throw e;
-          }
+        } catch (WorkerOutOfSpaceException e) {
           LOG.warn("Not enough space to write block {} to local worker, fallback to UFS. "
               + " {} bytes have been written.",
               context.getRequest().getId(), posBeforeWrite);
