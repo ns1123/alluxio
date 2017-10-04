@@ -204,7 +204,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
         .withTransport(new NettyTransport())
         .withStateMachine(() -> {
           for (RaftJournal journal : mJournals.values()) {
-            journal.getStateMachine().resetState();
+            journal.reset();
           }
           LOG.info("Created new journal state machine");
           return new RaftStateMachine();
@@ -396,7 +396,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     @Override
     protected void resetState() {
       for (RaftJournal journal : mJournals.values()) {
-        journal.getStateMachine().resetState();
+        journal.reset();
       }
     }
 
@@ -479,7 +479,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     private JournalEntry.Builder mJournalEntryBuilder;
     // Sequence numbers in the Raft journal are used for de-duplicating entries. Entries written by
     // the same master are guaranteed to start from 0 and go in increasing order.
-    private long mNextSequenceNumber = 0;
+    private long mNextSequenceNumber;
 
     /**
      * @param stateMachine the state machine for this journal
@@ -487,6 +487,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     public RaftJournal(JournalEntryStateMachine stateMachine) {
       mStateMachine = stateMachine;
       mAsyncWriter = new AsyncJournalWriter(this);
+      mNextSequenceNumber = 0;
     }
 
     /**
@@ -531,6 +532,15 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     @Override
     public JournalContext createJournalContext() {
       return new RaftJournalContext(mAsyncWriter, mJournalStateLock.readLock());
+    }
+
+    /**
+     * Resets the state of the journal, including the state of its state machine.
+     */
+    public void reset() {
+      mStateMachine.resetState();
+      mJournalEntryBuilder = null;
+      mNextSequenceNumber = 0;
     }
 
     @Override
