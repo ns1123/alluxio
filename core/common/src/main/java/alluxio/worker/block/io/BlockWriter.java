@@ -37,6 +37,7 @@ public interface BlockWriter extends Closeable {
    *
    * @return channel
    */
+  // TODO(binfan): remove this method as it may break getPosition.
   GatheringByteChannel getChannel();
 
   /**

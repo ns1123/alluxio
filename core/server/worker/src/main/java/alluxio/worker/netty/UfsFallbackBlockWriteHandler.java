@@ -196,14 +196,16 @@ public final class UfsFallbackBlockWriteHandler
     protected void writeBuf(BlockWriteRequestContext context, Channel channel, ByteBuf buf,
         long pos) throws Exception {
       if (context.isWritingToLocal()) {
-        long posBeforeWrite =
-            context.getBlockWriter() == null ? 0 : context.getBlockWriter().getPosition();
+        // TODO(binfan): change signature of writeBuf to pass current offset and length of buffer.
+        // Currently pos is the calculated offset after writeBuf succeeds.
+        long posBeforeWrite = pos - buf.readableBytes();
         try {
           mBlockPacketWriter.writeBuf(context, channel, buf, pos);
           return;
         } catch (WorkerOutOfSpaceException e) {
-          LOG.warn("Not enough space to write block {} to local worker, fallback to UFS",
-              context.getRequest().getId());
+          LOG.warn("Not enough space to write block {} to local worker, fallback to UFS. "
+              + " {} bytes have been written.",
+              context.getRequest().getId(), posBeforeWrite);
           context.setWritingToLocal(false);
         }
         // close the block writer first
