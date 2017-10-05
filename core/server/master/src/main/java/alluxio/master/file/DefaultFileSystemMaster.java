@@ -634,6 +634,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               PERSIST_CHECKER_POOL_THREADS, 1, java.util.concurrent.TimeUnit.MINUTES,
               new LinkedBlockingQueue<Runnable>(),
               alluxio.util.ThreadFactoryUtils.build("Persist-Checker-%d", true));
+      mPersistCheckerPool.allowCoreThreadTimeOut(true);
       mPersistenceCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECKER,
               new PersistenceChecker(),

@@ -219,6 +219,11 @@ public final class RaftJournalTool {
     }
 
     @Override
+    protected void resetState() {
+      // No-op.
+    }
+
+    @Override
     public void applyJournalEntry(JournalEntry entry) {
       mLastUpdate.set(System.currentTimeMillis());
       System.out.println(entry);

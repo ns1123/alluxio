@@ -31,6 +31,11 @@ public abstract class AbstractRaftStateMachine extends StateMachine implements S
   private static final Logger LOG = LoggerFactory.getLogger(AbstractRaftStateMachine.class);
 
   /**
+   * Resets all state machine state.
+   */
+  protected abstract void resetState();
+
+  /**
    * Applies a journal entry to the state machine.
    *
    * @param entry the entry to apply
@@ -82,7 +87,7 @@ public abstract class AbstractRaftStateMachine extends StateMachine implements S
 
   @Override
   public void install(SnapshotReader snapshotReader) {
-    LOG.debug("Installing snapshot");
+    resetState();
     JournalEntryStreamReader reader =
         new JournalEntryStreamReader(new SnapshotReaderStream(snapshotReader));
 
@@ -97,5 +102,6 @@ public abstract class AbstractRaftStateMachine extends StateMachine implements S
       }
       applyJournalEntry(entry);
     }
+    LOG.info("Successfully installed snapshot");
   }
 }
