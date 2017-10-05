@@ -30,6 +30,8 @@ import java.io.IOException;
 public abstract class AbstractRaftStateMachine extends StateMachine implements Snapshottable {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractRaftStateMachine.class);
 
+  private long mPreviousSequenceNumber = -1;
+
   /**
    * Resets all state machine state.
    */
@@ -71,8 +73,12 @@ public abstract class AbstractRaftStateMachine extends StateMachine implements S
    * @param entry the entry to apply
    */
   private void applyEntryInternal(JournalEntry entry) {
-    Preconditions.checkState(entry.getAllFields().size() <= 1,
-        "Raft journal entries should never set multiple fields, but found %s", entry);
+    Preconditions.checkState(
+        entry.getAllFields().size() <= 1
+            || (entry.getAllFields().size() == 2 && entry.hasSequenceNumber()),
+        "Raft journal entries should never set multiple fields in addition to sequence "
+            + "number, but found %s",
+        entry);
     if (entry.getJournalEntriesCount() > 0) {
       // This entry aggregates multiple entries.
       for (JournalEntry e : entry.getJournalEntriesList()) {
@@ -81,7 +87,19 @@ public abstract class AbstractRaftStateMachine extends StateMachine implements S
     } else if (entry.equals(JournalEntry.getDefaultInstance())) {
       // Ignore empty entries, they are created during snapshotting.
     } else {
-      applyJournalEntry(entry);
+      if (!entry.hasSequenceNumber()) {
+        // Snapshots don't use sequence numbers, and can't have duplicate entries.
+        applyJournalEntry(entry);
+        return;
+      }
+      long sequenceNumber = entry.getSequenceNumber();
+      // Sequence number restarts at 0 whenever a new master starts writing entries. Otherwise, if
+      // the sequence number is less than or equal to the previous, the entry must be a duplicate
+      // and can safely be ignored.
+      if (sequenceNumber == 0 || sequenceNumber > mPreviousSequenceNumber) {
+        applyJournalEntry(entry);
+        mPreviousSequenceNumber = sequenceNumber;
+      }
     }
   }
 

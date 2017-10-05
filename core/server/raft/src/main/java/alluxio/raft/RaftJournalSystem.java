@@ -31,6 +31,7 @@ import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.io.FileUtils;
 
 import com.google.common.base.Preconditions;
+import io.atomix.catalyst.concurrent.Listener;
 import io.atomix.catalyst.serializer.Serializer;
 import io.atomix.catalyst.transport.Address;
 import io.atomix.catalyst.transport.netty.NettyTransport;
@@ -139,6 +140,12 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private final RaftPrimarySelector mPrimarySelector;
   private CopycatServer mServer;
 
+  private AsyncJournalWriter mAsyncJournalWriter;
+  // Sequence numbers in the Raft journal are used for de-duplicating entries.
+  // When a master gains primacy, the first entry it writes will have sequence number 0
+  // and all further entries will have increasing sequence numbers.
+  private long mNextSequenceNumber;
+
   /*
    * Whenever in-memory state may be inconsistent with the state represented by all flushed journal
    * entries, a read lock on this lock must be held.
@@ -164,6 +171,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mExecutorService =
         Executors.newScheduledThreadPool(1, ThreadFactoryUtils.build("raft-snapshot", true));
     mPrimarySelector = new RaftPrimarySelector();
+    mAsyncJournalWriter = new AsyncJournalWriter(new RaftJournalWriter());
+    mNextSequenceNumber = 0;
   }
 
   /**
@@ -316,6 +325,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           + "prevent inconsistency", getClusterAddresses(mConf), e);
       System.exit(-1);
     }
+    mNextSequenceNumber = 0;
     mSnapshotAllowed.set(true);
   }
 
@@ -471,17 +481,18 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     }
   }
 
-  private class RaftJournal implements Journal, JournalWriter {
+  /**
+   * Class associated with each master that lets the master create journal contexts for writing
+   * entries to the journal.
+   */
+  private class RaftJournal implements Journal {
     private final JournalEntryStateMachine mStateMachine;
-    private final AsyncJournalWriter mAsyncWriter;
-    private JournalEntry.Builder mJournalEntryBuilder;
 
     /**
      * @param stateMachine the state machine for this journal
      */
     public RaftJournal(JournalEntryStateMachine stateMachine) {
       mStateMachine = stateMachine;
-      mAsyncWriter = new AsyncJournalWriter(this);
     }
 
     /**
@@ -496,20 +507,44 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       return mConf.getPath().toURI();
     }
 
+    @Override
+    public JournalContext createJournalContext() {
+      return new RaftJournalContext(mAsyncJournalWriter, mJournalStateLock.readLock());
+    }
+
+    @Override
+    public void close() throws IOException {
+      // Nothing to close.
+    }
+  }
+
+  /**
+   * Class for writing entries to the Raft journal. Written entries are aggregated until flush is
+   * called, then they are submitted as a single unit. This class is used only by
+   * AsyncJournalWriter, which does not require its inner JournalWriter to be ThreadSafe.
+   */
+  @NotThreadSafe
+  private class RaftJournalWriter implements JournalWriter {
+    private JournalEntry.Builder mJournalEntryBuilder;
+
+    @Override
     public void write(JournalEntry entry) throws IOException {
       Preconditions.checkState(entry.getAllFields().size() <= 1,
           "Raft journal entries should never set multiple fields, but found %s", entry);
       if (mJournalEntryBuilder == null) {
         mJournalEntryBuilder = JournalEntry.newBuilder();
       }
-      mJournalEntryBuilder.addJournalEntries(entry);
+      mJournalEntryBuilder
+          .addJournalEntries(entry.toBuilder().setSequenceNumber(mNextSequenceNumber++).build());
     }
 
     @Override
     public void flush() throws IOException {
       if (mJournalEntryBuilder != null) {
         try {
-          mClient.submit(new alluxio.raft.JournalEntryCommand(mJournalEntryBuilder.build())).get();
+          // It is ok to submit the same entries multiple times because we de-duplicate by sequence
+          // number when applying them.
+          mClient.submit(new JournalEntryCommand(mJournalEntryBuilder.build())).get();
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           throw new IOException(e);
@@ -518,16 +553,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
         }
         mJournalEntryBuilder = null;
       }
-    }
-
-    @Override
-    public JournalContext createJournalContext() {
-      return new RaftJournalContext(mAsyncWriter, mJournalStateLock.readLock());
-    }
-
-    @Override
-    public void close() throws IOException {
-      // Nothing to close.
     }
   }
 
@@ -539,6 +564,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     private State mState;
     private final Lock mStateLock = new ReentrantLock();
     private final Condition mStateCond = mStateLock.newCondition();
+    private Listener<CopycatServer.State> mStateListener;
 
     /**
      * Constructs a new {@link RaftPrimarySelector}.
@@ -548,9 +574,12 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     }
 
     private void init() {
+      if (mStateListener != null) {
+        mStateListener.close();
+      }
       // We must register the callback before initializing mState in case the state changes
       // immediately after initializing mState.
-      mServer.onStateChange(state -> {
+      mStateListener = mServer.onStateChange(state -> {
         mStateLock.lock();
         try {
           State newState = getState();

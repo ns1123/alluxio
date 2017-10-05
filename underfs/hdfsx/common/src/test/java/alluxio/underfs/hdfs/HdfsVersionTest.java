@@ -74,6 +74,9 @@ public class HdfsVersionTest {
     Assert.assertEquals(HdfsVersion.CDH_5_11, HdfsVersion.find("2.6.0-cdh5.11.0"));
     Assert.assertEquals(HdfsVersion.CDH_5_11, HdfsVersion.find("cdh-5.11"));
     Assert.assertEquals(HdfsVersion.CDH_5_11, HdfsVersion.find("cdh5.11"));
+    Assert.assertEquals(HdfsVersion.CDH_5_12, HdfsVersion.find("2.6.0-cdh5.12.1"));
+    Assert.assertEquals(HdfsVersion.CDH_5_12, HdfsVersion.find("cdh-5.12"));
+    Assert.assertEquals(HdfsVersion.CDH_5_12, HdfsVersion.find("cdh5.12"));
     Assert.assertEquals(HdfsVersion.HDP_2_4, HdfsVersion.find("2.7.1.2.4.0.0-169"));
     Assert.assertEquals(HdfsVersion.HDP_2_4, HdfsVersion.find("hdp-2.4"));
     Assert.assertEquals(HdfsVersion.HDP_2_4, HdfsVersion.find("hdp2.4"));

@@ -124,6 +124,13 @@
     </profile>
 
     <profile>
+      <id>ufs-cdh-5.12</id>
+      <modules>
+        <module>cdh5_12</module>
+      </modules>
+    </profile>
+
+    <profile>
       <id>ufs-hdp-2.4</id>
       <modules>
         <module>hdp2_4</module>
