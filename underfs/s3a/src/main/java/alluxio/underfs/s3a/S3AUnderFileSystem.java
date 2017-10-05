@@ -31,7 +31,6 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.internal.StaticCredentialsProvider;
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.internal.Mimetypes;
@@ -484,9 +483,6 @@ public class S3AUnderFileSystem extends ObjectUnderFileSystem {
         return null;
       }
       return new ObjectStatus(key, meta.getContentLength(), meta.getLastModified().getTime());
-    } catch (NotFoundException e) {
-      LOG.debug("Object {} not found. Assuming file does not exist: {}", key, e.getMessage());
-      return null;
     } catch (AmazonClientException e) {
       LOG.warn("getObjectStatus error for {}, exception: {}. Assuming file does not exist.", key,
           e.getMessage());

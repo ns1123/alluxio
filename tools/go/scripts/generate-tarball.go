@@ -173,7 +173,7 @@ func chdir(path string) {
 }
 
 func getCommonMvnArgs() []string {
-	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos", "-PprivateS3"}
+	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip"}
 	if profilesFlag != "" {
 		for _, profile := range strings.Split(profilesFlag, ",") {
 			args = append(args, fmt.Sprintf("-P%s", profile))
@@ -241,12 +241,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		"integration/docker/bin/alluxio-job-worker.sh",
 		"integration/docker/bin/alluxio-proxy.sh",
 		"integration/docker/bin/alluxio-worker.sh",
-		// MESOS
-		"integration/mesos/bin/alluxio-env-mesos.sh",
-		"integration/mesos/bin/alluxio-master-mesos.sh",
-		"integration/mesos/bin/alluxio-mesos-start.sh",
-		"integration/mesos/bin/alluxio-worker-mesos.sh",
-		"integration/mesos/bin/common.sh",
 	}
 	for _, path := range pathsToCopy {
 		mkdir(filepath.Join(dstPath, filepath.Dir(path)))
