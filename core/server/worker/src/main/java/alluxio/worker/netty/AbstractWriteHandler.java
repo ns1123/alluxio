@@ -213,13 +213,7 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-<<<<<<< HEAD
-    LOG.error("Exception caught in AbstractWriteHandler for channel {}:", ctx.channel(), cause);
-||||||| merged common ancestors
-    LOG.error("Exception caught {} in AbstractWriteHandler.", cause);
-=======
     LOG.error("Exception caught in AbstractWriteHandler for channel {}.", ctx.channel(), cause);
->>>>>>> upstream/enterprise-1.6
     pushAbortPacket(ctx.channel(), new Error(AlluxioStatusException.fromThrowable(cause), true));
   }
 

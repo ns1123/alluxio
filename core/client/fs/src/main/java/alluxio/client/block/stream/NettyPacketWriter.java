@@ -425,15 +425,8 @@ public final class NettyPacketWriter implements PacketWriter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-<<<<<<< HEAD
-      LOG.error("Exception is caught while reading write response for block {} from channel {}:",
+      LOG.error("Exception caught while reading write response for block {} from channel {}:",
           mPartialRequest.getId(), ctx.channel(), cause);
-||||||| merged common ancestors
-      LOG.error("Exception caught while reading response from netty channel {}.", cause);
-=======
-      LOG.error("Exception caught while reading response from channel {}.", ctx.channel(),
-          cause);
->>>>>>> upstream/enterprise-1.6
       try (LockResource lr = new LockResource(mLock)) {
         mPacketWriteException = cause;
         mBufferNotFullOrFailed.signal();
