@@ -140,6 +140,11 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private final RaftPrimarySelector mPrimarySelector;
   private CopycatServer mServer;
 
+  private AsyncJournalWriter mAsyncJournalWriter;
+  // Sequence numbers in the Raft journal are used for de-duplicating entries. Entries written by
+  // the same master are guaranteed to start from 0 and go in increasing order.
+  private long mNextSequenceNumber;
+
   /*
    * Whenever in-memory state may be inconsistent with the state represented by all flushed journal
    * entries, a read lock on this lock must be held.
@@ -165,6 +170,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mExecutorService =
         Executors.newScheduledThreadPool(1, ThreadFactoryUtils.build("raft-snapshot", true));
     mPrimarySelector = new RaftPrimarySelector();
+    mAsyncJournalWriter = new AsyncJournalWriter(new RaftJournalWriter());
+    mNextSequenceNumber = 0;
   }
 
   /**
@@ -204,7 +211,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
         .withTransport(new NettyTransport())
         .withStateMachine(() -> {
           for (RaftJournal journal : mJournals.values()) {
-            journal.reset();
+            journal.getStateMachine().resetState();
           }
           LOG.info("Created new journal state machine");
           return new RaftStateMachine();
@@ -317,6 +324,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           + "prevent inconsistency", getClusterAddresses(mConf), e);
       System.exit(-1);
     }
+    mNextSequenceNumber = 0;
     mSnapshotAllowed.set(true);
   }
 
@@ -396,7 +404,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     @Override
     protected void resetState() {
       for (RaftJournal journal : mJournals.values()) {
-        journal.reset();
+        journal.getStateMachine().resetState();
       }
     }
 
@@ -472,22 +480,18 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     }
   }
 
-  @NotThreadSafe
-  private class RaftJournal implements Journal, JournalWriter {
+  /**
+   * Class associated with each master that lets the master create journal contexts for writing
+   * entries to the journal.
+   */
+  private class RaftJournal implements Journal {
     private final JournalEntryStateMachine mStateMachine;
-    private final AsyncJournalWriter mAsyncWriter;
-    private JournalEntry.Builder mJournalEntryBuilder;
-    // Sequence numbers in the Raft journal are used for de-duplicating entries. Entries written by
-    // the same master are guaranteed to start from 0 and go in increasing order.
-    private long mNextSequenceNumber;
 
     /**
      * @param stateMachine the state machine for this journal
      */
     public RaftJournal(JournalEntryStateMachine stateMachine) {
       mStateMachine = stateMachine;
-      mAsyncWriter = new AsyncJournalWriter(this);
-      mNextSequenceNumber = 0;
     }
 
     /**
@@ -502,6 +506,27 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       return mConf.getPath().toURI();
     }
 
+    @Override
+    public JournalContext createJournalContext() {
+      return new RaftJournalContext(mAsyncJournalWriter, mJournalStateLock.readLock());
+    }
+
+    @Override
+    public void close() throws IOException {
+      // Nothing to close.
+    }
+  }
+
+  /**
+   * Class for writing entries to the Raft journal. Written entries are aggregated until flush is
+   * called, then they are submitted as a single unit. This class is used only by
+   * AsyncJournalWriter, which does not require its inner JournalWriter to be ThreadSafe.
+   */
+  @NotThreadSafe
+  private class RaftJournalWriter implements JournalWriter {
+    private JournalEntry.Builder mJournalEntryBuilder;
+
+    @Override
     public void write(JournalEntry entry) throws IOException {
       Preconditions.checkState(entry.getAllFields().size() <= 1,
           "Raft journal entries should never set multiple fields, but found %s", entry);
@@ -527,25 +552,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
         }
         mJournalEntryBuilder = null;
       }
-    }
-
-    @Override
-    public JournalContext createJournalContext() {
-      return new RaftJournalContext(mAsyncWriter, mJournalStateLock.readLock());
-    }
-
-    /**
-     * Resets the state of the journal, including the state of its state machine.
-     */
-    public void reset() {
-      mStateMachine.resetState();
-      mJournalEntryBuilder = null;
-      mNextSequenceNumber = 0;
-    }
-
-    @Override
-    public void close() throws IOException {
-      // Nothing to close.
     }
   }
 
