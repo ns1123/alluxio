@@ -58,8 +58,8 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
       return new UfsFallbackLocalFilePacketWriter(localFilePacketWriter, null, context, address,
           blockId, blockSize, options);
     } catch (ResourceExhaustedException e) {
-      LOG.warn("Fallback to create block {} on UFS due to failure on local worker: {}",
-          blockId, e.getMessage());
+      LOG.warn("Fallback to create new block {} in UFS due to a failure of insufficient space on "
+          + "the local worker: {}", blockId, e.getMessage());
     }
     // Failed to create the local writer due to insufficient space, fallback to netty packet writer
     // directly
@@ -96,8 +96,8 @@ public final class UfsFallbackLocalFilePacketWriter implements PacketWriter {
         packet.release();
         return;
       } catch (ResourceExhaustedException e) {
-        LOG.warn("Fallback to write block {} to UFS due to failure on local worker: {}",
-            mBlockId, e.getMessage());
+        LOG.warn("Fallback to write to UFS for block {} due to a failure of insufficient space "
+            + "on the local worker: {}", mBlockId, e.getMessage());
         mIsWritingToLocal = false;
       }
       try {
