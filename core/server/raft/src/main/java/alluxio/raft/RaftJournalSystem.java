@@ -141,8 +141,9 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private CopycatServer mServer;
 
   private AsyncJournalWriter mAsyncJournalWriter;
-  // Sequence numbers in the Raft journal are used for de-duplicating entries. Entries written by
-  // the same master are guaranteed to start from 0 and go in increasing order.
+  // Sequence numbers in the Raft journal are used for de-duplicating entries.
+  // When a master gains primacy, the first entry it writes will have sequence number 0
+  // and all further entries will have increasing sequence numbers.
   private long mNextSequenceNumber;
 
   /*
