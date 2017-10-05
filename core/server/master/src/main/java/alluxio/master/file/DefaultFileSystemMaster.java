@@ -143,12 +143,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-<<<<<<< HEAD
-import java.util.ArrayList;
-||||||| merged common ancestors
-import java.util.LinkedList;
-=======
->>>>>>> upstream/enterprise-1.6
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
