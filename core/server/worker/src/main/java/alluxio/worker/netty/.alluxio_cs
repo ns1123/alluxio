@@ -5,4 +5,5 @@ NettySecureRpcServer.java
 RPCHandler.java
 SecretKeyServerHandler.java
 SecureRpcServerInitializer.java
+UfsFallbackBlockWriteHandler.java
 Utils.java

@@ -15,7 +15,13 @@
   <parent>
     <artifactId>alluxio-assembly</artifactId>
     <groupId>org.alluxio</groupId>
+<<<<<<< HEAD
     <version>1.7.0-SNAPSHOT</version>
+||||||| merged common ancestors
+    <version>1.6.1-SNAPSHOT</version>
+=======
+    <version>1.6.0-SNAPSHOT</version>
+>>>>>>> upstream/enterprise-1.6
   </parent>
   <artifactId>alluxio-assembly-server</artifactId>
   <packaging>jar</packaging>
@@ -49,6 +55,11 @@
       <version>${project.version}</version>
     </dependency>
     <!-- ALLUXIO CS ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-core-server-raft</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-client</artifactId>

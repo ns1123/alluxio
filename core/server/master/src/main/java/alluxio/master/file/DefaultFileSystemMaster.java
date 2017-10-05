@@ -43,9 +43,7 @@ import alluxio.master.audit.AsyncUserAccessAuditLogWriter;
 import alluxio.master.audit.AuditContext;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
-// ALLUXIO CS REMOVE
-// import alluxio.master.file.async.AsyncPersistHandler;
-// ALLUXIO CS END
+import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -145,7 +143,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+<<<<<<< HEAD
 import java.util.ArrayList;
+||||||| merged common ancestors
+import java.util.LinkedList;
+=======
+>>>>>>> upstream/enterprise-1.6
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -163,6 +166,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * The master that handles all file system metadata management.
+ // ALLUXIO CS ADD
+ * Link to AsyncPersistHandler so that it isn't an unused import: {@link AsyncPersistHandler}.
+ // ALLUXIO CS END
  */
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
 public final class DefaultFileSystemMaster extends AbstractMaster implements FileSystemMaster {
@@ -634,6 +640,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               PERSIST_CHECKER_POOL_THREADS, 1, java.util.concurrent.TimeUnit.MINUTES,
               new LinkedBlockingQueue<Runnable>(),
               alluxio.util.ThreadFactoryUtils.build("Persist-Checker-%d", true));
+      mPersistCheckerPool.allowCoreThreadTimeOut(true);
       mPersistenceCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECKER,
               new PersistenceChecker(),
@@ -1169,8 +1176,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     CompleteFileEntry completeFileEntry =
         CompleteFileEntry.newBuilder().addAllBlockIds(fileInode.getBlockIds()).setId(inode.getId())
             .setLength(length).setOpTimeMs(options.getOperationTimeMs()).build();
-    appendJournalEntry(JournalEntry.newBuilder().setCompleteFile(completeFileEntry).build(),
-        journalContext);
+    journalContext.append(JournalEntry.newBuilder().setCompleteFile(completeFileEntry).build());
   }
 
   /**
@@ -1319,8 +1325,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           ReinitializeFileEntry.newBuilder().setPath(path.getPath())
               .setBlockSizeBytes(blockSizeBytes).setTtl(ttl)
               .setTtlAction(ProtobufUtils.toProtobuf(ttlAction)).build();
-      appendJournalEntry(
-          JournalEntry.newBuilder().setReinitializeFile(reinitializeFile).build(), journalContext);
+      journalContext
+          .append(JournalEntry.newBuilder().setReinitializeFile(reinitializeFile).build());
       return id;
     }
   }
@@ -2066,7 +2072,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     RenameEntry rename =
         RenameEntry.newBuilder().setId(srcInode.getId()).setDstPath(dstInodePath.getUri().getPath())
             .setOpTimeMs(options.getOperationTimeMs()).build();
-    appendJournalEntry(JournalEntry.newBuilder().setRename(rename).build(), journalContext);
+    journalContext.append(JournalEntry.newBuilder().setRename(rename).build());
   }
 
   /**
@@ -2278,8 +2284,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     for (Inode<?> inode : persistedInodes) {
       PersistDirectoryEntry persistDirectory =
           PersistDirectoryEntry.newBuilder().setId(inode.getId()).build();
-      appendJournalEntry(JournalEntry.newBuilder().setPersistDirectory(persistDirectory).build(),
-          journalContext);
+      journalContext
+          .append(JournalEntry.newBuilder().setPersistDirectory(persistDirectory).build());
     }
   }
 
@@ -2741,8 +2747,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             .setUfsPath(ufsPath.toString()).setMountId(mountId)
             .setReadOnly(options.isReadOnly())
             .addAllProperties(protoProperties).setShared(options.isShared()).build();
-    appendJournalEntry(JournalEntry.newBuilder().setAddMountPoint(addMountPoint).build(),
-        journalContext);
+    journalContext.append(JournalEntry.newBuilder().setAddMountPoint(addMountPoint).build());
   }
 
   /**
@@ -2870,8 +2875,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
     DeleteMountPointEntry deleteMountPoint =
         DeleteMountPointEntry.newBuilder().setAlluxioPath(inodePath.getUri().toString()).build();
-    appendJournalEntry(JournalEntry.newBuilder().setDeleteMountPoint(deleteMountPoint).build(),
-        journalContext);
+    journalContext.append(JournalEntry.newBuilder().setDeleteMountPoint(deleteMountPoint).build());
     return deletedInodes;
   }
 
@@ -3053,7 +3057,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (options.getMode() != Constants.INVALID_MODE) {
       builder.setPermission(options.getMode());
     }
-    appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(), journalContext);
+    journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
   }
 
   @Override
@@ -3083,9 +3087,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // write to journal
     AsyncPersistRequestEntry asyncPersistRequestEntry =
         AsyncPersistRequestEntry.newBuilder().setFileId(fileId).build();
-    appendJournalEntry(
-        JournalEntry.newBuilder().setAsyncPersistRequest(asyncPersistRequestEntry).build(),
-        journalContext);
+    journalContext
+        .append(JournalEntry.newBuilder().setAsyncPersistRequest(asyncPersistRequestEntry).build());
+
   }
 
   /**
@@ -3375,11 +3379,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
      * Updates the file system metadata to reflect the fact that the persist file request expired.
      *
      * @param fileId the file ID
-     * @param journalContext the journal context
      */
-    private void handleExpired(long fileId, JournalContext journalContext) throws AlluxioException {
-      try (LockedInodePath inodePath = mInodeTree
-          .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+    private void handleExpired(long fileId) throws AlluxioException {
+      try (JournalContext journalContext = createJournalContext();
+           LockedInodePath inodePath = mInodeTree
+               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
         InodeFile inode = inodePath.getInodeFile();
         switch (inode.getPersistenceState()) {
           case LOST:
@@ -3400,8 +3404,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(false)
                     .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
                     .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
-                journalContext);
+            journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
             break;
           default:
             throw new IllegalStateException(
@@ -3414,10 +3417,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
      * Attempts to schedule a persist job and updates the file system metadata accordingly.
      *
      * @param fileId the file ID
-     * @param journalContext the journal context
      */
-    private void handleReady(long fileId, JournalContext journalContext)
-        throws AlluxioException, IOException {
+    private void handleReady(long fileId) throws AlluxioException, IOException {
       alluxio.time.ExponentialTimer timer = mPersistRequests.get(fileId);
       // Lookup relevant file information.
       AlluxioURI uri;
@@ -3467,16 +3468,16 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       mPersistJobs.put(fileId, new PersistJob(jobId, fileId, uri, tempUfsPath, timer));
 
       // Update the inode and journal the change.
-      try (LockedInodePath inodePath = mInodeTree
-          .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+      try (JournalContext journalContext = createJournalContext();
+           LockedInodePath inodePath = mInodeTree
+               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
         InodeFile inode = inodePath.getInodeFile();
         inode.setPersistJobId(jobId);
         inode.setTempUfsPath(tempUfsPath);
         SetAttributeEntry.Builder builder =
             SetAttributeEntry.newBuilder().setId(inode.getId()).setPersistJobId(jobId)
                 .setTempUfsPath(tempUfsPath);
-        appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
-            journalContext);
+        journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
       }
     }
 
@@ -3502,17 +3503,17 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           continue;
         }
         AlluxioURI uri = null;
-        try (JournalContext journalContext = createJournalContext()) {
+        try {
           try (LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
             uri = inodePath.getUri();
           }
           switch (timerResult) {
             case EXPIRED:
-              handleExpired(fileId, journalContext);
+              handleExpired(fileId);
               break;
             case READY:
-              handleReady(fileId, journalContext);
+              handleReady(fileId);
               break;
             default:
               throw new IllegalStateException("Unrecognized timer state: " + timerResult);
@@ -3564,6 +3565,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     private void handleSuccess(PersistJob job) {
       long fileId = job.getFileId();
       String tempUfsPath = job.getTempUfsPath();
+      List<Long> blockIds = new ArrayList<>();
+      UfsManager.UfsInfo ufsInfo = null;
       try (JournalContext journalContext = createJournalContext();
           LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
@@ -3598,8 +3601,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
                     .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
                     .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
-                journalContext);
+            journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
+
+            // Save state for possible cleanup
+            blockIds.addAll(inode.getBlockIds());
+            ufsInfo = mUfsManager.get(resolution.getMountId());
             break;
           default:
             throw new IllegalStateException(
@@ -3621,6 +3627,19 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         mPersistRequests.put(fileId, job.getTimer());
       } finally {
         mPersistJobs.remove(fileId);
+      }
+
+      // Cleanup possible staging UFS blocks files due to fast durable write fallback.
+      // Note that this is best effort
+      if (ufsInfo != null) {
+        for (long blockId : blockIds) {
+          String ufsBlockPath = alluxio.worker.BlockUtils.getUfsBlockPath(ufsInfo, blockId);
+          try {
+            alluxio.util.UnderFileSystemUtils.deleteFileIfExists(ufsInfo.getUfs(), ufsBlockPath);
+          } catch (Exception e) {
+            LOG.warn("Failed to clean up staging UFS block file {}", ufsBlockPath, e.getMessage());
+          }
+        }
       }
     }
 

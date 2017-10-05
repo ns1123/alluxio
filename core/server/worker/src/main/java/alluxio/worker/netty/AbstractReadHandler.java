@@ -143,7 +143,13 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+<<<<<<< HEAD
     LOG.error("Exception caught in AbstractReadHandler for channel {}:", ctx.channel(), cause);
+||||||| merged common ancestors
+    LOG.error("Exception caught {} in AbstractReadHandler.", cause);
+=======
+    LOG.error("Exception caught in AbstractReadHandler for channel {}.", ctx.channel(), cause);
+>>>>>>> upstream/enterprise-1.6
     setError(ctx.channel(), new Error(AlluxioStatusException.fromThrowable(cause), true));
   }
 
