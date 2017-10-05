@@ -17,8 +17,6 @@ import alluxio.PropertyKey;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalUtils;
 
-import com.google.common.base.Preconditions;
-
 import java.net.InetSocketAddress;
 import java.net.URI;
 
@@ -42,7 +40,7 @@ public interface MasterProcess extends Process {
           new JournalSystem.Builder().setLocation(journalLocation).build();
       if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
         // ALLUXIO CS ADD
-        Preconditions.checkState(
+        com.google.common.base.Preconditions.checkState(
             !(journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystemWrapper),
             "Raft journal cannot be used with Zookeeper enabled");
         // ALLUXIO CS END
