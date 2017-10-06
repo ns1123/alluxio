@@ -38,14 +38,9 @@ public final class AlluxioMaster {
       System.exit(-1);
     }
 
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.MASTER);
     // ALLUXIO CS END
-    MasterProcess process = MasterProcess.Factory.create();
-||||||| merged common ancestors
-    MasterProcess process = MasterProcess.Factory.create();
-=======
     MasterProcess process;
     try {
       process = MasterProcess.Factory.create();
@@ -56,7 +51,6 @@ public final class AlluxioMaster {
       throw t;
     }
 
->>>>>>> alluxio/master
     ProcessUtils.run(process);
   }
 

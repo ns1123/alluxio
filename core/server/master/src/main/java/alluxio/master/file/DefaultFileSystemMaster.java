@@ -3396,8 +3396,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(false)
                     .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
                     .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
-                journalContext);
+            journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
             break;
           default:
             throw new IllegalStateException(
@@ -3471,8 +3470,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         SetAttributeEntry.Builder builder =
             SetAttributeEntry.newBuilder().setId(inode.getId()).setPersistJobId(jobId)
                 .setTempUfsPath(tempUfsPath);
-        appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
-            journalContext);
+        journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
       }
     }
 
@@ -3594,8 +3592,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
                     .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
                     .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
-                journalContext);
+            journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
             break;
           default:
             throw new IllegalStateException(
