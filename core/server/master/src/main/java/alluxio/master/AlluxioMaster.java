@@ -38,10 +38,25 @@ public final class AlluxioMaster {
       System.exit(-1);
     }
 
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.MASTER);
     // ALLUXIO CS END
     MasterProcess process = MasterProcess.Factory.create();
+||||||| merged common ancestors
+    MasterProcess process = MasterProcess.Factory.create();
+=======
+    MasterProcess process;
+    try {
+      process = MasterProcess.Factory.create();
+    } catch (Throwable t) {
+      LOG.error("Failed to create master process", t);
+      // Exit to stop any non-daemon threads.
+      System.exit(-1);
+      throw t;
+    }
+
+>>>>>>> alluxio/master
     ProcessUtils.run(process);
   }
 
