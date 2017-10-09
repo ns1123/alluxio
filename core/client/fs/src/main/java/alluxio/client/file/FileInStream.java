@@ -262,8 +262,6 @@ public class FileInStream extends InputStream
         mPos += bytesRead;
         bytesLeftToRead -= bytesRead;
         currentOffset += bytesRead;
-      } else {
-        return bytesRead;
       }
     }
 

@@ -425,7 +425,7 @@ public final class NettyPacketWriter implements PacketWriter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-      LOG.error("Exception caught while reading write response for block {} from channel {}:",
+      LOG.error("Exception is caught while reading write response for block {} from channel {}:",
           mPartialRequest.getId(), ctx.channel(), cause);
       try (LockResource lr = new LockResource(mLock)) {
         mPacketWriteException = cause;
@@ -497,7 +497,7 @@ public final class NettyPacketWriter implements PacketWriter {
       try (LockResource lr = new LockResource(mLock)) {
         // ALLUXIO REPLACE
         // Preconditions.checkState(mPosToWriteUncommitted - mPosToWrite <= mPacketSize,
-        //    "Some packet is not acked.");
+        //     "Some packet is not acked.");
         // ALLUXIO WITH
         Preconditions.checkState(
             mIsUfsInit || mPosToWriteUncommitted - mPosToWrite <= mPacketSize,
