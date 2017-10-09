@@ -266,6 +266,10 @@ public enum ExceptionMessage {
   NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK(
       "Cannot find a local block worker to replicate blockId {0,number,#}"),
 
+  // Raft journal
+  FAILED_RAFT_BOOTSTRAP("Failed to bootstrap raft cluster with addresses {0}: {1}"),
+  FAILED_RAFT_CONNECT("Failed to connect to raft cluster with addresses {0}: {1}"),
+
   // security
   CAPABILITY_EXPIRED("No capability content found. The capability might have expired"),
   PRIVILEGE_DENIED("User {0} does not have privilege {1}"),

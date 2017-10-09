@@ -113,6 +113,13 @@ public final class LocalAlluxioMaster {
     mMasterThread.setName("MasterThread-" + System.identityHashCode(mMasterThread));
     mMasterThread.start();
     mMasterProcess.waitForReady();
+    // ALLUXIO CS ADD
+    // Don't start a secondary master when using the Raft journal.
+    if (Configuration.getEnum(PropertyKey.MASTER_JOURNAL_TYPE,
+        alluxio.master.journal.JournalType.class) == alluxio.master.journal.JournalType.EMBEDDED) {
+      return;
+    }
+    // ALLUXIO CS END
     mSecondaryMaster = new AlluxioSecondaryMaster();
     Runnable runSecondaryMaster = new Runnable() {
       @Override

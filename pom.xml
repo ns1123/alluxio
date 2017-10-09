@@ -132,6 +132,12 @@
       <name>MireDot Releases</name>
       <url>http://nexus.qmino.com/content/repositories/miredot</url>
     </repository>
+    <!-- ALLUXIO CS ADD -->
+    <repository>
+      <id>maven.alluxio</id>
+      <url>s3://maven.alluxio/release</url>
+    </repository>
+    <!-- ALLUXIO CS END -->
   </repositories>
 
   <properties>
@@ -153,9 +159,6 @@
     <libthrift.version>0.9.3</libthrift.version>
     <license.header.path>build/license/</license.header.path>
     <log4j.version>1.2.17</log4j.version>
-    <!-- ALLUXIO CS ADD -->
-    <maprfs.version>5.2</maprfs.version>
-    <!-- ALLUXIO CS END -->
     <maven.version>3.3.9</maven.version>
     <metrics.version>3.1.2</metrics.version>
     <powermock.version>1.6.1</powermock.version>
@@ -168,10 +171,6 @@
     <!-- ALLUXIO CS ADD -->
     <!-- The native library path used in tests related to JNI. -->
     <alluxio.native.library.path>lib/native/</alluxio.native.library.path>
-    <!-- Exclude tests related to JNI by default. -->
-    <surefire.exclude>alluxio.client.security.OpenSSLCryptoUtilsTest</surefire.exclude>
-    <!-- URL of the Alluxio proxy server. -->
-    <proxy.url>https://alluxio-proxy.herokuapp.com</proxy.url>
     <!-- AWS S3 bucket for storing call home information. -->
     <call.home.bucket>alluxio-release</call.home.bucket>
     <!-- Determines whether call home should be enforced.
@@ -179,6 +178,7 @@
     <call.home.enabled>false</call.home.enabled>
     <!-- Determines how frequently to run the call home (in milliseconds). -->
     <call.home.period>86400000</call.home.period>
+    <copycat.version>1.2.9</copycat.version>
     <!-- Determines whether license checks should be enforced.
          This flag should only be set at compile time when generating distributions. -->
     <license.check.enabled>false</license.check.enabled>
@@ -189,6 +189,11 @@
     <!-- The secret key used for communicating with Alluxio server.
          The key should only be set at compile time when generating distributions. -->
     <license.secret.key>invalid</license.secret.key>
+    <maprfs.version>5.2</maprfs.version>
+    <!-- URL of the Alluxio proxy server. -->
+    <proxy.url>https://alluxio-proxy.herokuapp.com</proxy.url>
+    <!-- Exclude tests related to JNI by default. -->
+    <surefire.exclude>alluxio.client.security.OpenSSLCryptoUtilsTest</surefire.exclude>
     <!-- ALLUXIO CS END -->
   </properties>
 
@@ -524,6 +529,22 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpmime</artifactId>
         <version>4.5</version>
+      </dependency>
+      <dependency>
+        <groupId>io.atomix.copycat.alluxio</groupId>
+        <artifactId>copycat-server</artifactId>
+        <version>${copycat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.atomix.copycat.alluxio</groupId>
+        <artifactId>copycat-client</artifactId>
+        <version>${copycat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.atomix.catalyst</groupId>
+        <artifactId>catalyst-netty</artifactId>
+        <!-- catalyst-netty is versioned independently of other Atomix services -->
+        <version>1.2.1</version>
       </dependency>
       <!-- ALLUXIO CS END -->
       <dependency>
@@ -1125,7 +1146,7 @@
             <include>alluxio/worker/block/evictor/LRUEvictor.java</include>
             <include>alluxio/worker/block/evictor/PartialLRUEvictor.java</include>
           </sourceFileIncludes>
-          <sourcepath>${basedir}/core/client/src/main/java/:${basedir}/core/common/src/main/java/:${basedir}/core/server/worker/src/main/java/</sourcepath>
+          <sourcepath>${basedir}/core/client/fs/src/main/java/:${basedir}/core/common/src/main/java/:${basedir}/core/server/worker/src/main/java/</sourcepath>
         </configuration>
         <!-- ALLUXIO CS END -->
       </plugin>
@@ -1309,6 +1330,15 @@
         </executions>
       </plugin>
     </plugins>
+    <!-- ALLUXIO CS ADD -->
+    <extensions>
+      <extension>
+        <groupId>org.kuali.maven.wagons</groupId>
+        <artifactId>maven-s3-wagon</artifactId>
+        <version>1.2.1</version>
+      </extension>
+    </extensions>
+    <!-- ALLUXIO CS END -->
   </build>
 
   <reporting>

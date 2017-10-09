@@ -39,8 +39,20 @@ public interface MasterProcess extends Process {
       JournalSystem journalSystem =
           new JournalSystem.Builder().setLocation(journalLocation).build();
       if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+        // ALLUXIO CS ADD
+        com.google.common.base.Preconditions.checkState(
+            !(journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystemWrapper),
+            "Raft journal cannot be used with Zookeeper enabled");
+        // ALLUXIO CS END
         PrimarySelector primarySelector = PrimarySelector.Factory.createZkPrimarySelector();
         return new FaultTolerantAlluxioMasterProcess(journalSystem, primarySelector);
+        // ALLUXIO CS ADD
+      } else if (journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystemWrapper) {
+        PrimarySelector primarySelector =
+            ((alluxio.master.journal.raft.RaftJournalSystemWrapper) journalSystem)
+                .getPrimarySelector();
+        return new FaultTolerantAlluxioMasterProcess(journalSystem, primarySelector);
+        // ALLUXIO CS END
       }
       return new AlluxioMasterProcess(journalSystem);
     }

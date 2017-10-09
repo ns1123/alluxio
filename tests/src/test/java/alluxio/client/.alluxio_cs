@@ -4,3 +4,4 @@ DataAuthorizationKerberosIntegrationTest.java
 DataAuthorizationKerberosNegativeIntegrationTest.java
 DataAuthorizationIntegrationTest.java
 FileOutStreamAsyncWriteJobIntegrationTest.java
+UfsFallbackFileOutStreamIntegrationTest.java

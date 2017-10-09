@@ -13,8 +13,8 @@ package alluxio.underfs.hdfs;
 
 import org.apache.hadoop.fs.FSDataOutputStream;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -26,7 +26,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 // TODO(binfan): dedup this file with HdfsUnderFileOutputStream.java in underfs-hdfs
 @NotThreadSafe
-public class HdfsUnderFileOutputStream extends FilterOutputStream {
+public class HdfsUnderFileOutputStream extends OutputStream {
   /** Underlying output stream. */
   private final FSDataOutputStream mOut;
 
@@ -36,13 +36,32 @@ public class HdfsUnderFileOutputStream extends FilterOutputStream {
    * @param out underlying stream to wrap
    */
   public HdfsUnderFileOutputStream(FSDataOutputStream out) {
-    super(out);
     mOut = out;
+  }
+
+  @Override
+  public void close() throws IOException {
+    mOut.close();
   }
 
   @Override
   public void flush() throws IOException {
     // TODO(calvin): This functionality should be restricted to select output streams.
     mOut.sync();
+  }
+
+  @Override
+  public void write(int b) throws IOException {
+    mOut.write(b);
+  }
+
+  @Override
+  public void write(byte[] b) throws IOException {
+    mOut.write(b);
+  }
+
+  @Override
+  public void write(byte[] b, int off, int len) throws IOException {
+    mOut.write(b, off, len);
   }
 }

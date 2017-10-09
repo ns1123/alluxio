@@ -71,12 +71,9 @@ public final class CapabilityCacheTest {
     mCache.addCapability(capabilityProto);
     mCache.checkAccess(mUsername, mFileId, Mode.Bits.READ);
 
-    try {
-      mCache.checkAccess(mUsername, mFileId, Mode.Bits.WRITE);
-      Assert.fail();
-    } catch (AccessControlException e) {
-      // expected
-    }
+    // Write request access is allowed with read permission so this case passes.
+    mCache.checkAccess(mUsername, mFileId, Mode.Bits.WRITE);
+
     mCache.decrementUserConnectionCount(mUsername);
   }
 
@@ -213,6 +210,8 @@ public final class CapabilityCacheTest {
           CommonUtils.sleepMs(10);
           try {
             mCache.checkAccess(user, mFileId, Mode.Bits.READ);
+            // Write request access is allowed with read permission so this case passes.
+            mCache.checkAccess(user, mFileId, Mode.Bits.WRITE);
             mCache.checkAccess(user, mFileId + 1, Mode.Bits.WRITE);
           } catch (InvalidCapabilityException e) {
             // This can happen if the capability is not yet added. ignore.
@@ -220,12 +219,6 @@ public final class CapabilityCacheTest {
             fail.set(true);
           }
 
-          try {
-            mCache.checkAccess(user, mFileId, Mode.Bits.WRITE);
-            fail.set(true);
-          } catch (InvalidCapabilityException | AccessControlException e) {
-            // expected.
-          }
           try {
             mCache.checkAccess(user, mFileId + 1, Mode.Bits.READ);
             fail.set(true);

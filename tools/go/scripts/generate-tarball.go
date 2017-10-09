@@ -32,6 +32,7 @@ var ufsModuleNames = map[string]string{
 	"ufs-cdh-5.6":    "hdfsx-cdh5_6",
 	"ufs-cdh-5.8":    "hdfsx-cdh5_8",
 	"ufs-cdh-5.11":   "hdfsx-cdh5_11",
+	"ufs-cdh-5.12":   "hdfsx-cdh5_12",
 	"ufs-hdp-2.4":    "hdfsx-hdp2_4",
 	"ufs-hdp-2.5":    "hdfsx-hdp2_5",
 	"ufs-hdp-2.6":    "hdfsx-hdp2_6",
@@ -52,6 +53,7 @@ var ufsModules = map[string]bool{
 	"ufs-cdh-5.6":    false,
 	"ufs-cdh-5.8":    true,
 	"ufs-cdh-5.11":   false,
+	"ufs-cdh-5.12":   false,
 	"ufs-hdp-2.4":    false,
 	"ufs-hdp-2.5":    true,
 	"ufs-hdp-2.6":    false,
@@ -171,7 +173,7 @@ func chdir(path string) {
 }
 
 func getCommonMvnArgs() []string {
-	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos"}
+	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip"}
 	if profilesFlag != "" {
 		for _, profile := range strings.Split(profilesFlag, ",") {
 			args = append(args, fmt.Sprintf("-P%s", profile))
@@ -233,19 +235,12 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		"conf/workers",
 		// LIBEXEC
 		"libexec/alluxio-config.sh",
-		"libexec/alluxio-layout.sh.template",
 		// DOCKER
 		"integration/docker/bin/alluxio-master.sh",
 		"integration/docker/bin/alluxio-job-master.sh",
 		"integration/docker/bin/alluxio-job-worker.sh",
 		"integration/docker/bin/alluxio-proxy.sh",
 		"integration/docker/bin/alluxio-worker.sh",
-		// MESOS
-		"integration/mesos/bin/alluxio-env-mesos.sh",
-		"integration/mesos/bin/alluxio-master-mesos.sh",
-		"integration/mesos/bin/alluxio-mesos-start.sh",
-		"integration/mesos/bin/alluxio-worker-mesos.sh",
-		"integration/mesos/bin/common.sh",
 	}
 	for _, path := range pathsToCopy {
 		mkdir(filepath.Join(dstPath, filepath.Dir(path)))

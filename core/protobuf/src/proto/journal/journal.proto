@@ -49,10 +49,13 @@ message JournalEntry {
   optional RenameStoreEntry rename_store = 28;
   optional SetAttributeEntry set_attribute = 27;
   // ALLUXIO CS ADD
-  // next available id: 1005
-  optional FinishJobEntry finish_job = 1002; // Job service journal entry
+  // next available id: 1006
+  optional FinishJobEntry finish_job = 1002;
   optional LicenseCheckEntry license_check = 1001;
   optional PrivilegeUpdateEntry privilege_update = 1004;
-  optional StartJobEntry start_job = 1003; // Job service journal entry
+  optional StartJobEntry start_job = 1003;
+  // This journal entry is a list of other entries. when a journal entry
+  // contains other journal entries, all other optional fields must be unset.
+  repeated JournalEntry journal_entries = 1005;
   // ALLUXIO CS END
 }

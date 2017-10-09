@@ -130,6 +130,18 @@ public class FileInStream extends InputStream
     mStatus = status;
     mInStreamOptions = options;
     mOutStreamOptions = OutStreamOptions.defaults();
+    // ALLUXIO CS ADD
+    // Need to explicitly set the capability in outStreamOptions when caching passively.
+    if (mStatus.getCapability() != null) {
+      mOutStreamOptions.setCapabilityFetcher(new alluxio.client.security.CapabilityFetcher(
+          context, mStatus.getPath(), mStatus.getCapability()));
+    }
+    // Inherit the encryption metadata from InStreamOptions if the file is encrypted.
+    mOutStreamOptions.setEncrypted(options.isEncrypted());
+    if (options.isEncrypted()) {
+      mOutStreamOptions.setEncryptionMeta(options.getEncryptionMeta());
+    }
+    // ALLUXIO CS END
     mBlockSize = status.getBlockSizeBytes();
     mFileLength = status.getLength();
     mContext = context;
@@ -487,7 +499,14 @@ public class FileInStream extends InputStream
       // The following two function handle negative currentBlockId (i.e. the end of file)
       // correctly.
       updateBlockInStream(currentBlockId);
-      if (PASSIVE_CACHE_ENABLED) {
+      // ALLUXIO CS REPLACE
+      // if (PASSIVE_CACHE_ENABLED) {
+      // ALLUXIO CS WITH
+      boolean overReplicated = mStatus.getReplicationMax() > 0
+          && mStatus.getFileBlockInfos().get((int) (mPos / mBlockSize)).getBlockInfo()
+              .getLocations().size() >= mStatus.getReplicationMax();
+      if (PASSIVE_CACHE_ENABLED && !overReplicated) {
+      // ALLUXIO CS END
         updateCacheStream(currentBlockId);
       }
       mStreamBlockId = currentBlockId;
@@ -576,6 +595,12 @@ public class FileInStream extends InputStream
   private BlockInStream getBlockInStream(long blockId) throws IOException {
     Protocol.OpenUfsBlockOptions openUfsBlockOptions = null;
     boolean readFromUfs = mStatus.isPersisted();
+    // ALLUXIO CS ADD
+    // In case it is possible to fallback to read UFS blocks, also fill in the options.
+    boolean storedAsUfsBlock
+        = mStatus.getPersistenceState().equals("TO_BE_PERSISTED");
+    readFromUfs = readFromUfs || storedAsUfsBlock;
+    // ALLUXIO CS END
     if (readFromUfs) {
       long blockStart = BlockId.getSequenceNumber(blockId) * mBlockSize;
       openUfsBlockOptions =
@@ -585,6 +610,16 @@ public class FileInStream extends InputStream
               .setNoCache(!mInStreamOptions.getAlluxioStorageType().isStore())
               .setMountId(mStatus.getMountId()).build();
     }
+    // ALLUXIO CS ADD
+    // On client-side, we do not have enough mount information to fill in the UFS file path.
+    // Instead, we unset the ufsPath field and fill in a flag ufsBlock to indicate the UFS file
+    // path can be derived from mount id and the block ID. Also because the entire file is only
+    // one block, we set the offset in file to be zero.
+    if (storedAsUfsBlock) {
+      openUfsBlockOptions = openUfsBlockOptions.toBuilder().clearUfsPath().setBlockInUfsTier(true)
+          .setOffsetInFile(0).build();
+    }
+    // ALLUXIO CS END
     return mBlockStore.getInStream(blockId, openUfsBlockOptions, mInStreamOptions);
   }
 
