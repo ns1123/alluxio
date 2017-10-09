@@ -100,7 +100,7 @@ public class UfsFallbackBlockWriteHandlerTest extends WriteHandlerTest {
     BlockWriter writer = mBlockStore.getBlockWriter(TEST_SESSION_ID, TEST_BLOCK_ID);
     DataBuffer buffer = newDataBuffer(PARTIAL_WRITTEN);
     mPartialChecksum = getChecksum(buffer);
-    writer.transferFrom((ByteBuf) buffer.getNettyOutput());
+    writer.append((ByteBuf) buffer.getNettyOutput());
     writer.close();
   }
 
