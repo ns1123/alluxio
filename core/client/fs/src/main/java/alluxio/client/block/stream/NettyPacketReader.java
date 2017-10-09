@@ -298,6 +298,7 @@ public final class NettyPacketReader implements PacketReader {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
       LOG.error("Exception is caught while reading block {} from channel {}:",
           mReadRequest.getBlockId(), ctx.channel(), cause);
+
       // NOTE: The netty I/O thread associated with mChannel is the only thread that can update
       // mPacketReaderException and push to mPackets. So it is safe to do the following without
       // synchronization.

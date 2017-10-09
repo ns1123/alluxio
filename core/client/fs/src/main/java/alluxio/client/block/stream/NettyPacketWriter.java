@@ -495,14 +495,14 @@ public final class NettyPacketWriter implements PacketWriter {
       }
       boolean shouldSendEOF = false;
       try (LockResource lr = new LockResource(mLock)) {
-        // ALLUXIO REPLACE
+        // ALLUXIO CS REPLACE
         // Preconditions.checkState(mPosToWriteUncommitted - mPosToWrite <= mPacketSize,
         //     "Some packet is not acked.");
-        // ALLUXIO WITH
+        // ALLUXIO CS WITH
         Preconditions.checkState(
             mIsUfsInit || mPosToWriteUncommitted - mPosToWrite <= mPacketSize,
             "Some packet is not acked.");
-        // ALLUXIO END
+        // ALLUXIO CS END
         Preconditions.checkState(mPosToWriteUncommitted <= mLength);
         mPosToWrite = mPosToWriteUncommitted;
 
