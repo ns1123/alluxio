@@ -300,23 +300,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
       new Builder(Name.UNDERFS_HDFS_PREFIXES)
-<<<<<<< HEAD
           // ALLUXIO CS REPLACE
           // .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
           // ALLUXIO CS WITH
           .setDefaultValue("hdfs://,glusterfs:///")
           // ALLUXIO CS END
-          .setDescription("Optionally, specify which prefixes should run through the Apache "
-              + "Hadoop implementation of UnderFileSystem. The delimiter is any whitespace "
-||||||| merged common ancestors
-          .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
-          .setDescription("Optionally, specify which prefixes should run through the Apache "
-              + "Hadoop implementation of UnderFileSystem. The delimiter is any whitespace "
-=======
-          .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
           .setDescription("Optionally, specify which prefixes should run through the HDFS "
               + "implementation of UnderFileSystem. The delimiter is any whitespace "
->>>>>>> b35a52a9b3db0dde11abd67caa528cf6d1b299f0
               + "and/or ','.")
           .build();
   public static final PropertyKey UNDERFS_HDFS_REMOTE =
