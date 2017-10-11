@@ -96,8 +96,10 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
       @Override
       public RunTResponse call() throws AlluxioException, IOException {
         try {
+          byte[] jobConfigBytes = new byte[jobConfig.remaining()];
+          jobConfig.get(jobConfigBytes);
           return new RunTResponse(
-              mJobMaster.run((JobConfig) SerializationUtils.deserialize(jobConfig.array())));
+              mJobMaster.run((JobConfig) SerializationUtils.deserialize(jobConfigBytes)));
         } catch (ClassNotFoundException e) {
           throw new InvalidArgumentException(e);
         }
