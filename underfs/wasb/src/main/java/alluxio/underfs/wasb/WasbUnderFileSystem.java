@@ -235,12 +235,8 @@ public final class WasbUnderFileSystem extends BaseUnderFileSystem
 
   @Override
   public long getBlockSizeByte(String path) throws IOException {
-    Path tPath = new Path(path);
-    if (!mFileSystem.exists(tPath)) {
-      throw new FileNotFoundException(path);
-    }
-    FileStatus fs = mFileSystem.getFileStatus(tPath);
-    return fs.getBlockSize();
+    // wasb is an object store, so use the default block size, like other object stores.
+    return alluxio.Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
   }
 
   @Override
