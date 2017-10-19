@@ -165,6 +165,9 @@ public enum ExceptionMessage {
   INVALID_ARGS_NULL("Null args for command {0}"),
   INVALID_ARGS_NUM("Command {0} takes {1} arguments, not {2}"),
   INVALID_ARGS_NUM_INSUFFICIENT("Command {0} requires at least {1} arguments ({2} provided)"),
+  // ALLUXIO CS ADD
+  INVALID_ARG_TYPE("Arg {0} is not type {1}"),
+  // ALLUXIO CS END
 
   // extension shell
   INVALID_EXTENSION_NOT_JAR("File {0} does not have the extension JAR"),

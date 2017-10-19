@@ -9,10 +9,10 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.cli.fs.command;
+package alluxio.cli.job.command;
 
-import alluxio.client.file.FileSystem;
-import alluxio.master.MasterInquireClient;
+import alluxio.cli.AbstractCommand;
+import alluxio.client.job.JobContext;
 
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
@@ -26,19 +26,19 @@ import javax.annotation.concurrent.ThreadSafe;
  * Prints the current leader master host name.
  */
 @ThreadSafe
-public final class JobLeaderCommand extends AbstractFileSystemCommand {
-  private static final Logger LOG = LoggerFactory.getLogger(JobLeaderCommand.class);
+public final class LeaderCommand extends AbstractCommand {
+  private static final Logger LOG = LoggerFactory.getLogger(LeaderCommand.class);
 
   /**
-   * @param fs the filesystem of Alluxio
+   * creates the job leader command.
    */
-  public JobLeaderCommand(FileSystem fs) {
-    super(fs);
+  public LeaderCommand() {
+    super();
   }
 
   @Override
   public String getCommandName() {
-    return "jobLeader";
+    return "leader";
   }
 
   @Override
@@ -48,8 +48,8 @@ public final class JobLeaderCommand extends AbstractFileSystemCommand {
 
   @Override
   public int run(CommandLine cl) {
-    try (MasterInquireClient client = MasterInquireClient.Factory.createForJobMaster()) {
-      InetSocketAddress address = client.getPrimaryRpcAddress();
+    try {
+      InetSocketAddress address = JobContext.INSTANCE.getMasterAddress();
       System.out.println(address.getHostName());
     } catch (Exception e) {
       LOG.error("Failed to get the primary job master", e);
@@ -61,7 +61,7 @@ public final class JobLeaderCommand extends AbstractFileSystemCommand {
 
   @Override
   public String getUsage() {
-    return "jobLeader";
+    return "leader";
   }
 
   @Override
