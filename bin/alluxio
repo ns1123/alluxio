@@ -24,7 +24,7 @@ function printUsage {
   # ALLUXIO CS ADD
   echo -e "  job           \t Command line tool for interacting with the job service."
   # ALLUXIO CS END
-  echo -e "  loadufs       \t Load existing files in underlayer filesystem into Alluxio."  
+  echo -e "  loadufs       \t Load existing files in underlayer filesystem into Alluxio."
   echo -e "  logLevel      \t Set or get log level of Alluxio servers."
   echo -e "  runClass      \t Run the main method of an Alluxio class."
   echo -e "  runTest       \t Run an end-to-end test on an Alluxio cluster."
