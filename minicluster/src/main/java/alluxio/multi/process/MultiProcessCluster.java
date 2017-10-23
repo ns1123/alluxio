@@ -24,13 +24,16 @@ import alluxio.client.file.FileSystemContext;
 import alluxio.exception.status.UnavailableException;
 import alluxio.master.LocalAlluxioCluster;
 import alluxio.master.MasterInquireClient;
+import alluxio.master.PollingMasterInquireClient;
 import alluxio.master.SingleMasterInquireClient;
 import alluxio.master.ZkMasterInquireClient;
+import alluxio.master.journal.JournalType;
 import alluxio.network.PortUtils;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
 import org.apache.commons.io.Charsets;
@@ -125,6 +128,14 @@ public final class MultiProcessCluster implements TestRule {
       mCuratorServer = mCloser
           .register(new TestingServer(-1, AlluxioTestDirectory.createTemporaryDirectory("zk")));
       mProperties.put(PropertyKey.ZOOKEEPER_ADDRESS, mCuratorServer.getConnectString());
+    // ALLUXIO CS ADD
+    } else if (embeddedJournalEnabled()) {
+      List<String> journalAddresses = new ArrayList<>();
+      for (MasterNetAddress address : mMasterAddresses) {
+        journalAddresses.add(String.format("%s:%d", address.getHostname(), address.getEmbeddedJournalPort()));
+      }
+      mProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, Joiner.on(",").join(journalAddresses));
+    // ALLUXIO CS END
     } else {
       MasterNetAddress masterAddress = mMasterAddresses.get(0);
       mProperties.put(PropertyKey.MASTER_HOSTNAME, masterAddress.getHostname());
@@ -315,6 +326,15 @@ public final class MultiProcessCluster implements TestRule {
     conf.put(PropertyKey.MASTER_HOSTNAME, address.getHostname());
     conf.put(PropertyKey.MASTER_RPC_PORT, Integer.toString(address.getRpcPort()));
     conf.put(PropertyKey.MASTER_WEB_PORT, Integer.toString(address.getWebPort()));
+    // ALLUXIO CS ADD
+    conf.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_PORT,
+        Integer.toString(address.getEmbeddedJournalPort()));
+    if (embeddedJournalEnabled()) {
+      File journalDir = new File(mWorkDir, "journal" + i);
+      journalDir.mkdirs();
+      conf.put(PropertyKey.MASTER_JOURNAL_FOLDER, journalDir.getAbsolutePath());
+    }
+    // ALLUXIO CS END
     Master master = mCloser.register(new Master(logsDir, conf));
     mMasters.add(master);
     return master;
@@ -366,6 +386,14 @@ public final class MultiProcessCluster implements TestRule {
       return ZkMasterInquireClient.getClient(mCuratorServer.getConnectString(),
           Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH),
           Configuration.get(PropertyKey.ZOOKEEPER_LEADER_PATH));
+    // ALLUXIO CS ADD
+    } else if (embeddedJournalEnabled()) {
+      List<InetSocketAddress> addresses = new ArrayList<>(mMasterAddresses.size());
+      for (MasterNetAddress address : mMasterAddresses) {
+        addresses.add(new InetSocketAddress(address.getHostname(), address.getRpcPort()));
+      }
+      return new PollingMasterInquireClient(addresses);
+    // ALLUXIO CS END
     } else {
       Preconditions.checkState(mMasters.size() == 1,
           "Running with multiple masters requires Zookeeper to be enabled");
@@ -379,6 +407,11 @@ public final class MultiProcessCluster implements TestRule {
         && mProperties.get(PropertyKey.ZOOKEEPER_ENABLED).equalsIgnoreCase("true");
   }
 
+  // ALLUXIO CS ADD
+  private boolean embeddedJournalEnabled() {
+    return mProperties.get(PropertyKey.MASTER_JOURNAL_TYPE).equals(JournalType.EMBEDDED.toString());
+  }
+  // ALLUXIO CS END
   /**
    * Writes the contents of {@link #mProperties} to the configuration file.
    */
@@ -422,8 +455,14 @@ public final class MultiProcessCluster implements TestRule {
   private static List<MasterNetAddress> generateMasterAddresses(int numMasters) throws IOException {
     List<MasterNetAddress> addrs = new ArrayList<>();
     for (int i = 0; i < numMasters; i++) {
+      // ALLUXIO CS REPLACE
+      // addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
+      // PortUtils.getFreePort(), PortUtils.getFreePort()));
+      // ALLUXIO CS WITH
+      // Enterprise requires an additional port for embedded journal communication.
       addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
-          PortUtils.getFreePort(), PortUtils.getFreePort()));
+          PortUtils.getFreePort(), PortUtils.getFreePort(), PortUtils.getFreePort()));
+      // ALLUXIO CS END
     }
     return addrs;
   }
