@@ -207,7 +207,7 @@ public final class AlluxioBlockStoreTest {
         .setWriteType(WriteType.MUST_CACHE).setReplicationMin(2);
     OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
 
-    Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
+    assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
   }
   // ALLUXIO CS END
 }
