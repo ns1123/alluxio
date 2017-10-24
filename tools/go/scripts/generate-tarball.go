@@ -233,6 +233,16 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		"conf/masters",
 		"conf/metrics.properties.template",
 		"conf/workers",
+		// LIB
+		fmt.Sprintf("lib/alluxio-underfs-fork-%v-jar-with-dependencies.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-gcs-%v-jar-with-dependencies.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-jdbc-%v-jar-with-dependencies.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-local-%v-jar-with-dependencies.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-maprfs-%v-jar-with-dependencies.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-oss-%v-jar-with-dependencies.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-swift-%v-jar-with-dependencies.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-s3a-%v-jar-with-dependencies.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-wasb-%v-jar-with-dependencies.jar", version),
 		// LIBEXEC
 		"libexec/alluxio-config.sh",
 		// DOCKER
