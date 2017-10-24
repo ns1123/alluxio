@@ -82,6 +82,7 @@
       <artifactId>alluxio-logserver</artifactId>
       <version>${project.version}</version>
     </dependency>
+<<<<<<< HEAD
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-gcs</artifactId>
@@ -140,6 +141,39 @@
       <artifactId>alluxio-underfs-swift</artifactId>
       <version>${project.version}</version>
     </dependency>
+||||||| merged common ancestors
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-gcs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-hdfs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-local</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-oss</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-s3a</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-swift</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+=======
+>>>>>>> 4b40e19e850803b407f76d1594a46ad7409201e5
   </dependencies>
 
   <profiles>

@@ -2892,6 +2892,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio\\.master\\.mount\\.table\\.root\\.option(\\.\\w+)++"),
     MASTER_TIERED_STORE_GLOBAL_LEVEL_ALIAS("alluxio.master.tieredstore.global.level%d.alias",
         "alluxio\\.master\\.tieredstore\\.global\\.level(\\d+)\\.alias"),
+    UNDERFS_AZURE_ACCOUNT_KEY(
+        "fs.azure.account.key.%s.blob.core.windows.net",
+        "fs\\.azure\\.account\\.key\\.(\\w+)\\.blob\\.core\\.windows\\.net"),
     WORKER_TIERED_STORE_LEVEL_ALIAS("alluxio.worker.tieredstore.level%d.alias",
         "alluxio\\.worker\\.tieredstore\\.level(\\d+)\\.alias"),
     WORKER_TIERED_STORE_LEVEL_DIRS_PATH("alluxio.worker.tieredstore.level%d.dirs.path",
@@ -2938,6 +2941,15 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public PropertyKey format(Object... params) {
       return new PropertyKey(String.format(mFormat, params));
     }
+
+    /**
+     * @param input the input property key string
+     * @return whether the input string matches this template
+     */
+    public boolean matches(String input) {
+      Matcher matcher = mPattern.matcher(input);
+      return matcher.matches();
+    }
   }
 
   /**
@@ -2951,8 +2963,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     }
     // Check if input matches any parameterized keys
     for (Template template : Template.values()) {
-      Matcher matcher = template.mPattern.matcher(input);
-      if (matcher.matches()) {
+      if (template.matches(input)) {
         return true;
       }
     }
@@ -2979,8 +2990,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     }
     // Try different templates and see if any template matches
     for (Template template : Template.values()) {
-      Matcher matcher = template.mPattern.matcher(input);
-      if (matcher.matches()) {
+      if (template.matches(input)) {
         return new PropertyKey(input);
       }
     }
