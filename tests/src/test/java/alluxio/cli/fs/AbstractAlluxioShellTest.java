@@ -66,7 +66,6 @@ public abstract class AbstractAlluxioShellTest extends BaseIntegrationTest {
   // ALLUXIO CS END
   protected FileSystem mFileSystem = null;
   protected FileSystemShell mFsShell = null;
-
   protected ByteArrayOutputStream mOutput = new ByteArrayOutputStream();
 
   @Rule

@@ -39,14 +39,7 @@
     <module>oss</module>
     <module>s3a</module>
     <module>swift</module>
-<<<<<<< HEAD
-    <!-- ALLUXIO CS ADD -->
     <module>wasb</module>
-    <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-=======
-    <module>wasb</module>
->>>>>>> 4b40e19e850803b407f76d1594a46ad7409201e5
   </modules>
 
   <properties>
