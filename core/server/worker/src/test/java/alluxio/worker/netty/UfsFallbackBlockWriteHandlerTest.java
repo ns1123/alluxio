@@ -47,7 +47,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class UfsFallbackBlockWriteHandlerTest extends WriteHandlerTest {
+public class UfsFallbackBlockWriteHandlerTest extends AbstractWriteHandlerTest {
   private static final long TEST_SESSION_ID = 123L;
   private static final long TEST_WORKER_ID = 456L;
   private static final int PARTIAL_WRITTEN = 512;
