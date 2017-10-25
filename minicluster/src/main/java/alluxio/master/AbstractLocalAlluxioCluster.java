@@ -271,91 +271,9 @@ public abstract class AbstractLocalAlluxioCluster {
     Configuration.set(PropertyKey.WORKER_RPC_PORT, 0);
     Configuration.set(PropertyKey.WORKER_DATA_PORT, 0);
     Configuration.set(PropertyKey.WORKER_WEB_PORT, 0);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     Configuration.set(PropertyKey.WORKER_SECURE_RPC_PORT, 0);
     // ALLUXIO CS END
-    Configuration.set(PropertyKey.WORKER_MEMORY_SIZE, DEFAULT_WORKER_MEMORY_BYTES);
-    Configuration.set(PropertyKey.WORKER_BLOCK_HEARTBEAT_INTERVAL_MS, "15ms");
-    Configuration.set(PropertyKey.WORKER_BLOCK_THREADS_MIN, 1);
-    Configuration.set(PropertyKey.WORKER_BLOCK_THREADS_MAX, 2048);
-    Configuration.set(PropertyKey.WORKER_NETWORK_NETTY_WORKER_THREADS, 2);
-
-    // Shutdown data server quickly. Graceful shutdown is unnecessarily slow.
-    Configuration.set(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD, "0ms");
-    Configuration.set(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_TIMEOUT, "0ms");
-
-    Configuration.set(PropertyKey.WORKER_BIND_HOST, mHostname);
-    Configuration.set(PropertyKey.WORKER_DATA_BIND_HOST, mHostname);
-    Configuration.set(PropertyKey.WORKER_WEB_BIND_HOST, mHostname);
-
-    // Sets up the tiered store
-    String ramdiskPath = PathUtils.concatPath(mWorkDirectory, "ramdisk");
-    Configuration.set(PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_ALIAS.format(0), "MEM");
-    Configuration
-        .set(PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_DIRS_PATH.format(0), ramdiskPath);
-
-    int numLevel = Configuration.getInt(PropertyKey.WORKER_TIERED_STORE_LEVELS);
-    for (int level = 1; level < numLevel; level++) {
-      PropertyKey tierLevelDirPath =
-          PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_DIRS_PATH.format(level);
-      String[] dirPaths = Configuration.get(tierLevelDirPath).split(",");
-      List<String> newPaths = new ArrayList<>();
-      for (String dirPath : dirPaths) {
-        String newPath = mWorkDirectory + dirPath;
-        newPaths.add(newPath);
-      }
-      Configuration.set(
-          PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_DIRS_PATH.format(level),
-          Joiner.on(',').join(newPaths));
-    }
-
-    // Sets up the journal folder
-    String journalFolder =
-        PathUtils.concatPath(mWorkDirectory, "journal" + RANDOM_GENERATOR.nextLong());
-    Configuration.set(PropertyKey.MASTER_JOURNAL_FOLDER, journalFolder);
-||||||| merged common ancestors
-    Configuration.set(PropertyKey.WORKER_MEMORY_SIZE, DEFAULT_WORKER_MEMORY_BYTES);
-    Configuration.set(PropertyKey.WORKER_BLOCK_HEARTBEAT_INTERVAL_MS, "15ms");
-    Configuration.set(PropertyKey.WORKER_BLOCK_THREADS_MIN, 1);
-    Configuration.set(PropertyKey.WORKER_BLOCK_THREADS_MAX, 2048);
-    Configuration.set(PropertyKey.WORKER_NETWORK_NETTY_WORKER_THREADS, 2);
-
-    // Shutdown data server quickly. Graceful shutdown is unnecessarily slow.
-    Configuration.set(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD, "0ms");
-    Configuration.set(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_TIMEOUT, "0ms");
-
-    Configuration.set(PropertyKey.WORKER_BIND_HOST, mHostname);
-    Configuration.set(PropertyKey.WORKER_DATA_BIND_HOST, mHostname);
-    Configuration.set(PropertyKey.WORKER_WEB_BIND_HOST, mHostname);
-
-    // Sets up the tiered store
-    String ramdiskPath = PathUtils.concatPath(mWorkDirectory, "ramdisk");
-    Configuration.set(PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_ALIAS.format(0), "MEM");
-    Configuration
-        .set(PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_DIRS_PATH.format(0), ramdiskPath);
-
-    int numLevel = Configuration.getInt(PropertyKey.WORKER_TIERED_STORE_LEVELS);
-    for (int level = 1; level < numLevel; level++) {
-      PropertyKey tierLevelDirPath =
-          PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_DIRS_PATH.format(level);
-      String[] dirPaths = Configuration.get(tierLevelDirPath).split(",");
-      List<String> newPaths = new ArrayList<>();
-      for (String dirPath : dirPaths) {
-        String newPath = mWorkDirectory + dirPath;
-        newPaths.add(newPath);
-      }
-      Configuration.set(
-          PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_DIRS_PATH.format(level),
-          Joiner.on(',').join(newPaths));
-    }
-
-    // Sets up the journal folder
-    String journalFolder =
-        PathUtils.concatPath(mWorkDirectory, "journal" + RANDOM_GENERATOR.nextLong());
-    Configuration.set(PropertyKey.MASTER_JOURNAL_FOLDER, journalFolder);
-=======
->>>>>>> OPENSOURCE/master
   }
 
   /**

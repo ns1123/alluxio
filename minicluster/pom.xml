@@ -83,7 +83,6 @@
       <artifactId>alluxio-core-server-worker</artifactId>
       <version>${project.version}</version>
     </dependency>
-<<<<<<< HEAD
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
@@ -91,14 +90,11 @@
       <version>${project.version}</version>
     </dependency>
     <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-=======
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-local</artifactId>
       <version>${project.version}</version>
     </dependency>
->>>>>>> OPENSOURCE/master
 
     <!-- Internal test dependencies -->
     <dependency>
