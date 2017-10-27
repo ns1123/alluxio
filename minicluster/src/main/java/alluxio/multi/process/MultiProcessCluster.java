@@ -457,7 +457,7 @@ public final class MultiProcessCluster implements TestRule {
     for (int i = 0; i < numMasters; i++) {
       // ALLUXIO CS REPLACE
       // addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
-      // PortUtils.getFreePort(), PortUtils.getFreePort()));
+      //     PortUtils.getFreePort(), PortUtils.getFreePort()));
       // ALLUXIO CS WITH
       // Enterprise requires an additional port for embedded journal communication.
       addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
