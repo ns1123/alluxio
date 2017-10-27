@@ -245,6 +245,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     mIsServingRPC = true;
 
     // Start serving RPC, this will block
+<<<<<<< HEAD
     LOG.info("Alluxio job worker version {} started. "
             + "bindHost={}, connectHost={}, rpcPort={}, webPort={}",
         RuntimeConstants.VERSION,
@@ -252,8 +253,26 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
         NetworkAddressUtils.getConnectAddress(ServiceType.JOB_WORKER_RPC),
         NetworkAddressUtils.getPort(ServiceType.JOB_WORKER_RPC),
         NetworkAddressUtils.getPort(ServiceType.JOB_WORKER_WEB));
+||||||| merged common ancestors
+    LOG.info("{} version {} started @ {}", this, RuntimeConstants.VERSION, mRpcAddress);
+=======
+    LOG.info("Alluxio worker version {} started. "
+            + "bindHost={}, connectHost={}, rpcPort={}, dataPort={}, webPort={}",
+        RuntimeConstants.VERSION,
+        NetworkAddressUtils.getBindHost(ServiceType.WORKER_RPC),
+        NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC),
+        NetworkAddressUtils.getPort(ServiceType.WORKER_RPC),
+        NetworkAddressUtils.getPort(ServiceType.WORKER_DATA),
+        NetworkAddressUtils.getPort(ServiceType.WORKER_WEB));
+>>>>>>> OPENSOURCE/master
     mThriftServer.serve();
+<<<<<<< HEAD
     LOG.info("Alluxio job worker ended");
+||||||| merged common ancestors
+    LOG.info("{} version {} ended @ {}", this, RuntimeConstants.VERSION, mRpcAddress);
+=======
+    LOG.info("Alluxio worker ended");
+>>>>>>> OPENSOURCE/master
   }
 
   @Override
