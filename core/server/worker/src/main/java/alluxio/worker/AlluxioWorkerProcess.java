@@ -245,9 +245,15 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     mIsServingRPC = true;
 
     // Start serving RPC, this will block
-    LOG.info("{} version {} started @ {}", this, RuntimeConstants.VERSION, mRpcAddress);
+    LOG.info("Alluxio job worker version {} started. "
+            + "bindHost={}, connectHost={}, rpcPort={}, webPort={}",
+        RuntimeConstants.VERSION,
+        NetworkAddressUtils.getBindAddress(ServiceType.JOB_WORKER_RPC),
+        NetworkAddressUtils.getConnectAddress(ServiceType.JOB_WORKER_RPC),
+        NetworkAddressUtils.getPort(ServiceType.JOB_WORKER_RPC),
+        NetworkAddressUtils.getPort(ServiceType.JOB_WORKER_WEB));
     mThriftServer.serve();
-    LOG.info("{} version {} ended @ {}", this, RuntimeConstants.VERSION, mRpcAddress);
+    LOG.info("Alluxio job worker ended");
   }
 
   @Override

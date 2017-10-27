@@ -236,11 +236,17 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
 
   protected void startServing(String startMessage, String stopMessage) {
     startServingWebServer();
-    LOG.info("{} version {} binding to {} @ {} {}", this, RuntimeConstants.VERSION, mRpcBindAddress,
-        mRpcConnectAddress, startMessage);
+    LOG.info("Alluxio job master version {} started{}. "
+            + "bindHost={}, connectHost={}, rpcPort={}, webPort={}",
+        RuntimeConstants.VERSION,
+        startMessage,
+        NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_RPC),
+        NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC),
+        NetworkAddressUtils.getPort(ServiceType.JOB_MASTER_RPC),
+        NetworkAddressUtils.getPort(ServiceType.JOB_MASTER_WEB));
+
     startServingRPCServer();
-    LOG.info("{} version {} ended @ {} {}", this, RuntimeConstants.VERSION, mRpcConnectAddress,
-        stopMessage);
+    LOG.info("Alluxio job master ended");
   }
 
   protected void startServingWebServer() {
