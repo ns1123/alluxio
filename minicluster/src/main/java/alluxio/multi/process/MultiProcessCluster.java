@@ -409,8 +409,8 @@ public final class MultiProcessCluster implements TestRule {
 
   // ALLUXIO CS ADD
   private boolean embeddedJournalEnabled() {
-    return mProperties.containsKey(PropertyKey.MASTER_JOURNAL_TYPE) &&
-        mProperties.get(PropertyKey.MASTER_JOURNAL_TYPE).equals(JournalType.EMBEDDED.toString());
+    return mProperties.containsKey(PropertyKey.MASTER_JOURNAL_TYPE)
+        && mProperties.get(PropertyKey.MASTER_JOURNAL_TYPE).equals(JournalType.EMBEDDED.toString());
   }
   // ALLUXIO CS END
   /**
