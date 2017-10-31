@@ -233,6 +233,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.ZOOKEEPER_ADDRESS)
           .setDescription("Address of ZooKeeper.")
           .build();
+  public static final PropertyKey ZOOKEEPER_CONNECTION_TIMEOUT =
+      new Builder(Name.ZOOKEEPER_CONNECTION_TIMEOUT)
+          .setDefaultValue("15s") // matches Zookeeper's default
+          .setDescription("Connection timeout to use when connecting to Zookeeper")
+          .build();
   public static final PropertyKey ZOOKEEPER_ELECTION_PATH =
       new Builder(Name.ZOOKEEPER_ELECTION_PATH)
           .setDefaultValue("/election")
@@ -252,6 +257,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.ZOOKEEPER_LEADER_PATH)
           .setDefaultValue("/leader")
           .setDescription("Leader directory in ZooKeeper.")
+          .build();
+  public static final PropertyKey ZOOKEEPER_SESSION_TIMEOUT =
+      new Builder(Name.ZOOKEEPER_SESSION_TIMEOUT)
+          .setDefaultValue("60s") // matches Zookeeper's default
+          .setDescription("Session timeout to use when connecting to Zookeeper")
           .build();
 
   /**
@@ -740,6 +750,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "underlying storage on startup. During the time the check is running, Alluxio "
               + "will be in read only mode. Enabled by default.")
           .build();
+  public static final PropertyKey MASTER_THRIFT_SHUTDOWN_TIMEOUT =
+         new Builder(Name.MASTER_THRIFT_SHUTDOWN_TIMEOUT)
+         .setDefaultValue("60sec")
+         .setDescription("Maximum time to wait for thrift servers to stop on shutdown")
+         .build();
   public static final PropertyKey MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS =
       new Builder(Name.MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS)
           .setDefaultValue("MEM")
@@ -2279,11 +2294,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String WEB_THREADS = "alluxio.web.threads";
     public static final String WORK_DIR = "alluxio.work.dir";
     public static final String ZOOKEEPER_ADDRESS = "alluxio.zookeeper.address";
+    public static final String ZOOKEEPER_CONNECTION_TIMEOUT =
+        "alluxio.zookeeper.connection.timeout";
     public static final String ZOOKEEPER_ELECTION_PATH = "alluxio.zookeeper.election.path";
     public static final String ZOOKEEPER_ENABLED = "alluxio.zookeeper.enabled";
     public static final String ZOOKEEPER_LEADER_INQUIRY_RETRY_COUNT =
         "alluxio.zookeeper.leader.inquiry.retry";
     public static final String ZOOKEEPER_LEADER_PATH = "alluxio.zookeeper.leader.path";
+    public static final String ZOOKEEPER_SESSION_TIMEOUT = "alluxio.zookeeper.session.timeout";
 
     //
     // UFS related properties
@@ -2437,6 +2455,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_RPC_PORT = "alluxio.master.port";
     public static final String MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
         "alluxio.master.startup.consistency.check.enabled";
+    public static final String MASTER_THRIFT_SHUTDOWN_TIMEOUT =
+        "alluxio.master.thrift.shutdown.timeout";
     public static final String MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS =
         "alluxio.master.tieredstore.global.level0.alias";
     public static final String MASTER_TIERED_STORE_GLOBAL_LEVEL1_ALIAS =

@@ -95,9 +95,4 @@ public class PollingMasterInquireClient implements MasterInquireClient {
   public List<InetSocketAddress> getMasterRpcAddresses() {
     return mMasterAddresses;
   }
-
-  @Override
-  public void close() throws Exception {
-    // Nothing to close.
-  }
 }
