@@ -136,7 +136,8 @@ public final class MultiProcessCluster implements TestRule {
       case EMBEDDED_HA:
         List<String> journalAddresses = new ArrayList<>();
         for (MasterNetAddress address : mMasterAddresses) {
-          journalAddresses.add(String.format("%s:%d", address.getHostname(), address.getEmbeddedJournalPort()));
+          journalAddresses
+              .add(String.format("%s:%d", address.getHostname(), address.getEmbeddedJournalPort()));
         }
         mProperties.put(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.EMBEDDED.toString());
         mProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, Joiner.on(",").join(journalAddresses));
