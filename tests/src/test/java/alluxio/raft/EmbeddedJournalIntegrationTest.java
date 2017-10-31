@@ -15,10 +15,9 @@ import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
 import alluxio.BaseIntegrationTest;
-import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
-import alluxio.master.journal.JournalType;
 import alluxio.multi.process.MultiProcessCluster;
+import alluxio.multi.process.MultiProcessCluster.DeployMode;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +33,7 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
       .setClusterName("EmbeddedJournalIntegrationTest")
       .setNumMasters(NUM_MASTERS)
       .setNumWorkers(0)
-      .addProperty(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.EMBEDDED.toString())
+      .setDeployMode(DeployMode.EMBEDDED_HA)
       .build();
 
   @Test

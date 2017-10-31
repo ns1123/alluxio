@@ -71,7 +71,7 @@ final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess
         mServingThread = new Thread(new Runnable() {
           @Override
           public void run() {
-            startServing("(gained leadership)", "(lost leadership)");
+            startServing(" (gained leadership)", " (lost leadership)");
           }
         }, "MasterServingThread");
         mServingThread.start();

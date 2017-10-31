@@ -31,6 +31,7 @@ import alluxio.master.journal.JournalType;
 import alluxio.network.PortUtils;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
+import alluxio.zookeeper.RestartableTestingServer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -38,7 +39,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.curator.test.TestingServer;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -78,12 +78,13 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class MultiProcessCluster implements TestRule {
   private static final Logger LOG = LoggerFactory.getLogger(MultiProcessCluster.class);
   private static final File ARTIFACTS_DIR = new File("./target/artifacts");
-  private static final File TESTS_LOG = new File("./target/tests.log");
+  private static final File TESTS_LOG = new File("./target/logs/tests.log");
 
   private final Map<PropertyKey, String> mProperties;
   private final int mNumMasters;
   private final int mNumWorkers;
   private final String mClusterName;
+  private final DeployMode mDeployMode;
   /** Closer for closing all resources that must be closed when the cluster is destroyed. */
   private final Closer mCloser;
   private final List<Master> mMasters;
@@ -94,7 +95,7 @@ public final class MultiProcessCluster implements TestRule {
   /** Addresses of all masters. Should have the same size as {@link #mMasters}. */
   private List<MasterNetAddress> mMasterAddresses;
   private State mState;
-  private TestingServer mCuratorServer;
+  private RestartableTestingServer mCuratorServer;
   /**
    * Tracks whether the test has succeeded. If mSuccess is never updated before {@link #destroy()},
    * the state of the cluster will be saved as a tarball in the artifacts directory.
@@ -102,12 +103,13 @@ public final class MultiProcessCluster implements TestRule {
   private boolean mSuccess;
 
   private MultiProcessCluster(Map<PropertyKey, String> properties, int numMasters, int numWorkers,
-      String clusterName) {
+      String clusterName, DeployMode mode) {
     mProperties = properties;
     mNumMasters = numMasters;
     mNumWorkers = numWorkers;
     // Add a unique number so that different runs of the same test use different cluster names.
     mClusterName = clusterName + ThreadLocalRandom.current().nextLong();
+    mDeployMode = mode;
     mMasters = new ArrayList<>();
     mWorkers = new ArrayList<>();
     mCloser = Closer.create();
@@ -124,23 +126,29 @@ public final class MultiProcessCluster implements TestRule {
     mState = State.STARTED;
 
     mMasterAddresses = generateMasterAddresses(mNumMasters);
-    if (zkEnabled()) {
-      mCuratorServer = mCloser
-          .register(new TestingServer(-1, AlluxioTestDirectory.createTemporaryDirectory("zk")));
-      mProperties.put(PropertyKey.ZOOKEEPER_ADDRESS, mCuratorServer.getConnectString());
-    // ALLUXIO CS ADD
-    } else if (embeddedJournalEnabled()) {
-      List<String> journalAddresses = new ArrayList<>();
-      for (MasterNetAddress address : mMasterAddresses) {
-        journalAddresses.add(String.format("%s:%d", address.getHostname(), address.getEmbeddedJournalPort()));
-      }
-      mProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, Joiner.on(",").join(journalAddresses));
-    // ALLUXIO CS END
-    } else {
-      MasterNetAddress masterAddress = mMasterAddresses.get(0);
-      mProperties.put(PropertyKey.MASTER_HOSTNAME, masterAddress.getHostname());
-      mProperties.put(PropertyKey.MASTER_RPC_PORT, Integer.toString(masterAddress.getRpcPort()));
-      mProperties.put(PropertyKey.MASTER_WEB_PORT, Integer.toString(masterAddress.getWebPort()));
+    switch (mDeployMode) {
+      case NON_HA:
+        MasterNetAddress masterAddress = mMasterAddresses.get(0);
+        mProperties.put(PropertyKey.MASTER_HOSTNAME, masterAddress.getHostname());
+        mProperties.put(PropertyKey.MASTER_RPC_PORT, Integer.toString(masterAddress.getRpcPort()));
+        mProperties.put(PropertyKey.MASTER_WEB_PORT, Integer.toString(masterAddress.getWebPort()));
+        break;
+      case EMBEDDED_HA:
+        List<String> journalAddresses = new ArrayList<>();
+        for (MasterNetAddress address : mMasterAddresses) {
+          journalAddresses.add(String.format("%s:%d", address.getHostname(), address.getEmbeddedJournalPort()));
+        }
+        mProperties.put(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.EMBEDDED.toString());
+        mProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, Joiner.on(",").join(journalAddresses));
+        break;
+      case ZOOKEEPER_HA:
+        mCuratorServer = mCloser.register(
+            new RestartableTestingServer(-1, AlluxioTestDirectory.createTemporaryDirectory("zk")));
+        mProperties.put(PropertyKey.ZOOKEEPER_ENABLED, "true");
+        mProperties.put(PropertyKey.ZOOKEEPER_ADDRESS, mCuratorServer.getConnectString());
+        break;
+      default:
+        throw new IllegalStateException("Unknown deploy mode: " + mDeployMode.toString());
     }
 
     mWorkDir = AlluxioTestDirectory.createTemporaryDirectory(mClusterName);
@@ -177,7 +185,6 @@ public final class MultiProcessCluster implements TestRule {
    */
   public synchronized int waitForAndKillPrimaryMaster() {
     final FileSystem fs = getFileSystemClient();
-    final MasterInquireClient inquireClient = getMasterInquireClient();
     CommonUtils.waitFor("a primary master to be serving", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
@@ -192,6 +199,7 @@ public final class MultiProcessCluster implements TestRule {
         }
       }
     });
+    MasterInquireClient inquireClient = getMasterInquireClient();
     int primaryRpcPort;
     try {
       primaryRpcPort = inquireClient.getPrimaryRpcAddress().getPort();
@@ -308,6 +316,28 @@ public final class MultiProcessCluster implements TestRule {
   }
 
   /**
+   * @return return the list of master addresses
+   */
+  public synchronized List<MasterNetAddress> getMasterAddresses() {
+    return mMasterAddresses;
+  }
+
+  /**
+   * Stops the Zookeeper cluster.
+   */
+  public synchronized void stopZk() throws IOException {
+    mCuratorServer.stop();
+  }
+
+  /**
+   * Restarts the Zookeeper cluster.
+   */
+  public synchronized void restartZk() throws Exception {
+    Preconditions.checkNotNull(mCuratorServer, "mCuratorServer");
+    mCuratorServer.restart();
+  }
+
+  /**
    * Creates the specified master without starting it.
    *
    * @param i the index of the master to create
@@ -329,7 +359,7 @@ public final class MultiProcessCluster implements TestRule {
     // ALLUXIO CS ADD
     conf.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_PORT,
         Integer.toString(address.getEmbeddedJournalPort()));
-    if (embeddedJournalEnabled()) {
+    if (mDeployMode.equals(DeployMode.EMBEDDED_HA)) {
       File journalDir = new File(mWorkDir, "journal" + i);
       journalDir.mkdirs();
       conf.put(PropertyKey.MASTER_JOURNAL_FOLDER, journalDir.getAbsolutePath());
@@ -382,37 +412,27 @@ public final class MultiProcessCluster implements TestRule {
   }
 
   private MasterInquireClient getMasterInquireClient() {
-    if (zkEnabled()) {
-      return ZkMasterInquireClient.getClient(mCuratorServer.getConnectString(),
-          Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH),
-          Configuration.get(PropertyKey.ZOOKEEPER_LEADER_PATH));
-    // ALLUXIO CS ADD
-    } else if (embeddedJournalEnabled()) {
-      List<InetSocketAddress> addresses = new ArrayList<>(mMasterAddresses.size());
-      for (MasterNetAddress address : mMasterAddresses) {
-        addresses.add(new InetSocketAddress(address.getHostname(), address.getRpcPort()));
-      }
-      return new PollingMasterInquireClient(addresses);
-    // ALLUXIO CS END
-    } else {
-      Preconditions.checkState(mMasters.size() == 1,
-          "Running with multiple masters requires Zookeeper to be enabled");
-      return new SingleMasterInquireClient(new InetSocketAddress(
-          mMasterAddresses.get(0).getHostname(), mMasterAddresses.get(0).getRpcPort()));
+    switch (mDeployMode) {
+      case NON_HA:
+        Preconditions.checkState(mMasters.size() == 1,
+            "Running with multiple masters requires Zookeeper to be enabled");
+        return new SingleMasterInquireClient(new InetSocketAddress(
+            mMasterAddresses.get(0).getHostname(), mMasterAddresses.get(0).getRpcPort()));
+      case EMBEDDED_HA:
+        List<InetSocketAddress> addresses = new ArrayList<>(mMasterAddresses.size());
+        for (MasterNetAddress address : mMasterAddresses) {
+          addresses.add(new InetSocketAddress(address.getHostname(), address.getRpcPort()));
+        }
+        return new PollingMasterInquireClient(addresses);
+      case ZOOKEEPER_HA:
+        return ZkMasterInquireClient.getClient(mCuratorServer.getConnectString(),
+            Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH),
+            Configuration.get(PropertyKey.ZOOKEEPER_LEADER_PATH));
+      default:
+        throw new IllegalStateException("Unknown deploy mode: " + mDeployMode.toString());
     }
   }
 
-  private boolean zkEnabled() {
-    return mProperties.containsKey(PropertyKey.ZOOKEEPER_ENABLED)
-        && mProperties.get(PropertyKey.ZOOKEEPER_ENABLED).equalsIgnoreCase("true");
-  }
-
-  // ALLUXIO CS ADD
-  private boolean embeddedJournalEnabled() {
-    return mProperties.containsKey(PropertyKey.MASTER_JOURNAL_TYPE)
-        && mProperties.get(PropertyKey.MASTER_JOURNAL_TYPE).equals(JournalType.EMBEDDED.toString());
-  }
-  // ALLUXIO CS END
   /**
    * Writes the contents of {@link #mProperties} to the configuration file.
    */
@@ -473,6 +493,16 @@ public final class MultiProcessCluster implements TestRule {
   }
 
   /**
+   * Deploy mode for the cluster.
+   */
+  public enum DeployMode {
+    // ALLUXIO CS ADD
+    EMBEDDED_HA,
+    // ALLUXIO CS END
+    NON_HA, ZOOKEEPER_HA
+  }
+
+  /**
    * Builder for {@link MultiProcessCluster}.
    */
   public static final class Builder {
@@ -480,6 +510,7 @@ public final class MultiProcessCluster implements TestRule {
     private int mNumMasters = 1;
     private int mNumWorkers = 1;
     private String mClusterName = "AlluxioMiniCluster";
+    private DeployMode mDeployMode = DeployMode.NON_HA;
 
     private Builder() {} // Should only be instantiated by newBuilder().
 
@@ -489,6 +520,8 @@ public final class MultiProcessCluster implements TestRule {
      * @return the builder
      */
     public Builder addProperty(PropertyKey key, String value) {
+      Preconditions.checkState(!key.equals(PropertyKey.ZOOKEEPER_ENABLED),
+          "Enable Zookeeper via #setDeployMode instead of #addProperty");
       mProperties.put(key, value);
       return this;
     }
@@ -498,7 +531,18 @@ public final class MultiProcessCluster implements TestRule {
      * @return the builder
      */
     public Builder addProperties(Map<PropertyKey, String> properties) {
-      mProperties.putAll(properties);
+      for (Entry<PropertyKey, String> entry : properties.entrySet()) {
+        addProperty(entry.getKey(), entry.getValue());
+      }
+      return this;
+    }
+
+    /**
+     * @param mode the deploy mode for the cluster
+     * @return the builder
+     */
+    public Builder setDeployMode(DeployMode mode) {
+      mDeployMode = mode;
       return this;
     }
 
@@ -533,7 +577,8 @@ public final class MultiProcessCluster implements TestRule {
      * @return a constructed {@link MultiProcessCluster}
      */
     public MultiProcessCluster build() {
-      return new MultiProcessCluster(mProperties, mNumMasters, mNumWorkers, mClusterName);
+      return new MultiProcessCluster(mProperties, mNumMasters, mNumWorkers, mClusterName,
+          mDeployMode);
     }
   }
 
