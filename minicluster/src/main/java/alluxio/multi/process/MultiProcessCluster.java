@@ -24,17 +24,14 @@ import alluxio.client.file.FileSystemContext;
 import alluxio.exception.status.UnavailableException;
 import alluxio.master.LocalAlluxioCluster;
 import alluxio.master.MasterInquireClient;
-import alluxio.master.PollingMasterInquireClient;
 import alluxio.master.SingleMasterInquireClient;
 import alluxio.master.ZkMasterInquireClient;
-import alluxio.master.journal.JournalType;
 import alluxio.network.PortUtils;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.zookeeper.RestartableTestingServer;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
 import org.apache.commons.io.Charsets;
@@ -140,8 +137,10 @@ public final class MultiProcessCluster implements TestRule {
           journalAddresses
               .add(String.format("%s:%d", address.getHostname(), address.getEmbeddedJournalPort()));
         }
-        mProperties.put(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.EMBEDDED.toString());
-        mProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, Joiner.on(",").join(journalAddresses));
+        mProperties.put(PropertyKey.MASTER_JOURNAL_TYPE,
+            alluxio.master.journal.JournalType.EMBEDDED.toString());
+        mProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES,
+            com.google.common.base.Joiner.on(",").join(journalAddresses));
         break;
       // ALLUXIO CS END
       case ZOOKEEPER_HA:
@@ -427,7 +426,7 @@ public final class MultiProcessCluster implements TestRule {
         for (MasterNetAddress address : mMasterAddresses) {
           addresses.add(new InetSocketAddress(address.getHostname(), address.getRpcPort()));
         }
-        return new PollingMasterInquireClient(addresses);
+        return new alluxio.master.PollingMasterInquireClient(addresses);
       // ALLUXIO CS END
       case ZOOKEEPER_HA:
         return ZkMasterInquireClient.getClient(mCuratorServer.getConnectString(),
