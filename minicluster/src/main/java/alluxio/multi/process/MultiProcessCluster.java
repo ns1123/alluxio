@@ -133,6 +133,7 @@ public final class MultiProcessCluster implements TestRule {
         mProperties.put(PropertyKey.MASTER_RPC_PORT, Integer.toString(masterAddress.getRpcPort()));
         mProperties.put(PropertyKey.MASTER_WEB_PORT, Integer.toString(masterAddress.getWebPort()));
         break;
+      // ALLUXIO CS ADD
       case EMBEDDED_HA:
         List<String> journalAddresses = new ArrayList<>();
         for (MasterNetAddress address : mMasterAddresses) {
@@ -142,6 +143,7 @@ public final class MultiProcessCluster implements TestRule {
         mProperties.put(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.EMBEDDED.toString());
         mProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, Joiner.on(",").join(journalAddresses));
         break;
+      // ALLUXIO CS END
       case ZOOKEEPER_HA:
         mCuratorServer = mCloser.register(
             new RestartableTestingServer(-1, AlluxioTestDirectory.createTemporaryDirectory("zk")));
@@ -186,6 +188,7 @@ public final class MultiProcessCluster implements TestRule {
    */
   public synchronized int waitForAndKillPrimaryMaster() {
     final FileSystem fs = getFileSystemClient();
+    final MasterInquireClient inquireClient = getMasterInquireClient();
     CommonUtils.waitFor("a primary master to be serving", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
@@ -200,7 +203,6 @@ public final class MultiProcessCluster implements TestRule {
         }
       }
     });
-    MasterInquireClient inquireClient = getMasterInquireClient();
     int primaryRpcPort;
     try {
       primaryRpcPort = inquireClient.getPrimaryRpcAddress().getPort();
@@ -419,12 +421,14 @@ public final class MultiProcessCluster implements TestRule {
             "Running with multiple masters requires Zookeeper to be enabled");
         return new SingleMasterInquireClient(new InetSocketAddress(
             mMasterAddresses.get(0).getHostname(), mMasterAddresses.get(0).getRpcPort()));
+      // ALLUXIO CS ADD
       case EMBEDDED_HA:
         List<InetSocketAddress> addresses = new ArrayList<>(mMasterAddresses.size());
         for (MasterNetAddress address : mMasterAddresses) {
           addresses.add(new InetSocketAddress(address.getHostname(), address.getRpcPort()));
         }
         return new PollingMasterInquireClient(addresses);
+      // ALLUXIO CS END
       case ZOOKEEPER_HA:
         return ZkMasterInquireClient.getClient(mCuratorServer.getConnectString(),
             Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH),
