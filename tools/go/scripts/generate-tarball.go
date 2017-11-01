@@ -73,13 +73,6 @@ var (
 	ufsModulesFlag       string
 )
 
-// frameworks is a map from framework to whether building a client for the framework requires recompilation.
-var frameworks = map[string]bool{
-	"flink": false,
-	"hadoop": false,
-	"presto": true,
-	"spark": true,
-}
 var webappDir = "core/server/common/src/main/webapp"
 var webappWar = "assembly/webapp.war"
 
@@ -225,6 +218,8 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		"bin/alluxio-start.sh",
 		"bin/alluxio-stop.sh",
 		"bin/alluxio-workers.sh",
+		// CLIENT
+		fmt.Sprintf("client/alluxio-%v-client.jar", version),
 		// CONF
 		"conf/alluxio-env.sh.template",
 		"conf/alluxio-site.properties.template",
@@ -342,11 +337,8 @@ func generateTarball() error {
 	// CREATE NEEDED DIRECTORIES
 	// Create the directory for the server jar.
 	mkdir(filepath.Join(dstPath, "assembly"))
-	// Create directories for the client jars.
-	mkdir(filepath.Join(dstPath, "client/default"))
-	for framework, _ := range frameworks {
-		mkdir(filepath.Join(dstPath, "client", framework))
-	}
+	// Create directories for the client jar.
+	mkdir(filepath.Join(dstPath, "client"))
 	mkdir(filepath.Join(dstPath, "logs"))
 
 	// ADD ALLUXIO ASSEMBLY JARS TO DISTRIBUTION
@@ -360,18 +352,8 @@ func generateTarball() error {
 
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
 	chdir(filepath.Join(srcPath, "core/client/runtime"))
-	run("building Alluxio default client jar", "mvn", getCommonMvnArgs()...)
-	run("adding Alluxio default client jar", "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("default/alluxio-%v-default-client.jar", version)))
-	for framework, recompile := range frameworks {
-		if recompile {
-			clientArgs := getCommonMvnArgs()
-			clientArgs = append(clientArgs, fmt.Sprintf("-P%s", framework))
-			run(fmt.Sprintf("building Alluxio %s client jar", framework), "mvn", clientArgs...)
-			run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-runtime-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
-		} else {
-			run(fmt.Sprintf("creating symlink for %v client jar", framework), "ln", "-s", fmt.Sprintf("../default/alluxio-%v-default-client.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
-		}
-	}
+	run("building Alluxio client jar", "mvn", getCommonMvnArgs()...)
+	run("adding Alluxio client jar", "mv", filepath.Join(srcPath, "client", fmt.Sprintf("alluxio-%v-client.jar", version)), filepath.Join(dstPath, "client", fmt.Sprintf("alluxio-%v-client.jar", version)))
 
 	// CREATE DISTRIBUTION TARBALL AND CLEANUP
 	chdir(cwd)
