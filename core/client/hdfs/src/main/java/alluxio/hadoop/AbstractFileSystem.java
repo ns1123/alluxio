@@ -75,8 +75,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileSystem.class);
 
   public static final String FIRST_COM_PATH = "alluxio_dep/";
-  // Always tell Hadoop that we have 3x replication.
-  private static final int BLOCK_REPLICATION_CONSTANT = 3;
+  // ALLUXIO CS REMOVE
+  //// Always tell Hadoop that we have 3x replication.
+  //private static final int BLOCK_REPLICATION_CONSTANT = 3;
+  // ALLUXIO CS END
+
   /** Lock for initializing the contexts, currently only one set of contexts is supported. */
   private static final Object INIT_LOCK = new Object();
 
@@ -157,8 +160,13 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
 
     AlluxioURI uri = new AlluxioURI(HadoopUtils.getPathWithoutScheme(path));
+    // ALLUXIO CS REPLACE
+    //CreateFileOptions options = CreateFileOptions.defaults().setBlockSizeBytes(blockSize)
+    //    .setMode(new Mode(permission.toShort()));
+    // ALLUXIO CS WITH
     CreateFileOptions options = CreateFileOptions.defaults().setBlockSizeBytes(blockSize)
-        .setMode(new Mode(permission.toShort()));
+        .setMode(new Mode(permission.toShort())).setReplicationMin(replication);
+    // ALLUXIO CS END
 
     FileOutStream outStream;
     try {
@@ -298,6 +306,28 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     return ret;
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public short getDefaultReplication() {
+    return (short) CreateFileOptions.defaults().getReplicationMin();
+  }
+
+  @Override
+  public boolean setReplication(Path path, short replication) throws IOException {
+    AlluxioURI uri = new AlluxioURI(HadoopUtils.getPathWithoutScheme(path));
+
+    try {
+      if (!mFileSystem.exists(uri) || mFileSystem.getStatus(uri).isFolder()) {
+        return false;
+      }
+      mFileSystem.setAttribute(uri, SetAttributeOptions.defaults().setReplicationMin(replication));
+      return true;
+    } catch (AlluxioException e) {
+      throw new IOException(e);
+    }
+  }
+
+  // ALLUXIO CS END
   /**
    * {@inheritDoc}
    *
@@ -320,11 +350,19 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       throw new IOException(e);
     }
 
+    // ALLUXIO CS REPLACE
+    //return new FileStatus(fileStatus.getLength(), fileStatus.isFolder(),
+    //    BLOCK_REPLICATION_CONSTANT, fileStatus.getBlockSizeBytes(),
+    //    fileStatus.getLastModificationTimeMs(),
+    //    fileStatus.getCreationTimeMs(), new FsPermission((short) fileStatus.getMode()),
+    //    fileStatus.getOwner(), fileStatus.getGroup(), new Path(mAlluxioHeader + uri));
+    // ALLUXIO CS WITH
     return new FileStatus(fileStatus.getLength(), fileStatus.isFolder(),
-        BLOCK_REPLICATION_CONSTANT, fileStatus.getBlockSizeBytes(),
+        fileStatus.getReplicationMin(), fileStatus.getBlockSizeBytes(),
         fileStatus.getLastModificationTimeMs(),
         fileStatus.getCreationTimeMs(), new FsPermission((short) fileStatus.getMode()),
         fileStatus.getOwner(), fileStatus.getGroup(), new Path(mAlluxioHeader + uri));
+    // ALLUXIO CS END
   }
 
   /**
@@ -589,10 +627,17 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     for (int k = 0; k < statuses.size(); k++) {
       URIStatus status = statuses.get(k);
 
-      ret[k] = new FileStatus(status.getLength(), status.isFolder(), BLOCK_REPLICATION_CONSTANT,
+      // ALLUXIO CS REPLACE
+      //ret[k] = new FileStatus(status.getLength(), status.isFolder(), BLOCK_REPLICATION_CONSTANT,
+      //    status.getBlockSizeBytes(), status.getLastModificationTimeMs(),
+      //    status.getCreationTimeMs(), new FsPermission((short) status.getMode()), status.getOwner(),
+      //    status.getGroup(), new Path(mAlluxioHeader + status.getPath()));
+      // ALLUXIO CS WITH
+      ret[k] = new FileStatus(status.getLength(), status.isFolder(), status.getReplicationMin(),
           status.getBlockSizeBytes(), status.getLastModificationTimeMs(),
           status.getCreationTimeMs(), new FsPermission((short) status.getMode()), status.getOwner(),
           status.getGroup(), new Path(mAlluxioHeader + status.getPath()));
+      // ALLUXIO CS END
     }
     return ret;
   }
