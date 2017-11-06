@@ -145,7 +145,10 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
    * @param permission permissions of the created file/folder
    * @param overwrite overwrite if file exists
    * @param bufferSize the size in bytes of the buffer to be used
-   * @param replication under filesystem replication factor
+   * @param replication under filesystem replication factor, this is always ignored, Alluxio will
+   *        replicate files according to the {@link PropertyKey#USER_FILE_REPLICATION_MIN} and
+   *        {@link PropertyKey#USER_FILE_REPLICATION_MAX} properties, or call
+   *        {@link #setReplication(Path, short)} explicitly after the file is created
    * @param blockSize block size in bytes
    * @param progress queryable progress
    * @return an {@link FSDataOutputStream} created at the indicated path of a file
@@ -165,7 +168,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     //    .setMode(new Mode(permission.toShort()));
     // ALLUXIO CS WITH
     CreateFileOptions options = CreateFileOptions.defaults().setBlockSizeBytes(blockSize)
-        .setMode(new Mode(permission.toShort())).setReplicationMin(replication);
+        .setMode(new Mode(permission.toShort()));
     // ALLUXIO CS END
 
     FileOutStream outStream;
