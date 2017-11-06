@@ -309,7 +309,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   // ALLUXIO CS ADD
   @Override
   public short getDefaultReplication() {
-    return (short) CreateFileOptions.defaults().getReplicationMin();
+    return (short) Math.max(1, CreateFileOptions.defaults().getReplicationMin());
   }
 
   @Override
