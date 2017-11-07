@@ -1096,23 +1096,7 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <additionalparam>-Xdoclint:none</additionalparam>
-        </configuration>
-        <executions>
-          <execution>
-            <id>aggregate</id>
-            <goals>
-              <goal>aggregate</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>attach-javadoc</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-        <!-- ALLUXIO CS ADD -->
-        <configuration>
+          <!-- ALLUXIO CS ADD -->
           <show>public</show>
           <sourceFileIncludes>
             <include>alluxio/AlluxioURI.java</include>
@@ -1160,8 +1144,22 @@
             <include>alluxio/worker/block/evictor/PartialLRUEvictor.java</include>
           </sourceFileIncludes>
           <sourcepath>${basedir}/core/client/fs/src/main/java/:${basedir}/core/common/src/main/java/:${basedir}/core/server/worker/src/main/java/</sourcepath>
-        </configuration>
         <!-- ALLUXIO CS END -->
+        </configuration>
+        <executions>
+          <execution>
+            <id>aggregate</id>
+            <goals>
+              <goal>aggregate</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>attach-javadoc</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- Enforce versions -->
@@ -1483,7 +1481,6 @@
         </pluginManagement>
       </build>
     </profile>
-<<<<<<< HEAD
 
     <!-- ALLUXIO CS ADD -->
     <!-- profile that compiles alluxio native library -->
@@ -1522,18 +1519,6 @@
       </build>
     </profile>
 
-    <!-- ALLUXIO CS END -->
-    <!-- profile that activates alluxio fuse for java8 or newer -->
-    <profile>
-      <id>fuse</id>
-      <activation>
-        <jdk>[1.8,)</jdk> <!-- 1.8 or newer -->
-      </activation>
-      <modules>
-        <module>integration/fuse</module>
-      </modules>
-    </profile>
-    <!-- ALLUXIO CS ADD -->
     <profile>
       <id>third-party-license-report</id>
       <build>
@@ -1571,19 +1556,5 @@
       </build>
     </profile>
     <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-
-    <!-- profile that activates alluxio fuse for java8 or newer -->
-    <profile>
-      <id>fuse</id>
-      <activation>
-        <jdk>[1.8,)</jdk> <!-- 1.8 or newer -->
-      </activation>
-      <modules>
-        <module>integration/fuse</module>
-      </modules>
-    </profile>
-=======
->>>>>>> e29a41a134f9af682c7378ff0207fc743e6817a1
   </profiles>
 </project>
