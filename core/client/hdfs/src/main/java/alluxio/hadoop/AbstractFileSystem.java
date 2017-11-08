@@ -75,6 +75,9 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileSystem.class);
 
   public static final String FIRST_COM_PATH = "alluxio_dep/";
+  // ALLUXIO CS ADD
+  //// BLOCK_REPLICATION_CONSTANT is not used in AEE.
+  // ALLUXIO CS END
   // Always tell Hadoop that we have 3x replication.
   private static final int BLOCK_REPLICATION_CONSTANT = 3;
   /** Lock for initializing the contexts, currently only one set of contexts is supported. */
@@ -298,6 +301,28 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     return ret;
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public short getDefaultReplication() {
+    return (short) Math.max(1, CreateFileOptions.defaults().getReplicationMin());
+  }
+
+  @Override
+  public boolean setReplication(Path path, short replication) throws IOException {
+    AlluxioURI uri = new AlluxioURI(HadoopUtils.getPathWithoutScheme(path));
+
+    try {
+      if (!mFileSystem.exists(uri) || mFileSystem.getStatus(uri).isFolder()) {
+        return false;
+      }
+      mFileSystem.setAttribute(uri, SetAttributeOptions.defaults().setReplicationMin(replication));
+      return true;
+    } catch (AlluxioException e) {
+      throw new IOException(e);
+    }
+  }
+
+  // ALLUXIO CS END
   /**
    * {@inheritDoc}
    *
@@ -328,7 +353,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   }
 
   private int getReplica(URIStatus status) {
-    return BLOCK_REPLICATION_CONSTANT;
+    // ALLUXIO CS REPLACE
+    //return BLOCK_REPLICATION_CONSTANT;
+    // ALLUXIO CS WITH
+    return status.getReplicationMin();
+    // ALLUXIO CS END
   }
 
   /**
