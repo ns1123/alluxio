@@ -75,10 +75,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileSystem.class);
 
   public static final String FIRST_COM_PATH = "alluxio_dep/";
-  // ALLUXIO CS REMOVE
-  //// Always tell Hadoop that we have 3x replication.
-  //private static final int BLOCK_REPLICATION_CONSTANT = 3;
+  // ALLUXIO CS ADD
+  //// BLOCK_REPLICATION_CONSTANT is not used in AEE.
   // ALLUXIO CS END
+  // Always tell Hadoop that we have 3x replication.
+  private static final int BLOCK_REPLICATION_CONSTANT = 3;
 
   /** Lock for initializing the contexts, currently only one set of contexts is supported. */
   private static final Object INIT_LOCK = new Object();
@@ -163,13 +164,8 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
 
     AlluxioURI uri = new AlluxioURI(HadoopUtils.getPathWithoutScheme(path));
-    // ALLUXIO CS REPLACE
-    //CreateFileOptions options = CreateFileOptions.defaults().setBlockSizeBytes(blockSize)
-    //    .setMode(new Mode(permission.toShort()));
-    // ALLUXIO CS WITH
     CreateFileOptions options = CreateFileOptions.defaults().setBlockSizeBytes(blockSize)
         .setMode(new Mode(permission.toShort()));
-    // ALLUXIO CS END
 
     FileOutStream outStream;
     try {
@@ -353,18 +349,18 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       throw new IOException(e);
     }
 
-    // ALLUXIO CS REPLACE
-    //return new FileStatus(fileStatus.getLength(), fileStatus.isFolder(),
-    //    BLOCK_REPLICATION_CONSTANT, fileStatus.getBlockSizeBytes(),
-    //    fileStatus.getLastModificationTimeMs(),
-    //    fileStatus.getCreationTimeMs(), new FsPermission((short) fileStatus.getMode()),
-    //    fileStatus.getOwner(), fileStatus.getGroup(), new Path(mAlluxioHeader + uri));
-    // ALLUXIO CS WITH
     return new FileStatus(fileStatus.getLength(), fileStatus.isFolder(),
-        fileStatus.getReplicationMin(), fileStatus.getBlockSizeBytes(),
+        getReplica(fileStatus), fileStatus.getBlockSizeBytes(),
         fileStatus.getLastModificationTimeMs(),
         fileStatus.getCreationTimeMs(), new FsPermission((short) fileStatus.getMode()),
         fileStatus.getOwner(), fileStatus.getGroup(), new Path(mAlluxioHeader + uri));
+  }
+
+  private int getReplica(URIStatus status) {
+    // ALLUXIO CS REPLACE
+    //return BLOCK_REPLICATION_CONSTANT;
+    // ALLUXIO CS WITH
+    return status.getReplicationMin();
     // ALLUXIO CS END
   }
 
@@ -630,17 +626,10 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     for (int k = 0; k < statuses.size(); k++) {
       URIStatus status = statuses.get(k);
 
-      // ALLUXIO CS REPLACE
-      //ret[k] = new FileStatus(status.getLength(), status.isFolder(), BLOCK_REPLICATION_CONSTANT,
-      //    status.getBlockSizeBytes(), status.getLastModificationTimeMs(),
-      //    status.getCreationTimeMs(), new FsPermission((short) status.getMode()), status.getOwner(),
-      //    status.getGroup(), new Path(mAlluxioHeader + status.getPath()));
-      // ALLUXIO CS WITH
-      ret[k] = new FileStatus(status.getLength(), status.isFolder(), status.getReplicationMin(),
+      ret[k] = new FileStatus(status.getLength(), status.isFolder(), getReplica(status),
           status.getBlockSizeBytes(), status.getLastModificationTimeMs(),
           status.getCreationTimeMs(), new FsPermission((short) status.getMode()), status.getOwner(),
           status.getGroup(), new Path(mAlluxioHeader + status.getPath()));
-      // ALLUXIO CS END
     }
     return ret;
   }
