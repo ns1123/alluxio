@@ -10,7 +10,7 @@
 # See the NOTICE file distributed with this work for information regarding copyright ownership.
 #
 
-FROM openjdk:7-jdk-alpine
+FROM openjdk:8-jdk-alpine
 # ALLUXIO CS ADD
 RUN echo "The enterprise repo uses integration/docker-enterprise/Dockerfile instead of this file." && exit 1
 # ALLUXIO CS END

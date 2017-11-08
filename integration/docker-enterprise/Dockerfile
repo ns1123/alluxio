@@ -9,7 +9,7 @@
 # See the NOTICE file distributed with this work for information regarding copyright ownership.
 #
 
-FROM openjdk:7-jdk-alpine
+FROM openjdk:8-jdk-alpine
 
 ARG ALLUXIO_TARBALL=alluxio-enterprise-1.6.0-SNAPSHOT.tar.gz
 
