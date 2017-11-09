@@ -354,7 +354,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
 
   private int getReplica(URIStatus status) {
     // ALLUXIO CS REPLACE
-    //return BLOCK_REPLICATION_CONSTANT;
+    // return BLOCK_REPLICATION_CONSTANT;
     // ALLUXIO CS WITH
     return status.getReplicationMin();
     // ALLUXIO CS END
