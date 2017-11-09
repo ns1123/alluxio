@@ -70,41 +70,11 @@
       <artifactId>alluxio-keyvalue-server</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ALLUXIO CS ADD -->
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-fork</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-logserver</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ALLUXIO CS ADD -->
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-hdfsx-common</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-client</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-jdbc</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-maprfs</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <!-- ALLUXIO CS END -->
   </dependencies>
 
   <profiles>

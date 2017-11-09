@@ -49,5 +49,6 @@ tests.log*
 # ALLUXIO CS ADD
 /lib/
 /core/client/fs/src/main/native/cmake/
+/underfs/hdfs/src/main/java/alluxio/UfsConstants.java
 # ALLUXIO CS END
 # ALLUXIO CS MODIFIED

@@ -18,24 +18,29 @@ import (
 const edition = "enterprise"
 const versionMarker = "${VERSION}"
 
+type module struct {
+	name string
+	mavenArgs string
+}
+
 // ufsModuleNames is a map from ufs profile to the name used in the generated tarball.
-var ufsModuleNames = map[string]string{
-	"ufs-hadoop-1.0": "hdfsx-apache1_0",
-	"ufs-hadoop-1.2": "hdfsx-apache1_2",
-	"ufs-hadoop-2.2": "hdfsx-apache2_2",
-	"ufs-hadoop-2.3": "hdfsx-apache2_3",
-	"ufs-hadoop-2.4": "hdfsx-apache2_4",
-	"ufs-hadoop-2.5": "hdfsx-apache2_5",
-	"ufs-hadoop-2.6": "hdfsx-apache2_6",
-	"ufs-hadoop-2.7": "hdfsx-apache2_7",
-	"ufs-hadoop-2.8": "hdfsx-apache2_8",
-	"ufs-cdh-5.6":    "hdfsx-cdh5_6",
-	"ufs-cdh-5.8":    "hdfsx-cdh5_8",
-	"ufs-cdh-5.11":   "hdfsx-cdh5_11",
-	"ufs-cdh-5.12":   "hdfsx-cdh5_12",
-	"ufs-hdp-2.4":    "hdfsx-hdp2_4",
-	"ufs-hdp-2.5":    "hdfsx-hdp2_5",
-	"ufs-hdp-2.6":    "hdfsx-hdp2_6",
+var ufsModuleNames = map[string]module{
+	"ufs-hadoop-1.0": {"hadoop-1.0", "-pl underfs/hdfs -Phadoop-1 -Dhadoop.version=1.0.4"},
+	"ufs-hadoop-1.2": {"hadoop-1.2", "-pl underfs/hdfs -Phadoop-1 -Dhadoop.version=1.2.1"},
+	"ufs-hadoop-2.2": {"hadoop-2.2", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.2.0"},
+	"ufs-hadoop-2.3": {"hadoop-2.3", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.3.0"},
+	"ufs-hadoop-2.4": {"hadoop-2.4", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.4.1"},
+	"ufs-hadoop-2.5": {"hadoop-2.5", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.5.2"},
+	"ufs-hadoop-2.6": {"hadoop-2.6", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.5"},
+	"ufs-hadoop-2.7": {"hadoop-2.7", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.7.3"},
+	"ufs-hadoop-2.8": {"hadoop-2.8", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.8.0"},
+	"ufs-cdh-5.6":    {"cdh-5.6", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.0-cdh5.6.1"},
+	"ufs-cdh-5.8":    {"cdh-5.8", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.0-cdh5.8.5"},
+	"ufs-cdh-5.11":   {"cdh-5.11", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.0-cdh5.11.0"},
+	"ufs-cdh-5.12":   {"cdh-5.12", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.0-cdh5.12.1"},
+	"ufs-hdp-2.4":    {"hdp-2.4","-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.7.1.2.4.4.1-9"},
+	"ufs-hdp-2.5":    {"hdp-2.5","-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.7.3.2.5.5.5-2"},
+	"ufs-hdp-2.6":    {"hdp-2.6","-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.7.3.2.6.1.0-129"},
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
@@ -233,7 +238,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		fmt.Sprintf("lib/alluxio-underfs-gcs-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-jdbc-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-local-%v.jar", version),
-		fmt.Sprintf("lib/alluxio-underfs-maprfs-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-oss-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-swift-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-s3a-%v.jar", version),
@@ -267,15 +271,15 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	}
 	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
-	for _, module := range strings.Split(ufsModulesFlag, ",") {
-		moduleName, ok := ufsModuleNames[module]
+	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
+		ufsModule, ok := ufsModuleNames[moduleName]
 		if !ok {
 			// This should be impossible, we validate ufsModulesFlag at the start.
-			fmt.Fprintf(os.Stderr, "Unrecognized ufs module: %v", module)
+			fmt.Fprintf(os.Stderr, "Unrecognized ufs module: %v", moduleName)
 			os.Exit(1)
 		}
-		ufsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", moduleName, version)
-		run(fmt.Sprintf("adding ufs module %v to lib/", module), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
+		ufsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", ufsModule.name, version)
+		run(fmt.Sprintf("adding ufs module %v to lib/", moduleName), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
 	}
 	// NATIVE LIBRARIES
 	if nativeFlag {
@@ -321,11 +325,19 @@ func generateTarball() error {
 
 	// COMPILE
 	mvnArgs := getCommonMvnArgs()
-	// Only add ufs modules for the main build, not for building per-framework clients.
-	for _, module := range strings.Split(ufsModulesFlag, ",") {
-		mvnArgs = append(mvnArgs, fmt.Sprintf("-P%v", module))
-	}
 	run("compiling repo", "mvn", mvnArgs...)
+	// Compile ufs modules for the main build
+	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
+		ufsModule := ufsModuleNames[moduleName]
+		ufsMvnArgs := mvnArgs
+		for _, arg := range strings.Split(ufsModule.mavenArgs, " ") {
+			ufsMvnArgs = append(ufsMvnArgs, arg)
+		}
+		run(fmt.Sprintf("compiling ufs module %v", moduleName), "mvn", ufsMvnArgs...)
+		srcUfsJar := fmt.Sprintf("alluxio-underfs-hdfs-%v.jar", version)
+		dstUfsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", ufsModule.name, version)
+		run(fmt.Sprintf("saving ufs module %v", moduleName), "mv", filepath.Join(srcPath, "lib", srcUfsJar), filepath.Join(srcPath, "lib", dstUfsJar))
+	}
 
 	// SET DESTINATION PATHS
 	tarball := strings.Replace(targetFlag, versionMarker, version, 1)

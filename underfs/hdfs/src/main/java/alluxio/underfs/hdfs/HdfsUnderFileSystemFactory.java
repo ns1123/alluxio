@@ -55,4 +55,27 @@ public final class HdfsUnderFileSystemFactory implements UnderFileSystemFactory 
     }
     return false;
   }
+  // ALLUXIO CS ADD
+
+  @Override
+  public boolean supportsPath(String path, UnderFileSystemConfiguration conf) {
+    if (path != null) {
+      // TODO(hy): In Hadoop 2.x this can be replaced with the simpler call to
+      // FileSystem.getFileSystemClass() without any need for having users explicitly declare the
+      // file system schemes to treat as being HDFS. However as long as pre 2.x versions of Hadoop
+      // are supported this is not an option and we have to continue to use this method.
+      for (final String prefix : Configuration.getList(PropertyKey.UNDERFS_HDFS_PREFIXES, ",")) {
+        if (path.startsWith(prefix)) {
+          if (conf != null
+              && HdfsVersions.find(conf.getValue(PropertyKey.UNDERFS_HDFS_VERSION)) != HdfsVersions
+              .find(alluxio.UfsConstants.UFS_HADOOP_VERSION)) {
+            continue;
+          }
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  // ALLUXIO CS END
 }

@@ -39,9 +39,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-// ALLUXIO CS REMOVE
-// import org.apache.hadoop.security.SecurityUtil;
-// ALLUXIO CS END
+import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,28 +99,20 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // ALLUXIO CS ADD
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
-    mIsHdfsKerberized = hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase("KERBEROS");
+    // NOTE, hdfsConf.get("hadoop.security.authentication") may return null for hadoop 1.x
+    mIsHdfsKerberized = "KERBEROS".equalsIgnoreCase(hdfsConf.get("hadoop.security.authentication"));
     if (mIsHdfsKerberized) {
       try {
         switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
-          case MASTER:
-            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-                alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
-            break;
-          case WORKER:
-            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-                alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
-            break;
-          case JOB_MASTER:
-            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
-            break;
+          // Master and Worker are handled the same.
+          case MASTER: // intended to fall through
+          case WORKER: // intended to fall through
+          case JOB_MASTER: // intended to fall through
           case JOB_WORKER:
-            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC));
+            loginAsAlluxioServer();
             break;
           // Client and Proxy are handled the same.
-          case CLIENT:
+          case CLIENT: // intended to fall through
           case PROXY:
             loginAsAlluxioClient();
             break;
@@ -131,7 +121,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
                 "Unknown process type: " + alluxio.util.CommonUtils.PROCESS_TYPE.get());
         }
       } catch (IOException e) {
-        LOG.error("Login error: " + e);
+        LOG.error("Failed to Login", e);
       }
 
       try {
@@ -409,7 +399,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
     //     masterPrincipal, host);
     // ALLUXIO CS WITH
-    loginAsAlluxioServer(host);
+    loginAsAlluxioServer();
     // ALLUXIO CS END
   }
 
@@ -429,12 +419,12 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
     // ALLUXIO CS WITH
-    loginAsAlluxioServer(host);
+    loginAsAlluxioServer();
     // ALLUXIO CS END
   }
   // ALLUXIO CS ADD
 
-  private void loginAsAlluxioServer(String host) throws IOException {
+  private void loginAsAlluxioServer() throws IOException {
     if (!mIsHdfsKerberized) {
       return;
     }
@@ -443,6 +433,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
         mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL);
     String keytab;
     if (principal.isEmpty()) {
+      // If not set, fall back to kerberos server principal.
       principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
       keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     } else {
@@ -451,7 +442,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
-    login(principal, keytab, host);
+    org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytab);
   }
 
   private void loginAsAlluxioClient() throws IOException {
@@ -463,32 +454,17 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
-    login(principal, keytab, null);
+    org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytab);
   }
   // ALLUXIO CS END
 
-  // ALLUXIO CS REPLACE
-  // private void login(PropertyKey keytabFileKey, String keytabFile, PropertyKey principalKey,
-  //     String principal, String hostname) throws IOException {
-  //   org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-  //   conf.set(keytabFileKey.toString(), keytabFile);
-  //   conf.set(principalKey.toString(), principal);
-  //   SecurityUtil.login(conf, keytabFileKey.toString(), principalKey.toString(), hostname);
-  // }
-  // ALLUXIO CS WITH
-  private void login(String principal, String keytabFile, String hostname) throws IOException {
+  private void login(PropertyKey keytabFileKey, String keytabFile, PropertyKey principalKey,
+      String principal, String hostname) throws IOException {
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-    String ufsHdfsImpl = mUfsConf.getValue(PropertyKey.UNDERFS_HDFS_IMPL);
-    if (!StringUtils.isEmpty(ufsHdfsImpl)) {
-      conf.set("fs.hdfs.impl", ufsHdfsImpl);
-    }
-    conf.set("hadoop.security.authentication",
-        alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
-
-    org.apache.hadoop.security.UserGroupInformation.setConfiguration(conf);
-    org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
+    conf.set(keytabFileKey.toString(), keytabFile);
+    conf.set(principalKey.toString(), principal);
+    SecurityUtil.login(conf, keytabFileKey.toString(), principalKey.toString(), hostname);
   }
-  // ALLUXIO CS END
 
   @Override
   public boolean mkdirs(String path, MkdirsOptions options) throws IOException {
