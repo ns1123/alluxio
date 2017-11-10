@@ -25,22 +25,22 @@ type module struct {
 
 // ufsModuleNames is a map from ufs profile to the name used in the generated tarball.
 var ufsModuleNames = map[string]module{
-	"ufs-hadoop-1.0": {"hadoop-1.0", "-pl underfs/hdfs -Phadoop-1 -Dhadoop.version=1.0.4"},
-	"ufs-hadoop-1.2": {"hadoop-1.2", "-pl underfs/hdfs -Phadoop-1 -Dhadoop.version=1.2.1"},
-	"ufs-hadoop-2.2": {"hadoop-2.2", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.2.0"},
-	"ufs-hadoop-2.3": {"hadoop-2.3", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.3.0"},
-	"ufs-hadoop-2.4": {"hadoop-2.4", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.4.1"},
-	"ufs-hadoop-2.5": {"hadoop-2.5", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.5.2"},
-	"ufs-hadoop-2.6": {"hadoop-2.6", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.5"},
-	"ufs-hadoop-2.7": {"hadoop-2.7", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.7.3"},
-	"ufs-hadoop-2.8": {"hadoop-2.8", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.8.0"},
-	"ufs-cdh-5.6":    {"cdh-5.6", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.0-cdh5.6.1"},
-	"ufs-cdh-5.8":    {"cdh-5.8", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.0-cdh5.8.5"},
-	"ufs-cdh-5.11":   {"cdh-5.11", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.0-cdh5.11.0"},
-	"ufs-cdh-5.12":   {"cdh-5.12", "-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.6.0-cdh5.12.1"},
-	"ufs-hdp-2.4":    {"hdp-2.4","-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.7.1.2.4.4.1-9"},
-	"ufs-hdp-2.5":    {"hdp-2.5","-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.7.3.2.5.5.5-2"},
-	"ufs-hdp-2.6":    {"hdp-2.6","-pl underfs/hdfs -Phadoop-2 -Dhadoop.version=2.7.3.2.6.1.0-129"},
+	"ufs-hadoop-1.0": {"hadoop-1.0", "-pl underfs/hdfs -Pufs-hadoop-1 -Dufs.hadoop.version=1.0.4"},
+	"ufs-hadoop-1.2": {"hadoop-1.2", "-pl underfs/hdfs -Pufs-hadoop-1 -Dufs.hadoop.version=1.2.1"},
+	"ufs-hadoop-2.2": {"hadoop-2.2", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.2.0"},
+	"ufs-hadoop-2.3": {"hadoop-2.3", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.3.0"},
+	"ufs-hadoop-2.4": {"hadoop-2.4", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.4.1"},
+	"ufs-hadoop-2.5": {"hadoop-2.5", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.5.2"},
+	"ufs-hadoop-2.6": {"hadoop-2.6", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.5"},
+	"ufs-hadoop-2.7": {"hadoop-2.7", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3"},
+	"ufs-hadoop-2.8": {"hadoop-2.8", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.8.0"},
+	"ufs-cdh-5.6":    {"cdh-5.6", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.6.1"},
+	"ufs-cdh-5.8":    {"cdh-5.8", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.8.5"},
+	"ufs-cdh-5.11":   {"cdh-5.11", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.11.0"},
+	"ufs-cdh-5.12":   {"cdh-5.12", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.12.1"},
+	"ufs-hdp-2.4":    {"hdp-2.4","-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.1.2.4.4.1-9"},
+	"ufs-hdp-2.5":    {"hdp-2.5","-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.5.5.5-2"},
+	"ufs-hdp-2.6":    {"hdp-2.6","-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.6.1.0-129"},
 }
 
 // TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
