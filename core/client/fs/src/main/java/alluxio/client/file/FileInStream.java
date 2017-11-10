@@ -670,34 +670,6 @@ public class FileInStream extends InputStream
    * otherwise, both the block stream and the cache stream are updated.
    */
   private void updateStreams() throws IOException {
-<<<<<<< HEAD
-    long currentBlockId = getCurrentBlockId();
-    if (shouldUpdateStreams(currentBlockId)) {
-      // The following two function handle negative currentBlockId (i.e. the end of file)
-      // correctly.
-      updateBlockInStream(currentBlockId);
-      // ALLUXIO CS REPLACE
-      // if (PASSIVE_CACHE_ENABLED) {
-      // ALLUXIO CS WITH
-      boolean overReplicated = mStatus.getReplicationMax() > 0
-          && mStatus.getFileBlockInfos().get((int) (mPos / mBlockSize)).getBlockInfo()
-              .getLocations().size() >= mStatus.getReplicationMax();
-      if (PASSIVE_CACHE_ENABLED && !overReplicated) {
-      // ALLUXIO CS END
-        updateCacheStream(currentBlockId);
-      }
-      mStreamBlockId = currentBlockId;
-||||||| merged common ancestors
-    long currentBlockId = getCurrentBlockId();
-    if (shouldUpdateStreams(currentBlockId)) {
-      // The following two function handle negative currentBlockId (i.e. the end of file)
-      // correctly.
-      updateBlockInStream(currentBlockId);
-      if (PASSIVE_CACHE_ENABLED) {
-        updateCacheStream(currentBlockId);
-      }
-      mStreamBlockId = currentBlockId;
-=======
     long blockId = mPositionState.getBlockId();
     if (mCurrentBlockInStream != null && mCurrentBlockInStream.getId() == blockId
         && mCurrentBlockInStream.remaining() != 0) {
@@ -705,9 +677,15 @@ public class FileInStream extends InputStream
     }
     checkCacheStreamInSync();
     updateBlockInStream(blockId);
-    if (PASSIVE_CACHE_ENABLED) {
+    // ALLUXIO CS REPLACE
+    // if (PASSIVE_CACHE_ENABLED) {
+    // ALLUXIO CS WITH
+    boolean overReplicated = mStatus.getReplicationMax() > 0
+        && mStatus.getFileBlockInfos().get((int) (mPositionState.getPos() / mBlockSize))
+        .getBlockInfo().getLocations().size() >= mStatus.getReplicationMax();
+    if (PASSIVE_CACHE_ENABLED && !overReplicated) {
+    // ALLUXIO CS END
       updateCacheStream(blockId);
->>>>>>> 5b7edd00f3941e1fa5ce5bc4dae788d2fab1042d
     }
   }
 

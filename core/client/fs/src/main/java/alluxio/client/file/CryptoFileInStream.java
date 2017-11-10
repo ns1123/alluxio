@@ -38,6 +38,7 @@ public final class CryptoFileInStream extends FileInStream {
   private long mLogicalFileLength;
   private long mLogicalChunkStart;
   private long mLogicalPos;
+  private final URIStatus mStatus;
 
   /**
    * Creates a new file input stream.
@@ -64,6 +65,7 @@ public final class CryptoFileInStream extends FileInStream {
     super(status, options, context);
     mMeta = options.getEncryptionMeta();
     mLogicalFileLength = LayoutUtils.toLogicalFileLength(mMeta, status.getLength());
+    mStatus = status;
   }
 
   @Override
@@ -74,7 +76,7 @@ public final class CryptoFileInStream extends FileInStream {
     }
     // Need an extra step to seek the physical pos to the physical max length, to make sure
     // the cached streams are in expected state.
-    super.seek(super.maxSeekPosition());
+    super.seek(mStatus.getLength());
     super.close();
   }
 
@@ -211,7 +213,7 @@ public final class CryptoFileInStream extends FileInStream {
       if (mCryptoBuf == null) {
         Preconditions.checkState(mLogicalChunkStart == mLogicalFileLength);
         mLogicalPos = pos;
-        super.seek(super.maxSeekPosition());
+        super.seek(mStatus.getLength());
         return;
       }
     }
