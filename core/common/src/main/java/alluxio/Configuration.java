@@ -173,9 +173,15 @@ public final class Configuration {
     if (properties != null) {
       // merge the system properties
       for (Map.Entry<?, ?> entry : properties.entrySet()) {
+<<<<<<< HEAD
         String key = entry.getKey().toString();
         String value = entry.getValue().toString();
         if (PropertyKey.isValid(key) && !(hideKeys && PropertyKey.IMMUTABLE_KEYS.contains(key))) {
+=======
+        String key = entry.getKey().toString().trim();
+        String value = entry.getValue().toString().trim();
+        if (PropertyKey.isValid(key)) {
+>>>>>>> OPENSOURCE/master
           // Get the true name for the property key in case it is an alias.
           PROPERTIES.put(PropertyKey.fromString(key).getName(), value);
         }
