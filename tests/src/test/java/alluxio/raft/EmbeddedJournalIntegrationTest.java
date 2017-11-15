@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
 import alluxio.BaseIntegrationTest;
+import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.multi.process.MultiProcessCluster;
 import alluxio.multi.process.MultiProcessCluster.DeployMode;
@@ -41,7 +42,7 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
     AlluxioURI testDir = new AlluxioURI("/dir");
     FileSystem fs = mCluster.getFileSystemClient();
     fs.createDirectory(testDir);
-    mCluster.waitForAndKillPrimaryMaster();
+    mCluster.waitForAndKillPrimaryMaster(30 * Constants.SECOND_MS);
     assertTrue(fs.exists(testDir));
     mCluster.notifySuccess();
   }
