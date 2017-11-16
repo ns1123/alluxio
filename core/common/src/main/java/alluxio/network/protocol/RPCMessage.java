@@ -35,6 +35,7 @@ public abstract class RPCMessage implements EncodedMessage {
    * The possible types of RPC messages.
    */
   public enum Type implements EncodedMessage {
+<<<<<<< HEAD
     RPC_ERROR_RESPONSE(0),
     RPC_BLOCK_READ_REQUEST(1),
     RPC_BLOCK_READ_RESPONSE(2),
@@ -54,11 +55,23 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_REMOVE_BLOCK_REQUEST(15),
     // ALLUXIO CS END
 
+||||||| merged common ancestors
+    RPC_ERROR_RESPONSE(0),
+    RPC_BLOCK_READ_REQUEST(1),
+    RPC_BLOCK_READ_RESPONSE(2),
+    RPC_BLOCK_WRITE_REQUEST(3),
+    RPC_BLOCK_WRITE_RESPONSE(4),
+    RPC_FILE_READ_REQUEST(5),
+    RPC_FILE_READ_RESPONSE(6),
+    RPC_FILE_WRITE_REQUEST(7),
+    RPC_FILE_WRITE_RESPONSE(8),
+
+=======
+>>>>>>> 5ee74f56f502e34357d6ae3caa7f653385f2bb5c
     // Tags lower than 100 are reserved since v1.4.0.
     RPC_READ_REQUEST(100),
     RPC_WRITE_REQUEST(101),
     RPC_RESPONSE(102),
-    RPC_UFS_BLOCK_READ_REQUEST(103),
     RPC_HEARTBEAT(104),
     RPC_LOCAL_BLOCK_OPEN_REQUEST(105),
     RPC_LOCAL_BLOCK_OPEN_RESPONSE(106),
@@ -112,6 +125,7 @@ public abstract class RPCMessage implements EncodedMessage {
     public static Type decode(ByteBuf in) {
       int id = in.readInt();
       switch (id) {
+<<<<<<< HEAD
         case 0:
           return RPC_ERROR_RESPONSE;
         case 1:
@@ -146,14 +160,33 @@ public abstract class RPCMessage implements EncodedMessage {
         case 15:
           return RPC_REMOVE_BLOCK_REQUEST;
         // ALLUXIO CS END
+||||||| merged common ancestors
+        case 0:
+          return RPC_ERROR_RESPONSE;
+        case 1:
+          return RPC_BLOCK_READ_REQUEST;
+        case 2:
+          return RPC_BLOCK_READ_RESPONSE;
+        case 3:
+          return RPC_BLOCK_WRITE_REQUEST;
+        case 4:
+          return RPC_BLOCK_WRITE_RESPONSE;
+        case 5:
+          return RPC_FILE_READ_REQUEST;
+        case 6:
+          return RPC_FILE_READ_RESPONSE;
+        case 7:
+          return RPC_FILE_WRITE_REQUEST;
+        case 8:
+          return RPC_FILE_WRITE_RESPONSE;
+=======
+>>>>>>> 5ee74f56f502e34357d6ae3caa7f653385f2bb5c
         case 100:
           return RPC_READ_REQUEST;
         case 101:
           return RPC_WRITE_REQUEST;
         case 102:
           return RPC_RESPONSE;
-        case 103:
-          return RPC_UFS_BLOCK_READ_REQUEST;
         case 104:
           return RPC_HEARTBEAT;
         case 105:
@@ -234,6 +267,7 @@ public abstract class RPCMessage implements EncodedMessage {
    */
   public static RPCMessage decodeMessage(Type type, ByteBuf in) {
     switch (type) {
+<<<<<<< HEAD
       case RPC_ERROR_RESPONSE:
         return RPCErrorResponse.decode(in);
       case RPC_BLOCK_READ_REQUEST:
@@ -271,6 +305,27 @@ public abstract class RPCMessage implements EncodedMessage {
         return RPCProtoMessage.decode(in,
             new ProtoMessage(Protocol.RemoveBlockRequest.getDefaultInstance()));
       // ALLUXIO CS END
+||||||| merged common ancestors
+      case RPC_ERROR_RESPONSE:
+        return RPCErrorResponse.decode(in);
+      case RPC_BLOCK_READ_REQUEST:
+        return RPCBlockReadRequest.decode(in);
+      case RPC_BLOCK_READ_RESPONSE:
+        return RPCBlockReadResponse.decode(in);
+      case RPC_BLOCK_WRITE_REQUEST:
+        return RPCBlockWriteRequest.decode(in);
+      case RPC_BLOCK_WRITE_RESPONSE:
+        return RPCBlockWriteResponse.decode(in);
+      case RPC_FILE_READ_REQUEST:
+        return RPCFileReadRequest.decode(in);
+      case RPC_FILE_READ_RESPONSE:
+        return RPCFileReadResponse.decode(in);
+      case RPC_FILE_WRITE_REQUEST:
+        return RPCFileWriteRequest.decode(in);
+      case RPC_FILE_WRITE_RESPONSE:
+        return RPCFileWriteResponse.decode(in);
+=======
+>>>>>>> 5ee74f56f502e34357d6ae3caa7f653385f2bb5c
       case RPC_READ_REQUEST:
         return RPCProtoMessage
             .decode(in, new ProtoMessage(Protocol.ReadRequest.getDefaultInstance()));
@@ -279,8 +334,6 @@ public abstract class RPCMessage implements EncodedMessage {
             .decode(in, new ProtoMessage(Protocol.WriteRequest.getDefaultInstance()));
       case RPC_RESPONSE:
         return RPCProtoMessage.decode(in, new ProtoMessage(Protocol.Response.getDefaultInstance()));
-      case RPC_UFS_BLOCK_READ_REQUEST:
-        return RPCUnderFileSystemBlockReadRequest.decode(in);
       case RPC_LOCAL_BLOCK_OPEN_REQUEST:
         return RPCProtoMessage
             .decode(in, new ProtoMessage(Protocol.LocalBlockOpenRequest.getDefaultInstance()));
