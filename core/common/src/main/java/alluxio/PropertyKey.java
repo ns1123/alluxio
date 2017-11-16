@@ -1896,7 +1896,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("The number of workers to run on an Alluxio host for YARN framework.")
           .build();
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   public static final PropertyKey LIB_DIR =
       new Builder(Name.LIB_DIR).setDefaultValue(String.format("${%s}/lib", Name.HOME)).build();
@@ -2223,8 +2222,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   }
 
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
   //
   // JVM Monitor related properties
   //
@@ -2254,7 +2251,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("Whether to enable start JVM monitor thread on worker.")
           .build();
 
->>>>>>> OPENSOURCE/master
   /**
    * A nested class to hold named string constants for their corresponding properties.
    * Used for setting configuration in integration tests.
@@ -2773,7 +2769,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.security.group.mapping.class";
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
 
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     public static final String SECURITY_GROUP_MAPPING_LDAP_URL =
         "alluxio.security.group.mapping.ldap.url";
@@ -2899,8 +2894,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String CALL_HOME_ENABLED = "alluxio.call.home.enabled";
 
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     //
     // JVM Monitor related properties
     //
@@ -2913,7 +2906,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_JVM_MONITOR_ENABLED = "alluxio.master.jvm.monitor.enabled";
     public static final String WORKER_JVM_MONITOR_ENABLED = "alluxio.worker.jvm.monitor.enabled";
 
->>>>>>> OPENSOURCE/master
     private Name() {} // prevent instantiation
   }
 
