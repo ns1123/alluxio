@@ -115,9 +115,9 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
           mResource.get().getLocalAlluxioMaster().getMasterProcess()
               .getMaster(alluxio.master.license.LicenseMaster.class);
       alluxio.master.license.License license = licenseMaster.getLicense();
-      Assert.assertEquals(license.getChecksum(), license.getChecksum());
+      assertEquals(license.getChecksum(), license.getChecksum());
     } else {
-      Assert.assertNull(licenseInfo);
+      org.junit.Assert.assertNull(licenseInfo);
     }
   }
 
