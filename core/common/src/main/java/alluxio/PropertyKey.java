@@ -1896,6 +1896,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("The number of workers to run on an Alluxio host for YARN framework.")
           .build();
 
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   public static final PropertyKey LIB_DIR =
       new Builder(Name.LIB_DIR).setDefaultValue(String.format("${%s}/lib", Name.HOME)).build();
@@ -2222,6 +2223,38 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   }
 
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  //
+  // JVM Monitor related properties
+  //
+  public static final PropertyKey JVM_MONITOR_WARN_THRESHOLD_MS =
+      new Builder(Name.JVM_MONITOR_WARN_THRESHOLD_MS)
+          .setDefaultValue("10sec")
+          .setDescription("Extra sleep time longer than this threshold, log WARN.")
+          .build();
+  public static final PropertyKey JVM_MONITOR_INFO_THRESHOLD_MS =
+      new Builder(Name.JVM_MONITOR_INFO_THRESHOLD_MS)
+          .setDefaultValue("1sec")
+          .setDescription("Extra sleep time longer than this threshold, log INFO.")
+          .build();
+  public static final PropertyKey JVM_MONITOR_SLEEP_INTERVAL_MS =
+      new Builder(Name.JVM_MONITOR_SLEEP_INTERVAL_MS)
+          .setDefaultValue("1sec")
+          .setDescription("The time for the JVM monitor thread to sleep.")
+          .build();
+  public static final PropertyKey MASTER_JVM_MONITOR_ENABLED =
+      new Builder(Name.MASTER_JVM_MONITOR_ENABLED)
+          .setDefaultValue(false)
+          .setDescription("Whether to enable start JVM monitor thread on master.")
+          .build();
+  public static final PropertyKey WORKER_JVM_MONITOR_ENABLED =
+      new Builder(Name.WORKER_JVM_MONITOR_ENABLED)
+          .setDefaultValue(false)
+          .setDescription("Whether to enable start JVM monitor thread on worker.")
+          .build();
+
+>>>>>>> OPENSOURCE/master
   /**
    * A nested class to hold named string constants for their corresponding properties.
    * Used for setting configuration in integration tests.
@@ -2740,6 +2773,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.security.group.mapping.class";
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
 
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     public static final String SECURITY_GROUP_MAPPING_LDAP_URL =
         "alluxio.security.group.mapping.ldap.url";
@@ -2865,6 +2899,21 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String CALL_HOME_ENABLED = "alluxio.call.home.enabled";
 
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    //
+    // JVM Monitor related properties
+    //
+    public static final String JVM_MONITOR_WARN_THRESHOLD_MS =
+        "alluxio.jvm.monitor.warn.threshold";
+    public static final String JVM_MONITOR_INFO_THRESHOLD_MS =
+        "alluxio.jvm.monitor.info.threshold";
+    public static final String JVM_MONITOR_SLEEP_INTERVAL_MS =
+        "alluxio.jvm.monitor.sleep.interval";
+    public static final String MASTER_JVM_MONITOR_ENABLED = "alluxio.master.jvm.monitor.enabled";
+    public static final String WORKER_JVM_MONITOR_ENABLED = "alluxio.worker.jvm.monitor.enabled";
+
+>>>>>>> OPENSOURCE/master
     private Name() {} // prevent instantiation
   }
 

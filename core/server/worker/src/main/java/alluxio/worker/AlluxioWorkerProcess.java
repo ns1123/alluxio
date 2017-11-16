@@ -30,6 +30,7 @@ import alluxio.web.WebServer;
 import alluxio.web.WorkerWebServer;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.BlockWorker;
+import alluxio.util.JvmPauseMonitor;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -104,6 +105,9 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
 
   /** The manager for all ufs. */
   private UfsManager mUfsManager;
+
+  /** The jvm monitor.*/
+  private JvmPauseMonitor mJvmPauseMonitor;
 
   /**
    * Creates a new instance of {@link AlluxioWorkerProcess}.
@@ -242,6 +246,12 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     mWebServer.addHandler(mMetricsServlet.getHandler());
     mWebServer.start();
 
+    // Start monitor jvm
+    if (Configuration.getBoolean(PropertyKey.WORKER_JVM_MONITOR_ENABLED)) {
+      mJvmPauseMonitor = new JvmPauseMonitor();
+      mJvmPauseMonitor.start();
+    }
+
     mIsServingRPC = true;
 
     // Start serving RPC, this will block
@@ -261,6 +271,9 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
   public void stop() throws Exception {
     if (mIsServingRPC) {
       stopServing();
+      if (mJvmPauseMonitor != null) {
+        mJvmPauseMonitor.stop();
+      }
       stopWorkers();
       mIsServingRPC = false;
     }
