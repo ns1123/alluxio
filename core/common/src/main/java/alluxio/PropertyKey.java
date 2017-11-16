@@ -1741,21 +1741,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue("alluxio-fuse")
           .setDescription("The FUSE file system name.")
           .build();
-  public static final PropertyKey FUSE_FS_ROOT =
-      new Builder(Name.FUSE_FS_ROOT)
-          .setDefaultValue("/")
-          .setDescription("The Alluxio path mounted to the FUSE file system root.")
-          .build();
   public static final PropertyKey FUSE_MAXWRITE_BYTES =
       new Builder(Name.FUSE_MAXWRITE_BYTES)
           .setDefaultValue("128KB")
           .setDescription("Maximum granularity of write operations, capped by the kernel to 128KB "
               + "max (as of Linux 3.16.0).")
-          .build();
-  public static final PropertyKey FUSE_MOUNT_DEFAULT =
-      new Builder(Name.FUSE_MOUNT_DEFAULT)
-          .setDefaultValue("/mnt/alluxio")
-          .setDescription("Mount path in the local file system for the FUSE.")
           .build();
 
   //
@@ -2218,12 +2208,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
 
   static {
     IMMUTABLE_KEYS = new java.util.HashSet<>();
-    IMMUTABLE_KEYS.add(Name.FUSE_CACHED_PATHS_MAX);
-    IMMUTABLE_KEYS.add(Name.FUSE_DEBUG_ENABLED);
-    IMMUTABLE_KEYS.add(Name.FUSE_FS_NAME);
-    IMMUTABLE_KEYS.add(Name.FUSE_FS_ROOT);
-    IMMUTABLE_KEYS.add(Name.FUSE_MAXWRITE_BYTES);
-    IMMUTABLE_KEYS.add(Name.FUSE_MOUNT_DEFAULT);
     IMMUTABLE_KEYS.add(Name.KEY_VALUE_ENABLED);
     IMMUTABLE_KEYS.add(Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX);
     IMMUTABLE_KEYS.add(Name.MASTER_FILE_ASYNC_PERSIST_HANDLER);
@@ -2733,9 +2717,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String FUSE_CACHED_PATHS_MAX = "alluxio.fuse.cached.paths.max";
     public static final String FUSE_DEBUG_ENABLED = "alluxio.fuse.debug.enabled";
     public static final String FUSE_FS_NAME = "alluxio.fuse.fs.name";
-    public static final String FUSE_FS_ROOT = "alluxio.fuse.fs.root";
     public static final String FUSE_MAXWRITE_BYTES = "alluxio.fuse.maxwrite.bytes";
-    public static final String FUSE_MOUNT_DEFAULT = "alluxio.fuse.mount.default";
 
     //
     // Security related properties

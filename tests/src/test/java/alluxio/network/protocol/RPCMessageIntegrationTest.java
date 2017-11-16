@@ -132,57 +132,6 @@ public class RPCMessageIntegrationTest extends BaseIntegrationTest {
     mOutgoingChannel.close().syncUninterruptibly();
   }
 
-  private void assertValid(RPCBlockReadRequest expected, RPCBlockReadRequest actual) {
-    Assert.assertEquals(expected.getType(), actual.getType());
-    Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
-    Assert.assertEquals(expected.getBlockId(), actual.getBlockId());
-    Assert.assertEquals(expected.getOffset(), actual.getOffset());
-    Assert.assertEquals(expected.getLength(), actual.getLength());
-    Assert.assertEquals(expected.getLockId(), actual.getLockId());
-    Assert.assertEquals(expected.getSessionId(), actual.getSessionId());
-  }
-
-  private void assertValid(RPCBlockReadResponse expected, RPCBlockReadResponse actual) {
-    Assert.assertEquals(expected.getType(), actual.getType());
-    Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
-    Assert.assertEquals(expected.getBlockId(), actual.getBlockId());
-    Assert.assertEquals(expected.getOffset(), actual.getOffset());
-    Assert.assertEquals(expected.getLength(), actual.getLength());
-    Assert.assertEquals(expected.getStatus(), actual.getStatus());
-    if (expected.getLength() == 0) {
-      // Length is 0, so payloads should be null.
-      Assert.assertNull(expected.getPayloadDataBuffer());
-      Assert.assertNull(actual.getPayloadDataBuffer());
-    } else {
-      Assert.assertTrue(BufferUtils.equalIncreasingByteBuffer((int) OFFSET, (int) LENGTH, actual
-          .getPayloadDataBuffer().getReadOnlyByteBuffer()));
-    }
-  }
-
-  private void assertValid(RPCBlockWriteRequest expected, RPCBlockWriteRequest actual) {
-    Assert.assertEquals(expected.getType(), actual.getType());
-    Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
-    Assert.assertEquals(expected.getBlockId(), actual.getBlockId());
-    Assert.assertEquals(expected.getOffset(), actual.getOffset());
-    Assert.assertEquals(expected.getLength(), actual.getLength());
-    Assert.assertEquals(expected.getSessionId(), actual.getSessionId());
-    if (expected.getLength() > 0) {
-      Assert.assertTrue(BufferUtils.equalIncreasingByteBuffer((int) OFFSET, (int) LENGTH, actual
-          .getPayloadDataBuffer().getReadOnlyByteBuffer()));
-    }
-  }
-
-  private void assertValid(RPCBlockWriteResponse expected, RPCBlockWriteResponse actual) {
-    Assert.assertEquals(expected.getType(), actual.getType());
-    Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
-    Assert.assertEquals(expected.getBlockId(), actual.getBlockId());
-    Assert.assertEquals(expected.getOffset(), actual.getOffset());
-    Assert.assertEquals(expected.getLength(), actual.getLength());
-    Assert.assertEquals(expected.getSessionId(), actual.getSessionId());
-    Assert.assertEquals(expected.getStatus(), actual.getStatus());
-  }
-
-  // ALLUXIO CS ADD
   private void assertValid(RPCSaslTokenRequest expected, RPCSaslTokenRequest actual) {
     Assert.assertEquals(expected.getType(), actual.getType());
     Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
@@ -203,13 +152,6 @@ public class RPCMessageIntegrationTest extends BaseIntegrationTest {
     Assert.assertEquals(expected.getStatus(), actual.getStatus());
   }
 
-  // ALLUXIO CS END
-  private void assertValid(RPCErrorResponse expected, RPCErrorResponse actual) {
-    Assert.assertEquals(expected.getType(), actual.getType());
-    Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
-    Assert.assertEquals(expected.getStatus(), actual.getStatus());
-  }
-
   /**
    * Encodes and decodes the 'msg' by sending it through the client and server pipelines.
    */
@@ -220,61 +162,6 @@ public class RPCMessageIntegrationTest extends BaseIntegrationTest {
     return sIncomingHandler.getMessage();
   }
 
-  @Test
-  public void RPCBlockReadRequest() {
-    RPCBlockReadRequest msg = new RPCBlockReadRequest(BLOCK_ID, OFFSET, LENGTH, LOCK_ID,
-        SESSION_ID);
-    RPCBlockReadRequest decoded = (RPCBlockReadRequest) encodeThenDecode(msg);
-    assertValid(msg, decoded);
-  }
-
-  @Test
-  public void RPCBlockReadResponse() {
-    ByteBuffer payload = BufferUtils.getIncreasingByteBuffer((int) OFFSET, (int) LENGTH);
-    RPCBlockReadResponse msg =
-        new RPCBlockReadResponse(BLOCK_ID, OFFSET, LENGTH, new DataByteBuffer(payload, LENGTH),
-            RPCResponse.Status.SUCCESS);
-    RPCBlockReadResponse decoded = (RPCBlockReadResponse) encodeThenDecode(msg);
-    assertValid(msg, decoded);
-  }
-
-  @Test
-  public void RPCBlockReadResponseEmptyPayload() {
-    RPCBlockReadResponse msg =
-        new RPCBlockReadResponse(BLOCK_ID, OFFSET, 0, null, RPCResponse.Status.SUCCESS);
-    RPCBlockReadResponse decoded = (RPCBlockReadResponse) encodeThenDecode(msg);
-    assertValid(msg, decoded);
-  }
-
-  @Test
-  public void RPCBlockReadResponseError() {
-    RPCBlockReadResponse msg =
-        RPCBlockReadResponse.createErrorResponse(
-            new RPCBlockReadRequest(BLOCK_ID, OFFSET, LENGTH, LOCK_ID, SESSION_ID),
-            RPCResponse.Status.FILE_DNE);
-    RPCBlockReadResponse decoded = (RPCBlockReadResponse) encodeThenDecode(msg);
-    assertValid(msg, decoded);
-  }
-
-  @Test
-  public void RPCBlockWriteRequest() {
-    ByteBuffer payload = BufferUtils.getIncreasingByteBuffer((int) OFFSET, (int) LENGTH);
-    RPCBlockWriteRequest msg =
-        new RPCBlockWriteRequest(SESSION_ID, BLOCK_ID, OFFSET, LENGTH, new DataByteBuffer(payload,
-            LENGTH));
-    RPCBlockWriteRequest decoded = (RPCBlockWriteRequest) encodeThenDecode(msg);
-    assertValid(msg, decoded);
-  }
-
-  @Test
-  public void RPCBlockWriteResponse() {
-    RPCBlockWriteResponse msg =
-        new RPCBlockWriteResponse(SESSION_ID, BLOCK_ID, OFFSET, LENGTH, RPCResponse.Status.SUCCESS);
-    RPCBlockWriteResponse decoded = (RPCBlockWriteResponse) encodeThenDecode(msg);
-    assertValid(msg, decoded);
-  }
-
-  // ALLUXIO CS ADD
   @Test
   public void RPCSaslTokenRequest() {
     ByteBuffer payload = BufferUtils.getIncreasingByteBuffer((int) OFFSET, (int) LENGTH);
@@ -288,15 +175,5 @@ public class RPCMessageIntegrationTest extends BaseIntegrationTest {
     RPCSaslCompleteResponse msg = new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS);
     RPCSaslCompleteResponse decoded = (RPCSaslCompleteResponse) encodeThenDecode(msg);
     assertValid(msg, decoded);
-  }
-
-  // ALLUXIO CS END
-  @Test
-  public void RPCErrorResponse() {
-    for (RPCResponse.Status status : RPCResponse.Status.values()) {
-      RPCErrorResponse msg = new RPCErrorResponse(status);
-      RPCErrorResponse decoded = (RPCErrorResponse) encodeThenDecode(msg);
-      assertValid(msg, decoded);
-    }
   }
 }

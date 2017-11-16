@@ -1,3 +1,5 @@
+RPCRequest.java
+RPCResponse.java
 RPCSaslCompleteResponse.java
 RPCSaslTokenRequest.java
 RPCSecretKeyWriteRequest.java
