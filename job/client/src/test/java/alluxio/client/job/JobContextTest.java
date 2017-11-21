@@ -21,7 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link JobContext}
+ * Unit tests for {@link JobContext}.
  */
 public final class JobContextTest {
   @Rule
