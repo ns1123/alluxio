@@ -13,6 +13,8 @@ import alluxio.exception.status.UnavailableException;
 import alluxio.master.MasterInquireClient;
 import alluxio.resource.CloseableResource;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -37,7 +39,7 @@ public final class JobContext implements Closeable  {
 
   /** The shared master inquire client associated with the {@link JobContext}. */
   @GuardedBy("this")
-  private MasterInquireClient mMasterInquireClient;
+  private MasterInquireClient mJobMasterInquireClient;
   private volatile JobMasterClientPool mJobMasterClientPool;
 
   /**
@@ -45,7 +47,8 @@ public final class JobContext implements Closeable  {
    *
    * @return the context
    */
-  private static JobContext create() {
+  @VisibleForTesting
+  static JobContext create() {
     JobContext context = new JobContext();
     context.init();
     return context;
@@ -60,7 +63,7 @@ public final class JobContext implements Closeable  {
    * Initializes the context. Only called in the factory methods and reset.
    */
   private synchronized void init() {
-    mMasterInquireClient = MasterInquireClient.Factory.create();
+    mJobMasterInquireClient = MasterInquireClient.Factory.createForJobMaster();
     mJobMasterClientPool = new JobMasterClientPool();
   }
 
@@ -75,16 +78,16 @@ public final class JobContext implements Closeable  {
     mJobMasterClientPool = null;
 
     synchronized (this) {
-      mMasterInquireClient = null;
+      mJobMasterInquireClient = null;
     }
   }
 
   /**
-   * @return the master address
+   * @return the job master address
    * @throws UnavailableException if the master address cannot be determined
    */
-  public synchronized InetSocketAddress getMasterAddress() throws UnavailableException {
-    return mMasterInquireClient.getPrimaryRpcAddress();
+  public synchronized InetSocketAddress getJobMasterAddress() throws UnavailableException {
+    return mJobMasterInquireClient.getPrimaryRpcAddress();
   }
 
   /**

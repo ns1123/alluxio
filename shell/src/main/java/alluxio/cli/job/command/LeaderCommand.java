@@ -49,7 +49,7 @@ public final class LeaderCommand extends AbstractCommand {
   @Override
   public int run(CommandLine cl) {
     try {
-      InetSocketAddress address = JobContext.INSTANCE.getMasterAddress();
+      InetSocketAddress address = JobContext.INSTANCE.getJobMasterAddress();
       System.out.println(address.getHostName());
     } catch (Exception e) {
       LOG.error("Failed to get the primary job master", e);
