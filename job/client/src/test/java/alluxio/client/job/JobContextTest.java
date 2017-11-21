@@ -31,7 +31,7 @@ public final class JobContextTest {
   ));
 
   @Test
-  public void getRpcAddress() throws Exception {
+  public void getAddress() throws Exception {
     try (JobContext context = JobContext.create()) {
       assertEquals("host2", context.getJobMasterAddress().getHostName());
     }
