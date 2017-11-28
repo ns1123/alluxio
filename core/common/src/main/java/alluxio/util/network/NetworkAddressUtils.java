@@ -369,6 +369,18 @@ public final class NetworkAddressUtils {
    */
   public static String getLocalNodeName() {
     switch (CommonUtils.PROCESS_TYPE.get()) {
+      // ALLUXIO CS ADD
+      case JOB_MASTER:
+        if (Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME);
+        }
+        break;
+      case JOB_WORKER:
+        if (Configuration.containsKey(PropertyKey.JOB_WORKER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.JOB_WORKER_HOSTNAME);
+        }
+        break;
+      // ALLUXIO CS END
       case CLIENT:
         if (Configuration.containsKey(PropertyKey.USER_HOSTNAME)) {
           return Configuration.get(PropertyKey.USER_HOSTNAME);
