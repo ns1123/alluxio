@@ -11,8 +11,8 @@
 
 package alluxio.master.license;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Objects;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * Representation of information encrypted in the license.
