@@ -13,6 +13,7 @@ package alluxio.master;
 
 import alluxio.ProcessUtils;
 import alluxio.RuntimeConstants;
+import alluxio.util.CommonUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +39,7 @@ public final class AlluxioMaster {
       System.exit(-1);
     }
 
-    // ALLUXIO CS ADD
-    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.MASTER);
-    // ALLUXIO CS END
+    CommonUtils.PROCESS_TYPE.set(CommonUtils.ProcessType.MASTER);
     MasterProcess process;
     try {
       process = MasterProcess.Factory.create();

@@ -13,7 +13,7 @@ package alluxio.wire;
 
 import alluxio.util.CommonUtils;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,13 +38,14 @@ public class WorkerNetAddressTest {
   }
 
   public void checkEquality(WorkerNetAddress a, WorkerNetAddress b) {
+    // ALLUXIO CS ADD
+    Assert.assertEquals(a.getSecureRpcPort(), b.getSecureRpcPort());
+    // ALLUXIO CS END
     Assert.assertEquals(a.getHost(), b.getHost());
     Assert.assertEquals(a.getRpcPort(), b.getRpcPort());
     Assert.assertEquals(a.getDataPort(), b.getDataPort());
     Assert.assertEquals(a.getWebPort(), b.getWebPort());
-    // ALLUXIO CS ADD
-    Assert.assertEquals(a.getSecureRpcPort(), b.getSecureRpcPort());
-    // ALLUXIO CS END
+    Assert.assertEquals(a.getTieredIdentity(), b.getTieredIdentity());
     Assert.assertEquals(a, b);
   }
 
@@ -52,21 +53,23 @@ public class WorkerNetAddressTest {
     WorkerNetAddress result = new WorkerNetAddress();
     Random random = new Random();
 
+    // ALLUXIO CS ADD
+    int secureRpcPort = random.nextInt();
+    // ALLUXIO CS END
     String host = CommonUtils.randomAlphaNumString(random.nextInt(10));
     int rpcPort = random.nextInt();
     int dataPort = random.nextInt();
     int webPort = random.nextInt();
-    // ALLUXIO CS ADD
-    int secureRpcPort = random.nextInt();
-    // ALLUXIO CS END
+    TieredIdentity identity = TieredIdentityTest.createRandomTieredIdentity();
 
+    // ALLUXIO CS ADD
+    result.setSecureRpcPort(secureRpcPort);
+    // ALLUXIO CS END
     result.setHost(host);
     result.setRpcPort(rpcPort);
     result.setDataPort(dataPort);
     result.setWebPort(webPort);
-    // ALLUXIO CS ADD
-    result.setSecureRpcPort(secureRpcPort);
-    // ALLUXIO CS END
+    result.setTieredIdentity(identity);
 
     return result;
   }
