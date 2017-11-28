@@ -11,14 +11,14 @@
 
 package alluxio;
 
+import alluxio.util.io.PathUtils;
+
+import com.google.common.base.Joiner;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.base.Joiner;
-
-import alluxio.util.io.PathUtils;
 
 /**
  * Utility methods for the configuration tests.
