@@ -35,6 +35,8 @@ import javax.annotation.Nullable;
  */
 @PublicApi
 public final class TieredIdentity implements Serializable {
+  private static final long serialVersionUID = -1920596090085594788L;
+
   private final List<LocalityTier> mTiers;
 
   /**
@@ -163,6 +165,8 @@ public final class TieredIdentity implements Serializable {
    * Class representing a locality tier, e.g. (host: hostname).
    */
   public static final class LocalityTier implements Serializable {
+    private static final long serialVersionUID = 7078638137905293841L;
+
     private final String mTierName;
     private final String mValue;
 
