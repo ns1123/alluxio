@@ -31,13 +31,6 @@
   </properties>
 
   <dependencies>
-    <!-- External dependencies -->
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-
     <!-- Internal dependencies -->
     <dependency>
       <groupId>org.alluxio</groupId>

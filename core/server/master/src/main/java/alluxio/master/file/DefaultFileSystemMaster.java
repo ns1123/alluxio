@@ -641,13 +641,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               (int) Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
-        mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
-          @Override
-          public List<AlluxioURI> call() throws Exception {
-            return startupCheckConsistency(ExecutorServiceFactories
-                .fixedThreadPoolExecutorServiceFactory("startup-consistency-check", 32).create());
-          }
-        });
+        mStartupConsistencyCheck = getExecutorService().submit(() -> startupCheckConsistency(
+            ExecutorServiceFactories
+               .fixedThreadPoolExecutorServiceFactory("startup-consistency-check", 32).create()));
       }
       if (Configuration.getBoolean(PropertyKey.MASTER_AUDIT_LOGGING_ENABLED)) {
         mAsyncAuditLogWriter = new AsyncUserAccessAuditLogWriter();
@@ -1017,7 +1013,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       exists = true;
     } finally {
       if (!exists) {
-        mUfsAbsentPathCache.process(inodePath.getUri());
+        mUfsAbsentPathCache.process(inodePath.getUri(), inodePath.getInodeList());
       }
     }
   }
@@ -1661,7 +1657,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     InodeFile file = inodePath.getInodeFile();
     FileBlockInfo fileBlockInfo = new FileBlockInfo();
     fileBlockInfo.setBlockInfo(blockInfo);
-    fileBlockInfo.setUfsLocations(new ArrayList<String>());
+    fileBlockInfo.setUfsLocations(new ArrayList<>());
 
     // The sequence number part of the block id is the block index.
     long offset = file.getBlockSizeBytes() * BlockId.getSequenceNumber(blockInfo.getBlockId());

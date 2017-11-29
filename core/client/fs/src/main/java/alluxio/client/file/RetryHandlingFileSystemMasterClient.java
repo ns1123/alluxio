@@ -34,7 +34,6 @@ import alluxio.thrift.LoadMetadataTOptions;
 import alluxio.thrift.RenameTOptions;
 import alluxio.thrift.ScheduleAsyncPersistenceTOptions;
 import alluxio.thrift.UnmountTOptions;
-import alluxio.wire.MountPointInfo;
 import alluxio.wire.ThriftUtils;
 
 import org.apache.thrift.TException;
@@ -152,43 +151,30 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   @Override
   public synchronized URIStatus getStatus(final AlluxioURI path, final GetStatusOptions options)
       throws IOException {
-    return retryRPC(new RpcCallable<URIStatus>() {
-      @Override
-      public URIStatus call() throws TException {
-        return new URIStatus(ThriftUtils
-            .fromThrift(mClient.getStatus(path.getPath(), options.toThrift()).getFileInfo()));
-      }
-    });
+    return retryRPC(() -> new URIStatus(ThriftUtils
+            .fromThrift(mClient.getStatus(path.getPath(), options.toThrift()).getFileInfo())));
   }
 
   @Override
   public synchronized long getNewBlockIdForFile(final AlluxioURI path) throws IOException {
-    return retryRPC(new RpcCallable<Long>() {
-      @Override
-      public Long call() throws TException {
-        return mClient.getNewBlockIdForFile(path.getPath(), new GetNewBlockIdForFileTOptions())
-            .getId();
-      }
-    });
+    return retryRPC(
+        () -> mClient.getNewBlockIdForFile(path.getPath(), new GetNewBlockIdForFileTOptions())
+            .getId());
   }
 
   @Override
   public synchronized Map<String, alluxio.wire.MountPointInfo> getMountTable() throws IOException {
-    return retryRPC(new RpcCallable<Map<String, MountPointInfo>>() {
-      @Override
-      public Map<String, MountPointInfo> call() throws TException {
-        GetMountTableTResponse result = mClient.getMountTable();
-        Map<String, alluxio.thrift.MountPointInfo> mountTableThrift = result.getMountTable();
-        Map<String, alluxio.wire.MountPointInfo>  mountTableWire = new HashMap<>();
-        for (Map.Entry<String, alluxio.thrift.MountPointInfo> entry :
-            mountTableThrift.entrySet()) {
-          alluxio.thrift.MountPointInfo mMountPointInfoThrift = entry.getValue();
-          alluxio.wire.MountPointInfo mMountPointInfoWire =
-              ThriftUtils.fromThrift(mMountPointInfoThrift);
-          mountTableWire.put(entry.getKey(), mMountPointInfoWire);
-        }
-        return mountTableWire;
+    return retryRPC(() -> {
+      GetMountTableTResponse result = mClient.getMountTable();
+      Map<String, alluxio.thrift.MountPointInfo> mountTableThrift = result.getMountTable();
+      Map<String, alluxio.wire.MountPointInfo> mountTableWire = new HashMap<>();
+      for (Map.Entry<String, alluxio.thrift.MountPointInfo> entry : mountTableThrift.entrySet()) {
+        alluxio.thrift.MountPointInfo mMountPointInfoThrift = entry.getValue();
+        alluxio.wire.MountPointInfo mMountPointInfoWire =
+            ThriftUtils.fromThrift(mMountPointInfoThrift);
+        mountTableWire.put(entry.getKey(), mMountPointInfoWire);
       }
+      return mountTableWire;
     });
   }
 
@@ -196,7 +182,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   public synchronized List<URIStatus> listStatus(final AlluxioURI path,
       final ListStatusOptions options) throws IOException {
     return retryRPC(() -> {
-      List<URIStatus> result = new ArrayList<URIStatus>();
+      List<URIStatus> result = new ArrayList<>();
       for (alluxio.thrift.FileInfo fileInfo : mClient.listStatus(path.getPath(), options.toThrift())
           .getFileInfoList()) {
         result.add(new URIStatus(ThriftUtils.fromThrift(fileInfo)));
