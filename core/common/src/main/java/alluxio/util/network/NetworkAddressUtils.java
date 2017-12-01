@@ -14,6 +14,7 @@ package alluxio.util.network;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.util.CommonUtils;
 import alluxio.util.OSUtils;
 import alluxio.wire.WorkerNetAddress;
 
@@ -357,6 +358,46 @@ public final class NetworkAddressUtils {
   public static String getClientHostName() {
     if (Configuration.containsKey(PropertyKey.USER_HOSTNAME)) {
       return Configuration.get(PropertyKey.USER_HOSTNAME);
+    }
+    return getLocalHostName();
+  }
+
+  /**
+   * Gets a local node name from configuration if it is available, falling back on localhost lookup.
+   *
+   * @return the local node name
+   */
+  public static String getLocalNodeName() {
+    switch (CommonUtils.PROCESS_TYPE.get()) {
+      // ALLUXIO CS ADD
+      case JOB_MASTER:
+        if (Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME);
+        }
+        break;
+      case JOB_WORKER:
+        if (Configuration.containsKey(PropertyKey.JOB_WORKER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.JOB_WORKER_HOSTNAME);
+        }
+        break;
+      // ALLUXIO CS END
+      case CLIENT:
+        if (Configuration.containsKey(PropertyKey.USER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.USER_HOSTNAME);
+        }
+        break;
+      case MASTER:
+        if (Configuration.containsKey(PropertyKey.MASTER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.MASTER_HOSTNAME);
+        }
+        break;
+      case WORKER:
+        if (Configuration.containsKey(PropertyKey.WORKER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.WORKER_HOSTNAME);
+        }
+        break;
+      default:
+        break;
     }
     return getLocalHostName();
   }

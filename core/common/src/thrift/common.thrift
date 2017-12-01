@@ -40,18 +40,28 @@ struct Command {
   2: list<i64> data
 }
 
+struct LocalityTier {
+  1: string tierName;
+  2: string value;
+}
+
+struct TieredIdentity {
+  1: list<LocalityTier> tiers
+}
+
 /**
  * Address information about workers.
  */
 struct WorkerNetAddress {
+  // ALLUXIO CS ADD
+  1001: i32 secureRpcPort
+  // ALLUXIO CS END
   1: string host
   2: i32 rpcPort
   3: i32 dataPort
   4: i32 webPort
   5: string domainSocketPath
-  // ALLUXIO CS ADD
-  1001: i32 secureRpcPort
-  // ALLUXIO CS END
+  6: TieredIdentity tieredIdentity
 }
 
 // ALLUXIO CS ADD

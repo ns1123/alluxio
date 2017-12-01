@@ -127,7 +127,7 @@ public final class ReplicateDefinition
 
     long blockId = config.getBlockId();
     String localHostName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-    List<BlockWorkerInfo> workerInfoList = blockStore.getWorkerInfoList();
+    List<BlockWorkerInfo> workerInfoList = blockStore.getAllWorkers();
     WorkerNetAddress localNetAddress = null;
 
     for (BlockWorkerInfo workerInfo : workerInfoList) {

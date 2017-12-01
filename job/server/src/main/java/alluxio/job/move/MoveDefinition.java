@@ -163,7 +163,7 @@ public final class MoveDefinition
     checkMoveValid(config);
 
     List<BlockWorkerInfo> alluxioWorkerInfoList =
-        AlluxioBlockStore.create(mFileSystemContext).getWorkerInfoList();
+        AlluxioBlockStore.create(mFileSystemContext).getAllWorkers();
     Preconditions.checkState(!jobWorkerInfoList.isEmpty(), "No workers are available");
 
     List<URIStatus> allPathStatuses = getPathStatuses(source);
