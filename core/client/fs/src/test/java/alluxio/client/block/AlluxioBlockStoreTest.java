@@ -11,15 +11,9 @@
 
 package alluxio.client.block;
 
-<<<<<<< HEAD
-import static org.junit.Assert.assertEquals;
-
-||||||| merged common ancestors
-=======
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
->>>>>>> upstream/enterprise-1.6-A
 import alluxio.client.WriteType;
 import alluxio.client.block.policy.BlockLocationPolicy;
 import alluxio.client.block.policy.options.GetWorkerOptions;
@@ -201,16 +195,8 @@ public final class AlluxioBlockStoreTest {
         .setLocationPolicy(new MockFileWriteLocationPolicy(
             Lists.newArrayList(WORKER_NET_ADDRESS_LOCAL)))
         .setWriteType(WriteType.MUST_CACHE);
-<<<<<<< HEAD
-    OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
-||||||| merged common ancestors
-    OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
-=======
     BlockOutStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
     assertEquals(WORKER_NET_ADDRESS_LOCAL, stream.getAddress());
->>>>>>> upstream/enterprise-1.6-A
   }
 
   @Test
@@ -220,18 +206,10 @@ public final class AlluxioBlockStoreTest {
     OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
         .setLocationPolicy(new MockFileWriteLocationPolicy(Arrays.asList(worker1, worker2)))
         .setWriteType(WriteType.MUST_CACHE);
-<<<<<<< HEAD
-    OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
-||||||| merged common ancestors
-    OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
-=======
     BlockOutStream stream1 = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
     assertEquals(worker1, stream1.getAddress());
     BlockOutStream stream2 = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
     assertEquals(worker2, stream2.getAddress());
->>>>>>> upstream/enterprise-1.6-A
   }
   // ALLUXIO CS ADD
 

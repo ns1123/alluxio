@@ -89,34 +89,8 @@ public class WasbUnderFileSystem extends HdfsUnderFileSystem {
 
   @Override
   public long getBlockSizeByte(String path) throws IOException {
-<<<<<<< HEAD
     // wasb is an object store, so use the default block size, like other object stores.
     return alluxio.Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
-||||||| merged common ancestors
-    Path tPath = new Path(path);
-    if (!mFileSystem.exists(tPath)) {
-      throw new FileNotFoundException(path);
-    }
-    FileStatus fs = mFileSystem.getFileStatus(tPath);
-    return fs.getBlockSize();
-  }
-
-  @Override
-  public UfsDirectoryStatus getDirectoryStatus(String path) throws IOException {
-    Path tPath = new Path(path);
-    FileStatus fs = mFileSystem.getFileStatus(tPath);
-    return new UfsDirectoryStatus(path, fs.getOwner(), fs.getGroup(), fs.getPermission().toShort());
-=======
-    // wasb is an object store, so use the default block size, like other object stores.
-    return alluxio.Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
-  }
-
-  @Override
-  public UfsDirectoryStatus getDirectoryStatus(String path) throws IOException {
-    Path tPath = new Path(path);
-    FileStatus fs = mFileSystem.getFileStatus(tPath);
-    return new UfsDirectoryStatus(path, fs.getOwner(), fs.getGroup(), fs.getPermission().toShort());
->>>>>>> upstream/enterprise-1.6-A
   }
 
   // Not supported

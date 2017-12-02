@@ -216,7 +216,6 @@ public final class PropertyKeyTest {
     assertTrue(PropertyKey.DEBUG.compareTo(PropertyKey.CONF_DIR) > 0);
     assertTrue(PropertyKey.DEBUG.compareTo(PropertyKey.DEBUG) == 0);
   }
-<<<<<<< HEAD
 
   @Test
   public void templateMatches() throws Exception {
@@ -230,9 +229,6 @@ public final class PropertyKeyTest {
         "alluxio.master.mount.table.alluxio"));
   }
 
-||||||| merged common ancestors
-=======
-
   @Test
   public void localityTemplates() throws Exception {
     assertTrue(PropertyKey.isValid("alluxio.locality.node"));
@@ -244,5 +240,4 @@ public final class PropertyKeyTest {
     assertEquals("alluxio.locality.custom.strict",
         Template.LOCALITY_TIER_STRICT.format("custom").toString());
   }
->>>>>>> upstream/enterprise-1.6-A
 }

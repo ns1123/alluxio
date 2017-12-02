@@ -59,15 +59,7 @@ public final class AlluxioBlockStore {
   private static final Logger LOG = LoggerFactory.getLogger(AlluxioBlockStore.class);
 
   private final FileSystemContext mContext;
-<<<<<<< HEAD
-  private String mLocalHostName;
-  private final Random mRandom;
-||||||| merged common ancestors
-  private String mLocalHostName;
-  private Random mRandom;
-=======
   private final TieredIdentity mTieredIdentity;
->>>>>>> upstream/enterprise-1.6-A
 
   /**
    * Creates an Alluxio block store with default file system context and default local host name.
