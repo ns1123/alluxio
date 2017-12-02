@@ -206,7 +206,6 @@ public final class AlluxioBlockStoreTest {
     OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
         .setLocationPolicy(new MockFileWriteLocationPolicy(Arrays.asList(worker1, worker2)))
         .setWriteType(WriteType.MUST_CACHE);
-<<<<<<< HEAD
     BlockOutStream stream1 = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
     assertEquals(worker1, stream1.getAddress());
     BlockOutStream stream2 = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
@@ -232,70 +231,6 @@ public final class AlluxioBlockStoreTest {
     BlockOutStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
 
     assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
-||||||| merged common ancestors
-    OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
-=======
-    BlockOutStream stream1 = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    assertEquals(worker1, stream1.getAddress());
-    BlockOutStream stream2 = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    assertEquals(worker2, stream2.getAddress());
-  }
-
-  @Test
-  public void getInStreamUfs() throws Exception {
-    WorkerNetAddress worker1 = new WorkerNetAddress().setHost("worker1");
-    WorkerNetAddress worker2 = new WorkerNetAddress().setHost("worker2");
-    InStreamOptions options = InStreamOptions.defaults()
-        .setUfsReadLocationPolicy(new MockFileWriteLocationPolicy(Arrays.asList(worker1, worker2)));
-    when(mMasterClient.getBlockInfo(BLOCK_ID)).thenReturn(new BlockInfo());
-    when(mMasterClient.getWorkerInfoList()).thenReturn(
-        Arrays.asList(new WorkerInfo().setAddress(worker1), new WorkerInfo().setAddress(worker2)));
-
-    // Location policy chooses worker1 first.
-    assertEquals(worker1, mBlockStore
-        .getInStream(BLOCK_ID, OpenUfsBlockOptions.getDefaultInstance(), options).getAddress());
-    // Location policy chooses worker2 second.
-    assertEquals(worker2, mBlockStore
-        .getInStream(BLOCK_ID, OpenUfsBlockOptions.getDefaultInstance(), options).getAddress());
-  }
-
-  @Test
-  public void getInStreamLocal() throws Exception {
-    WorkerNetAddress remote = new WorkerNetAddress().setHost("remote");
-    WorkerNetAddress local = new WorkerNetAddress().setHost(WORKER_HOSTNAME_LOCAL);
-
-    // Mock away Netty usage.
-    ProtoMessage message = new ProtoMessage(
-        Protocol.LocalBlockOpenResponse.newBuilder().setPath("/tmp").build());
-    PowerMockito.mockStatic(NettyRPC.class);
-    when(NettyRPC.call(Mockito.any(NettyRPCContext.class), Mockito.any(ProtoMessage.class)))
-        .thenReturn(message);
-
-    when(mMasterClient.getBlockInfo(BLOCK_ID)).thenReturn(
-        new BlockInfo().setLocations(Arrays.asList(new BlockLocation().setWorkerAddress(remote),
-            new BlockLocation().setWorkerAddress(local))));
-    assertEquals(local, mBlockStore
-        .getInStream(BLOCK_ID, OpenUfsBlockOptions.getDefaultInstance(), InStreamOptions.defaults())
-        .getAddress());
-  }
-
-  @Test
-  public void getInStreamRemote() throws Exception {
-    WorkerNetAddress remote1 = new WorkerNetAddress().setHost("remote1");
-    WorkerNetAddress remote2 = new WorkerNetAddress().setHost("remote2");
-
-    when(mMasterClient.getBlockInfo(BLOCK_ID)).thenReturn(
-        new BlockInfo().setLocations(Arrays.asList(new BlockLocation().setWorkerAddress(remote1),
-            new BlockLocation().setWorkerAddress(remote2))));
-    // We should sometimes get remote1 and sometimes get remote2.
-    Set<WorkerNetAddress> results = new HashSet<>();
-    for (int i = 0; i < 40; i++) {
-      results.add(mBlockStore.getInStream(BLOCK_ID, OpenUfsBlockOptions.getDefaultInstance(),
-          InStreamOptions.defaults()).getAddress());
-    }
-    assertEquals(Sets.newHashSet(remote1, remote2), results);
->>>>>>> OPENSOURCE/master
   }
   // ALLUXIO CS END
 

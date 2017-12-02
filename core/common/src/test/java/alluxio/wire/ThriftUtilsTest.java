@@ -71,7 +71,6 @@ public class ThriftUtilsTest {
   }
 
   private alluxio.thrift.BlockLocation getBlockLocationThrift() {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return new alluxio.thrift.BlockLocation(100L, new alluxio.thrift.WorkerNetAddress("host", 0, 0,
     //     0, null, ""), "tierAlias");
@@ -79,13 +78,6 @@ public class ThriftUtilsTest {
     return new alluxio.thrift.BlockLocation(100L, new alluxio.thrift.WorkerNetAddress(0, "host", 0,
         0, 0, "", null), "tierAlias");
     // ALLUXIO CS END
-||||||| merged common ancestors
-    return new alluxio.thrift.BlockLocation(100L, new alluxio.thrift.WorkerNetAddress("host", 0, 0,
-        0, ""), "tierAlias");
-=======
-    return new alluxio.thrift.BlockLocation(100L, new alluxio.thrift.WorkerNetAddress("host", 0, 0,
-        0, "", null), "tierAlias");
->>>>>>> OPENSOURCE/master
   }
 
   private CommandLineJobInfo getCommandLineJobInfo() {

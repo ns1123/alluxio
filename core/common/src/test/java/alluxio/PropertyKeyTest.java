@@ -229,26 +229,17 @@ public final class PropertyKeyTest {
         "alluxio.master.mount.table.alluxio"));
   }
 
-<<<<<<< HEAD
   @Test
   public void localityTemplates() throws Exception {
     assertTrue(PropertyKey.isValid("alluxio.locality.node"));
-    assertTrue(PropertyKey.isValid("alluxio.locality.node.strict"));
     assertTrue(PropertyKey.isValid("alluxio.locality.custom"));
+    // ALLUXIO CS ADD
+    assertTrue(PropertyKey.isValid("alluxio.locality.node.strict"));
     assertTrue(PropertyKey.isValid("alluxio.locality.custom.strict"));
+    // ALLUXIO CS END
 
     assertEquals("alluxio.locality.custom", Template.LOCALITY_TIER.format("custom").toString());
     assertEquals("alluxio.locality.custom.strict",
         Template.LOCALITY_TIER_STRICT.format("custom").toString());
   }
-||||||| merged common ancestors
-=======
-  @Test
-  public void localityTemplates() throws Exception {
-    assertTrue(PropertyKey.isValid("alluxio.locality.node"));
-    assertTrue(PropertyKey.isValid("alluxio.locality.custom"));
-
-    assertEquals("alluxio.locality.custom", Template.LOCALITY_TIER.format("custom").toString());
-  }
->>>>>>> OPENSOURCE/master
 }

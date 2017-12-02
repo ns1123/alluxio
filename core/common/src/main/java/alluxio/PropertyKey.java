@@ -2966,13 +2966,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
    */
   @ThreadSafe
   public enum Template {
-<<<<<<< HEAD
     LOCALITY_TIER("alluxio.locality.%s", "alluxio\\.locality\\.(\\w+)"),
+    // ALLUXIO CS ADD
     LOCALITY_TIER_STRICT("alluxio.locality.%s.strict", "alluxio\\.locality\\.(\\w+)\\.strict"),
-||||||| merged common ancestors
-=======
-    LOCALITY_TIER("alluxio.locality.%s", "alluxio\\.locality\\.(\\w+)"),
->>>>>>> OPENSOURCE/master
+    // ALLUXIO CS END
     MASTER_JOURNAL_UFS_OPTION("alluxio.master.journal.ufs.option",
         "alluxio\\.master\\.journal\\.ufs\\.option"),
     MASTER_JOURNAL_UFS_OPTION_PROPERTY("alluxio.master.journal.ufs.option.%s",
