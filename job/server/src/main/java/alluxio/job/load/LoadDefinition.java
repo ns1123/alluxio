@@ -86,7 +86,7 @@ public final class LoadDefinition
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
     Map<String, Iterator<WorkerInfo>> jobWorkerIterators =
         createJobWorkerCyclicalIterators(jobWorkerInfoList);
-    List<BlockWorkerInfo> blockWorkerInfoList = AlluxioBlockStore.create().getWorkerInfoList();
+    List<BlockWorkerInfo> blockWorkerInfoList = AlluxioBlockStore.create().getAllWorkers();
     List<BlockWorkerInfo> availableBlockWorkers = new ArrayList<>();
     for (BlockWorkerInfo blockWorkerInfo : blockWorkerInfoList) {
       if (jobWorkerIterators.containsKey(blockWorkerInfo.getNetAddress().getHost())) {

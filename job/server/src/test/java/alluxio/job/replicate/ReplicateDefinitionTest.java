@@ -143,7 +143,7 @@ public final class ReplicateDefinitionTest {
     when(FileSystem.Factory.get()).thenReturn(mMockFileSystem);
     when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
 
-    when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
+    when(mMockBlockStore.getAllWorkers()).thenReturn(blockWorkers);
     when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(Protocol.OpenUfsBlockOptions.class),
             any(InStreamOptions.class))).thenReturn(mockInStream);
     when(
