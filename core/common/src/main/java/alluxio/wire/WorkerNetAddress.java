@@ -11,12 +11,15 @@
 
 package alluxio.wire;
 
+import alluxio.Constants;
 import alluxio.annotation.PublicApi;
+import alluxio.wire.TieredIdentity.LocalityTier;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -28,14 +31,15 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class WorkerNetAddress implements Serializable {
   private static final long serialVersionUID = 5822347646342091434L;
 
+  // ALLUXIO CS ADD
+  private int mSecureRpcPort;
+  // ALLUXIO CS END
   private String mHost = "";
   private int mRpcPort;
   private int mDataPort;
   private int mWebPort;
   private String mDomainSocketPath = "";
-  // ALLUXIO CS ADD
-  private int mSecureRpcPort;
-  // ALLUXIO CS END
+  private TieredIdentity mTieredIdentity;
 
   /**
    * Creates a new instance of {@link WorkerNetAddress}.
@@ -48,15 +52,31 @@ public final class WorkerNetAddress implements Serializable {
    * @param workerNetAddress the thrift net address
    */
   protected WorkerNetAddress(alluxio.thrift.WorkerNetAddress workerNetAddress) {
+    // ALLUXIO CS ADD
+    mSecureRpcPort = workerNetAddress.getSecureRpcPort();
+    // ALLUXIO CS END
     mHost = workerNetAddress.getHost();
     mRpcPort = workerNetAddress.getRpcPort();
     mDataPort = workerNetAddress.getDataPort();
     mWebPort = workerNetAddress.getWebPort();
     mDomainSocketPath = workerNetAddress.getDomainSocketPath();
-    // ALLUXIO CS ADD
-    mSecureRpcPort = workerNetAddress.getSecureRpcPort();
-    // ALLUXIO CS END
+    mTieredIdentity = TieredIdentity.fromThrift(workerNetAddress.getTieredIdentity());
+    if (mTieredIdentity == null) {
+      // This means the worker is pre-1.7.0. We handle this in post-1.7.0 clients by filling out
+      // the tiered identity using the hostname field.
+      mTieredIdentity =
+          new TieredIdentity(Arrays.asList(new LocalityTier(Constants.LOCALITY_NODE, mHost)));
+    }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the secure rpc port
+   */
+  public int getSecureRpcPort() {
+    return mSecureRpcPort;
+  }
+  // ALLUXIO CS END
 
   /**
    * @return the host of the worker
@@ -85,21 +105,22 @@ public final class WorkerNetAddress implements Serializable {
   public int getWebPort() {
     return mWebPort;
   }
-  // ALLUXIO CS ADD
-
-  /**
-   * @return the secure rpc port
-   */
-  public int getSecureRpcPort() {
-    return mSecureRpcPort;
-  }
-  // ALLUXIO CS END
 
   /**
    * @return the domain socket path
    */
   public String getDomainSocketPath() {
     return mDomainSocketPath;
+  }
+
+  /**
+   * @return the tiered identity
+   */
+  public TieredIdentity getTieredIdentity() {
+    if (mTieredIdentity != null) {
+      return mTieredIdentity;
+    }
+    return new TieredIdentity(Arrays.asList(new LocalityTier(Constants.LOCALITY_NODE, mHost)));
   }
 
   /**
@@ -160,16 +181,31 @@ public final class WorkerNetAddress implements Serializable {
   }
 
   /**
+   * @param tieredIdentity the tiered identity
+   * @return the worker net address
+   */
+  public WorkerNetAddress setTieredIdentity(TieredIdentity tieredIdentity) {
+    mTieredIdentity = tieredIdentity;
+    return this;
+  }
+
+  /**
    * @return a net address of thrift construct
    */
   protected alluxio.thrift.WorkerNetAddress toThrift() {
-    // ALLUXIO CS REPLACE
-    // return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort,
-    //     mDomainSocketPath);
-    // ALLUXIO CS WITH
-    return new alluxio.thrift.WorkerNetAddress(
-        mHost, mRpcPort, mDataPort, mWebPort, mDomainSocketPath, mSecureRpcPort);
+    alluxio.thrift.WorkerNetAddress address = new alluxio.thrift.WorkerNetAddress();
+    // ALLUXIO CS ADD
+    address.setSecureRpcPort(mSecureRpcPort);
     // ALLUXIO CS END
+    address.setHost(mHost);
+    address.setRpcPort(mRpcPort);
+    address.setDataPort(mDataPort);
+    address.setWebPort(mWebPort);
+    address.setDomainSocketPath(mDomainSocketPath);
+    if (mTieredIdentity != null) {
+      address.setTieredIdentity(mTieredIdentity.toThrift());
+    }
+    return address;
   }
 
   @Override
@@ -181,36 +217,40 @@ public final class WorkerNetAddress implements Serializable {
       return false;
     }
     WorkerNetAddress that = (WorkerNetAddress) o;
-    // ALLUXIO CS REPLACE
-    // return mHost.equals(that.mHost) && mRpcPort == that.mRpcPort && mDataPort == that.mDataPort
-    //     && mWebPort == that.mWebPort && mDomainSocketPath.equals(that.mDomainSocketPath);
-    // ALLUXIO CS WITH
-    return mHost.equals(that.mHost) && mRpcPort == that.mRpcPort && mDataPort == that.mDataPort
-        && mWebPort == that.mWebPort && mSecureRpcPort == that.mSecureRpcPort && mDomainSocketPath
-        .equals(that.mDomainSocketPath);
-    // ALLUXIO CS END
+    return mHost.equals(that.mHost)
+        // ALLUXIO CS ADD
+        && mSecureRpcPort == that.mSecureRpcPort
+        // ALLUXIO CS END
+        && mRpcPort == that.mRpcPort
+        && mDataPort == that.mDataPort
+        && mWebPort == that.mWebPort
+        && mDomainSocketPath.equals(that.mDomainSocketPath)
+        && Objects.equal(mTieredIdentity, that.mTieredIdentity);
   }
 
   @Override
   public int hashCode() {
     // ALLUXIO CS REPLACE
-    // return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath);
+    // return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath,
+    //     mTieredIdentity);
     // ALLUXIO CS WITH
-    return Objects
-        .hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath, mSecureRpcPort);
+    return Objects.hashCode(mSecureRpcPort, mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath,
+        mTieredIdentity);
     // ALLUXIO CS END
   }
 
   @Override
   public String toString() {
-    // ALLUXIO CS REPLACE
-    // return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
-    //     .add("dataPort", mDataPort).add("webPort", mWebPort)
-    //     .add("domainSocketPath", mDomainSocketPath).toString();
-    // ALLUXIO CS WITH
-    return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
-        .add("dataPort", mDataPort).add("webPort", mWebPort).add("secureRpcPort", mSecureRpcPort)
-        .add("domainSocketPath", mDomainSocketPath).toString();
-    // ALLUXIO CS END
+    return Objects.toStringHelper(this)
+        // ALLUXIO CS ADD
+        .add("secureRpcPort", mSecureRpcPort)
+        // ALLUXIO CS END
+        .add("host", mHost)
+        .add("rpcPort", mRpcPort)
+        .add("dataPort", mDataPort)
+        .add("webPort", mWebPort)
+        .add("domainSocketPath", mDomainSocketPath)
+        .add("tieredIdentity", mTieredIdentity)
+        .toString();
   }
 }

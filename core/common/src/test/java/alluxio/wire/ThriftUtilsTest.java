@@ -73,10 +73,10 @@ public class ThriftUtilsTest {
   private alluxio.thrift.BlockLocation getBlockLocationThrift() {
     // ALLUXIO CS REPLACE
     // return new alluxio.thrift.BlockLocation(100L, new alluxio.thrift.WorkerNetAddress("host", 0, 0,
-    //     0, ""), "tierAlias");
+    //     0, null, ""), "tierAlias");
     // ALLUXIO CS WITH
-    return new alluxio.thrift.BlockLocation(100L, new alluxio.thrift.WorkerNetAddress("host", 0, 0,
-        0, "", 0), "tierAlias");
+    return new alluxio.thrift.BlockLocation(100L, new alluxio.thrift.WorkerNetAddress(0, "host", 0,
+        0, 0, "", null), "tierAlias");
     // ALLUXIO CS END
   }
 

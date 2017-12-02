@@ -15,7 +15,15 @@ import static org.junit.Assert.assertEquals;
 
 import alluxio.util.CommonUtils;
 
+<<<<<<< HEAD
 import com.fasterxml.jackson.databind.ObjectMapper;
+||||||| merged common ancestors
+import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Assert;
+=======
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Assert;
+>>>>>>> upstream/enterprise-1.6-A
 import org.junit.Test;
 
 import java.util.Random;

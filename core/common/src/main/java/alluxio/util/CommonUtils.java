@@ -523,20 +523,6 @@ public final class CommonUtils {
     }
   }
   // ALLUXIO CS ADD
-  /** Alluxio process types. */
-  public static enum ProcessType {
-    MASTER, JOB_MASTER, WORKER, JOB_WORKER, PROXY, CLIENT;
-  }
-
-  /**
-   * Represents the type of Alluxio process running in this JVM.
-   *
-   * NOTE: This will only be set by main methods of Alluxio processes. It will not be set properly
-   * for tests. Avoid using this field if at all possible.
-   */
-  public static final java.util.concurrent.atomic.AtomicReference<ProcessType> PROCESS_TYPE =
-      new java.util.concurrent.atomic.AtomicReference<>(ProcessType.CLIENT);
-
   /**
    * NOTE: This method is fragile and does not work with our testing infrastructure. Avoid using it
    * if at all possible.
@@ -547,6 +533,27 @@ public final class CommonUtils {
     return !PROCESS_TYPE.get().equals(ProcessType.CLIENT);
   }
   // ALLUXIO CS END
+
+  /** Alluxio process types. */
+  public enum ProcessType {
+    // ALLUXIO CS ADD
+    JOB_MASTER,
+    JOB_WORKER,
+    // ALLUXIO CS END
+    CLIENT,
+    MASTER,
+    PROXY,
+    WORKER;
+  }
+
+  /**
+   * Represents the type of Alluxio process running in this JVM.
+   *
+   * NOTE: This will only be set by main methods of Alluxio processes. It will not be set properly
+   * for tests. Avoid using this field if at all possible.
+   */
+  public static final java.util.concurrent.atomic.AtomicReference<ProcessType> PROCESS_TYPE =
+      new java.util.concurrent.atomic.AtomicReference<>(ProcessType.CLIENT);
 
   /**
    * Unwraps a {@link alluxio.proto.dataserver.Protocol.Response}.

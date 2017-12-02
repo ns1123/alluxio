@@ -75,7 +75,7 @@ public class LoadDefinitionTest {
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
     PowerMockito.mockStatic(AlluxioBlockStore.class);
     PowerMockito.when(AlluxioBlockStore.create()).thenReturn(mMockBlockStore);
-    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(BLOCK_WORKERS);
+    Mockito.when(mMockBlockStore.getAllWorkers()).thenReturn(BLOCK_WORKERS);
   }
 
   @Test
@@ -99,7 +99,7 @@ public class LoadDefinitionTest {
   @Test
   public void multipleAlluxioWorkersOneJobWorkerSameHostReplication() throws Exception {
     // Two block workers on the same host with different rpc ports.
-    Mockito.when(mMockBlockStore.getWorkerInfoList())
+    Mockito.when(mMockBlockStore.getAllWorkers())
         .thenReturn(Arrays.asList(
             new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(0), 0, 0),
             new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(1), 0, 0)));
@@ -120,7 +120,7 @@ public class LoadDefinitionTest {
 
   @Test
   public void multipleJobWorkersOneBlockWorkerSameHostReplication() throws Exception {
-    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(
+    Mockito.when(mMockBlockStore.getAllWorkers()).thenReturn(
         Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0)));
     WorkerInfo jobWorker1 =
         new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0").setRpcPort(0));
@@ -147,7 +147,7 @@ public class LoadDefinitionTest {
         new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(0), 0, 0),
         new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(1), 0, 0),
         new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(2), 0, 0));
-    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
+    Mockito.when(mMockBlockStore.getAllWorkers()).thenReturn(blockWorkers);
     WorkerInfo jobWorker1 =
         new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0").setRpcPort(0));
     WorkerInfo jobWorker2 =
@@ -192,7 +192,7 @@ public class LoadDefinitionTest {
   public void skipJobWorkersWithoutLocalBlockWorkers() throws Exception {
     List<BlockWorkerInfo> blockWorkers =
         Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0));
-    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
+    Mockito.when(mMockBlockStore.getAllWorkers()).thenReturn(blockWorkers);
     createFileWithNoLocations(TEST_URI, 10);
     LoadConfig config = new LoadConfig(TEST_URI, 1);
     Map<WorkerInfo, ArrayList<LoadTask>> assignments =
@@ -221,7 +221,7 @@ public class LoadDefinitionTest {
     List<BlockWorkerInfo> blockWorkers =
         Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0),
             new BlockWorkerInfo(new WorkerNetAddress().setHost("otherhost"), 0, 0));
-    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
+    Mockito.when(mMockBlockStore.getAllWorkers()).thenReturn(blockWorkers);
     createFileWithNoLocations(TEST_URI, 1);
     LoadConfig config = new LoadConfig(TEST_URI, 2); // set replication to 2
     try {
