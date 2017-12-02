@@ -60,6 +60,7 @@ public final class WorkerNetAddress implements Serializable {
     mDataPort = workerNetAddress.getDataPort();
     mWebPort = workerNetAddress.getWebPort();
     mDomainSocketPath = workerNetAddress.getDomainSocketPath();
+<<<<<<< HEAD
     mTieredIdentity = TieredIdentity.fromThrift(workerNetAddress.getTieredIdentity());
     if (mTieredIdentity == null) {
       // This means the worker is pre-1.7.0. We handle this in post-1.7.0 clients by filling out
@@ -75,6 +76,16 @@ public final class WorkerNetAddress implements Serializable {
    */
   public int getSecureRpcPort() {
     return mSecureRpcPort;
+||||||| merged common ancestors
+=======
+    mTieredIdentity = TieredIdentity.fromThrift(workerNetAddress.getTieredIdentity());
+    if (mTieredIdentity == null) {
+      // This means the worker is pre-1.7.0. We handle this in post-1.7.0 clients by filling out
+      // the tiered identity using the hostname field.
+      mTieredIdentity =
+          new TieredIdentity(Arrays.asList(new LocalityTier(Constants.LOCALITY_NODE, mHost)));
+    }
+>>>>>>> OPENSOURCE/master
   }
   // ALLUXIO CS END
 
@@ -193,6 +204,7 @@ public final class WorkerNetAddress implements Serializable {
    * @return a net address of thrift construct
    */
   protected alluxio.thrift.WorkerNetAddress toThrift() {
+<<<<<<< HEAD
     alluxio.thrift.WorkerNetAddress address = new alluxio.thrift.WorkerNetAddress();
     // ALLUXIO CS ADD
     address.setSecureRpcPort(mSecureRpcPort);
@@ -206,6 +218,21 @@ public final class WorkerNetAddress implements Serializable {
       address.setTieredIdentity(mTieredIdentity.toThrift());
     }
     return address;
+||||||| merged common ancestors
+    return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort,
+        mDomainSocketPath);
+=======
+    alluxio.thrift.WorkerNetAddress address = new alluxio.thrift.WorkerNetAddress();
+    address.setHost(mHost);
+    address.setRpcPort(mRpcPort);
+    address.setDataPort(mDataPort);
+    address.setWebPort(mWebPort);
+    address.setDomainSocketPath(mDomainSocketPath);
+    if (mTieredIdentity != null) {
+      address.setTieredIdentity(mTieredIdentity.toThrift());
+    }
+    return address;
+>>>>>>> OPENSOURCE/master
   }
 
   @Override
@@ -217,6 +244,7 @@ public final class WorkerNetAddress implements Serializable {
       return false;
     }
     WorkerNetAddress that = (WorkerNetAddress) o;
+<<<<<<< HEAD
     return mHost.equals(that.mHost)
         // ALLUXIO CS ADD
         && mSecureRpcPort == that.mSecureRpcPort
@@ -226,10 +254,22 @@ public final class WorkerNetAddress implements Serializable {
         && mWebPort == that.mWebPort
         && mDomainSocketPath.equals(that.mDomainSocketPath)
         && Objects.equal(mTieredIdentity, that.mTieredIdentity);
+||||||| merged common ancestors
+    return mHost.equals(that.mHost) && mRpcPort == that.mRpcPort && mDataPort == that.mDataPort
+        && mWebPort == that.mWebPort && mDomainSocketPath.equals(that.mDomainSocketPath);
+=======
+    return mHost.equals(that.mHost)
+        && mRpcPort == that.mRpcPort
+        && mDataPort == that.mDataPort
+        && mWebPort == that.mWebPort
+        && mDomainSocketPath.equals(that.mDomainSocketPath)
+        && Objects.equal(mTieredIdentity, that.mTieredIdentity);
+>>>>>>> OPENSOURCE/master
   }
 
   @Override
   public int hashCode() {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath,
     //     mTieredIdentity);
@@ -237,10 +277,17 @@ public final class WorkerNetAddress implements Serializable {
     return Objects.hashCode(mSecureRpcPort, mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath,
         mTieredIdentity);
     // ALLUXIO CS END
+||||||| merged common ancestors
+    return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath);
+=======
+    return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath,
+        mTieredIdentity);
+>>>>>>> OPENSOURCE/master
   }
 
   @Override
   public String toString() {
+<<<<<<< HEAD
     return Objects.toStringHelper(this)
         // ALLUXIO CS ADD
         .add("secureRpcPort", mSecureRpcPort)
@@ -252,5 +299,19 @@ public final class WorkerNetAddress implements Serializable {
         .add("domainSocketPath", mDomainSocketPath)
         .add("tieredIdentity", mTieredIdentity)
         .toString();
+||||||| merged common ancestors
+    return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
+        .add("dataPort", mDataPort).add("webPort", mWebPort)
+        .add("domainSocketPath", mDomainSocketPath).toString();
+=======
+    return Objects.toStringHelper(this)
+        .add("host", mHost)
+        .add("rpcPort", mRpcPort)
+        .add("dataPort", mDataPort)
+        .add("webPort", mWebPort)
+        .add("domainSocketPath", mDomainSocketPath)
+        .add("tieredIdentity", mTieredIdentity)
+        .toString();
+>>>>>>> OPENSOURCE/master
   }
 }

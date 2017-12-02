@@ -42,8 +42,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Collections;
+||||||| merged common ancestors
+import java.util.ArrayList;
+=======
+import java.util.Collections;
+>>>>>>> OPENSOURCE/master
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -108,6 +114,7 @@ public final class AlluxioBlockStore {
   /**
    * @return the info of all block workers eligible for reads and writes
    */
+<<<<<<< HEAD
   public List<BlockWorkerInfo> getEligibleWorkers() throws IOException {
     return getAllWorkers().stream()
         // Filter out workers in different strict tiers.
@@ -119,6 +126,19 @@ public final class AlluxioBlockStore {
    * @return the info of all block workers
    */
   public List<BlockWorkerInfo> getAllWorkers() throws IOException {
+||||||| merged common ancestors
+  public List<BlockWorkerInfo> getWorkerInfoList() throws IOException {
+    List<BlockWorkerInfo> infoList = new ArrayList<>();
+=======
+  public List<BlockWorkerInfo> getEligibleWorkers() throws IOException {
+    return getAllWorkers();
+  }
+
+  /**
+   * @return the info of all block workers
+   */
+  public List<BlockWorkerInfo> getAllWorkers() throws IOException {
+>>>>>>> OPENSOURCE/master
     try (CloseableResource<BlockMasterClient> masterClientResource =
         mContext.acquireBlockMasterClientResource()) {
       return masterClientResource.get().getWorkerInfoList().stream()
@@ -171,10 +191,35 @@ public final class AlluxioBlockStore {
         if (mTieredIdentity.getTier(0).getTierName().equals(Constants.LOCALITY_NODE)
             && mTieredIdentity.topTiersMatch(nearest.get())) {
           source = BlockInStreamSource.LOCAL;
+<<<<<<< HEAD
         } else {
           source = BlockInStreamSource.REMOTE;
         }
       }
+    }
+    if (address == null) {
+      throw new UnavailableException(ExceptionMessage.NO_WORKER_AVAILABLE.getMessage());
+||||||| merged common ancestors
+          break;
+        }
+      }
+      if (address == null) {
+        // No local worker/block, choose a random location. In the future we could change this to
+        // only randomize among locations in the highest tier, or have the master randomize the
+        // order.
+        List<BlockLocation> locations = blockInfo.getLocations();
+        if (locations.isEmpty()) {
+          throw new UnavailableException(ExceptionMessage.NO_WORKER_AVAILABLE.getMessage());
+        }
+        address = locations.get(mRandom.nextInt(locations.size())).getWorkerAddress();
+        source = BlockInStreamSource.REMOTE;
+      }
+=======
+        } else {
+          source = BlockInStreamSource.REMOTE;
+        }
+      }
+>>>>>>> OPENSOURCE/master
     }
     if (address == null) {
       throw new UnavailableException(ExceptionMessage.NO_WORKER_AVAILABLE.getMessage());
@@ -234,6 +279,7 @@ public final class AlluxioBlockStore {
     WorkerNetAddress address;
     FileWriteLocationPolicy locationPolicy = Preconditions.checkNotNull(options.getLocationPolicy(),
         PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // address = locationPolicy.getWorkerForNextBlock(getEligibleWorkers(), blockSize);
     // if (address == null) {
@@ -285,6 +331,17 @@ public final class AlluxioBlockStore {
       throw new alluxio.exception.status.ResourceExhaustedException(String.format(
           "Not enough workers for replications, %d workers selected but %d required",
           workerAddressList.size(), initialReplicas));
+||||||| merged common ancestors
+    address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
+    if (address == null) {
+      throw new UnavailableException(
+          ExceptionMessage.NO_SPACE_FOR_BLOCK_ON_WORKER.getMessage(blockSize));
+=======
+    address = locationPolicy.getWorkerForNextBlock(getEligibleWorkers(), blockSize);
+    if (address == null) {
+      throw new UnavailableException(
+          ExceptionMessage.NO_SPACE_FOR_BLOCK_ON_WORKER.getMessage(blockSize));
+>>>>>>> OPENSOURCE/master
     }
     return BlockOutStream
         .createReplicatedBlockOutStream(mContext, blockId, blockSize, workerAddressList, options);

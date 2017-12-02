@@ -228,6 +228,7 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     setWebPortIsSet(false);
     this.webPort = 0;
     this.domainSocketPath = null;
+<<<<<<< HEAD
     this.tieredIdentity = null;
   }
 
@@ -252,6 +253,10 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
 
   public void setSecureRpcPortIsSet(boolean value) {
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SECURERPCPORT_ISSET_ID, value);
+||||||| merged common ancestors
+=======
+    this.tieredIdentity = null;
+>>>>>>> OPENSOURCE/master
   }
 
   public String getHost() {
@@ -905,6 +910,7 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
         oprot.writeString(struct.domainSocketPath);
         oprot.writeFieldEnd();
       }
+<<<<<<< HEAD
       if (struct.tieredIdentity != null) {
         oprot.writeFieldBegin(TIERED_IDENTITY_FIELD_DESC);
         struct.tieredIdentity.write(oprot);
@@ -913,6 +919,14 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       oprot.writeFieldBegin(SECURE_RPC_PORT_FIELD_DESC);
       oprot.writeI32(struct.secureRpcPort);
       oprot.writeFieldEnd();
+||||||| merged common ancestors
+=======
+      if (struct.tieredIdentity != null) {
+        oprot.writeFieldBegin(TIERED_IDENTITY_FIELD_DESC);
+        struct.tieredIdentity.write(oprot);
+        oprot.writeFieldEnd();
+      }
+>>>>>>> OPENSOURCE/master
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -946,6 +960,7 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       if (struct.isSetWebPort()) {
         optionals.set(4);
       }
+<<<<<<< HEAD
       if (struct.isSetDomainSocketPath()) {
         optionals.set(5);
       }
@@ -956,6 +971,14 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       if (struct.isSetSecureRpcPort()) {
         oprot.writeI32(struct.secureRpcPort);
       }
+||||||| merged common ancestors
+      oprot.writeBitSet(optionals, 5);
+=======
+      if (struct.isSetTieredIdentity()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
+>>>>>>> OPENSOURCE/master
       if (struct.isSetHost()) {
         oprot.writeString(struct.host);
       }
@@ -979,7 +1002,13 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, WorkerNetAddress struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
+<<<<<<< HEAD
       BitSet incoming = iprot.readBitSet(7);
+||||||| merged common ancestors
+      BitSet incoming = iprot.readBitSet(5);
+=======
+      BitSet incoming = iprot.readBitSet(6);
+>>>>>>> OPENSOURCE/master
       if (incoming.get(0)) {
         struct.secureRpcPort = iprot.readI32();
         struct.setSecureRpcPortIsSet(true);
@@ -1004,11 +1033,20 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
         struct.domainSocketPath = iprot.readString();
         struct.setDomainSocketPathIsSet(true);
       }
+<<<<<<< HEAD
       if (incoming.get(6)) {
         struct.tieredIdentity = new TieredIdentity();
         struct.tieredIdentity.read(iprot);
         struct.setTieredIdentityIsSet(true);
       }
+||||||| merged common ancestors
+=======
+      if (incoming.get(5)) {
+        struct.tieredIdentity = new TieredIdentity();
+        struct.tieredIdentity.read(iprot);
+        struct.setTieredIdentityIsSet(true);
+      }
+>>>>>>> OPENSOURCE/master
     }
   }
 

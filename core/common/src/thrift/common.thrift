@@ -61,6 +61,7 @@ struct WorkerNetAddress {
   3: i32 dataPort
   4: i32 webPort
   5: string domainSocketPath
+<<<<<<< HEAD
   6: TieredIdentity tieredIdentity
 }
 
@@ -69,6 +70,10 @@ struct Capability {
   1: optional binary content
   2: optional binary authenticator
   3: optional i64 keyId
+||||||| merged common ancestors
+=======
+  6: TieredIdentity tieredIdentity
+>>>>>>> OPENSOURCE/master
 }
 
 // ALLUXIO CS END

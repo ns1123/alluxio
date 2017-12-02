@@ -362,6 +362,7 @@ public final class NetworkAddressUtils {
   }
 
   /**
+<<<<<<< HEAD
    * Gets a local node name from configuration if it is available, falling back on localhost lookup.
    *
    * @return the local node name
@@ -402,6 +403,37 @@ public final class NetworkAddressUtils {
   }
 
   /**
+||||||| merged common ancestors
+=======
+   * Gets a local node name from configuration if it is available, falling back on localhost lookup.
+   *
+   * @return the local node name
+   */
+  public static String getLocalNodeName() {
+    switch (CommonUtils.PROCESS_TYPE.get()) {
+      case CLIENT:
+        if (Configuration.containsKey(PropertyKey.USER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.USER_HOSTNAME);
+        }
+        break;
+      case MASTER:
+        if (Configuration.containsKey(PropertyKey.MASTER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.MASTER_HOSTNAME);
+        }
+        break;
+      case WORKER:
+        if (Configuration.containsKey(PropertyKey.WORKER_HOSTNAME)) {
+          return Configuration.get(PropertyKey.WORKER_HOSTNAME);
+        }
+        break;
+      default:
+        break;
+    }
+    return getLocalHostName();
+  }
+
+  /**
+>>>>>>> OPENSOURCE/master
    * Gets a local hostname for the host this JVM is running on.
    *
    * @return the local host name, which is not based on a loopback ip address
