@@ -201,7 +201,7 @@ public final class AlluxioBlockStore {
    *         fashion
    */
   public BlockOutStream getOutStream(long blockId, long blockSize, WorkerNetAddress address,
-                                     OutStreamOptions options) throws IOException {
+      OutStreamOptions options) throws IOException {
     if (blockSize == -1) {
       try (CloseableResource<BlockMasterClient> blockMasterClientResource =
           mContext.acquireBlockMasterClientResource()) {
