@@ -36,6 +36,15 @@ spec:
   resources:
     requests:
       storage: 1Gi
+# ALLUXIO CS ADD
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alluxio-secret
+data:
+  license.json: <base64_encoded_license>
+# ALLUXIO CS END
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
@@ -80,6 +89,10 @@ spec:
               mountPath: /journal
             - name: alluxio-domain
               mountPath: /opt/domain
+# ALLUXIO CS ADD
+            - name: secret-volume
+              mountPath: /secrets
+# ALLUXIO CS END
       restartPolicy: Always
       volumes:
         - name: alluxio-journal
@@ -89,3 +102,8 @@ spec:
           hostPath:
             path: /tmp/domain
             type: Directory
+# ALLUXIO CS ADD
+        - name: secret-volume
+          secret:
+            secretName: alluxio-secret
+# ALLUXIO CS END
