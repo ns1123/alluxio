@@ -11,10 +11,7 @@
 
 package alluxio.network;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import alluxio.AlluxioTestDirectory;
 import alluxio.BaseIntegrationTest;
@@ -62,9 +59,10 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     map.put(PropertyKey.WORKER_RPC_PORT, "0");
     map.put(PropertyKey.WORKER_DATA_PORT, "0");
     map.put(PropertyKey.WORKER_WEB_PORT, "0");
-
+    // ALLUXIO CS ADD
     // Set rack locality to be strict.
     map.put(Template.LOCALITY_TIER_STRICT.format(Constants.LOCALITY_RACK), "true");
+    // ALLUXIO CS END
     return map;
   }
 
@@ -125,20 +123,21 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
       assertEquals(100, blockWorker1.getBlockStore().getBlockStoreMeta().getUsedBytes());
       assertEquals(10, blockWorker2.getBlockStore().getBlockStoreMeta().getUsedBytes());
     }
-
+    // ALLUXIO CS ADD
     // Rack locality is configured to be strict, so when no rack matches we should fail.
     {
       Whitebox.setInternalState(TieredIdentityFactory.class, "sInstance",
           TieredIdentityFactory.fromString("node=node3,rack=rack3"));
       try {
         FileSystemTestUtils.createByteFile(fs, "/file3", WriteType.MUST_CACHE, 10);
-        fail("Expected an exception to be thrown");
+        org.junit.Assert.fail("Expected an exception to be thrown");
       } catch (Exception e) {
-        assertThat(e.getMessage(), containsString("no worker"));
+        org.junit.Assert.assertThat(e.getMessage(), org.hamcrest.CoreMatchers.containsString("no worker"));
       } finally {
         Whitebox.setInternalState(TieredIdentityFactory.class, "sInstance", (Object) null);
       }
     }
+    // ALLUXIO CS END
   }
 
   private void runProcess(ExecutorService e, Process p) {

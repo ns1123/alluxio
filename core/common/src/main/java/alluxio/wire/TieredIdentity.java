@@ -11,8 +11,6 @@
 
 package alluxio.wire;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.PropertyKey.Template;
 import alluxio.annotation.PublicApi;
 
@@ -85,9 +83,8 @@ public final class TieredIdentity implements Serializable {
 
   /**
    * @param identities the tiered identities to compare to
-   * @return the identity closest to this one; or Optional.empty if none of the identities match
-   *         within a strict tier. If none of the identities match and no strict tiers are defined,
-   *         the first identity is returned
+   * @return the identity closest to this one. If none of the identities match, the first identity
+   *         is returned
    */
   public Optional<TieredIdentity> nearest(List<TieredIdentity> identities) {
     if (identities.isEmpty()) {
@@ -103,13 +100,16 @@ public final class TieredIdentity implements Serializable {
           }
         }
       }
-      if (Configuration.containsKey(Template.LOCALITY_TIER_STRICT.format(tier.getTierName()))
-          && Configuration.getBoolean(Template.LOCALITY_TIER_STRICT.format(tier.getTierName()))) {
+      // ALLUXIO CS ADD
+      if (alluxio.Configuration.containsKey(Template.LOCALITY_TIER_STRICT.format(tier.getTierName()))
+          && alluxio.Configuration.getBoolean(Template.LOCALITY_TIER_STRICT.format(tier.getTierName()))) {
         return Optional.empty();
       }
+      // ALLUXIO CS ADD
     }
     return Optional.of(identities.get(0));
   }
+  // ALLUXIO CS ADD
 
   /**
    * @param other a tiered identity to compare to
@@ -117,8 +117,10 @@ public final class TieredIdentity implements Serializable {
    */
   public boolean strictTiersMatch(TieredIdentity other) {
     for (LocalityTier t : mTiers) {
-      PropertyKey strictKey = Template.LOCALITY_TIER_STRICT.format(t.getTierName());
-      if (Configuration.containsKey(strictKey) && Configuration.getBoolean(strictKey)) {
+      alluxio.PropertyKey strictKey =
+          alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(t.getTierName());
+      if (alluxio.Configuration.containsKey(strictKey)
+          && alluxio.Configuration.getBoolean(strictKey)) {
         for (LocalityTier tier : other.getTiers()) {
           if (tier.getTierName().equals(t.getTierName()) && !tier.getValue().equals(t.getValue())) {
             return false;
@@ -128,7 +130,7 @@ public final class TieredIdentity implements Serializable {
     }
     return true;
   }
-
+  // ALLUXIO CS END
   /**
    * @param other a tiered identity to compare to
    * @return whether the top tier of this tiered identity matches the top tier of other

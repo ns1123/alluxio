@@ -12,11 +12,8 @@
 package alluxio.client.file.policy;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
-import alluxio.ConfigurationRule;
 import alluxio.Constants;
-import alluxio.PropertyKey.Template;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.network.TieredIdentityFactory;
 import alluxio.util.network.NetworkAddressUtils;
@@ -28,7 +25,6 @@ import com.google.common.testing.EqualsTester;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,8 +102,8 @@ public final class LocalFirstPolicyTest {
   // ALLUXIO CS ADD
   @Test
   public void respectStrictLocality() throws Exception {
-    try (Closeable c =
-        new ConfigurationRule(Template.LOCALITY_TIER_STRICT.format(Constants.LOCALITY_RACK), "true")
+    try (java.io.Closeable c = new alluxio.ConfigurationRule(
+        alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(Constants.LOCALITY_RACK), "true")
             .toResource()) {
       List<BlockWorkerInfo> workers = new ArrayList<>();
       workers.add(worker(Constants.GB, "node", "rack"));
@@ -115,7 +111,7 @@ public final class LocalFirstPolicyTest {
           LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=other,rack=other"));
       WorkerNetAddress chosen = policy.getWorkerForNextBlock(workers, Constants.GB);
       // Rack locality is set to strict, and no rack matches.
-      assertNull(chosen);
+      Assert.assertNull(chosen);
     }
   }
   // ALLUXIO CS END
