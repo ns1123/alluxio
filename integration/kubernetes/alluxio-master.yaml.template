@@ -102,3 +102,8 @@ spec:
           hostPath:
             path: /tmp/domain
             type: Directory
+# ALLUXIO CS ADD
+        - name: secret-volume
+          secret:
+            secretName: alluxio-secret
+# ALLUXIO CS END
