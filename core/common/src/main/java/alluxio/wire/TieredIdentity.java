@@ -111,7 +111,7 @@ public final class TieredIdentity implements Serializable {
           && alluxio.Configuration.getBoolean(Template.LOCALITY_TIER_STRICT.format(tier.getTierName()))) {
         return Optional.empty();
       }
-      // ALLUXIO CS ADD
+      // ALLUXIO CS END
     }
     return Optional.of(identities.get(0));
   }
