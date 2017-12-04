@@ -232,9 +232,11 @@ public final class PropertyKeyTest {
   @Test
   public void localityTemplates() throws Exception {
     assertTrue(PropertyKey.isValid("alluxio.locality.node"));
-    assertTrue(PropertyKey.isValid("alluxio.locality.node.strict"));
     assertTrue(PropertyKey.isValid("alluxio.locality.custom"));
+    // ALLUXIO CS ADD
+    assertTrue(PropertyKey.isValid("alluxio.locality.node.strict"));
     assertTrue(PropertyKey.isValid("alluxio.locality.custom.strict"));
+    // ALLUXIO CS END
 
     assertEquals("alluxio.locality.custom", Template.LOCALITY_TIER.format("custom").toString());
     assertEquals("alluxio.locality.custom.strict",

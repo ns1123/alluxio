@@ -103,6 +103,7 @@ public final class LocalFirstPolicyTest {
     assertEquals("node4", chosen.getTieredIdentity().getTier(0).getValue());
   }
 
+  // ALLUXIO CS ADD
   @Test
   public void respectStrictLocality() throws Exception {
     try (Closeable c =
@@ -117,7 +118,7 @@ public final class LocalFirstPolicyTest {
       assertNull(chosen);
     }
   }
-
+  // ALLUXIO CS END
   @Test
   public void tieredLocalityEnoughSpace() throws Exception {
     List<BlockWorkerInfo> workers = new ArrayList<>();
