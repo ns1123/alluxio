@@ -83,8 +83,14 @@ public final class TieredIdentity implements Serializable {
 
   /**
    * @param identities the tiered identities to compare to
-   * @return the identity closest to this one. If none of the identities match, the first identity
-   *         is returned
+   // ALLUXIO CS REPLACE
+   // * @return the identity closest to this one. If none of the identities match, the first identity
+   // *         is returned
+   // ALLUXIO CS WITH
+   * @return the identity closest to this one; or Optional.empty if none of the identities match
+   *         within a strict tier. If none of the identities match and no strict tiers are defined,
+   *         the first identity is returned
+   // ALLUXIO CS END
    */
   public Optional<TieredIdentity> nearest(List<TieredIdentity> identities) {
     if (identities.isEmpty()) {
