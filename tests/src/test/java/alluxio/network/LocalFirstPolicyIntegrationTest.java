@@ -59,7 +59,9 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     map.put(PropertyKey.WORKER_WEB_PORT, "0");
     // ALLUXIO CS ADD
     // Set rack locality to be strict.
-    map.put(alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK), "true");
+    map.put(
+        alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK),
+        "true");
     // ALLUXIO CS END
 
     return map;
