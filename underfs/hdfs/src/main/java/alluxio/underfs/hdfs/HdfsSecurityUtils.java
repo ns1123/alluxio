@@ -11,7 +11,6 @@
 
 package alluxio.underfs.hdfs;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +25,6 @@ import java.security.PrivilegedExceptionAction;
 public final class HdfsSecurityUtils {
   private static final Logger LOG = LoggerFactory.getLogger(HdfsSecurityUtils.class);
 
-  /** The HDFS configuration. */
-  private static Configuration sHdfsConf = new Configuration();
-
   private static boolean isHdfsSecurityEnabled() {
     return UserGroupInformation.isSecurityEnabled();
   }
@@ -42,7 +38,6 @@ public final class HdfsSecurityUtils {
    * @throws IOException if failed to run as the current user
    */
   public static <T> T runAsCurrentUser(final SecuredRunner<T> runner) throws IOException {
-    UserGroupInformation.setConfiguration(sHdfsConf);
     if (!isHdfsSecurityEnabled()) {
       LOG.warn("security is not enabled");
       return runner.run();
@@ -63,13 +58,10 @@ public final class HdfsSecurityUtils {
    */
   public static <T> T runAs(UserGroupInformation ugi, final SecuredRunner<T> runner)
       throws IOException {
-    UserGroupInformation.setConfiguration(sHdfsConf);
     if (!isHdfsSecurityEnabled()) {
       LOG.warn("security is not enabled");
       return runner.run();
     }
-
-    ugi.setConfiguration(sHdfsConf);
 
     LOG.debug("UGI: {}", ugi.toString());
     LOG.debug("UGI login user {}", ugi.getLoginUser());

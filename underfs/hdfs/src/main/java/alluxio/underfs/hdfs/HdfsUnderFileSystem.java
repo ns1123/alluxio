@@ -96,7 +96,20 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       Configuration hdfsConf) {
     super(ufsUri, conf);
     mUfsConf = conf;
+    // UserGroupInformation.setConfiguration(hdfsConf) will trigger service loading.
+    // Stash the classloader to prevent service loading throwing exception due to
+    // classloader mismatch.
+    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
     // ALLUXIO CS ADD
+    try {
+      Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
+      // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
+      // group service.
+      UserGroupInformation.setConfiguration(hdfsConf);
+    } finally {
+      Thread.currentThread().setContextClassLoader(previousClassLoader);
+    }
+
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
     // NOTE, hdfsConf.get("hadoop.security.authentication") may return null for hadoop 1.x
@@ -160,15 +173,13 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       } catch (IOException e) {
         LOG.error("Exception thrown when trying to get FileSystem for {}", ufsPrefix, e);
         throw new RuntimeException(e);
+      } finally {
+        Thread.currentThread().setContextClassLoader(previousClassLoader);
       }
       return;
     }
     // ALLUXIO CS END
     Path path = new Path(ufsUri.toString());
-    // UserGroupInformation.setConfiguration(hdfsConf) will trigger service loading.
-    // Stash the classloader to prevent service loading throwing exception due to
-    // classloader mismatch.
-    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
