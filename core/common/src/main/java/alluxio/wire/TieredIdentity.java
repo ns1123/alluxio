@@ -11,7 +11,6 @@
 
 package alluxio.wire;
 
-import alluxio.PropertyKey.Template;
 import alluxio.annotation.PublicApi;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -110,8 +109,10 @@ public final class TieredIdentity implements Serializable {
         }
       }
       // ALLUXIO CS ADD
-      if (alluxio.Configuration.containsKey(Template.LOCALITY_TIER_STRICT.format(tier.getTierName()))
-          && alluxio.Configuration.getBoolean(Template.LOCALITY_TIER_STRICT.format(tier.getTierName()))) {
+      if (alluxio.Configuration
+          .containsKey(alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(tier.getTierName()))
+          && alluxio.Configuration.getBoolean(
+              alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(tier.getTierName()))) {
         return Optional.empty();
       }
       // ALLUXIO CS END
