@@ -239,7 +239,9 @@ public final class PropertyKeyTest {
     // ALLUXIO CS END
 
     assertEquals("alluxio.locality.custom", Template.LOCALITY_TIER.format("custom").toString());
+    // ALLUXIO CS ADD
     assertEquals("alluxio.locality.custom.strict",
         Template.LOCALITY_TIER_STRICT.format("custom").toString());
+    // ALLUXIO CS END
   }
 }

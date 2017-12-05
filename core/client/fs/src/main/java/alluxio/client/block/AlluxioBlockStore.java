@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -109,10 +108,14 @@ public final class AlluxioBlockStore {
    * @return the info of all block workers eligible for reads and writes
    */
   public List<BlockWorkerInfo> getEligibleWorkers() throws IOException {
+    // ALLUXIO CS REPLACE
+    // return getAllWorkers();
+    // ALLUXIO CS WITH
     return getAllWorkers().stream()
         // Filter out workers in different strict tiers.
         .filter(w -> w.getNetAddress().getTieredIdentity().strictTiersMatch(mTieredIdentity))
         .collect(Collectors.toList());
+    // ALLUXIO CS END
   }
 
   /**
@@ -272,7 +275,7 @@ public final class AlluxioBlockStore {
     }
 
     // Select N workers on different hosts where N is the value of initialReplicas for this block
-    List<WorkerNetAddress> workerAddressList = new ArrayList<>();
+    List<WorkerNetAddress> workerAddressList = new java.util.ArrayList<>();
     for (int i = 0; i < initialReplicas; i++) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
       if (address == null) {
