@@ -14,7 +14,6 @@ package alluxio.wire;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
-import alluxio.PropertyKey.Template;
 import alluxio.network.TieredIdentityFactory;
 import alluxio.util.CommonUtils;
 import alluxio.wire.TieredIdentity.LocalityTier;
@@ -48,7 +47,7 @@ public class TieredIdentityTest {
         TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).get());
     // ALLUXIO CS ADD
     try (java.io.Closeable c = new alluxio.ConfigurationRule(
-        Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK), "true")
+        alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK), "true")
             .toResource()) {
       org.junit.Assert.assertFalse(
           TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).isPresent());

@@ -17,10 +17,8 @@ import alluxio.AlluxioTestDirectory;
 import alluxio.BaseIntegrationTest;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
-import alluxio.Constants;
 import alluxio.Process;
 import alluxio.PropertyKey;
-import alluxio.PropertyKey.Template;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemTestUtils;
@@ -61,8 +59,9 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     map.put(PropertyKey.WORKER_WEB_PORT, "0");
     // ALLUXIO CS ADD
     // Set rack locality to be strict.
-    map.put(Template.LOCALITY_TIER_STRICT.format(Constants.LOCALITY_RACK), "true");
+    map.put(alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK), "true");
     // ALLUXIO CS END
+
     return map;
   }
 
