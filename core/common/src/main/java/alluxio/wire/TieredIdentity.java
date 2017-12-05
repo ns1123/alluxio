@@ -140,6 +140,7 @@ public final class TieredIdentity implements Serializable {
     return true;
   }
   // ALLUXIO CS END
+
   /**
    * @param other a tiered identity to compare to
    * @return whether the top tier of this tiered identity matches the top tier of other
