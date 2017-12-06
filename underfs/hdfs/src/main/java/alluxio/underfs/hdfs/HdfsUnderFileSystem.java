@@ -96,6 +96,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       Configuration hdfsConf) {
     super(ufsUri, conf);
     mUfsConf = conf;
+    Path path = new Path(ufsUri.toString());
     // UserGroupInformation.setConfiguration(hdfsConf) will trigger service loading.
     // Stash the classloader to prevent service loading throwing exception due to
     // classloader mismatch.
@@ -179,7 +180,6 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       return;
     }
     // ALLUXIO CS END
-    Path path = new Path(ufsUri.toString());
     try {
       Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
