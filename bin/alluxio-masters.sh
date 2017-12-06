@@ -37,9 +37,11 @@ echo "Executing the following command on all master nodes and logging to ${ALLUX
 
 N=0
 ZOOKEEPER_ENABLED=$(${BIN}/alluxio getConf alluxio.zookeeper.enabled)
+JOURNAL_TYPE=$(${BIN}/alluxio getConf ${ALLUXIO_MASTER_JAVA_OPTS} \
+               alluxio.master.journal.type | awk '{print toupper($0)}')
 for master in $(echo ${HOSTLIST}); do
   echo "[${master}] Connecting as ${USER}..." >> ${ALLUXIO_TASK_LOG}
-  if [[ ${ZOOKEEPER_ENABLED} == "true" || ${N} -eq 0 ]]; then
+  if [[ ${ZOOKEEPER_ENABLED} == "true" ]] || [[ ${JOURNAL_TYPE} == "EMBEDDED" ]] || [[ ${N} -eq 0 ]]; then
     nohup ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -tt ${master} ${LAUNCHER} \
       $"${@// /\\ }" 2>&1 | while read line; do echo "[${master}] ${line}"; done >> ${ALLUXIO_TASK_LOG} &
   else
