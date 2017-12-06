@@ -3643,6 +3643,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       // Check the progress of persist jobs.
       for (long fileId : mPersistJobs.keySet()) {
         final PersistJob job = mPersistJobs.get(fileId);
+        if (job == null) {
+          // This could happen if a key is removed from mPersistJobs while we are iterating.
+          continue;
+        }
         // Cancel any jobs marked as canceled
         switch (job.getCancelState()) {
           case NOT_CANCELED:
