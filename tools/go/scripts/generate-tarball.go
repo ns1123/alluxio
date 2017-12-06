@@ -251,7 +251,7 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		"integration/docker/bin/alluxio-proxy.sh",
 		"integration/docker/bin/alluxio-worker.sh",
 		// KUBERNETES
-		"integration/kubernetes/alluxio-journal-volume.template",
+		"integration/kubernetes/alluxio-journal-volume.yaml.template",
 		"integration/kubernetes/alluxio-master.yaml.template",
 		"integration/kubernetes/alluxio-worker.yaml.template",
 		"integration/kubernetes/conf/alluxio.properties.template",
