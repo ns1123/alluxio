@@ -40,6 +40,7 @@ public interface JournalFormatter {
      * @return the created formatter
      */
     public static JournalFormatter create() {
+<<<<<<< HEAD
       try {
         return CommonUtils.createNewClassInstance(
             Configuration.<JournalFormatter>getClass(PropertyKey.MASTER_JOURNAL_FORMATTER_CLASS),
@@ -47,6 +48,19 @@ public interface JournalFormatter {
       } catch (Exception e) {
         throw Throwables.propagate(e);
       }
+||||||| parent of d46d513e9d... Tiered locality usability improvements.
+      try {
+        return CommonUtils.createNewClassInstance(
+            Configuration.<JournalFormatter>getClass(PropertyKey.MASTER_JOURNAL_FORMATTER_CLASS),
+            null, null);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+=======
+      return CommonUtils.createNewClassInstance(
+          Configuration.<JournalFormatter>getClass(PropertyKey.MASTER_JOURNAL_FORMATTER_CLASS),
+          null, null);
+>>>>>>> d46d513e9d... Tiered locality usability improvements.
     }
   }
 

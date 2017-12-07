@@ -11,6 +11,22 @@
 
 package alluxio.util;
 
+<<<<<<< HEAD
+||||||| parent of d46d513e9d... Tiered locality usability improvements.
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+>>>>>>> d46d513e9d... Tiered locality usability improvements.
 import alluxio.Constants;
 import alluxio.security.group.CachedGroupMapping;
 import alluxio.security.group.GroupMappingService;
@@ -28,7 +44,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+<<<<<<< HEAD
 import java.util.LinkedList;
+||||||| parent of d46d513e9d... Tiered locality usability improvements.
+import java.util.ArrayList;
+=======
+>>>>>>> d46d513e9d... Tiered locality usability improvements.
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
@@ -150,6 +171,7 @@ public class CommonUtilsTest {
     testCases.add(new TestCase("1", TestClassB.class, new Class[] {int.class}, 1));
 
     for (TestCase testCase : testCases) {
+<<<<<<< HEAD
       try {
         Object o =
             CommonUtils.createNewClassInstance(testCase.mCls, testCase.mCtorClassArgs,
@@ -158,6 +180,20 @@ public class CommonUtilsTest {
       } catch (Exception e) {
         e.printStackTrace();
       }
+||||||| parent of d46d513e9d... Tiered locality usability improvements.
+      try {
+        Object o =
+            CommonUtils.createNewClassInstance(testCase.mCls, testCase.mCtorClassArgs,
+                testCase.mCtorArgs);
+        assertEquals(o.toString(), testCase.mExpected);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+=======
+      Object o = CommonUtils.createNewClassInstance(testCase.mCls, testCase.mCtorClassArgs,
+          testCase.mCtorArgs);
+      assertEquals(o.toString(), testCase.mExpected);
+>>>>>>> d46d513e9d... Tiered locality usability improvements.
     }
   }
 

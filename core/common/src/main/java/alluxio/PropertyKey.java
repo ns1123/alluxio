@@ -1323,6 +1323,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey LOCALITY_SCRIPT =
       new Builder(Name.LOCALITY_SCRIPT)
+          .setDefaultValue(String.format("${%s}/tiered_identity.sh", Name.CONF_DIR))
           .setDescription("A script to determine tiered identity for locality checking")
           .build();
   public static final PropertyKey LOCALITY_TIER_NODE =
@@ -2968,6 +2969,36 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public PropertyKey format(Object... params) {
       return new PropertyKey(String.format(mFormat, params));
     }
+<<<<<<< HEAD
+||||||| parent of d46d513e9d... Tiered locality usability improvements.
+
+    /**
+     * @param input the input property key string
+     * @return whether the input string matches this template
+     */
+    public boolean matches(String input) {
+      Matcher matcher = mPattern.matcher(input);
+      return matcher.matches();
+    }
+=======
+
+    /**
+     * @param input the input property key string
+     * @return whether the input string matches this template
+     */
+    public boolean matches(String input) {
+      Matcher matcher = mPattern.matcher(input);
+      return matcher.matches();
+    }
+
+    /**
+     * @param input the input property key string
+     * @return the matcher matching the template to the string
+     */
+    public Matcher match(String input) {
+      return mPattern.matcher(input);
+    }
+>>>>>>> d46d513e9d... Tiered locality usability improvements.
   }
 
   /**

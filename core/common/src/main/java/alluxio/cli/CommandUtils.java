@@ -54,12 +54,23 @@ public final class CommandUtils {
       if (cls.getPackage().getName().startsWith(pkgName)
           && !Modifier.isAbstract(cls.getModifiers())) {
         // Only instantiate a concrete class
+<<<<<<< HEAD
         Command cmd;
         try {
           cmd = CommonUtils.createNewClassInstance(cls, classArgs, objectArgs);
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
+||||||| parent of d46d513e9d... Tiered locality usability improvements.
+        Command cmd;
+        try {
+          cmd = CommonUtils.createNewClassInstance(cls, classArgs, objectArgs);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+=======
+        Command cmd = CommonUtils.createNewClassInstance(cls, classArgs, objectArgs);
+>>>>>>> d46d513e9d... Tiered locality usability improvements.
         commandsMap.put(cmd.getCommandName(), cmd);
       }
     }
