@@ -46,7 +46,7 @@ fi
 # ALLUXIO CS END
 for master in $(echo ${HOSTLIST}); do
   echo "[${master}] Connecting as ${USER}..." >> ${ALLUXIO_TASK_LOG}
-  if [[ ${ZOOKEEPER_ENABLED} == "true" ]] || [[ ${N} -eq 0 ]]; then
+  if [[ ${ZOOKEEPER_ENABLED} == "true" || ${N} -eq 0 ]]; then
     nohup ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -tt ${master} ${LAUNCHER} \
       $"${@// /\\ }" 2>&1 | while read line; do echo "[${master}] ${line}"; done >> ${ALLUXIO_TASK_LOG} &
   else
