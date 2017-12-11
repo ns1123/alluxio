@@ -352,6 +352,7 @@ public class LicenseMaster extends AbstractMaster {
               + " shut down now.", mLicenseMaster.mLicenseCheck.getGracePeriodEnd());
           System.exit(-1);
         } else {
+          mBlockMaster.setMaxWorkers(license.getNodes());
           LOG.warn("The license check failed. If the license check does not succeed again by {}, "
                   + "the cluster will shut down at that point.",
               mLicenseMaster.mLicenseCheck.getGracePeriodEnd());
