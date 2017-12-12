@@ -44,6 +44,7 @@ public class TieredIdentityTest {
     assertSame(id3,
         TieredIdentityFactory.fromString("node=C,rack=rack2").nearest(identities).get());
     assertSame(id1,
+<<<<<<< HEAD
         TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).get());
     // ALLUXIO CS ADD
     try (java.io.Closeable c = new alluxio.ConfigurationRule(
@@ -53,6 +54,11 @@ public class TieredIdentityTest {
           TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).isPresent());
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+        TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).get());
+=======
+        TieredIdentityFactory.fromString("node=D,rack=rack3").nearest(identities).get());
+>>>>>>> OPENSOURCE/master
   }
 
   @Test
@@ -69,6 +75,13 @@ public class TieredIdentityTest {
     TieredIdentity tieredIdentity = createRandomTieredIdentity();
     TieredIdentity other = TieredIdentity.fromThrift(tieredIdentity.toThrift());
     checkEquality(tieredIdentity, other);
+  }
+
+  @Test
+  public void string() {
+    TieredIdentity identity = new TieredIdentity(
+        Arrays.asList(new LocalityTier("k1", "v1"), new LocalityTier("k2", "v2")));
+    assertEquals("TieredIdentity(k1=v1, k2=v2)", identity.toString());
   }
 
   public void checkEquality(TieredIdentity a, TieredIdentity b) {
