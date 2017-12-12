@@ -44,21 +44,15 @@ public class TieredIdentityTest {
     assertSame(id3,
         TieredIdentityFactory.fromString("node=C,rack=rack2").nearest(identities).get());
     assertSame(id1,
-<<<<<<< HEAD
-        TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).get());
+        TieredIdentityFactory.fromString("node=D,rack=rack3").nearest(identities).get());
     // ALLUXIO CS ADD
     try (java.io.Closeable c = new alluxio.ConfigurationRule(
         alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK), "true")
             .toResource()) {
       org.junit.Assert.assertFalse(
-          TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).isPresent());
+          TieredIdentityFactory.fromString("node=D,rack=rack3").nearest(identities).isPresent());
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-        TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).get());
-=======
-        TieredIdentityFactory.fromString("node=D,rack=rack3").nearest(identities).get());
->>>>>>> OPENSOURCE/master
   }
 
   @Test
