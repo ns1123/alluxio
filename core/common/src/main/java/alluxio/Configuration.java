@@ -124,10 +124,6 @@ public final class Configuration {
     if (containsKey(PropertyKey.MASTER_HOSTNAME) && !containsKey(PropertyKey.JOB_MASTER_HOSTNAME)) {
       set(PropertyKey.JOB_MASTER_HOSTNAME, get(PropertyKey.MASTER_HOSTNAME));
     }
-    // Default job worker hostname to Alluxio worker hostname.
-    if (containsKey(PropertyKey.WORKER_HOSTNAME) && !containsKey(PropertyKey.JOB_WORKER_HOSTNAME)) {
-      set(PropertyKey.JOB_WORKER_HOSTNAME, get(PropertyKey.WORKER_HOSTNAME));
-    }
     // ALLUXIO CS END
     validate();
   }

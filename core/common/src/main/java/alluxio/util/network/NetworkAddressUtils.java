@@ -87,13 +87,13 @@ public final class NetworkAddressUtils {
     /**
      * Job worker RPC service (Thrift).
      */
-    JOB_WORKER_RPC("Alluxio Job Manager Worker RPC service", PropertyKey.JOB_WORKER_HOSTNAME,
+    JOB_WORKER_RPC("Alluxio Job Manager Worker RPC service", PropertyKey.WORKER_HOSTNAME,
         PropertyKey.JOB_WORKER_BIND_HOST, PropertyKey.JOB_WORKER_RPC_PORT),
 
     /**
      * Job master web service (Jetty).
      */
-    JOB_WORKER_WEB("Alluxio Job Manager Worker Web service", PropertyKey.JOB_WORKER_WEB_HOSTNAME,
+    JOB_WORKER_WEB("Alluxio Job Manager Worker Web service", PropertyKey.WORKER_WEB_HOSTNAME,
         PropertyKey.JOB_WORKER_WEB_BIND_HOST, PropertyKey.JOB_WORKER_WEB_PORT),
 
     /**
@@ -372,11 +372,6 @@ public final class NetworkAddressUtils {
       case JOB_MASTER:
         if (Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME)) {
           return Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME);
-        }
-        break;
-      case JOB_WORKER:
-        if (Configuration.containsKey(PropertyKey.JOB_WORKER_HOSTNAME)) {
-          return Configuration.get(PropertyKey.JOB_WORKER_HOSTNAME);
         }
         break;
       // ALLUXIO CS END
