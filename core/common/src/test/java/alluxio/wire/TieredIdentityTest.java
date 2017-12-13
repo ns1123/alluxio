@@ -49,19 +49,13 @@ public class TieredIdentityTest {
     assertSame(id3,
         TieredIdentityFactory.fromString("node=C,rack=rack2").nearest(identities).get());
     assertSame(id1,
-<<<<<<< HEAD
-        TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).get());
+        TieredIdentityFactory.fromString("node=D,rack=rack3").nearest(identities).get());
     try (Closeable c =
         new ConfigurationRule(Template.LOCALITY_TIER_STRICT.format(Constants.LOCALITY_RACK), "true")
             .toResource()) {
       assertFalse(
           TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).isPresent());
     }
-||||||| parent of d46d513e9d... Tiered locality usability improvements.
-        TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).get());
-=======
-        TieredIdentityFactory.fromString("node=D,rack=rack3").nearest(identities).get());
->>>>>>> d46d513e9d... Tiered locality usability improvements.
   }
 
   @Test

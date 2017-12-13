@@ -2969,18 +2969,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public PropertyKey format(Object... params) {
       return new PropertyKey(String.format(mFormat, params));
     }
-<<<<<<< HEAD
-||||||| parent of d46d513e9d... Tiered locality usability improvements.
-
-    /**
-     * @param input the input property key string
-     * @return whether the input string matches this template
-     */
-    public boolean matches(String input) {
-      Matcher matcher = mPattern.matcher(input);
-      return matcher.matches();
-    }
-=======
 
     /**
      * @param input the input property key string
@@ -2998,7 +2986,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public Matcher match(String input) {
       return mPattern.matcher(input);
     }
->>>>>>> d46d513e9d... Tiered locality usability improvements.
   }
 
   /**

@@ -38,13 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-<<<<<<< HEAD
-||||||| parent of d46d513e9d... Tiered locality usability improvements.
-import java.util.concurrent.ConcurrentHashMap;
-=======
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
->>>>>>> d46d513e9d... Tiered locality usability improvements.
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;

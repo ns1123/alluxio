@@ -41,30 +41,10 @@ public interface Allocator {
      * @return the generated {@link Allocator}, it will be a {@link MaxFreeAllocator} by default
      */
     public static Allocator create(BlockMetadataManagerView view) {
-<<<<<<< HEAD
-      BlockMetadataManagerView managerView = Preconditions.checkNotNull(view);
-      try {
-        return CommonUtils.createNewClassInstance(
-            Configuration.<Allocator>getClass(PropertyKey.WORKER_ALLOCATOR_CLASS),
-            new Class[] {BlockMetadataManagerView.class}, new Object[] {managerView});
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-||||||| parent of d46d513e9d... Tiered locality usability improvements.
-      BlockMetadataManagerView managerView = Preconditions.checkNotNull(view, "view");
-      try {
-        return CommonUtils.createNewClassInstance(
-            Configuration.<Allocator>getClass(PropertyKey.WORKER_ALLOCATOR_CLASS),
-            new Class[] {BlockMetadataManagerView.class}, new Object[] {managerView});
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-=======
       BlockMetadataManagerView managerView = Preconditions.checkNotNull(view, "view");
       return CommonUtils.createNewClassInstance(
           Configuration.<Allocator>getClass(PropertyKey.WORKER_ALLOCATOR_CLASS),
           new Class[] {BlockMetadataManagerView.class}, new Object[] {managerView});
->>>>>>> d46d513e9d... Tiered locality usability improvements.
     }
   }
 
