@@ -54,7 +54,7 @@ public class TieredIdentityTest {
         new ConfigurationRule(Template.LOCALITY_TIER_STRICT.format(Constants.LOCALITY_RACK), "true")
             .toResource()) {
       assertFalse(
-          TieredIdentityFactory.fromString("host=D,rack=rack3").nearest(identities).isPresent());
+          TieredIdentityFactory.fromString("node=D,rack=rack3").nearest(identities).isPresent());
     }
   }
 
