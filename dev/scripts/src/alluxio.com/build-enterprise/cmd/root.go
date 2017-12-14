@@ -31,7 +31,6 @@ or generating a suite of release tarballs.
 
 	hadoopDistributionsFlag string
 	proxyURLFlag            string
-	repoFlag                string
 	ufsModulesFlag          string
 )
 
@@ -49,7 +48,6 @@ func init() {
 
 	Root.Flags.StringVar(&hadoopDistributionsFlag, "hadoop-distributions", strings.Join(validHadoopDistributions(), ","), "a comma-separated list of hadoop distributions to generate Alluxio distributions for")
 	Root.Flags.StringVar(&proxyURLFlag, "proxy-url", "", "the URL used for communicating with company backend")
-	Root.Flags.StringVar(&repoFlag, "repo", "", "Local path to the enterprise repository to build")
 	Root.Flags.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
 		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 }
@@ -66,9 +64,6 @@ func checkRootFlags() error {
 		if _, ok := ufsModules[module]; !ok {
 			return fmt.Errorf("ufs module %v not recognized", module)
 		}
-	}
-	if repoFlag == "" {
-		return fmt.Errorf("-repo flag is required")
 	}
 	return nil
 }

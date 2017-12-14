@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	annotation "github.com/TachyonNexus/golluxio/annotation/cmd"
@@ -27,9 +28,8 @@ var (
 	targetFlag  string
 	mvnArgsFlag string
 
-	enterpriseRepo = "git@github.com:TachyonNexus/enterprise.git"
-	webappDir      = "core/server/common/src/main/webapp"
-	webappWar      = "assembly/webapp.war"
+	webappDir = "core/server/common/src/main/webapp"
+	webappWar = "assembly/webapp.war"
 )
 
 func init() {
@@ -206,7 +206,14 @@ func generateTarball() error {
 	if err != nil {
 		return fmt.Errorf("Failed to create temp directory: %v", err)
 	}
-	run(fmt.Sprintf("copying source from %v to %v", repoFlag, srcPath), "cp", "-R", repoFlag+"/.", srcPath)
+
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		return errors.New("Failed to determine file of the go script")
+	}
+	// Relative path from this class to the root enterprise directory.
+	repoPath := filepath.Join(filepath.Dir(file), "../../../../../../")
+	run(fmt.Sprintf("copying source from %v to %v", repoPath, srcPath), "cp", "-R", repoPath+"/.", srcPath)
 
 	chdir(srcPath)
 	run("running git clean -fdx", "git", "clean", "-fdx")
