@@ -1,146 +1,55 @@
-package main
+package cmd
 
 import (
 	"bytes"
 	"errors"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
-	"runtime"
-	"sort"
 	"strings"
+
+	annotation "github.com/TachyonNexus/golluxio/annotation/cmd"
+	"v.io/x/lib/cmdline"
 )
 
 const edition = "enterprise"
-const versionMarker = "${VERSION}"
-
-type module struct {
-	name string
-	mavenArgs string
-}
-
-// ufsModuleNames is a map from ufs profile to the name used in the generated tarball.
-var ufsModuleNames = map[string]module{
-	"ufs-hadoop-1.0": {"hadoop-1.0", "-pl underfs/hdfs -Pufs-hadoop-1 -Dufs.hadoop.version=1.0.4"},
-	"ufs-hadoop-1.2": {"hadoop-1.2", "-pl underfs/hdfs -Pufs-hadoop-1 -Dufs.hadoop.version=1.2.1"},
-	"ufs-hadoop-2.2": {"hadoop-2.2", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.2.0"},
-	"ufs-hadoop-2.3": {"hadoop-2.3", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.3.0"},
-	"ufs-hadoop-2.4": {"hadoop-2.4", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.4.1"},
-	"ufs-hadoop-2.5": {"hadoop-2.5", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.5.2"},
-	"ufs-hadoop-2.6": {"hadoop-2.6", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.5"},
-	"ufs-hadoop-2.7": {"hadoop-2.7", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3"},
-	"ufs-hadoop-2.8": {"hadoop-2.8", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.8.0"},
-	"ufs-cdh-5.6":    {"cdh-5.6", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.6.1"},
-	"ufs-cdh-5.8":    {"cdh-5.8", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.8.5"},
-	"ufs-cdh-5.11":   {"cdh-5.11", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.11.0"},
-	"ufs-cdh-5.12":   {"cdh-5.12", "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.12.1"},
-	"ufs-hdp-2.4":    {"hdp-2.4","-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.1.2.4.4.1-9"},
-	"ufs-hdp-2.5":    {"hdp-2.5","-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.5.5.5-2"},
-	"ufs-hdp-2.6":    {"hdp-2.6","-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.6.1.0-129"},
-}
-
-// TODO(andrew): consolidate the following definition with the duplicated definition in generate-release-tarball.go
-// ufsModules is a map from UFS module name to a bool indicating if the module is included by default.
-var ufsModules = map[string]bool{
-	"ufs-hadoop-1.0": false,
-	"ufs-hadoop-1.2": true,
-	"ufs-hadoop-2.2": true,
-	"ufs-hadoop-2.3": false,
-	"ufs-hadoop-2.4": false,
-	"ufs-hadoop-2.5": false,
-	"ufs-hadoop-2.6": false,
-	"ufs-hadoop-2.7": true,
-	"ufs-hadoop-2.8": false,
-	"ufs-cdh-5.6":    false,
-	"ufs-cdh-5.8":    true,
-	"ufs-cdh-5.11":   false,
-	"ufs-cdh-5.12":   false,
-	"ufs-hdp-2.4":    false,
-	"ufs-hdp-2.5":    true,
-	"ufs-hdp-2.6":    false,
-}
 
 var (
-	callHomeFlag         bool
-	callHomeBucketFlag   string
-	debugFlag            bool
-	licenseCheckFlag     bool
-	licenseSecretKeyFlag string
-	mvnArgsFlag          string
-	nativeFlag           bool
-	profilesFlag         string
-	proxyURLFlag         string
-	targetFlag           string
-	ufsModulesFlag       string
+	cmdSingle = &cmdline.Command{
+		Name:   "single",
+		Short:  "Generates an enterprise tarball",
+		Long:   "Generates an enterprise tarball",
+		Runner: cmdline.RunnerFunc(single),
+	}
+
+	targetFlag  string
+	mvnArgsFlag string
+
+	enterpriseRepo = "git@github.com:TachyonNexus/enterprise.git"
+	webappDir      = "core/server/common/src/main/webapp"
+	webappWar      = "assembly/webapp.war"
 )
 
-var webappDir = "core/server/common/src/main/webapp"
-var webappWar = "assembly/webapp.war"
-
 func init() {
-	// Override default usage which isn't designed for scripts intended to be run by `go run`.
-	flag.Usage = func() {
-		fmt.Printf("Usage: go run generate-tarballs.go [options]\n")
-		flag.PrintDefaults()
-	}
-
-	flag.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distribution should perform call home")
-	flag.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
-	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
-	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
-	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
-	flag.StringVar(&mvnArgsFlag, "mvn-args", "", `a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args "-Pspark,-Dhadoop.version=2.2.0"`)
-	flag.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
-	flag.StringVar(&profilesFlag, "profiles", "", "[DEPRECATED: use -mvn-args instead] a comma-separated list of build profiles to use")
-	flag.StringVar(&proxyURLFlag, "proxy-url", "", "the URL used for communicating with company backend")
-	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
+	cmdSingle.Flags.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
-			`Note that trailing ".tar.gz" will be stripped to determine the name for the root directory of the generated tarball`, versionMarker, versionMarker))
-	flag.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
-		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball. Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
-	flag.Parse()
+			`Note that trailing ".tar.gz" will be stripped to determine the name for the Root directory of the generated tarball`, versionMarker, versionMarker))
+	cmdSingle.Flags.StringVar(&mvnArgsFlag, "mvn-args", "", `a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args "-Pspark,-Dhadoop.version=2.2.0"`)
 }
 
-func validUfsModules() []string {
-	result := []string{}
-	for t := range ufsModuleNames {
-		result = append(result, t)
+func single(_ *cmdline.Env, _ []string) error {
+	if err := updateRootFlags(); err != nil {
+		return err
 	}
-	sort.Strings(result)
-	return result
-}
-
-func defaultUfsModules() []string {
-	result := []string{}
-	for ufsModule := range ufsModules {
-		if ufsModules[ufsModule] {
-			result = append(result, ufsModule)
-		}
+	if err := checkRootFlags(); err != nil {
+		return err
 	}
-	sort.Strings(result)
-	return result
-}
-
-func run(desc, cmd string, args ...string) string {
-	fmt.Printf("  %s ... ", desc)
-	if debugFlag {
-		fmt.Printf("\n    command: %s %s ... ", cmd, strings.Join(args, " "))
+	if err := generateTarball(); err != nil {
+		return err
 	}
-	c := exec.Command(cmd, args...)
-	stderr := &bytes.Buffer{}
-	stdout := &bytes.Buffer{}
-	c.Stderr = stderr
-	c.Stdout = stdout
-	if err := c.Run(); err != nil {
-		fmt.Printf("\"%v %v\" failed: %v\nstderr: <%v>\nstdout: <%v>\n", cmd, strings.Join(args, " "), err, stderr.String(), stdout.String())
-		os.Exit(1)
-	}
-	fmt.Println("done")
-	return stdout.String()
+	return nil
 }
 
 func replace(path, old, new string) {
@@ -172,11 +81,6 @@ func chdir(path string) {
 
 func getCommonMvnArgs() []string {
 	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip"}
-	if profilesFlag != "" {
-		for _, profile := range strings.Split(profilesFlag, ",") {
-			args = append(args, fmt.Sprintf("-P%s", profile))
-		}
-	}
 	if mvnArgsFlag != "" {
 		for _, arg := range strings.Split(mvnArgsFlag, ",") {
 			args = append(args, arg)
@@ -215,7 +119,7 @@ func getVersion() (string, error) {
 
 func addAdditionalFiles(srcPath, dstPath, version string) {
 	chdir(srcPath)
-	pathsToCopy := []string {
+	pathsToCopy := []string{
 		// BIN
 		"bin/alluxio",
 		"bin/alluxio-masters.sh",
@@ -277,7 +181,7 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
 	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
-		ufsModule, ok := ufsModuleNames[moduleName]
+		ufsModule, ok := ufsModules[moduleName]
 		if !ok {
 			// This should be impossible, we validate ufsModulesFlag at the start.
 			fmt.Fprintf(os.Stderr, "Unrecognized ufs module: %v", moduleName)
@@ -298,17 +202,12 @@ func generateTarball() error {
 		return err
 	}
 
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		return errors.New("Failed to determine file of the go script")
-	}
-	goScriptsDir := filepath.Dir(file)
-	repoPath := filepath.Join(goScriptsDir, "../../../")
 	srcPath, err := ioutil.TempDir("", edition)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to create temp directory: %v", err))
+		return fmt.Errorf("Failed to create temp directory: %v", err)
 	}
-	run(fmt.Sprintf("copying source from %v to %v", repoPath, srcPath), "cp", "-R", repoPath+"/.", srcPath)
+	run(fmt.Sprintf("copying source from %v to %v", repoFlag, srcPath), "cp", "-R", repoFlag+"/.", srcPath)
+
 	chdir(srcPath)
 	run("running git clean -fdx", "git", "clean", "-fdx")
 
@@ -328,12 +227,19 @@ func generateTarball() error {
 	replace("libexec/alluxio-config.sh", "assembly/client/target/alluxio-assembly-client-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-client-${VERSION}.jar")
 	replace("libexec/alluxio-config.sh", "assembly/server/target/alluxio-assembly-server-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-server-${VERSION}.jar")
 
+	// ERASE ENTERPRISE ANNOTATIONS
+	fmt.Printf("  erasing enterprise annotations ... ")
+	if err := annotation.Erase(srcPath); err != nil {
+		return err
+	}
+	fmt.Println("done")
+
 	// COMPILE
 	mvnArgs := getCommonMvnArgs()
 	run("compiling repo", "mvn", mvnArgs...)
 	// Compile ufs modules for the main build
 	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
-		ufsModule := ufsModuleNames[moduleName]
+		ufsModule := ufsModules[moduleName]
 		ufsMvnArgs := mvnArgs
 		for _, arg := range strings.Split(ufsModule.mavenArgs, " ") {
 			ufsMvnArgs = append(ufsMvnArgs, arg)
@@ -378,43 +284,4 @@ func generateTarball() error {
 	run("removing the repository", "rm", "-rf", srcPath, dstPath)
 
 	return nil
-}
-
-func validateUfsModulesFlag() error {
-	if strings.ToLower(ufsModulesFlag) == "all" {
-		return nil
-	}
-
-	for _, module := range strings.Split(ufsModulesFlag, ",") {
-		if _, ok := ufsModuleNames[module]; !ok {
-			return fmt.Errorf("ufs module %v not recognized", module)
-		}
-	}
-	return nil
-}
-
-func handleArgs() error {
-	if flag.NArg() > 0 {
-		return fmt.Errorf("Unrecognized arguments: %v", flag.Args())
-	}
-	if err := validateUfsModulesFlag(); err != nil {
-		return err
-	}
-	if strings.ToLower(ufsModulesFlag) == "all" {
-		ufsModulesFlag = strings.Join(validUfsModules(), ",")
-	}
-	return nil
-}
-
-func main() {
-	if err := handleArgs(); err != nil {
-		fmt.Printf("Problem reading arguments: %v\n", err)
-		flag.Usage()
-		os.Exit(1)
-	}
-
-	if err := generateTarball(); err != nil {
-		fmt.Printf("Failed to generate tarball: %v\n", err)
-		os.Exit(1)
-	}
 }
