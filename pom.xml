@@ -1257,6 +1257,7 @@
             <exclude>conf/alluxio-env.sh</exclude>
             <exclude>conf/alluxio-site.properties</exclude>
             <exclude>conf/masters</exclude>
+            <exclude>conf/tiered_identity.sh</exclude>
             <exclude>conf/workers</exclude>
             <exclude>dev/scripts/tarballs/**/*</exclude>
             <exclude>dev/scripts/workdir/**/*</exclude>
