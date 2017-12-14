@@ -1255,11 +1255,15 @@
 
             <!-- Build and Packaging Exclusions -->
             <exclude>build/**/*</exclude>
+            <exclude>conf/alluxio-env.sh</exclude>
             <exclude>conf/alluxio-site.properties</exclude>
+            <exclude>conf/masters</exclude>
+            <exclude>conf/workers</exclude>
             <exclude>dev/scripts/tarballs/**/*</exclude>
             <exclude>dev/scripts/workdir/**/*</exclude>
             <exclude>**/.checkstyle</exclude>
             <exclude>**/src/main/assembly/*</exclude>
+            <exclude>**/.idea/**</exclude>
 
             <!-- Documentation Exclusions -->
             <exclude>docs/**/*</exclude>
@@ -1272,6 +1276,7 @@
             <exclude>**/.alluxio_cs</exclude>
             <exclude>third-party-license-generation/*</exclude>
             <exclude>**/native/**</exclude>
+            <exclude>dev/scripts/**</exclude>
 
             <!-- ALLUXIO CS END -->
             <!-- Default Local File System Exclusions -->
