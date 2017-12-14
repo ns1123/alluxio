@@ -29,7 +29,6 @@ or generating a suite of release tarballs.
 	debugFlag  bool
 	nativeFlag bool
 
-	branchFlag              string
 	hadoopDistributionsFlag string
 	proxyURLFlag            string
 	repoFlag                string
@@ -48,10 +47,9 @@ func init() {
 	Root.Flags.BoolVar(&debugFlag, "debug", false, "whether to run this tool in debug mode to generate additional console output")
 	Root.Flags.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
 
-	Root.Flags.StringVar(&branchFlag, "branch", "master", "The branch to build")
 	Root.Flags.StringVar(&hadoopDistributionsFlag, "hadoop-distributions", strings.Join(validHadoopDistributions(), ","), "a comma-separated list of hadoop distributions to generate Alluxio distributions for")
 	Root.Flags.StringVar(&proxyURLFlag, "proxy-url", "", "the URL used for communicating with company backend")
-	Root.Flags.StringVar(&repoFlag, "repo", "", "Local path to the enterprise repository to build. If unspecified, the tool builds from the upstream enterprise repository")
+	Root.Flags.StringVar(&repoFlag, "repo", "", "Local path to the enterprise repository to build")
 	Root.Flags.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
 		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 }
@@ -68,6 +66,9 @@ func checkRootFlags() error {
 		if _, ok := ufsModules[module]; !ok {
 			return fmt.Errorf("ufs module %v not recognized", module)
 		}
+	}
+	if repoFlag == "" {
+		return fmt.Errorf("-repo flag is required")
 	}
 	return nil
 }

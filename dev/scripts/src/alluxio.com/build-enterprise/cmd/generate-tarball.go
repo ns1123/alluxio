@@ -206,13 +206,9 @@ func generateTarball() error {
 	if err != nil {
 		return fmt.Errorf("Failed to create temp directory: %v", err)
 	}
-	if repoFlag != "" {
-		run(fmt.Sprintf("copying source from %v to %v", repoFlag, srcPath), "cp", "-R", repoFlag+"/.", srcPath)
-	} else {
-		run(fmt.Sprintf("cloning enterprise repository to %v", srcPath), "git", "clone", enterpriseRepo, srcPath)
-	}
+	run(fmt.Sprintf("copying source from %v to %v", repoFlag, srcPath), "cp", "-R", repoFlag+"/.", srcPath)
+
 	chdir(srcPath)
-	run(fmt.Sprintf("checking out branch %v", branchFlag), "git", "checkout", branchFlag)
 	run("running git clean -fdx", "git", "clean", "-fdx")
 
 	// GET THE VERSION AND PREPEND WITH `edition-`
