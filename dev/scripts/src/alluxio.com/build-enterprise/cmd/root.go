@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 	"v.io/x/lib/cmdline"
 )
 
