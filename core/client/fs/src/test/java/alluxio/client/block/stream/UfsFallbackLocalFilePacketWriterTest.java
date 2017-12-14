@@ -17,7 +17,6 @@ import static org.junit.Assert.fail;
 
 import alluxio.ConfigurationRule;
 import alluxio.Constants;
-import alluxio.EmbeddedChannels;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
@@ -132,7 +131,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
   private FixedCapacityTestPacketWriter mLocalWriter;
   private FileSystemContext mContext;
   private WorkerNetAddress mAddress;
-  private EmbeddedChannels.EmbeddedEmptyCtorChannel mChannel;
+  private EmbeddedChannel mChannel;
 
   @Rule
   public ConfigurationRule mConfigurationRule =
@@ -144,7 +143,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
     mContext = PowerMockito.mock(FileSystemContext.class);
     mAddress = Mockito.mock(WorkerNetAddress.class);
 
-    mChannel = new EmbeddedChannels.EmbeddedEmptyCtorChannel();
+    mChannel = new EmbeddedChannel();
     PowerMockito.when(mContext.acquireNettyChannel(mAddress)).thenReturn(mChannel);
     PowerMockito.doNothing().when(mContext).releaseNettyChannel(mAddress, mChannel);
   }
