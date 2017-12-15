@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <version>1.6.0-B-SNAPSHOT</version>
+    <version>1.6.0-B</version>
   </parent>
   <artifactId>alluxio-tests</artifactId>
   <packaging>jar</packaging>
