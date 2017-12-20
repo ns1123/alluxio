@@ -1909,16 +1909,10 @@ public final class FileSystemMasterTest {
     mRegistry = new MasterRegistry();
     mSafeModeManager = new DefaultSafeModeManager();
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem);
     // ALLUXIO CS END
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalSystem);
-||||||| merged common ancestors
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalSystem);
-=======
     mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalSystem, mSafeModeManager);
->>>>>>> openSource/master
     mExecutorService = Executors
         .newFixedThreadPool(2, ThreadFactoryUtils.build("DefaultFileSystemMasterTest-%d", true));
     mFileSystemMaster = new DefaultFileSystemMaster(mBlockMaster, mJournalSystem,

@@ -61,19 +61,11 @@ public class MasterTestUtils {
     MasterRegistry registry = new MasterRegistry();
     SafeModeManager safeModeManager = new DefaultSafeModeManager();
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, journalSystem);
     // ALLUXIO CS END
-    new BlockMasterFactory().create(registry, journalSystem);
-    new FileSystemMasterFactory().create(registry, journalSystem);
-||||||| merged common ancestors
-    new BlockMasterFactory().create(registry, journalSystem);
-    new FileSystemMasterFactory().create(registry, journalSystem);
-=======
     new BlockMasterFactory().create(registry, journalSystem, safeModeManager);
     new FileSystemMasterFactory().create(registry, journalSystem, safeModeManager);
->>>>>>> openSource/master
     journalSystem.start();
     journalSystem.setMode(isLeader ? Mode.PRIMARY : Mode.SECONDARY);
     registry.start(isLeader);

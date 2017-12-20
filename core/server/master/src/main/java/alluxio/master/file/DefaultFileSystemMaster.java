@@ -539,16 +539,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
           scheduleAsyncPersistenceInternal(inodePath);
         }
-<<<<<<< HEAD
-        // ALLUXIO CS REMOVE
-        // // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
-        // mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
-        // ALLUXIO CS END
-||||||| merged common ancestors
-        // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
-        mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
-=======
->>>>>>> openSource/master
       } catch (AlluxioException e) {
         // It's possible that rescheduling the async persist calls fails, because the blocks may no
         // longer be in the memory
