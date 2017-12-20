@@ -181,8 +181,8 @@ public class CapabilityKeyManager implements Closeable {
     List<WorkerInfo> workerInfos;
     try {
       workerInfos = mBlockMaster.getWorkerInfoList();
-    } catch (UnavailableException e1) {
-      LOG.warn("No worker is available");
+    } catch (UnavailableException e) {
+      LOG.warn("Block master is unavailable: {}", e.getMessage());
       return;
     }
     for (WorkerInfo workerInfo : workerInfos) {
@@ -265,7 +265,7 @@ public class CapabilityKeyManager implements Closeable {
     try {
       workerInfoList = mBlockMaster.getWorkerInfoList();
     } catch (UnavailableException e) {
-      LOG.warn("No worker is available");
+      LOG.warn("Block master is unavailable: {}", e.getMessage());
       return;
     }
     for (WorkerInfo worker : workerInfoList) {

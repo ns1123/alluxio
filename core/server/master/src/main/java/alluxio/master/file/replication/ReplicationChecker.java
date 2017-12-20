@@ -142,7 +142,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
             // Cannot find this block in Alluxio from BlockMaster, possibly persisted in UFS
           } catch (UnavailableException e) {
             // The block master is not available, wait for the next heartbeat
-            LOG.warn("The block master is not available");
+            LOG.warn("The block master is not available: {}", e.getMessage());
             return;
           }
           int currentReplicas = (blockInfo == null) ? 0 : blockInfo.getLocations().size();
@@ -202,6 +202,9 @@ public final class ReplicationChecker implements HeartbeatExecutor {
         LOG.warn("The job service is busy, will retry later.");
         mQuietPeriodSeconds = (mQuietPeriodSeconds == 0) ? 1 :
             Math.min(MAX_QUIET_PERIOD_SECONDS, mQuietPeriodSeconds * 2);
+        return;
+      } catch (UnavailableException e) {
+        LOG.warn("Master is unavailable: {}, will retry later.", e.getMessage());
         return;
       } catch (Exception e) {
         LOG.warn(
