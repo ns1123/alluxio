@@ -19,14 +19,6 @@ import alluxio.WorkerStorageTierAssoc;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockAlreadyExistsException;
 import alluxio.exception.BlockDoesNotExistException;
-<<<<<<< HEAD
-// ALLUXIO CS REMOVE
-// import alluxio.exception.ExceptionMessage;
-// ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.exception.ExceptionMessage;
-=======
->>>>>>> openSource/master
 import alluxio.exception.InvalidWorkerStateException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.exception.status.AlluxioStatusException;
@@ -131,34 +123,13 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    *
    * @param offset the position within the block to start the read
    */
-<<<<<<< HEAD
-  private void init(long offset) throws BlockDoesNotExistException, IOException {
+  private void init(long offset) throws IOException {
     // ALLUXIO CS REMOVE
     // UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId()).getUfs();
     // ufs.connectFromWorker(
     //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
-    // if (!ufs.isFile(mBlockMeta.getUnderFileSystemPath())) {
-    //   throw new BlockDoesNotExistException(
-    //       ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mBlockMeta.getUnderFileSystemPath()));
-    // }
     //
     // ALLUXIO CS END
-||||||| merged common ancestors
-  private void init(long offset) throws BlockDoesNotExistException, IOException {
-    UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId()).getUfs();
-    ufs.connectFromWorker(
-        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
-    if (!ufs.isFile(mBlockMeta.getUnderFileSystemPath())) {
-      throw new BlockDoesNotExistException(
-          ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mBlockMeta.getUnderFileSystemPath()));
-    }
-
-=======
-  private void init(long offset) throws IOException {
-    UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId()).getUfs();
-    ufs.connectFromWorker(
-        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
->>>>>>> openSource/master
     updateUnderFileSystemInputStream(offset);
     updateBlockWriter(offset);
   }
@@ -243,7 +214,7 @@ public final class UnderFileSystemBlockReader implements BlockReader {
       bufCopy.readerIndex(bufCopy.writerIndex());
     }
     int bytesToRead =
-        (int) Math.min((long) buf.writableBytes(), mBlockMeta.getBlockSize() - mInStreamPos);
+        (int) Math.min(buf.writableBytes(), mBlockMeta.getBlockSize() - mInStreamPos);
     int bytesRead = buf.writeBytes(mUnderFileSystemInputStream, bytesToRead);
     if (bytesRead <= 0) {
       return bytesRead;
