@@ -15,6 +15,7 @@ import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
+import alluxio.master.SafeModeManager;
 import alluxio.master.journal.JournalSystem;
 
 import com.google.common.base.Preconditions;
@@ -46,7 +47,8 @@ public final class LicenseMasterFactory implements MasterFactory {
   }
 
   @Override
-  public LicenseMaster create(MasterRegistry registry, JournalSystem journalSystem) {
+  public LicenseMaster create(MasterRegistry registry, JournalSystem journalSystem,
+      SafeModeManager safeModeManager) {
     if (!isEnabled()) {
       return null;
     }

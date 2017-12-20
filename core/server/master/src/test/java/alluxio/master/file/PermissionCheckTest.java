@@ -192,7 +192,8 @@ public final class PermissionCheckTest {
     mRegistry = new MasterRegistry();
     JournalSystem journalSystem = new NoopJournalSystem();
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem,
+        mSafeModeManager);
     // ALLUXIO CS END
     mSafeModeManager = new DefaultSafeModeManager();
     mBlockMaster = new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);

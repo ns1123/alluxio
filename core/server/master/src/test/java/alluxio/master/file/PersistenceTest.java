@@ -19,13 +19,16 @@ import alluxio.client.job.JobMasterClient;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
+import alluxio.exception.status.UnavailableException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
+import alluxio.master.DefaultSafeModeManager;
 import alluxio.master.MasterRegistry;
+import alluxio.master.SafeModeManager;
 import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
@@ -71,6 +74,7 @@ public final class PersistenceTest {
   private MasterRegistry mRegistry;
   private FileSystemMaster mFileSystemMaster;
   private JobMasterClient mMockJobMasterClient;
+  private SafeModeManager mSafeModeManager;
   private static final GetStatusOptions GET_STATUS_OPTIONS = GetStatusOptions.defaults();
 
   @Rule
@@ -90,6 +94,7 @@ public final class PersistenceTest {
     Configuration.set(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS, 0);
     Configuration.set(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS, 1000);
     mJournalFolder = tmpFolder.newFolder();
+    mSafeModeManager = new DefaultSafeModeManager();
     startServices();
   }
 
@@ -379,7 +384,8 @@ public final class PersistenceTest {
         try {
           FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
           return fileInfo.getPersistenceState().equals(PersistenceState.PERSISTED.toString());
-        } catch (FileDoesNotExistException | InvalidPathException | AccessControlException e) {
+        } catch (FileDoesNotExistException | InvalidPathException | AccessControlException
+            | UnavailableException e) {
           return false;
         }
       }
@@ -430,9 +436,9 @@ public final class PersistenceTest {
     mRegistry = new MasterRegistry();
     JournalSystem journalSystem =
         JournalTestUtils.createJournalSystem(mJournalFolder.getAbsolutePath());
-    new PrivilegeMasterFactory().create(mRegistry, journalSystem);
-    new BlockMasterFactory().create(mRegistry, journalSystem);
-    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem);
+    new PrivilegeMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
+    new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
+    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
     journalSystem.start();
     journalSystem.setMode(JournalSystem.Mode.PRIMARY);
     mRegistry.start(true);

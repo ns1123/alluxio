@@ -15,10 +15,11 @@ import alluxio.AlluxioURI;
 import alluxio.client.job.JobMasterClientPool;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.exception.JobDoesNotExistException;
-import alluxio.job.replicate.ReplicationHandler;
+import alluxio.exception.status.UnavailableException;
+import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.job.replicate.DefaultReplicationHandler;
+import alluxio.job.replicate.ReplicationHandler;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeTree;
@@ -139,6 +140,10 @@ public final class ReplicationChecker implements HeartbeatExecutor {
             blockInfo = mBlockMaster.getBlockInfo(blockId);
           } catch (BlockInfoException e) {
             // Cannot find this block in Alluxio from BlockMaster, possibly persisted in UFS
+          } catch (UnavailableException e) {
+            // The block master is not available, wait for the next heartbeat
+            LOG.warn("The block master is not available");
+            return;
           }
           int currentReplicas = (blockInfo == null) ? 0 : blockInfo.getLocations().size();
           switch (mode) {

@@ -17,7 +17,9 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.job.replicate.ReplicationHandler;
+import alluxio.master.DefaultSafeModeManager;
 import alluxio.master.MasterRegistry;
+import alluxio.master.SafeModeManager;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
@@ -99,6 +101,7 @@ public final class ReplicationCheckerTest {
   private BlockMaster mBlockMaster;
   private ReplicationChecker mReplicationChecker;
   private MockHandler mMockReplicationHandler;
+  private SafeModeManager mSafeModeManager;
   private CreateFileOptions mFileOptions = CreateFileOptions.defaults()
       .setBlockSizeBytes(Constants.KB).setOwner(TEST_OWNER).setGroup(TEST_GROUP).setMode(TEST_MODE);
   private Set<Long> mKnownWorkers = Sets.newHashSet();
@@ -112,7 +115,8 @@ public final class ReplicationCheckerTest {
     MasterRegistry registry = new MasterRegistry();
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
 
-    mBlockMaster = new BlockMasterFactory().create(registry, journalSystem);
+    mSafeModeManager = new DefaultSafeModeManager();
+    mBlockMaster = new BlockMasterFactory().create(registry, journalSystem, mSafeModeManager);
     InodeDirectoryIdGenerator directoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
     UfsManager manager = Mockito.mock(UfsManager.class);
     MountTable mountTable = new MountTable(manager);

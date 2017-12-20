@@ -62,7 +62,8 @@ public class MasterTestUtils {
     SafeModeManager safeModeManager = new DefaultSafeModeManager();
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, journalSystem);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, journalSystem,
+        safeModeManager);
     // ALLUXIO CS END
     new BlockMasterFactory().create(registry, journalSystem, safeModeManager);
     new FileSystemMasterFactory().create(registry, journalSystem, safeModeManager);

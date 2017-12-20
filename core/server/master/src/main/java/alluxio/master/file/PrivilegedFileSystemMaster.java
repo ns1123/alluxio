@@ -26,6 +26,7 @@ import alluxio.exception.InvalidPathException;
 import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.exception.status.PermissionDeniedException;
 import alluxio.exception.status.UnauthenticatedException;
+import alluxio.exception.status.UnavailableException;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.PersistenceState;
@@ -207,13 +208,14 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public FileInfo getFileInfo(long fileId)
-      throws FileDoesNotExistException, AccessControlException {
+      throws FileDoesNotExistException, AccessControlException, UnavailableException {
     return mFileSystemMaster.getFileInfo(fileId);
   }
 
   @Override
   public FileInfo getFileInfo(AlluxioURI path, GetStatusOptions options)
-      throws FileDoesNotExistException, InvalidPathException, AccessControlException {
+      throws FileDoesNotExistException, InvalidPathException, AccessControlException,
+      UnavailableException {
     return mFileSystemMaster.getFileInfo(path, options);
   }
 
@@ -224,7 +226,8 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public List<FileInfo> listStatus(AlluxioURI path, ListStatusOptions listStatusOptions)
-      throws AccessControlException, FileDoesNotExistException, InvalidPathException {
+      throws AccessControlException, FileDoesNotExistException, InvalidPathException,
+      UnavailableException {
     return mFileSystemMaster.listStatus(path, listStatusOptions);
   }
 
@@ -240,9 +243,9 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void completeFile(AlluxioURI path, CompleteFileOptions options)
-      throws BlockInfoException, FileDoesNotExistException, InvalidPathException,
-      InvalidFileSizeException, FileAlreadyCompletedException, AccessControlException {
+  public void completeFile(AlluxioURI path, CompleteFileOptions options) throws BlockInfoException,
+      FileDoesNotExistException, InvalidPathException, InvalidFileSizeException,
+      FileAlreadyCompletedException, AccessControlException, UnavailableException {
     mFileSystemMaster.completeFile(path, options);
   }
 
@@ -281,18 +284,18 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path)
-      throws FileDoesNotExistException, InvalidPathException, AccessControlException {
+  public List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path) throws FileDoesNotExistException,
+      InvalidPathException, AccessControlException, UnavailableException {
     return mFileSystemMaster.getFileBlockInfoList(path);
   }
 
   @Override
-  public List<AlluxioURI> getInAlluxioFiles() {
+  public List<AlluxioURI> getInAlluxioFiles() throws UnavailableException {
     return mFileSystemMaster.getInMemoryFiles();
   }
 
   @Override
-  public List<AlluxioURI> getInMemoryFiles() {
+  public List<AlluxioURI> getInMemoryFiles() throws UnavailableException {
     return mFileSystemMaster.getInMemoryFiles();
   }
 
@@ -334,7 +337,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void reportLostFile(long fileId) throws FileDoesNotExistException {
+  public void reportLostFile(long fileId) throws FileDoesNotExistException, UnavailableException {
     mFileSystemMaster.reportLostFile(fileId);
   }
 
@@ -377,7 +380,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public List<WorkerInfo> getWorkerInfoList() {
+  public List<WorkerInfo> getWorkerInfoList() throws UnavailableException {
     return mFileSystemMaster.getWorkerInfoList();
   }
 }

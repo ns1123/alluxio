@@ -1910,7 +1910,8 @@ public final class FileSystemMasterTest {
     mSafeModeManager = new DefaultSafeModeManager();
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem,
+        mSafeModeManager);
     // ALLUXIO CS END
     mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalSystem, mSafeModeManager);
     mExecutorService = Executors

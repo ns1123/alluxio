@@ -43,7 +43,7 @@ public class CapabilityKeyManagerTest {
   }
 
   @Test
-  public void keyRotation() {
+  public void keyRotation() throws Exception {
     BlockMaster blockMaster = Mockito.mock(BlockMaster.class);
     Mockito.when(blockMaster.getWorkerInfoList()).thenReturn(new ArrayList<WorkerInfo>() {});
     CapabilityKeyManager manager = new CapabilityKeyManager(KEY_LIFETIME_MS, blockMaster);
