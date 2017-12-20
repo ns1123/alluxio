@@ -15,7 +15,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import alluxio.master.DefaultSafeModeManager;
 import alluxio.master.MasterRegistry;
+import alluxio.master.SafeModeManager;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.master.journal.JournalTestUtils;
@@ -43,6 +45,7 @@ import java.util.Set;
 public final class PrivilegeMasterTest {
   private PrivilegeMaster mMaster;
   private MasterRegistry mRegistry;
+  private SafeModeManager mSafeModeManager;
 
   /** Rule to create a new temporary folder during each test. */
   @Rule
@@ -51,8 +54,9 @@ public final class PrivilegeMasterTest {
   @Before
   public void before() throws Exception {
     mRegistry = new MasterRegistry();
+    mSafeModeManager = new DefaultSafeModeManager();
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
-    mMaster = new PrivilegeMasterFactory().create(mRegistry, journalSystem);
+    mMaster = new PrivilegeMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
     mRegistry.add(PrivilegeMaster.class, mMaster);
     journalSystem.start();
     journalSystem.setMode(Mode.PRIMARY);

@@ -12,6 +12,7 @@
 package alluxio.master.security.capability;
 
 import alluxio.client.netty.NettySecretKeyWriter;
+import alluxio.exception.status.UnavailableException;
 import alluxio.master.block.BlockMaster;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.security.capability.SecretManager;
@@ -177,7 +178,13 @@ public class CapabilityKeyManager implements Closeable {
    */
   private void distributeKey(WorkerInfo worker) {
     Set<Long> workerIds = new HashSet<>();
-    List<WorkerInfo> workerInfos = mBlockMaster.getWorkerInfoList();
+    List<WorkerInfo> workerInfos;
+    try {
+      workerInfos = mBlockMaster.getWorkerInfoList();
+    } catch (UnavailableException e1) {
+      LOG.warn("No worker is available");
+      return;
+    }
     for (WorkerInfo workerInfo : workerInfos) {
       workerIds.add(workerInfo.getId());
     }
@@ -254,7 +261,13 @@ public class CapabilityKeyManager implements Closeable {
     }
 
     prepareNewKey();
-    List<WorkerInfo> workerInfoList = mBlockMaster.getWorkerInfoList();
+    List<WorkerInfo> workerInfoList;
+    try {
+      workerInfoList = mBlockMaster.getWorkerInfoList();
+    } catch (UnavailableException e) {
+      LOG.warn("No worker is available");
+      return;
+    }
     for (WorkerInfo worker : workerInfoList) {
       scheduleNewKeyDistribution(worker);
     }

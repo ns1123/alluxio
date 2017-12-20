@@ -14,6 +14,7 @@ package alluxio.master.privilege;
 import alluxio.Constants;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
+import alluxio.master.SafeModeManager;
 import alluxio.master.journal.JournalSystem;
 
 import com.google.common.base.Preconditions;
@@ -45,7 +46,8 @@ public final class PrivilegeMasterFactory implements MasterFactory {
   }
 
   @Override
-  public PrivilegeMaster create(MasterRegistry registry, JournalSystem journalSystem) {
+  public PrivilegeMaster create(MasterRegistry registry, JournalSystem journalSystem,
+      SafeModeManager safeModeManager) {
     Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} ", DefaultPrivilegeMaster.class.getName());
     PrivilegeMaster privilegeMaster = new DefaultPrivilegeMaster(journalSystem);

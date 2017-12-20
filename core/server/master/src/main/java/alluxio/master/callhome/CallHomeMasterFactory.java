@@ -17,6 +17,7 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
+import alluxio.master.SafeModeManager;
 import alluxio.master.journal.JournalSystem;
 
 import com.google.common.base.Preconditions;
@@ -49,7 +50,8 @@ public final class CallHomeMasterFactory implements MasterFactory {
   }
 
   @Override
-  public CallHomeMaster create(MasterRegistry registry, JournalSystem journalSystem) {
+  public CallHomeMaster create(MasterRegistry registry, JournalSystem journalSystem,
+      SafeModeManager safeModeManager) {
     if (!isEnabled()) {
       return null;
     }
