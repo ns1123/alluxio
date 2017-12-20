@@ -108,6 +108,9 @@ public class AlluxioMasterProcess implements MasterProcess {
   /** The JVMMonitor Progress. */
   private JvmPauseMonitor mJvmPauseMonitor;
 
+  /** The manager of safe mode state. */
+  protected final SafeModeManager mSafeModeManager;
+
   /**
    * Creates a new {@link AlluxioMasterProcess}.
    */
@@ -153,6 +156,7 @@ public class AlluxioMasterProcess implements MasterProcess {
       }
       // Create masters.
       mRegistry = new MasterRegistry();
+<<<<<<< HEAD
       MasterUtils.createMasters(mJournalSystem, mRegistry);
       // ALLUXIO CS ADD
       if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
@@ -160,6 +164,12 @@ public class AlluxioMasterProcess implements MasterProcess {
         mRegistry.get(alluxio.master.callhome.CallHomeMaster.class).setMaster(this);
       }
       // ALLUXIO CS END
+||||||| merged common ancestors
+      MasterUtils.createMasters(mJournalSystem, mRegistry);
+=======
+      mSafeModeManager = new DefaultSafeModeManager();
+      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager);
+>>>>>>> openSource/master
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -215,6 +225,7 @@ public class AlluxioMasterProcess implements MasterProcess {
     mJournalSystem.start();
     mJournalSystem.setMode(Mode.PRIMARY);
     startMasters(true);
+    mSafeModeManager.notifyRpcServerStarted();
     startServing();
   }
 
