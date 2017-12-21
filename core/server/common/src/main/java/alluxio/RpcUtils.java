@@ -45,12 +45,6 @@ public final class RpcUtils {
         logger.warn("{}, Error={}", callable, e.getMessage());
       }
       throw AlluxioStatusException.fromAlluxioException(e).toThrift();
-    } catch (IOException e) {
-      logger.debug("Exit (Error): {}", callable, e);
-      if (!logger.isDebugEnabled()) {
-        logger.warn("{}, Error={}", callable, e.getMessage());
-      }
-      throw AlluxioStatusException.fromIOException(e).toThrift();
     } catch (RuntimeException e) {
       logger.error("Exit (Error): {}", callable, e);
       throw new InternalException(e).toThrift();
@@ -102,7 +96,7 @@ public final class RpcUtils {
      *
      * @return the return value from the RPC
      */
-    T call() throws AlluxioException, IOException;
+    T call() throws AlluxioException;
   }
 
   /**
