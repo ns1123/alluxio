@@ -234,8 +234,8 @@ func generateTarball() error {
 	replace("libexec/alluxio-config.sh", "assembly/client/target/alluxio-assembly-client-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-client-${VERSION}.jar")
 	replace("libexec/alluxio-config.sh", "assembly/server/target/alluxio-assembly-server-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-server-${VERSION}.jar")
 
-	// ERASE ENTERPRISE ANNOTATIONS
-	fmt.Printf("  erasing enterprise annotations ... ")
+	// ERASE CS ANNOTATIONS
+	fmt.Printf("  erasing annotations ... ")
 	if err := annotation.Erase(srcPath); err != nil {
 		return err
 	}
@@ -279,11 +279,6 @@ func generateTarball() error {
 
 	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
 	addAdditionalFiles(srcPath, dstPath, version)
-
-	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
-	chdir(filepath.Join(srcPath, "core/client/runtime"))
-	run("building Alluxio client jar", "mvn", getCommonMvnArgs()...)
-	run("adding Alluxio client jar", "mv", filepath.Join(srcPath, "client", fmt.Sprintf("alluxio-%v-client.jar", version)), filepath.Join(dstPath, "client", fmt.Sprintf("alluxio-%v-client.jar", version)))
 
 	// CREATE DISTRIBUTION TARBALL AND CLEANUP
 	chdir(cwd)
