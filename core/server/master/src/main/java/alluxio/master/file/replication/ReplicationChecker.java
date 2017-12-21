@@ -204,7 +204,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
             Math.min(MAX_QUIET_PERIOD_SECONDS, mQuietPeriodSeconds * 2);
         return;
       } catch (UnavailableException e) {
-        LOG.warn("Master is unavailable: {}, will retry later.", e.getMessage());
+        LOG.warn("Unable to complete the replication check: {}, will retry later.",
+            e.getMessage());
         return;
       } catch (Exception e) {
         LOG.warn(
