@@ -13,6 +13,7 @@ package alluxio.master.file.options;
 
 import alluxio.Constants;
 import alluxio.thrift.SetAttributeTOptions;
+import alluxio.wire.CommonOptions;
 import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
@@ -25,6 +26,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class SetAttributeOptions {
+  private CommonOptions mCommonOptions;
   private Boolean mPinned;
   private Long mTtl;
   private TtlAction mTtlAction;
@@ -34,12 +36,17 @@ public final class SetAttributeOptions {
   private Short mMode;
   private boolean mRecursive;
   private long mOperationTimeMs;
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   private Long mPersistJobId;
   private Integer mReplicationMax;
   private Integer mReplicationMin;
   private String mTempUfsPath;
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  private String mUfsFingerprint;
+>>>>>>> os/master
 
   /**
    * @return the default {@link SetAttributeOptions}
@@ -54,6 +61,7 @@ public final class SetAttributeOptions {
    * @param options the options for setting the attributes
    */
   public SetAttributeOptions(SetAttributeTOptions options) {
+<<<<<<< HEAD
     mPinned = options.isSetPinned() ? options.isPinned() : null;
     mTtl = options.isSetTtl() ? options.getTtl() : null;
     mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
@@ -69,9 +77,38 @@ public final class SetAttributeOptions {
     mReplicationMin = options.isSetReplicationMin() ? options.getReplicationMin() : null;
     mTempUfsPath = null;
     // ALLUXIO CS END
+||||||| merged common ancestors
+    mPinned = options.isSetPinned() ? options.isPinned() : null;
+    mTtl = options.isSetTtl() ? options.getTtl() : null;
+    mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
+    mPersisted = options.isSetPersisted() ? options.isPersisted() : null;
+    mOwner = options.isSetOwner() ? options.getOwner() : null;
+    mGroup = options.isSetGroup() ? options.getGroup() : null;
+    mMode = options.isSetMode() ? options.getMode() : Constants.INVALID_MODE;
+    mRecursive = options.isRecursive();
+    mOperationTimeMs = System.currentTimeMillis();
+=======
+    this();
+    if (options != null) {
+      if (options.isSetCommonOptions()) {
+        mCommonOptions = new CommonOptions(options.getCommonOptions());
+      }
+      mPinned = options.isSetPinned() ? options.isPinned() : null;
+      mTtl = options.isSetTtl() ? options.getTtl() : null;
+      mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
+      mPersisted = options.isSetPersisted() ? options.isPersisted() : null;
+      mOwner = options.isSetOwner() ? options.getOwner() : null;
+      mGroup = options.isSetGroup() ? options.getGroup() : null;
+      mMode = options.isSetMode() ? options.getMode() : Constants.INVALID_MODE;
+      mRecursive = options.isRecursive();
+      mOperationTimeMs = System.currentTimeMillis();
+    }
+>>>>>>> os/master
   }
 
   private SetAttributeOptions() {
+    super();
+    mCommonOptions = CommonOptions.defaults();
     mPinned = null;
     mTtl = null;
     mTtlAction = TtlAction.DELETE;
@@ -81,6 +118,14 @@ public final class SetAttributeOptions {
     mMode = Constants.INVALID_MODE;
     mRecursive = false;
     mOperationTimeMs = System.currentTimeMillis();
+    mUfsFingerprint = Constants.INVALID_UFS_FINGERPRINT;
+  }
+
+  /**
+   * @return the common options
+   */
+  public CommonOptions getCommonOptions() {
+    return mCommonOptions;
   }
 
   /**
@@ -176,6 +221,22 @@ public final class SetAttributeOptions {
   }
 
   /**
+   * @return the ufs fingerprint
+   */
+  public String getUfsFingerprint() {
+    return mUfsFingerprint;
+  }
+
+  /**
+   * @param options the common options
+   * @return the updated options object
+   */
+  public SetAttributeOptions setCommonOptions(CommonOptions options) {
+    mCommonOptions = options;
+    return this;
+  }
+
+  /**
    * @param pinned the pinned flag value to use
    * @return the updated options object
    */
@@ -264,6 +325,7 @@ public final class SetAttributeOptions {
     return this;
   }
 
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * @param persistJobId the persist job id to use
@@ -300,6 +362,18 @@ public final class SetAttributeOptions {
     return this;
   }
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  /**
+   * @param ufsFingerprint the ufs fingerprint
+   * @return the updated options object
+   */
+  public SetAttributeOptions setUfsFingerprint(String ufsFingerprint) {
+    mUfsFingerprint = ufsFingerprint;
+    return this;
+  }
+
+>>>>>>> os/master
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -310,6 +384,7 @@ public final class SetAttributeOptions {
     }
     SetAttributeOptions that = (SetAttributeOptions) o;
     return Objects.equal(mPinned, that.mPinned)
+        && Objects.equal(mCommonOptions, that.mCommonOptions)
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mPersisted, that.mPersisted)
@@ -323,11 +398,13 @@ public final class SetAttributeOptions {
         && Objects.equal(mTempUfsPath, that.mTempUfsPath)
         // ALLUXIO CS END
         && Objects.equal(mRecursive, that.mRecursive)
-        && mOperationTimeMs == that.mOperationTimeMs;
+        && mOperationTimeMs == that.mOperationTimeMs
+        && Objects.equal(mUfsFingerprint, that.mUfsFingerprint);
   }
 
   @Override
   public int hashCode() {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
     //     mRecursive, mOperationTimeMs);
@@ -336,11 +413,20 @@ public final class SetAttributeOptions {
         .hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode, mRecursive,
             mOperationTimeMs, mPersistJobId, mReplicationMax, mReplicationMin, mTempUfsPath);
     // ALLUXIO CS END
+||||||| merged common ancestors
+    return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
+        mRecursive, mOperationTimeMs);
+=======
+    return Objects
+        .hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode, mRecursive,
+            mOperationTimeMs, mCommonOptions, mUfsFingerprint);
+>>>>>>> os/master
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
+        .add("commonOptions", mCommonOptions)
         .add("pinned", mPinned)
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
@@ -350,12 +436,17 @@ public final class SetAttributeOptions {
         .add("mode", mMode)
         .add("recursive", mRecursive)
         .add("operationTimeMs", mOperationTimeMs)
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         .add("persistJobId", mPersistJobId)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("tempUfsPath", mTempUfsPath)
         // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+        .add("ufsFingerprint", mUfsFingerprint)
+>>>>>>> os/master
         .toString();
   }
 }

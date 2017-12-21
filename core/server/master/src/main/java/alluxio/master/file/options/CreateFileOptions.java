@@ -17,6 +17,7 @@ import alluxio.PropertyKey;
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.SecurityUtils;
+import alluxio.wire.CommonOptions;
 import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
@@ -54,6 +55,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
    * @param options the {@link CreateFileTOptions} to use
    */
   public CreateFileOptions(CreateFileTOptions options) {
+<<<<<<< HEAD
     super();
     mBlockSizeBytes = options.getBlockSizeBytes();
     mPersisted = options.isPersisted();
@@ -74,6 +76,42 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       mMode = new Mode(options.getMode());
     } else {
       mMode.applyFileUMask();
+||||||| merged common ancestors
+    super();
+    mBlockSizeBytes = options.getBlockSizeBytes();
+    mPersisted = options.isPersisted();
+    mRecursive = options.isRecursive();
+    mTtl = options.getTtl();
+    mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
+    if (SecurityUtils.isAuthenticationEnabled()) {
+      mOwner = SecurityUtils.getOwnerFromThriftClient();
+      mGroup = SecurityUtils.getGroupFromThriftClient();
+    }
+    if (options.isSetMode()) {
+      mMode = new Mode(options.getMode());
+    } else {
+      mMode.applyFileUMask();
+=======
+    this();
+    if (options != null) {
+      if (options.isSetCommonOptions()) {
+        mCommonOptions = new CommonOptions(options.getCommonOptions());
+      }
+      mBlockSizeBytes = options.getBlockSizeBytes();
+      mPersisted = options.isPersisted();
+      mRecursive = options.isRecursive();
+      mTtl = options.getTtl();
+      mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
+      if (SecurityUtils.isAuthenticationEnabled()) {
+        mOwner = SecurityUtils.getOwnerFromThriftClient();
+        mGroup = SecurityUtils.getGroupFromThriftClient();
+      }
+      if (options.isSetMode()) {
+        mMode = new Mode(options.getMode());
+      } else {
+        mMode.applyFileUMask();
+      }
+>>>>>>> os/master
     }
   }
 

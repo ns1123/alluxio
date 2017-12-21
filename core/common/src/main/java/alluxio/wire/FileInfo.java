@@ -11,6 +11,8 @@
 
 package alluxio.wire;
 
+import alluxio.Constants;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -59,6 +61,7 @@ public final class FileInfo implements Serializable {
   private boolean mEncrypted;
   // ALLUXIO CS END
   private int mInAlluxioPercentage;
+  private String mUfsFingerprint = Constants.INVALID_UFS_FINGERPRINT;
 
   /**
    * Creates a new instance of {@link FileInfo}.
@@ -116,6 +119,9 @@ public final class FileInfo implements Serializable {
     mEncrypted = fileInfo.isEncrypted();
     // ALLUXIO CS END
     mInAlluxioPercentage = fileInfo.getInAlluxioPercentage();
+    if (fileInfo.isSetUfsFingerprint()) {
+      mUfsFingerprint = fileInfo.getUfsFingerprint();
+    }
   }
 
   /**
@@ -321,6 +327,13 @@ public final class FileInfo implements Serializable {
    */
   public long getMountId() {
     return mMountId;
+  }
+
+  /**
+   * @return the ufs fingerprint for this file
+   */
+  public String getUfsFingerprint() {
+    return mUfsFingerprint;
   }
 
   /**
@@ -594,6 +607,15 @@ public final class FileInfo implements Serializable {
   }
 
   /**
+   * @param ufsFingerprint the ufs fingerprint to use
+   * @return the file information
+   */
+  public FileInfo setUfsFingerprint(String ufsFingerprint) {
+    mUfsFingerprint = ufsFingerprint;
+    return this;
+  }
+
+  /**
    * @return thrift representation of the file information
    */
   protected alluxio.thrift.FileInfo toThrift() {
@@ -606,6 +628,7 @@ public final class FileInfo implements Serializable {
         new alluxio.thrift.FileInfo(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
+<<<<<<< HEAD
         // ALLUXIO CS REPLACE
         // mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction), mMountId,
         // mInAlluxioPercentage);
@@ -616,6 +639,13 @@ public final class FileInfo implements Serializable {
       info.setCapability(mCapability.toThrift());
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+        mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction), mMountId,
+        mInAlluxioPercentage);
+=======
+        mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction), mMountId,
+        mInAlluxioPercentage, mUfsFingerprint);
+>>>>>>> os/master
     return info;
   }
 
@@ -643,7 +673,8 @@ public final class FileInfo implements Serializable {
         && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
         && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction
-        && mMountId == that.mMountId && mInAlluxioPercentage == that.mInAlluxioPercentage;
+        && mMountId == that.mMountId && mInAlluxioPercentage == that.mInAlluxioPercentage
+        && mUfsFingerprint.equals(that.mUfsFingerprint);
   }
 
   @Override
@@ -651,10 +682,17 @@ public final class FileInfo implements Serializable {
     return Objects.hashCode(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         mReplicationMax, mReplicationMin, mCapability, mEncrypted,
         // ALLUXIO CS END
         mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage);
+||||||| merged common ancestors
+        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage);
+=======
+        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage,
+        mUfsFingerprint);
+>>>>>>> os/master
   }
 
   @Override
@@ -673,6 +711,7 @@ public final class FileInfo implements Serializable {
         // ALLUXIO CS END
         .add("fileBlockInfos", mFileBlockInfos)
         .add("mountId", mMountId).add("inAlluxioPercentage", mInAlluxioPercentage)
+        .add("ufsFingerprint", mUfsFingerprint)
         .toString();
   }
 }

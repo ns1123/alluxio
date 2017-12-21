@@ -14,6 +14,7 @@ package alluxio.client.file.options;
 import alluxio.annotation.PublicApi;
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.SetAttributeTOptions;
+import alluxio.wire.CommonOptions;
 import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
@@ -31,6 +32,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 @JsonInclude(Include.NON_EMPTY)
 public final class SetAttributeOptions {
+  private CommonOptions mCommonOptions;
   private Boolean mPinned;
   private Long mTtl;
   private TtlAction mTtlAction;
@@ -53,6 +55,7 @@ public final class SetAttributeOptions {
   }
 
   private SetAttributeOptions() {
+    mCommonOptions = CommonOptions.defaults();
     mPinned = null;
     mTtl = null;
     mTtlAction = TtlAction.DELETE;
@@ -65,6 +68,13 @@ public final class SetAttributeOptions {
     mReplicationMax = null;
     mReplicationMin = null;
     // ALLUXIO CS END
+  }
+
+  /**
+   * @return the common options
+   */
+  public CommonOptions getCommonOptions() {
+    return mCommonOptions;
   }
 
   /**
@@ -144,6 +154,15 @@ public final class SetAttributeOptions {
   }
 
   // ALLUXIO CS END
+  /**
+   * @param options the common options
+   * @return the updated options object
+   */
+  public SetAttributeOptions setCommonOptions(CommonOptions options) {
+    mCommonOptions = options;
+    return this;
+  }
+
   /**
    * @param pinned the pinned flag value to use; it specifies whether the object should be kept in
    *        memory, if ttl(time to live) is set, the file will be deleted after expiration no
@@ -292,6 +311,7 @@ public final class SetAttributeOptions {
     }
     // ALLUXIO CS END
     options.setRecursive(mRecursive);
+    options.setCommonOptions(mCommonOptions.toThrift());
     return options;
   }
 
@@ -305,6 +325,7 @@ public final class SetAttributeOptions {
     }
     SetAttributeOptions that = (SetAttributeOptions) o;
     return Objects.equal(mPinned, that.mPinned)
+        && Objects.equal(mCommonOptions, that.mCommonOptions)
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mPersisted, that.mPersisted)
@@ -321,15 +342,22 @@ public final class SetAttributeOptions {
   @Override
   public int hashCode() {
     return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner,
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         mReplicationMax, mReplicationMin,
         // ALLUXIO CS END
         mGroup, mMode, mRecursive);
+||||||| merged common ancestors
+        mGroup, mMode, mRecursive);
+=======
+        mGroup, mMode, mRecursive, mCommonOptions);
+>>>>>>> os/master
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
+        .add("commonOptions", mCommonOptions)
         .add("pinned", mPinned)
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
