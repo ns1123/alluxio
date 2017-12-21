@@ -12,23 +12,6 @@
 
 set -e
 
-SCRIPTS_DIR="$(cd "$(dirname "$0" )"; pwd)/scripts"
+REPO_ROOT="$(cd "$(dirname "$0" )/.."; pwd)"
+GOPATH=$REPO_ROOT/dev/scripts/vendor; go run $GOPATH/src/github.com/TachyonNexus/golluxio/annotation/main.go -repo "$REPO_ROOT" lint -fail-on-warning
 
-# Fetch the scripts repository if needed
-if [[ ! -e "${SCRIPTS_DIR}" ]]; then
-  git clone git@github.com:TachyonNexus/alluxio-scripts.git "${SCRIPTS_DIR}"
-fi
-
-# Update to the latest version
-cd "${SCRIPTS_DIR}"
-git pull
-
-# Install the gb tool and build and run the annotation tool.
-# Before installing gb using "go get", we need to unset GOBIN
-# so that gb is installed as annotation/scripts/go/bin/gb
-# instead of ${GOBIN}/gb.
-unset GOBIN
-cd "${SCRIPTS_DIR}/go"
-GOPATH="${PWD}" go get github.com/constabulary/gb/...
-./bin/gb build alluxio.org/alluxio/annotation
-./bin/annotation -repo "${SCRIPTS_DIR}/../.." lint -fail-on-warning
