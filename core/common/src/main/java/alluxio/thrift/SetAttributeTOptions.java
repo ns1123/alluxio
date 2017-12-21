@@ -169,13 +169,7 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
   private static final int __REPLICATIONMAX_ISSET_ID = 5;
   private static final int __REPLICATIONMIN_ISSET_ID = 6;
   private byte __isset_bitfield = 0;
-<<<<<<< HEAD
-  private static final _Fields optionals[] = {_Fields.PINNED,_Fields.TTL,_Fields.PERSISTED,_Fields.OWNER,_Fields.GROUP,_Fields.MODE,_Fields.RECURSIVE,_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN,_Fields.TTL_ACTION};
-||||||| merged common ancestors
-  private static final _Fields optionals[] = {_Fields.PINNED,_Fields.TTL,_Fields.PERSISTED,_Fields.OWNER,_Fields.GROUP,_Fields.MODE,_Fields.RECURSIVE,_Fields.TTL_ACTION};
-=======
-  private static final _Fields optionals[] = {_Fields.PINNED,_Fields.TTL,_Fields.PERSISTED,_Fields.OWNER,_Fields.GROUP,_Fields.MODE,_Fields.RECURSIVE,_Fields.TTL_ACTION,_Fields.COMMON_OPTIONS};
->>>>>>> os/master
+  private static final _Fields optionals[] = {_Fields.PINNED,_Fields.TTL,_Fields.PERSISTED,_Fields.OWNER,_Fields.GROUP,_Fields.MODE,_Fields.RECURSIVE,_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN,_Fields.TTL_ACTION,_Fields.COMMON_OPTIONS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -1284,7 +1278,13 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
           oprot.writeFieldEnd();
         }
       }
-<<<<<<< HEAD
+      if (struct.commonOptions != null) {
+        if (struct.isSetCommonOptions()) {
+          oprot.writeFieldBegin(COMMON_OPTIONS_FIELD_DESC);
+          struct.commonOptions.write(oprot);
+          oprot.writeFieldEnd();
+        }
+      }
       if (struct.isSetReplicationMax()) {
         oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
         oprot.writeI32(struct.replicationMax);
@@ -1295,16 +1295,6 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
         oprot.writeI32(struct.replicationMin);
         oprot.writeFieldEnd();
       }
-||||||| merged common ancestors
-=======
-      if (struct.commonOptions != null) {
-        if (struct.isSetCommonOptions()) {
-          oprot.writeFieldBegin(COMMON_OPTIONS_FIELD_DESC);
-          struct.commonOptions.write(oprot);
-          oprot.writeFieldEnd();
-        }
-      }
->>>>>>> os/master
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -1347,22 +1337,16 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
       if (struct.isSetReplicationMax()) {
         optionals.set(7);
       }
-<<<<<<< HEAD
       if (struct.isSetReplicationMin()) {
         optionals.set(8);
       }
       if (struct.isSetTtlAction()) {
         optionals.set(9);
       }
-      oprot.writeBitSet(optionals, 10);
-||||||| merged common ancestors
-      oprot.writeBitSet(optionals, 8);
-=======
       if (struct.isSetCommonOptions()) {
-        optionals.set(8);
+        optionals.set(10);
       }
-      oprot.writeBitSet(optionals, 9);
->>>>>>> os/master
+      oprot.writeBitSet(optionals, 11);
       if (struct.isSetPinned()) {
         oprot.writeBool(struct.pinned);
       }
@@ -1401,13 +1385,7 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, SetAttributeTOptions struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-<<<<<<< HEAD
-      BitSet incoming = iprot.readBitSet(10);
-||||||| merged common ancestors
-      BitSet incoming = iprot.readBitSet(8);
-=======
-      BitSet incoming = iprot.readBitSet(9);
->>>>>>> os/master
+      BitSet incoming = iprot.readBitSet(11);
       if (incoming.get(0)) {
         struct.pinned = iprot.readBool();
         struct.setPinnedIsSet(true);
@@ -1448,7 +1426,7 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
         struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
         struct.setTtlActionIsSet(true);
       }
-      if (incoming.get(8)) {
+      if (incoming.get(10)) {
         struct.commonOptions = new FileSystemMasterCommonTOptions();
         struct.commonOptions.read(iprot);
         struct.setCommonOptionsIsSet(true);

@@ -346,13 +346,12 @@ public final class Journal {
      */
     alluxio.proto.journal.File.SetAttributeEntryOrBuilder getSetAttributeOrBuilder();
 
-    // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
     /**
      * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      */
     boolean hasFinishJob();
@@ -361,7 +360,7 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      */
     alluxio.proto.journal.Job.FinishJobEntry getFinishJob();
@@ -370,12 +369,11 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      */
     alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder();
 
-    // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
     /**
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
      */
@@ -389,7 +387,6 @@ public final class Journal {
      */
     alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder();
 
-    // optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;
     /**
      * <code>optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;</code>
      */
@@ -403,72 +400,63 @@ public final class Journal {
      */
     alluxio.proto.journal.Privilege.PrivilegeUpdateEntryOrBuilder getPrivilegeUpdateOrBuilder();
 
-    // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
     /**
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-     *
-     * <pre>
-     * Job service journal entry
-     * </pre>
      */
     boolean hasStartJob();
     /**
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-     *
-     * <pre>
-     * Job service journal entry
-     * </pre>
      */
     alluxio.proto.journal.Job.StartJobEntry getStartJob();
     /**
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-     *
-     * <pre>
-     * Job service journal entry
-     * </pre>
      */
     alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder();
 
-    // repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     java.util.List<alluxio.proto.journal.Journal.JournalEntry> 
         getJournalEntriesList();
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     alluxio.proto.journal.Journal.JournalEntry getJournalEntries(int index);
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     int getJournalEntriesCount();
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     java.util.List<? extends alluxio.proto.journal.Journal.JournalEntryOrBuilder> 
         getJournalEntriesOrBuilderList();
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     alluxio.proto.journal.Journal.JournalEntryOrBuilder getJournalEntriesOrBuilder(
@@ -917,7 +905,7 @@ public final class Journal {
               bitField0_ |= 0x10000000;
               break;
             }
-            case 8050: {
+            case 8042: {
               if (!((mutable_bitField0_ & 0x40000000) == 0x40000000)) {
                 journalEntries_ = new java.util.ArrayList<alluxio.proto.journal.Journal.JournalEntry>();
                 mutable_bitField0_ |= 0x40000000;
@@ -1508,7 +1496,6 @@ public final class Journal {
       return setAttribute_;
     }
 
-    // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
     public static final int FINISH_JOB_FIELD_NUMBER = 1002;
     private alluxio.proto.journal.Job.FinishJobEntry finishJob_;
     /**
@@ -1516,7 +1503,7 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      */
     public boolean hasFinishJob() {
@@ -1527,7 +1514,7 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      */
     public alluxio.proto.journal.Job.FinishJobEntry getFinishJob() {
@@ -1538,14 +1525,13 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      */
     public alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder() {
       return finishJob_;
     }
 
-    // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
     public static final int LICENSE_CHECK_FIELD_NUMBER = 1001;
     private alluxio.proto.journal.License.LicenseCheckEntry licenseCheck_;
     /**
@@ -1567,7 +1553,6 @@ public final class Journal {
       return licenseCheck_;
     }
 
-    // optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;
     public static final int PRIVILEGE_UPDATE_FIELD_NUMBER = 1004;
     private alluxio.proto.journal.Privilege.PrivilegeUpdateEntry privilegeUpdate_;
     /**
@@ -1589,58 +1574,46 @@ public final class Journal {
       return privilegeUpdate_;
     }
 
-    // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
     public static final int START_JOB_FIELD_NUMBER = 1003;
     private alluxio.proto.journal.Job.StartJobEntry startJob_;
     /**
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-     *
-     * <pre>
-     * Job service journal entry
-     * </pre>
      */
     public boolean hasStartJob() {
       return ((bitField0_ & 0x20000000) == 0x20000000);
     }
     /**
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-     *
-     * <pre>
-     * Job service journal entry
-     * </pre>
      */
     public alluxio.proto.journal.Job.StartJobEntry getStartJob() {
       return startJob_;
     }
     /**
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-     *
-     * <pre>
-     * Job service journal entry
-     * </pre>
      */
     public alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder() {
       return startJob_;
     }
 
-    // repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;
-    public static final int JOURNAL_ENTRIES_FIELD_NUMBER = 1006;
+    public static final int JOURNAL_ENTRIES_FIELD_NUMBER = 1005;
     private java.util.List<alluxio.proto.journal.Journal.JournalEntry> journalEntries_;
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     public java.util.List<alluxio.proto.journal.Journal.JournalEntry> getJournalEntriesList() {
       return journalEntries_;
     }
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     public java.util.List<? extends alluxio.proto.journal.Journal.JournalEntryOrBuilder> 
@@ -1648,30 +1621,33 @@ public final class Journal {
       return journalEntries_;
     }
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     public int getJournalEntriesCount() {
       return journalEntries_.size();
     }
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     public alluxio.proto.journal.Journal.JournalEntry getJournalEntries(int index) {
       return journalEntries_.get(index);
     }
     /**
-     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+     * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
      * <pre>
-     * ALLUXIO CS END
+     * This journal entry is a list of other entries. when a journal entry
+     * contains other journal entries, all other optional fields must be unset.
      * </pre>
      */
     public alluxio.proto.journal.Journal.JournalEntryOrBuilder getJournalEntriesOrBuilder(
@@ -1816,7 +1792,7 @@ public final class Journal {
         output.writeMessage(1004, privilegeUpdate_);
       }
       for (int i = 0; i < journalEntries_.size(); i++) {
-        output.writeMessage(1006, journalEntries_.get(i));
+        output.writeMessage(1005, journalEntries_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1949,7 +1925,7 @@ public final class Journal {
       }
       for (int i = 0; i < journalEntries_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1006, journalEntries_.get(i));
+          .computeMessageSize(1005, journalEntries_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -5653,7 +5629,6 @@ public final class Journal {
         return setAttributeBuilder_;
       }
 
-      // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
       private alluxio.proto.journal.Job.FinishJobEntry finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder> finishJobBuilder_;
@@ -5662,7 +5637,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        */
       public boolean hasFinishJob() {
@@ -5673,7 +5648,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        */
       public alluxio.proto.journal.Job.FinishJobEntry getFinishJob() {
@@ -5688,7 +5663,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        */
       public Builder setFinishJob(alluxio.proto.journal.Job.FinishJobEntry value) {
@@ -5709,7 +5684,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        */
       public Builder setFinishJob(
@@ -5728,7 +5703,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        */
       public Builder mergeFinishJob(alluxio.proto.journal.Job.FinishJobEntry value) {
@@ -5752,7 +5727,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        */
       public Builder clearFinishJob() {
@@ -5770,7 +5745,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        */
       public alluxio.proto.journal.Job.FinishJobEntry.Builder getFinishJobBuilder() {
@@ -5783,7 +5758,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        */
       public alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder() {
@@ -5798,7 +5773,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
@@ -5807,7 +5782,7 @@ public final class Journal {
         if (finishJobBuilder_ == null) {
           finishJobBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder>(
-                  finishJob_,
+                  getFinishJob(),
                   getParentForChildren(),
                   isClean());
           finishJob_ = null;
@@ -5815,7 +5790,6 @@ public final class Journal {
         return finishJobBuilder_;
       }
 
-      // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
       private alluxio.proto.journal.License.LicenseCheckEntry licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder> licenseCheckBuilder_;
@@ -5924,7 +5898,7 @@ public final class Journal {
         if (licenseCheckBuilder_ == null) {
           licenseCheckBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder>(
-                  licenseCheck_,
+                  getLicenseCheck(),
                   getParentForChildren(),
                   isClean());
           licenseCheck_ = null;
@@ -5932,7 +5906,6 @@ public final class Journal {
         return licenseCheckBuilder_;
       }
 
-      // optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;
       private alluxio.proto.journal.Privilege.PrivilegeUpdateEntry privilegeUpdate_ = alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Privilege.PrivilegeUpdateEntry, alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.Builder, alluxio.proto.journal.Privilege.PrivilegeUpdateEntryOrBuilder> privilegeUpdateBuilder_;
@@ -6041,7 +6014,7 @@ public final class Journal {
         if (privilegeUpdateBuilder_ == null) {
           privilegeUpdateBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Privilege.PrivilegeUpdateEntry, alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.Builder, alluxio.proto.journal.Privilege.PrivilegeUpdateEntryOrBuilder>(
-                  privilegeUpdate_,
+                  getPrivilegeUpdate(),
                   getParentForChildren(),
                   isClean());
           privilegeUpdate_ = null;
@@ -6049,26 +6022,17 @@ public final class Journal {
         return privilegeUpdateBuilder_;
       }
 
-      // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
       private alluxio.proto.journal.Job.StartJobEntry startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder> startJobBuilder_;
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-       *
-       * <pre>
-       * Job service journal entry
-       * </pre>
        */
       public boolean hasStartJob() {
         return ((bitField0_ & 0x20000000) == 0x20000000);
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-       *
-       * <pre>
-       * Job service journal entry
-       * </pre>
        */
       public alluxio.proto.journal.Job.StartJobEntry getStartJob() {
         if (startJobBuilder_ == null) {
@@ -6079,10 +6043,6 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-       *
-       * <pre>
-       * Job service journal entry
-       * </pre>
        */
       public Builder setStartJob(alluxio.proto.journal.Job.StartJobEntry value) {
         if (startJobBuilder_ == null) {
@@ -6099,10 +6059,6 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-       *
-       * <pre>
-       * Job service journal entry
-       * </pre>
        */
       public Builder setStartJob(
           alluxio.proto.journal.Job.StartJobEntry.Builder builderForValue) {
@@ -6117,10 +6073,6 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-       *
-       * <pre>
-       * Job service journal entry
-       * </pre>
        */
       public Builder mergeStartJob(alluxio.proto.journal.Job.StartJobEntry value) {
         if (startJobBuilder_ == null) {
@@ -6140,10 +6092,6 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-       *
-       * <pre>
-       * Job service journal entry
-       * </pre>
        */
       public Builder clearStartJob() {
         if (startJobBuilder_ == null) {
@@ -6157,10 +6105,6 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-       *
-       * <pre>
-       * Job service journal entry
-       * </pre>
        */
       public alluxio.proto.journal.Job.StartJobEntry.Builder getStartJobBuilder() {
         bitField0_ |= 0x20000000;
@@ -6169,10 +6113,6 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-       *
-       * <pre>
-       * Job service journal entry
-       * </pre>
        */
       public alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder() {
         if (startJobBuilder_ != null) {
@@ -6183,10 +6123,6 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
-       *
-       * <pre>
-       * Job service journal entry
-       * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder> 
@@ -6194,7 +6130,7 @@ public final class Journal {
         if (startJobBuilder_ == null) {
           startJobBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder>(
-                  startJob_,
+                  getStartJob(),
                   getParentForChildren(),
                   isClean());
           startJob_ = null;
@@ -6202,7 +6138,6 @@ public final class Journal {
         return startJobBuilder_;
       }
 
-      // repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;
       private java.util.List<alluxio.proto.journal.Journal.JournalEntry> journalEntries_ =
         java.util.Collections.emptyList();
       private void ensureJournalEntriesIsMutable() {
@@ -6216,10 +6151,11 @@ public final class Journal {
           alluxio.proto.journal.Journal.JournalEntry, alluxio.proto.journal.Journal.JournalEntry.Builder, alluxio.proto.journal.Journal.JournalEntryOrBuilder> journalEntriesBuilder_;
 
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public java.util.List<alluxio.proto.journal.Journal.JournalEntry> getJournalEntriesList() {
@@ -6230,10 +6166,11 @@ public final class Journal {
         }
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public int getJournalEntriesCount() {
@@ -6244,10 +6181,11 @@ public final class Journal {
         }
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public alluxio.proto.journal.Journal.JournalEntry getJournalEntries(int index) {
@@ -6258,10 +6196,11 @@ public final class Journal {
         }
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public Builder setJournalEntries(
@@ -6279,10 +6218,11 @@ public final class Journal {
         return this;
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public Builder setJournalEntries(
@@ -6297,10 +6237,11 @@ public final class Journal {
         return this;
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public Builder addJournalEntries(alluxio.proto.journal.Journal.JournalEntry value) {
@@ -6317,10 +6258,11 @@ public final class Journal {
         return this;
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public Builder addJournalEntries(
@@ -6338,10 +6280,11 @@ public final class Journal {
         return this;
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public Builder addJournalEntries(
@@ -6356,10 +6299,11 @@ public final class Journal {
         return this;
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public Builder addJournalEntries(
@@ -6374,17 +6318,19 @@ public final class Journal {
         return this;
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public Builder addAllJournalEntries(
           java.lang.Iterable<? extends alluxio.proto.journal.Journal.JournalEntry> values) {
         if (journalEntriesBuilder_ == null) {
           ensureJournalEntriesIsMutable();
-          super.addAll(values, journalEntries_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, journalEntries_);
           onChanged();
         } else {
           journalEntriesBuilder_.addAllMessages(values);
@@ -6392,10 +6338,11 @@ public final class Journal {
         return this;
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public Builder clearJournalEntries() {
@@ -6409,10 +6356,11 @@ public final class Journal {
         return this;
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public Builder removeJournalEntries(int index) {
@@ -6426,10 +6374,11 @@ public final class Journal {
         return this;
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public alluxio.proto.journal.Journal.JournalEntry.Builder getJournalEntriesBuilder(
@@ -6437,10 +6386,11 @@ public final class Journal {
         return getJournalEntriesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public alluxio.proto.journal.Journal.JournalEntryOrBuilder getJournalEntriesOrBuilder(
@@ -6451,10 +6401,11 @@ public final class Journal {
         }
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public java.util.List<? extends alluxio.proto.journal.Journal.JournalEntryOrBuilder> 
@@ -6466,10 +6417,11 @@ public final class Journal {
         }
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public alluxio.proto.journal.Journal.JournalEntry.Builder addJournalEntriesBuilder() {
@@ -6477,10 +6429,11 @@ public final class Journal {
             alluxio.proto.journal.Journal.JournalEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public alluxio.proto.journal.Journal.JournalEntry.Builder addJournalEntriesBuilder(
@@ -6489,10 +6442,11 @@ public final class Journal {
             index, alluxio.proto.journal.Journal.JournalEntry.getDefaultInstance());
       }
       /**
-       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1006;</code>
+       * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
        *
        * <pre>
-       * ALLUXIO CS END
+       * This journal entry is a list of other entries. when a journal entry
+       * contains other journal entries, all other optional fields must be unset.
        * </pre>
        */
       public java.util.List<alluxio.proto.journal.Journal.JournalEntry.Builder> 
@@ -6595,39 +6549,10 @@ public final class Journal {
       "e\030\354\007 \001(\0132+.alluxio.proto.journal.Privile" +
       "geUpdateEntry\0228\n\tstart_job\030\353\007 \001(\0132$.allu" +
       "xio.proto.journal.StartJobEntry\022=\n\017journ" +
-      "al_entries\030\356\007 \003(\0132#.alluxio.proto.journa" +
+      "al_entries\030\355\007 \003(\0132#.alluxio.proto.journa" +
       "l.JournalEntryB\027\n\025alluxio.proto.journal"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-<<<<<<< HEAD
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_alluxio_proto_journal_JournalEntry_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-              new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", "FinishJob", "LicenseCheck", "PrivilegeUpdate", "StartJob", "JournalEntries", });
-          return null;
-        }
-      };
-||||||| merged common ancestors
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_alluxio_proto_journal_JournalEntry_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-              new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", });
-          return null;
-        }
-      };
-=======
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
           public com.google.protobuf.ExtensionRegistry assignDescriptors(
               com.google.protobuf.Descriptors.FileDescriptor root) {
@@ -6635,7 +6560,6 @@ public final class Journal {
             return null;
           }
         };
->>>>>>> os/master
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
@@ -6652,10 +6576,13 @@ public final class Journal {
     internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-        new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", });
+        new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", "FinishJob", "LicenseCheck", "PrivilegeUpdate", "StartJob", "JournalEntries", });
     alluxio.proto.journal.Block.getDescriptor();
     alluxio.proto.journal.File.getDescriptor();
     alluxio.proto.journal.KeyValue.getDescriptor();
+    alluxio.proto.journal.Job.getDescriptor();
+    alluxio.proto.journal.License.getDescriptor();
+    alluxio.proto.journal.Privilege.getDescriptor();
     alluxio.proto.journal.Lineage.getDescriptor();
   }
 

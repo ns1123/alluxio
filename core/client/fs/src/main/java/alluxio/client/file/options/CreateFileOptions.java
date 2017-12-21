@@ -41,15 +41,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 @JsonInclude(Include.NON_EMPTY)
 public final class CreateFileOptions {
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   private static final org.slf4j.Logger LOG =
       org.slf4j.LoggerFactory.getLogger(CreateFileOptions.class);
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
   private CommonOptions mCommonOptions;
->>>>>>> os/master
   private boolean mRecursive;
   private FileWriteLocationPolicy mLocationPolicy;
   private long mBlockSizeBytes;
@@ -372,23 +368,14 @@ public final class CreateFileOptions {
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
     //     mTtlAction, mWriteTier, mWriteType);
     // ALLUXIO CS WITH
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode,
         mReplicationDurable, mReplicationMax, mReplicationMin, mTtl, mTtlAction, mWriteTier,
-        mWriteType);
+        mWriteType, mCommonOptions);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
-        mTtlAction, mWriteTier, mWriteType);
-=======
-    return Objects
-        .hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl, mTtlAction, mWriteTier,
-            mWriteType, mCommonOptions);
->>>>>>> os/master
   }
 
   @Override

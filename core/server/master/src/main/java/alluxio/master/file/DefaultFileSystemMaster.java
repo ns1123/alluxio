@@ -3204,7 +3204,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
   }
 
-<<<<<<< HEAD
   /**
    * @param fileId file ID
    * @param jobId persist job ID
@@ -3224,8 +3223,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
   // ALLUXIO CS END
 
-||||||| merged common ancestors
-=======
   private boolean syncMetadata(JournalContext journalContext, LockedInodePath inodePath,
       LockingScheme lockingScheme) throws FileDoesNotExistException, InvalidPathException {
     if (!lockingScheme.shouldSync()) {
@@ -3376,7 +3373,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     return true;
   }
 
->>>>>>> os/master
   @Override
   public FileSystemCommand workerHeartbeat(long workerId, List<Long> persistedFiles,
       WorkerHeartbeatOptions options)
@@ -3399,7 +3395,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
 
     // get the files for the given worker to persist
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
     // if (!filesToPersist.isEmpty()) {
@@ -3409,26 +3404,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // Worker should not persist any files. Instead, files are persisted through job service.
     List<PersistFile> filesToPersist = new ArrayList<>();
     // ALLUXIO CS END
-    FileSystemCommandOptions options = new FileSystemCommandOptions();
-    options.setPersistOptions(new PersistCommandOptions(filesToPersist));
-    return new FileSystemCommand(CommandType.Persist, options);
-||||||| merged common ancestors
-    List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
-    if (!filesToPersist.isEmpty()) {
-      LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
-    }
-    FileSystemCommandOptions options = new FileSystemCommandOptions();
-    options.setPersistOptions(new PersistCommandOptions(filesToPersist));
-    return new FileSystemCommand(CommandType.Persist, options);
-=======
-    List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
-    if (!filesToPersist.isEmpty()) {
-      LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
-    }
     FileSystemCommandOptions commandOptions = new FileSystemCommandOptions();
     commandOptions.setPersistOptions(new PersistCommandOptions(filesToPersist));
     return new FileSystemCommand(CommandType.Persist, commandOptions);
->>>>>>> os/master
   }
 
   /**
@@ -3614,7 +3592,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (entry.hasPermission()) {
       options.setMode((short) entry.getPermission());
     }
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (entry.hasPersistJobId()) {
       options.setPersistJobId(entry.getPersistJobId());
@@ -3629,12 +3606,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       options.setTempUfsPath(entry.getTempUfsPath());
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     if (entry.hasUfsFingerprint()) {
       options.setUfsFingerprint(entry.getUfsFingerprint());
     }
->>>>>>> os/master
     try (LockedInodePath inodePath = mInodeTree
         .lockFullInodePath(entry.getId(), InodeTree.LockMode.WRITE)) {
       setAttributeInternal(inodePath, true, entry.getOpTimeMs(), options);

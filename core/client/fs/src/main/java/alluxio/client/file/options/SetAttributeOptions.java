@@ -342,16 +342,10 @@ public final class SetAttributeOptions {
   @Override
   public int hashCode() {
     return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner,
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         mReplicationMax, mReplicationMin,
         // ALLUXIO CS END
-        mGroup, mMode, mRecursive);
-||||||| merged common ancestors
-        mGroup, mMode, mRecursive);
-=======
         mGroup, mMode, mRecursive, mCommonOptions);
->>>>>>> os/master
   }
 
   @Override

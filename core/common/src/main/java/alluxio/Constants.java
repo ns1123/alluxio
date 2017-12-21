@@ -164,7 +164,9 @@ public final class Constants {
   public static final String S3_DELETE_IN_ALLUXIO_AND_UFS = "ALLUXIO_AND_UFS";
   public static final String S3_MULTIPART_TEMPORARY_DIR_SUFFIX = "_s3_multipart_tmp";
 
-<<<<<<< HEAD
+  // Ufs fingerprint
+  public static final String INVALID_UFS_FINGERPRINT = "";
+
   // ALLUXIO CS ADD
   // Replication
   public static final int REPLICATION_MAX_INFINITY = -1;
@@ -223,11 +225,5 @@ public final class Constants {
   public static final String NATIVE_ALLUXIO_LIB_NAME = "alluxio";
 
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-  // Ufs fingerprint
-  public static final String INVALID_UFS_FINGERPRINT = "";
-
->>>>>>> os/master
   private Constants() {} // prevent instantiation
 }

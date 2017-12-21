@@ -165,13 +165,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
   private static final int __REPLICATIONMIN_ISSET_ID = 6;
   private static final int __REPLICATIONDURABLE_ISSET_ID = 7;
   private byte __isset_bitfield = 0;
-<<<<<<< HEAD
-  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL,_Fields.MODE,_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN,_Fields.REPLICATION_DURABLE,_Fields.TTL_ACTION};
-||||||| merged common ancestors
-  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL,_Fields.MODE,_Fields.TTL_ACTION};
-=======
-  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL,_Fields.MODE,_Fields.TTL_ACTION,_Fields.COMMON_OPTIONS};
->>>>>>> os/master
+  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL,_Fields.MODE,_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN,_Fields.REPLICATION_DURABLE,_Fields.TTL_ACTION,_Fields.COMMON_OPTIONS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -1175,7 +1169,13 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
           oprot.writeFieldEnd();
         }
       }
-<<<<<<< HEAD
+      if (struct.commonOptions != null) {
+        if (struct.isSetCommonOptions()) {
+          oprot.writeFieldBegin(COMMON_OPTIONS_FIELD_DESC);
+          struct.commonOptions.write(oprot);
+          oprot.writeFieldEnd();
+        }
+      }
       if (struct.isSetReplicationMax()) {
         oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
         oprot.writeI32(struct.replicationMax);
@@ -1191,16 +1191,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         oprot.writeI32(struct.replicationDurable);
         oprot.writeFieldEnd();
       }
-||||||| merged common ancestors
-=======
-      if (struct.commonOptions != null) {
-        if (struct.isSetCommonOptions()) {
-          oprot.writeFieldBegin(COMMON_OPTIONS_FIELD_DESC);
-          struct.commonOptions.write(oprot);
-          oprot.writeFieldEnd();
-        }
-      }
->>>>>>> os/master
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -1237,7 +1227,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       if (struct.isSetReplicationMax()) {
         optionals.set(5);
       }
-<<<<<<< HEAD
       if (struct.isSetReplicationMin()) {
         optionals.set(6);
       }
@@ -1247,15 +1236,10 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       if (struct.isSetTtlAction()) {
         optionals.set(8);
       }
-      oprot.writeBitSet(optionals, 9);
-||||||| merged common ancestors
-      oprot.writeBitSet(optionals, 6);
-=======
       if (struct.isSetCommonOptions()) {
-        optionals.set(6);
+        optionals.set(9);
       }
-      oprot.writeBitSet(optionals, 7);
->>>>>>> os/master
+      oprot.writeBitSet(optionals, 10);
       if (struct.isSetBlockSizeBytes()) {
         oprot.writeI64(struct.blockSizeBytes);
       }
@@ -1291,13 +1275,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, CreateFileTOptions struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-<<<<<<< HEAD
-      BitSet incoming = iprot.readBitSet(9);
-||||||| merged common ancestors
-      BitSet incoming = iprot.readBitSet(6);
-=======
-      BitSet incoming = iprot.readBitSet(7);
->>>>>>> os/master
+      BitSet incoming = iprot.readBitSet(10);
       if (incoming.get(0)) {
         struct.blockSizeBytes = iprot.readI64();
         struct.setBlockSizeBytesIsSet(true);
@@ -1334,7 +1312,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
         struct.setTtlActionIsSet(true);
       }
-      if (incoming.get(6)) {
+      if (incoming.get(9)) {
         struct.commonOptions = new FileSystemMasterCommonTOptions();
         struct.commonOptions.read(iprot);
         struct.setCommonOptionsIsSet(true);

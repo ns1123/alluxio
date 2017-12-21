@@ -628,24 +628,17 @@ public final class FileInfo implements Serializable {
         new alluxio.thrift.FileInfo(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
-<<<<<<< HEAD
         // ALLUXIO CS REPLACE
         // mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction), mMountId,
-        // mInAlluxioPercentage);
+        // mInAlluxioPercentage, mUfsFingerprint);
         // ALLUXIO CS WITH
         mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
-        mEncrypted, ThriftUtils.toThrift(mTtlAction), mMountId, mInAlluxioPercentage);
+        mEncrypted, ThriftUtils.toThrift(mTtlAction), mMountId, mInAlluxioPercentage,
+        mUfsFingerprint);
     if (mCapability != null) {
       info.setCapability(mCapability.toThrift());
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-        mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction), mMountId,
-        mInAlluxioPercentage);
-=======
-        mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction), mMountId,
-        mInAlluxioPercentage, mUfsFingerprint);
->>>>>>> os/master
     return info;
   }
 
@@ -682,17 +675,11 @@ public final class FileInfo implements Serializable {
     return Objects.hashCode(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         mReplicationMax, mReplicationMin, mCapability, mEncrypted,
         // ALLUXIO CS END
-        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage);
-||||||| merged common ancestors
-        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage);
-=======
         mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage,
         mUfsFingerprint);
->>>>>>> os/master
   }
 
   @Override

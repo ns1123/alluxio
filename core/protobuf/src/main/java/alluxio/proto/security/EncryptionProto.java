@@ -8,10 +8,10 @@ public final class EncryptionProto {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface MetaOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface MetaOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:alluxio.proto.security.Meta)
+      com.google.protobuf.MessageOrBuilder {
 
-    // optional int64 block_header_size = 1 [default = 0];
     /**
      * <code>optional int64 block_header_size = 1 [default = 0];</code>
      *
@@ -29,7 +29,6 @@ public final class EncryptionProto {
      */
     long getBlockHeaderSize();
 
-    // optional int64 block_footer_size = 2 [default = 0];
     /**
      * <code>optional int64 block_footer_size = 2 [default = 0];</code>
      *
@@ -47,7 +46,6 @@ public final class EncryptionProto {
      */
     long getBlockFooterSize();
 
-    // optional int64 chunk_header_size = 3 [default = 0];
     /**
      * <code>optional int64 chunk_header_size = 3 [default = 0];</code>
      *
@@ -65,7 +63,6 @@ public final class EncryptionProto {
      */
     long getChunkHeaderSize();
 
-    // optional int64 chunk_size = 4 [default = 65536];
     /**
      * <code>optional int64 chunk_size = 4 [default = 65536];</code>
      *
@@ -83,7 +80,6 @@ public final class EncryptionProto {
      */
     long getChunkSize();
 
-    // optional int64 chunk_footer_size = 5 [default = 16];
     /**
      * <code>optional int64 chunk_footer_size = 5 [default = 16];</code>
      *
@@ -101,7 +97,6 @@ public final class EncryptionProto {
      */
     long getChunkFooterSize();
 
-    // optional int64 physical_block_size = 6;
     /**
      * <code>optional int64 physical_block_size = 6;</code>
      *
@@ -119,7 +114,6 @@ public final class EncryptionProto {
      */
     long getPhysicalBlockSize();
 
-    // optional int64 logical_block_size = 7;
     /**
      * <code>optional int64 logical_block_size = 7;</code>
      *
@@ -137,7 +131,6 @@ public final class EncryptionProto {
      */
     long getLogicalBlockSize();
 
-    // optional int64 encryption_id = 8 [default = -1];
     /**
      * <code>optional int64 encryption_id = 8 [default = -1];</code>
      */
@@ -147,7 +140,6 @@ public final class EncryptionProto {
      */
     long getEncryptionId();
 
-    // optional int64 file_id = 9 [default = -1];
     /**
      * <code>optional int64 file_id = 9 [default = -1];</code>
      */
@@ -157,7 +149,6 @@ public final class EncryptionProto {
      */
     long getFileId();
 
-    // optional int64 encoded_meta_size = 10;
     /**
      * <code>optional int64 encoded_meta_size = 10;</code>
      */
@@ -167,7 +158,6 @@ public final class EncryptionProto {
      */
     long getEncodedMetaSize();
 
-    // optional .alluxio.proto.security.CryptoKey crypto_key = 11;
     /**
      * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
      */
@@ -190,8 +180,9 @@ public final class EncryptionProto {
    * </pre>
    */
   public static final class Meta extends
-      com.google.protobuf.GeneratedMessage
-      implements MetaOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:alluxio.proto.security.Meta)
+      MetaOrBuilder {
     // Use Meta.newBuilder() to construct.
     private Meta(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -340,7 +331,6 @@ public final class EncryptionProto {
     }
 
     private int bitField0_;
-    // optional int64 block_header_size = 1 [default = 0];
     public static final int BLOCK_HEADER_SIZE_FIELD_NUMBER = 1;
     private long blockHeaderSize_;
     /**
@@ -364,7 +354,6 @@ public final class EncryptionProto {
       return blockHeaderSize_;
     }
 
-    // optional int64 block_footer_size = 2 [default = 0];
     public static final int BLOCK_FOOTER_SIZE_FIELD_NUMBER = 2;
     private long blockFooterSize_;
     /**
@@ -388,7 +377,6 @@ public final class EncryptionProto {
       return blockFooterSize_;
     }
 
-    // optional int64 chunk_header_size = 3 [default = 0];
     public static final int CHUNK_HEADER_SIZE_FIELD_NUMBER = 3;
     private long chunkHeaderSize_;
     /**
@@ -412,7 +400,6 @@ public final class EncryptionProto {
       return chunkHeaderSize_;
     }
 
-    // optional int64 chunk_size = 4 [default = 65536];
     public static final int CHUNK_SIZE_FIELD_NUMBER = 4;
     private long chunkSize_;
     /**
@@ -436,7 +423,6 @@ public final class EncryptionProto {
       return chunkSize_;
     }
 
-    // optional int64 chunk_footer_size = 5 [default = 16];
     public static final int CHUNK_FOOTER_SIZE_FIELD_NUMBER = 5;
     private long chunkFooterSize_;
     /**
@@ -460,7 +446,6 @@ public final class EncryptionProto {
       return chunkFooterSize_;
     }
 
-    // optional int64 physical_block_size = 6;
     public static final int PHYSICAL_BLOCK_SIZE_FIELD_NUMBER = 6;
     private long physicalBlockSize_;
     /**
@@ -484,7 +469,6 @@ public final class EncryptionProto {
       return physicalBlockSize_;
     }
 
-    // optional int64 logical_block_size = 7;
     public static final int LOGICAL_BLOCK_SIZE_FIELD_NUMBER = 7;
     private long logicalBlockSize_;
     /**
@@ -508,7 +492,6 @@ public final class EncryptionProto {
       return logicalBlockSize_;
     }
 
-    // optional int64 encryption_id = 8 [default = -1];
     public static final int ENCRYPTION_ID_FIELD_NUMBER = 8;
     private long encryptionId_;
     /**
@@ -524,7 +507,6 @@ public final class EncryptionProto {
       return encryptionId_;
     }
 
-    // optional int64 file_id = 9 [default = -1];
     public static final int FILE_ID_FIELD_NUMBER = 9;
     private long fileId_;
     /**
@@ -540,7 +522,6 @@ public final class EncryptionProto {
       return fileId_;
     }
 
-    // optional int64 encoded_meta_size = 10;
     public static final int ENCODED_META_SIZE_FIELD_NUMBER = 10;
     private long encodedMetaSize_;
     /**
@@ -556,7 +537,6 @@ public final class EncryptionProto {
       return encodedMetaSize_;
     }
 
-    // optional .alluxio.proto.security.CryptoKey crypto_key = 11;
     public static final int CRYPTO_KEY_FIELD_NUMBER = 11;
     private alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey_;
     /**
@@ -594,7 +574,8 @@ public final class EncryptionProto {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -776,8 +757,9 @@ public final class EncryptionProto {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements alluxio.proto.security.EncryptionProto.MetaOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:alluxio.proto.security.Meta)
+        alluxio.proto.security.EncryptionProto.MetaOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return alluxio.proto.security.EncryptionProto.internal_static_alluxio_proto_security_Meta_descriptor;
@@ -989,7 +971,6 @@ public final class EncryptionProto {
       }
       private int bitField0_;
 
-      // optional int64 block_header_size = 1 [default = 0];
       private long blockHeaderSize_ ;
       /**
        * <code>optional int64 block_header_size = 1 [default = 0];</code>
@@ -1038,7 +1019,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int64 block_footer_size = 2 [default = 0];
       private long blockFooterSize_ ;
       /**
        * <code>optional int64 block_footer_size = 2 [default = 0];</code>
@@ -1087,7 +1067,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int64 chunk_header_size = 3 [default = 0];
       private long chunkHeaderSize_ ;
       /**
        * <code>optional int64 chunk_header_size = 3 [default = 0];</code>
@@ -1136,7 +1115,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int64 chunk_size = 4 [default = 65536];
       private long chunkSize_ = 65536L;
       /**
        * <code>optional int64 chunk_size = 4 [default = 65536];</code>
@@ -1185,7 +1163,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int64 chunk_footer_size = 5 [default = 16];
       private long chunkFooterSize_ = 16L;
       /**
        * <code>optional int64 chunk_footer_size = 5 [default = 16];</code>
@@ -1234,7 +1211,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int64 physical_block_size = 6;
       private long physicalBlockSize_ ;
       /**
        * <code>optional int64 physical_block_size = 6;</code>
@@ -1283,7 +1259,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int64 logical_block_size = 7;
       private long logicalBlockSize_ ;
       /**
        * <code>optional int64 logical_block_size = 7;</code>
@@ -1332,7 +1307,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int64 encryption_id = 8 [default = -1];
       private long encryptionId_ = -1L;
       /**
        * <code>optional int64 encryption_id = 8 [default = -1];</code>
@@ -1365,7 +1339,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int64 file_id = 9 [default = -1];
       private long fileId_ = -1L;
       /**
        * <code>optional int64 file_id = 9 [default = -1];</code>
@@ -1398,7 +1371,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int64 encoded_meta_size = 10;
       private long encodedMetaSize_ ;
       /**
        * <code>optional int64 encoded_meta_size = 10;</code>
@@ -1431,7 +1403,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional .alluxio.proto.security.CryptoKey crypto_key = 11;
       private alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey_ = alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.security.EncryptionProto.CryptoKey, alluxio.proto.security.EncryptionProto.CryptoKey.Builder, alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder> cryptoKeyBuilder_;
@@ -1540,7 +1511,7 @@ public final class EncryptionProto {
         if (cryptoKeyBuilder_ == null) {
           cryptoKeyBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.security.EncryptionProto.CryptoKey, alluxio.proto.security.EncryptionProto.CryptoKey.Builder, alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder>(
-                  cryptoKey_,
+                  getCryptoKey(),
                   getParentForChildren(),
                   isClean());
           cryptoKey_ = null;
@@ -1559,10 +1530,10 @@ public final class EncryptionProto {
     // @@protoc_insertion_point(class_scope:alluxio.proto.security.Meta)
   }
 
-  public interface CryptoKeyOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface CryptoKeyOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:alluxio.proto.security.CryptoKey)
+      com.google.protobuf.MessageOrBuilder {
 
-    // optional string cipher = 1;
     /**
      * <code>optional string cipher = 1;</code>
      */
@@ -1577,7 +1548,6 @@ public final class EncryptionProto {
     com.google.protobuf.ByteString
         getCipherBytes();
 
-    // optional bytes key = 2;
     /**
      * <code>optional bytes key = 2;</code>
      */
@@ -1587,7 +1557,6 @@ public final class EncryptionProto {
      */
     com.google.protobuf.ByteString getKey();
 
-    // optional bytes iv = 3;
     /**
      * <code>optional bytes iv = 3;</code>
      */
@@ -1597,7 +1566,6 @@ public final class EncryptionProto {
      */
     com.google.protobuf.ByteString getIv();
 
-    // optional int32 needsAuthTag = 4;
     /**
      * <code>optional int32 needsAuthTag = 4;</code>
      */
@@ -1607,7 +1575,6 @@ public final class EncryptionProto {
      */
     int getNeedsAuthTag();
 
-    // optional string generationId = 5;
     /**
      * <code>optional string generationId = 5;</code>
      */
@@ -1630,8 +1597,9 @@ public final class EncryptionProto {
    * </pre>
    */
   public static final class CryptoKey extends
-      com.google.protobuf.GeneratedMessage
-      implements CryptoKeyOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:alluxio.proto.security.CryptoKey)
+      CryptoKeyOrBuilder {
     // Use CryptoKey.newBuilder() to construct.
     private CryptoKey(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -1678,8 +1646,9 @@ public final class EncryptionProto {
               break;
             }
             case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              cipher_ = input.readBytes();
+              cipher_ = bs;
               break;
             }
             case 18: {
@@ -1698,8 +1667,9 @@ public final class EncryptionProto {
               break;
             }
             case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000010;
-              generationId_ = input.readBytes();
+              generationId_ = bs;
               break;
             }
           }
@@ -1742,7 +1712,6 @@ public final class EncryptionProto {
     }
 
     private int bitField0_;
-    // optional string cipher = 1;
     public static final int CIPHER_FIELD_NUMBER = 1;
     private java.lang.Object cipher_;
     /**
@@ -1785,7 +1754,6 @@ public final class EncryptionProto {
       }
     }
 
-    // optional bytes key = 2;
     public static final int KEY_FIELD_NUMBER = 2;
     private com.google.protobuf.ByteString key_;
     /**
@@ -1801,7 +1769,6 @@ public final class EncryptionProto {
       return key_;
     }
 
-    // optional bytes iv = 3;
     public static final int IV_FIELD_NUMBER = 3;
     private com.google.protobuf.ByteString iv_;
     /**
@@ -1817,7 +1784,6 @@ public final class EncryptionProto {
       return iv_;
     }
 
-    // optional int32 needsAuthTag = 4;
     public static final int NEEDSAUTHTAG_FIELD_NUMBER = 4;
     private int needsAuthTag_;
     /**
@@ -1833,7 +1799,6 @@ public final class EncryptionProto {
       return needsAuthTag_;
     }
 
-    // optional string generationId = 5;
     public static final int GENERATIONID_FIELD_NUMBER = 5;
     private java.lang.Object generationId_;
     /**
@@ -1886,7 +1851,8 @@ public final class EncryptionProto {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -2025,8 +1991,9 @@ public final class EncryptionProto {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:alluxio.proto.security.CryptoKey)
+        alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return alluxio.proto.security.EncryptionProto.internal_static_alluxio_proto_security_CryptoKey_descriptor;
@@ -2179,7 +2146,6 @@ public final class EncryptionProto {
       }
       private int bitField0_;
 
-      // optional string cipher = 1;
       private java.lang.Object cipher_ = "";
       /**
        * <code>optional string cipher = 1;</code>
@@ -2193,9 +2159,12 @@ public final class EncryptionProto {
       public java.lang.String getCipher() {
         java.lang.Object ref = cipher_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          cipher_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            cipher_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2253,7 +2222,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional bytes key = 2;
       private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
       /**
        * <code>optional bytes key = 2;</code>
@@ -2289,7 +2257,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional bytes iv = 3;
       private com.google.protobuf.ByteString iv_ = com.google.protobuf.ByteString.EMPTY;
       /**
        * <code>optional bytes iv = 3;</code>
@@ -2325,7 +2292,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional int32 needsAuthTag = 4;
       private int needsAuthTag_ ;
       /**
        * <code>optional int32 needsAuthTag = 4;</code>
@@ -2358,7 +2324,6 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional string generationId = 5;
       private java.lang.Object generationId_ = "";
       /**
        * <code>optional string generationId = 5;</code>
@@ -2372,9 +2337,12 @@ public final class EncryptionProto {
       public java.lang.String getGenerationId() {
         java.lang.Object ref = generationId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          generationId_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            generationId_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2443,12 +2411,12 @@ public final class EncryptionProto {
     // @@protoc_insertion_point(class_scope:alluxio.proto.security.CryptoKey)
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_security_Meta_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_security_Meta_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_security_CryptoKey_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -2477,29 +2445,29 @@ public final class EncryptionProto {
       "\014generationId\030\005 \001(\t"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_alluxio_proto_security_Meta_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_alluxio_proto_security_Meta_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_alluxio_proto_security_Meta_descriptor,
-              new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "LogicalBlockSize", "EncryptionId", "FileId", "EncodedMetaSize", "CryptoKey", });
-          internal_static_alluxio_proto_security_CryptoKey_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_alluxio_proto_security_CryptoKey_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_alluxio_proto_security_CryptoKey_descriptor,
-              new java.lang.String[] { "Cipher", "Key", "Iv", "NeedsAuthTag", "GenerationId", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_alluxio_proto_security_Meta_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_alluxio_proto_security_Meta_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_alluxio_proto_security_Meta_descriptor,
+        new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "LogicalBlockSize", "EncryptionId", "FileId", "EncodedMetaSize", "CryptoKey", });
+    internal_static_alluxio_proto_security_CryptoKey_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_alluxio_proto_security_CryptoKey_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_alluxio_proto_security_CryptoKey_descriptor,
+        new java.lang.String[] { "Cipher", "Key", "Iv", "NeedsAuthTag", "GenerationId", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

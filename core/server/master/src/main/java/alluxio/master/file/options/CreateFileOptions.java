@@ -55,43 +55,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
    * @param options the {@link CreateFileTOptions} to use
    */
   public CreateFileOptions(CreateFileTOptions options) {
-<<<<<<< HEAD
-    super();
-    mBlockSizeBytes = options.getBlockSizeBytes();
-    mPersisted = options.isPersisted();
-    mRecursive = options.isRecursive();
-    // ALLUXIO CS ADD
-    mReplicationDurable = options.getReplicationDurable();
-    mReplicationMax = options.getReplicationMax();
-    mReplicationMin = options.getReplicationMin();
-    mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
-    // ALLUXIO CS END
-    mTtl = options.getTtl();
-    mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
-    if (SecurityUtils.isAuthenticationEnabled()) {
-      mOwner = SecurityUtils.getOwnerFromThriftClient();
-      mGroup = SecurityUtils.getGroupFromThriftClient();
-    }
-    if (options.isSetMode()) {
-      mMode = new Mode(options.getMode());
-    } else {
-      mMode.applyFileUMask();
-||||||| merged common ancestors
-    super();
-    mBlockSizeBytes = options.getBlockSizeBytes();
-    mPersisted = options.isPersisted();
-    mRecursive = options.isRecursive();
-    mTtl = options.getTtl();
-    mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
-    if (SecurityUtils.isAuthenticationEnabled()) {
-      mOwner = SecurityUtils.getOwnerFromThriftClient();
-      mGroup = SecurityUtils.getGroupFromThriftClient();
-    }
-    if (options.isSetMode()) {
-      mMode = new Mode(options.getMode());
-    } else {
-      mMode.applyFileUMask();
-=======
     this();
     if (options != null) {
       if (options.isSetCommonOptions()) {
@@ -100,6 +63,12 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       mBlockSizeBytes = options.getBlockSizeBytes();
       mPersisted = options.isPersisted();
       mRecursive = options.isRecursive();
+      // ALLUXIO CS ADD
+      mReplicationDurable = options.getReplicationDurable();
+      mReplicationMax = options.getReplicationMax();
+      mReplicationMin = options.getReplicationMin();
+      mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
+      // ALLUXIO CS END
       mTtl = options.getTtl();
       mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
       if (SecurityUtils.isAuthenticationEnabled()) {
@@ -111,7 +80,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       } else {
         mMode.applyFileUMask();
       }
->>>>>>> os/master
     }
   }
 

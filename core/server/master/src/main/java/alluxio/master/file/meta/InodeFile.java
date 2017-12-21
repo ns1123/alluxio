@@ -103,16 +103,12 @@ public final class InodeFile extends Inode<InodeFile> {
     ret.setMode(getMode());
     ret.setPersistenceState(getPersistenceState().toString());
     ret.setMountPoint(false);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     ret.setReplicationMax(getReplicationMax());
     ret.setReplicationMin(getReplicationMin());
     ret.setEncrypted(isEncrypted());
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     ret.setUfsFingerprint(getUfsFingerprint());
->>>>>>> os/master
     return ret;
   }
 

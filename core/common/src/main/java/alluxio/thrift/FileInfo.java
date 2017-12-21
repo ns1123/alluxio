@@ -3071,7 +3071,11 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       oprot.writeFieldBegin(IN_ALLUXIO_PERCENTAGE_FIELD_DESC);
       oprot.writeI32(struct.inAlluxioPercentage);
       oprot.writeFieldEnd();
-<<<<<<< HEAD
+      if (struct.ufsFingerprint != null) {
+        oprot.writeFieldBegin(UFS_FINGERPRINT_FIELD_DESC);
+        oprot.writeString(struct.ufsFingerprint);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
       oprot.writeI32(struct.replicationMax);
       oprot.writeFieldEnd();
@@ -3088,14 +3092,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       oprot.writeFieldBegin(ENCRYPTED_FIELD_DESC);
       oprot.writeBool(struct.encrypted);
       oprot.writeFieldEnd();
-||||||| merged common ancestors
-=======
-      if (struct.ufsFingerprint != null) {
-        oprot.writeFieldBegin(UFS_FINGERPRINT_FIELD_DESC);
-        oprot.writeString(struct.ufsFingerprint);
-        oprot.writeFieldEnd();
-      }
->>>>>>> os/master
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -3189,7 +3185,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetCapability()) {
         optionals.set(24);
       }
-<<<<<<< HEAD
       if (struct.isSetEncrypted()) {
         optionals.set(25);
       }
@@ -3202,15 +3197,10 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetInAlluxioPercentage()) {
         optionals.set(28);
       }
-      oprot.writeBitSet(optionals, 29);
-||||||| merged common ancestors
-      oprot.writeBitSet(optionals, 25);
-=======
       if (struct.isSetUfsFingerprint()) {
-        optionals.set(25);
+        optionals.set(29);
       }
-      oprot.writeBitSet(optionals, 26);
->>>>>>> os/master
+      oprot.writeBitSet(optionals, 30);
       if (struct.isSetFileId()) {
         oprot.writeI64(struct.fileId);
       }
@@ -3318,13 +3308,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, FileInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-<<<<<<< HEAD
-      BitSet incoming = iprot.readBitSet(29);
-||||||| merged common ancestors
-      BitSet incoming = iprot.readBitSet(25);
-=======
-      BitSet incoming = iprot.readBitSet(26);
->>>>>>> os/master
+      BitSet incoming = iprot.readBitSet(30);
       if (incoming.get(0)) {
         struct.fileId = iprot.readI64();
         struct.setFileIdIsSet(true);
@@ -3461,7 +3445,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.inAlluxioPercentage = iprot.readI32();
         struct.setInAlluxioPercentageIsSet(true);
       }
-      if (incoming.get(25)) {
+      if (incoming.get(29)) {
         struct.ufsFingerprint = iprot.readString();
         struct.setUfsFingerprintIsSet(true);
       }
