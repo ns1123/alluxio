@@ -60,7 +60,7 @@ public final class FileSystemMasterJobServiceHandler
   @Override
   public GetFileInfoTResponse getFileInfo(final long fileId, GetFileInfoTOptions options)
       throws AlluxioTException {
-    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<GetFileInfoTResponse>() {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<GetFileInfoTResponse>() {
       @Override
       public GetFileInfoTResponse call() throws AlluxioException {
         try {
