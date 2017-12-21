@@ -42,6 +42,7 @@ import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
+import alluxio.master.file.options.WorkerHeartbeatOptions;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.master.privilege.PrivilegeMaster;
@@ -374,9 +375,10 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public FileSystemCommand workerHeartbeat(long workerId, List<Long> persistedFiles)
+  public FileSystemCommand workerHeartbeat(long workerId, List<Long> persistedFiles,
+      WorkerHeartbeatOptions options)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException, IOException {
-    return mFileSystemMaster.workerHeartbeat(workerId, persistedFiles);
+    return mFileSystemMaster.workerHeartbeat(workerId, persistedFiles, options);
   }
 
   @Override

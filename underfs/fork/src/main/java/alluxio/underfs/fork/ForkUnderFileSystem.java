@@ -12,6 +12,8 @@
 package alluxio.underfs.fork;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
+import alluxio.underfs.Fingerprint;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UfsStatus;
@@ -409,6 +411,47 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public String getFingerprint(String path) {
+    Collection<String> result = new ConcurrentLinkedQueue<>();
+    try {
+      ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+          new Function<Pair<Pair<String, UnderFileSystem>, Collection<String>>,
+              IOException>() {
+            @Nullable
+            @Override
+            public IOException apply(
+                Pair<Pair<String, UnderFileSystem>, Collection<String>> arg) {
+              Pair<String, UnderFileSystem> entry = arg.getKey();
+              Collection<String> result = arg.getValue();
+              result.add(entry.getValue().getFingerprint(convert(entry.getKey(), path)));
+              return null;
+            }
+          }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.values(), result));
+    } catch (IOException e) {
+      return Constants.INVALID_UFS_FINGERPRINT;
+    }
+
+    // Combine all the fingerprints into the content hash.
+    StringBuilder contentHash = new StringBuilder();
+    Fingerprint fingerprint = null;
+    for (String fp : result) {
+      if (Constants.INVALID_UFS_FINGERPRINT.equals(fp)) {
+        // There was an error in one of the fingerprints.
+        return Constants.INVALID_UFS_FINGERPRINT;
+      }
+      if (fingerprint == null) {
+        fingerprint = Fingerprint.parse(fp);
+      }
+      contentHash.append(fp);
+    }
+    if (fingerprint == null) {
+      return Constants.INVALID_UFS_FINGERPRINT;
+    }
+    fingerprint.updateTag(Fingerprint.Tag.CONTENT_HASH, contentHash.toString());
+    return fingerprint.serialize();
+  }
+
+  @Override
   public long getSpace(final String path, final SpaceType type) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
@@ -429,6 +472,14 @@ public class ForkUnderFileSystem implements UnderFileSystem {
           }
         }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.values(), result));
     return result.get();
+  }
+
+  @Override
+  public UfsStatus getStatus(String path) throws IOException {
+    if (isFile(path)) {
+      return getFileStatus(path);
+    }
+    return getDirectoryStatus(path);
   }
 
   @Override
