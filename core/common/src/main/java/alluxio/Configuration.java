@@ -107,20 +107,8 @@ public final class Configuration {
 
     // Now lets combine, order matters here
     PROPERTIES.clear();
-<<<<<<< HEAD
-    // ALLUXIO CS REPLACE
-    // merge(defaultProps);
-    // ALLUXIO CS WITH
-    merge(defaultProps, false);
-    // ALLUXIO CS END
-    merge(systemProps);
-||||||| merged common ancestors
-    merge(defaultProps);
-    merge(systemProps);
-=======
     merge(defaultProps, Source.DEFAULT);
     merge(systemProps, Source.SYSTEM_PROPERTY);
->>>>>>> 9331c99432c484036a406e992daf65e29de05778
 
     // Load site specific properties file if not in test mode. Note that we decide whether in test
     // mode by default properties and system properties (via getBoolean). If it is not in test mode
@@ -189,18 +177,6 @@ public final class Configuration {
     return defaultProps;
   }
 
-<<<<<<< HEAD
-  // ALLUXIO CS ADD
-  private static void merge(Map<?, ?> properties, boolean hideKeys) {
-||||||| merged common ancestors
-  /**
-   * Merges the current configuration properties with alternate properties. A property from the new
-   * configuration wins if it also appears in the current configuration.
-   *
-   * @param properties The source {@link Properties} to be merged
-   */
-  public static void merge(Map<?, ?> properties) {
-=======
   /**
    * Merges the current configuration properties with alternate properties. A property from the new
    * configuration wins if it also appears in the current configuration.
@@ -209,103 +185,22 @@ public final class Configuration {
    * @param source The source of the the properties (e.g., system property, default and etc)
    */
   public static void merge(Map<?, ?> properties, Source source) {
->>>>>>> 9331c99432c484036a406e992daf65e29de05778
     if (properties != null) {
       // merge the properties
       for (Map.Entry<?, ?> entry : properties.entrySet()) {
         String key = entry.getKey().toString().trim();
         String value = entry.getValue().toString().trim();
-<<<<<<< HEAD
-        if (PropertyKey.isValid(key) && !(hideKeys && PropertyKey.IMMUTABLE_KEYS.contains(key))) {
-||||||| merged common ancestors
         if (PropertyKey.isValid(key)) {
-=======
-        if (PropertyKey.isValid(key)) {
+          // ALLUXIO CS ADD
+          // Skip immutable keys unless it is the default value
+          if (source != Source.DEFAULT && PropertyKey.IMMUTABLE_KEYS.contains(key)) {
+            continue;
+          }
+          // ALLUXIO CS END
           PropertyKey propertyKey = PropertyKey.fromString(key);
->>>>>>> 9331c99432c484036a406e992daf65e29de05778
           // Get the true name for the property key in case it is an alias.
-<<<<<<< HEAD
-          PROPERTIES.put(PropertyKey.fromString(key).getName(), value);
-        }
-      }
-    }
-    checkUserFileBufferBytes();
-  }
-
-  // ALLUXIO CS END
-  /**
-   * Merges the current configuration properties with alternate properties. A property from the new
-   * configuration wins if it also appears in the current configuration.
-   *
-   * @param properties The source {@link Properties} to be merged
-   */
-  public static void merge(Map<?, ?> properties) {
-    // ALLUXIO CS REPLACE
-    // if (properties != null) {
-    //   // merge the system properties
-    //   for (Map.Entry<?, ?> entry : properties.entrySet()) {
-    //     String key = entry.getKey().toString().trim();
-    //     String value = entry.getValue().toString().trim();
-    //     if (PropertyKey.isValid(key)) {
-    //       // Get the true name for the property key in case it is an alias.
-    //       PROPERTIES.put(PropertyKey.fromString(key).getName(), value);
-    //     }
-    //   }
-    // }
-    // checkUserFileBufferBytes();
-    // ALLUXIO CS WITH
-    merge(properties, true);
-    // ALLUXIO CS END
-  }
-
-  /**
-   * Iterates a set of site properties and discards those that user should not use.
-   *
-   * @param siteProperties the set of site properties to check
-   */
-  private static void discardIgnoredSiteProperties(Map<?, ?> siteProperties) {
-    Iterator<? extends Map.Entry<?, ?>> iter = siteProperties.entrySet().iterator();
-    while (iter.hasNext()) {
-      Map.Entry<?, ?> entry  = iter.next();
-      String key = entry.getKey().toString();
-      if (PropertyKey.isValid(key)) {
-        PropertyKey propertyKey = PropertyKey.fromString(key);
-        if (propertyKey.isIgnoredSiteProperty()) {
-          iter.remove();
-          LOG.warn("{} is not accepted in alluxio-site.properties, "
-              + "and must be specified as a JVM property. "
-              + "If no JVM property is present, Alluxio will use default value '{}'.",
-              key, propertyKey.getDefaultValue());
-||||||| merged common ancestors
-          PROPERTIES.put(PropertyKey.fromString(key).getName(), value);
-        }
-      }
-    }
-    checkUserFileBufferBytes();
-  }
-
-  /**
-   * Iterates a set of site properties and discards those that user should not use.
-   *
-   * @param siteProperties the set of site properties to check
-   */
-  private static void discardIgnoredSiteProperties(Map<?, ?> siteProperties) {
-    Iterator<? extends Map.Entry<?, ?>> iter = siteProperties.entrySet().iterator();
-    while (iter.hasNext()) {
-      Map.Entry<?, ?> entry  = iter.next();
-      String key = entry.getKey().toString();
-      if (PropertyKey.isValid(key)) {
-        PropertyKey propertyKey = PropertyKey.fromString(key);
-        if (propertyKey.isIgnoredSiteProperty()) {
-          iter.remove();
-          LOG.warn("{} is not accepted in alluxio-site.properties, "
-              + "and must be specified as a JVM property. "
-              + "If no JVM property is present, Alluxio will use default value '{}'.",
-              key, propertyKey.getDefaultValue());
-=======
           PROPERTIES.put(propertyKey.getName(), value);
           SOURCES.put(propertyKey, source);
->>>>>>> 9331c99432c484036a406e992daf65e29de05778
         }
       }
     }
