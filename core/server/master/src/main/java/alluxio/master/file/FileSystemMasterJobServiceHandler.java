@@ -14,7 +14,7 @@ package alluxio.master.file;
 import alluxio.Constants;
 import alluxio.RpcUtils;
 import alluxio.exception.AlluxioException;
-import alluxio.exception.status.AlluxioStatusException;
+import alluxio.exception.status.UnavailableException;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.FileSystemMasterJobService;
 import alluxio.thrift.GetFileInfoTOptions;
@@ -62,9 +62,13 @@ public final class FileSystemMasterJobServiceHandler
       throws AlluxioTException {
     return RpcUtils.call(LOG, new RpcUtils.RpcCallable<GetFileInfoTResponse>() {
       @Override
-      public GetFileInfoTResponse call() throws AlluxioException, AlluxioStatusException {
-        return new GetFileInfoTResponse(
-            ThriftUtils.toThrift(mFileSystemMaster.getFileInfo(fileId)));
+      public GetFileInfoTResponse call() throws AlluxioException {
+        try {
+          return new GetFileInfoTResponse(
+              ThriftUtils.toThrift(mFileSystemMaster.getFileInfo(fileId)));
+        } catch (UnavailableException e) {
+          throw new AlluxioException("File system master is unavailable", e);
+        }
       }
     });
   }
