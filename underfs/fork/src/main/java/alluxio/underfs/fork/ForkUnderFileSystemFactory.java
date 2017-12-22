@@ -40,9 +40,6 @@ public class ForkUnderFileSystemFactory implements UnderFileSystemFactory {
     Preconditions.checkArgument(path != null, "path may not be null");
     AlluxioURI uri = new AlluxioURI(path);
     Preconditions.checkArgument(uri.getAuthority() != null, "authority may not be null");
-    Preconditions.checkArgument(
-        PathUtils.normalizePath(uri.getPath(), AlluxioURI.SEPARATOR).equals(AlluxioURI.SEPARATOR),
-        "path should be empty");
     return new ForkUnderFileSystem(ufsConf);
   }
 
