@@ -1,0 +1,56 @@
+pipeline {
+    agent none
+    parameters {
+        string(
+            name: 'Tags',
+            defaultValue: 'master',
+            description: 'List of tags or "master" as a space delimited string for which to build javadoc for (ex. enterprise-v1.x.y)'
+        )
+        choice(
+            name: 'S3Bucket',
+            choices: 'alluxio-javadoc-dev\nalluxio-javadoc',
+            description: 'S3 bucket to upload javadoc to'
+        )
+    }
+    stages {
+        stage('build') {
+            agent {
+                docker {
+                    image 'agent'
+                    label 'workerLarge'
+                    alwaysPull false
+                }
+            }
+            environment {
+                AWS_ACCESS_KEY_ID     = credentials('JENKINS_AWS_ACCESS_KEY_ID')
+                AWS_SECRET_ACCESS_KEY = credentials('JENKINS_AWS_SECRET_ACCESS_KEY')
+            }
+            steps {
+                script {
+                    for (tag in params.Tags.split(" ")) {
+                        def branch = "refs/tags/${tag}"
+                        if (tag == "master") {
+                            branch = "*/master"
+                        }
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: branch]],
+                            userRemoteConfigs: [[
+                                credentialsId: 'ALLUXIO-CI_GITHUB',
+                                url: 'https://github.com/TachyonNexus/enterprise',
+                            ]]
+                        ])
+                        sh "mvn clean install -DskipTests -Dmaven.javadoc.skip -Dcheckstyle.skip -Dlicense.skip -Dfindbugs.skip -Dannotation.skip -quiet"
+                        sh "mvn javadoc:aggregate -Dlicense.skip -quiet"
+                        def version = branch
+                        if (branch.startsWith("enterprise-v")) {
+                            version = branch.substring(12, 15) // enterprise-vA.B.X -> A.B where len("enterprise-v") = 12
+                        }
+                        sh "aws s3 sync target/site/apidocs/ s3://${params.S3Bucket}/ee/${version}"
+                    }
+                }
+            }
+        }
+    }
+}
+
