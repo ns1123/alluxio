@@ -3,13 +3,20 @@ namespace java alluxio.thrift
 include "common.thrift"
 include "exception.thrift"
 
-struct CheckConsistencyTOptions {}
+struct FileSystemMasterCommonTOptions {
+  1: optional i64 syncIntervalMs
+}
+
+struct CheckConsistencyTOptions {
+  1: optional FileSystemMasterCommonTOptions commonOptions
+}
 struct CheckConsistencyTResponse {
   1: list<string> inconsistentPaths
 }
 
 struct CompleteFileTOptions {
   1: optional i64 ufsLength
+  2: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct CompleteFileTResponse {}
 
@@ -20,6 +27,7 @@ struct CreateDirectoryTOptions {
   4: optional i16 mode
   5: optional i64 ttl
   6: optional common.TTtlAction ttlAction
+  7: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct CreateDirectoryTResponse {}
 
@@ -35,6 +43,7 @@ struct CreateFileTOptions {
   1003: optional i32 replicationDurable;
   // ALLUXIO CS END
   6: optional common.TTtlAction ttlAction
+  7: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct CreateFileTResponse {}
 
@@ -42,12 +51,14 @@ struct DeleteTOptions {
   1: optional bool recursive
   2: optional bool alluxioOnly
   3: optional bool unchecked
+  4: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct DeleteTResponse {}
 
 struct FreeTOptions {
   1: optional bool recursive
   2: optional bool forced
+  3: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct FreeTResponse {}
 
@@ -59,12 +70,15 @@ enum LoadMetadataTType {
 
 struct GetStatusTOptions {
   1: optional LoadMetadataTType loadMetadataType
+  2: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct GetStatusTResponse {
   1: FileInfo fileInfo
 }
 
-struct GetNewBlockIdForFileTOptions {}
+struct GetNewBlockIdForFileTOptions {
+  1: optional FileSystemMasterCommonTOptions commonOptions
+}
 struct GetNewBlockIdForFileTResponse {
   1: i64 id
 }
@@ -73,12 +87,15 @@ struct ListStatusTOptions {
   // This is deprecated since 1.1.1 and will be removed in 2.0. Use loadMetadataType.
   1: optional bool loadDirectChildren
   2: optional LoadMetadataTType loadMetadataType
+  3: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct ListStatusTResponse {
   1: list<FileInfo> fileInfoList
 }
 
-struct LoadMetadataTOptions {}
+struct LoadMetadataTOptions {
+  1: optional FileSystemMasterCommonTOptions commonOptions
+}
 struct LoadMetadataTResponse {
   1: i64 id
 }
@@ -126,12 +143,14 @@ struct FileInfo {
   24: common.TTtlAction ttlAction
   25: i64 mountId
   26: i32 inAlluxioPercentage
+  27: string ufsFingerprint
 }
 
 struct MountTOptions {
   1: optional bool readOnly
   2: optional map<string, string> properties
   3: optional bool shared
+  4: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct MountTResponse {}
 
@@ -167,7 +186,9 @@ struct PersistFile {
   2: list<i64> blockIds
 }
 
-struct RenameTOptions {}
+struct RenameTOptions {
+  1: optional FileSystemMasterCommonTOptions commonOptions
+}
 struct RenameTResponse {}
 
 struct SetAttributeTOptions {
@@ -183,13 +204,25 @@ struct SetAttributeTOptions {
   1002: optional i32 replicationMin;
   // ALLUXIO CS END
   8: optional common.TTtlAction ttlAction
+  9: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct SetAttributeTResponse {}
 
-struct ScheduleAsyncPersistenceTOptions {}
+struct ScheduleAsyncPersistenceTOptions {
+  1: optional FileSystemMasterCommonTOptions commonOptions
+}
 struct ScheduleAsyncPersistenceTResponse {}
 
-struct UnmountTOptions {}
+struct SyncMetadataTOptions {
+  1: optional FileSystemMasterCommonTOptions commonOptions
+}
+struct SyncMetadataTResponse {
+  1: bool synced
+}
+
+struct UnmountTOptions {
+  1: optional FileSystemMasterCommonTOptions commonOptions
+}
 struct UnmountTResponse {}
 
 struct UfsInfo {
@@ -359,7 +392,9 @@ service FileSystemMasterClientService extends common.AlluxioService {
     throws (1: exception.AlluxioTException e)
 }
 
-struct FileSystemHeartbeatTOptions {}
+struct FileSystemHeartbeatTOptions {
+  1: optional list<string> persistedFileFingerprints
+}
 struct FileSystemHeartbeatTResponse {
   1: FileSystemCommand command
 }

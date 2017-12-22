@@ -181,7 +181,7 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   @Override
   public UfsFileStatus getFileStatus(String path) throws IOException {
     LOG.debug("getFileStatus not supported in JDBCUnderFileSystem");
-    return new UfsFileStatus(path, Constants.UNKNOWN_SIZE, -1, null, null,
+    return new UfsFileStatus(path, "", Constants.UNKNOWN_SIZE, -1, null, null,
         Constants.DEFAULT_FILE_SYSTEM_MODE);
   }
 
@@ -189,6 +189,13 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   @Override
   public long getSpace(String path, SpaceType type) throws IOException {
     return -1;
+  }
+
+  @Override
+  public UfsStatus getStatus(String path) throws IOException {
+    LOG.debug("getStatus not supported in JDBCUnderFileSystem");
+    return new UfsFileStatus(path, "", Constants.UNKNOWN_SIZE, -1, null, null,
+        Constants.DEFAULT_FILE_SYSTEM_MODE);
   }
 
   @Override
@@ -224,7 +231,7 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
         new UfsStatus[Integer.parseInt(properties.get(UnderFileSystemConstants.JDBC_PARTITIONS))];
     for (int i = 0; i < files.length; i++) {
       String name = JDBCFilenameUtils.getFilenameForPartition(i, FILE_EXTENSION);
-      files[i] = new UfsFileStatus(name, Constants.UNKNOWN_SIZE, -1, null, null,
+      files[i] = new UfsFileStatus(name, "", Constants.UNKNOWN_SIZE, -1, null, null,
           Constants.DEFAULT_FILE_SYSTEM_MODE);
     }
     return files;

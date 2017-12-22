@@ -22,6 +22,7 @@ import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.CommonUtils;
+import alluxio.wire.CommonOptions;
 import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
@@ -44,6 +45,7 @@ public final class CreateFileOptions {
   private static final org.slf4j.Logger LOG =
       org.slf4j.LoggerFactory.getLogger(CreateFileOptions.class);
   // ALLUXIO CS END
+  private CommonOptions mCommonOptions;
   private boolean mRecursive;
   private FileWriteLocationPolicy mLocationPolicy;
   private long mBlockSizeBytes;
@@ -66,6 +68,7 @@ public final class CreateFileOptions {
   }
 
   private CreateFileOptions() {
+    mCommonOptions = CommonOptions.defaults();
     mRecursive = true;
     mBlockSizeBytes = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
     mLocationPolicy =
@@ -81,6 +84,13 @@ public final class CreateFileOptions {
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
     mMode = Mode.defaults().applyFileUMask();
+  }
+
+  /**
+   * @return the common options
+   */
+  public CommonOptions getCommonOptions() {
+    return mCommonOptions;
   }
 
   /**
@@ -169,6 +179,15 @@ public final class CreateFileOptions {
    */
   public boolean isRecursive() {
     return mRecursive;
+  }
+
+  /**
+   * @param options the common options
+   * @return the updated options object
+   */
+  public CreateFileOptions setCommonOptions(CommonOptions options) {
+    mCommonOptions = options;
+    return this;
   }
 
   /**
@@ -332,6 +351,7 @@ public final class CreateFileOptions {
     }
     CreateFileOptions that = (CreateFileOptions) o;
     return Objects.equal(mRecursive, that.mRecursive)
+        && Objects.equal(mCommonOptions, that.mCommonOptions)
         && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
         // ALLUXIO CS ADD
@@ -354,13 +374,14 @@ public final class CreateFileOptions {
     // ALLUXIO CS WITH
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode,
         mReplicationDurable, mReplicationMax, mReplicationMin, mTtl, mTtlAction, mWriteTier,
-        mWriteType);
+        mWriteType, mCommonOptions);
     // ALLUXIO CS END
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
+        .add("commonOptions", mCommonOptions)
         .add("recursive", mRecursive)
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("locationPolicy", mLocationPolicy)
@@ -395,6 +416,7 @@ public final class CreateFileOptions {
     if (mMode != null) {
       options.setMode(mMode.toShort());
     }
+    options.setCommonOptions(mCommonOptions.toThrift());
     return options;
   }
 }

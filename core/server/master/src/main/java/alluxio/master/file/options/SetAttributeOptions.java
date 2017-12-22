@@ -13,6 +13,7 @@ package alluxio.master.file.options;
 
 import alluxio.Constants;
 import alluxio.thrift.SetAttributeTOptions;
+import alluxio.wire.CommonOptions;
 import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
@@ -25,6 +26,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class SetAttributeOptions {
+  private CommonOptions mCommonOptions;
   private Boolean mPinned;
   private Long mTtl;
   private TtlAction mTtlAction;
@@ -40,6 +42,7 @@ public final class SetAttributeOptions {
   private Integer mReplicationMin;
   private String mTempUfsPath;
   // ALLUXIO CS END
+  private String mUfsFingerprint;
 
   /**
    * @return the default {@link SetAttributeOptions}
@@ -54,24 +57,32 @@ public final class SetAttributeOptions {
    * @param options the options for setting the attributes
    */
   public SetAttributeOptions(SetAttributeTOptions options) {
-    mPinned = options.isSetPinned() ? options.isPinned() : null;
-    mTtl = options.isSetTtl() ? options.getTtl() : null;
-    mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
-    mPersisted = options.isSetPersisted() ? options.isPersisted() : null;
-    mOwner = options.isSetOwner() ? options.getOwner() : null;
-    mGroup = options.isSetGroup() ? options.getGroup() : null;
-    mMode = options.isSetMode() ? options.getMode() : Constants.INVALID_MODE;
-    mRecursive = options.isRecursive();
-    mOperationTimeMs = System.currentTimeMillis();
-    // ALLUXIO CS ADD
-    mPersistJobId = null;
-    mReplicationMax = options.isSetReplicationMax() ? options.getReplicationMax() : null;
-    mReplicationMin = options.isSetReplicationMin() ? options.getReplicationMin() : null;
-    mTempUfsPath = null;
-    // ALLUXIO CS END
+    this();
+    if (options != null) {
+      if (options.isSetCommonOptions()) {
+        mCommonOptions = new CommonOptions(options.getCommonOptions());
+      }
+      mPinned = options.isSetPinned() ? options.isPinned() : null;
+      mTtl = options.isSetTtl() ? options.getTtl() : null;
+      mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
+      mPersisted = options.isSetPersisted() ? options.isPersisted() : null;
+      mOwner = options.isSetOwner() ? options.getOwner() : null;
+      mGroup = options.isSetGroup() ? options.getGroup() : null;
+      mMode = options.isSetMode() ? options.getMode() : Constants.INVALID_MODE;
+      mRecursive = options.isRecursive();
+      mOperationTimeMs = System.currentTimeMillis();
+      // ALLUXIO CS ADD
+      mPersistJobId = null;
+      mReplicationMax = options.isSetReplicationMax() ? options.getReplicationMax() : null;
+      mReplicationMin = options.isSetReplicationMin() ? options.getReplicationMin() : null;
+      mTempUfsPath = null;
+      // ALLUXIO CS END
+    }
   }
 
   private SetAttributeOptions() {
+    super();
+    mCommonOptions = CommonOptions.defaults();
     mPinned = null;
     mTtl = null;
     mTtlAction = TtlAction.DELETE;
@@ -81,6 +92,14 @@ public final class SetAttributeOptions {
     mMode = Constants.INVALID_MODE;
     mRecursive = false;
     mOperationTimeMs = System.currentTimeMillis();
+    mUfsFingerprint = Constants.INVALID_UFS_FINGERPRINT;
+  }
+
+  /**
+   * @return the common options
+   */
+  public CommonOptions getCommonOptions() {
+    return mCommonOptions;
   }
 
   /**
@@ -173,6 +192,22 @@ public final class SetAttributeOptions {
    */
   public long getOperationTimeMs() {
     return mOperationTimeMs;
+  }
+
+  /**
+   * @return the ufs fingerprint
+   */
+  public String getUfsFingerprint() {
+    return mUfsFingerprint;
+  }
+
+  /**
+   * @param options the common options
+   * @return the updated options object
+   */
+  public SetAttributeOptions setCommonOptions(CommonOptions options) {
+    mCommonOptions = options;
+    return this;
   }
 
   /**
@@ -300,6 +335,15 @@ public final class SetAttributeOptions {
     return this;
   }
   // ALLUXIO CS END
+  /**
+   * @param ufsFingerprint the ufs fingerprint
+   * @return the updated options object
+   */
+  public SetAttributeOptions setUfsFingerprint(String ufsFingerprint) {
+    mUfsFingerprint = ufsFingerprint;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -310,6 +354,7 @@ public final class SetAttributeOptions {
     }
     SetAttributeOptions that = (SetAttributeOptions) o;
     return Objects.equal(mPinned, that.mPinned)
+        && Objects.equal(mCommonOptions, that.mCommonOptions)
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mPersisted, that.mPersisted)
@@ -323,24 +368,28 @@ public final class SetAttributeOptions {
         && Objects.equal(mTempUfsPath, that.mTempUfsPath)
         // ALLUXIO CS END
         && Objects.equal(mRecursive, that.mRecursive)
-        && mOperationTimeMs == that.mOperationTimeMs;
+        && mOperationTimeMs == that.mOperationTimeMs
+        && Objects.equal(mUfsFingerprint, that.mUfsFingerprint);
   }
 
   @Override
   public int hashCode() {
     // ALLUXIO CS REPLACE
-    // return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
-    //     mRecursive, mOperationTimeMs);
+    // return Objects
+    //     .hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode, mRecursive,
+    //         mOperationTimeMs, mCommonOptions, mUfsFingerprint);
     // ALLUXIO CS WITH
     return Objects
         .hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode, mRecursive,
-            mOperationTimeMs, mPersistJobId, mReplicationMax, mReplicationMin, mTempUfsPath);
+            mOperationTimeMs, mPersistJobId, mReplicationMax, mReplicationMin, mTempUfsPath,
+            mCommonOptions, mUfsFingerprint);
     // ALLUXIO CS END
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
+        .add("commonOptions", mCommonOptions)
         .add("pinned", mPinned)
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
@@ -356,6 +405,7 @@ public final class SetAttributeOptions {
         .add("replicationMin", mReplicationMin)
         .add("tempUfsPath", mTempUfsPath)
         // ALLUXIO CS END
+        .add("ufsFingerprint", mUfsFingerprint)
         .toString();
   }
 }

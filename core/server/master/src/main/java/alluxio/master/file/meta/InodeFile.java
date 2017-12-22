@@ -108,6 +108,7 @@ public final class InodeFile extends Inode<InodeFile> {
     ret.setReplicationMin(getReplicationMin());
     ret.setEncrypted(isEncrypted());
     // ALLUXIO CS END
+    ret.setUfsFingerprint(getUfsFingerprint());
     return ret;
   }
 
@@ -415,7 +416,9 @@ public final class InodeFile extends Inode<InodeFile> {
         .setTtlAction((ProtobufUtils.fromProtobuf(entry.getTtlAction())))
         .setOwner(entry.getOwner())
         .setGroup(entry.getGroup())
-        .setMode((short) entry.getMode());
+        .setMode((short) entry.getMode())
+        .setUfsFingerprint(entry.hasUfsFingerprint() ? entry.getUfsFingerprint() :
+            Constants.INVALID_UFS_FINGERPRINT);
   }
 
   /**
@@ -483,7 +486,9 @@ public final class InodeFile extends Inode<InodeFile> {
         .setEncrypted(isEncrypted())
         // ALLUXIO CS END
         .setTtl(getTtl())
-        .setTtlAction(ProtobufUtils.toProtobuf(getTtlAction())).build();
+        .setTtlAction(ProtobufUtils.toProtobuf(getTtlAction()))
+        .setUfsFingerprint(getUfsFingerprint())
+        .build();
     return JournalEntry.newBuilder().setInodeFile(inodeFile).build();
   }
 
