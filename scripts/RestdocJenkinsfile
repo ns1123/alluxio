@@ -4,12 +4,12 @@ pipeline {
         string(
             name: 'Tags',
             defaultValue: 'master',
-            description: 'List of tags or "master" as a space delimited string for which to build javadoc for (ex. enterprise-v1.x.y)'
+            description: 'List of tags or "master" as a space delimited string for which to build rest api doc for (ex. enterprise-v1.x.y)'
         )
         choice(
             name: 'S3Bucket',
-            choices: 'alluxio-javadoc-dev\nalluxio-javadoc',
-            description: 'S3 bucket to upload javadoc to'
+            choices: 'alluxio-restdoc-dev\nalluxio-restdoc',
+            description: 'S3 bucket to upload rest api doc to'
         )
     }
     stages {
@@ -44,15 +44,27 @@ pipeline {
                             ]]
                         ])
                         sh 'mvn clean install -DskipTests -Dmaven.javadoc.skip -Dcheckstyle.skip -Dlicense.skip -Dfindbugs.skip -Dannotation.skip -quiet'
-                        sh 'mvn javadoc:aggregate -Dlicense.skip -quiet'
+                        sh "rm -rf restdoc"
                         
-                        // ${edition}-vA.B.X -> A.B OR master -> master
+                         // ${edition}-vA.B.X -> A.B OR master -> master
                         def version = tag
                         def header = "${edition}-v"
                         if (tag.startsWith(header)) {
                             version = tag.substring(header.length(), header.length()+3)
                         }
-                        sh "aws s3 sync target/site/apidocs/ s3://${params.S3Bucket}/${folderName}/${version}"
+                        // find directories named miredot (ex. ./core/server/{proxy,master,worker}/target/miredot)
+                        def miredots = sh (
+                            script: 'find . -name "miredot" -type d',
+                            returnStdout: true
+                        )
+                        miredots.split().each {
+                            // extract component name in filepath (ex ./core/server/proxy/target/miredot -> proxy)
+                            def component = it.tokenize("/")[3]
+                            sh "mkdir -p restdoc/${version}/${component}"
+                            // copy contents of miredot/* to restdoc/$version/$component
+                            sh "cp -r ${it}/* restdoc/${version}/${component}"
+                        }
+                        sh "aws s3 sync restdoc/${version} s3://${params.S3Bucket}/${folderName}/${version}"
                     }
                 }
             }
