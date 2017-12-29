@@ -506,6 +506,7 @@ public class BaseFileSystem implements FileSystem {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
     }
+<<<<<<< HEAD
     InStreamOptions inStreamOptions = options.toInStreamOptions();
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
@@ -536,6 +537,13 @@ public class BaseFileSystem implements FileSystem {
     }
     // ALLUXIO CS END
     return FileInStream.create(status, inStreamOptions, mFileSystemContext);
+||||||| merged common ancestors
+    InStreamOptions inStreamOptions = options.toInStreamOptions();
+    return FileInStream.create(status, inStreamOptions, mFileSystemContext);
+=======
+    InStreamOptions inStreamOptions = options.toInStreamOptions(status);
+    return new FileInStream(status, inStreamOptions, mFileSystemContext);
+>>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
   }
 
   @Override

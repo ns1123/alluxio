@@ -17,6 +17,7 @@ import alluxio.annotation.PublicApi;
 import alluxio.client.ReadType;
 import alluxio.client.block.policy.BlockLocationPolicy;
 import alluxio.client.block.policy.options.CreateOptions;
+import alluxio.client.file.URIStatus;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.util.CommonUtils;
 
@@ -252,12 +253,11 @@ public final class OpenFileOptions {
   // ALLUXIO CS END
 
   /**
-   * @return the {@link InStreamOptions} representation of this object
+   * @param status the {@link URIStatus} which will be read
+   * @return the {@link InStreamOptions} representation of the read options applied to the file
    */
-  public InStreamOptions toInStreamOptions() {
-    return InStreamOptions.defaults().setReadType(mReadType).setLocationPolicy(mCacheLocationPolicy)
-        .setMaxUfsReadConcurrency(mMaxUfsReadConcurrency)
-        .setUfsReadLocationPolicy(mUfsReadLocationPolicy);
+  public InStreamOptions toInStreamOptions(URIStatus status) {
+    return new InStreamOptions(status, this);
   }
 
   @Override
@@ -282,7 +282,8 @@ public final class OpenFileOptions {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mCacheLocationPolicy, mReadType, mMaxUfsReadConcurrency);
+    return Objects.hashCode(mCacheLocationPolicy, mReadType, mMaxUfsReadConcurrency,
+        mUfsReadLocationPolicy);
   }
 
   @Override

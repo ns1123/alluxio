@@ -47,6 +47,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     private String mDescription;
     private final String mName;
     private boolean mIgnoredSiteProperty;
+    private boolean mIsHidden;
 
     /**
      * @param name name of this property to build
@@ -91,6 +92,15 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     }
 
     /**
+     * @param isHidden of this property key to build
+     * @return the updated builder instance
+     */
+    public Builder setIsHidden(boolean isHidden) {
+      mIsHidden = isHidden;
+      return this;
+    }
+
+    /**
      * @param ignoredSiteProperty true if this property should be ignored when appearing
      *                            in alluxio-site.properties
      * @return the updated builder instance
@@ -104,7 +114,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
      * @return the created property key instance
      */
     public PropertyKey build() {
-      return PropertyKey.create(mName, mDefaultValue, mAlias, mDescription, mIgnoredSiteProperty);
+      return PropertyKey.create(
+          mName, mDefaultValue, mAlias, mDescription, mIgnoredSiteProperty, mIsHidden);
     }
 
     @Override
@@ -449,6 +460,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("Directories are represented in S3 as zero-byte objects named with "
               + "the specified suffix.")
           .build();
+  public static final PropertyKey UNDERFS_S3A_BULK_DELETE_ENABLED =
+      new Builder(Name.UNDERFS_S3A_BULK_DELETE_ENABLED)
+          .setDefaultValue(true)
+          .setIsHidden(true)
+          .build();
+
   public static final PropertyKey UNDERFS_S3A_INHERIT_ACL =
       new Builder(Name.UNDERFS_S3A_INHERIT_ACL)
           .setDefaultValue(true)
@@ -1110,6 +1127,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("The maximum number of parallel data packets when a client reads from a "
               + "worker.")
           .build();
+  public static final PropertyKey WORKER_NETWORK_NETTY_ASYNC_CACHE_MANAGER_THREADS_MAX =
+      new Builder(Name.WORKER_NETWORK_NETTY_ASYNC_CACHE_MANAGER_THREADS_MAX)
+          .setDefaultValue(512)
+          .setDescription("The maximum number of threads used to cache blocks asynchronously in "
+              + "the netty data server.")
+          .build();
   public static final PropertyKey WORKER_NETWORK_NETTY_BLOCK_READER_THREADS_MAX =
       new Builder(Name.WORKER_NETWORK_NETTY_BLOCK_READER_THREADS_MAX)
           .setDefaultValue(2048)
@@ -1507,12 +1530,15 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue("8MB")
           .setDescription("The size of the file buffer to use for file system reads/writes.")
           .build();
+  /**
+   * @deprecated It will be removed in 2.0.0.
+   */
+  @Deprecated
   public static final PropertyKey USER_FILE_CACHE_PARTIALLY_READ_BLOCK =
       new Builder(Name.USER_FILE_CACHE_PARTIALLY_READ_BLOCK)
           .setDefaultValue(true)
-          .setDescription("When read type is CACHE_PROMOTE or CACHE and this property is set "
-              + "to true, the entire block will be cached by Alluxio space even if the client "
-              + "only reads a part of this block.")
+          .setDescription("This property is deprecated as of 1.7 and has no effect. Use the read "
+              + "type to control caching behavior.")
           .build();
   public static final PropertyKey USER_FILE_COPY_FROM_LOCAL_WRITE_LOCATION_POLICY =
       new Builder(Name.USER_FILE_COPY_FROM_LOCAL_WRITE_LOCATION_POLICY)
@@ -2429,6 +2455,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.underfs.oss.connection.timeout";
     public static final String UNDERFS_OSS_CONNECT_TTL = "alluxio.underfs.oss.connection.ttl";
     public static final String UNDERFS_OSS_SOCKET_TIMEOUT = "alluxio.underfs.oss.socket.timeout";
+    public static final String UNDERFS_S3A_BULK_DELETE_ENABLED =
+        "alluxio.underfs.s3a.bulk.delete.enabled";
     public static final String UNDERFS_S3A_INHERIT_ACL = "alluxio.underfs.s3a.inherit_acl";
     public static final String UNDERFS_S3A_CONSISTENCY_TIMEOUT_MS =
         "alluxio.underfs.s3a.consistency.timeout";
@@ -2655,6 +2683,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.worker.network.netty.writer.buffer.size.packets";
     public static final String WORKER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS =
         "alluxio.worker.network.netty.reader.buffer.size.packets";
+    public static final String WORKER_NETWORK_NETTY_ASYNC_CACHE_MANAGER_THREADS_MAX =
+        "alluxio.worker.network.netty.async.cache.manager.threads.max";
     public static final String WORKER_NETWORK_NETTY_BLOCK_READER_THREADS_MAX =
         "alluxio.worker.network.netty.block.reader.threads.max";
     public static final String WORKER_NETWORK_NETTY_BLOCK_WRITER_THREADS_MAX =
@@ -3175,6 +3205,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   /** Whether to ignore as a site property. */
   private final boolean mIgnoredSiteProperty;
 
+  /** Whether to hide in document. */
+  private final boolean mIsHidden;
+
   /**
    * @param name String of this property
    * @param description String description of this property key
@@ -3184,20 +3217,21 @@ public final class PropertyKey implements Comparable<PropertyKey> {
    *                            in site properties file
    */
   private PropertyKey(String name, String description, Object defaultValue, String[] aliases,
-      boolean ignoredSiteProperty) {
+      boolean ignoredSiteProperty, boolean isHidden) {
     mName = Preconditions.checkNotNull(name, "name");
     // TODO(binfan): null check after we add description for each property key
     mDescription = Strings.isNullOrEmpty(description) ? "N/A" : description;
     mDefaultValue = defaultValue;
     mAliases = aliases;
     mIgnoredSiteProperty = ignoredSiteProperty;
+    mIsHidden = isHidden;
   }
 
   /**
    * @param name String of this property
    */
   private PropertyKey(String name) {
-    this(name, null, null, null, false);
+    this(name, null, null, null, false, false);
   }
 
   /**
@@ -3212,9 +3246,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
    *                            in the site properties file
    */
   static PropertyKey create(String name, Object defaultValue, String[] aliases,
-      String description, boolean ignoredSiteProperty) {
-    PropertyKey key =
-            new PropertyKey(name, description, defaultValue, aliases, ignoredSiteProperty);
+      String description, boolean ignoredSiteProperty, boolean isHidden) {
+    PropertyKey key = new PropertyKey(
+        name, description, defaultValue, aliases, ignoredSiteProperty, isHidden);
     DEFAULT_KEYS_MAP.put(name, key);
     if (aliases != null) {
       for (String alias : aliases) {
@@ -3299,6 +3333,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
    */
   public boolean isIgnoredSiteProperty() {
     return mIgnoredSiteProperty;
+  }
+
+  /**
+   * @return true if this property should not show up in the document
+   */
+  public boolean isHidden() {
+    return mIsHidden;
   }
 
   /**
