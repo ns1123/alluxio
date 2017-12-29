@@ -371,6 +371,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.SetAttributeEntryOrBuilder getSetAttributeOrBuilder();
 
+    // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
     /**
      * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
      *
@@ -399,6 +400,7 @@ public final class Journal {
      */
     alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder();
 
+    // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
     /**
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
      */
@@ -412,6 +414,7 @@ public final class Journal {
      */
     alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder();
 
+    // optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;
     /**
      * <code>optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;</code>
      */
@@ -425,6 +428,7 @@ public final class Journal {
      */
     alluxio.proto.journal.Privilege.PrivilegeUpdateEntryOrBuilder getPrivilegeUpdateOrBuilder();
 
+    // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
     /**
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
      */
@@ -438,6 +442,7 @@ public final class Journal {
      */
     alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder();
 
+    // repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;
     /**
      * <code>repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;</code>
      *
@@ -1548,6 +1553,7 @@ public final class Journal {
       return setAttribute_;
     }
 
+    // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
     public static final int FINISH_JOB_FIELD_NUMBER = 1002;
     private alluxio.proto.journal.Job.FinishJobEntry finishJob_;
     /**
@@ -1584,6 +1590,7 @@ public final class Journal {
       return finishJob_;
     }
 
+    // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
     public static final int LICENSE_CHECK_FIELD_NUMBER = 1001;
     private alluxio.proto.journal.License.LicenseCheckEntry licenseCheck_;
     /**
@@ -1605,6 +1612,7 @@ public final class Journal {
       return licenseCheck_;
     }
 
+    // optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;
     public static final int PRIVILEGE_UPDATE_FIELD_NUMBER = 1004;
     private alluxio.proto.journal.Privilege.PrivilegeUpdateEntry privilegeUpdate_;
     /**
@@ -1626,6 +1634,7 @@ public final class Journal {
       return privilegeUpdate_;
     }
 
+    // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
     public static final int START_JOB_FIELD_NUMBER = 1003;
     private alluxio.proto.journal.Job.StartJobEntry startJob_;
     /**
@@ -1647,6 +1656,7 @@ public final class Journal {
       return startJob_;
     }
 
+    // repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;
     public static final int JOURNAL_ENTRIES_FIELD_NUMBER = 1005;
     private java.util.List<alluxio.proto.journal.Journal.JournalEntry> journalEntries_;
     /**
@@ -5707,6 +5717,7 @@ public final class Journal {
         return setAttributeBuilder_;
       }
 
+      // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
       private alluxio.proto.journal.Job.FinishJobEntry finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder> finishJobBuilder_;
@@ -5860,7 +5871,7 @@ public final class Journal {
         if (finishJobBuilder_ == null) {
           finishJobBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder>(
-                  getFinishJob(),
+                  finishJob_,
                   getParentForChildren(),
                   isClean());
           finishJob_ = null;
@@ -5868,6 +5879,7 @@ public final class Journal {
         return finishJobBuilder_;
       }
 
+      // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
       private alluxio.proto.journal.License.LicenseCheckEntry licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder> licenseCheckBuilder_;
@@ -5976,7 +5988,7 @@ public final class Journal {
         if (licenseCheckBuilder_ == null) {
           licenseCheckBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder>(
-                  getLicenseCheck(),
+                  licenseCheck_,
                   getParentForChildren(),
                   isClean());
           licenseCheck_ = null;
@@ -5984,6 +5996,7 @@ public final class Journal {
         return licenseCheckBuilder_;
       }
 
+      // optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;
       private alluxio.proto.journal.Privilege.PrivilegeUpdateEntry privilegeUpdate_ = alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Privilege.PrivilegeUpdateEntry, alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.Builder, alluxio.proto.journal.Privilege.PrivilegeUpdateEntryOrBuilder> privilegeUpdateBuilder_;
@@ -6092,7 +6105,7 @@ public final class Journal {
         if (privilegeUpdateBuilder_ == null) {
           privilegeUpdateBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Privilege.PrivilegeUpdateEntry, alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.Builder, alluxio.proto.journal.Privilege.PrivilegeUpdateEntryOrBuilder>(
-                  getPrivilegeUpdate(),
+                  privilegeUpdate_,
                   getParentForChildren(),
                   isClean());
           privilegeUpdate_ = null;
@@ -6100,6 +6113,7 @@ public final class Journal {
         return privilegeUpdateBuilder_;
       }
 
+      // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
       private alluxio.proto.journal.Job.StartJobEntry startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder> startJobBuilder_;
@@ -6208,7 +6222,7 @@ public final class Journal {
         if (startJobBuilder_ == null) {
           startJobBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder>(
-                  getStartJob(),
+                  startJob_,
                   getParentForChildren(),
                   isClean());
           startJob_ = null;
@@ -6216,6 +6230,7 @@ public final class Journal {
         return startJobBuilder_;
       }
 
+      // repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;
       private java.util.List<alluxio.proto.journal.Journal.JournalEntry> journalEntries_ =
         java.util.Collections.emptyList();
       private void ensureJournalEntriesIsMutable() {
@@ -6407,8 +6422,7 @@ public final class Journal {
           java.lang.Iterable<? extends alluxio.proto.journal.Journal.JournalEntry> values) {
         if (journalEntriesBuilder_ == null) {
           ensureJournalEntriesIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, journalEntries_);
+          super.addAll(values, journalEntries_);
           onChanged();
         } else {
           journalEntriesBuilder_.addAllMessages(values);
@@ -6640,7 +6654,7 @@ public final class Journal {
           internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-              new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", });
+              new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", "FinishJob", "LicenseCheck", "PrivilegeUpdate", "StartJob", "JournalEntries", });
           return null;
         }
       };
@@ -6655,33 +6669,6 @@ public final class Journal {
           alluxio.proto.journal.Privilege.getDescriptor(),
           alluxio.proto.journal.Lineage.getDescriptor(),
         }, assigner);
-<<<<<<< HEAD
-    internal_static_alluxio_proto_journal_JournalEntry_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-        new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", "FinishJob", "LicenseCheck", "PrivilegeUpdate", "StartJob", "JournalEntries", });
-    alluxio.proto.journal.Block.getDescriptor();
-    alluxio.proto.journal.File.getDescriptor();
-    alluxio.proto.journal.KeyValue.getDescriptor();
-    alluxio.proto.journal.Job.getDescriptor();
-    alluxio.proto.journal.License.getDescriptor();
-    alluxio.proto.journal.Privilege.getDescriptor();
-    alluxio.proto.journal.Lineage.getDescriptor();
-||||||| merged common ancestors
-    internal_static_alluxio_proto_journal_JournalEntry_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-        new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", });
-    alluxio.proto.journal.Block.getDescriptor();
-    alluxio.proto.journal.File.getDescriptor();
-    alluxio.proto.journal.KeyValue.getDescriptor();
-    alluxio.proto.journal.Lineage.getDescriptor();
-=======
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
   }
 
   // @@protoc_insertion_point(outer_class_scope)
