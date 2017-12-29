@@ -31,6 +31,16 @@ public final class MasterContext {
     mSafeModeManager = Preconditions.checkNotNull(safeModeManager, "safeModeManager");
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param journalSystem the journal system to use for tracking master operations
+   */
+  public MasterContext(JournalSystem journalSystem) {
+    mJournalSystem = Preconditions.checkNotNull(journalSystem, "journalSystem");
+    mSafeModeManager = null;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return the journal system to use for tracking master operations
    */

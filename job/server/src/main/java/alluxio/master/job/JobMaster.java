@@ -28,8 +28,8 @@ import alluxio.job.meta.MasterWorkerInfo;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractNonJournaledMaster;
+import alluxio.master.MasterContext;
 import alluxio.master.job.command.CommandManager;
-import alluxio.master.journal.JournalSystem;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.RegisterCommand;
@@ -105,11 +105,11 @@ public final class JobMaster extends AbstractNonJournaledMaster {
   /**
    * Creates a new instance of {@link JobMaster}.
    *
-   * @param journalSystem the journal system to use for tracking master operations
+   * @param masterContext the context for Alluxio master
    * @param ufsManager the ufs manager
    */
-  public JobMaster(JournalSystem journalSystem, UfsManager ufsManager) {
-    super(journalSystem, new SystemClock(), ExecutorServiceFactories
+  public JobMaster(MasterContext masterContext, UfsManager ufsManager) {
+    super(masterContext, new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mCommandManager = new CommandManager();

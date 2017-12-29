@@ -107,9 +107,13 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
     // Construct the partial read request
     Protocol.ReadRequest.Builder builder =
         Protocol.ReadRequest.newBuilder().setBlockId(blockId).setPromote(promote);
-    if (status.isPersisted()) { // Add UFS fallback options
-      builder.setOpenUfsBlockOptions(options.getOpenUfsBlockOptions(blockId));
+    // Add UFS fallback options
+    builder.setOpenUfsBlockOptions(options.getOpenUfsBlockOptions(blockId));
+    // ALLUXIO CS ADD
+    if (options.getCapabilityFetcher() != null) {
+      builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
     }
+    // ALLUXIO CS END
 
     boolean shortCircuit = Configuration.getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED);
     boolean sourceSupportsDomainSocket = !NettyUtils.isDomainSocketSupported(dataSource);
@@ -127,31 +131,12 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
             + "network transfer", blockId, dataSource);
       }
     }
-<<<<<<< HEAD
-    Protocol.ReadRequest.Builder builder = Protocol.ReadRequest.newBuilder().setBlockId(blockId)
-        .setPromote(options.getAlluxioStorageType().isPromote());
-    // ALLUXIO CS ADD
-    if (options.getCapabilityFetcher() != null) {
-      builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
-    }
-    // ALLUXIO CS END
-    if (openUfsBlockOptions != null) {
-      builder.setOpenUfsBlockOptions(openUfsBlockOptions);
-    }
-||||||| merged common ancestors
-    Protocol.ReadRequest.Builder builder = Protocol.ReadRequest.newBuilder().setBlockId(blockId)
-        .setPromote(options.getAlluxioStorageType().isPromote());
-    if (openUfsBlockOptions != null) {
-      builder.setOpenUfsBlockOptions(openUfsBlockOptions);
-    }
-=======
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
 
     // Netty
     LOG.debug("Creating netty input stream for block {} @ {} from client {} reading through {}",
         blockId, dataSource, NetworkAddressUtils.getClientHostName(), dataSource);
     return createNettyBlockInStream(context, dataSource, dataSourceType, builder.buildPartial(),
-        blockSize);
+        blockSize, options);
   }
 
   /**
@@ -187,11 +172,12 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
    * @param blockSource the source location of the block
    * @param blockSize the block size
    * @param readRequestPartial the partial read request
+   * @param options the in stream options
    * @return the {@link BlockInStream} created
    */
   private static BlockInStream createNettyBlockInStream(FileSystemContext context,
       WorkerNetAddress address, BlockInStreamSource blockSource,
-      Protocol.ReadRequest readRequestPartial, long blockSize) {
+      Protocol.ReadRequest readRequestPartial, long blockSize, InStreamOptions options) {
     long packetSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
@@ -221,6 +207,11 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
   public static BlockInStream createRemoteBlockInStream(FileSystemContext context, long blockId,
       WorkerNetAddress address, BlockInStreamSource blockSource,
       Protocol.OpenUfsBlockOptions ufsOptions) {
+    // ALLUXIO CS ADD
+    // We don't need to adjust the packet size based on encryption flag, because this is worker to
+    // worker communication and we are supposed to read raw and encrypted block from the remote
+    // worker.
+    // ALLUXIO CS END
     long packetSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
     Protocol.ReadRequest readRequest = Protocol.ReadRequest.newBuilder().setBlockId(blockId)

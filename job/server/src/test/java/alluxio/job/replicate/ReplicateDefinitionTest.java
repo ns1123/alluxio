@@ -38,7 +38,6 @@ import alluxio.exception.NoWorkerException;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
-import alluxio.proto.dataserver.Protocol;
 import alluxio.underfs.UfsManager;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -144,7 +143,7 @@ public final class ReplicateDefinitionTest {
     when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
 
     when(mMockBlockStore.getAllWorkers()).thenReturn(blockWorkers);
-    when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(Protocol.OpenUfsBlockOptions.class),
+    when(mMockBlockStore.getInStream(any(BlockInfo.class),
             any(InStreamOptions.class))).thenReturn(mockInStream);
     when(
         mMockBlockStore.getOutStream(eq(TEST_BLOCK_ID), eq(-1L), eq(LOCAL_ADDRESS),

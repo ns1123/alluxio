@@ -242,7 +242,7 @@ public final class CryptoFileInStream extends FileInStream {
     int physicalChunkSize = (int) (mMeta.getChunkHeaderSize() + mMeta.getChunkFooterSize()
         + Math.min(mLogicalFileLength - mLogicalChunkStart, mMeta.getChunkSize()));
     byte[] cipherChunk = new byte[physicalChunkSize];
-    int ciphertextSize = super.readInternal(cipherChunk, 0, physicalChunkSize);
+    int ciphertextSize = super.read(cipherChunk, 0, physicalChunkSize);
     if (ciphertextSize <= 0) {
       throw new IOException("Failed to create a new crypto buffer: no ciphertext was read.");
     }

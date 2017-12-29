@@ -378,24 +378,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    * @param blockMaster a block master handle
    * @param masterContext the context for Alluxio master
    */
-<<<<<<< HEAD
-  DefaultFileSystemMaster(BlockMaster blockMaster, JournalSystem journalSystem) {
+  DefaultFileSystemMaster(BlockMaster blockMaster, MasterContext masterContext) {
     // ALLUXIO CS REPLACE
-    // this(blockMaster, journalSystem, ExecutorServiceFactories
+    // this(blockMaster, masterContext, ExecutorServiceFactories
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
-    this(blockMaster, journalSystem, ExecutorServiceFactories
+    this(blockMaster, masterContext, ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 7));
     // ALLUXIO CS END
-||||||| merged common ancestors
-  DefaultFileSystemMaster(BlockMaster blockMaster, JournalSystem journalSystem) {
-    this(blockMaster, journalSystem, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
-=======
-  DefaultFileSystemMaster(BlockMaster blockMaster, MasterContext masterContext) {
-    this(blockMaster, masterContext, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
   }
 
   /**

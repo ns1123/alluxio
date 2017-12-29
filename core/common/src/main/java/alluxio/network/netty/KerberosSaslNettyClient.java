@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.client.netty;
+package alluxio.network.netty;
 
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosUtils;

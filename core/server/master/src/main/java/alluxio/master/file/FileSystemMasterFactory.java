@@ -53,21 +53,16 @@ public final class FileSystemMasterFactory implements MasterFactory {
     Preconditions.checkArgument(journalFactory != null, "journal factory may not be null");
     LOG.info("Creating {} ", FileSystemMaster.class.getName());
     BlockMaster blockMaster = registry.get(BlockMaster.class);
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster, journalFactory);
+    // FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
+    //     new MasterContext(journalFactory, safeModeManager));
     // ALLUXIO CS WITH
     alluxio.master.privilege.PrivilegeMaster privilegeMaster =
         registry.get(alluxio.master.privilege.PrivilegeMaster.class);
     FileSystemMaster fileSystemMaster =
-        new PrivilegedFileSystemMaster(blockMaster, privilegeMaster, journalFactory);
+        new PrivilegedFileSystemMaster(blockMaster, privilegeMaster,
+            new MasterContext(journalFactory, safeModeManager));
     // ALLUXIO CS END
-||||||| merged common ancestors
-    FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster, journalFactory);
-=======
-    FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
-        new MasterContext(journalFactory, safeModeManager));
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
     registry.add(FileSystemMaster.class, fileSystemMaster);
     return fileSystemMaster;
   }

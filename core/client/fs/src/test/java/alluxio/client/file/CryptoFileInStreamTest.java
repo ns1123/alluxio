@@ -15,10 +15,8 @@ import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
-import alluxio.client.ReadType;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
-import alluxio.client.block.stream.BlockInStream;
 import alluxio.client.block.stream.BlockInStream.BlockInStreamSource;
 import alluxio.client.block.stream.BlockOutStream;
 import alluxio.client.block.stream.TestBlockInStream;
@@ -29,9 +27,9 @@ import alluxio.client.security.CryptoUtils;
 import alluxio.client.util.ClientTestUtils;
 import alluxio.client.util.EncryptionMetaTestUtils;
 import alluxio.exception.PreconditionMessage;
-import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.io.BufferUtils;
+import alluxio.wire.BlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerNetAddress;
 
@@ -145,17 +143,14 @@ public final class CryptoFileInStreamTest {
       Mockito.when(mBlockStore.getEligibleWorkers())
           .thenReturn(Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress(), 0, 0)));
       Mockito
-          .when(mBlockStore.getInStream(Mockito.eq((long) i), Mockito.any(
-              Protocol.OpenUfsBlockOptions.class), Mockito.any(InStreamOptions.class)))
-          .thenAnswer(new Answer<BlockInStream>() {
-            @Override
-            public BlockInStream answer(InvocationOnMock invocation) throws Throwable {
-              long i = (Long) invocation.getArguments()[0];
-              byte[] input = getBlockData((int) i);
-              // TODO(chaomin): add more sources
-              return new TestBlockInStream(input, i, input.length, false,
-                  BlockInStreamSource.LOCAL);
-            }
+          .when(mBlockStore.getInStream(Mockito.any((BlockInfo.class)),
+             Mockito.any(InStreamOptions.class)))
+          .thenAnswer((InvocationOnMock invocation) -> {
+            long blockId = ((BlockInfo) invocation.getArguments()[0]).getBlockId();
+            byte[] input = getBlockData((int) blockId);
+            // TODO(chaomin): add more sources
+            return new TestBlockInStream(input, blockId, input.length, false,
+                BlockInStreamSource.LOCAL);
           });
       Mockito.when(mBlockStore.getOutStream(Mockito.eq((long) i), Mockito.anyLong(),
           Mockito.any(WorkerNetAddress.class), Mockito.any(OutStreamOptions.class)))
@@ -170,9 +165,7 @@ public final class CryptoFileInStreamTest {
     mInfo.setBlockIds(blockIds);
     mStatus = new URIStatus(mInfo);
 
-    InStreamOptions options = InStreamOptions.defaults()
-        .setReadType(ReadType.CACHE_PROMOTE)
-        .setCachePartiallyReadBlock(false)
+    InStreamOptions options = new InStreamOptions(mStatus)
         .setEncrypted(true)
         .setEncryptionMeta(mMeta);
     mTestStream = new CryptoFileInStream(mStatus, options, mContext);
@@ -369,8 +362,7 @@ public final class CryptoFileInStreamTest {
   @Test
   public void missingLocationPolicy() {
     try {
-      mTestStream = new CryptoFileInStream(mStatus,
-          InStreamOptions.defaults().setReadType(ReadType.CACHE).setLocationPolicy(null), mContext);
+      mTestStream = new CryptoFileInStream(mStatus, new InStreamOptions(mStatus), mContext);
     } catch (NullPointerException e) {
       Assert.assertEquals(PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED.toString(),
           e.getMessage());

@@ -11,7 +11,7 @@
 
 package alluxio.master.security.capability;
 
-import alluxio.client.netty.NettySecretKeyWriter;
+import alluxio.network.netty.NettySecretKeyWriter;
 import alluxio.exception.status.UnavailableException;
 import alluxio.master.block.BlockMaster;
 import alluxio.security.capability.CapabilityKey;

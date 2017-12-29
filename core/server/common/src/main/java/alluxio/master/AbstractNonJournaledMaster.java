@@ -11,14 +11,13 @@
 
 package alluxio.master;
 
-import alluxio.clock.Clock;
-import alluxio.master.journal.JournalSystem;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.util.executor.ExecutorServiceFactory;
 
 import com.google.common.collect.Iterators;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Iterator;
 
 /**
@@ -26,13 +25,13 @@ import java.util.Iterator;
  */
 public abstract class AbstractNonJournaledMaster extends AbstractMaster {
   /**
-   * @param journalSystem the journal system to use for tracking master operations
+   * @param masterContext the context for Alluxio master
    * @param clock the Clock to use for determining the time
    * @param executorServiceFactory a factory for creating the executor service to use for
    */
-  protected AbstractNonJournaledMaster(JournalSystem journalSystem, Clock clock,
+  protected AbstractNonJournaledMaster(MasterContext masterContext, Clock clock,
       ExecutorServiceFactory executorServiceFactory) {
-    super(journalSystem, clock, executorServiceFactory);
+    super(masterContext, clock, executorServiceFactory);
   }
 
   @Override

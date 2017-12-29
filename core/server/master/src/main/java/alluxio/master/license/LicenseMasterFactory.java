@@ -13,6 +13,7 @@ package alluxio.master.license;
 
 import alluxio.Constants;
 import alluxio.LicenseConstants;
+import alluxio.master.MasterContext;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
 import alluxio.master.SafeModeManager;
@@ -54,6 +55,6 @@ public final class LicenseMasterFactory implements MasterFactory {
     }
     Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} ", LicenseMaster.class.getName());
-    return new LicenseMaster(registry, journalSystem);
+    return new LicenseMaster(registry, new MasterContext(journalSystem, safeModeManager));
   }
 }

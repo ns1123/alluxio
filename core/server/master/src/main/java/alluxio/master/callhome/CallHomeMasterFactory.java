@@ -15,6 +15,7 @@ import alluxio.CallHomeConstants;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.master.MasterContext;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
 import alluxio.master.SafeModeManager;
@@ -57,6 +58,6 @@ public final class CallHomeMasterFactory implements MasterFactory {
     }
     Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} ", CallHomeMaster.class.getName());
-    return new CallHomeMaster(registry, journalSystem);
+    return new CallHomeMaster(registry, new MasterContext(journalSystem, safeModeManager));
   }
 }

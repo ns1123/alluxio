@@ -9,11 +9,12 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.client.netty;
+package alluxio.network.netty;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.network.ChannelType;
+import alluxio.network.netty.KerberosSaslClientHandler;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCMessageDecoder;
 import alluxio.network.protocol.RPCMessageEncoder;

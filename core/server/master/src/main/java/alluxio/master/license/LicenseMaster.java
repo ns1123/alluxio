@@ -23,10 +23,10 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
+import alluxio.master.MasterContext;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.journal.JournalContext;
-import alluxio.master.journal.JournalSystem;
 import alluxio.proto.journal.Journal;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
@@ -87,10 +87,10 @@ public class LicenseMaster extends AbstractMaster {
    * Creates a new instance of {@link LicenseMaster}.
    *
    * @param registry the master registry
-   * @param journalSystem the journal system to use for tracking master operations
+   * @param masterContext the context for Alluxio master
    */
-  public LicenseMaster(MasterRegistry registry, JournalSystem journalSystem) {
-    super(journalSystem, new SystemClock(), ExecutorServiceFactories
+  public LicenseMaster(MasterRegistry registry, MasterContext masterContext) {
+    super(masterContext, new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
     mBlockMaster = registry.get(BlockMaster.class);
     mLicenseCheck = new LicenseCheck();

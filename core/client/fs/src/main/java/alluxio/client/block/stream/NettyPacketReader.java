@@ -128,7 +128,7 @@ public final class NettyPacketReader implements PacketReader {
     // ALLUXIO CS ADD
     // TODO(peis): Move this logic to NettyClient.
     try {
-      alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
+      alluxio.network.netty.NettyClient.waitForChannelReady(mChannel);
     } catch (IOException e) {
       throw alluxio.exception.status.AlluxioStatusException.fromIOException(e);
     }

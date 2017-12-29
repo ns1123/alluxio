@@ -27,6 +27,7 @@ import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.exception.status.PermissionDeniedException;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
+import alluxio.master.MasterContext;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.PersistenceState;
@@ -43,7 +44,6 @@ import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.master.file.options.WorkerHeartbeatOptions;
-import alluxio.master.journal.JournalSystem;
 import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.proto.journal.Journal;
@@ -86,11 +86,11 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
    *
    * @param blockMaster the block master
    * @param privilegeMaster the privilege master
-   * @param journalSystem the journal system
+   * @param masterContext the context for Alluxio master
    */
   PrivilegedFileSystemMaster(BlockMaster blockMaster, PrivilegeMaster privilegeMaster,
-      JournalSystem journalSystem) {
-    mFileSystemMaster = new DefaultFileSystemMaster(blockMaster, journalSystem);
+      MasterContext masterContext) {
+    mFileSystemMaster = new DefaultFileSystemMaster(blockMaster, masterContext);
     mPrivilegeChecker = new PrivilegeChecker(privilegeMaster);
   }
 

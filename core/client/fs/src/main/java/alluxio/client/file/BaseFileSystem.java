@@ -370,21 +370,21 @@ public class BaseFileSystem implements FileSystem {
   private alluxio.proto.security.EncryptionProto.Meta getEncryptionMetaFromFooter(URIStatus status)
       throws IOException {
     long fileId = status.getFileId();
-    InStreamOptions inStreamOptions = InStreamOptions.defaults()
-        .setReadType(alluxio.client.ReadType.NO_CACHE)
-        .setEncrypted(false);
+    InStreamOptions inStreamOptions = new InStreamOptions(status).setEncrypted(false);
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
           new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
               status.getCapability()));
     }
-    FileInStream fileInStream = FileInStream.create(status, inStreamOptions, mFileSystemContext);
     final int footerMaxSize = alluxio.client.LayoutUtils.getFooterMaxSize();
-    if (status.getLength() > footerMaxSize) {
-      fileInStream.seek(status.getLength() - footerMaxSize);
-    }
     byte[] footerBytes = new byte[footerMaxSize];
-    fileInStream.read(footerBytes, 0, footerMaxSize);
+    try (
+        FileInStream fileInStream = new FileInStream(status, inStreamOptions, mFileSystemContext)) {
+      if (status.getLength() > footerMaxSize) {
+        fileInStream.seek(status.getLength() - footerMaxSize);
+      }
+      fileInStream.read(footerBytes, 0, footerMaxSize);
+    }
     alluxio.proto.layout.FileFooter.FileMetadata fileMetadata =
         alluxio.client.LayoutUtils.decodeFooter(footerBytes);
     alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey;
@@ -506,8 +506,7 @@ public class BaseFileSystem implements FileSystem {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
     }
-<<<<<<< HEAD
-    InStreamOptions inStreamOptions = options.toInStreamOptions();
+    InStreamOptions inStreamOptions = options.toInStreamOptions(status);
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
@@ -536,14 +535,7 @@ public class BaseFileSystem implements FileSystem {
       }
     }
     // ALLUXIO CS END
-    return FileInStream.create(status, inStreamOptions, mFileSystemContext);
-||||||| merged common ancestors
-    InStreamOptions inStreamOptions = options.toInStreamOptions();
-    return FileInStream.create(status, inStreamOptions, mFileSystemContext);
-=======
-    InStreamOptions inStreamOptions = options.toInStreamOptions(status);
     return new FileInStream(status, inStreamOptions, mFileSystemContext);
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
   }
 
   @Override

@@ -26,8 +26,6 @@ import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
-import alluxio.master.block.BlockId;
-import alluxio.proto.dataserver.Protocol;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.BlockInfo;
@@ -185,25 +183,11 @@ public final class ReplicateDefinition
    */
   private InputStream createInputStream(URIStatus status, long blockId,
       AlluxioBlockStore blockStore) throws AlluxioException, IOException {
-    InStreamOptions options = InStreamOptions.defaults();
+    InStreamOptions options = new InStreamOptions(status);
     if (status.getCapability() != null) {
       options.setCapabilityFetcher(
           new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
     }
-    Protocol.OpenUfsBlockOptions openUfsBlockOptions = null;
-    if (status.isPersisted()) {
-      String ufsPath = status.getUfsPath();
-      long mountId = status.getMountId();
-      long blockSize = status.getBlockSizeBytes();
-      long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
-      openUfsBlockOptions =
-          Protocol.OpenUfsBlockOptions.newBuilder().setBlockSize(blockSize).setMountId(mountId)
-              .setUfsPath(ufsPath).setOffsetInFile(blockStart)
-              .setMaxUfsReadConcurrency(options.getMaxUfsReadConcurrency())
-              .setNoCache(!options.getAlluxioStorageType().isStore())
-              .build();
-    }
-
-    return blockStore.getInStream(blockId, openUfsBlockOptions, options);
+    return blockStore.getInStream(options.getBlockInfo(blockId), options);
   }
 }

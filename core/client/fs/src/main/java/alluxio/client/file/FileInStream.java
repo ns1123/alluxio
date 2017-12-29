@@ -82,59 +82,7 @@ public class FileInStream extends InputStream implements BoundedStream, Position
 
   protected FileInStream(URIStatus status, InStreamOptions options, FileSystemContext context) {
     mStatus = status;
-<<<<<<< HEAD
-    mPositionState = new PositionState(mStatus.getLength(), mStatus.getBlockIds(),
-        mStatus.getBlockSizeBytes());
-    mInStreamOptions = options;
-    mOutStreamOptions = OutStreamOptions.defaults();
-    // ALLUXIO CS ADD
-    // Need to explicitly set the capability in outStreamOptions when caching passively.
-    if (mStatus.getCapability() != null) {
-      mOutStreamOptions.setCapabilityFetcher(new alluxio.client.security.CapabilityFetcher(
-          context, mStatus.getPath(), mStatus.getCapability()));
-    }
-    // Inherit the encryption metadata from InStreamOptions if the file is encrypted.
-    mOutStreamOptions.setEncrypted(options.isEncrypted());
-    if (options.isEncrypted()) {
-      mOutStreamOptions.setEncryptionMeta(options.getEncryptionMeta());
-    }
-    // ALLUXIO CS END
-    mBlockSize = status.getBlockSizeBytes();
-    mFileLength = status.getLength();
-    mContext = context;
-    mAlluxioStorageType = options.getAlluxioStorageType();
-    mShouldCache = mAlluxioStorageType.isStore();
-    mCachePartiallyReadBlock = options.isCachePartiallyReadBlock();
-    mClosed = false;
-    if (mShouldCache) {
-      Preconditions.checkNotNull(options.getCacheLocationPolicy(),
-          PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
-    }
-
-    int seekBufferSizeBytes = Math.max((int) options.getSeekBufferSizeBytes(), 1);
-    mSeekBuffer = new byte[seekBufferSizeBytes];
-||||||| merged common ancestors
-    mPositionState = new PositionState(mStatus.getLength(), mStatus.getBlockIds(),
-        mStatus.getBlockSizeBytes());
-    mInStreamOptions = options;
-    mOutStreamOptions = OutStreamOptions.defaults();
-    mBlockSize = status.getBlockSizeBytes();
-    mFileLength = status.getLength();
-    mContext = context;
-    mAlluxioStorageType = options.getAlluxioStorageType();
-    mShouldCache = mAlluxioStorageType.isStore();
-    mCachePartiallyReadBlock = options.isCachePartiallyReadBlock();
-    mClosed = false;
-    if (mShouldCache) {
-      Preconditions.checkNotNull(options.getCacheLocationPolicy(),
-          PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
-    }
-
-    int seekBufferSizeBytes = Math.max((int) options.getSeekBufferSizeBytes(), 1);
-    mSeekBuffer = new byte[seekBufferSizeBytes];
-=======
     mOptions = options;
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
     mBlockStore = AlluxioBlockStore.create(context);
     mContext = context;
 
@@ -166,70 +114,6 @@ public class FileInStream extends InputStream implements BoundedStream, Position
 
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
-<<<<<<< HEAD
-    return readInternal(b, off, len);
-  }
-
-  private int readInternal() throws IOException {
-    if (mPositionState.isEOF()) {
-      return EOF_DATA;
-    }
-    updateStreams();
-    Preconditions.checkState(mCurrentBlockInStream != null, PreconditionMessage.ERR_UNEXPECTED_EOF);
-
-    int data = mCurrentBlockInStream.read();
-    if (data == EOF_DATA) {
-      // The underlying stream is done.
-      return EOF_DATA;
-    }
-
-    mPositionState.increment(1);
-    if (mCurrentCacheStream != null) {
-      try {
-        mCurrentCacheStream.write(data);
-      } catch (IOException e) {
-        handleCacheStreamException(e);
-      }
-    }
-    return data;
-  }
-
-  // ALLUXIO CS REPLACE
-  // private int readInternal(byte[] b, int off, int len) throws IOException {
-  // ALLUXIO CS WITH
-  protected int readInternal(byte[] b, int off, int len) throws IOException {
-    // ALLUXIO CS END
-||||||| merged common ancestors
-    return readInternal(b, off, len);
-  }
-
-  private int readInternal() throws IOException {
-    if (mPositionState.isEOF()) {
-      return EOF_DATA;
-    }
-    updateStreams();
-    Preconditions.checkState(mCurrentBlockInStream != null, PreconditionMessage.ERR_UNEXPECTED_EOF);
-
-    int data = mCurrentBlockInStream.read();
-    if (data == EOF_DATA) {
-      // The underlying stream is done.
-      return EOF_DATA;
-    }
-
-    mPositionState.increment(1);
-    if (mCurrentCacheStream != null) {
-      try {
-        mCurrentCacheStream.write(data);
-      } catch (IOException e) {
-        handleCacheStreamException(e);
-      }
-    }
-    return data;
-  }
-
-  private int readInternal(byte[] b, int off, int len) throws IOException {
-=======
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
     Preconditions.checkArgument(b != null, PreconditionMessage.ERR_READ_BUFFER_NULL);
     Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= b.length,
         PreconditionMessage.ERR_BUFFER_STATE.toString(), b.length, off, len);
@@ -283,46 +167,8 @@ public class FileInStream extends InputStream implements BoundedStream, Position
   }
 
   private int positionedReadInternal(long pos, byte[] b, int off, int len) throws IOException {
-<<<<<<< HEAD
-    if (pos < 0 || pos >= mFileLength) {
-      return EOF_DATA;
-    }
-
-    // If partial read cache is enabled, we fall back to the normal read.
-    if (shouldCachePartiallyReadBlock()) {
-      synchronized (this) {
-        long oldPos = mPositionState.getPos();
-        try {
-          seek(pos);
-          // ALLUXIO CS REPLACE
-          // return read(b, off, len);
-          // ALLUXIO CS WITH
-          return readInternal(b, off, len);
-          // ALLUXIO CS END
-        } finally {
-          seek(oldPos);
-        }
-      }
-||||||| merged common ancestors
-    if (pos < 0 || pos >= mFileLength) {
-      return EOF_DATA;
-    }
-
-    // If partial read cache is enabled, we fall back to the normal read.
-    if (shouldCachePartiallyReadBlock()) {
-      synchronized (this) {
-        long oldPos = mPositionState.getPos();
-        try {
-          seek(pos);
-          return read(b, off, len);
-        } finally {
-          seek(oldPos);
-        }
-      }
-=======
     if (pos < 0 || pos >= mLength) {
       return -1;
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
     }
 
     int lenCopy = len;
@@ -368,54 +214,11 @@ public class FileInStream extends InputStream implements BoundedStream, Position
       return;
     }
 
-<<<<<<< HEAD
-  /**
-   * Updates the streams to be able to start reading from the current file position.
-   * If the current file position is still in the range of the current stream, and the current
-   * stream still has remaining data, then this is a no-op;
-   * otherwise, both the block stream and the cache stream are updated.
-   */
-  private void updateStreams() throws IOException {
-    long blockId = mPositionState.getBlockId();
-    if (mCurrentBlockInStream != null && mCurrentBlockInStream.getId() == blockId
-        && mCurrentBlockInStream.remaining() != 0) {
-      return;
-    }
-    checkCacheStreamInSync();
-    updateBlockInStream(blockId);
-    // ALLUXIO CS REPLACE
-    // if (PASSIVE_CACHE_ENABLED) {
-    // ALLUXIO CS WITH
-    boolean overReplicated = mStatus.getReplicationMax() > 0
-        && mStatus.getFileBlockInfos().get((int) (mPositionState.getPos() / mBlockSize))
-        .getBlockInfo().getLocations().size() >= mStatus.getReplicationMax();
-    if (PASSIVE_CACHE_ENABLED && !overReplicated) {
-    // ALLUXIO CS END
-      updateCacheStream(blockId);
-||||||| merged common ancestors
-  /**
-   * Updates the streams to be able to start reading from the current file position.
-   * If the current file position is still in the range of the current stream, and the current
-   * stream still has remaining data, then this is a no-op;
-   * otherwise, both the block stream and the cache stream are updated.
-   */
-  private void updateStreams() throws IOException {
-    long blockId = mPositionState.getBlockId();
-    if (mCurrentBlockInStream != null && mCurrentBlockInStream.getId() == blockId
-        && mCurrentBlockInStream.remaining() != 0) {
-      return;
-    }
-    checkCacheStreamInSync();
-    updateBlockInStream(blockId);
-    if (PASSIVE_CACHE_ENABLED) {
-      updateCacheStream(blockId);
-=======
     long delta = pos - mPosition;
     if (delta <= mBlockInStream.remaining() && delta >= -mBlockInStream.getPos()) { // within block
       mBlockInStream.seek(mBlockInStream.getPos() + delta);
     } else { // close the underlying stream as the new position is no longer in bounds
       closeBlockInStream(mBlockInStream);
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
     }
     mPosition += delta;
   }
@@ -433,173 +236,6 @@ public class FileInStream extends InputStream implements BoundedStream, Position
       closeBlockInStream(mBlockInStream);
     }
 
-<<<<<<< HEAD
-    // Unlike updateBlockInStream below, we never start a block cache stream if mPos is in the
-    // middle of a block.
-    if (mPositionState.getPos() % mBlockSize != 0) {
-      return;
-    }
-
-    try {
-      // If this block is read from a remote worker, we should never cache except to a local worker.
-      WorkerNetAddress localWorker = mContext.getLocalWorker();
-      if (localWorker != null) {
-        mCurrentCacheStream =
-            mBlockStore.getOutStream(blockId, getBlockSize(mPositionState.getPos()), localWorker,
-                mOutStreamOptions);
-      }
-    } catch (IOException e) {
-      handleCacheStreamException(e);
-    }
-  }
-
-  /**
-   * Update {@link #mCurrentBlockInStream} to be in-sync with the current position.
-   * This function is only called in {@link #updateStreams()}.
-   *
-   * @param blockId the block ID
-   */
-  private void updateBlockInStream(long blockId) throws IOException {
-    if (mCurrentBlockInStream != null) {
-      mCurrentBlockInStream.close();
-      mCurrentBlockInStream = null;
-    }
-
-    if (blockId == PositionState.EOF_BLOCK_ID) {
-      return;
-    }
-    mCurrentBlockInStream = getBlockInStream(blockId);
-  }
-
-  /**
-   * Gets the block in stream corresponding a block ID.
-   *
-   * @param blockId the block ID
-   * @return the block in stream
-   */
-  private BlockInStream getBlockInStream(long blockId) throws IOException {
-    Protocol.OpenUfsBlockOptions openUfsBlockOptions = null;
-    boolean readFromUfs = mStatus.isPersisted();
-    // ALLUXIO CS ADD
-    // In case it is possible to fallback to read UFS blocks, also fill in the options.
-    boolean storedAsUfsBlock
-        = mStatus.getPersistenceState().equals("TO_BE_PERSISTED");
-    readFromUfs = readFromUfs || storedAsUfsBlock;
-    // ALLUXIO CS END
-    if (readFromUfs) {
-      long blockStart = BlockId.getSequenceNumber(blockId) * mBlockSize;
-      openUfsBlockOptions =
-          Protocol.OpenUfsBlockOptions.newBuilder().setUfsPath(mStatus.getUfsPath())
-              .setOffsetInFile(blockStart).setBlockSize(getBlockSize(blockStart))
-              .setMaxUfsReadConcurrency(mInStreamOptions.getMaxUfsReadConcurrency())
-              .setNoCache(!mInStreamOptions.getAlluxioStorageType().isStore())
-              .setMountId(mStatus.getMountId()).build();
-    }
-    // ALLUXIO CS ADD
-    // On client-side, we do not have enough mount information to fill in the UFS file path.
-    // Instead, we unset the ufsPath field and fill in a flag ufsBlock to indicate the UFS file
-    // path can be derived from mount id and the block ID. Also because the entire file is only
-    // one block, we set the offset in file to be zero.
-    if (storedAsUfsBlock) {
-      openUfsBlockOptions = openUfsBlockOptions.toBuilder().clearUfsPath().setBlockInUfsTier(true)
-          .setOffsetInFile(0).build();
-    }
-    // ALLUXIO CS END
-    return mBlockStore.getInStream(blockId, openUfsBlockOptions, mInStreamOptions);
-  }
-
-  /**
-   * Seeks to a file position. Blocks are not cached unless they are fully read. This is only called
-   * by {@link FileInStream#seek}.
-   *
-   * @param pos The position to seek to. It is guaranteed to be valid (pos >= 0 && pos != mPos &&
-   *        pos <= mFileLength)
-   */
-  private void seekInternal(long pos) throws IOException {
-    closeOrCancelCacheStream();
-    mPositionState.setPos(pos);
-    updateStreams();
-    if (mCurrentBlockInStream != null) {
-      mCurrentBlockInStream.seek(mPositionState.getPos() % mBlockSize);
-    } else {
-      Preconditions.checkState(mPositionState.isEOF());
-    }
-||||||| merged common ancestors
-    // Unlike updateBlockInStream below, we never start a block cache stream if mPos is in the
-    // middle of a block.
-    if (mPositionState.getPos() % mBlockSize != 0) {
-      return;
-    }
-
-    try {
-      // If this block is read from a remote worker, we should never cache except to a local worker.
-      WorkerNetAddress localWorker = mContext.getLocalWorker();
-      if (localWorker != null) {
-        mCurrentCacheStream =
-            mBlockStore.getOutStream(blockId, getBlockSize(mPositionState.getPos()), localWorker,
-                mOutStreamOptions);
-      }
-    } catch (IOException e) {
-      handleCacheStreamException(e);
-    }
-  }
-
-  /**
-   * Update {@link #mCurrentBlockInStream} to be in-sync with the current position.
-   * This function is only called in {@link #updateStreams()}.
-   *
-   * @param blockId the block ID
-   */
-  private void updateBlockInStream(long blockId) throws IOException {
-    if (mCurrentBlockInStream != null) {
-      mCurrentBlockInStream.close();
-      mCurrentBlockInStream = null;
-    }
-
-    if (blockId == PositionState.EOF_BLOCK_ID) {
-      return;
-    }
-    mCurrentBlockInStream = getBlockInStream(blockId);
-  }
-
-  /**
-   * Gets the block in stream corresponding a block ID.
-   *
-   * @param blockId the block ID
-   * @return the block in stream
-   */
-  private BlockInStream getBlockInStream(long blockId) throws IOException {
-    Protocol.OpenUfsBlockOptions openUfsBlockOptions = null;
-    boolean readFromUfs = mStatus.isPersisted();
-    if (readFromUfs) {
-      long blockStart = BlockId.getSequenceNumber(blockId) * mBlockSize;
-      openUfsBlockOptions =
-          Protocol.OpenUfsBlockOptions.newBuilder().setUfsPath(mStatus.getUfsPath())
-              .setOffsetInFile(blockStart).setBlockSize(getBlockSize(blockStart))
-              .setMaxUfsReadConcurrency(mInStreamOptions.getMaxUfsReadConcurrency())
-              .setNoCache(!mInStreamOptions.getAlluxioStorageType().isStore())
-              .setMountId(mStatus.getMountId()).build();
-    }
-    return mBlockStore.getInStream(blockId, openUfsBlockOptions, mInStreamOptions);
-  }
-
-  /**
-   * Seeks to a file position. Blocks are not cached unless they are fully read. This is only called
-   * by {@link FileInStream#seek}.
-   *
-   * @param pos The position to seek to. It is guaranteed to be valid (pos >= 0 && pos != mPos &&
-   *        pos <= mFileLength)
-   */
-  private void seekInternal(long pos) throws IOException {
-    closeOrCancelCacheStream();
-    mPositionState.setPos(pos);
-    updateStreams();
-    if (mCurrentBlockInStream != null) {
-      mCurrentBlockInStream.seek(mPositionState.getPos() % mBlockSize);
-    } else {
-      Preconditions.checkState(mPositionState.isEOF());
-    }
-=======
     /* Create a new stream to read from mPosition. */
     // Calculate block id.
     long blockId = mStatus.getBlockIds().get(Math.toIntExact(mPosition / mBlockSize));
@@ -608,7 +244,6 @@ public class FileInStream extends InputStream implements BoundedStream, Position
     // Set the stream to the correct position.
     long offset = mPosition % mBlockSize;
     mBlockInStream.seek(offset);
->>>>>>> 1a2e8078327a0651716e3313a4a085de4ff40ded
   }
 
   private void closeBlockInStream(BlockInStream stream) throws IOException {
@@ -628,6 +263,12 @@ public class FileInStream extends InputStream implements BoundedStream, Position
 
       // Send an async cache request to a worker based on read type and passive cache options.
       boolean cache = mOptions.getOptions().getReadType().isCache();
+      // ALLUXIO CS ADD
+      boolean overReplicated = mStatus.getReplicationMax() > 0
+          && mStatus.getFileBlockInfos().get((int) (getPos() / mBlockSize))
+          .getBlockInfo().getLocations().size() >= mStatus.getReplicationMax();
+      cache = cache && !overReplicated;
+      // ALLUXIO CS END
       boolean passiveCache = Configuration.getBoolean(PropertyKey.USER_FILE_PASSIVE_CACHE_ENABLED);
       long channelTimeout = Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
       if (cache) {

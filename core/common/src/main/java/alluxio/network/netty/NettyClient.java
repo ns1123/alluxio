@@ -109,7 +109,7 @@ public final class NettyClient {
    * is authenticated.
    *
    * @param channel the input channel
-   * @throws java.io.IOException if authentication failed
+   * @throws alluxio.exception.status.AlluxioStatusException if authentication failed
    */
   public static void waitForChannelReady(io.netty.channel.Channel channel)
       throws alluxio.exception.status.AlluxioStatusException {

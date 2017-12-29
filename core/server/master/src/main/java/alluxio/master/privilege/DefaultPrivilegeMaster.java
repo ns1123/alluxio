@@ -17,8 +17,8 @@ import alluxio.PropertyKey;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.master.AbstractMaster;
+import alluxio.master.MasterContext;
 import alluxio.master.journal.JournalContext;
-import alluxio.master.journal.JournalSystem;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
 import alluxio.resource.LockResource;
@@ -61,10 +61,10 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
   /**
    * Creates a new instance of {@link DefaultPrivilegeMaster}.
    *
-   * @param journalSystem the journal system to use for tracking master operations
+   * @param masterContext the context for Alluxio master
    */
-  DefaultPrivilegeMaster(JournalSystem journalSystem) {
-    super(journalSystem, new SystemClock(), ExecutorServiceFactories
+  DefaultPrivilegeMaster(MasterContext masterContext) {
+    super(masterContext, new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.PRIVILEGE_MASTER_NAME, 1));
     mGroupPrivilegesLock = new ReentrantLock();
     mGroupPrivileges = new ConcurrentHashMap<>();

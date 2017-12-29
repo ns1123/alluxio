@@ -23,10 +23,10 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractNonJournaledMaster;
+import alluxio.master.MasterContext;
 import alluxio.master.MasterProcess;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.journal.JournalSystem;
 import alluxio.master.license.License;
 import alluxio.master.license.LicenseMaster;
 import alluxio.underfs.UnderFileSystem;
@@ -91,10 +91,10 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
    * Creates a new instance of {@link CallHomeMaster}.
    *
    * @param registry the master registry
-   * @param journalSystem the journal system to use for tracking master operations
+   * @param masterContext the context for Alluxio master
    */
-  public CallHomeMaster(MasterRegistry registry, JournalSystem journalSystem) {
-    super(journalSystem, new SystemClock(), ExecutorServiceFactories
+  public CallHomeMaster(MasterRegistry registry, MasterContext masterContext) {
+    super(masterContext, new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.CALL_HOME_MASTER_NAME, 2));
     registry.add(CallHomeMaster.class, this);
   }

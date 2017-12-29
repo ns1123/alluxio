@@ -131,7 +131,7 @@ public final class NettyPacketWriter implements PacketWriter {
           options.getEncryptionMeta(), packetSize);
     }
     // TODO(peis): Move this logic to NettyClient.
-    alluxio.client.netty.NettyClient.waitForChannelReady(nettyChannel);
+    alluxio.network.netty.NettyClient.waitForChannelReady(nettyChannel);
     // ALLUXIO CS END
     return new NettyPacketWriter(context, address, id, length, packetSize, type, options,
         nettyChannel);

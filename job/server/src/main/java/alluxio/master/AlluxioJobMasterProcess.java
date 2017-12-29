@@ -139,7 +139,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   }
 
   protected void createMaster() {
-    mJobMaster = new JobMaster(mJournalSystem, mUfsManager);
+    mJobMaster = new JobMaster(new MasterContext(mJournalSystem), mUfsManager);
   }
 
   @Override
