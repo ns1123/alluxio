@@ -38,6 +38,7 @@ import io.netty.buffer.Unpooled;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -58,6 +59,7 @@ import java.util.List;
 /**
  * Tests for the {@link CryptoFileInStream} class.
  */
+@Ignore
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystemContext.class, AlluxioBlockStore.class})
 @PowerMockIgnore("javax.crypto.*")
