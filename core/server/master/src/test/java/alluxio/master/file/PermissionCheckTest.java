@@ -191,14 +191,14 @@ public final class PermissionCheckTest {
     GroupMappingServiceTestUtils.resetCache();
     mRegistry = new MasterRegistry();
     JournalSystem journalSystem = new NoopJournalSystem();
-    // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem,
-        mSafeModeManager);
-    // ALLUXIO CS END
     mSafeModeManager = new DefaultSafeModeManager();
     mBlockMaster = new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem,
         mSafeModeManager);
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem,
+        mSafeModeManager);
+    // ALLUXIO CS END
     mRegistry.start(true);
 
     createDirAndFileForTest();

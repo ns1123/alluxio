@@ -138,7 +138,13 @@ public final class AlluxioBlockStore {
    */
   public BlockInStream getInStream(BlockInfo info, InStreamOptions options) throws IOException {
     List<BlockLocation> locations = info.getLocations();
-    if (locations.isEmpty() && !options.getStatus().isPersisted()) {
+    // ALLUXIO CS REPLACE
+    // if (locations.isEmpty() && !options.getStatus().isPersisted()) {
+    // ALLUXIO CS WITH
+    // Note that, it is possible that the blocks have been written as UFS blocks
+    if (locations.isEmpty() && !options.getStatus().isPersisted() && !options.getStatus()
+        .getPersistenceState().equals("TO_BE_PERSISTED")) {
+    // ALLUXIO CS END
       throw new NotFoundException(ExceptionMessage.BLOCK_UNAVAILABLE.getMessage(info.getBlockId()));
     }
     // Determine the data source and the type of data source

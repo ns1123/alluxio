@@ -14,6 +14,7 @@ package alluxio.master.privilege;
 import alluxio.clock.SystemClock;
 import alluxio.master.AbstractNonJournaledMaster;
 import alluxio.master.MasterContext;
+import alluxio.master.journal.noop.NoopJournalSystem;
 import alluxio.util.executor.ExecutorServiceFactory;
 import alluxio.wire.Privilege;
 
@@ -34,7 +35,7 @@ public final class SimplePrivilegeMaster extends AbstractNonJournaledMaster
   private final Map<String, Set<Privilege>> mGroupToPrivilegeMap;
 
   SimplePrivilegeMaster(Map<String, Set<Privilege>> groupToPrivilegeMap) {
-    super(Mockito.mock(MasterContext.class), new SystemClock(),
+    super(new MasterContext(new NoopJournalSystem()), new SystemClock(),
         Mockito.mock(ExecutorServiceFactory.class));
     mGroupToPrivilegeMap = groupToPrivilegeMap;
   }
