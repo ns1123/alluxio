@@ -43,6 +43,7 @@ import alluxio.util.io.BufferUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
+import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
@@ -137,7 +138,10 @@ public final class ReplicateDefinitionTest {
   private void runTaskReplicateTestHelper(List<BlockWorkerInfo> blockWorkers,
       BlockInStream mockInStream, BlockOutStream mockOutStream) throws Exception {
     String path = "/test";
-    URIStatus status = new URIStatus(new FileInfo().setPath(path));
+    URIStatus status = new URIStatus(
+        new FileInfo().setPath(path).setBlockIds(Lists.newArrayList(TEST_BLOCK_ID))
+            .setFileBlockInfos(Lists.newArrayList(
+                new FileBlockInfo().setBlockInfo(new BlockInfo().setBlockId(TEST_BLOCK_ID)))));
     PowerMockito.mockStatic(FileSystem.Factory.class);
     when(FileSystem.Factory.get()).thenReturn(mMockFileSystem);
     when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
