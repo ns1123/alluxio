@@ -40,7 +40,6 @@ import alluxio.retry.RetryPolicy;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.MkdirsOptions;
-import alluxio.util.SecurityUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.TtlAction;
 
@@ -1049,14 +1048,6 @@ public class InodeTree implements JournalEntryIterable {
       // This is the root inode. Clear all the state, and set the root.
       reset();
       setRoot(directory);
-      // ALLUXIO CS ADD
-      // If journal entry has no security enabled, change the replayed inode permission to be 0777
-      // for backwards-compatibility.
-      if (SecurityUtils.isSecurityEnabled() && mRoot.getOwner().isEmpty()
-          && mRoot.getGroup().isEmpty()) {
-        mRoot.setMode(alluxio.Constants.DEFAULT_FILE_SYSTEM_MODE);
-      }
-      // ALLUXIO CS END
     } else {
       addInodeFromJournalInternal(directory);
     }
@@ -1095,14 +1086,6 @@ public class InodeTree implements JournalEntryIterable {
     }
     parentDirectory.addChild(inode);
     mInodes.add(inode);
-    // ALLUXIO CS ADD
-    // If journal entry has no security enabled, change the replayed inode permission to be 0777
-    // for backwards-compatibility.
-    if (SecurityUtils.isSecurityEnabled() && inode != null && inode.getOwner().isEmpty()
-        && inode.getGroup().isEmpty()) {
-      inode.setMode(alluxio.Constants.DEFAULT_FILE_SYSTEM_MODE);
-    }
-    // ALLUXIO CS END
     // Update indexes.
     // ALLUXIO CS REPLACE
     // if (inode.isFile() && inode.isPinned()) {
