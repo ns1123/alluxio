@@ -12,7 +12,6 @@
 package alluxio.master.file.meta;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
 import alluxio.collections.ConcurrentHashSet;
 import alluxio.collections.FieldIndex;
 import alluxio.collections.IndexDefinition;
@@ -54,7 +53,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -705,7 +703,7 @@ public class InodeTree implements JournalEntryIterable {
               inodeFile.setReplicationMin(1);
               if (inodeFile.getReplicationMax() < inodeFile.getReplicationMin()) {
                 // adjust replication upper limit in case it is smaller than 1
-                inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
+                inodeFile.setReplicationMax(alluxio.Constants.REPLICATION_MAX_INFINITY);
               }
             }
             // ALLUXIO CS END
@@ -715,7 +713,8 @@ public class InodeTree implements JournalEntryIterable {
             mPinnedInodeFileIds.add(lastInode.getId());
             lastInode.setPinned(true);
           }
-          if (((InodeFile) lastInode).getReplicationMax() != Constants.REPLICATION_MAX_INFINITY) {
+          if (((InodeFile) lastInode).getReplicationMax()
+              != alluxio.Constants.REPLICATION_MAX_INFINITY) {
             mReplicationLimitedFileIds.add(lastInode.getId());
           }
           // ALLUXIO CS END
@@ -865,7 +864,7 @@ public class InodeTree implements JournalEntryIterable {
         if (inodeFile.getReplicationMin() == 0) {
           inodeFile.setReplicationMin(1);
           if (inodeFile.getReplicationMax() == 0) {
-            inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
+            inodeFile.setReplicationMax(alluxio.Constants.REPLICATION_MAX_INFINITY);
           }
         }
         // ALLUXIO CS END
@@ -936,12 +935,13 @@ public class InodeTree implements JournalEntryIterable {
       int newMax = (replicationMax == null) ? inodeFile.getReplicationMax() : replicationMax;
       int newMin = (replicationMin == null) ? inodeFile.getReplicationMin() : replicationMin;
 
-      Preconditions.checkArgument(newMax == Constants.REPLICATION_MAX_INFINITY || newMax >= newMin,
+      Preconditions.checkArgument(newMax == alluxio.Constants.REPLICATION_MAX_INFINITY
+          || newMax >= newMin,
           PreconditionMessage.INVALID_REPLICATION_MAX_SMALLER_THAN_MIN.toString(),
           replicationMax, replicationMax);
       inodeFile.setReplicationMax(newMax);
       inodeFile.setReplicationMin(newMin);
-      if (newMax == Constants.REPLICATION_MAX_INFINITY) {
+      if (newMax == alluxio.Constants.REPLICATION_MAX_INFINITY) {
         mReplicationLimitedFileIds.remove(inodeFile.getId());
       } else {
         mReplicationLimitedFileIds.add(inodeFile.getId());
@@ -1049,12 +1049,14 @@ public class InodeTree implements JournalEntryIterable {
       // This is the root inode. Clear all the state, and set the root.
       reset();
       setRoot(directory);
+      // ALLUXIO CS ADD
       // If journal entry has no security enabled, change the replayed inode permission to be 0777
       // for backwards-compatibility.
       if (SecurityUtils.isSecurityEnabled() && mRoot.getOwner().isEmpty()
           && mRoot.getGroup().isEmpty()) {
-        mRoot.setMode(Constants.DEFAULT_FILE_SYSTEM_MODE);
+        mRoot.setMode(alluxio.Constants.DEFAULT_FILE_SYSTEM_MODE);
       }
+      // ALLUXIO CS END
     } else {
       addInodeFromJournalInternal(directory);
     }
@@ -1093,12 +1095,14 @@ public class InodeTree implements JournalEntryIterable {
     }
     parentDirectory.addChild(inode);
     mInodes.add(inode);
+    // ALLUXIO CS ADD
     // If journal entry has no security enabled, change the replayed inode permission to be 0777
     // for backwards-compatibility.
     if (SecurityUtils.isSecurityEnabled() && inode != null && inode.getOwner().isEmpty()
         && inode.getGroup().isEmpty()) {
-      inode.setMode(Constants.DEFAULT_FILE_SYSTEM_MODE);
+      inode.setMode(alluxio.Constants.DEFAULT_FILE_SYSTEM_MODE);
     }
+    // ALLUXIO CS END
     // Update indexes.
     // ALLUXIO CS REPLACE
     // if (inode.isFile() && inode.isPinned()) {
