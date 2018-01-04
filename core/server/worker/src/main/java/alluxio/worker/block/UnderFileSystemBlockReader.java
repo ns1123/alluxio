@@ -27,6 +27,7 @@ import alluxio.underfs.UfsManager.UfsInfo;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.OpenOptions;
 import alluxio.util.IdUtils;
+import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.block.io.BlockReader;
 import alluxio.worker.block.io.BlockWriter;
 import alluxio.worker.block.meta.UnderFileSystemBlockMeta;
@@ -46,6 +47,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 /**
  * This class implements a {@link BlockReader} to read a block directly from UFS, and
  * optionally cache the block to the Alluxio worker if the whole block it is read.
+ *
+ // ALLUXIO CS ADD
+ * Reference {@link NetworkAddressUtils} so that it is referenced in both AOS and AEE
+ // ALLUXIO CS END
  */
 @NotThreadSafe
 public final class UnderFileSystemBlockReader implements BlockReader {
