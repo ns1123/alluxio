@@ -165,7 +165,7 @@ public final class LoginUser {
           // Note: when "sun.security.jgss.native" is set to true, it is required to set
           // "javax.security.auth.useSubjectCredsOnly" to false. This relaxes the restriction of
           // requiring a GSS mechanism to obtain necessary credentials from JAAS.
-          if (Boolean.getBoolean("javax.security. auth.useSubjectCredsOnly")) {
+          if (Boolean.getBoolean("javax.security.auth.useSubjectCredsOnly")) {
             throw new LoginException("javax.security.auth.useSubjectCredsOnly must be set to false "
                 + "in order to use native platform GSS integration.");
           }
