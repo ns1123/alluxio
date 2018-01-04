@@ -13,7 +13,7 @@ package alluxio.client.privilege.options;
 
 import static org.junit.Assert.assertNotNull;
 
-import alluxio.CommonTestUtils;
+import alluxio.test.util.CommonUtils;
 
 import org.junit.Test;
 
@@ -39,6 +39,6 @@ public final class GetGroupPrivilegesOptionsTest {
 
   @Test
   public void equalsTest() throws Exception {
-    CommonTestUtils.testEquals(GetGroupPrivilegesOptions.class);
+    CommonUtils.testEquals(GetGroupPrivilegesOptions.class);
   }
 }

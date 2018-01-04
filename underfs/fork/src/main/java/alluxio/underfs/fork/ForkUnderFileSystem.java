@@ -534,6 +534,11 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public boolean isSeekable() {
+    return false;
+  }
+
+  @Override
   public UfsStatus[] listStatus(final String path) throws IOException {
     AtomicReference<UfsStatus[]> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(

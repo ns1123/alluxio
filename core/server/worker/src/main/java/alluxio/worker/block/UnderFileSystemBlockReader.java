@@ -26,16 +26,7 @@ import alluxio.underfs.UfsManager;
 import alluxio.underfs.UfsManager.UfsInfo;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.OpenOptions;
-<<<<<<< HEAD
-// ALLUXIO CS REMOVE
-// import alluxio.util.network.NetworkAddressUtils;
-// ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.util.network.NetworkAddressUtils;
-=======
 import alluxio.util.IdUtils;
-import alluxio.util.network.NetworkAddressUtils;
->>>>>>> OPENSOURCE/master
 import alluxio.worker.block.io.BlockReader;
 import alluxio.worker.block.io.BlockWriter;
 import alluxio.worker.block.meta.UnderFileSystemBlockMeta;

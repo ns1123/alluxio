@@ -11,7 +11,6 @@
 
 package alluxio.wire;
 
-import alluxio.CommonTestUtils;
 import alluxio.util.CommonUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +34,7 @@ public class AlluxioJobWorkerInfoTest {
 
   @Test
   public void equals() {
-    CommonTestUtils.testEquals(AlluxioJobWorkerInfo.class);
+    alluxio.test.util.CommonUtils.testEquals(AlluxioJobWorkerInfo.class);
   }
 
   private void checkEquality(AlluxioJobWorkerInfo a, AlluxioJobWorkerInfo b) {
