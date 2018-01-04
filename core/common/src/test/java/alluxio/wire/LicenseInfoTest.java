@@ -11,7 +11,6 @@
 
 package alluxio.wire;
 
-import alluxio.CommonTestUtils;
 import alluxio.util.CommonUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +31,7 @@ public class LicenseInfoTest {
 
   @Test
   public void equals() {
-    CommonTestUtils.testEquals(AlluxioMasterInfo.class);
+    alluxio.test.util.CommonUtils.testEquals(AlluxioMasterInfo.class);
   }
 
   private void checkEquality(LicenseInfo a, LicenseInfo b) {
