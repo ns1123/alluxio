@@ -99,14 +99,10 @@ public final class LocalFilePacketReader implements PacketReader {
     private final long mBlockId;
     private final String mPath;
     private final long mPacketSize;
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     private final InStreamOptions mOptions;
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     private LocalFileBlockReader mReader;
->>>>>>> OPENSOURCE/master
     private boolean mClosed;
 
     /**
