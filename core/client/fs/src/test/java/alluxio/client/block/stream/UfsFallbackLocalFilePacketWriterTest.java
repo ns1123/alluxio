@@ -211,6 +211,7 @@ public class UfsFallbackLocalFilePacketWriterTest {
     assertEquals(expected.get().getChecksum(), actualUfs.get().getChecksum());
   }
 
+  @Ignore
   @Test(timeout = 1000 * 60)
   public void fallbackOnSecondPacket() throws Exception {
     Future<WriteSummary> expected;
