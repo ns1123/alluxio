@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -147,7 +148,7 @@ public final class ReplicateDefinitionTest {
     when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
 
     when(mMockBlockStore.getAllWorkers()).thenReturn(blockWorkers);
-    when(mMockBlockStore.getInStream(any(BlockInfo.class),
+    when(mMockBlockStore.getInStream(anyLong(),
             any(InStreamOptions.class))).thenReturn(mockInStream);
     when(
         mMockBlockStore.getOutStream(eq(TEST_BLOCK_ID), eq(-1L), eq(LOCAL_ADDRESS),

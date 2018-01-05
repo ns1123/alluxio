@@ -188,6 +188,6 @@ public final class ReplicateDefinition
       options.setCapabilityFetcher(
           new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
     }
-    return blockStore.getInStream(options.getBlockInfo(blockId), options);
+    return blockStore.getInStream(blockId, options);
   }
 }

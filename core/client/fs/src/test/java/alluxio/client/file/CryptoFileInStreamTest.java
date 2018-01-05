@@ -145,8 +145,7 @@ public final class CryptoFileInStreamTest {
       Mockito.when(mBlockStore.getEligibleWorkers())
           .thenReturn(Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress(), 0, 0)));
       Mockito
-          .when(mBlockStore.getInStream(Mockito.any((BlockInfo.class)),
-             Mockito.any(InStreamOptions.class)))
+          .when(mBlockStore.getInStream(Mockito.anyLong(), Mockito.any(InStreamOptions.class)))
           .thenAnswer((InvocationOnMock invocation) -> {
             long blockId = ((BlockInfo) invocation.getArguments()[0]).getBlockId();
             byte[] input = getBlockData((int) blockId);
