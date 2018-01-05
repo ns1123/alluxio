@@ -35,10 +35,10 @@ import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
-import alluxio.master.DefaultSafeModeManager;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterRegistry;
 import alluxio.master.SafeModeManager;
+import alluxio.master.TestSafeModeManager;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
@@ -1929,7 +1929,7 @@ public final class FileSystemMasterTest {
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-    mSafeModeManager = new DefaultSafeModeManager();
+    mSafeModeManager = new TestSafeModeManager();
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem,
