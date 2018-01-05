@@ -359,7 +359,7 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
   }
 
   @Override
-  public void removeBlocks(List<Long> blockIds, boolean delete) {
+  public void removeBlocks(List<Long> blockIds, boolean delete) throws UnavailableException {
     try (JournalContext journalContext = createJournalContext()) {
       for (long blockId : blockIds) {
         MasterBlockInfo block = mBlocks.get(blockId);
@@ -408,7 +408,7 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
    * @return a new block container id
    */
   @Override
-  public long getNewContainerId() {
+  public long getNewContainerId() throws UnavailableException {
     synchronized (mBlockContainerIdGenerator) {
       long containerId = mBlockContainerIdGenerator.getNewContainerId();
       if (containerId < mJournaledNextContainerId) {
@@ -449,7 +449,7 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
   // TODO(binfan): check the logic is correct or not when commitBlock is a retry
   @Override
   public void commitBlock(long workerId, long usedBytesOnTier, String tierAlias, long blockId,
-      long length) throws NoWorkerException {
+      long length) throws NoWorkerException, UnavailableException {
     LOG.debug("Commit block from workerId: {}, usedBytesOnTier: {}, blockId: {}, length: {}",
         workerId, usedBytesOnTier, blockId, length);
 
@@ -515,7 +515,7 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
   }
 
   @Override
-  public void commitBlockInUFS(long blockId, long length) {
+  public void commitBlockInUFS(long blockId, long length) throws UnavailableException {
     LOG.debug("Commit block in ufs. blockId: {}, length: {}", blockId, length);
     if (mBlocks.get(blockId) != null) {
       // Block metadata already exists, so do not need to create a new one.
