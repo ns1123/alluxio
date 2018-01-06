@@ -29,7 +29,6 @@ import alluxio.client.util.EncryptionMetaTestUtils;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.io.BufferUtils;
-import alluxio.wire.BlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerNetAddress;
 
