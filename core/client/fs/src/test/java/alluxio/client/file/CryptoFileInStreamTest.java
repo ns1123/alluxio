@@ -146,7 +146,7 @@ public final class CryptoFileInStreamTest {
       Mockito
           .when(mBlockStore.getInStream(Mockito.anyLong(), Mockito.any(InStreamOptions.class)))
           .thenAnswer((InvocationOnMock invocation) -> {
-            long blockId = ((long) invocation.getArguments()[0]);
+            long blockId = (long) invocation.getArguments()[0];
             byte[] input = getBlockData((int) blockId);
             // TODO(chaomin): add more sources
             return new TestBlockInStream(input, blockId, input.length, false,
