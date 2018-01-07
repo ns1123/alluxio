@@ -177,20 +177,8 @@ public final class UfsInputStreamManagerTest {
         threads.add(new Thread(runnable));
       }
       ConcurrencyUtils.assertConcurrent(threads, 30);
-<<<<<<< HEAD
-      for (int i = 0; i < mNumOfInputStreams / 4; i++) {
-        // the first quarter of input streams are closed
-        Mockito.verify(mSeekableInStreams[i], Mockito.timeout(2000).times(1)).close();
-      }
-||||||| merged common ancestors
-      for (int i = 0; i < mNumOfInputStreams / 4; i++) {
-        // the first quarter of input streams are closed
-        Mockito.verify(mSeekableInStreams[i], Mockito.timeout(2000)).close();
-      }
-=======
       // ensure at least one expired in stream is closed
       Mockito.verify(mSeekableInStreams[0], Mockito.timeout(2000)).close();
->>>>>>> OPENSOURCE/master
     }
   }
 }
