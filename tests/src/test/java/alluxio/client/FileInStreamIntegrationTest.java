@@ -428,7 +428,6 @@ public final class FileInStreamIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  @Ignore
   @Test(timeout = 10000)
   public void asyncCacheFirstBlock() throws Exception {
     String filename = mTestPath + "/file_" + MAX_LEN + "_" + mWriteUnderStore.hashCode();
@@ -522,6 +521,7 @@ public final class FileInStreamIntegrationTest extends BaseIntegrationTest {
     }
   }
 
+  @Ignore
   @Test(timeout = 10000)
   public void asyncCacheFirstBlockPRead() throws Exception {
     String filename = mTestPath + "/file_" + MAX_LEN + "_" + mWriteUnderStore.hashCode();
