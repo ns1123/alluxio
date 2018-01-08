@@ -20,6 +20,7 @@ import alluxio.underfs.options.OpenOptions;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -33,6 +34,7 @@ import java.util.List;
 /**
  * Unit tests for {@link UfsInputStreamManager}.
  */
+@Ignore
 public final class UfsInputStreamManagerTest {
   private static final String FILE_NAME = "/test";
   private static final long FILE_ID = 1;
