@@ -29,7 +29,6 @@ import alluxio.client.util.EncryptionMetaTestUtils;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.io.BufferUtils;
-import alluxio.wire.BlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerNetAddress;
 
@@ -145,10 +144,9 @@ public final class CryptoFileInStreamTest {
       Mockito.when(mBlockStore.getEligibleWorkers())
           .thenReturn(Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress(), 0, 0)));
       Mockito
-          .when(mBlockStore.getInStream(Mockito.any((BlockInfo.class)),
-             Mockito.any(InStreamOptions.class)))
+          .when(mBlockStore.getInStream(Mockito.anyLong(), Mockito.any(InStreamOptions.class)))
           .thenAnswer((InvocationOnMock invocation) -> {
-            long blockId = ((BlockInfo) invocation.getArguments()[0]).getBlockId();
+            long blockId = (long) invocation.getArguments()[0];
             byte[] input = getBlockData((int) blockId);
             // TODO(chaomin): add more sources
             return new TestBlockInStream(input, blockId, input.length, false,
@@ -159,7 +157,7 @@ public final class CryptoFileInStreamTest {
           .thenAnswer(new Answer<BlockOutStream>() {
             @Override
             public BlockOutStream answer(InvocationOnMock invocation) throws Throwable {
-              long i = (Long) invocation.getArguments()[0];
+              long i = (long) invocation.getArguments()[0];
               return mCacheStreams.get((int) i).isClosed() ? null : mCacheStreams.get((int) i);
             }
           });
