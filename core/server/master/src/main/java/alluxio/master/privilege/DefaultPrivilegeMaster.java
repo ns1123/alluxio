@@ -16,6 +16,7 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.status.UnavailableException;
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
 import alluxio.master.journal.JournalContext;
@@ -173,7 +174,8 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
   }
 
   @Override
-  public Set<Privilege> updatePrivileges(String group, List<Privilege> privileges, boolean grant) {
+  public Set<Privilege> updatePrivileges(String group, List<Privilege> privileges, boolean grant)
+      throws UnavailableException {
     try (JournalContext journalContext = createJournalContext();
         LockResource r = new LockResource(mGroupPrivilegesLock)) {
       updatePrivilegesInternal(group, grant, privileges);

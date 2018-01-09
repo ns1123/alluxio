@@ -19,6 +19,7 @@ import alluxio.PropertyKey;
 import alluxio.Server;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.status.UnavailableException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
@@ -184,7 +185,7 @@ public class LicenseMaster extends AbstractMaster {
   /**
    * @param time the time of the last successful license check (in milliseconds past the epoch)
    */
-  private void setLastCheckSuccess(long time) {
+  private void setLastCheckSuccess(long time) throws UnavailableException {
     try (JournalContext journalContext = createJournalContext()) {
       mLicenseCheck.setLastCheckSuccess(time);
       journalContext.append(mLicenseCheck.toJournalEntry());
@@ -339,7 +340,11 @@ public class LicenseMaster extends AbstractMaster {
         // Set the maximum number of workers.
         mBlockMaster.setMaxWorkers(license.getNodes());
         LOG.info("The license check succeeded.");
-        mLicenseMaster.setLastCheckSuccess(currentTimeMs);
+        try {
+          mLicenseMaster.setLastCheckSuccess(currentTimeMs);
+        } catch (UnavailableException e) {
+          LOG.warn("Failed to journal license check: {}", e.toString());
+        }
       } else {
         // The license check failed.
         long lastSuccessMs = mLicenseMaster.mLicenseCheck.getLastCheckSuccessMs();

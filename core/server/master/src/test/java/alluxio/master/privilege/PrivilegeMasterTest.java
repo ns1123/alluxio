@@ -110,7 +110,7 @@ public final class PrivilegeMasterTest {
   }
 
   @Test
-  public void getGroupToPrivilegesMapping() {
+  public void getGroupToPrivilegesMapping() throws Exception {
     mMaster.updatePrivileges("group1", Arrays.asList(Privilege.FREE), true);
     mMaster.updatePrivileges("group2", Arrays.asList(Privilege.TTL, Privilege.FREE), true);
     Map<String, Set<Privilege>> expected = ImmutableMap.<String, Set<Privilege>>of(

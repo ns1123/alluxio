@@ -11,6 +11,7 @@
 
 package alluxio.master.privilege;
 
+import alluxio.exception.status.UnavailableException;
 import alluxio.master.Master;
 import alluxio.wire.Privilege;
 
@@ -51,5 +52,6 @@ public interface PrivilegeMaster extends Master {
    * @param grant if true, grant the privileges; otherwise revoke them
    * @return the updated privileges for the group
    */
-  Set<Privilege> updatePrivileges(String group, List<Privilege> privileges, boolean grant);
+  Set<Privilege> updatePrivileges(String group, List<Privilege> privileges, boolean grant)
+      throws UnavailableException;
 }

@@ -3701,7 +3701,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
      *
      * @param fileId the file ID
      */
-    private void handleExpired(long fileId) throws AlluxioException {
+    private void handleExpired(long fileId) throws AlluxioException, UnavailableException {
       try (JournalContext journalContext = createJournalContext();
            LockedInodePath inodePath = mInodeTree
                .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
@@ -3843,6 +3843,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           LOG.warn("The file {} (id={}) to be persisted was not found : {}", uri, fileId,
               e.getMessage());
           LOG.debug("Exception: ", e);
+        } catch (UnavailableException e) {
+          LOG.warn("Failed to persist file {}, will retry later: {}", uri, e.toString());
+          remove = false;
         } catch (alluxio.exception.status.ResourceExhaustedException e) {
           LOG.warn("The job service is busy, will retry later: {}", e.getMessage());
           LOG.debug("Exception: ", e);

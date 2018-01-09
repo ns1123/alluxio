@@ -168,8 +168,9 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void free(AlluxioURI path, FreeOptions options) throws FileDoesNotExistException,
-      InvalidPathException, AccessControlException, UnexpectedAlluxioException {
+  public void free(AlluxioURI path, FreeOptions options)
+      throws FileDoesNotExistException, InvalidPathException, AccessControlException,
+      UnexpectedAlluxioException, UnavailableException {
     try {
       mPrivilegeChecker.check(Privilege.FREE);
     } catch (PermissionDeniedException | UnauthenticatedException e) {
@@ -203,7 +204,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public long getFileId(AlluxioURI path) throws AccessControlException {
+  public long getFileId(AlluxioURI path) throws AccessControlException, UnavailableException {
     return mFileSystemMaster.getFileId(path);
   }
 
@@ -252,7 +253,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public long reinitializeFile(AlluxioURI path, long blockSizeBytes, long ttl, TtlAction ttlAction)
-      throws InvalidPathException, FileDoesNotExistException {
+      throws InvalidPathException, FileDoesNotExistException, UnavailableException {
     return mFileSystemMaster.reinitializeFile(path, blockSizeBytes, ttl, ttlAction);
   }
 
@@ -365,12 +366,13 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public void resetFile(long fileId)
       throws UnexpectedAlluxioException, FileDoesNotExistException, InvalidPathException,
-      AccessControlException {
+      AccessControlException, UnavailableException {
     mFileSystemMaster.resetFile(fileId);
   }
 
   @Override
-  public void scheduleAsyncPersistence(AlluxioURI path) throws AlluxioException {
+  public void scheduleAsyncPersistence(AlluxioURI path)
+      throws AlluxioException, UnavailableException {
     mFileSystemMaster.scheduleAsyncPersistence(path);
   }
 
