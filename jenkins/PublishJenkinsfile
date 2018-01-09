@@ -1,0 +1,91 @@
+pipeline {
+    agent none
+    parameters {
+        string(
+            name: 'Branch',
+            defaultValue: 'master',
+            description: 'Branch to checkout'
+        )
+        string(
+            name: 'CpArgs',
+            defaultValue: '',
+            description: 'Additional arguments to AWS cli when copying to S3'
+        )
+        string(
+            name: 'GenerateArgs',
+            defaultValue: '-hadoop-distributions hadoop-2.7 -native',
+            description: 'Arguments passed to Go script that generates the tarballs'
+        )
+        string(
+            name: 'S3Path',
+            defaultValue: 's3://alluxio-release-autobots/nightly',
+            description: 'S3 path to directory to copy tarballs to (ex. s3://myBucket/path/to/dir)'
+        )
+        string(
+            name: 'AwsCredentialsIdPrefix',
+            defaultValue: 'JENKINS',
+            description: 'Prefix of the ID of AWS credentials to use for uploading (ex. BOT for BOT_AWS_ACCESS_KEY_ID and BOT_AWS_SECRET_ACCESS_KEY)'
+        )
+    }
+    stages {
+        stage('build') {
+            agent {
+                docker {
+                    image 'agent'
+                    label 'worker'
+                    alwaysPull false
+                }
+            }
+            environment {
+                AWS_ACCESS_KEY_ID     = credentials("${params.AwsCredentialsIdPrefix}_AWS_ACCESS_KEY_ID")
+                AWS_SECRET_ACCESS_KEY = credentials("${params.AwsCredentialsIdPrefix}_AWS_SECRET_ACCESS_KEY")
+                AWS_DEFAULT_REGION    = 'us-east-1'
+            }
+            steps {script {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${params.Branch}"]],
+                    userRemoteConfigs: [[
+                        credentialsId: 'ALLUXIO-CI_GITHUB',
+                        url: 'https://github.com/TachyonNexus/enterprise',
+                    ]]
+                ])
+                
+                // build artifact, using jenkins credentials to access maven
+                withCredentials([
+                    string(credentialsId: 'JENKINS_AWS_ACCESS_KEY_ID', variable: 'AwsKey'),
+                    string(credentialsId: 'JENKINS_AWS_SECRET_ACCESS_KEY', variable: 'AwsSecret')
+                ]) { withEnv([
+                    "AWS_ACCESS_KEY_ID=$AwsKey",
+                    "AWS_SECRET_ACCESS_KEY=$AwsSecret"
+                ]) {
+                    def buildCmd = "export BUILD_OPTS=\" -P${params.HadoopProfile} -Dhadoop.version=${params.HadoopVersion}\"; "
+                    // for older versions, run if old script exists
+                    if (fileExists('tools/go/scripts/generate-release-tarballs.go')) {
+                        buildCmd += "go run tools/go/scripts/generate-release-tarballs.go ${params.GenerateArgs}"
+                    } else {
+                        buildCmd += "./dev/scripts/generate-enterprise-tarballs release ${params.GenerateArgs}"
+                    }
+                    sh buildCmd
+                }}
+                
+                def commitHash = sh (
+                    script: "git rev-parse --short HEAD",
+                    returnStdout: true
+                ).trim()
+                def tarballs = sh (
+                    script: "ls alluxio-enterprise-*",
+                    returnStdout: true
+                ).trim()
+                tarballs.split().each {
+                    // append branch and commit hash before .tar.gz
+                    def tarballName = it.substring(0, it.length() - '.tar.gz'.length())
+                    tarballName += "-${params.Branch}-${commitHash}.tar.gz"
+                    sh "aws s3 cp $it ${params.S3Path}/$tarballName ${params.CpArgs}"
+                    sh "rm $it"
+                }
+            }}
+        }
+    }
+}
+
