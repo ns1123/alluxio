@@ -31,6 +31,9 @@ import alluxio.wire.FileBlockInfo;
 
 import org.junit.Assert;
 import org.junit.Before;
+// ALLUXIO CS ADD
+import org.junit.Ignore;
+// ALLUXIO CS END
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -520,6 +523,9 @@ public final class FileInStreamIntegrationTest extends BaseIntegrationTest {
     }
   }
 
+  // ALLUXIO CS ADD
+  @Ignore
+  // ALLUXIO CS END
   @Test(timeout = 10000)
   public void asyncCacheFirstBlockPRead() throws Exception {
     String filename = mTestPath + "/file_" + MAX_LEN + "_" + mWriteUnderStore.hashCode();
