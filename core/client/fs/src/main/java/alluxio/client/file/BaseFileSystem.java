@@ -162,11 +162,18 @@ public class BaseFileSystem implements FileSystem {
       outStreamOptions.setEncryptionMeta(meta);
       mFileSystemContext.put(status.getFileId(), meta);
     }
-    if (outStreamOptions.isEncrypted()) {
-      return new CryptoFileOutStream(path, outStreamOptions, mFileSystemContext);
-    }
     // ALLUXIO CS END
-    return new FileOutStream(path, outStreamOptions, mFileSystemContext);
+    try {
+      // ALLUXIO CS ADD
+      if (outStreamOptions.isEncrypted()) {
+        return new CryptoFileOutStream(path, outStreamOptions, mFileSystemContext);
+      }
+      // ALLUXIO CS END
+      return new FileOutStream(path, outStreamOptions, mFileSystemContext);
+    } catch (Exception e) {
+      delete(path);
+      throw e;
+    }
   }
 
   @Override
