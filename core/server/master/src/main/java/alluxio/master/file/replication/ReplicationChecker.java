@@ -20,6 +20,7 @@ import alluxio.exception.status.UnavailableException;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.job.replicate.DefaultReplicationHandler;
 import alluxio.job.replicate.ReplicationHandler;
+import alluxio.master.SafeModeManager;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeTree;
@@ -53,6 +54,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
   private final BlockMaster mBlockMaster;
   /** Handler for adjusting block replication level. */
   private final ReplicationHandler mReplicationHandler;
+  /** Manager of master safe mode state. */
+  private final SafeModeManager mSafeModeManager;
 
   /**
    * Quiet period for job service flow control (in seconds). When job service refuses starting new
@@ -71,11 +74,13 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    *
    * @param inodeTree inode tree of the filesystem master
    * @param blockMaster block master
+   * @param safeModeManager manager of master safe mode state
    * @param jobMasterClientPool job master client pool
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster,
-      JobMasterClientPool jobMasterClientPool) {
-    this(inodeTree, blockMaster, new DefaultReplicationHandler(jobMasterClientPool));
+      SafeModeManager safeModeManager, JobMasterClientPool jobMasterClientPool) {
+    this(inodeTree, blockMaster, safeModeManager,
+        new DefaultReplicationHandler(jobMasterClientPool));
   }
 
   /**
@@ -84,12 +89,14 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    *
    * @param inodeTree inode tree of the filesystem master
    * @param blockMaster block master
+   * @param safeModeManager manager of master safe mode state
    * @param replicationHandler handler to replicate blocks
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster,
-      ReplicationHandler replicationHandler) {
+      SafeModeManager safeModeManager, ReplicationHandler replicationHandler) {
     mInodeTree = inodeTree;
     mBlockMaster = blockMaster;
+    mSafeModeManager = safeModeManager;
     mReplicationHandler = replicationHandler;
     mQuietPeriodSeconds = 0;
   }
@@ -107,6 +114,11 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    */
   @Override
   public void heartbeat() throws InterruptedException {
+    // skips replication in safe mode when not all workers are registered
+    if (mSafeModeManager.isInSafeMode()) {
+      return;
+    }
+
     TimeUnit.SECONDS.sleep(mQuietPeriodSeconds);
     Set<Long> inodes;
 

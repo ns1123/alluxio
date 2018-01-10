@@ -131,7 +131,8 @@ public final class ReplicationCheckerTest {
     mInodeTree.initializeRoot(TEST_OWNER, TEST_GROUP, TEST_MODE);
 
     mMockReplicationHandler = new MockHandler();
-    mReplicationChecker = new ReplicationChecker(mInodeTree, mBlockMaster, mMockReplicationHandler);
+    mReplicationChecker = new ReplicationChecker(mInodeTree, mBlockMaster, mSafeModeManager,
+        mMockReplicationHandler);
   }
 
   @After
