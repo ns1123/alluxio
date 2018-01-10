@@ -14,6 +14,7 @@ package alluxio.master.file;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.job.JobMasterClient;
 import alluxio.exception.AccessControlException;
@@ -394,7 +395,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Map<Long, PersistJob> persistJobs = getPersistJobs();
     Assert.assertEquals(0, getPersistRequests().size());
-    Assert.assertEquals(0, persistJobs.size());
+    // We update the file info before removing the persist job, so we must wait here.
+    CommonUtils.waitFor("persist jobs list to be empty", (x) -> persistJobs.isEmpty(),
+        WaitForOptions.defaults().setTimeoutMs(5 * Constants.SECOND_MS));
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), fileInfo.getPersistenceState());
   }
 
