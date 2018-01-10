@@ -67,23 +67,7 @@
   </dependencies>
 
   <build>
-    <plugins>
-      <!-- ALLUXIO CS ADD -->
-      <!-- Exclude license plugin as this is not bundled by default -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>1.10</version>
-        <executions>
-          <execution>
-            <id>add-third-party</id>
-            <configuration>
-              <skipAddThirdParty>true</skipAddThirdParty>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- ALLUXIO CS END -->
+    <plugins>      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
