@@ -159,6 +159,8 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		"integration/kubernetes/alluxio-master.yaml.template",
 		"integration/kubernetes/alluxio-worker.yaml.template",
 		"integration/kubernetes/conf/alluxio.properties.template",
+		// FUSE
+		"integration/fuse/bin/alluxio-fuse",
 	}
 	for _, path := range pathsToCopy {
 		mkdir(filepath.Join(dstPath, filepath.Dir(path)))
@@ -233,6 +235,8 @@ func generateTarball() error {
 	// Update the assembly jar paths.
 	replace("libexec/alluxio-config.sh", "assembly/client/target/alluxio-assembly-client-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-client-${VERSION}.jar")
 	replace("libexec/alluxio-config.sh", "assembly/server/target/alluxio-assembly-server-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-server-${VERSION}.jar")
+	// Update the FUSE jar path
+	replace("integration/fuse/bin/alluxio-fuse", "target/alluxio-integration-fuse-${VERSION}-jar-with-dependencies.jar", "alluxio-fuse-${VERSION}.jar")
 
 	// ERASE CS ANNOTATIONS
 	fmt.Printf("  erasing annotations ... ")
@@ -270,10 +274,13 @@ func generateTarball() error {
 	// Create directories for the client jar.
 	mkdir(filepath.Join(dstPath, "client"))
 	mkdir(filepath.Join(dstPath, "logs"))
+	// Create directories for the fuse connector
+	mkdir(filepath.Join(dstPath, "integration", "fuse"))
 
 	// ADD ALLUXIO ASSEMBLY JARS TO DISTRIBUTION
 	run("adding Alluxio client assembly jar", "mv", fmt.Sprintf("assembly/client/target/alluxio-assembly-client-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-client-%v.jar", version)))
 	run("adding Alluxio server assembly jar", "mv", fmt.Sprintf("assembly/server/target/alluxio-assembly-server-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-server-%v.jar", version)))
+	run("adding Alluxio FUSE jar", "mv", fmt.Sprintf("integration/fuse/target/alluxio-integration-fuse-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "integration", "fuse", fmt.Sprintf("alluxio-fuse-%v.jar", version)))
 	// Condense the webapp into a single .war file.
 	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webappWar), "-C", webappDir, ".")
 
