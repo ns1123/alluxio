@@ -48,7 +48,7 @@ message JournalEntry {
   optional RenameEntry rename = 19;
   optional RenameStoreEntry rename_store = 28;
   optional SetAttributeEntry set_attribute = 27;
-<<<<<<< HEAD
+  optional UpdateUfsModeEntry update_ufs_mode = 30;
   // ALLUXIO CS ADD
   // next available id: 1006
   optional FinishJobEntry finish_job = 1002;
@@ -59,8 +59,4 @@ message JournalEntry {
   // contains other journal entries, all other optional fields must be unset.
   repeated JournalEntry journal_entries = 1005;
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-  optional UpdateUfsModeEntry update_ufs_mode = 30;
->>>>>>> openSource/master
 }

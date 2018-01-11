@@ -3702,7 +3702,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     return mBlockMaster.getWorkerInfoList();
   }
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
 
   /**
@@ -4099,8 +4098,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
   }
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
   @Override
   public void updateUfsMode(AlluxioURI ufsPath, UnderFileSystem.UfsMode ufsMode)
       throws InvalidPathException, InvalidArgumentException, UnavailableException,
@@ -4218,7 +4215,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     WRITE,
   }
 
->>>>>>> openSource/master
   /**
    * Class that contains metrics for FileSystemMaster.
    * This class is public because the counter names are referenced in

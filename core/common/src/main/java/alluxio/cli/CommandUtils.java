@@ -43,7 +43,6 @@ public final class CommandUtils {
     Map<String, Command> commandsMap = new HashMap<>();
     Reflections reflections = new Reflections(Command.class.getPackage().getName());
     for (Class<? extends Command> cls : reflections.getSubTypesOf(Command.class)) {
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       if (cls.getSimpleName().equals("CreateLineageCommand")
           || cls.getSimpleName().equals("DeleteLineageCommand")
@@ -52,13 +51,8 @@ public final class CommandUtils {
         continue;
       }
       // ALLUXIO CS END
-      if (cls.getPackage().getName().startsWith(pkgName)
-||||||| merged common ancestors
-      if (cls.getPackage().getName().startsWith(pkgName)
-=======
       // Add commands from <pkgName>.command.*
       if (cls.getPackage().getName().equals(pkgName + ".command")
->>>>>>> openSource/master
           && !Modifier.isAbstract(cls.getModifiers())) {
         // Only instantiate a concrete class
         Command cmd = CommonUtils.createNewClassInstance(cls, classArgs, objectArgs);
