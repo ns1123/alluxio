@@ -791,4 +791,16 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   private String convert(String base, String path) {
     return PathUtils.concatPath(base, (new AlluxioURI(path)).getPath());
   }
+
+  @Override
+  public UfsMode getOperationMode(Map<String, UfsMode> physicalUfsState) {
+    // TODO(adit) Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<String> getPhysicalStores() {
+    // TODO(adit) Auto-generated method stub
+    return null;
+  }
 }

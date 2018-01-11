@@ -24,6 +24,7 @@ import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidFileSizeException;
 import alluxio.exception.InvalidPathException;
 import alluxio.exception.UnexpectedAlluxioException;
+import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.PermissionDeniedException;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
@@ -51,6 +52,7 @@ import alluxio.thrift.FileSystemCommand;
 import alluxio.thrift.FileSystemMasterClientService;
 import alluxio.thrift.FileSystemMasterWorkerService;
 import alluxio.thrift.UfsInfo;
+import alluxio.underfs.UnderFileSystem.UfsMode;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.MountPointInfo;
@@ -386,5 +388,12 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public List<WorkerInfo> getWorkerInfoList() throws UnavailableException {
     return mFileSystemMaster.getWorkerInfoList();
+  }
+
+  @Override
+  public void updateUfsMode(AlluxioURI ufsPath, UfsMode ufsMode) throws InvalidPathException,
+      InvalidArgumentException, UnavailableException, AccessControlException {
+    // TODO(adit) Auto-generated method stub
+
   }
 }
