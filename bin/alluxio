@@ -20,6 +20,7 @@ function printUsage {
   echo -e "  formatWorker  \t Format Alluxio worker storage"
   echo -e "  bootstrapConf \t Generate a config file if one doesn't exist"
   echo -e "  fs            \t Command line tool for interacting with the Alluxio filesystem."
+  echo -e "  fsadmin       \t Command line tool for admins to manage the Alluxio filesystem."
   echo -e "  getConf [key] \t Look up a configuration key, or print all configuration."
   # ALLUXIO CS ADD
   echo -e "  job           \t Command line tool for interacting with the job service."
@@ -268,6 +269,11 @@ function main {
   ;;
   "fs")
     CLASS="alluxio.cli.fs.FileSystemShell"
+    CLASSPATH=${ALLUXIO_CLIENT_CLASSPATH}
+    runJavaClass "$@"
+  ;;
+  "fsadmin")
+    CLASS="alluxio.cli.fsadmin.FileSystemAdminShell"
     CLASSPATH=${ALLUXIO_CLIENT_CLASSPATH}
     runJavaClass "$@"
   ;;

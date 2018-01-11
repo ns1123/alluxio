@@ -278,6 +278,7 @@ public final class FileSystemShellUtilsTest {
 
     int expectSize = 0;
     for (Class<? extends Command> cls : cmdSet) {
+<<<<<<< HEAD
       // ALLUXIO CS ADD
       if (cls.getSimpleName().equals("CreateLineageCommand")
           || cls.getSimpleName().equals("DeleteLineageCommand")
@@ -287,6 +288,12 @@ public final class FileSystemShellUtilsTest {
       }
       // ALLUXIO CS END
       if (cls.getPackage().getName().startsWith(FileSystemShell.class.getPackage().getName())
+||||||| merged common ancestors
+      if (cls.getPackage().getName().startsWith(FileSystemShell.class.getPackage().getName())
+=======
+      if (cls.getPackage().getName()
+          .equals(FileSystemShell.class.getPackage().getName() + ".command")
+>>>>>>> openSource/master
           && !Modifier.isAbstract(cls.getModifiers())) {
         expectSize++;
       }

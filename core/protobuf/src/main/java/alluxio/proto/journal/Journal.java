@@ -370,6 +370,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;</code>
      */
     alluxio.proto.journal.File.SetAttributeEntryOrBuilder getSetAttributeOrBuilder();
+<<<<<<< HEAD
 
     // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
     /**
@@ -491,6 +492,23 @@ public final class Journal {
      */
     alluxio.proto.journal.Journal.JournalEntryOrBuilder getJournalEntriesOrBuilder(
         int index);
+||||||| merged common ancestors
+=======
+
+    // optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+     */
+    boolean hasUpdateUfsMode();
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+     */
+    alluxio.proto.journal.File.UpdateUfsModeEntry getUpdateUfsMode();
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+     */
+    alluxio.proto.journal.File.UpdateUfsModeEntryOrBuilder getUpdateUfsModeOrBuilder();
+>>>>>>> openSource/master
   }
   /**
    * Protobuf type {@code alluxio.proto.journal.JournalEntry}
@@ -503,7 +521,7 @@ public final class Journal {
    * 2.6.0 and adding this depedency would conflict with the version of protobuf used by Hadoop 2.x
    * and Spark. We use protobuf version 2.5.0 instead, which is compatible with Hadoop and Spark.
    *
-   * next available id: 30
+   * next available id: 31
    * </pre>
    */
   public static final class JournalEntry extends
@@ -884,6 +902,7 @@ public final class Journal {
               bitField0_ |= 0x00000200;
               break;
             }
+<<<<<<< HEAD
             case 8010: {
               alluxio.proto.journal.License.LicenseCheckEntry.Builder subBuilder = null;
               if (((bitField0_ & 0x08000000) == 0x08000000)) {
@@ -944,6 +963,22 @@ public final class Journal {
               journalEntries_.add(input.readMessage(alluxio.proto.journal.Journal.JournalEntry.PARSER, extensionRegistry));
               break;
             }
+||||||| merged common ancestors
+=======
+            case 242: {
+              alluxio.proto.journal.File.UpdateUfsModeEntry.Builder subBuilder = null;
+              if (((bitField0_ & 0x04000000) == 0x04000000)) {
+                subBuilder = updateUfsMode_.toBuilder();
+              }
+              updateUfsMode_ = input.readMessage(alluxio.proto.journal.File.UpdateUfsModeEntry.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(updateUfsMode_);
+                updateUfsMode_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x04000000;
+              break;
+            }
+>>>>>>> openSource/master
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1553,6 +1588,7 @@ public final class Journal {
       return setAttribute_;
     }
 
+<<<<<<< HEAD
     // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
     public static final int FINISH_JOB_FIELD_NUMBER = 1002;
     private alluxio.proto.journal.Job.FinishJobEntry finishJob_;
@@ -1717,6 +1753,31 @@ public final class Journal {
       return journalEntries_.get(index);
     }
 
+||||||| merged common ancestors
+=======
+    // optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;
+    public static final int UPDATE_UFS_MODE_FIELD_NUMBER = 30;
+    private alluxio.proto.journal.File.UpdateUfsModeEntry updateUfsMode_;
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+     */
+    public boolean hasUpdateUfsMode() {
+      return ((bitField0_ & 0x04000000) == 0x04000000);
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+     */
+    public alluxio.proto.journal.File.UpdateUfsModeEntry getUpdateUfsMode() {
+      return updateUfsMode_;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+     */
+    public alluxio.proto.journal.File.UpdateUfsModeEntryOrBuilder getUpdateUfsModeOrBuilder() {
+      return updateUfsMode_;
+    }
+
+>>>>>>> openSource/master
     private void initFields() {
       sequenceNumber_ = 0L;
       addMountPoint_ = alluxio.proto.journal.File.AddMountPointEntry.getDefaultInstance();
@@ -1744,11 +1805,16 @@ public final class Journal {
       rename_ = alluxio.proto.journal.File.RenameEntry.getDefaultInstance();
       renameStore_ = alluxio.proto.journal.KeyValue.RenameStoreEntry.getDefaultInstance();
       setAttribute_ = alluxio.proto.journal.File.SetAttributeEntry.getDefaultInstance();
+<<<<<<< HEAD
       finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
       licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
       privilegeUpdate_ = alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.getDefaultInstance();
       startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
       journalEntries_ = java.util.Collections.emptyList();
+||||||| merged common ancestors
+=======
+      updateUfsMode_ = alluxio.proto.journal.File.UpdateUfsModeEntry.getDefaultInstance();
+>>>>>>> openSource/master
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1840,6 +1906,7 @@ public final class Journal {
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeMessage(29, deleteBlock_);
       }
+<<<<<<< HEAD
       if (((bitField0_ & 0x08000000) == 0x08000000)) {
         output.writeMessage(1001, licenseCheck_);
       }
@@ -1855,6 +1922,12 @@ public final class Journal {
       for (int i = 0; i < journalEntries_.size(); i++) {
         output.writeMessage(1005, journalEntries_.get(i));
       }
+||||||| merged common ancestors
+=======
+      if (((bitField0_ & 0x04000000) == 0x04000000)) {
+        output.writeMessage(30, updateUfsMode_);
+      }
+>>>>>>> openSource/master
       getUnknownFields().writeTo(output);
     }
 
@@ -1968,6 +2041,7 @@ public final class Journal {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(29, deleteBlock_);
       }
+<<<<<<< HEAD
       if (((bitField0_ & 0x08000000) == 0x08000000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1001, licenseCheck_);
@@ -1988,6 +2062,13 @@ public final class Journal {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1005, journalEntries_.get(i));
       }
+||||||| merged common ancestors
+=======
+      if (((bitField0_ & 0x04000000) == 0x04000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(30, updateUfsMode_);
+      }
+>>>>>>> openSource/master
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
@@ -2077,7 +2158,7 @@ public final class Journal {
      * 2.6.0 and adding this depedency would conflict with the version of protobuf used by Hadoop 2.x
      * and Spark. We use protobuf version 2.5.0 instead, which is compatible with Hadoop and Spark.
      *
-     * next available id: 30
+     * next available id: 31
      * </pre>
      */
     public static final class Builder extends
@@ -2132,11 +2213,16 @@ public final class Journal {
           getRenameFieldBuilder();
           getRenameStoreFieldBuilder();
           getSetAttributeFieldBuilder();
+<<<<<<< HEAD
           getFinishJobFieldBuilder();
           getLicenseCheckFieldBuilder();
           getPrivilegeUpdateFieldBuilder();
           getStartJobFieldBuilder();
           getJournalEntriesFieldBuilder();
+||||||| merged common ancestors
+=======
+          getUpdateUfsModeFieldBuilder();
+>>>>>>> openSource/master
         }
       }
       private static Builder create() {
@@ -2297,6 +2383,7 @@ public final class Journal {
           setAttributeBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x02000000);
+<<<<<<< HEAD
         if (finishJobBuilder_ == null) {
           finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
         } else {
@@ -2327,6 +2414,15 @@ public final class Journal {
         } else {
           journalEntriesBuilder_.clear();
         }
+||||||| merged common ancestors
+=======
+        if (updateUfsModeBuilder_ == null) {
+          updateUfsMode_ = alluxio.proto.journal.File.UpdateUfsModeEntry.getDefaultInstance();
+        } else {
+          updateUfsModeBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x04000000);
+>>>>>>> openSource/master
         return this;
       }
 
@@ -2559,6 +2655,7 @@ public final class Journal {
         } else {
           result.setAttribute_ = setAttributeBuilder_.build();
         }
+<<<<<<< HEAD
         if (((from_bitField0_ & 0x04000000) == 0x04000000)) {
           to_bitField0_ |= 0x04000000;
         }
@@ -2600,6 +2697,17 @@ public final class Journal {
         } else {
           result.journalEntries_ = journalEntriesBuilder_.build();
         }
+||||||| merged common ancestors
+=======
+        if (((from_bitField0_ & 0x04000000) == 0x04000000)) {
+          to_bitField0_ |= 0x04000000;
+        }
+        if (updateUfsModeBuilder_ == null) {
+          result.updateUfsMode_ = updateUfsMode_;
+        } else {
+          result.updateUfsMode_ = updateUfsModeBuilder_.build();
+        }
+>>>>>>> openSource/master
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2694,6 +2802,7 @@ public final class Journal {
         if (other.hasSetAttribute()) {
           mergeSetAttribute(other.getSetAttribute());
         }
+<<<<<<< HEAD
         if (other.hasFinishJob()) {
           mergeFinishJob(other.getFinishJob());
         }
@@ -2732,6 +2841,12 @@ public final class Journal {
             }
           }
         }
+||||||| merged common ancestors
+=======
+        if (other.hasUpdateUfsMode()) {
+          mergeUpdateUfsMode(other.getUpdateUfsMode());
+        }
+>>>>>>> openSource/master
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -5717,6 +5832,7 @@ public final class Journal {
         return setAttributeBuilder_;
       }
 
+<<<<<<< HEAD
       // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
       private alluxio.proto.journal.Job.FinishJobEntry finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
@@ -6560,6 +6676,126 @@ public final class Journal {
         return journalEntriesBuilder_;
       }
 
+||||||| merged common ancestors
+=======
+      // optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;
+      private alluxio.proto.journal.File.UpdateUfsModeEntry updateUfsMode_ = alluxio.proto.journal.File.UpdateUfsModeEntry.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.UpdateUfsModeEntry, alluxio.proto.journal.File.UpdateUfsModeEntry.Builder, alluxio.proto.journal.File.UpdateUfsModeEntryOrBuilder> updateUfsModeBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+       */
+      public boolean hasUpdateUfsMode() {
+        return ((bitField0_ & 0x04000000) == 0x04000000);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+       */
+      public alluxio.proto.journal.File.UpdateUfsModeEntry getUpdateUfsMode() {
+        if (updateUfsModeBuilder_ == null) {
+          return updateUfsMode_;
+        } else {
+          return updateUfsModeBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+       */
+      public Builder setUpdateUfsMode(alluxio.proto.journal.File.UpdateUfsModeEntry value) {
+        if (updateUfsModeBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          updateUfsMode_ = value;
+          onChanged();
+        } else {
+          updateUfsModeBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x04000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+       */
+      public Builder setUpdateUfsMode(
+          alluxio.proto.journal.File.UpdateUfsModeEntry.Builder builderForValue) {
+        if (updateUfsModeBuilder_ == null) {
+          updateUfsMode_ = builderForValue.build();
+          onChanged();
+        } else {
+          updateUfsModeBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x04000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+       */
+      public Builder mergeUpdateUfsMode(alluxio.proto.journal.File.UpdateUfsModeEntry value) {
+        if (updateUfsModeBuilder_ == null) {
+          if (((bitField0_ & 0x04000000) == 0x04000000) &&
+              updateUfsMode_ != alluxio.proto.journal.File.UpdateUfsModeEntry.getDefaultInstance()) {
+            updateUfsMode_ =
+              alluxio.proto.journal.File.UpdateUfsModeEntry.newBuilder(updateUfsMode_).mergeFrom(value).buildPartial();
+          } else {
+            updateUfsMode_ = value;
+          }
+          onChanged();
+        } else {
+          updateUfsModeBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x04000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+       */
+      public Builder clearUpdateUfsMode() {
+        if (updateUfsModeBuilder_ == null) {
+          updateUfsMode_ = alluxio.proto.journal.File.UpdateUfsModeEntry.getDefaultInstance();
+          onChanged();
+        } else {
+          updateUfsModeBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x04000000);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+       */
+      public alluxio.proto.journal.File.UpdateUfsModeEntry.Builder getUpdateUfsModeBuilder() {
+        bitField0_ |= 0x04000000;
+        onChanged();
+        return getUpdateUfsModeFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+       */
+      public alluxio.proto.journal.File.UpdateUfsModeEntryOrBuilder getUpdateUfsModeOrBuilder() {
+        if (updateUfsModeBuilder_ != null) {
+          return updateUfsModeBuilder_.getMessageOrBuilder();
+        } else {
+          return updateUfsMode_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateUfsModeEntry update_ufs_mode = 30;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.UpdateUfsModeEntry, alluxio.proto.journal.File.UpdateUfsModeEntry.Builder, alluxio.proto.journal.File.UpdateUfsModeEntryOrBuilder> 
+          getUpdateUfsModeFieldBuilder() {
+        if (updateUfsModeBuilder_ == null) {
+          updateUfsModeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.File.UpdateUfsModeEntry, alluxio.proto.journal.File.UpdateUfsModeEntry.Builder, alluxio.proto.journal.File.UpdateUfsModeEntryOrBuilder>(
+                  updateUfsMode_,
+                  getParentForChildren(),
+                  isClean());
+          updateUfsMode_ = null;
+        }
+        return updateUfsModeBuilder_;
+      }
+
+>>>>>>> openSource/master
       // @@protoc_insertion_point(builder_scope:alluxio.proto.journal.JournalEntry)
     }
 
@@ -6587,6 +6823,7 @@ public final class Journal {
     java.lang.String[] descriptorData = {
       "\n\025journal/journal.proto\022\025alluxio.proto.j" +
       "ournal\032\023journal/block.proto\032\022journal/fil" +
+<<<<<<< HEAD
       "e.proto\032\027journal/key_value.proto\032\021journa" +
       "l/job.proto\032\025journal/license.proto\032\027jour" +
       "nal/privilege.proto\032\025journal/lineage.pro" +
@@ -6643,6 +6880,105 @@ public final class Journal {
       "xio.proto.journal.StartJobEntry\022=\n\017journ" +
       "al_entries\030\355\007 \003(\0132#.alluxio.proto.journa" +
       "l.JournalEntryB\027\n\025alluxio.proto.journal"
+||||||| merged common ancestors
+      "e.proto\032\027journal/key_value.proto\032\025journa" +
+      "l/lineage.proto\"\352\r\n\014JournalEntry\022\027\n\017sequ" +
+      "ence_number\030\001 \001(\003\022B\n\017add_mount_point\030\002 \001" +
+      "(\0132).alluxio.proto.journal.AddMountPoint" +
+      "Entry\022N\n\025async_persist_request\030\020 \001(\0132/.a" +
+      "lluxio.proto.journal.AsyncPersistRequest" +
+      "Entry\022[\n\034block_container_id_generator\030\003 " +
+      "\001(\01325.alluxio.proto.journal.BlockContain",
+      "erIdGeneratorEntry\0229\n\nblock_info\030\004 \001(\0132%" +
+      ".alluxio.proto.journal.BlockInfoEntry\022?\n" +
+      "\rcomplete_file\030\005 \001(\0132(.alluxio.proto.jou" +
+      "rnal.CompleteFileEntry\022I\n\022complete_parti" +
+      "tion\030\025 \001(\0132-.alluxio.proto.journal.Compl" +
+      "etePartitionEntry\022A\n\016complete_store\030\026 \001(" +
+      "\0132).alluxio.proto.journal.CompleteStoreE" +
+      "ntry\022=\n\014create_store\030\027 \001(\0132\'.alluxio.pro" +
+      "to.journal.CreateStoreEntry\022=\n\014delete_bl" +
+      "ock\030\035 \001(\0132\'.alluxio.proto.journal.Delete",
+      "BlockEntry\022;\n\013delete_file\030\006 \001(\0132&.alluxi" +
+      "o.proto.journal.DeleteFileEntry\022A\n\016delet" +
+      "e_lineage\030\007 \001(\0132).alluxio.proto.journal." +
+      "DeleteLineageEntry\022H\n\022delete_mount_point" +
+      "\030\010 \001(\0132,.alluxio.proto.journal.DeleteMou" +
+      "ntPointEntry\022=\n\014delete_store\030\031 \001(\0132\'.all" +
+      "uxio.proto.journal.DeleteStoreEntry\022C\n\017i" +
+      "node_directory\030\t \001(\0132*.alluxio.proto.jou" +
+      "rnal.InodeDirectoryEntry\022[\n\034inode_direct" +
+      "ory_id_generator\030\n \001(\01325.alluxio.proto.j",
+      "ournal.InodeDirectoryIdGeneratorEntry\0229\n" +
+      "\ninode_file\030\013 \001(\0132%.alluxio.proto.journa" +
+      "l.InodeFileEntry\022[\n\034inode_last_modificat" +
+      "ion_time\030\014 \001(\01325.alluxio.proto.journal.I" +
+      "nodeLastModificationTimeEntry\0224\n\007lineage" +
+      "\030\r \001(\0132#.alluxio.proto.journal.LineageEn" +
+      "try\022L\n\024lineage_id_generator\030\016 \001(\0132..allu" +
+      "xio.proto.journal.LineageIdGeneratorEntr" +
+      "y\022;\n\013merge_store\030\032 \001(\0132&.alluxio.proto.j" +
+      "ournal.MergeStoreEntry\022G\n\021persist_direct",
+      "ory\030\017 \001(\0132,.alluxio.proto.journal.Persis" +
+      "tDirectoryEntry\022G\n\021reinitialize_file\030\022 \001" +
+      "(\0132,.alluxio.proto.journal.ReinitializeF" +
+      "ileEntry\0222\n\006rename\030\023 \001(\0132\".alluxio.proto" +
+      ".journal.RenameEntry\022=\n\014rename_store\030\034 \001" +
+      "(\0132\'.alluxio.proto.journal.RenameStoreEn" +
+      "try\022?\n\rset_attribute\030\033 \001(\0132(.alluxio.pro" +
+      "to.journal.SetAttributeEntryB\027\n\025alluxio." +
+      "proto.journal"
+=======
+      "e.proto\032\027journal/key_value.proto\032\025journa" +
+      "l/lineage.proto\"\256\016\n\014JournalEntry\022\027\n\017sequ" +
+      "ence_number\030\001 \001(\003\022B\n\017add_mount_point\030\002 \001" +
+      "(\0132).alluxio.proto.journal.AddMountPoint" +
+      "Entry\022N\n\025async_persist_request\030\020 \001(\0132/.a" +
+      "lluxio.proto.journal.AsyncPersistRequest" +
+      "Entry\022[\n\034block_container_id_generator\030\003 " +
+      "\001(\01325.alluxio.proto.journal.BlockContain",
+      "erIdGeneratorEntry\0229\n\nblock_info\030\004 \001(\0132%" +
+      ".alluxio.proto.journal.BlockInfoEntry\022?\n" +
+      "\rcomplete_file\030\005 \001(\0132(.alluxio.proto.jou" +
+      "rnal.CompleteFileEntry\022I\n\022complete_parti" +
+      "tion\030\025 \001(\0132-.alluxio.proto.journal.Compl" +
+      "etePartitionEntry\022A\n\016complete_store\030\026 \001(" +
+      "\0132).alluxio.proto.journal.CompleteStoreE" +
+      "ntry\022=\n\014create_store\030\027 \001(\0132\'.alluxio.pro" +
+      "to.journal.CreateStoreEntry\022=\n\014delete_bl" +
+      "ock\030\035 \001(\0132\'.alluxio.proto.journal.Delete",
+      "BlockEntry\022;\n\013delete_file\030\006 \001(\0132&.alluxi" +
+      "o.proto.journal.DeleteFileEntry\022A\n\016delet" +
+      "e_lineage\030\007 \001(\0132).alluxio.proto.journal." +
+      "DeleteLineageEntry\022H\n\022delete_mount_point" +
+      "\030\010 \001(\0132,.alluxio.proto.journal.DeleteMou" +
+      "ntPointEntry\022=\n\014delete_store\030\031 \001(\0132\'.all" +
+      "uxio.proto.journal.DeleteStoreEntry\022C\n\017i" +
+      "node_directory\030\t \001(\0132*.alluxio.proto.jou" +
+      "rnal.InodeDirectoryEntry\022[\n\034inode_direct" +
+      "ory_id_generator\030\n \001(\01325.alluxio.proto.j",
+      "ournal.InodeDirectoryIdGeneratorEntry\0229\n" +
+      "\ninode_file\030\013 \001(\0132%.alluxio.proto.journa" +
+      "l.InodeFileEntry\022[\n\034inode_last_modificat" +
+      "ion_time\030\014 \001(\01325.alluxio.proto.journal.I" +
+      "nodeLastModificationTimeEntry\0224\n\007lineage" +
+      "\030\r \001(\0132#.alluxio.proto.journal.LineageEn" +
+      "try\022L\n\024lineage_id_generator\030\016 \001(\0132..allu" +
+      "xio.proto.journal.LineageIdGeneratorEntr" +
+      "y\022;\n\013merge_store\030\032 \001(\0132&.alluxio.proto.j" +
+      "ournal.MergeStoreEntry\022G\n\021persist_direct",
+      "ory\030\017 \001(\0132,.alluxio.proto.journal.Persis" +
+      "tDirectoryEntry\022G\n\021reinitialize_file\030\022 \001" +
+      "(\0132,.alluxio.proto.journal.ReinitializeF" +
+      "ileEntry\0222\n\006rename\030\023 \001(\0132\".alluxio.proto" +
+      ".journal.RenameEntry\022=\n\014rename_store\030\034 \001" +
+      "(\0132\'.alluxio.proto.journal.RenameStoreEn" +
+      "try\022?\n\rset_attribute\030\033 \001(\0132(.alluxio.pro" +
+      "to.journal.SetAttributeEntry\022B\n\017update_u" +
+      "fs_mode\030\036 \001(\0132).alluxio.proto.journal.Up" +
+      "dateUfsModeEntryB\027\n\025alluxio.proto.journa",
+      "l"
+>>>>>>> openSource/master
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -6654,7 +6990,13 @@ public final class Journal {
           internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_journal_JournalEntry_descriptor,
+<<<<<<< HEAD
               new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", "FinishJob", "LicenseCheck", "PrivilegeUpdate", "StartJob", "JournalEntries", });
+||||||| merged common ancestors
+              new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", });
+=======
+              new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", "UpdateUfsMode", });
+>>>>>>> openSource/master
           return null;
         }
       };
