@@ -45,12 +45,16 @@ pipeline {
                         ])
                         sh 'mvn clean install -DskipTests -Dmaven.javadoc.skip -Dcheckstyle.skip -Dlicense.skip -Dfindbugs.skip -Dannotation.skip -quiet'
                         sh "rm -rf restdoc"
-                        
-                         // ${edition}-vA.B.X -> A.B OR master -> master
+
+                        // parse major.minor version from tag matching "v0.0" or leave version as is
                         def version = tag
-                        def header = "${edition}-v"
-                        if (tag.startsWith(header)) {
-                            version = tag.substring(header.length(), header.length()+3)
+                        def pattern = /.*v(\d+.\d+).*/
+                        def matcher = (tag =~ pattern)
+                        if (matcher) {
+                            version = matcher[0][1]
+                        } else {
+                            echo "Tag did not match version regex pattern "+pattern+" -> "+tag
+                            echo "Using given tag as folder name"
                         }
                         // find directories named miredot (ex. ./core/server/{proxy,master,worker}/target/miredot)
                         def miredots = sh (
