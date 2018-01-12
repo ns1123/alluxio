@@ -1,0 +1,45 @@
+pipeline {
+    agent none
+    stages {
+        stage('build') {
+            agent {
+                docker {
+                    image 'agent'
+                    label 'workerXLarge'
+                    alwaysPull false
+                }
+            }
+            environment {
+                AWS_ACCESS_KEY_ID     = credentials('JENKINS_AWS_ACCESS_KEY_ID')
+                AWS_SECRET_ACCESS_KEY = credentials('JENKINS_AWS_SECRET_ACCESS_KEY')
+            }
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '${sha1}']],
+                    userRemoteConfigs: [[
+                        credentialsId: 'ALLUXIO-CI_GITHUB',
+                        url: 'https://github.com/TachyonNexus/enterprise',
+                        name: 'origin',
+                        refspec: '+refs/pull/*:refs/remotes/origin/pr/*'
+                    ]]
+                ])
+                timeout(90) {timestamps {script {
+                    def cmd = 'mvn clean install -DreuseForks=false -DforkCount=2'
+                    // legacy branches that contain an annotation/ directory must skip annotation check because it requires cloning a private repo
+                    if (fileExists("${WORKSPACE}/annotation")) {
+                        cmd += ' -Dannotation.skip'
+                    }
+                    sh cmd
+                }}}
+            }
+            post {
+                always {
+                    junit '**/TEST-*.xml'
+                    archive '**/target/artifacts/*,**/tests.log*'
+                }
+            }
+        }
+    }
+}
+

@@ -1,0 +1,55 @@
+pipeline {
+    agent none
+    stages {
+        stage('build') {
+            agent {
+                docker {
+                    image 'agent'
+                    label 'workerXLarge'
+                    alwaysPull false
+                }
+            }
+            environment {
+                AWS_ACCESS_KEY_ID     = credentials('JENKINS_AWS_ACCESS_KEY_ID')
+                AWS_SECRET_ACCESS_KEY = credentials('JENKINS_AWS_SECRET_ACCESS_KEY')
+            }
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: 'refs/remotes/origin/master']],
+                    userRemoteConfigs: [[
+                        credentialsId: 'ALLUXIO-CI_GITHUB',
+                        url: 'https://github.com/TachyonNexus/enterprise',
+                    ]]
+                ])
+                timeout(90) {timestamps {script {
+                    def cmd = 'mvn clean install -DreuseForks=false -DforkCount=2'
+                    // legacy branches that contain an annotation/ directory must skip annotation check because it requires cloning a private repo
+                    if (fileExists("${WORKSPACE}/annotation")) {
+                        cmd += ' -Dannotation.skip'
+                    }
+                    sh cmd
+                }}}
+            }
+            post {
+                always {
+                    junit '**/TEST-*.xml'
+                    archive '**/target/artifacts/*,**/tests.log*'
+                }
+                unstable {
+                    emailext recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                    to: 'ci@alluxio.com',
+                    subject: "${currentBuild.fullDisplayName} - ${currentBuild.result}",
+                    body: "See ${env.BUILD_URL}"
+                }
+                failure {
+                    emailext recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                    to: 'ci@alluxio.com',
+                    subject: "${currentBuild.fullDisplayName} -${currentBuild.result}",
+                    body: "See ${env.BUILD_URL}"
+                }
+            }
+        }
+    }
+}
+
