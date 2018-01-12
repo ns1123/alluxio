@@ -56,6 +56,7 @@ pipeline {
                             echo "Tag did not match version regex pattern "+pattern+" -> "+tag
                             echo "Using given tag as folder name"
                         }
+                        matcher = null // need to discard matcher because its type, java.util.regex.Matcher, is not serializable in groovy
                         // find directories named miredot (ex. ./core/server/{proxy,master,worker}/target/miredot)
                         def miredots = sh (
                             script: 'find . -name "miredot" -type d',

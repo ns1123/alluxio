@@ -56,6 +56,7 @@ pipeline {
                             echo "Tag did not match version regex pattern "+pattern+" -> "+tag
                             echo "Using given tag as folder name"
                         }
+                        matcher = null // need to discard matcher because its type, java.util.regex.Matcher, is not serializable in groovy
                         sh "aws s3 sync target/site/apidocs/ s3://${params.S3Bucket}/${folderName}/${version}"
                     }
                 }
