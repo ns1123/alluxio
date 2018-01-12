@@ -30,7 +30,8 @@ public final class CommandUtils {
   private CommandUtils() {} // prevent instantiation
 
   /**
-   * Get instances of all subclasses of {@link Command} in the given package.
+   * Get instances of all subclasses of {@link Command} in a sub-package called "command" the given
+   * package.
    *
    * @param pkgName package prefix to look in
    * @param classArgs type of args to instantiate the class
@@ -50,7 +51,8 @@ public final class CommandUtils {
         continue;
       }
       // ALLUXIO CS END
-      if (cls.getPackage().getName().startsWith(pkgName)
+      // Add commands from <pkgName>.command.*
+      if (cls.getPackage().getName().equals(pkgName + ".command")
           && !Modifier.isAbstract(cls.getModifiers())) {
         // Only instantiate a concrete class
         Command cmd = CommonUtils.createNewClassInstance(cls, classArgs, objectArgs);
