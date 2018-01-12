@@ -278,7 +278,6 @@ public final class FileSystemShellUtilsTest {
 
     int expectSize = 0;
     for (Class<? extends Command> cls : cmdSet) {
-
       // ALLUXIO CS ADD
       if (cls.getSimpleName().equals("CreateLineageCommand")
           || cls.getSimpleName().equals("DeleteLineageCommand")
