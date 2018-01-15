@@ -223,9 +223,8 @@ public final class AlluxioBlockStoreTest {
     File file = File.createTempFile("test", ".tmp");
     ProtoMessage response = new ProtoMessage(
         Protocol.LocalBlockCreateResponse.newBuilder().setPath(file.getAbsolutePath()).build());
-    Mockito.when(NettyRPC.call(Mockito.any(NettyRPCContext.class), Mockito.any(ProtoMessage.class)))
-        .thenReturn(response);
-    Mockito.when(mMasterClient.getWorkerInfoList()).thenReturn(Lists
+    when(NettyRPC.call(any(NettyRPCContext.class), any(ProtoMessage.class))).thenReturn(response);
+    when(mMasterClient.getWorkerInfoList()).thenReturn(Lists
         .newArrayList(new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
             new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_REMOTE)));
     OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
