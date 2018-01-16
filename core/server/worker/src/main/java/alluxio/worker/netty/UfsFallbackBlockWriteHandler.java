@@ -166,6 +166,9 @@ public final class UfsFallbackBlockWriteHandler
           context.setOutputStream(null);
         }
       }
+      if (context.getUfsResource() != null) {
+        context.getUfsResource().close();
+      }
     }
 
     @Override
@@ -177,9 +180,12 @@ public final class UfsFallbackBlockWriteHandler
           context.getOutputStream().close();
           context.setOutputStream(null);
         }
-        if (context.getUnderFileSystem() != null) {
-          context.getUnderFileSystem().deleteFile(context.getUfsPath());
+        if (context.getUfsResource() != null) {
+          context.getUfsResource().get().deleteFile(context.getUfsPath());
         }
+      }
+      if (context.getUfsResource() != null) {
+        context.getUfsResource().close();
       }
     }
 
@@ -246,11 +252,13 @@ public final class UfsFallbackBlockWriteHandler
       if (user != null) {
         AuthenticatedClientUser.set(user);
       }
-      UfsManager.UfsInfo ufsInfo = mUfsManager.get(createUfsBlockOptions.getMountId());
-      UnderFileSystem ufs = ufsInfo.getUfs();
-      context.setUnderFileSystem(ufs);
-      String ufsString = MetricsSystem.escape(ufsInfo.getUfsMountPointUri());
-      String ufsPath = BlockUtils.getUfsBlockPath(ufsInfo, request.getId());
+      UfsManager.UfsClient ufsClient = mUfsManager.get(createUfsBlockOptions.getMountId());
+      alluxio.resource.CloseableResource<UnderFileSystem> ufsResource =
+          ufsClient.acquireUfsResource();
+      context.setUfsResource(ufsResource);
+      String ufsString = MetricsSystem.escape(ufsClient.getUfsMountPointUri());
+      String ufsPath = BlockUtils.getUfsBlockPath(ufsClient, request.getId());
+      UnderFileSystem ufs = ufsResource.get();
       // Set the atomic flag to be true to ensure only the creation of this file is atomic on close.
       OutputStream ufsOutputStream =
           ufs.create(ufsPath, CreateOptions.defaults().setEnsureAtomic(true).setCreateParent(true));

@@ -3948,7 +3948,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       long fileId = job.getFileId();
       String tempUfsPath = job.getTempUfsPath();
       List<Long> blockIds = new ArrayList<>();
-      UfsManager.UfsInfo ufsInfo = null;
+      UfsManager.UfsClient ufsClient = null;
       try (JournalContext journalContext = createJournalContext();
           LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
@@ -3964,14 +3964,16 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             break;
           case TO_BE_PERSISTED:
             MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
-            UnderFileSystem ufs = resolution.getUfs();
-            String ufsPath = resolution.getUri().toString();
-            if (!ufs.renameFile(tempUfsPath, ufsPath)) {
-              throw new IOException(
-                  String.format("Failed to rename %s to %s.", tempUfsPath, ufsPath));
+            try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
+              UnderFileSystem ufs = ufsResource.get();
+              String ufsPath = resolution.getUri().toString();
+              if (!ufs.renameFile(tempUfsPath, ufsPath)) {
+                throw new IOException(
+                    String.format("Failed to rename %s to %s.", tempUfsPath, ufsPath));
+              }
+              ufs.setOwner(ufsPath, inode.getOwner(), inode.getGroup());
+              ufs.setMode(ufsPath, inode.getMode());
             }
-            ufs.setOwner(ufsPath, inode.getOwner(), inode.getGroup());
-            ufs.setMode(ufsPath, inode.getMode());
 
             inode.setPersistenceState(PersistenceState.PERSISTED);
             inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
@@ -3987,7 +3989,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
             // Save state for possible cleanup
             blockIds.addAll(inode.getBlockIds());
-            ufsInfo = mUfsManager.get(resolution.getMountId());
+            ufsClient = mUfsManager.get(resolution.getMountId());
             break;
           default:
             throw new IllegalStateException(
@@ -4013,11 +4015,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
       // Cleanup possible staging UFS blocks files due to fast durable write fallback.
       // Note that this is best effort
-      if (ufsInfo != null) {
+      if (ufsClient != null) {
         for (long blockId : blockIds) {
-          String ufsBlockPath = alluxio.worker.BlockUtils.getUfsBlockPath(ufsInfo, blockId);
-          try {
-            alluxio.util.UnderFileSystemUtils.deleteFileIfExists(ufsInfo.getUfs(), ufsBlockPath);
+          String ufsBlockPath = alluxio.worker.BlockUtils.getUfsBlockPath(ufsClient, blockId);
+          try (CloseableResource<UnderFileSystem> ufsResource = ufsClient.acquireUfsResource()) {
+            alluxio.util.UnderFileSystemUtils.deleteFileIfExists(ufsResource.get(), ufsBlockPath);
           } catch (Exception e) {
             LOG.warn("Failed to clean up staging UFS block file {}", ufsBlockPath, e.getMessage());
           }
