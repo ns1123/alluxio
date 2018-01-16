@@ -321,11 +321,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
       new Builder(Name.UNDERFS_HDFS_PREFIXES)
-          // ALLUXIO CS REPLACE
-          // .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
-          // ALLUXIO CS WITH
-          .setDefaultValue("hdfs://,glusterfs:///")
-          // ALLUXIO CS END
+          .setDefaultValue("hdfs://,glusterfs:///,maprfs:///")
           .setDescription("Optionally, specify which prefixes should run through the HDFS "
               + "implementation of UnderFileSystem. The delimiter is any whitespace "
               + "and/or ','.")
