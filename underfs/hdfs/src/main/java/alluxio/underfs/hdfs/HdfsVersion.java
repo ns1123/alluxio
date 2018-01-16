@@ -16,16 +16,16 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 /** The set of supported Hdfs versions. */
-public enum HdfsVersions {
-  HADOOP_1_0("hadoop-1.0", "(hadoop-?1\\.0(\\.(\\d+))?|1\\.0(\\.(\\d+))?)"),
-  HADOOP_1_2("hadoop-1.2", "(hadoop-?1\\.2(\\.(\\d+))?|1\\.2(\\.(\\d+))?)"),
-  HADOOP_2_2("hadoop-2.2", "(hadoop-?2\\.2(\\.(\\d+))?|2\\.2(\\.(\\d+))?)"),
-  HADOOP_2_3("hadoop-2.3", "(hadoop-?2\\.3(\\.(\\d+))?|2\\.3(\\.(\\d+))?)"),
-  HADOOP_2_4("hadoop-2.4", "(hadoop-?2\\.4(\\.(\\d+))?|2\\.4(\\.(\\d+))?)"),
-  HADOOP_2_5("hadoop-2.5", "(hadoop-?2\\.5(\\.(\\d+))?|2\\.5(\\.(\\d+))?)"),
-  HADOOP_2_6("hadoop-2.6", "(hadoop-?2\\.6(\\.(\\d+))?|2\\.6(\\.(\\d+))?)"),
-  HADOOP_2_7("hadoop-2.7", "(hadoop-?2\\.7(\\.(\\d+))?|2\\.7(\\.(\\d+))?)"),
-  HADOOP_2_8("hadoop-2.8", "(hadoop-?2\\.8(\\.(\\d+))?|2\\.8(\\.(\\d+))?)"),
+public enum HdfsVersion {
+  HADOOP_1_0("hadoop-1.0", "(hadoop-?1\\.0(\\.(\\d+))?|1\\.0(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_1_2("hadoop-1.2", "(hadoop-?1\\.2(\\.(\\d+))?|1\\.2(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_2_2("hadoop-2.2", "(hadoop-?2\\.2(\\.(\\d+))?|2\\.2(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_2_3("hadoop-2.3", "(hadoop-?2\\.3(\\.(\\d+))?|2\\.3(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_2_4("hadoop-2.4", "(hadoop-?2\\.4(\\.(\\d+))?|2\\.4(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_2_5("hadoop-2.5", "(hadoop-?2\\.5(\\.(\\d+))?|2\\.5(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_2_6("hadoop-2.6", "(hadoop-?2\\.6(\\.(\\d+))?|2\\.6(\\.(\\d+)(-(?!cdh).*)?)?)"),
+  HADOOP_2_7("hadoop-2.7", "(hadoop-?2\\.7(\\.(\\d+))?|2\\.7(\\.(\\d+)(-(?!cdh).*)?)?)"),
+  HADOOP_2_8("hadoop-2.8", "(hadoop-?2\\.8(\\.(\\d+))?|2\\.8(\\.(\\d+)(-(?!cdh).*)?)?)"),
   CDH_5_6("cdh-5.6", "(cdh-?5\\.6(\\.(\\d+))?|2\\.6\\.0-cdh5\\.6\\.(.*)?)"),
   CDH_5_8("cdh-5.8", "(cdh-?5\\.8(\\.(\\d+))?|2\\.6\\.0-cdh5\\.8\\.(.*)?)"),
   CDH_5_11("cdh-5.11", "(cdh-?5\\.11(\\.(\\d+))?|2\\.6\\.0-cdh5\\.11\\.(.*)?)"),
@@ -39,23 +39,23 @@ public enum HdfsVersions {
   private final Pattern mVersionPattern;
 
   /**
-   * Constructs an instance of {@link HdfsVersions}.
+   * Constructs an instance of {@link HdfsVersion}.
    *
    * @param canonicalVersion the canonical version of an HDFS
    * @param versionPattern the regex pattern of version for an HDFS
    */
-  HdfsVersions(String canonicalVersion, String versionPattern) {
+  HdfsVersion(String canonicalVersion, String versionPattern) {
     mCanonicalVersion = canonicalVersion;
     mVersionPattern = Pattern.compile(versionPattern);
   }
 
   /**
    * @param versionString given version string
-   * @return the corresponding {@link HdfsVersions} instance
+   * @return the corresponding {@link HdfsVersion} instance
    */
   @Nullable
-  public static HdfsVersions find(String versionString) {
-    for (HdfsVersions version : HdfsVersions.values()) {
+  public static HdfsVersion find(String versionString) {
+    for (HdfsVersion version : HdfsVersion.values()) {
       if (version.mVersionPattern.matcher(versionString).matches()) {
         return version;
       }

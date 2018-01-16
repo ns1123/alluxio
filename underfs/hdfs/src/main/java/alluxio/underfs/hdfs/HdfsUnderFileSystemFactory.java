@@ -67,7 +67,7 @@ public final class HdfsUnderFileSystemFactory implements UnderFileSystemFactory 
       for (final String prefix : Configuration.getList(PropertyKey.UNDERFS_HDFS_PREFIXES, ",")) {
         if (path.startsWith(prefix)) {
           if (conf != null
-              && HdfsVersions.find(conf.getValue(PropertyKey.UNDERFS_HDFS_VERSION)) != HdfsVersions
+              && HdfsVersion.find(conf.getValue(PropertyKey.UNDERFS_HDFS_VERSION)) != HdfsVersion
               .find(alluxio.UfsConstants.UFS_HADOOP_VERSION)) {
             continue;
           }
