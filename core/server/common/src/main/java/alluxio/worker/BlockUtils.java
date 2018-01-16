@@ -29,7 +29,7 @@ public final class BlockUtils {
    * @param blockId block ID
    * @return the UFS path of a block
    */
-  public static String getUfsBlockPath(UfsManager.UfsInfo ufsInfo, long blockId) {
+  public static String getUfsBlockPath(UfsManager.UfsClient ufsInfo, long blockId) {
     return PathUtils.concatPath(ufsInfo.getUfsMountPointUri(),
         PathUtils.temporaryFileName(MAGIC_NUMBER, ".alluxio_ufs_blocks"), blockId);
   }

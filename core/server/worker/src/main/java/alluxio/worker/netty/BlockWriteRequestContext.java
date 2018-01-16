@@ -26,7 +26,7 @@ public final class BlockWriteRequestContext extends WriteRequestContext<BlockWri
   private long mBytesReserved;
   // ALLUXIO CS ADD
   private boolean mIsWritingToLocal = true;
-  private alluxio.underfs.UnderFileSystem mUnderFileSystem;
+  private alluxio.resource.CloseableResource<alluxio.underfs.UnderFileSystem> mUfsResource;
   private java.io.OutputStream mOutputStream;
   private String mUfsPath;
   // ALLUXIO CS END
@@ -92,8 +92,8 @@ public final class BlockWriteRequestContext extends WriteRequestContext<BlockWri
    * @return the handler of the UFS
    */
   @Nullable
-  public alluxio.underfs.UnderFileSystem getUnderFileSystem() {
-    return mUnderFileSystem;
+  public alluxio.resource.CloseableResource<alluxio.underfs.UnderFileSystem> getUfsResource() {
+    return mUfsResource;
   }
 
   /**
@@ -111,10 +111,11 @@ public final class BlockWriteRequestContext extends WriteRequestContext<BlockWri
   }
 
   /**
-   * @param underFileSystem UFS to set
+   * @param ufsResource UFS to set
    */
-  public void setUnderFileSystem(alluxio.underfs.UnderFileSystem underFileSystem) {
-    mUnderFileSystem = underFileSystem;
+  public void setUfsResource(
+      alluxio.resource.CloseableResource<alluxio.underfs.UnderFileSystem> ufsResource) {
+    mUfsResource = ufsResource;
   }
 
   /**
