@@ -26,6 +26,7 @@ import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
 import alluxio.job.util.SerializableVoid;
 import alluxio.metrics.MetricsSystem;
+import alluxio.resource.CloseableResource;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
@@ -117,65 +118,67 @@ public final class PersistDefinition
     String ufsPath = config.getUfsPath();
 
     // check if the file is persisted in UFS and delete it, if we are overwriting it
-    UfsManager.UfsInfo ufsInfo = context.getUfsManager().get(config.getMountId());
-    UnderFileSystem ufs = ufsInfo.getUfs();
-    if (ufs == null) {
-      throw new IOException("Failed to create UFS instance for " + ufsPath);
-    }
-    if (ufs.exists(ufsPath)) {
-      if (config.isOverwrite()) {
-        LOG.info("File {} is already persisted in UFS. Removing it.", config.getFilePath());
-        ufs.deleteFile(ufsPath);
-      } else {
-        throw new IOException("File " + config.getFilePath()
-            + " is already persisted in UFS, to overwrite the file, please set the overwrite flag"
-            + " in the config.");
+    UfsManager.UfsClient ufsClient = context.getUfsManager().get(config.getMountId());
+    try (CloseableResource<UnderFileSystem> ufsResource = ufsClient.acquireUfsResource()) {
+      UnderFileSystem ufs = ufsResource.get();
+      if (ufs == null) {
+        throw new IOException("Failed to create UFS instance for " + ufsPath);
       }
-    }
-
-    FileSystem fs = FileSystem.Factory.get();
-    long bytesWritten;
-    try (Closer closer = Closer.create()) {
-      OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
-      // Disable decryption when reading from Alluxio in order to directly copy ciphertext to UFS.
-      options.setSkipTransformation(true);
-      FileInStream in = closer.register(fs.openFile(uri, options));
-      AlluxioURI dstPath = new AlluxioURI(ufsPath);
-      // Create ancestor directories from top to the bottom. We cannot use recursive create
-      // parents here because the permission for the ancestors can be different.
-      Stack<Pair<String, MkdirsOptions>> ufsDirsToMakeWithOptions = new Stack<>();
-      AlluxioURI curAlluxioPath = uri.getParent();
-      AlluxioURI curUfsPath = dstPath.getParent();
-      // Stop at the Alluxio root because the mapped directory of Alluxio root in UFS may not
-      // exist.
-      while (!ufs.isDirectory(curUfsPath.toString()) && curAlluxioPath != null) {
-        URIStatus curDirStatus = fs.getStatus(curAlluxioPath);
-        ufsDirsToMakeWithOptions.push(new Pair<>(curUfsPath.toString(),
-            MkdirsOptions.defaults().setCreateParent(false).setOwner(curDirStatus.getOwner())
-                .setGroup(curDirStatus.getGroup())
-                .setMode(new Mode((short) curDirStatus.getMode()))));
-        curAlluxioPath = curAlluxioPath.getParent();
-        curUfsPath = curUfsPath.getParent();
-      }
-      while (!ufsDirsToMakeWithOptions.empty()) {
-        Pair<String, MkdirsOptions> ufsDirAndPerm = ufsDirsToMakeWithOptions.pop();
-        // UFS mkdirs might fail if the directory is already created. If so, skip the mkdirs
-        // and assume the directory is already prepared, regardless of permission matching.
-        if (!ufs.mkdirs(ufsDirAndPerm.getFirst(), ufsDirAndPerm.getSecond())
-            && !ufs.isDirectory(ufsDirAndPerm.getFirst())) {
-          throw new IOException(
-              "Failed to create " + ufsDirAndPerm.getFirst() + " with permission " + ufsDirAndPerm
-                  .getSecond().toString());
+      if (ufs.exists(ufsPath)) {
+        if (config.isOverwrite()) {
+          LOG.info("File {} is already persisted in UFS. Removing it.", config.getFilePath());
+          ufs.deleteFile(ufsPath);
+        } else {
+          throw new IOException("File " + config.getFilePath()
+              + " is already persisted in UFS, to overwrite the file, please set the overwrite flag"
+              + " in the config.");
         }
       }
-      URIStatus uriStatus = fs.getStatus(uri);
-      OutputStream out = closer.register(
-          ufs.create(dstPath.toString(), CreateOptions.defaults().setOwner(uriStatus.getOwner())
-              .setGroup(uriStatus.getGroup()).setMode(new Mode((short) uriStatus.getMode()))));
-      bytesWritten = IOUtils.copyLarge(in, out);
-      incrementPersistedMetric(ufsInfo.getUfsMountPointUri(), bytesWritten);
+
+      FileSystem fs = FileSystem.Factory.get();
+      long bytesWritten;
+      try (Closer closer = Closer.create()) {
+        OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
+        // Disable decryption when reading from Alluxio in order to directly copy ciphertext to UFS.
+        options.setSkipTransformation(true);
+        FileInStream in = closer.register(fs.openFile(uri, options));
+        AlluxioURI dstPath = new AlluxioURI(ufsPath);
+        // Create ancestor directories from top to the bottom. We cannot use recursive create
+        // parents here because the permission for the ancestors can be different.
+        Stack<Pair<String, MkdirsOptions>> ufsDirsToMakeWithOptions = new Stack<>();
+        AlluxioURI curAlluxioPath = uri.getParent();
+        AlluxioURI curUfsPath = dstPath.getParent();
+        // Stop at the Alluxio root because the mapped directory of Alluxio root in UFS may not
+        // exist.
+        while (!ufs.isDirectory(curUfsPath.toString()) && curAlluxioPath != null) {
+          URIStatus curDirStatus = fs.getStatus(curAlluxioPath);
+          ufsDirsToMakeWithOptions.push(new Pair<>(curUfsPath.toString(),
+              MkdirsOptions.defaults().setCreateParent(false).setOwner(curDirStatus.getOwner())
+                  .setGroup(curDirStatus.getGroup())
+                  .setMode(new Mode((short) curDirStatus.getMode()))));
+          curAlluxioPath = curAlluxioPath.getParent();
+          curUfsPath = curUfsPath.getParent();
+        }
+        while (!ufsDirsToMakeWithOptions.empty()) {
+          Pair<String, MkdirsOptions> ufsDirAndPerm = ufsDirsToMakeWithOptions.pop();
+          // UFS mkdirs might fail if the directory is already created. If so, skip the mkdirs
+          // and assume the directory is already prepared, regardless of permission matching.
+          if (!ufs.mkdirs(ufsDirAndPerm.getFirst(), ufsDirAndPerm.getSecond())
+              && !ufs.isDirectory(ufsDirAndPerm.getFirst())) {
+            throw new IOException(
+                "Failed to create " + ufsDirAndPerm.getFirst() + " with permission " + ufsDirAndPerm
+                    .getSecond().toString());
+          }
+        }
+        URIStatus uriStatus = fs.getStatus(uri);
+        OutputStream out = closer.register(
+            ufs.create(dstPath.toString(), CreateOptions.defaults().setOwner(uriStatus.getOwner())
+                .setGroup(uriStatus.getGroup()).setMode(new Mode((short) uriStatus.getMode()))));
+        bytesWritten = IOUtils.copyLarge(in, out);
+        incrementPersistedMetric(ufsClient.getUfsMountPointUri(), bytesWritten);
+      }
+      LOG.info("Persisted file {} with size {}", ufsPath, bytesWritten);
     }
-    LOG.info("Persisted file {} with size {}", ufsPath, bytesWritten);
     return null;
   }
 
