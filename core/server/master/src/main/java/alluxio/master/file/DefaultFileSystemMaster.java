@@ -3219,7 +3219,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @Override
   public void scheduleAsyncPersistence(AlluxioURI path)
       throws AlluxioException, UnavailableException {
-    checkUfsMode(path, OperationType.WRITE);
+    // ALLUXIO CS REPLACE
+    // checkUfsMode(path, OperationType.WRITE);
+    // ALLUXIO CS WITH
+    // NOTE: In CS we retry an async persist request until ufs permits the operation
+    // ALLUXIO CS END
     try (JournalContext journalContext = createJournalContext();
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
       scheduleAsyncPersistenceAndJournal(inodePath, journalContext);
@@ -3886,6 +3890,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           try (LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
             uri = inodePath.getUri();
+          }
+          try {
+            checkUfsMode(uri, OperationType.WRITE);
+          } catch (Exception e) {
+            LOG.warn("Unable to schedule persist request for path {}: {}", uri, e.getMessage());
+            // Retry when ufs mode permits operation
+            remove = false;
+            continue;
           }
           switch (timerResult) {
             case EXPIRED:

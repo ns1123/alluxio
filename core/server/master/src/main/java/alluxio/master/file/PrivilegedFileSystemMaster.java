@@ -393,7 +393,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public void updateUfsMode(AlluxioURI ufsPath, UfsMode ufsMode) throws InvalidPathException,
       InvalidArgumentException, UnavailableException, AccessControlException {
-    // TODO(adit) Auto-generated method stub
-
+    mFileSystemMaster.updateUfsMode(ufsPath, ufsMode);
   }
 }

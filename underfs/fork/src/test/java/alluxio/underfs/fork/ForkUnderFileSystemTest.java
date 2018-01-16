@@ -23,6 +23,7 @@ import org.powermock.reflect.Whitebox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -89,5 +90,32 @@ public class ForkUnderFileSystemTest {
     Assert.assertEquals(values.get(0), "X");
     Assert.assertEquals(values.get(1), "Y");
     Assert.assertEquals(values.get(2), "Z");
+  }
+
+  /**
+   * Test the operation mode method under different maintenance scenarios.
+   */
+  @Test
+  public void getOperationMode() {
+    Map<String, String> properties = new HashMap<>();
+    String uriA = "mock://A/";
+    String uriB = "mock://B/";
+    properties.put("alluxio-fork.B.ufs", uriB);
+    properties.put("alluxio-fork.A.ufs", uriA);
+    UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://test",
+        UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(properties));
+    Map<String, UnderFileSystem.UfsMode> physicalUfsState = new Hashtable<>();
+    // Check default
+    Assert.assertEquals(UnderFileSystem.UfsMode.READ_WRITE, ufs.getOperationMode(physicalUfsState));
+    // Check single ufs down
+    physicalUfsState.put(uriA, UnderFileSystem.UfsMode.NO_ACCESS);
+    Assert.assertEquals(UnderFileSystem.UfsMode.READ_ONLY, ufs.getOperationMode(physicalUfsState));
+    // Check single ufs read only
+    physicalUfsState.put(uriA, UnderFileSystem.UfsMode.READ_ONLY);
+    Assert.assertEquals(UnderFileSystem.UfsMode.READ_ONLY, ufs.getOperationMode(physicalUfsState));
+    // Check both ufs down
+    physicalUfsState.put(uriA, UnderFileSystem.UfsMode.NO_ACCESS);
+    physicalUfsState.put(uriB, UnderFileSystem.UfsMode.NO_ACCESS);
+    Assert.assertEquals(UnderFileSystem.UfsMode.NO_ACCESS, ufs.getOperationMode(physicalUfsState));
   }
 }

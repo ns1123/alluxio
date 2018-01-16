@@ -67,6 +67,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   private final ImmutableMap<String, Pair<String, UnderFileSystem>> mUnderFileSystems;
   private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
+  private final List<String> mPhysicalStores = new ArrayList<>();
 
   /**
    * Constructs a new {@link ForkUnderFileSystem}.
@@ -113,11 +114,13 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     for (Map.Entry<String, String> entry : providerToUfs.entrySet()) {
       String provider = entry.getKey();
       String ufs = entry.getValue();
+      mPhysicalStores.add(new AlluxioURI(ufs).getRootPath());
       Map<String, String> options = ufsToOptions.get(ufs);
       LOG.debug("provider={} ufs={} options={}", provider, ufs, options);
       ufses.put(provider, new ImmutablePair<>(ufs, UnderFileSystem.Factory
           .create(ufs, UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(options))));
     }
+
     mUnderFileSystems = ImmutableMap.copyOf(ufses);
   }
 
@@ -794,13 +797,36 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public UfsMode getOperationMode(Map<String, UfsMode> physicalUfsState) {
-    // TODO(adit) Auto-generated method stub
-    return null;
+    int noAccessCount = 0;
+    int readOnlyCount = 0;
+    for (String physicalStore : mPhysicalStores) {
+      if (!physicalUfsState.containsKey(physicalStore)) {
+        continue;
+      }
+      switch (physicalUfsState.get(physicalStore)) {
+        case NO_ACCESS:
+          noAccessCount++;
+          break;
+        case READ_ONLY:
+          readOnlyCount++;
+          break;
+        default:
+          break;
+      }
+    }
+    if (noAccessCount == mPhysicalStores.size()) {
+      // All physical stores are down
+      return UfsMode.NO_ACCESS;
+    }
+    if (noAccessCount > 0 || readOnlyCount > 0) {
+      // At least one physical store is not writable
+      return UfsMode.READ_ONLY;
+    }
+    return UfsMode.READ_WRITE;
   }
 
   @Override
   public List<String> getPhysicalStores() {
-    // TODO(adit) Auto-generated method stub
-    return null;
+    return new ArrayList<>(mPhysicalStores);
   }
 }
