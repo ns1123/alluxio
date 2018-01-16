@@ -135,17 +135,11 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    * @param offset the position within the block to start the read
    */
   private void init(long offset) throws IOException {
-<<<<<<< HEAD
     // ALLUXIO CS REMOVE
-    // UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId()).getUfs();
+    // UnderFileSystem ufs = mUfsResource.get();
     // ufs.connectFromWorker(
-    //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+    //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
     // ALLUXIO CS END
-=======
-    UnderFileSystem ufs = mUfsResource.get();
-    ufs.connectFromWorker(
-        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
->>>>>>> OPENSOURCE/master
     updateUnderFileSystemInputStream(offset);
     updateBlockWriter(offset);
   }
@@ -310,19 +304,13 @@ public final class UnderFileSystemBlockReader implements BlockReader {
     }
 
     if (mUnderFileSystemInputStream == null && offset < mBlockMeta.getBlockSize()) {
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       if (mBlockMeta.getUser() != null && !mBlockMeta.getUser().isEmpty()) {
         // Before interacting with ufs manager, set the user.
         alluxio.security.authentication.AuthenticatedClientUser.set(mBlockMeta.getUser());
       }
       // ALLUXIO CS END
-      UfsInfo ufsInfo = mUfsManager.get(mBlockMeta.getMountId());
-      UnderFileSystem ufs = ufsInfo.getUfs();
-      mUfsMountPointUri = ufsInfo.getUfsMountPointUri();
-=======
       UnderFileSystem ufs = mUfsResource.get();
->>>>>>> OPENSOURCE/master
       mUnderFileSystemInputStream = mUfsInstreamManager.acquire(ufs,
           mBlockMeta.getUnderFileSystemPath(), IdUtils.fileIdFromBlockId(mBlockMeta.getBlockId()),
           OpenOptions.defaults().setOffset(mBlockMeta.getOffset() + offset));

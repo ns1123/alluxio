@@ -151,7 +151,6 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
       UfsFileWriteRequest request = context.getRequest();
       Preconditions.checkState(request != null);
       Protocol.CreateUfsFileOptions createUfsFileOptions = request.getCreateUfsFileOptions();
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       // Before interacting with the UFS manager, make sure the user is set.
       String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
@@ -159,15 +158,10 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
         alluxio.security.authentication.AuthenticatedClientUser.set(user);
       }
       // ALLUXIO CS END
-      UfsInfo ufsInfo = mUfsManager.get(createUfsFileOptions.getMountId());
-      UnderFileSystem ufs = ufsInfo.getUfs();
-      context.setUnderFileSystem(ufs);
-=======
       UfsManager.UfsClient ufsClient = mUfsManager.get(createUfsFileOptions.getMountId());
       CloseableResource<UnderFileSystem> ufsResource = ufsClient.acquireUfsResource();
       context.setUfsResource(ufsResource);
       UnderFileSystem ufs = ufsResource.get();
->>>>>>> OPENSOURCE/master
       context.setOutputStream(ufs.create(request.getUfsPath(),
           CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
               .setGroup(createUfsFileOptions.getGroup())
