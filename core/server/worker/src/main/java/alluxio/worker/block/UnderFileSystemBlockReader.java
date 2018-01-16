@@ -138,7 +138,7 @@ public final class UnderFileSystemBlockReader implements BlockReader {
     // ALLUXIO CS REMOVE
     // UnderFileSystem ufs = mUfsResource.get();
     // ufs.connectFromWorker(
-    //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+    //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
     // ALLUXIO CS END
     updateUnderFileSystemInputStream(offset);
     updateBlockWriter(offset);
