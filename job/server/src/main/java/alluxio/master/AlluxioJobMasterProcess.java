@@ -18,6 +18,8 @@ import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientServiceHandler;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalSystem.Mode;
+import alluxio.metrics.MetricsSystem;
+import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.JobMasterClientService;
@@ -95,6 +97,8 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
 
   /** The manager for all ufs. */
   private UfsManager mUfsManager;
+
+  private final MetricsServlet mMetricsServlet = new MetricsServlet(MetricsSystem.METRIC_REGISTRY);
 
   AlluxioJobMasterProcess(JournalSystem journalSystem) {
     if (!Configuration.containsKey(PropertyKey.MASTER_HOSTNAME)) {
@@ -254,6 +258,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
         NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB), this);
     // reset master web port
     Configuration.set(PropertyKey.JOB_MASTER_WEB_PORT, Integer.toString(mWebServer.getLocalPort()));
+    mWebServer.addHandler(mMetricsServlet.getHandler());
     mWebServer.start();
   }
 
