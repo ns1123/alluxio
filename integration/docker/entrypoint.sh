@@ -108,7 +108,7 @@ case ${service,,} in
 # ALLUXIO CS REPLACE
 #    integration/docker/bin/alluxio-worker.sh
 # ALLUXIO CS WITH
-    integration/docker/bin/alluxio-job-master.sh &
+    integration/docker/bin/alluxio-job-worker.sh &
     integration/docker/bin/alluxio-worker.sh &
     wait -n
 # ALLUXIO CS END
