@@ -13,7 +13,7 @@ pipeline {
         )
         string(
             name: 'GenerateArgs',
-            defaultValue: '-hadoop-distributions hadoop-2.7 -native',
+            defaultValue: '-hadoop-distributions hadoop-2.7 -ufs-modules all -native',
             description: 'Arguments passed to Go script that generates the tarballs'
         )
         string(
