@@ -149,8 +149,8 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		// LIBEXEC
 		"libexec/alluxio-config.sh",
 		// DOCKER
-                "integration/docker/Dockerfile",
-                "integration/docker/entrypoint.sh",
+		"integration/docker/Dockerfile",
+		"integration/docker/entrypoint.sh",
 		"integration/docker/bin/alluxio-master.sh",
 		"integration/docker/bin/alluxio-job-master.sh",
 		"integration/docker/bin/alluxio-job-worker.sh",
