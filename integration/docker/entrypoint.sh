@@ -53,6 +53,11 @@ alluxio_env_vars=(
   ALLUXIO_RAM_FOLDER
   ALLUXIO_USER_JAVA_OPTS
   ALLUXIO_WORKER_JAVA_OPTS
+# ALLUXIO CS ADD
+  ALLUXIO_JOB_MASTER_JAVA_OPTS
+  ALLUXIO_JOB_WORKER_JAVA_OPTS
+  ALLUXIO_LICENSE_BASE64
+# ALLUXIO CS END
 )
 
 for keyvaluepair in $(env); do
@@ -69,6 +74,12 @@ for keyvaluepair in $(env); do
   fi
 done
 
+# ALLUXIO CS ADD
+if [[ -n "${ALLUXIO_LICENSE_BASE64}" ]]; then
+  echo "${ALLUXIO_LICENSE_BASE64}" | base64 -d > license.json
+fi
+# ALLUXIO CS END
+
 case ${service,,} in
   master)
     if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
@@ -78,7 +89,13 @@ case ${service,,} in
     if [[ ${options} != ${NO_FORMAT} ]]; then
       bin/alluxio formatMaster
     fi
-    integration/docker/bin/alluxio-master.sh
+# ALLUXIO CS REPLACE
+#    integration/docker/bin/alluxio-master.sh
+# ALLUXIO CS WITH
+    integration/docker/bin/alluxio-job-master.sh &
+    integration/docker/bin/alluxio-master.sh &
+    wait -n
+# ALLUXIO CS END
     ;;
   worker)
     if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
@@ -88,7 +105,13 @@ case ${service,,} in
     if [[ ${options} != ${NO_FORMAT} ]]; then
       bin/alluxio formatWorker
     fi
-    integration/docker/bin/alluxio-worker.sh
+# ALLUXIO CS REPLACE
+#    integration/docker/bin/alluxio-worker.sh
+# ALLUXIO CS WITH
+    integration/docker/bin/alluxio-job-worker.sh &
+    integration/docker/bin/alluxio-worker.sh &
+    wait -n
+# ALLUXIO CS END
     ;;
   proxy)
     integration/docker/bin/alluxio-proxy.sh
