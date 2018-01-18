@@ -170,16 +170,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	// Create empty directories for default UFS and Docker integration.
 	mkdir(filepath.Join(dstPath, "underFSStorage"))
 	mkdir(filepath.Join(dstPath, "integration/docker/conf"))
-	// Copy files from /docker-enterprise to /docker.
-	for _, file := range []string{
-		"Dockerfile",
-		"README.md",
-		"entrypoint.sh",
-	} {
-		src := filepath.Join("integration/docker-enterprise", file)
-		dst := filepath.Join("integration/docker", file)
-		run(fmt.Sprintf("adding %v", src), "mv", src, filepath.Join(dstPath, dst))
-	}
 	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
 	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
