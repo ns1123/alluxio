@@ -13676,7 +13676,6 @@ public final class Protocol {
   static {
     java.lang.String[] descriptorData = {
       "\n\031dataserver/protocol.proto\022\030alluxio.pro" +
-<<<<<<< HEAD
       "to.dataserver\032\027dataserver/status.proto\032\037" +
       "security/capability_proto.proto\"\375\001\n\013Read" +
       "Request\022\020\n\010block_id\030\001 \001(\003\022\016\n\006offset\030\002 \001(" +
@@ -13685,135 +13684,57 @@ public final class Protocol {
       "ufs_block_options\030\006 \001(\0132-.alluxio.proto." +
       "dataserver.OpenUfsBlockOptions\0227\n\ncapabi" +
       "lity\030\350\007 \001(\0132\".alluxio.proto.security.Cap" +
-      "ability\"\236\001\n\021AsyncCacheRequest\022\020\n\010block_i",
+      "ability\"\256\001\n\021AsyncCacheRequest\022\020\n\010block_i",
       "d\030\001 \001(\003\022\023\n\013source_host\030\002 \001(\t\022\023\n\013source_p" +
       "ort\030\003 \001(\005\022M\n\026open_ufs_block_options\030\004 \001(" +
       "\0132-.alluxio.proto.dataserver.OpenUfsBloc" +
-      "kOptions\"\277\001\n\023OpenUfsBlockOptions\022\020\n\010ufs_" +
-      "path\030\001 \001(\t\022\026\n\016offset_in_file\030\002 \001(\003\022\022\n\nbl" +
-      "ock_size\030\003 \001(\003\022\035\n\025maxUfsReadConcurrency\030" +
-      "\004 \001(\005\022\017\n\007mountId\030\005 \001(\003\022\020\n\010no_cache\030\006 \001(\010" +
-      "\022\014\n\004user\030\007 \001(\t\022\032\n\021block_in_ufs_tier\030\350\007 \001" +
-      "(\010\"\350\002\n\014WriteRequest\0223\n\004type\030\001 \001(\0162%.allu" +
-      "xio.proto.dataserver.RequestType\022\n\n\002id\030\002",
-      " \001(\003\022\016\n\006offset\030\003 \001(\003\022\014\n\004tier\030\004 \001(\005\022\013\n\003eo" +
-      "f\030\005 \001(\010\022\016\n\006cancel\030\006 \001(\010\022O\n\027create_ufs_fi" +
-      "le_options\030\007 \001(\0132..alluxio.proto.dataser" +
-      "ver.CreateUfsFileOptions\0227\n\ncapability\030\350" +
-      "\007 \001(\0132\".alluxio.proto.security.Capabilit" +
-      "y\022R\n\030create_ufs_block_options\030\351\007 \001(\0132/.a" +
-      "lluxio.proto.dataserver.CreateUfsBlockOp" +
-      "tions\"f\n\024CreateUfsFileOptions\022\020\n\010ufs_pat" +
-      "h\030\001 \001(\t\022\r\n\005owner\030\002 \001(\t\022\r\n\005group\030\003 \001(\t\022\014\n" +
-      "\004mode\030\004 \001(\005\022\020\n\010mount_id\030\005 \001(\003\"Y\n\025CreateU",
-      "fsBlockOptions\022\034\n\024bytes_in_block_store\030\001" +
-      " \001(\003\022\020\n\010mount_id\030\002 \001(\003\022\020\n\010fallback\030\003 \001(\010" +
-      "\"J\n\010Response\022-\n\006status\030\001 \001(\0162\035.alluxio.p" +
-      "roto.status.PStatus\022\017\n\007message\030\002 \001(\t\"\223\001\n" +
-      "\013SaslMessage\022>\n\005state\030\001 \001(\0162/.alluxio.pr" +
-      "oto.dataserver.SaslMessage.SaslState\022\r\n\005" +
-      "token\030\002 \001(\014\"5\n\tSaslState\022\013\n\007SUCCESS\020\000\022\014\n" +
-      "\010INITIATE\020\001\022\r\n\tCHALLENGE\020\002\"i\n\014ReadRespon" +
-      "se\0229\n\004type\030\001 \001(\0162+.alluxio.proto.dataser" +
-      "ver.ReadResponse.Type\"\036\n\004Type\022\026\n\022UFS_REA",
-      "D_HEARTBEAT\020\001\"\013\n\tHeartbeat\"s\n\025LocalBlock" +
-      "OpenRequest\022\020\n\010block_id\030\001 \001(\003\022\017\n\007promote" +
-      "\030\002 \001(\010\0227\n\ncapability\030\351\007 \001(\0132\".alluxio.pr" +
-      "oto.security.Capability\"&\n\026LocalBlockOpe" +
-      "nResponse\022\014\n\004path\030\001 \001(\t\"c\n\026LocalBlockClo" +
-      "seRequest\022\020\n\010block_id\030\001 \001(\003\0227\n\ncapabilit" +
-      "y\030\351\007 \001(\0132\".alluxio.proto.security.Capabi" +
-      "lity\"\305\001\n\027LocalBlockCreateRequest\022\020\n\010bloc" +
-      "k_id\030\001 \001(\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020space_to_res" +
-      "erve\030\004 \001(\003\022\032\n\022only_reserve_space\030\005 \001(\010\0227",
-      "\n\ncapability\030\351\007 \001(\0132\".alluxio.proto.secu" +
-      "rity.Capability\022\033\n\022cleanup_on_failure\030\352\007" +
-      " \001(\010\"(\n\030LocalBlockCreateResponse\022\014\n\004path" +
-      "\030\001 \001(\t\"v\n\031LocalBlockCompleteRequest\022\020\n\010b" +
-      "lock_id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapabil" +
-      "ity\030\351\007 \001(\0132\".alluxio.proto.security.Capa" +
-      "bility\"\'\n\022RemoveBlockRequest\022\021\n\010block_id" +
-      "\030\351\007 \001(\003*G\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020" +
-      "\000\022\014\n\010UFS_FILE\020\001\022\027\n\022UFS_FALLBACK_BLOCK\020\350\007"
-||||||| merged common ancestors
-      "to.dataserver\032\027dataserver/status.proto\"\304" +
-      "\001\n\013ReadRequest\022\020\n\010block_id\030\001 \001(\003\022\016\n\006offs" +
-      "et\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\016\n\006cancel\030\004 \001(\010" +
-      "\022\017\n\007promote\030\007 \001(\010\022\023\n\013packet_size\030\005 \001(\003\022M" +
-      "\n\026open_ufs_block_options\030\006 \001(\0132-.alluxio" +
-      ".proto.dataserver.OpenUfsBlockOptions\"\236\001" +
-      "\n\021AsyncCacheRequest\022\020\n\010block_id\030\001 \001(\003\022\023\n" +
-      "\013source_host\030\002 \001(\t\022\023\n\013source_port\030\003 \001(\005\022" +
-      "M\n\026open_ufs_block_options\030\004 \001(\0132-.alluxi",
-      "o.proto.dataserver.OpenUfsBlockOptions\"\243" +
-      "\001\n\023OpenUfsBlockOptions\022\020\n\010ufs_path\030\001 \001(\t" +
-      "\022\026\n\016offset_in_file\030\002 \001(\003\022\022\n\nblock_size\030\003" +
-      " \001(\003\022\035\n\025maxUfsReadConcurrency\030\004 \001(\005\022\017\n\007m" +
-      "ountId\030\005 \001(\003\022\020\n\010no_cache\030\006 \001(\010\022\014\n\004user\030\007" +
-      " \001(\t\"\333\001\n\014WriteRequest\0223\n\004type\030\001 \001(\0162%.al" +
-      "luxio.proto.dataserver.RequestType\022\n\n\002id" +
-      "\030\002 \001(\003\022\016\n\006offset\030\003 \001(\003\022\014\n\004tier\030\004 \001(\005\022\013\n\003" +
-      "eof\030\005 \001(\010\022\016\n\006cancel\030\006 \001(\010\022O\n\027create_ufs_" +
-      "file_options\030\007 \001(\0132..alluxio.proto.datas",
-      "erver.CreateUfsFileOptions\"f\n\024CreateUfsF" +
-      "ileOptions\022\020\n\010ufs_path\030\001 \001(\t\022\r\n\005owner\030\002 " +
-      "\001(\t\022\r\n\005group\030\003 \001(\t\022\014\n\004mode\030\004 \001(\005\022\020\n\010moun" +
-      "t_id\030\005 \001(\003\"J\n\010Response\022-\n\006status\030\001 \001(\0162\035" +
-      ".alluxio.proto.status.PStatus\022\017\n\007message" +
-      "\030\002 \001(\t\"i\n\014ReadResponse\0229\n\004type\030\001 \001(\0162+.a" +
-      "lluxio.proto.dataserver.ReadResponse.Typ" +
-      "e\"\036\n\004Type\022\026\n\022UFS_READ_HEARTBEAT\020\001\"\013\n\tHea" +
-      "rtbeat\":\n\025LocalBlockOpenRequest\022\020\n\010block" +
-      "_id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\"&\n\026LocalBlock",
-      "OpenResponse\022\014\n\004path\030\001 \001(\t\"*\n\026LocalBlock" +
-      "CloseRequest\022\020\n\010block_id\030\001 \001(\003\"o\n\027LocalB" +
-      "lockCreateRequest\022\020\n\010block_id\030\001 \001(\003\022\014\n\004t" +
-      "ier\030\003 \001(\005\022\030\n\020space_to_reserve\030\004 \001(\003\022\032\n\022o" +
-      "nly_reserve_space\030\005 \001(\010\"(\n\030LocalBlockCre" +
-      "ateResponse\022\014\n\004path\030\001 \001(\t\"=\n\031LocalBlockC" +
-      "ompleteRequest\022\020\n\010block_id\030\001 \001(\003\022\016\n\006canc" +
-      "el\030\002 \001(\010*.\n\013RequestType\022\021\n\rALLUXIO_BLOCK" +
-      "\020\000\022\014\n\010UFS_FILE\020\001"
-=======
-      "to.dataserver\032\027dataserver/status.proto\"\304" +
-      "\001\n\013ReadRequest\022\020\n\010block_id\030\001 \001(\003\022\016\n\006offs" +
-      "et\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\016\n\006cancel\030\004 \001(\010" +
-      "\022\017\n\007promote\030\007 \001(\010\022\023\n\013packet_size\030\005 \001(\003\022M" +
-      "\n\026open_ufs_block_options\030\006 \001(\0132-.alluxio" +
-      ".proto.dataserver.OpenUfsBlockOptions\"\256\001" +
-      "\n\021AsyncCacheRequest\022\020\n\010block_id\030\001 \001(\003\022\023\n" +
-      "\013source_host\030\002 \001(\t\022\023\n\013source_port\030\003 \001(\005\022" +
-      "M\n\026open_ufs_block_options\030\004 \001(\0132-.alluxi",
-      "o.proto.dataserver.OpenUfsBlockOptions\022\016" +
-      "\n\006length\030\005 \001(\003\"\243\001\n\023OpenUfsBlockOptions\022\020" +
-      "\n\010ufs_path\030\001 \001(\t\022\026\n\016offset_in_file\030\002 \001(\003" +
-      "\022\022\n\nblock_size\030\003 \001(\003\022\035\n\025maxUfsReadConcur" +
-      "rency\030\004 \001(\005\022\017\n\007mountId\030\005 \001(\003\022\020\n\010no_cache" +
-      "\030\006 \001(\010\022\014\n\004user\030\007 \001(\t\"\333\001\n\014WriteRequest\0223\n" +
-      "\004type\030\001 \001(\0162%.alluxio.proto.dataserver.R" +
-      "equestType\022\n\n\002id\030\002 \001(\003\022\016\n\006offset\030\003 \001(\003\022\014" +
-      "\n\004tier\030\004 \001(\005\022\013\n\003eof\030\005 \001(\010\022\016\n\006cancel\030\006 \001(" +
-      "\010\022O\n\027create_ufs_file_options\030\007 \001(\0132..all",
-      "uxio.proto.dataserver.CreateUfsFileOptio" +
-      "ns\"f\n\024CreateUfsFileOptions\022\020\n\010ufs_path\030\001" +
-      " \001(\t\022\r\n\005owner\030\002 \001(\t\022\r\n\005group\030\003 \001(\t\022\014\n\004mo" +
-      "de\030\004 \001(\005\022\020\n\010mount_id\030\005 \001(\003\"J\n\010Response\022-" +
-      "\n\006status\030\001 \001(\0162\035.alluxio.proto.status.PS" +
-      "tatus\022\017\n\007message\030\002 \001(\t\"i\n\014ReadResponse\0229" +
-      "\n\004type\030\001 \001(\0162+.alluxio.proto.dataserver." +
-      "ReadResponse.Type\"\036\n\004Type\022\026\n\022UFS_READ_HE" +
-      "ARTBEAT\020\001\"\013\n\tHeartbeat\":\n\025LocalBlockOpen" +
-      "Request\022\020\n\010block_id\030\001 \001(\003\022\017\n\007promote\030\002 \001",
-      "(\010\"&\n\026LocalBlockOpenResponse\022\014\n\004path\030\001 \001" +
-      "(\t\"*\n\026LocalBlockCloseRequest\022\020\n\010block_id" +
-      "\030\001 \001(\003\"o\n\027LocalBlockCreateRequest\022\020\n\010blo" +
-      "ck_id\030\001 \001(\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020space_to_re" +
-      "serve\030\004 \001(\003\022\032\n\022only_reserve_space\030\005 \001(\010\"" +
-      "(\n\030LocalBlockCreateResponse\022\014\n\004path\030\001 \001(" +
-      "\t\"=\n\031LocalBlockCompleteRequest\022\020\n\010block_" +
-      "id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010*.\n\013RequestType\022" +
-      "\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001"
->>>>>>> FETCH_HEAD
+      "kOptions\022\016\n\006length\030\005 \001(\003\"\277\001\n\023OpenUfsBloc" +
+      "kOptions\022\020\n\010ufs_path\030\001 \001(\t\022\026\n\016offset_in_" +
+      "file\030\002 \001(\003\022\022\n\nblock_size\030\003 \001(\003\022\035\n\025maxUfs" +
+      "ReadConcurrency\030\004 \001(\005\022\017\n\007mountId\030\005 \001(\003\022\020" +
+      "\n\010no_cache\030\006 \001(\010\022\014\n\004user\030\007 \001(\t\022\032\n\021block_" +
+      "in_ufs_tier\030\350\007 \001(\010\"\350\002\n\014WriteRequest\0223\n\004t" +
+      "ype\030\001 \001(\0162%.alluxio.proto.dataserver.Req",
+      "uestType\022\n\n\002id\030\002 \001(\003\022\016\n\006offset\030\003 \001(\003\022\014\n\004" +
+      "tier\030\004 \001(\005\022\013\n\003eof\030\005 \001(\010\022\016\n\006cancel\030\006 \001(\010\022" +
+      "O\n\027create_ufs_file_options\030\007 \001(\0132..allux" +
+      "io.proto.dataserver.CreateUfsFileOptions" +
+      "\0227\n\ncapability\030\350\007 \001(\0132\".alluxio.proto.se" +
+      "curity.Capability\022R\n\030create_ufs_block_op" +
+      "tions\030\351\007 \001(\0132/.alluxio.proto.dataserver." +
+      "CreateUfsBlockOptions\"f\n\024CreateUfsFileOp" +
+      "tions\022\020\n\010ufs_path\030\001 \001(\t\022\r\n\005owner\030\002 \001(\t\022\r" +
+      "\n\005group\030\003 \001(\t\022\014\n\004mode\030\004 \001(\005\022\020\n\010mount_id\030",
+      "\005 \001(\003\"Y\n\025CreateUfsBlockOptions\022\034\n\024bytes_" +
+      "in_block_store\030\001 \001(\003\022\020\n\010mount_id\030\002 \001(\003\022\020" +
+      "\n\010fallback\030\003 \001(\010\"J\n\010Response\022-\n\006status\030\001" +
+      " \001(\0162\035.alluxio.proto.status.PStatus\022\017\n\007m" +
+      "essage\030\002 \001(\t\"\223\001\n\013SaslMessage\022>\n\005state\030\001 " +
+      "\001(\0162/.alluxio.proto.dataserver.SaslMessa" +
+      "ge.SaslState\022\r\n\005token\030\002 \001(\014\"5\n\tSaslState" +
+      "\022\013\n\007SUCCESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\tCHALLENGE" +
+      "\020\002\"i\n\014ReadResponse\0229\n\004type\030\001 \001(\0162+.allux" +
+      "io.proto.dataserver.ReadResponse.Type\"\036\n",
+      "\004Type\022\026\n\022UFS_READ_HEARTBEAT\020\001\"\013\n\tHeartbe" +
+      "at\"s\n\025LocalBlockOpenRequest\022\020\n\010block_id\030" +
+      "\001 \001(\003\022\017\n\007promote\030\002 \001(\010\0227\n\ncapability\030\351\007 " +
+      "\001(\0132\".alluxio.proto.security.Capability\"" +
+      "&\n\026LocalBlockOpenResponse\022\014\n\004path\030\001 \001(\t\"" +
+      "c\n\026LocalBlockCloseRequest\022\020\n\010block_id\030\001 " +
+      "\001(\003\0227\n\ncapability\030\351\007 \001(\0132\".alluxio.proto" +
+      ".security.Capability\"\305\001\n\027LocalBlockCreat" +
+      "eRequest\022\020\n\010block_id\030\001 \001(\003\022\014\n\004tier\030\003 \001(\005" +
+      "\022\030\n\020space_to_reserve\030\004 \001(\003\022\032\n\022only_reser",
+      "ve_space\030\005 \001(\010\0227\n\ncapability\030\351\007 \001(\0132\".al" +
+      "luxio.proto.security.Capability\022\033\n\022clean" +
+      "up_on_failure\030\352\007 \001(\010\"(\n\030LocalBlockCreate" +
+      "Response\022\014\n\004path\030\001 \001(\t\"v\n\031LocalBlockComp" +
+      "leteRequest\022\020\n\010block_id\030\001 \001(\003\022\016\n\006cancel\030" +
+      "\002 \001(\010\0227\n\ncapability\030\351\007 \001(\0132\".alluxio.pro" +
+      "to.security.Capability\"\'\n\022RemoveBlockReq" +
+      "uest\022\021\n\010block_id\030\351\007 \001(\003*G\n\013RequestType\022\021" +
+      "\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\027\n\022UFS_F" +
+      "ALLBACK_BLOCK\020\350\007"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
