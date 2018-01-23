@@ -14,7 +14,13 @@ var (
 		Long:   "Generates all enterprise release tarballs",
 		Runner: cmdline.RunnerFunc(release),
 	}
+
+	hadoopDistributionsFlag string
 )
+
+func init() {
+	cmdRelease.Flags.StringVar(&hadoopDistributionsFlag, "hadoop-distributions", strings.Join(validHadoopDistributions(), ","), "a comma-separated list of hadoop distributions to generate Alluxio distributions for")
+}
 
 func checkReleaseFlags() error {
 	if err := checkRootFlags(); err != nil {
@@ -44,18 +50,9 @@ func release(_ *cmdline.Env, _ []string) error {
 
 func generateTarballs() error {
 	for _, distribution := range strings.Split(hadoopDistributionsFlag, ",") {
-		version, ok := hadoopDistributions[distribution]
-		if !ok {
-			return fmt.Errorf("hadoop distribution %s not recognized\n", distribution)
-		}
 		targetFlag = fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
-		mvnArgs := []string{fmt.Sprintf("-Dhadoop.version=%v", version), fmt.Sprintf("-P%v", version.hadoopProfile())}
-		if version.hasHadoopKMS() {
-			mvnArgs = append(mvnArgs, "-Phadoop-kms")
-		}
-		mvnArgsFlag = strings.Join(mvnArgs, ",")
 		fmt.Printf("Generating distribution for %v at %v", distribution, targetFlag)
-		if err := generateTarball(); err != nil {
+		if err := generateTarball(distribution); err != nil {
 			return err
 		}
 	}
