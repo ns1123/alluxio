@@ -33,6 +33,7 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
@@ -215,6 +216,14 @@ public final class LoadDefinition
      */
     public WorkerNetAddress getWorkerNetAddress() {
       return mWorkerNetAddress;
+    }
+
+    @Override
+    public String toString() {
+      return Objects.toStringHelper(this)
+          .add("blockId", mBlockId)
+          .add("workerNetAddress", mWorkerNetAddress)
+          .toString();
     }
   }
 
