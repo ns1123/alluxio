@@ -3880,6 +3880,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       for (long fileId : mPersistRequests.keySet()) {
         boolean remove = true;
         alluxio.time.ExponentialTimer timer = mPersistRequests.get(fileId);
+        if (timer == null) {
+          // This could occur if a key is removed from mPersistRequests while we are iterating.
+          continue;
+        }
         alluxio.time.ExponentialTimer.Result timerResult = timer.tick();
         if (timerResult == alluxio.time.ExponentialTimer.Result.NOT_READY) {
           // operation is not ready to be scheduled
