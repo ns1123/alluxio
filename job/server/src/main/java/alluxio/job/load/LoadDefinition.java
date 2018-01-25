@@ -14,28 +14,20 @@ import alluxio.Constants;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.BaseFileSystem;
-import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
-import alluxio.client.file.options.OpenFileOptions;
-import alluxio.client.file.policy.SpecificWorkerPolicy;
 import alluxio.exception.status.FailedPreconditionException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.load.LoadDefinition.LoadTask;
+import alluxio.job.util.JobUtils;
 import alluxio.job.util.SerializableVoid;
 import alluxio.job.util.SerializationUtils;
-import alluxio.master.block.BlockId;
-import alluxio.wire.BlockInfo;
-import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
-import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
@@ -43,15 +35,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -85,104 +72,68 @@ public final class LoadDefinition
   @Override
   public Map<WorkerInfo, ArrayList<LoadTask>> selectExecutors(LoadConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    Map<String, Iterator<WorkerInfo>> jobWorkerIterators =
-        createJobWorkerCyclicalIterators(jobWorkerInfoList);
-    List<BlockWorkerInfo> blockWorkerInfoList = AlluxioBlockStore.create().getAllWorkers();
-    List<BlockWorkerInfo> availableBlockWorkers = new ArrayList<>();
-    for (BlockWorkerInfo blockWorkerInfo : blockWorkerInfoList) {
-      if (jobWorkerIterators.containsKey(blockWorkerInfo.getNetAddress().getHost())) {
-        availableBlockWorkers.add(blockWorkerInfo);
+    Map<String, WorkerInfo> jobWorkersByAddress = jobWorkerInfoList.stream()
+        .collect(Collectors.toMap(info -> info.getAddress().getHost(), info -> info));
+    // Filter out workers which have no local job worker available.
+    List<String> missingJobWorkerHosts = new ArrayList<>();
+    List<BlockWorkerInfo> workers = new ArrayList<>();
+    for (BlockWorkerInfo worker : AlluxioBlockStore.create().getAllWorkers()) {
+      if (jobWorkersByAddress.containsKey(worker.getNetAddress().getHost())) {
+        workers.add(worker);
+      } else {
+        LOG.warn("Worker on host {} has no local job worker", worker.getNetAddress().getHost());
+        missingJobWorkerHosts.add(worker.getNetAddress().getHost());
       }
     }
     // Mapping from worker to block ids which that worker is supposed to load.
-    Multimap<WorkerInfo, LoadTask> blockAssignments = LinkedListMultimap.create();
+    Multimap<WorkerInfo, LoadTask> assignments = LinkedListMultimap.create();
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    List<FileBlockInfo> blockInfoList = mFileSystem.getStatus(uri).getFileBlockInfos();
-    for (FileBlockInfo blockInfo : blockInfoList) {
-      List<BlockWorkerInfo> blockWorkersWithoutBlock =
-          getBlockWorkersWithoutBlock(availableBlockWorkers, blockInfo);
+    for (FileBlockInfo blockInfo : mFileSystem.getStatus(uri).getFileBlockInfos()) {
+      List<String> workersWithoutBlock = getWorkersWithoutBlock(workers, blockInfo);
       int neededReplicas = config.getReplication() - blockInfo.getBlockInfo().getLocations().size();
-      if (blockWorkersWithoutBlock.size() < neededReplicas) {
+      if (workersWithoutBlock.size() < neededReplicas) {
+        String missingJobWorkersMessage = "";
+        if (!missingJobWorkerHosts.isEmpty()) {
+          missingJobWorkersMessage = ". The following workers could not be used because they have "
+              + "no local job workers: " + missingJobWorkerHosts;
+        }
         throw new FailedPreconditionException(String.format(
             "Failed to find enough block workers to replicate to. Needed %s but only found %s. "
-            + "Available workers without the block: %s",
-            neededReplicas, blockWorkersWithoutBlock.size(), blockWorkersWithoutBlock));
+            + "Available workers without the block: %s" + missingJobWorkersMessage,
+            neededReplicas, workersWithoutBlock.size(), workersWithoutBlock));
       }
-      Collections.shuffle(blockWorkersWithoutBlock);
+      Collections.shuffle(workersWithoutBlock);
       for (int i = 0; i < neededReplicas; i++) {
-        WorkerNetAddress blockWorkerAddress = blockWorkersWithoutBlock.get(i).getNetAddress();
-        WorkerInfo jobWorker = jobWorkerIterators.get(blockWorkerAddress.getHost()).next();
-        blockAssignments.put(jobWorker,
-            new LoadTask(blockInfo.getBlockInfo().getBlockId(), blockWorkerAddress));
+        String address = workersWithoutBlock.get(i);
+        WorkerInfo jobWorker = jobWorkersByAddress.get(address);
+        assignments.put(jobWorker, new LoadTask(blockInfo.getBlockInfo().getBlockId()));
       }
     }
-    return SerializationUtils.makeValuesSerializable(blockAssignments.asMap());
+    return SerializationUtils.makeValuesSerializable(assignments.asMap());
   }
 
   /**
    * @param blockWorkers a list of block workers
    * @param blockInfo information about a block
-   * @return the block workers which are not storing the specified block
+   * @return the block worker hosts which are not storing the specified block
    */
-  private List<BlockWorkerInfo> getBlockWorkersWithoutBlock(List<BlockWorkerInfo> blockWorkers,
+  private List<String> getWorkersWithoutBlock(List<BlockWorkerInfo> blockWorkers,
       FileBlockInfo blockInfo) {
-    Set<WorkerNetAddress> blockWorkerAddressesWithBlock = new HashSet<>();
-    for (BlockLocation existingLocation : blockInfo.getBlockInfo().getLocations()) {
-      blockWorkerAddressesWithBlock.add(existingLocation.getWorkerAddress());
-    }
-    List<BlockWorkerInfo> blockWorkersWithoutBlock = new ArrayList<BlockWorkerInfo>();
-    for (BlockWorkerInfo blockWorker : blockWorkers) {
-      if (!blockWorkerAddressesWithBlock.contains(blockWorker.getNetAddress())) {
-        blockWorkersWithoutBlock.add(blockWorker);
-      }
-    }
-    return blockWorkersWithoutBlock;
-  }
-
-  /**
-   * @param jobWorkerInfoList a list of job worker information
-   * @return a mapping from hostname to cyclical iterator over all job workers with that hostname
-   */
-  private Map<String, Iterator<WorkerInfo>> createJobWorkerCyclicalIterators(
-      List<WorkerInfo> jobWorkerInfoList) {
-    Multimap<String, WorkerInfo> indexedByHostname = ArrayListMultimap.create();
-    for (WorkerInfo jobWorkerInfo : jobWorkerInfoList) {
-      indexedByHostname.put(jobWorkerInfo.getAddress().getHost(), jobWorkerInfo);
-    }
-    Map<String, Iterator<WorkerInfo>> iterators = new HashMap<>();
-    for (Entry<String, Collection<WorkerInfo>> entry : indexedByHostname.asMap().entrySet()) {
-      iterators.put(entry.getKey(), Iterables.cycle(entry.getValue()).iterator());
-    }
-    return iterators;
+    List<String> blockLocations = blockInfo.getBlockInfo().getLocations().stream()
+        .map(location -> location.getWorkerAddress().getHost())
+        .collect(Collectors.toList());
+    return blockWorkers.stream()
+        .filter(worker -> !blockLocations.contains(worker.getNetAddress().getHost()))
+        .map(worker -> worker.getNetAddress().getHost())
+        .collect(Collectors.toList());
   }
 
   @Override
   public SerializableVoid runTask(LoadConfig config, ArrayList<LoadTask> tasks,
       JobWorkerContext jobWorkerContext) throws Exception {
-    AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    long blockSize = mFileSystem.getStatus(uri).getBlockSizeBytes();
-    byte[] buffer = new byte[(int) Math.min(MAX_BUFFER_SIZE, blockSize)];
-
     for (LoadTask task : tasks) {
-      long blockId = task.getBlockId();
-      BlockInfo blockInfo = AlluxioBlockStore.create().getInfo(blockId);
-      long length = blockInfo.getLength();
-      long offset = blockSize * BlockId.getSequenceNumber(blockId);
-
-      OpenFileOptions options = OpenFileOptions.defaults()
-          .setLocationPolicy(new SpecificWorkerPolicy(task.getWorkerNetAddress()));
-      FileInStream inStream = mFileSystem.openFile(uri, options);
-      inStream.seek(offset);
-      long bytesLeftToRead = length;
-      while (bytesLeftToRead > 0) {
-        int bytesRead = inStream.read(buffer, 0, (int) Math.min(bytesLeftToRead, buffer.length));
-        if (bytesRead == -1) {
-          break;
-        }
-        bytesLeftToRead -= bytesRead;
-      }
-      inStream.close();
-      LOG.info("Loaded block " + blockId + " with offset " + offset + " and length " + length);
+      JobUtils.loadBlock(FileSystemContext.INSTANCE, config.getFilePath(), task.getBlockId());
+      LOG.info("Loaded block " + task.getBlockId());
     }
     return null;
   }
@@ -193,15 +144,12 @@ public final class LoadDefinition
   public static class LoadTask implements Serializable {
     private static final long serialVersionUID = 2028545900913354425L;
     final long mBlockId;
-    final WorkerNetAddress mWorkerNetAddress;
 
     /**
      * @param blockId the id of the block to load
-     * @param workerNetAddress the address of the worker to load the block into
      */
-    public LoadTask(long blockId, WorkerNetAddress workerNetAddress) {
+    public LoadTask(long blockId) {
       mBlockId = blockId;
-      mWorkerNetAddress = workerNetAddress;
     }
 
     /**
@@ -211,18 +159,10 @@ public final class LoadDefinition
       return mBlockId;
     }
 
-    /**
-     * @return the worker address
-     */
-    public WorkerNetAddress getWorkerNetAddress() {
-      return mWorkerNetAddress;
-    }
-
     @Override
     public String toString() {
       return Objects.toStringHelper(this)
           .add("blockId", mBlockId)
-          .add("workerNetAddress", mWorkerNetAddress)
           .toString();
     }
   }
