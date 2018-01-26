@@ -14,12 +14,11 @@ package alluxio.master;
 import alluxio.Constants;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
-import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
+import alluxio.security.authentication.AuthenticatedThriftProtocol;
 import alluxio.security.authentication.TransportProvider;
 
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TMultiplexedProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -42,14 +41,14 @@ public class PollingMasterInquireClient implements MasterInquireClient {
   private final List<InetSocketAddress> mMasterAddresses;
   private final Supplier<RetryPolicy> mRetryPolicySupplier;
 
+  // ALLUXIO CS ADD
   /**
    * @param masterAddresses the potential master addresses
    */
   public PollingMasterInquireClient(List<InetSocketAddress> masterAddresses) {
-    mMasterAddresses = masterAddresses;
-    mRetryPolicySupplier = () -> new CountingRetry(1);
+    this(masterAddresses, () -> new alluxio.retry.ExponentialBackoffRetry(20, 2000, 30));
   }
-
+  // ALLUXIO CS END
   /**
    * @param masterAddresses the potential master addresses
    * @param retryPolicySupplier the retry policy supplier
@@ -68,8 +67,7 @@ public class PollingMasterInquireClient implements MasterInquireClient {
       if (address != null) {
         return address;
       }
-    }
-    while (retry.attemptRetry());
+    } while (retry.attemptRetry());
     throw new UnavailableException(String.format(
         "Failed to determine primary master rpc address after polling each of %s %d times",
         mMasterAddresses, retry.getRetryCount()));
@@ -98,12 +96,21 @@ public class PollingMasterInquireClient implements MasterInquireClient {
       throws UnauthenticatedException, TTransportException {
     TransportProvider transportProvider = TransportProvider.Factory.create();
 
-    TProtocol binaryProtocol = new TBinaryProtocol(transportProvider.getClientTransport(address));
-    TMultiplexedProtocol protocol =
-        new TMultiplexedProtocol(binaryProtocol, Constants.META_MASTER_SERVICE_NAME);
-
-    protocol.getTransport().open();
-    protocol.getTransport().close();
+    // ALLUXIO CS REPLACE
+    // TProtocol binaryProtocol = new TBinaryProtocol(transportProvider.getClientTransport(address));
+    // TMultiplexedProtocol protocol =
+    //     new TMultiplexedProtocol(binaryProtocol, Constants.META_MASTER_SERVICE_NAME);
+    //
+    // protocol.getTransport().open();
+    // protocol.getTransport().close();
+    // ALLUXIO CS WITH
+    TProtocol binaryProtocol =
+        new TBinaryProtocol(transportProvider.getClientTransport(null, address));
+    AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(binaryProtocol,
+        Constants.META_MASTER_SERVICE_NAME);
+    protocol.openTransport();
+    protocol.closeTransport();
+    // ALLUXIO CS END
   }
 
   @Override
