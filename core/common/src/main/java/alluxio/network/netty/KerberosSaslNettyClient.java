@@ -11,6 +11,9 @@
 
 package alluxio.network.netty;
 
+import alluxio.exception.status.UnauthenticatedException;
+import alluxio.retry.CountingRetry;
+import alluxio.retry.RetryPolicy;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosUtils;
 
@@ -89,11 +92,25 @@ public class KerberosSaslNettyClient {
    * @return client's response Sasl token
    * @throws SaslException if failed to respond to the given token
    */
-  public byte[] response(final byte[] token) throws SaslException {
+  public byte[] response(final byte[] token) throws SaslException, UnauthenticatedException {
     try {
       return Subject.doAs(mSubject, new PrivilegedExceptionAction<byte[]>() {
-        public byte[] run() throws SaslException {
-          return mSaslClient.evaluateChallenge(token);
+        public byte[] run() throws SaslException, UnauthenticatedException {
+          RetryPolicy retryPolicy = new CountingRetry(1);
+          while (true) {
+            try {
+              return mSaslClient.evaluateChallenge(token);
+            } catch (SaslException e) {
+              if (!retryPolicy.attemptRetry()) {
+                LOG.warn("Failed again in SASL server challenge despite successful relogin.");
+                throw e;
+              }
+              LOG.info("{} failed to respond to SASL server's challenge. "
+                  + "This may be caused by credential expiration. Retry login.",
+                  LoginUser.get().getName());
+              LoginUser.relogin();
+            }
+          }
         }
       });
     } catch (PrivilegedActionException e) {
