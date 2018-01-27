@@ -15,10 +15,10 @@ import alluxio.Constants;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.retry.RetryPolicy;
-import alluxio.security.authentication.AuthenticatedThriftProtocol;
 import alluxio.security.authentication.TransportProvider;
 
 import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TMultiplexedProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -34,6 +34,9 @@ import javax.annotation.Nullable;
  * PollingMasterInquireClient finds the address of the primary master by polling a list of master
  * addresses to see if their RPC servers are serving. This works because only primary masters serve
  * RPCs.
+ // ALLUXIO CS ADD
+ * reference {@link TMultiplexedProtocol} since it is used in AOS but not AEE
+ // ALLUXIO CS END
  */
 public class PollingMasterInquireClient implements MasterInquireClient {
   private static final Logger LOG = LoggerFactory.getLogger(PollingMasterInquireClient.class);
@@ -106,8 +109,9 @@ public class PollingMasterInquireClient implements MasterInquireClient {
     // ALLUXIO CS WITH
     TProtocol binaryProtocol =
         new TBinaryProtocol(transportProvider.getClientTransport(null, address));
-    AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(binaryProtocol,
-        Constants.META_MASTER_SERVICE_NAME);
+    alluxio.security.authentication.AuthenticatedThriftProtocol protocol =
+        new alluxio.security.authentication.AuthenticatedThriftProtocol(binaryProtocol,
+            Constants.META_MASTER_SERVICE_NAME);
     protocol.openTransport();
     protocol.closeTransport();
     // ALLUXIO CS END
