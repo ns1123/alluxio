@@ -25,7 +25,6 @@ import alluxio.client.file.FileSystemContext;
 import alluxio.exception.status.UnavailableException;
 import alluxio.master.LocalAlluxioCluster;
 import alluxio.master.MasterInquireClient;
-import alluxio.master.PollingMasterInquireClient;
 import alluxio.master.SingleMasterInquireClient;
 import alluxio.master.ZkMasterInquireClient;
 import alluxio.network.PortUtils;
