@@ -9,14 +9,35 @@
 
 package alluxio.job.util;
 
+import alluxio.AlluxioURI;
+import alluxio.client.Cancelable;
+import alluxio.client.ReadType;
+import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
+import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.InStreamOptions;
+import alluxio.client.file.options.OutStreamOptions;
+import alluxio.client.file.policy.LocalFirstPolicy;
+import alluxio.client.security.CapabilityFetcher;
 import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
+import alluxio.exception.AlluxioException;
+import alluxio.exception.ExceptionMessage;
+import alluxio.exception.NoWorkerException;
+import alluxio.util.network.NetworkAddressUtils;
+import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
+import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -67,6 +88,67 @@ public final class JobUtils {
       }
     }
     return mostBlocksWorker;
+  }
+
+  /**
+   * Loads a block into the local worker. If the block doesn't exist in Alluxio, it will be read
+   * from the UFS.
+   *
+   * @param context filesystem context
+   * @param path the file path of the block to load
+   * @param blockId the id of the block to load
+   */
+  public static void loadBlock(FileSystemContext context, String path, long blockId)
+      throws AlluxioException, IOException {
+    AlluxioBlockStore blockStore = AlluxioBlockStore.create(context);
+
+    String localHostName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
+    List<BlockWorkerInfo> workerInfoList = blockStore.getAllWorkers();
+    WorkerNetAddress localNetAddress = null;
+
+    for (BlockWorkerInfo workerInfo : workerInfoList) {
+      if (workerInfo.getNetAddress().getHost().equals(localHostName)) {
+        localNetAddress = workerInfo.getNetAddress();
+        break;
+      }
+    }
+    if (localNetAddress == null) {
+      throw new NoWorkerException(ExceptionMessage.NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK
+          .getMessage(blockId));
+    }
+
+    // TODO(jiri): Replace with internal client that uses file ID once the internal client is
+    // factored out of the core server module. The reason to prefer using file ID for this job is
+    // to avoid the the race between "replicate" and "rename", so that even a file to replicate is
+    // renamed, the job is still working on the correct file.
+    FileSystem fs = FileSystem.Factory.get();
+    URIStatus status = fs.getStatus(new AlluxioURI(path));
+
+    InStreamOptions inOptions = new InStreamOptions(status);
+    inOptions.getOptions().setReadType(ReadType.NO_CACHE)
+        .setUfsReadLocationPolicy(new LocalFirstPolicy());
+    OutStreamOptions outOptions = OutStreamOptions.defaults();
+    if (status.getCapability() != null) {
+      inOptions.setCapabilityFetcher(
+          new CapabilityFetcher(context, status.getPath(), status.getCapability()));
+      outOptions.setCapabilityFetcher(
+          new CapabilityFetcher(context, status.getPath(), status.getCapability()));
+    }
+
+    // use -1 to reuse the existing block size for this block
+    try (OutputStream outputStream =
+        blockStore.getOutStream(blockId, -1, localNetAddress, outOptions)) {
+      try (InputStream inputStream = blockStore.getInStream(blockId, inOptions)) {
+        ByteStreams.copy(inputStream, outputStream);
+      } catch (Throwable t) {
+        try {
+          ((Cancelable) outputStream).cancel();
+        } catch (Throwable t2) {
+          t.addSuppressed(t2);
+        }
+        throw t;
+      }
+    }
   }
 
   private JobUtils() {} // Utils class not intended for instantiation.

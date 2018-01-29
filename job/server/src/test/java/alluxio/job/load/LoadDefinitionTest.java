@@ -26,6 +26,7 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,10 +38,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Tests {@link LoadDefinition}.
@@ -93,99 +92,6 @@ public class LoadDefinitionTest {
       totalBlockLoads += blocks.size();
     }
     Assert.assertEquals(numBlocks * replication, totalBlockLoads);
-    checkLocalAssignments(assignments);
-  }
-
-  @Test
-  public void multipleAlluxioWorkersOneJobWorkerSameHostReplication() throws Exception {
-    // Two block workers on the same host with different rpc ports.
-    Mockito.when(mMockBlockStore.getAllWorkers())
-        .thenReturn(Arrays.asList(
-            new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(0), 0, 0),
-            new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(1), 0, 0)));
-    WorkerInfo jobWorker = new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0"));
-    List<WorkerInfo> singleJobWorker = Arrays.asList(jobWorker);
-
-    int numBlocks = 3;
-    int replication = 2;
-    createFileWithNoLocations(TEST_URI, numBlocks);
-    LoadConfig config = new LoadConfig(TEST_URI, replication);
-    Map<WorkerInfo, ArrayList<LoadTask>> assignments =
-        new LoadDefinition(mMockFileSystem).selectExecutors(config,
-            singleJobWorker, mMockJobMasterContext);
-    Assert.assertEquals(1, assignments.size());
-    // Load 3 blocks to each of the two block workers.
-    Assert.assertEquals(6, assignments.get(jobWorker).size());
-  }
-
-  @Test
-  public void multipleJobWorkersOneBlockWorkerSameHostReplication() throws Exception {
-    Mockito.when(mMockBlockStore.getAllWorkers()).thenReturn(
-        Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0)));
-    WorkerInfo jobWorker1 =
-        new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0").setRpcPort(0));
-    WorkerInfo jobWorker2 =
-        new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0").setRpcPort(1));
-    List<WorkerInfo> jobWorkers = Arrays.asList(jobWorker1, jobWorker2);
-
-    int numBlocks = 4;
-    int replication = 1;
-    createFileWithNoLocations(TEST_URI, numBlocks);
-    LoadConfig config = new LoadConfig(TEST_URI, replication);
-    Map<WorkerInfo, ArrayList<LoadTask>> assignments =
-        new LoadDefinition(mMockFileSystem).selectExecutors(config,
-            jobWorkers, mMockJobMasterContext);
-    Assert.assertEquals(2, assignments.size());
-    // Each worker gets half the blocks.
-    Assert.assertEquals(2, assignments.get(jobWorker1).size());
-    Assert.assertEquals(2, assignments.get(jobWorker2).size());
-  }
-
-  @Test
-  public void multipleJobWorkersMultipleBlockWorkerSameHostReplication() throws Exception {
-    List<BlockWorkerInfo> blockWorkers = Arrays.asList(
-        new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(0), 0, 0),
-        new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(1), 0, 0),
-        new BlockWorkerInfo(new WorkerNetAddress().setHost("host0").setRpcPort(2), 0, 0));
-    Mockito.when(mMockBlockStore.getAllWorkers()).thenReturn(blockWorkers);
-    WorkerInfo jobWorker1 =
-        new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0").setRpcPort(0));
-    WorkerInfo jobWorker2 =
-        new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0").setRpcPort(1));
-    List<WorkerInfo> jobWorkers = Arrays.asList(jobWorker1, jobWorker2);
-
-    int numBlocks = 12;
-    int replication = 3;
-    createFileWithNoLocations(TEST_URI, numBlocks);
-    LoadConfig config = new LoadConfig(TEST_URI, replication);
-    Map<WorkerInfo, ArrayList<LoadTask>> assignments =
-        new LoadDefinition(mMockFileSystem).selectExecutors(config,
-            jobWorkers, mMockJobMasterContext);
-
-    Assert.assertEquals(2, assignments.size());
-    // 36 total block writes should be divided evenly between the job workers.
-    Assert.assertEquals(18, assignments.get(jobWorker1).size());
-    Assert.assertEquals(18, assignments.get(jobWorker2).size());
-    // 1/3 of the block writes should go to each block worker
-    int workerCount1 = 0;
-    int workerCount2 = 0;
-    int workerCount3 = 0;
-    for (Collection<LoadTask> tasks : assignments.values()) {
-      for (LoadTask task : tasks) {
-        if (task.getWorkerNetAddress().equals(blockWorkers.get(0).getNetAddress())) {
-          workerCount1++;
-        } else if (task.getWorkerNetAddress().equals(blockWorkers.get(1).getNetAddress())) {
-          workerCount2++;
-        } else if (task.getWorkerNetAddress().equals(blockWorkers.get(2).getNetAddress())) {
-          workerCount3++;
-        } else {
-          throw new RuntimeException("All load tasks must be assigned to one of the block workers");
-        }
-      }
-    }
-    Assert.assertEquals(12, workerCount1);
-    Assert.assertEquals(12, workerCount2);
-    Assert.assertEquals(12, workerCount3);
   }
 
   @Test
@@ -211,8 +117,8 @@ public class LoadDefinitionTest {
           JOB_WORKERS, mMockJobMasterContext);
       Assert.fail();
     } catch (Exception e) {
-      Assert.assertEquals("Failed to find enough block workers to replicate to. Needed 5 but only "
-          + "found 4. Available workers without the block: " + BLOCK_WORKERS, e.getMessage());
+      Assert.assertThat(e.getMessage(), CoreMatchers.containsString(
+          "Failed to find enough block workers to replicate to. Needed 5 but only found 4."));
     }
   }
 
@@ -229,21 +135,11 @@ public class LoadDefinitionTest {
           JOB_WORKERS, mMockJobMasterContext);
       Assert.fail();
     } catch (Exception e) {
-      // expected
-    }
-  }
-
-  /**
-   * Checks that job workers are only assigned to load blocks on local block workers.
-   *
-   * @param assignments the assignments map to check
-   */
-  private void checkLocalAssignments(Map<WorkerInfo, ArrayList<LoadTask>> assignments) {
-    for (Entry<WorkerInfo, ArrayList<LoadTask>> assignment : assignments.entrySet()) {
-      String host = assignment.getKey().getAddress().getHost();
-      for (LoadTask task : assignment.getValue()) {
-        Assert.assertEquals(host, task.getWorkerNetAddress().getHost());
-      }
+      Assert.assertThat(e.getMessage(),
+          CoreMatchers.containsString("Available workers without the block: [host0]"));
+      Assert.assertThat(e.getMessage(),
+          CoreMatchers.containsString("The following workers could not be used because "
+              + "they have no local job workers: [otherhost]"));
     }
   }
 

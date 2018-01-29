@@ -26,7 +26,8 @@ public final class JobIdGenerator {
    * Creates a new instance.
    */
   public JobIdGenerator() {
-    mNextJobId = new AtomicLong(CommonUtils.getCurrentMs());
+    // shift by 10,000 to avoid conflicts with worker IDs.
+    mNextJobId = new AtomicLong(CommonUtils.getCurrentMs() + 10 * 1000);
   }
 
   /**

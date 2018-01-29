@@ -76,10 +76,10 @@ public final class StatCommand extends AbstractCommand {
       output.append("Config: ").append(info.getJobConfig()).append("\n");
     }
     output.append("Status: ").append(info.getStatus()).append("\n");
-    if (!info.getErrorMessage().isEmpty()) {
+    if (info.getErrorMessage() != null && !info.getErrorMessage().isEmpty()) {
       output.append("Error: ").append(info.getErrorMessage()).append("\n");
     }
-    if (!info.getResult().isEmpty()) {
+    if (info.getResult() != null && !info.getResult().isEmpty()) {
       output.append("Result: ").append(info.getResult()).append("\n");
     }
 

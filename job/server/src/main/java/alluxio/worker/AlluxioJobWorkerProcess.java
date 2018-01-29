@@ -14,6 +14,8 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
+import alluxio.metrics.MetricsSystem;
+import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.JobUfsManager;
@@ -78,6 +80,8 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
 
   /** The manager for all ufs. */
   private UfsManager mUfsManager;
+
+  private final MetricsServlet mMetricsServlet = new MetricsServlet(MetricsSystem.METRIC_REGISTRY);
 
   /**
    * Constructor of {@link AlluxioJobWorker}.
@@ -147,6 +151,7 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
     // NOTE: the order to start different services is sensitive. If you change it, do it cautiously.
 
     // Start serving the web server, this will not block.
+    mWebServer.addHandler(mMetricsServlet.getHandler());
     mWebServer.start();
 
     // Start each worker

@@ -67,12 +67,9 @@ public final class LoadIntegrationTest extends JobIntegrationTest {
     // write a file outside of Alluxio
     AlluxioURI filePath = new AlluxioURI(TEST_URI);
     FileOutStream os = mFileSystem.createFile(filePath, CreateFileOptions.defaults()
-        .setBlockSizeBytes(16 * Constants.MB).setWriteType(WriteType.THROUGH));
-    // Write a smaller byte array 10 times to avoid demanding 500mb of contiguous memory.
-    byte[] bytes = BufferUtils.getIncreasingByteArray(50 * Constants.MB);
-    for (int i = 0; i < 10; i++) {
-      os.write(bytes);
-    }
+        .setBlockSizeBytes(16 * Constants.KB).setWriteType(WriteType.THROUGH));
+    byte[] bytes = BufferUtils.getIncreasingByteArray(500 * Constants.KB);
+    os.write(bytes);
     os.close();
 
     // check the file is completed but not in Alluxio

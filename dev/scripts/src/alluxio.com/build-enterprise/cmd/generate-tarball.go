@@ -25,14 +25,16 @@ var (
 		Runner: cmdline.RunnerFunc(single),
 	}
 
-	targetFlag  string
-	mvnArgsFlag string
+	hadoopDistributionFlag  string
+	targetFlag              string
+	mvnArgsFlag             string
 
 	webappDir = "core/server/common/src/main/webapp"
 	webappWar = "assembly/webapp.war"
 )
 
 func init() {
+	cmdSingle.Flags.StringVar(&hadoopDistributionFlag, "hadoop-distribution", "hadoop-2.2", "the hadoop distribution to build this Alluxio distribution tarball")
 	cmdSingle.Flags.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
 			`Note that trailing ".tar.gz" will be stripped to determine the name for the Root directory of the generated tarball`, versionMarker, versionMarker))
@@ -46,7 +48,7 @@ func single(_ *cmdline.Env, _ []string) error {
 	if err := checkRootFlags(); err != nil {
 		return err
 	}
-	if err := generateTarball(); err != nil {
+	if err := generateTarball(hadoopDistributionFlag); err != nil {
 		return err
 	}
 	return nil
@@ -79,7 +81,7 @@ func chdir(path string) {
 	}
 }
 
-func getCommonMvnArgs() []string {
+func getCommonMvnArgs(hadoopDistribution string) []string {
 	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip"}
 	if mvnArgsFlag != "" {
 		for _, arg := range strings.Split(mvnArgsFlag, ",") {
@@ -103,6 +105,11 @@ func getCommonMvnArgs() []string {
 	}
 	if proxyURLFlag != "" {
 		args = append(args, fmt.Sprintf("-Dproxy.url=%s", proxyURLFlag))
+	}
+
+	if hadoopDistribution != "" {
+		hadoopVersion := hadoopDistributions[hadoopDistribution]
+		args = append(args, fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion), fmt.Sprintf("-P%v", hadoopVersion.hadoopProfile()))
 	}
 	return args
 }
@@ -149,6 +156,8 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		// LIBEXEC
 		"libexec/alluxio-config.sh",
 		// DOCKER
+		"integration/docker/Dockerfile",
+		"integration/docker/entrypoint.sh",
 		"integration/docker/bin/alluxio-master.sh",
 		"integration/docker/bin/alluxio-job-master.sh",
 		"integration/docker/bin/alluxio-job-worker.sh",
@@ -170,16 +179,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	// Create empty directories for default UFS and Docker integration.
 	mkdir(filepath.Join(dstPath, "underFSStorage"))
 	mkdir(filepath.Join(dstPath, "integration/docker/conf"))
-	// Copy files from /docker-enterprise to /docker.
-	for _, file := range []string{
-		"Dockerfile",
-		"README.md",
-		"entrypoint.sh",
-	} {
-		src := filepath.Join("integration/docker-enterprise", file)
-		dst := filepath.Join("integration/docker", file)
-		run(fmt.Sprintf("adding %v", src), "mv", src, filepath.Join(dstPath, dst))
-	}
 	// UFS MODULES
 	mkdir(filepath.Join(dstPath, "lib"))
 	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
@@ -198,10 +197,15 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	}
 }
 
-func generateTarball() error {
+func generateTarball(hadoopDistribution string) error {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return err
+	}
+
+	hadoopVersion, ok := hadoopDistributions[hadoopDistribution]
+	if !ok {
+		return fmt.Errorf("hadoop distribution %s not recognized\n", hadoopDistribution)
 	}
 
 	srcPath, err := ioutil.TempDir("", edition)
@@ -246,7 +250,7 @@ func generateTarball() error {
 	fmt.Println("done")
 
 	// COMPILE
-	mvnArgs := getCommonMvnArgs()
+	mvnArgs := getCommonMvnArgs(hadoopDistribution)
 	run("compiling repo", "mvn", mvnArgs...)
 	// Compile ufs modules for the main build
 	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
@@ -286,6 +290,16 @@ func generateTarball() error {
 
 	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
 	addAdditionalFiles(srcPath, dstPath, version)
+
+	// COMPILE CLIENT WITH KMS AND COPY CLIENT JAR WITH KMS TO DEST
+	// Note that, run this lastly to avoid changing other jars depending on client
+	if hadoopVersion.hasHadoopKMS() {
+		kmsClientMvnArgs := append(mvnArgs, "-Phadoop-kms")
+		run("compiling client module with Hadoop KMS", "mvn", kmsClientMvnArgs...)
+		srcClientJar := filepath.Join(srcPath, "client", fmt.Sprintf("alluxio-%v-client.jar", version))
+		dstClientJar := filepath.Join(dstPath, "client", fmt.Sprintf("alluxio-%v-client-with-kms.jar", version))
+		run("adding Alluxio KMS client jar", "mv", srcClientJar, dstClientJar)
+    }
 
 	// CREATE DISTRIBUTION TARBALL AND CLEANUP
 	chdir(cwd)

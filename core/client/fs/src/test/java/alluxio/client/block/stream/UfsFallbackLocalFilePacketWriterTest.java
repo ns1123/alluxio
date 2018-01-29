@@ -38,7 +38,6 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -193,7 +192,6 @@ public class UfsFallbackLocalFilePacketWriterTest {
     assertEquals(expected.get().getChecksum(), actualLocal.get().getChecksum());
   }
 
-  @Ignore
   @Test(timeout = 1000 * 60)
   public void fallbackOnFirstPacket() throws Exception {
     Future<WriteSummary> expected;
@@ -213,7 +211,6 @@ public class UfsFallbackLocalFilePacketWriterTest {
     assertEquals(expected.get().getChecksum(), actualUfs.get().getChecksum());
   }
 
-  @Ignore
   @Test(timeout = 1000 * 60)
   public void fallbackOnSecondPacket() throws Exception {
     Future<WriteSummary> expected;

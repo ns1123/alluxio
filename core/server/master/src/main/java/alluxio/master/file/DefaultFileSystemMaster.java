@@ -3995,6 +3995,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
             inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
             journalPersistedInodes(propagatePersistedInternal(inodePath, false), journalContext);
+            Metrics.FILES_PERSISTED.inc();
 
             // Journal the action.
             SetAttributeEntry.Builder builder =
