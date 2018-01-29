@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-const edition = "enterprise"
+const edition = "oem"
 const versionMarker = "${VERSION}"
 
 // ufsModuleNames is a map from ufs profile to the name used in the generated tarball.
@@ -253,7 +253,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	// Copy files from /docker-enterprise to /docker.
 	for _, file := range []string{
 		"Dockerfile",
-		"README.md",
 		"entrypoint.sh",
 	} {
 		src := filepath.Join("integration/docker-enterprise", file)
