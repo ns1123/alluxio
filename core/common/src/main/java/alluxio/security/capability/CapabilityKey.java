@@ -125,7 +125,7 @@ public final class CapabilityKey {
     return Objects.toStringHelper(this)
         .add("keyId", mKeyId)
         .add("expirationTimeMs", mExpirationTimeMs)
-        .add("encodedKey", new String(mEncodedKey))
+        .add("encodedKey", mEncodedKey == null ? "" : new String(mEncodedKey))
         .toString();
   }
 

@@ -92,5 +92,8 @@ public class HdfsVersionTest {
     Assert.assertEquals(HdfsVersion.HDP_2_5, HdfsVersion.find("2.7.3.2.5.0.0-1245"));
     Assert.assertEquals(HdfsVersion.HDP_2_5, HdfsVersion.find("hdp-2.5"));
     Assert.assertEquals(HdfsVersion.HDP_2_5, HdfsVersion.find("hdp2.5"));
+    Assert.assertEquals(HdfsVersion.MAPR_5_2, HdfsVersion.find("maprfs-5.2"));
+    Assert.assertEquals(HdfsVersion.MAPR_5_2, HdfsVersion.find("2.7.0-mapr-1607"));
+    Assert.assertEquals(HdfsVersion.MAPR_4_1, HdfsVersion.find("2.5.1-mapr-1503"));
   }
 }

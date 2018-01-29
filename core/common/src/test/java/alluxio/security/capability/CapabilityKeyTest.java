@@ -55,6 +55,7 @@ public final class CapabilityKeyTest {
     Assert.assertEquals(0L, key.getKeyId());
     Assert.assertEquals(0L, key.getExpirationTimeMs());
     Assert.assertNull(key.getEncodedKey());
+    Assert.assertNotNull(key.toString());
   }
 
   /**
@@ -72,6 +73,7 @@ public final class CapabilityKeyTest {
     Assert.assertEquals(keyid, key.getKeyId());
     Assert.assertEquals(expiration, key.getExpirationTimeMs());
     Assert.assertEquals(new String(encodedKey), new String(key.getEncodedKey()));
+    Assert.assertNotNull(key.toString());
   }
 
   @Test

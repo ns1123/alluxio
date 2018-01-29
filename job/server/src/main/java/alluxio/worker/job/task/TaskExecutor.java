@@ -66,7 +66,7 @@ public final class TaskExecutor implements Runnable {
     JobDefinition<JobConfig, Serializable, Serializable> definition;
     try {
       definition = JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobConfig);
-    } catch (JobDoesNotExistException e1) {
+    } catch (JobDoesNotExistException e) {
       LOG.error("The job definition for config {} does not exist.", mJobConfig.getName());
       return;
     }
@@ -79,14 +79,14 @@ public final class TaskExecutor implements Runnable {
     } catch (InterruptedException e) {
       mTaskExecutorManager.notifyTaskCancellation(mJobId, mTaskId);
       return;
-    } catch (Exception e) {
+    } catch (Throwable t) {
       if (Configuration.getBoolean(PropertyKey.DEBUG)) {
-        mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, ExceptionUtils.getStackTrace(e));
+        mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, ExceptionUtils.getStackTrace(t));
       } else {
-        mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
+        mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, t.getMessage());
       }
       LOG.warn("Exception running task for job {}({}) : {}", mJobConfig.getName(),
-          mTaskArgs.toString(), e.getMessage());
+          mTaskArgs.toString(), t.getMessage());
       return;
     }
     mTaskExecutorManager.notifyTaskCompletion(mJobId, mTaskId, result);

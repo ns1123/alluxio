@@ -27,7 +27,12 @@
     <license.header.path>${project.parent.parent.basedir}/build/license/</license.header.path>
     <checkstyle.path>${project.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.parent.basedir}/build/findbugs/</findbugs.path>
-    <ufs.hadoop.version>${hadoop.version}</ufs.hadoop.version>
+    <!-- ALLUXIO CS REPLACE -->
+    <!-- <ufs.hadoop.version>${hadoop.version}</ufs.hadoop.version> -->
+    <!-- ALLUXIO CS WITH -->
+    <!-- Decouple hadoop versions between north and south bound -->
+    <ufs.hadoop.version>2.2.0</ufs.hadoop.version>
+    <!-- ALLUXIO CS END -->
   </properties>
 
   <dependencies>
