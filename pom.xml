@@ -1304,19 +1304,6 @@
         <groupId>org.codehaus.mojo</groupId>
         <inherited>false</inherited>
         <executions>
-          <!-- ALLUXIO CS ADD -->
-          <execution>
-            <id>Check close source annotations</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <skip>${annotation.skip}</skip>
-              <executable>${basedir}/annotation/check.sh</executable>
-            </configuration>
-          </execution>
-          <!-- ALLUXIO CS END -->
           <execution>
             <id>Check that there are no Windows line endings</id>
             <phase>compile</phase>
