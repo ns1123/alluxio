@@ -12,17 +12,11 @@
 
 FROM openjdk:8-jdk-alpine
 
-<<<<<<< HEAD
-ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.7.0/alluxio-1.7.0-bin.tar.gz
-||||||| merged common ancestors
-ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.6.1/alluxio-1.6.1-bin.tar.gz
-=======
 # ALLUXIO CS REPLACE
-# ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.6.1/alluxio-1.6.1-bin.tar.gz
+# ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.7.0/alluxio-1.7.0-bin.tar.gz
 # ALLUXIO CS WITH
 ARG ALLUXIO_TARBALL=alluxio-enterprise-1.7.0.tar.gz
 # ALLUXIO CS END
->>>>>>> enterprise-1.7
 
 RUN apk add --update bash && \
     rm -rf /var/cache/apk/*
