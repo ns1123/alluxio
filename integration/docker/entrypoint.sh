@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 #
 # The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
@@ -83,7 +84,6 @@ if [[ -n "${ALLUXIO_LICENSE_BASE64}" ]]; then
   echo "${ALLUXIO_LICENSE_BASE64}" | base64 -d > license.json
 fi
 # ALLUXIO CS END
-
 case ${service,,} in
   master)
     if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
