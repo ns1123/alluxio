@@ -20,7 +20,6 @@ import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
-import alluxio.network.netty.NettyClient;
 import alluxio.network.netty.NettyRPC;
 import alluxio.network.netty.NettyRPCContext;
 import alluxio.proto.dataserver.Protocol;
@@ -137,7 +136,6 @@ public final class EvictDefinition
     Channel channel = null;
     try {
       channel = FileSystemContext.INSTANCE.acquireNettyChannel(localNetAddress);
-      NettyClient.waitForChannelReady(channel);
       ProtoMessage request =
           new ProtoMessage(Protocol.RemoveBlockRequest.newBuilder().setBlockId(blockId).build());
       NettyRPC.call(NettyRPCContext.defaults().setChannel(channel).setTimeout(

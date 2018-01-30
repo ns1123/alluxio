@@ -125,14 +125,6 @@ public final class NettyPacketReader implements PacketReader {
     mReadRequest = readRequest;
 
     mChannel = mContext.acquireNettyChannel(address);
-    // ALLUXIO CS ADD
-    // TODO(peis): Move this logic to NettyClient.
-    try {
-      alluxio.network.netty.NettyClient.waitForChannelReady(mChannel);
-    } catch (IOException e) {
-      throw alluxio.exception.status.AlluxioStatusException.fromIOException(e);
-    }
-    // ALLUXIO CS END
     mChannel.pipeline().addLast(new PacketReadHandler());
     mChannel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(mReadRequest)))
         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);

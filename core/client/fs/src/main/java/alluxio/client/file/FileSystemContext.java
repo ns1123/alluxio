@@ -56,6 +56,11 @@ import javax.security.auth.Subject;
  */
 @ThreadSafe
 public final class FileSystemContext implements Closeable {
+  // ALLUXIO CS ADD
+  private static final org.slf4j.Logger LOG =
+      org.slf4j.LoggerFactory.getLogger(FileSystemContext.class);
+
+  // ALLUXIO CS END
   public static final FileSystemContext INSTANCE = create();
 
   static {
@@ -267,7 +272,25 @@ public final class FileSystemContext implements Closeable {
         pool.close();
       }
     }
-    return mNettyChannelPools.get(address).acquire();
+    // ALLUXIO CS REPLACE
+    //return mNettyChannelPools.get(address).acquire();
+    // ALLUXIO CS WITH
+    alluxio.retry.RetryPolicy retryPolicy = new alluxio.retry.CountingRetry(1);
+    Channel channel;
+    do {
+      channel = mNettyChannelPools.get(address).acquire();
+      try {
+        alluxio.util.network.NettyUtils.waitForClientChannelReady(channel);
+        return channel;
+      } catch (Exception e) {
+        LOG.info("Failed to build an authenticated channel. "
+            + "This may be due to Kerberos credential expiration. Retry login.");
+        releaseNettyChannel(workerNetAddress, channel);
+        alluxio.security.LoginUser.relogin();
+      }
+    } while (retryPolicy.attemptRetry());
+    throw new IOException("Failed to build an authenticated channel even after relogin");
+    // ALLUXIO CS END
   }
 
   /**

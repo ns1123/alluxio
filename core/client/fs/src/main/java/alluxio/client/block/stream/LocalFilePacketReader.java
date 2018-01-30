@@ -131,12 +131,6 @@ public final class LocalFilePacketReader implements PacketReader {
         request = request.toBuilder()
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).build();
       }
-      try {
-        alluxio.network.netty.NettySecureRpcClient.waitForChannelReady(mChannel);
-      } catch (Exception e) {
-        context.releaseNettyChannel(address, mChannel);
-        throw e;
-      }
       // ALLUXIO CS END
       try {
         ProtoMessage message = NettyRPC
