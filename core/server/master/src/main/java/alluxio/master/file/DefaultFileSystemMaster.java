@@ -3831,11 +3831,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
       }
 
-      // If previous persist job failed, clean up the temporary file.
-      cleanup(tempUfsPath);
+      MountTable.Resolution resolution = mMountTable.resolve(uri);
+      try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
+        // If previous persist job failed, clean up the temporary file.
+        cleanup(ufsResource.get(), tempUfsPath);
+      }
 
       // Generate a temporary path to be used by the persist job.
-      MountTable.Resolution resolution = mMountTable.resolve(uri);
       tempUfsPath =
           PathUtils.temporaryFileName(System.currentTimeMillis(), resolution.getUri().toString());
       alluxio.job.persist.PersistConfig config =
@@ -3972,6 +3974,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
         InodeFile inode = inodePath.getInodeFile();
+        MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
+        ufsClient = mUfsManager.get(resolution.getMountId());
         switch (inode.getPersistenceState()) {
           case LOST:
             // fall through
@@ -3982,7 +3986,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 job.getUri(), fileId, inode.getPersistenceState());
             break;
           case TO_BE_PERSISTED:
-            MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
             try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
               UnderFileSystem ufs = ufsResource.get();
               String ufsPath = resolution.getUri().toString();
@@ -4009,7 +4012,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
             // Save state for possible cleanup
             blockIds.addAll(inode.getBlockIds());
-            ufsClient = mUfsManager.get(resolution.getMountId());
             break;
           default:
             throw new IllegalStateException(
@@ -4020,14 +4022,22 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             e.getMessage());
         LOG.debug("Exception: ", e);
         // Cleanup the temporary file.
-        cleanup(tempUfsPath);
+        if (ufsClient != null) {
+          try (CloseableResource<UnderFileSystem> ufsResource = ufsClient.acquireUfsResource()) {
+            cleanup(ufsResource.get(), tempUfsPath);
+          }
+        }
       } catch (Exception e) {
         LOG.warn(
             "Unexpected exception encountered when trying to complete persistence of a file {} "
                 + "(id={}) : {}",
             job.getUri(), fileId, e.getMessage());
         LOG.debug("Exception: ", e);
-        cleanup(tempUfsPath);
+        if (ufsClient != null) {
+          try (CloseableResource<UnderFileSystem> ufsResource = ufsClient.acquireUfsResource()) {
+            cleanup(ufsResource.get(), tempUfsPath);
+          }
+        }
         mPersistRequests.put(fileId, job.getTimer());
       } finally {
         mPersistJobs.remove(fileId);
@@ -4133,11 +4143,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
   }
 
-  private static void cleanup(String ufsPath) {
+  private static void cleanup(UnderFileSystem ufs, String ufsPath) {
     final String errMessage = "Failed to delete UFS file {}.";
     if (!ufsPath.isEmpty()) {
       try {
-        UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
         if (!ufs.deleteFile(ufsPath)) {
           LOG.warn(errMessage, ufsPath);
         }
