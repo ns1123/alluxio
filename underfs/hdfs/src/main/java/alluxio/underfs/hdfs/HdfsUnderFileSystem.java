@@ -66,6 +66,16 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     implements AtomicFileOutputStreamCallback {
   private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystem.class);
   private static final int MAX_TRY = 5;
+  // ALLUXIO CS ADD
+  // According to the following link
+  // https://stackoverflow.com/questions/34616676/should-i-call-ugi-checktgtandreloginfromkeytab-before-every-action-on-hadoop,
+  // a process can perform a one-time invocation of UserGroupInformation#loginUserFromKeytab, a static method
+  // and let Hadoop IPC client layer handle relogin once ticket expires.
+  // HdfsUnderFileSystem calls UserGroupInformation#loginUserFromKeytab when the class HdfsUnderFileSystem
+  // is first loaded. We must ensure that loginUserFromKeytab is called once and only once.
+  // Therefore, we need a static boolean variable to track this.
+  private static boolean sIsAuthenticated;
+  // ALLUXIO CS END
 
   private FileSystem mFileSystem;
   private UnderFileSystemConfiguration mUfsConf;
@@ -486,7 +496,16 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
-    org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytab);
+    // Alluxio ensures that, when UserGroupInformation is loaded for the first time,
+    // it performs authentication once and only once to avoid unexpectedly changing
+    // loginUser. Multiple class loaders can load multiple UserGroupInformation
+    // classes. For each one of them, perform authentication once and only once.
+    synchronized (HdfsUnderFileSystem.class) {
+      if (!sIsAuthenticated) {
+        org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytab);
+        sIsAuthenticated = true;
+      }
+    }
   }
 
   private void loginAsAlluxioClient() throws IOException {
