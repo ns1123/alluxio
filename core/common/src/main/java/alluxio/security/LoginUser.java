@@ -43,6 +43,10 @@ public final class LoginUser {
   private static LoginContext sLoginContext;
   private static String sPrincipal;
   private static String sKeytab;
+  /**
+   * Minimum time interval until next login attempt is 60 seconds.
+   */
+  private static final long MIN_RELOGIN_INTERVAL = 60 * 1000;
   // ALLUXIO CS END
 
   private LoginUser() {} // prevent instantiation
@@ -160,8 +164,6 @@ public final class LoginUser {
               new java.util.HashSet<Object>(), new java.util.HashSet<Object>());
         }
 
-        // loginContext will always be null if sun.security.jgss.native is true.
-        LoginContext loginContext = null;
         if (Boolean.getBoolean("sun.security.jgss.native")) {
           // Use MIT native Kerberos library
           // http://docs.oracle.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
@@ -247,6 +249,15 @@ public final class LoginUser {
       // TODO(gene) maybe implement the relogin via native JGSS
       return;
     }
+    // Check whether this TGT is sufficiently close to expiration. If there is still more
+    // than 60 seconds until expiration, do not attempt to relogin.
+    javax.security.auth.kerberos.KerberosTicket tgt = getTGT();
+    if (tgt != null) {
+      long expirationTime = tgt.getEndTime().getTime();
+      if (expirationTime - System.currentTimeMillis() >= MIN_RELOGIN_INTERVAL) {
+        return;
+      }
+    }
     if (sLoginContext != null) {
       try {
         sLoginContext.logout();
@@ -326,6 +337,14 @@ public final class LoginUser {
       return null;
     }
     return getServerUser().getSubject();
+  }
+
+  private static javax.security.auth.kerberos.KerberosTicket getTGT() {
+    if (sLoginUser == null) {
+      return null;
+    }
+    return alluxio.security.util.KerberosUtils
+        .extractOriginalTGTFromSubject(sLoginUser.getSubject());
   }
   // ALLUXIO CS END
 
