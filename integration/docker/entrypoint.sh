@@ -94,7 +94,7 @@ case ${service,,} in
       bin/alluxio formatMaster
     fi
 # ALLUXIO CS REPLACE
-#    integration/docker/bin/alluxio-master.sh
+#     integration/docker/bin/alluxio-master.sh
 # ALLUXIO CS WITH
     integration/docker/bin/alluxio-job-master.sh &
     integration/docker/bin/alluxio-master.sh &
@@ -110,7 +110,7 @@ case ${service,,} in
       bin/alluxio formatWorker
     fi
 # ALLUXIO CS REPLACE
-#    integration/docker/bin/alluxio-worker.sh
+#     integration/docker/bin/alluxio-worker.sh
 # ALLUXIO CS WITH
     integration/docker/bin/alluxio-job-worker.sh &
     integration/docker/bin/alluxio-worker.sh &
