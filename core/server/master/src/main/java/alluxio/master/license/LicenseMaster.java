@@ -225,7 +225,7 @@ public class LicenseMaster extends AbstractMaster {
         ObjectMapper mapper = new ObjectMapper();
         license = mapper.readValue(new File(licenseFilePath), License.class);
       } catch (IOException e) {
-        LOG.error("Failed to parse license file {}: {}", licenseFilePath, e);
+        LOG.error("Failed to parse license file {}", licenseFilePath, e);
         return null;
       }
       return license;
@@ -242,7 +242,7 @@ public class LicenseMaster extends AbstractMaster {
       try {
         token = license.getToken();
       } catch (GeneralSecurityException | IOException e) {
-        LOG.error("Failed to decrypt license secret: {}", e);
+        LOG.error("Failed to decrypt license secret", e);
         return false;
       }
 
@@ -251,7 +251,7 @@ public class LicenseMaster extends AbstractMaster {
       try {
         url = new URL(new URL(ProjectConstants.PROXY_URL), "check").toString();
       } catch (MalformedURLException e) {
-        LOG.error("Failed to construct URL to the license check server: {}", e);
+        LOG.error("Failed to construct URL to the license check server", e);
         return false;
       }
       HttpClient client = HttpClientBuilder.create().build();
@@ -263,7 +263,7 @@ public class LicenseMaster extends AbstractMaster {
       try {
         post.setEntity(new UrlEncodedFormEntity(urlParameters));
       } catch (UnsupportedEncodingException e) {
-        LOG.error("Failed to set request entity: {}", e);
+        LOG.error("Failed to set request entity", e);
         return false;
       }
 
@@ -272,7 +272,7 @@ public class LicenseMaster extends AbstractMaster {
       try {
         response = client.execute(post);
       } catch (IOException e) {
-        LOG.error("Failed to execute the request: {}", e);
+        LOG.error("Failed to execute the request", e);
         return false;
       }
 
@@ -292,7 +292,7 @@ public class LicenseMaster extends AbstractMaster {
           result.append(inputLine);
         }
       } catch (IOException e) {
-        LOG.error("Failed to read response content: {}", e);
+        LOG.error("Failed to read response content", e);
         return false;
       }
 
@@ -313,7 +313,7 @@ public class LicenseMaster extends AbstractMaster {
       try {
         expirationTimeMs = license.getExpirationMs();
       } catch (ParseException e) {
-        LOG.error("Failed to parse expiration {}: {}", license.getExpiration(), e);
+        LOG.error("Failed to parse expiration {}", license.getExpiration(), e);
         return false;
       }
       if (currentTimeMs > expirationTimeMs) {
