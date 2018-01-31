@@ -119,7 +119,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-    LOG.warn("Exception thrown while processing request", cause);
+    LOG.warn("Exception thrown while processing request. {}", cause.toString());
     // Propagate the exception caught to authentication result.
     ctx.attr(AUTHENTICATED_KEY).get().setException(cause);
     ctx.close();

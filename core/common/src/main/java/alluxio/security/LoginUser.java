@@ -47,6 +47,7 @@ public final class LoginUser {
    * Minimum time interval until next login attempt is 60 seconds.
    */
   private static final long MIN_RELOGIN_INTERVAL = 60 * 1000;
+  private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(LoginUser.class);
   // ALLUXIO CS END
 
   private LoginUser() {} // prevent instantiation
@@ -250,11 +251,15 @@ public final class LoginUser {
       return;
     }
     // Check whether this TGT is sufficiently close to expiration. If there is still more
-    // than 60 seconds until expiration, do not attempt to relogin.
+    // than 60 seconds until expiration, do not attempt to relogin. This can happen when
+    // multiple threads invoke relogin concurrently.
     javax.security.auth.kerberos.KerberosTicket tgt = getTGT();
     if (tgt != null) {
       long expirationTime = tgt.getEndTime().getTime();
-      if (expirationTime - System.currentTimeMillis() >= MIN_RELOGIN_INTERVAL) {
+      long remainingTime = expirationTime - System.currentTimeMillis();
+      if (remainingTime >= MIN_RELOGIN_INTERVAL) {
+        LOG.info("Not attempting to relogin since credential will remain valid "
+            + "for another {} seconds.", remainingTime / 1000.0);
         return;
       }
     }
