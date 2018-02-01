@@ -43,10 +43,14 @@ public final class LoginUser {
   private static LoginContext sLoginContext;
   private static String sPrincipal;
   private static String sKeytab;
+  private static long sLastLoginAttemptTimeMs;
   /**
-   * Minimum time interval until next login attempt is 60 seconds.
+   * Alluxio performs relogin only after at least this amount of time has elapsed since the
+   * last relogin attempt. The purpose is to rate limit access to the KDC from the same
+   * process. Please contact your KDC admin to make sure that the lifetime of the ticket
+   * granting ticket (TGT) issued to the principals is greater than this value.
    */
-  private static final long MIN_RELOGIN_INTERVAL = 60 * 1000;
+  private static final long RELOGIN_RETRY_DELAY_MS = 30 * 1000;
   private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(LoginUser.class);
   // ALLUXIO CS END
 
@@ -250,19 +254,14 @@ public final class LoginUser {
       // TODO(gene) maybe implement the relogin via native JGSS
       return;
     }
-    // Check whether this TGT is sufficiently close to expiration. If there is still more
-    // than 60 seconds until expiration, do not attempt to relogin. This can happen when
-    // multiple threads invoke relogin concurrently.
-    javax.security.auth.kerberos.KerberosTicket tgt = getTGT();
-    if (tgt != null) {
-      long expirationTime = tgt.getEndTime().getTime();
-      long remainingTime = expirationTime - System.currentTimeMillis();
-      if (remainingTime >= MIN_RELOGIN_INTERVAL) {
-        LOG.info("Not attempting to relogin since credential will remain valid "
-            + "for another {} seconds.", remainingTime / 1000.0);
-        return;
-      }
+    long timeSinceLastLoginAttemptMs = System.currentTimeMillis() - sLastLoginAttemptTimeMs;
+    if (timeSinceLastLoginAttemptMs <= RELOGIN_RETRY_DELAY_MS) {
+      LOG.info("Not attempting to relogin since only {} seconds have elapsed "
+          + "since last login attempt. This is expected to happen when multiple threads are "
+          + "running when expiration hits.", timeSinceLastLoginAttemptMs / 1000.0);
+      return;
     }
+    sLastLoginAttemptTimeMs = System.currentTimeMillis();
     if (sLoginContext != null) {
       try {
         sLoginContext.logout();
@@ -344,13 +343,6 @@ public final class LoginUser {
     return getServerUser().getSubject();
   }
 
-  private static javax.security.auth.kerberos.KerberosTicket getTGT() {
-    if (sLoginUser == null) {
-      return null;
-    }
-    return alluxio.security.util.KerberosUtils
-        .extractOriginalTGTFromSubject(sLoginUser.getSubject());
-  }
   // ALLUXIO CS END
 
   /**

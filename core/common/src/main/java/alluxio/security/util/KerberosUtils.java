@@ -39,7 +39,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.kerberos.KerberosTicket;
 import javax.security.auth.login.LoginException;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.Sasl;
@@ -192,27 +191,6 @@ public final class KerberosUtils {
         throw new LoginException("Failed to get the Kerberos principal from the login subject.");
       }
     }
-  }
-
-  /**
-   * Extract the original ticket granting ticket (TGT) from the given {@link Subject}.
-   *
-   * @param subject the {@link Subject} from which to extract Kerberos TGT
-   * @return the original TGT of this subject
-   */
-  public static KerberosTicket extractOriginalTGTFromSubject(Subject subject) {
-    if (subject == null) {
-      return null;
-    }
-    Set<KerberosTicket> tickets = subject.getPrivateCredentials(KerberosTicket.class);
-    for (KerberosTicket ticket : tickets) {
-      KerberosPrincipal serverPrincipal = ticket.getServer();
-      if (serverPrincipal != null && serverPrincipal.getName().equals(
-          "krbtgt/" + serverPrincipal.getRealm() + "@" + serverPrincipal.getRealm())) {
-        return ticket;
-      }
-    }
-    return null;
   }
 
   /**
