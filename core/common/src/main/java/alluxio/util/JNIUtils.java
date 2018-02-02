@@ -30,6 +30,6 @@ public final class JNIUtils {
   public static void load(Logger logger, String filename) {
     logger.debug("Loading native library " + filename);
     System.load(filename);
-    logger.debug("The native library was loaded");
+    logger.debug("The native library was loaded: {}", filename);
   }
 }

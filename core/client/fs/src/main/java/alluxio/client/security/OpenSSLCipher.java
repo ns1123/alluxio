@@ -39,7 +39,13 @@ public final class OpenSSLCipher implements Cipher {
     String libDir = Configuration.get(PropertyKey.NATIVE_LIBRARY_PATH);
     String name = System.mapLibraryName(Constants.NATIVE_ALLUXIO_LIB_NAME);
     String libFile = Paths.get(libDir, name).toString();
-    JNIUtils.load(LOG, libFile);
+    try {
+      JNIUtils.load(LOG, libFile);
+      LOG.info("The native ssl library was loaded: {}", libFile);
+    } catch (Throwable t) {
+      LOG.error("Failed to load native ssl library: {}", libFile, t);
+      throw t;
+    }
   }
 
   /**
