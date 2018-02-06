@@ -51,7 +51,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Journal fileSystemMasterJournal = journalSystem.createJournal(fileSystemMaster);
  *
  * // The journal system always starts in secondary mode. It must be transitioned to primary mode
- * // before it can write entries
+ * // before it can write entries.
  * journalSystem.start();
  * journalSystem.setPrimary(true);
  *
@@ -63,7 +63,6 @@ import javax.annotation.concurrent.ThreadSafe;
  * try (JournalContext c = fileSystemMasterJournal.createJournalContext()) {
  *   c.append(exampleFileSystemJournalEntry);
  * }
- *
  * // Transition to a secondary journal. In this mode, the journal will apply entries to the masters
  * // as they are committed to the log.
  * journalSystem.setPrimary(false);
