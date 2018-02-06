@@ -34,6 +34,10 @@
     <!-- External dependencies -->
     <!-- ALLUXIO CS ADD -->
     <dependency>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.atomix.copycat.alluxio</groupId>
       <artifactId>copycat-server</artifactId>
     </dependency>

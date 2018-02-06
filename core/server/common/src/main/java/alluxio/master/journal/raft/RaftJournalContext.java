@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.raft;
+package alluxio.master.journal.raft;
 
 import alluxio.master.journal.AsyncJournalWriter;
 import alluxio.master.journal.JournalContext;

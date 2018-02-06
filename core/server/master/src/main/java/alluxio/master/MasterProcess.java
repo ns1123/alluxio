@@ -41,15 +41,15 @@ public interface MasterProcess extends Process {
       if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
         // ALLUXIO CS ADD
         com.google.common.base.Preconditions.checkState(
-            !(journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystemWrapper),
+            !(journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystem),
             "Raft journal cannot be used with Zookeeper enabled");
         // ALLUXIO CS END
         PrimarySelector primarySelector = PrimarySelector.Factory.createZkPrimarySelector();
         return new FaultTolerantAlluxioMasterProcess(journalSystem, primarySelector);
         // ALLUXIO CS ADD
-      } else if (journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystemWrapper) {
+      } else if (journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystem) {
         PrimarySelector primarySelector =
-            ((alluxio.master.journal.raft.RaftJournalSystemWrapper) journalSystem)
+            ((alluxio.master.journal.raft.RaftJournalSystem) journalSystem)
                 .getPrimarySelector();
         return new FaultTolerantAlluxioMasterProcess(journalSystem, primarySelector);
         // ALLUXIO CS END

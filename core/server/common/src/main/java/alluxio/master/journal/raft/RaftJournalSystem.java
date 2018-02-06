@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.raft;
+package alluxio.master.journal.raft;
 
 import alluxio.Configuration;
 import alluxio.Constants;
@@ -24,7 +24,6 @@ import alluxio.master.journal.JournalContext;
 import alluxio.master.journal.JournalEntryAssociation;
 import alluxio.master.journal.JournalEntryStateMachine;
 import alluxio.master.journal.JournalWriter;
-import alluxio.master.journal.raft.RaftJournalConfiguration;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.util.CommonUtils;
 import alluxio.util.ThreadFactoryUtils;
@@ -72,6 +71,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * System for multiplexing many logical journals into a single raft-based journal.
@@ -122,7 +122,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * lock. Once we have the write lock for all state machines, we enable snapshots in Copycat through
  * our AtomicBoolean, then wait for any snapshot to complete.
  */
-@NotThreadSafe
+@ThreadSafe
 public final class RaftJournalSystem extends AbstractJournalSystem {
   private static final Logger LOG = LoggerFactory.getLogger(RaftJournalSystem.class);
 
@@ -152,6 +152,9 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
    * We take a write lock when we want to perform a snapshot.
    */
   private final ReadWriteLock mJournalStateLock;
+
+  // Whether to ignore append operations sent by Copycat. We do this when we are the primary master.
+  private volatile boolean mIgnoreAppends;
 
   // Tracks whether we are currently performing a snapshot. Set to true while the body of
   // RaftStateMachine#snapshot() is executing.
@@ -188,7 +191,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     return system;
   }
 
-  private void initServer() {
+  private synchronized void initServer() {
     Preconditions.checkState(mConf.getMaxLogSize() <= Integer.MAX_VALUE,
         "{} has value {} but must not exceed {}", PropertyKey.MASTER_JOURNAL_LOG_SIZE_BYTES_MAX,
         mConf.getMaxLogSize(), Integer.MAX_VALUE);
@@ -218,7 +221,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           return new RaftStateMachine();
         })
         .build();
-    mPrimarySelector.init();
+    mPrimarySelector.init(mServer);
   }
 
   private void scheduleSnapshots() {
@@ -250,8 +253,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
    * Locks down all state machines to give Copycat an opportunity to take a snapshot.
    */
   private void snapshot() {
-    // Only run manual snapshots on the primary.
-    if (getMode().equals(Mode.SECONDARY)) {
+    // We only trigger manual snapshots on the primary when automatic snapshots are disabled.
+    if (!mSnapshotAllowed.get()) {
       return;
     }
     LOG.info("Locking journal for daily snapshot");
@@ -260,7 +263,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       mSnapshotAllowed.set(true);
       // Submit a journal entry to trigger snapshotting.
       try {
-        mClient.submit(new alluxio.raft.JournalEntryCommand(JournalEntry.getDefaultInstance())).get();
+        mClient.submit(new JournalEntryCommand(JournalEntry.getDefaultInstance())).get();
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       } catch (ExecutionException e) {
@@ -285,7 +288,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
    * @return the serializer for commands in the {@link StateMachine}
    */
   public static Serializer createSerializer() {
-    return new Serializer().register(alluxio.raft.JournalEntryCommand.class, 1);
+    return new Serializer().register(JournalEntryCommand.class, 1);
   }
 
   @Override
@@ -296,13 +299,15 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   }
 
   @Override
-  public void gainPrimacy() {
+  public synchronized void gainPrimacy() {
     mSnapshotAllowed.set(false);
     waitQuietPeriod();
+    mIgnoreAppends = true;
   }
 
   @Override
-  public void losePrimacy() {
+  public synchronized void losePrimacy() {
+    mIgnoreAppends = false;
     try {
       mServer.shutdown().get();
     } catch (ExecutionException e) {
@@ -345,7 +350,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   }
 
   @Override
-  public void startInternal() throws InterruptedException, IOException {
+  public synchronized void startInternal() throws InterruptedException, IOException {
     LOG.info("Starting Raft journal system");
     long startTime = System.currentTimeMillis();
     try {
@@ -367,7 +372,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   }
 
   @Override
-  public void stopInternal() throws InterruptedException, IOException {
+  public synchronized void stopInternal() throws InterruptedException, IOException {
     LOG.info("Shutting down raft journal");
     mExecutorService.shutdown();
     mExecutorService.awaitTermination(1, TimeUnit.SECONDS);
@@ -412,8 +417,14 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     @Override
     protected void applyJournalEntry(JournalEntry entry) {
       mLastUpdateMs.set(System.currentTimeMillis());
-      // The primary mutates state directly instead of going through the Raft cluster.
-      if (getMode().equals(Mode.PRIMARY)) {
+      if (mIgnoreAppends) {
+        // We should only ignore entries written by this master. If this condition is true, we are
+        // ignoring an entry written by another master.
+        if (mNextSequenceNumber < entry.getSequenceNumber()) {
+          LOG.error("Unexpected journal entry: {} applied when primary master next sequence number "
+              + "is only {}. Exiting to prevent inconsistency", entry, mNextSequenceNumber);
+          System.exit(-1);
+        }
         return;
       }
 
@@ -559,12 +570,15 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   /**
    * A primary selector backed by a Raft consensus cluster.
    */
-  private final class RaftPrimarySelector implements PrimarySelector {
-    @GuardedBy("mStateLock")
-    private State mState;
+  @ThreadSafe
+  private static final class RaftPrimarySelector implements PrimarySelector {
+    private CopycatServer mServer;
+    private Listener<CopycatServer.State> mStateListener;
+
     private final Lock mStateLock = new ReentrantLock();
     private final Condition mStateCond = mStateLock.newCondition();
-    private Listener<CopycatServer.State> mStateListener;
+    @GuardedBy("mStateLock")
+    private State mState;
 
     /**
      * Constructs a new {@link RaftPrimarySelector}.
@@ -573,13 +587,17 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       mState = State.SECONDARY;
     }
 
-    private void init() {
+    /**
+     * @param server reference to the server backing this selector
+     */
+    private void init(CopycatServer server) {
+      mServer = Preconditions.checkNotNull(server, "server");
       if (mStateListener != null) {
         mStateListener.close();
       }
       // We must register the callback before initializing mState in case the state changes
       // immediately after initializing mState.
-      mStateListener = mServer.onStateChange(state -> {
+      mStateListener = server.onStateChange(state -> {
         mStateLock.lock();
         try {
           State newState = getState();

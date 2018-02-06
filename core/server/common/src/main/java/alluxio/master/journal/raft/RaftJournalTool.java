@@ -9,11 +9,10 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.raft;
+package alluxio.master.journal.raft;
 
 import alluxio.Constants;
 import alluxio.master.journal.JournalEntryStreamReader;
-import alluxio.master.journal.raft.RaftJournalConfiguration;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
