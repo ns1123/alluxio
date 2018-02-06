@@ -20,6 +20,7 @@ import alluxio.exception.status.UnavailableException;
 import alluxio.exception.status.UnimplementedException;
 import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
+import alluxio.security.authentication.TProtocols;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
@@ -27,10 +28,6 @@ import alluxio.thrift.GetServiceVersionTOptions;
 
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
-// ALLUXIO CS REMOVE
-// import org.apache.thrift.protocol.TMultiplexedProtocol;
-// ALLUXIO CS END
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -65,11 +62,7 @@ public abstract class AbstractClient implements Client {
       Configuration.getInt(PropertyKey.USER_RPC_RETRY_MAX_NUM_RETRY);
 
   protected InetSocketAddress mAddress = null;
-  // ALLUXIO CS REPLACE
-  // protected TProtocol mProtocol = null;
-  // ALLUXIO CS WITH
-  protected alluxio.security.authentication.AuthenticatedThriftProtocol mProtocol = null;
-  // ALLUXIO CS END
+  protected TProtocol mProtocol = null;
 
   /** Is true if this client is currently connected. */
   protected boolean mConnected = false;
@@ -183,20 +176,10 @@ public abstract class AbstractClient implements Client {
       LOG.info("Alluxio client (version {}) is trying to connect with {} @ {}",
           RuntimeConstants.VERSION, getServiceName(), mAddress);
 
-      TProtocol binaryProtocol =
-          new TBinaryProtocol(mTransportProvider.getClientTransport(mParentSubject, mAddress));
-      // ALLUXIO CS REPLACE
-      // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
-      // ALLUXIO CS WITH
-      mProtocol = new alluxio.security.authentication.AuthenticatedThriftProtocol(binaryProtocol,
-          getServiceName());
-      // ALLUXIO CS END
+      mProtocol = TProtocols.createProtocol(
+          mTransportProvider.getClientTransport(mParentSubject, mAddress), getServiceName());
       try {
-        // ALLUXIO CS REPLACE
-        // mProtocol.getTransport().open();
-        // ALLUXIO CS WITH
-        mProtocol.openTransport();
-        // ALLUXIO CS END
+        mProtocol.getTransport().open();
         LOG.info("Client registered with {} @ {}", getServiceName(), mAddress);
         mConnected = true;
         afterConnect();
@@ -248,11 +231,7 @@ public abstract class AbstractClient implements Client {
       Preconditions.checkNotNull(mProtocol, PreconditionMessage.PROTOCOL_NULL_WHEN_CONNECTED);
       LOG.debug("Disconnecting from the {} @ {}", getServiceName(), mAddress);
       beforeDisconnect();
-      // ALLUXIO CS REPLACE
-      // mProtocol.getTransport().close();
-      // ALLUXIO CS WITH
-      mProtocol.closeTransport();
-      // ALLUXIO CS END
+      mProtocol.getTransport().close();
       mConnected = false;
       afterDisconnect();
     }

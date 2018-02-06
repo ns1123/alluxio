@@ -15,11 +15,11 @@ import alluxio.Constants;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.retry.RetryPolicy;
+import alluxio.security.authentication.TProtocols;
 import alluxio.security.authentication.TransportProvider;
 
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TMultiplexedProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +34,6 @@ import javax.annotation.Nullable;
  * PollingMasterInquireClient finds the address of the primary master by polling a list of master
  * addresses to see if their RPC servers are serving. This works because only primary masters serve
  * RPCs.
- // ALLUXIO CS ADD
- * reference {@link TMultiplexedProtocol} since it is used in AOS but not AEE
- // ALLUXIO CS END
  */
 public class PollingMasterInquireClient implements MasterInquireClient {
   private static final Logger LOG = LoggerFactory.getLogger(PollingMasterInquireClient.class);
@@ -97,24 +94,10 @@ public class PollingMasterInquireClient implements MasterInquireClient {
 
   private void pingMetaService(InetSocketAddress address)
       throws UnauthenticatedException, TTransportException {
-    TransportProvider transportProvider = TransportProvider.Factory.create();
-
-    // ALLUXIO CS REPLACE
-    // TProtocol binaryProtocol = new TBinaryProtocol(transportProvider.getClientTransport(address));
-    // TMultiplexedProtocol protocol =
-    //     new TMultiplexedProtocol(binaryProtocol, Constants.META_MASTER_SERVICE_NAME);
-    //
-    // protocol.getTransport().open();
-    // protocol.getTransport().close();
-    // ALLUXIO CS WITH
-    TProtocol binaryProtocol =
-        new TBinaryProtocol(transportProvider.getClientTransport(null, address));
-    alluxio.security.authentication.AuthenticatedThriftProtocol protocol =
-        new alluxio.security.authentication.AuthenticatedThriftProtocol(binaryProtocol,
-            Constants.META_MASTER_SERVICE_NAME);
-    protocol.openTransport();
-    protocol.closeTransport();
-    // ALLUXIO CS END
+    TTransport transport = TransportProvider.Factory.create().getClientTransport(address);
+    TProtocol protocol = TProtocols.createProtocol(transport, Constants.META_MASTER_SERVICE_NAME);
+    protocol.getTransport().open();
+    protocol.getTransport().close();
   }
 
   @Override
