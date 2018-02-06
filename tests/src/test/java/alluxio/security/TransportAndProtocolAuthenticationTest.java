@@ -152,11 +152,13 @@ public final class TransportAndProtocolAuthenticationTest extends BaseIntegratio
     });
 
     AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
-        new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)), sServerName);
-    protocol.openTransport();
+        new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
+        LoginUser.getClientLoginSubject());
+
+    protocol.getTransport().open();
     Assert.assertTrue(protocol.getTransport().isOpen());
 
-    protocol.closeTransport();
+    protocol.getTransport().close();
 
     mServer.stop();
   }

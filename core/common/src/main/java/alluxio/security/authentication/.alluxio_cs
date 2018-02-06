@@ -1,4 +1,6 @@
 AuthenticatedThriftProtocol.java
 AuthenticatedThriftServer.java
+DelegatingTProtocol.java
+DelegatingTTransport.java
 KerberosAuthenticationProvider.java
 KerberosSaslTransportProvider.java

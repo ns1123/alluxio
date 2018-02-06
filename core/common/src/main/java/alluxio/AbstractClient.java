@@ -62,11 +62,7 @@ public abstract class AbstractClient implements Client {
       Configuration.getInt(PropertyKey.USER_RPC_RETRY_MAX_NUM_RETRY);
 
   protected InetSocketAddress mAddress = null;
-  // ALLUXIO CS REPLACE
-  // protected TProtocol mProtocol = null;
-  // ALLUXIO CS WITH
-  protected alluxio.security.authentication.AuthenticatedThriftProtocol mProtocol = null;
-  // ALLUXIO CS END
+  protected TProtocol mProtocol = null;
 
   /** Is true if this client is currently connected. */
   protected boolean mConnected = false;
@@ -183,11 +179,7 @@ public abstract class AbstractClient implements Client {
       mProtocol = TProtocols.createProtocol(
           mTransportProvider.getClientTransport(mParentSubject, mAddress), getServiceName());
       try {
-        // ALLUXIO CS REPLACE
-        // mProtocol.getTransport().open();
-        // ALLUXIO CS WITH
-        mProtocol.openTransport();
-        // ALLUXIO CS END
+        mProtocol.getTransport().open();
         LOG.info("Client registered with {} @ {}", getServiceName(), mAddress);
         mConnected = true;
         afterConnect();
@@ -239,11 +231,7 @@ public abstract class AbstractClient implements Client {
       Preconditions.checkNotNull(mProtocol, PreconditionMessage.PROTOCOL_NULL_WHEN_CONNECTED);
       LOG.debug("Disconnecting from the {} @ {}", getServiceName(), mAddress);
       beforeDisconnect();
-      // ALLUXIO CS REPLACE
-      // mProtocol.getTransport().close();
-      // ALLUXIO CS WITH
-      mProtocol.closeTransport();
-      // ALLUXIO CS END
+      mProtocol.getTransport().close();
       mConnected = false;
       afterDisconnect();
     }

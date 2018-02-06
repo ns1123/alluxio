@@ -34,9 +34,6 @@ import javax.annotation.Nullable;
  * PollingMasterInquireClient finds the address of the primary master by polling a list of master
  * addresses to see if their RPC servers are serving. This works because only primary masters serve
  * RPCs.
- // ALLUXIO CS ADD
- * reference {@link TMultiplexedProtocol} since it is used in AOS but not AEE
- // ALLUXIO CS END
  */
 public class PollingMasterInquireClient implements MasterInquireClient {
   private static final Logger LOG = LoggerFactory.getLogger(PollingMasterInquireClient.class);

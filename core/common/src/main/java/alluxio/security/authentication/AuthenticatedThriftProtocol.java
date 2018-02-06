@@ -11,163 +11,71 @@
 
 package alluxio.security.authentication;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
-import alluxio.security.LoginUser;
-
-import org.apache.thrift.protocol.TMultiplexedProtocol;
+import com.google.common.base.Preconditions;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
 import javax.security.auth.Subject;
 
 /**
- * Provides Kerberos-aware thrift protocol, based on the type of authentication.
+ * Provides Kerberos-aware thrift protocol.
  */
-public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
+public final class AuthenticatedThriftProtocol extends DelegatingTProtocol {
   private static final Logger LOG = LoggerFactory.getLogger(AuthenticatedThriftProtocol.class);
 
-  /** TMultiplexedProtocol object. */
-  private TMultiplexedProtocol mProtocol;
-  /** Kerberos subject. */
-  private Subject mSubject = null;
-
   /**
-   * Constructor for {@link AuthenticatedThriftProtocol}, with authentication configurations.
-   *
-   * @param protocol TProtocol for TMultiplexedProtocol
-   * @param serviceName service name for TMultiplexedProtocol
+   * @param protocol TMultiplexedProtocol to wrap
+   * @param subject the subject to authenticate as
    */
-  public AuthenticatedThriftProtocol(final TProtocol protocol, final String serviceName) {
-    super(protocol, serviceName);
-    AuthType authType = Configuration.getEnum(
-        PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
-    switch (authType) {
-      case KERBEROS:
-        setKerberosProtocol(protocol, serviceName);
-        break;
-      case NOSASL: // intended to fall through
-      case SIMPLE: // intended to fall through
-      case CUSTOM:
-        mProtocol = new TMultiplexedProtocol(protocol, serviceName);
-        break;
-      default:
-        throw new UnsupportedOperationException(
-            "Unsupported authentication type: " + authType.getAuthName());
-    }
-  }
-
-  private void setKerberosProtocol(final TProtocol protocol, final String serviceName) {
-    try {
-      mSubject = LoginUser.getClientLoginSubject();
-    } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
-      return;
-    }
-    if (mSubject == null) {
-      LOG.error("In Kerberos mode, failed to get a valid subject.");
-      return;
-    }
-    try {
-      mProtocol = Subject.doAs(mSubject,
-          new PrivilegedExceptionAction<TMultiplexedProtocol>() {
-            public TMultiplexedProtocol run() throws Exception {
-              return new TMultiplexedProtocol(protocol, serviceName);
-            }
-          });
-    } catch (PrivilegedActionException e) {
-      LOG.error(e.getMessage(), e);
-    }
+  public AuthenticatedThriftProtocol(TProtocol protocol, Subject subject) {
+    super(protocol, new KerberosTTransport(protocol.getTransport(),
+        Preconditions.checkNotNull(subject, "subject")));
   }
 
   /**
-   * Opens the transport. If the authentication type is {@link AuthType#KERBEROS}, opens the
-   * transport as the subject.
-   *
-   * @throws TTransportException if failed to open the Thrift transport
+   * Wrapper around a transport which performs the open and close methods as a specific subject.
    */
-  public void openTransport() throws TTransportException {
-    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
-        AuthType.class);
-    final TTransport transport = mProtocol.getTransport();
-    switch (authType) {
-      case KERBEROS:
-        openKerberosTransport(transport);
-        break;
-      case NOSASL: // intended to fall through
-      case SIMPLE: // intended to fall through
-      case CUSTOM:
-        transport.open();
-        break;
-      default:
-        throw new UnsupportedOperationException(
-            "Unsupported authentication type: " + authType.getAuthName());
-    }
-  }
+  private static class KerberosTTransport extends DelegatingTTransport {
+    private Subject mSubject;
+    private TTransport mTransport;
 
-  private void openKerberosTransport(final TTransport transport) throws TTransportException {
-    if (mSubject == null) {
-      LOG.error("In Kerberos mode, failed to get a valid subject.");
-      return;
+    /**
+     * @param transport the transport to delegate to
+     */
+    public KerberosTTransport(TTransport transport, Subject subject) {
+      super(transport);
+      mTransport = transport;
+      mSubject = subject;
     }
-    try {
-      Subject.doAs(mSubject,
-          new PrivilegedExceptionAction<Void>() {
-            public Void run() throws TTransportException {
-              transport.open();
-              return null;
-            }
-          });
-    } catch (PrivilegedActionException e) {
-      throw new TTransportException("Failed to open Kerberos transport", e);
-    }
-  }
 
-  /**
-   * Closes the transport. If the authentication type is {@link AuthType#KERBEROS}, closes the
-   * transport as the subject.
-   */
-  public void closeTransport() {
-    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
-        AuthType.class);
-    final TTransport transport = mProtocol.getTransport();
-    switch (authType) {
-      case KERBEROS:
-        closeKerberosTransport(transport);
-        break;
-      case NOSASL: // intended to fall through
-      case SIMPLE: // intended to fall through
-      case CUSTOM:
-        transport.close();
-        break;
-      default:
-        throw new UnsupportedOperationException(
-            "Unsupported authentication type: " + authType.getAuthName());
+    @Override
+    public void open() throws TTransportException {
+      try {
+        Subject.doAs(mSubject, (PrivilegedExceptionAction<Void>) () -> {
+          mTransport.open();
+          return null;
+        });
+      } catch (PrivilegedActionException e) {
+        throw new TTransportException("Failed to open Kerberos transport", e);
+      }
     }
-  }
 
-  private void closeKerberosTransport(final TTransport transport) {
-    if (mSubject == null) {
-      LOG.error("In Kerberos mode, failed to get a valid subject.");
-      return;
-    }
-    try {
-      Subject.doAs(mSubject,
-          new PrivilegedExceptionAction<Void>() {
-            public Void run() throws Exception {
-              transport.close();
-              return null;
-            }
-          });
-    } catch (PrivilegedActionException e) {
-      LOG.error(e.getMessage(), e);
+    @Override
+    public void close() {
+      try {
+        Subject.doAs(mSubject, (PrivilegedExceptionAction<Void>) () -> {
+          mTransport.close();
+          return null;
+        });
+      } catch (PrivilegedActionException e) {
+        LOG.error("Failed to close Kerberos transport", e);
+      }
     }
   }
 }
