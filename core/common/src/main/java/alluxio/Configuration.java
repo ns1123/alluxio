@@ -416,7 +416,7 @@ public final class Configuration {
     // ALLUXIO CS REPLACE
     // return Collections.unmodifiableMap(PROPERTIES);
     // ALLUXIO CS WITH
-    Map<String, String> result = new HashMap<>();
+    Map<String, String> result = new java.util.HashMap<>();
     for (Map.Entry<String, String> entry : PROPERTIES.entrySet()) {
       if (!PropertyKey.IMMUTABLE_KEYS.contains(entry.getKey())) {
         result.put(entry.getKey(), entry.getValue());
