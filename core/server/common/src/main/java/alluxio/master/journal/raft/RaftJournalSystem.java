@@ -136,6 +136,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   // Keeps track of the last time a journal entry was applied.
   private final AtomicLong mLastUpdateMs;
   private final ScheduledExecutorService mExecutorService;
+  // Keeps track of the sequence number of the last entry read from the journal.
+  private final AtomicLong mLastReadSequenceNumber;
 
   private final RaftPrimarySelector mPrimarySelector;
   private CopycatServer mServer;
@@ -144,7 +146,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   // Sequence numbers in the Raft journal are used for de-duplicating entries.
   // When a master gains primacy, the first entry it writes will have sequence number 0
   // and all further entries will have increasing sequence numbers.
-  private long mNextSequenceNumber;
+  private final AtomicLong mNextSequenceNumber;
 
   /*
    * Whenever in-memory state may be inconsistent with the state represented by all flushed journal
@@ -168,6 +170,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mJournals = new ConcurrentHashMap<>();
     mSnapshotAllowed = new AtomicBoolean(true);
     mLastUpdateMs = new AtomicLong(-1);
+    mLastReadSequenceNumber = new AtomicLong(-1);
     mClient = CopycatClient.builder(getClusterAddresses(conf))
         .withConnectionStrategy(ConnectionStrategies.EXPONENTIAL_BACKOFF).build();
     mJournalStateLock = new ReentrantReadWriteLock(true);
@@ -175,7 +178,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
         Executors.newScheduledThreadPool(1, ThreadFactoryUtils.build("raft-snapshot", true));
     mPrimarySelector = new RaftPrimarySelector();
     mAsyncJournalWriter = new AsyncJournalWriter(new RaftJournalWriter());
-    mNextSequenceNumber = 0;
+    mNextSequenceNumber = new AtomicLong(0);
   }
 
   /**
@@ -330,7 +333,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           + "prevent inconsistency", getClusterAddresses(mConf), e);
       System.exit(-1);
     }
-    mNextSequenceNumber = 0;
+    mNextSequenceNumber.set(0);
     mSnapshotAllowed.set(true);
   }
 
@@ -346,7 +349,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       CommonUtils.sleepMs(mConf.getQuietTimeMs() - quiet);
       quiet = System.currentTimeMillis() - mLastUpdateMs.get();
     }
-    LOG.info("Waited in quiet period for {}ms", System.currentTimeMillis() - startTime);
+    LOG.info("Waited in quiet period for {}ms. Last sequence number from previous term: {}",
+        System.currentTimeMillis() - startTime, mLastReadSequenceNumber.get());
   }
 
   @Override
@@ -381,7 +385,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     } catch (ExecutionException e) {
       throw new RuntimeException("Failed to shut down Raft server", e);
     }
-    LOG.info("Journal shut down");
+    LOG.info("Journal shut down. Last sequence number written in this term: {}",
+        mNextSequenceNumber.get() - 1);
   }
 
   @Override
@@ -420,13 +425,15 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       if (mIgnoreAppends) {
         // We should only ignore entries written by this master. If this condition is true, we are
         // ignoring an entry written by another master.
-        if (mNextSequenceNumber < entry.getSequenceNumber()) {
+        long next = mNextSequenceNumber.get();
+        if (next < entry.getSequenceNumber()) {
           LOG.error("Unexpected journal entry: {} applied when primary master next sequence number "
-              + "is only {}. Exiting to prevent inconsistency", entry, mNextSequenceNumber);
+              + "is only {}. Exiting to prevent inconsistency", entry, next);
           System.exit(-1);
         }
         return;
       }
+      mLastReadSequenceNumber.set(entry.getSequenceNumber());
 
       String masterName;
       try {
@@ -545,8 +552,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       if (mJournalEntryBuilder == null) {
         mJournalEntryBuilder = JournalEntry.newBuilder();
       }
-      mJournalEntryBuilder
-          .addJournalEntries(entry.toBuilder().setSequenceNumber(mNextSequenceNumber++).build());
+      mJournalEntryBuilder.addJournalEntries(
+          entry.toBuilder().setSequenceNumber(mNextSequenceNumber.getAndIncrement()).build());
     }
 
     @Override
