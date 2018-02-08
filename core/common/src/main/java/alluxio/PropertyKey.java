@@ -118,7 +118,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     }
 
     /**
-     * @param isHidden of this property key to build
+     * @param isHidden whether to hide this property when generating property documentation
      * @return the updated builder instance
      */
     public Builder setIsHidden(boolean isHidden) {
@@ -2152,6 +2152,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
                   + "zone offset.")
           .setDefaultValue("09:00:00+00:00")
           .build();
+  public static final PropertyKey MASTER_EMBEDDED_JOURNAL_SNAPSHOT_FREQUENCY =
+      new Builder(Name.MASTER_EMBEDDED_JOURNAL_SNAPSHOT_FREQUENCY)
+          .setDescription(String.format("The number of times to snapshot the journal each day. The "
+              + "snapshots will be spaced evenly throughout the day and include the time specified "
+              + "by %s", Name.MASTER_EMBEDDED_JOURNAL_SNAPSHOT_TIME))
+          .setIsHidden(true)
+          .setDefaultValue(1)
+          .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_STORAGE_LEVEL =
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_STORAGE_LEVEL)
           .setDescription("The storage level for storing embedded journal logs. Use DISK for "
@@ -2619,6 +2627,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.embedded.journal.port";
     public static final String MASTER_EMBEDDED_JOURNAL_SNAPSHOT_TIME =
         "alluxio.master.embedded.journal.snapshot.time";
+    public static final String MASTER_EMBEDDED_JOURNAL_SNAPSHOT_FREQUENCY =
+        "alluxio.master.embedded.journal.snapshot.frequency";
     public static final String MASTER_EMBEDDED_JOURNAL_STORAGE_LEVEL =
         "alluxio.master.embedded.journal.storage.level";
     // ALLUXIO CS END

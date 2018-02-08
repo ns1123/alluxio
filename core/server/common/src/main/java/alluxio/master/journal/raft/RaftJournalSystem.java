@@ -26,7 +26,6 @@ import alluxio.master.journal.JournalEntryStateMachine;
 import alluxio.master.journal.JournalWriter;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.util.CommonUtils;
-import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.io.FileUtils;
 
 import com.google.common.base.Preconditions;
@@ -48,7 +47,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -57,9 +55,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
@@ -97,12 +92,12 @@ import javax.annotation.concurrent.ThreadSafe;
  * <h3> Avoid incorrectly ignoring entries</h3>
  * <p>
  * This could happen if a server thinks it is the primary, and ignores a journal entry served from
- * the real primary. The real primary will wait the quiet period before serving requests. During this
- * time, the previous primary will go through at least two election cycles without successfully
- * sending heartbeats to the majority of the cluster. If the old primary successfully sent a heartbeat to a
- * node which elected the new primary, the old primary would realize it isn't primary and step down.
- * Therefore, the old primary will step down and no longer ignore requests by the time the new primary
- * begins sending entries.
+ * the real primary. To prevent this, primaries wait for a quiet period before serving requests.
+ * During this time, the previous primary will go through at least two election cycles without
+ * successfully sending heartbeats to the majority of the cluster. If the old primary successfully
+ * sent a heartbeat to a node which elected the new primary, the old primary would realize it isn't
+ * primary and step down. Therefore, the old primary will step down and no longer ignore requests by
+ * the time the new primary begins sending entries.
  *
  * <h3> Avoid incorrectly applying entries</h3>
  * <p>
@@ -135,9 +130,9 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private final AtomicBoolean mSnapshotAllowed;
   // Keeps track of the last time a journal entry was applied.
   private final AtomicLong mLastUpdateMs;
-  private final ScheduledExecutorService mExecutorService;
   // Keeps track of the sequence number of the last entry read from the journal.
   private final AtomicLong mLastReadSequenceNumber;
+  private Thread mSnapshotThread;
 
   private final RaftPrimarySelector mPrimarySelector;
   private CopycatServer mServer;
@@ -174,8 +169,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mClient = CopycatClient.builder(getClusterAddresses(conf))
         .withConnectionStrategy(ConnectionStrategies.EXPONENTIAL_BACKOFF).build();
     mJournalStateLock = new ReentrantReadWriteLock(true);
-    mExecutorService =
-        Executors.newScheduledThreadPool(1, ThreadFactoryUtils.build("raft-snapshot", true));
     mPrimarySelector = new RaftPrimarySelector();
     mAsyncJournalWriter = new AsyncJournalWriter(new RaftJournalWriter());
     mNextSequenceNumber = new AtomicLong(0);
@@ -231,15 +224,14 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     LocalTime snapshotTime =
         LocalTime.parse(Configuration.get(PropertyKey.MASTER_EMBEDDED_JOURNAL_SNAPSHOT_TIME),
             DateTimeFormatter.ISO_OFFSET_TIME);
-    LocalTime now = LocalTime.now(Clock.systemUTC());
-    Duration timeUntilNextSnapshot;
-    if (snapshotTime.isAfter(now)) {
-      timeUntilNextSnapshot = Duration.between(now, snapshotTime);
-    } else {
-      timeUntilNextSnapshot = Duration.ofDays(1).minus(Duration.between(snapshotTime, now));
-    }
-    mExecutorService.scheduleAtFixedRate(this::snapshot, timeUntilNextSnapshot.toMillis(),
-        Duration.ofDays(1).toMillis(), TimeUnit.MILLISECONDS);
+    int dailySnapshots =
+        Configuration.getInt(PropertyKey.MASTER_EMBEDDED_JOURNAL_SNAPSHOT_FREQUENCY);
+
+    mSnapshotThread =
+        new Thread(new AnchoredFixedRateRunnable(snapshotTime, dailySnapshots, this::snapshot));
+    mSnapshotThread.setName("alluxio-embedded-journal-snapshot");
+    mSnapshotThread.setDaemon(true);
+    mSnapshotThread.start();
   }
 
   private static List<Address> getClusterAddresses(RaftJournalConfiguration conf) {
@@ -378,8 +370,11 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   @Override
   public synchronized void stopInternal() throws InterruptedException, IOException {
     LOG.info("Shutting down raft journal");
-    mExecutorService.shutdown();
-    mExecutorService.awaitTermination(1, TimeUnit.SECONDS);
+    mSnapshotThread.interrupt();
+    mSnapshotThread.join(60 * Constants.SECOND_MS);
+    if (mSnapshotThread.isAlive()) {
+      LOG.error("Failed to stop snapshot thread");
+    }
     try {
       mServer.shutdown().get();
     } catch (ExecutionException e) {
