@@ -2384,7 +2384,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
       handle.setPersistenceState(PersistenceState.PERSISTED);
       if (!replayed) {
-        persistedInodes.add(inode);
+        persistedInodes.add(handle);
       }
     }
     return persistedInodes;
