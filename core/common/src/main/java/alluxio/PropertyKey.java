@@ -954,7 +954,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           // ALLUXIO CS END
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
-          .setDescription("The path to store master journal logs.")
           .build();
   public static final PropertyKey MASTER_JOURNAL_TYPE =
       new Builder(Name.MASTER_JOURNAL_TYPE)
