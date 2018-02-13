@@ -945,7 +945,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey MASTER_JOURNAL_FOLDER =
       new Builder(Name.MASTER_JOURNAL_FOLDER)
           .setDefaultValue(String.format("${%s}/journal", Name.WORK_DIR))
-<<<<<<< HEAD
           // ALLUXIO CS REPLACE
           // .setDescription("The path to store master journal logs.")
           // ALLUXIO CS WITH
@@ -953,13 +952,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "could be a URI like hdfs://namenode:port/alluxio/journal. When using the embedded "
               + "journal this must be a local path")
           // ALLUXIO CS END
-||||||| merged common ancestors
-          .setDescription("The path to store master journal logs.")
-=======
-          .setDescription("The path to store master journal logs.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
->>>>>>> 1c16e336aad154dcc2c88696e1dcf1c179b61bca
+          .setDescription("The path to store master journal logs.")
           .build();
   public static final PropertyKey MASTER_JOURNAL_TYPE =
       new Builder(Name.MASTER_JOURNAL_TYPE)
@@ -969,17 +964,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           //     + "UFS) and NOOP (do not use a journal).")
           // ALLUXIO CS WITH
           .setDescription("The type of journal to use. Valid options are UFS (store journal in "
-<<<<<<< HEAD
               + "UFS), EMBEDDED (use a journal embedded in the masters), and NOOP (do not use a "
               + "journal)")
           // ALLUXIO CS END
-||||||| merged common ancestors
-              + "UFS) and NOOP (do not use a journal).")
-=======
-              + "UFS) and NOOP (do not use a journal).")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
->>>>>>> 1c16e336aad154dcc2c88696e1dcf1c179b61bca
           .build();
   /**
    * @deprecated since 1.5.0 and will be removed in 2.0.
