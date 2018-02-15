@@ -135,7 +135,7 @@ public enum ExceptionMessage {
   CANNOT_FREE_NON_PERSISTED_FILE("Cannot free file {0} which is not persisted"),
   // ALLUXIO CS REPLACE
   // CANNOT_FREE_PINNED_FILE("Cannot free file {0} which is pinned. Please unpin it first or"
-  //    + " set the \"forced\" flag of free operation to true"),
+  //     + " set the \"forced\" flag of free operation to true"),
   // ALLUXIO CS WITH
   CANNOT_FREE_PINNED_FILE("Cannot free file {0} which has min replication > 0 (pinned). Please "
       + "set the min replication to 0 (unpin it) or set the \"forced\" flag of free operation to "
