@@ -132,6 +132,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private final AtomicLong mLastUpdateMs;
   // Keeps track of the sequence number of the last entry read from the journal.
   private final AtomicLong mLastReadSequenceNumber;
+  private final AtomicLong mLastCommittedSequenceNumber;
   private Thread mSnapshotThread;
 
   private final RaftPrimarySelector mPrimarySelector;
@@ -166,6 +167,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mSnapshotAllowed = new AtomicBoolean(true);
     mLastUpdateMs = new AtomicLong(-1);
     mLastReadSequenceNumber = new AtomicLong(-1);
+    mLastCommittedSequenceNumber = new AtomicLong(-1);
     mClient = CopycatClient.builder(getClusterAddresses(conf))
         .withConnectionStrategy(ConnectionStrategies.EXPONENTIAL_BACKOFF).build();
     mJournalStateLock = new ReentrantReadWriteLock(true);
@@ -325,7 +327,10 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           + "prevent inconsistency", getClusterAddresses(mConf), e);
       System.exit(-1);
     }
+    LOG.info("Last sequence numbers written/committed before losing primacy: {}/{}.",
+        mNextSequenceNumber.get() - 1, mLastCommittedSequenceNumber.get());
     mNextSequenceNumber.set(0);
+    mLastCommittedSequenceNumber.set(-1);
     mSnapshotAllowed.set(true);
   }
 
@@ -380,8 +385,12 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     } catch (ExecutionException e) {
       throw new RuntimeException("Failed to shut down Raft server", e);
     }
-    LOG.info("Journal shut down. Last sequence number written in this term: {}",
-        mNextSequenceNumber.get() - 1);
+    long lastWritten = mNextSequenceNumber.get() - 1;
+    if (lastWritten >= 0) {
+      LOG.info("Journal shutdown complete. Last sequence numbers written/committed in this term: "
+          + "{}/{}", lastWritten, mLastCommittedSequenceNumber.get());
+    }
+    LOG.info("Journal shutdown complete");
   }
 
   @Override
@@ -558,6 +567,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           // It is ok to submit the same entries multiple times because we de-duplicate by sequence
           // number when applying them.
           mClient.submit(new JournalEntryCommand(mJournalEntryBuilder.build())).get();
+          mLastCommittedSequenceNumber.set(mNextSequenceNumber.get() - 1);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           throw new IOException(e);
