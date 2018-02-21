@@ -65,7 +65,7 @@ public class AnchoredFixedRateRunnable implements Runnable {
   public void run() {
     while (true) {
       try {
-        mSleeper.sleep(timeToNextRun().toMillis());
+        mSleeper.sleep(timeToNextRun());
       } catch (InterruptedException e) {
         return;
       }

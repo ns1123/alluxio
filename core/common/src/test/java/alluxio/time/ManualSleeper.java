@@ -13,6 +13,7 @@ package alluxio.time;
 
 import com.google.common.base.Preconditions;
 
+import java.time.Duration;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,7 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * To use the class, pass an instance of ManualSleeper into the class to be tested, then use the
  * {@link #waitForSleep()} method to verify that the class is sleeping for the right amount of time.
  * After calling {@link #waitForSleep()}, use {@link #wakeUp()} to end the test class's call to
- * {@link #sleep(long)}.
+ * {@link #sleep(Duration)}.
  *
  * See {@link ManualSleeperTest} for example usage.
  */
@@ -32,13 +33,13 @@ public class ManualSleeper implements Sleeper {
   private final Lock mSleepLock = new ReentrantLock();
   private final Condition mSleepLockCond = mSleepLock.newCondition();
 
-  private long mLastSleepMs = 0;
+  private Duration mLastSleep = Duration.ZERO;
   private boolean mSleeping = false;
 
   @Override
-  public void sleep(long millis) throws InterruptedException {
+  public void sleep(Duration duration) throws InterruptedException {
     mSleepLock.lock();
-    mLastSleepMs = millis;
+    mLastSleep = duration;
     mSleeping = true;
     mSleepLockCond.signalAll();
     try {
@@ -67,13 +68,13 @@ public class ManualSleeper implements Sleeper {
    * Waits for the sleeper to be in a sleeping state and returns the length of time it is sleeping
    * for.
    */
-  public long waitForSleep() throws InterruptedException {
+  public Duration waitForSleep() throws InterruptedException {
     mSleepLock.lock();
     try {
       while (!mSleeping) {
         mSleepLockCond.await();
       }
-      return mLastSleepMs;
+      return mLastSleep;
     } finally {
       mSleepLock.unlock();
     }
