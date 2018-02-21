@@ -20,6 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -37,7 +38,7 @@ public final class ManualSleeperTest {
     mTestThread = new Thread(() -> {
       while (true) {
         try {
-          mSleeper.sleep(mSleepTime.incrementAndGet());
+          mSleeper.sleep(Duration.ofMillis(mSleepTime.incrementAndGet()));
         } catch (InterruptedException e) {
           return;
         }
@@ -56,7 +57,7 @@ public final class ManualSleeperTest {
   @Test
   public void checkSleepTime() throws InterruptedException {
     for (int i = 1; i < 100; i++) {
-      assertEquals(i, mSleeper.waitForSleep());
+      assertEquals(i, mSleeper.waitForSleep().toMillis());
       mSleeper.wakeUp();
     }
   }
