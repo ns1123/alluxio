@@ -134,7 +134,7 @@ public class AnchoredFixedRateRunnableTest {
 
   private void checkedSleep(int hours, int minutes) throws InterruptedException {
     long sleepTime = Duration.ofHours(hours).plus(Duration.ofMinutes(minutes)).toMillis();
-    assertEquals(sleepTime, mSleeper.waitForSleep());
+    assertEquals(sleepTime, mSleeper.waitForSleep().toMillis());
     mClock.addTimeMs(sleepTime);
   }
 }
