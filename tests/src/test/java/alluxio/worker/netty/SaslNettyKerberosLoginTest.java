@@ -22,6 +22,7 @@ import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
+import alluxio.util.network.NettyUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.WorkerProcess;
 import alluxio.worker.block.BlockWorker;
@@ -166,7 +167,7 @@ public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
     Channel channel = f.channel();
     try {
       // Waits for the channel authentication complete.
-      NettyClient.waitForChannelReady(channel);
+      NettyUtils.waitForClientChannelReady(channel);
     } finally {
       channel.close().sync();
     }

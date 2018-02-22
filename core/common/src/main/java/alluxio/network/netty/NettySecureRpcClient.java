@@ -14,7 +14,6 @@ package alluxio.network.netty;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.network.ChannelType;
-import alluxio.network.netty.KerberosSaslClientHandler;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCMessageDecoder;
 import alluxio.network.protocol.RPCMessageEncoder;
@@ -24,7 +23,6 @@ import alluxio.util.network.NettyUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
@@ -34,7 +32,6 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import javax.net.ssl.SSLException;
@@ -109,29 +106,5 @@ public final class NettySecureRpcClient {
       }
     });
     return boot;
-  }
-
-  /**
-   * Waits for the channel to be ready. If Kerberos security is enabled, waits until the channel
-   * is authenticated.
-   *
-   * @param channel the input channel
-   * @throws IOException if authentication failed
-   */
-  public static void waitForChannelReady(Channel channel) throws IOException {
-    if (Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
-        .equals(AuthType.KERBEROS.getAuthName())) {
-      ChannelHandlerContext ctx = channel.pipeline().context(KerberosSaslClientHandler.class);
-      if (ctx != null) {
-        try {
-          // Waits for the authentication result. Stop the process if authentication failed.
-          if (!((KerberosSaslClientHandler) ctx.handler()).channelAuthenticated(ctx)) {
-            throw new IOException("Sasl authentication is finished but failed.");
-          }
-        } catch (Exception e) {
-          throw new IOException("Failed to authenticate", e);
-        }
-      }
-    }
   }
 }

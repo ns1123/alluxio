@@ -222,6 +222,12 @@ public abstract class AbstractClient implements Client {
               + "is not able to connect to servers with SIMPLE security mode.";
           throw new UnavailableException(message, e);
         }
+        // ALLUXIO CS ADD
+        // If there has been a failure in opening TSaslTransport, it's possible because
+        // the authentication credential has expired. Relogin. This is a no-op for
+        // authTypes other than KERBEROS.
+        alluxio.security.LoginUser.relogin();
+        // ALLUXIO CS END
       }
       // TODO(peis): Consider closing the connection here as well.
       if (!retryPolicy.attemptRetry()) {
