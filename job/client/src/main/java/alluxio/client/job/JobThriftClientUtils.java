@@ -57,7 +57,7 @@ public final class JobThriftClientUtils {
    */
   public static void run(JobConfig config, int attempts) {
     CountingRetry retryPolicy = new CountingRetry(attempts);
-    while (retryPolicy.attemptRetry()) {
+    while (retryPolicy.attempt()) {
       long jobId;
       try (JobMasterClient client =
           JobMasterClient.Factory.create(JobMasterClientConfig.defaults())) {
