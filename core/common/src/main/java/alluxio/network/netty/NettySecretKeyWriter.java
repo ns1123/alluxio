@@ -58,7 +58,7 @@ public final class NettySecretKeyWriter {
       Bootstrap bs = NettySecureRpcClient.createClientBootstrap(address);
       bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY, address.getHostName());
       boolean authenticated = false;
-      do {
+      while (retryPolicy.attempt() && !authenticated) {
         try {
           channel = bs.connect().sync().channel();
           NettyUtils.waitForClientChannelReady(channel);
@@ -69,7 +69,7 @@ public final class NettySecretKeyWriter {
           channel.close();
           LoginUser.relogin();
         }
-      } while (retryPolicy.attemptRetry() && !authenticated);
+      }
       if (!authenticated) {
         throw new IOException("Failed to build an authenticated channel even after relogin");
       }

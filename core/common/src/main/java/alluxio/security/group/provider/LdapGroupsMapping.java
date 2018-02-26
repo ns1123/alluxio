@@ -60,7 +60,7 @@ public final class LdapGroupsMapping implements GroupMappingService {
   @Override
   public List<String> getGroups(String user) throws IOException {
     CountingRetry retry = new CountingRetry(LDAP_SERVER_REQUEST_RETRY_COUNT);
-    while (retry.attemptRetry()) {
+    while (retry.attempt()) {
       // Initialize the context if necessary.
       if (mDirContext == null) {
         try {
@@ -74,13 +74,13 @@ public final class LdapGroupsMapping implements GroupMappingService {
         return searchForGroups(user);
       } catch (NamingException e) {
         LOG.error(ExceptionMessage.CANNOT_GET_GROUPS_FROM_LDAP_SERVER.getMessage(user,
-            retry.getRetryCount()), e);
+            retry.getAttemptCount()), e);
       }
       // Reset the context.
       mDirContext = null;
     }
     throw new IOException(ExceptionMessage.CANNOT_GET_GROUPS_FROM_LDAP_SERVER.getMessage(user,
-        retry.getRetryCount()));
+        retry.getAttemptCount()));
   }
 
   /**

@@ -278,8 +278,8 @@ public final class FileSystemContext implements Closeable {
     // ALLUXIO CS WITH
     alluxio.retry.RetryPolicy retryPolicy = new alluxio.retry.CountingRetry(1);
     Channel channel;
-    Exception exception;
-    do {
+    Exception exception = null;
+    while (retryPolicy.attempt()) {
       channel = mNettyChannelPools.get(address).acquire();
       try {
         alluxio.util.network.NettyUtils.waitForClientChannelReady(channel);
@@ -291,7 +291,7 @@ public final class FileSystemContext implements Closeable {
         releaseNettyChannel(workerNetAddress, channel);
         alluxio.security.LoginUser.relogin();
       }
-    } while (retryPolicy.attemptRetry());
+    }
     throw new IOException("Failed to build an authenticated channel with valid credential",
         exception);
     // ALLUXIO CS END

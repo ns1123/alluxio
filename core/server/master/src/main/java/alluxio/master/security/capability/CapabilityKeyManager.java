@@ -284,12 +284,12 @@ public class CapabilityKeyManager implements Closeable {
     long wait =
         Configuration.getMs(PropertyKey.MASTER_WORKER_CONNECT_WAIT_TIME) + 10 * Constants.SECOND_MS;
     RetryPolicy retry = new TimeoutRetry(wait, Constants.SECOND_MS);
-    while (retry.attemptRetry()) {
+    while (retry.attempt()) {
       try {
         return mBlockMaster.getWorkerInfoList();
       } catch (UnavailableException e) {
         // This only happens when the server is in safe mode (a temporary state).
-        if (retry.getRetryCount() == 1) {
+        if (retry.getAttemptCount() == 1) {
           LOG.warn("Failed to query the list of workers, retrying. error: {}", e.getMessage());
         }
       }
