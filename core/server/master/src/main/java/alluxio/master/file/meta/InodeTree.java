@@ -1120,7 +1120,11 @@ public class InodeTree implements JournalEntryIterable {
     RetryPolicy retry =
         new ExponentialBackoffRetry(PERSIST_WAIT_BASE_SLEEP_MS, PERSIST_WAIT_MAX_SLEEP_MS,
             PERSIST_WAIT_MAX_RETRIES);
-    while (dir.getPersistenceState() != PersistenceState.PERSISTED) {
+    while (retry.attempt()) {
+      if (dir.getPersistenceState() == PersistenceState.PERSISTED) {
+        // The directory is persisted
+        return;
+      }
       if (dir.compareAndSwap(PersistenceState.NOT_PERSISTED,
           PersistenceState.TO_BE_PERSISTED)) {
         boolean success = false;
@@ -1148,12 +1152,9 @@ public class InodeTree implements JournalEntryIterable {
             dir.setPersistenceState(PersistenceState.NOT_PERSISTED);
           }
         }
-      } else {
-        if (!retry.attemptRetry()) {
-          throw new IOException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(dir.getName()));
-        }
       }
     }
+    throw new IOException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(dir.getName()));
   }
 
   @Override
