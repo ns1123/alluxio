@@ -180,6 +180,8 @@ public abstract class AbstractClient implements Client {
       try {
         mAddress = getAddress();
       } catch (UnavailableException e) {
+        LOG.warn("Failed to determine master RPC address ({}), retrying: {}",
+            retryPolicy.getAttemptCount(), e.toString());
         continue;
       }
       LOG.info("Alluxio client (version {}) is trying to connect with {} @ {}",
