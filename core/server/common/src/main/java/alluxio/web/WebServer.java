@@ -23,6 +23,8 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -31,8 +33,12 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.servlet.DispatcherType;
 
 /**
  * Class that bootstraps and starts a web server.
@@ -89,6 +95,23 @@ public abstract class WebServer {
     mWebAppContext.setContextPath(AlluxioURI.SEPARATOR);
     File warPath = new File(Configuration.get(PropertyKey.WEB_RESOURCES));
     mWebAppContext.setWar(warPath.getAbsolutePath());
+
+    // ALLUXIO CS ADD
+    // Generate a mapping from username to password.
+    String username = Configuration.get(PropertyKey.WEB_LOGIN_USERNAME);
+    String password = Configuration.get(PropertyKey.WEB_LOGIN_PASSWORD);
+    Map<String, String> userPasswords = new HashMap<>();
+    userPasswords.put(username, password);
+
+    // Add login servlet.
+    WebInterfaceLoginServlet loginServlet = new WebInterfaceLoginServlet(userPasswords);
+    mWebAppContext.addServlet(new ServletHolder(loginServlet), WebInterfaceLoginServlet.PATH);
+
+    // Add filter for authenticating users.
+    AuthenticationFilter filter = new AuthenticationFilter();
+    mWebAppContext.addFilter(new FilterHolder(filter), "/*",
+        EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.INCLUDE));
+    // ALLUXIO CS END
 
     // Set the ContainerIncludeJarPattern so that jetty examines these
     // container-path jars for tlds, web-fragments etc.

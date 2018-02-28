@@ -223,6 +223,23 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue(ProjectConstants.VERSION)
           .setDescription("Version of Alluxio. User should never modify this property.")
           .build();
+  // ALLUXIO CS ADD
+  public static final PropertyKey WEB_LOGIN_USERNAME =
+      new Builder(Name.WEB_LOGIN_USERNAME)
+        .setDefaultValue("admin")
+        .setDescription("Username to log in to the web UI.")
+        .build();
+  public static final PropertyKey WEB_LOGIN_PASSWORD =
+      new Builder(Name.WEB_LOGIN_PASSWORD)
+          .setDefaultValue("admin")
+          .setDescription("Password to log in to the web UI.")
+          .build();
+    public static final PropertyKey WEB_LOGIN_SESSIONS =
+      new Builder(Name.WEB_LOGIN_SESSIONS)
+          .setDefaultValue(1000)
+          .setDescription("The maximum number of active sessions.")
+          .build();
+  // ALLUXIO CS END
   public static final PropertyKey WEB_RESOURCES =
       new Builder(Name.WEB_RESOURCES)
           .setDefaultValue(String.format("${%s}/core/server/common/src/main/webapp", Name.HOME))
@@ -2427,6 +2444,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SITE_CONF_DIR = "alluxio.site.conf.dir";
     public static final String TEST_MODE = "alluxio.test.mode";
     public static final String VERSION = "alluxio.version";
+    // ALLUXIO CS ADD
+    public static final String WEB_LOGIN_USERNAME = "alluxio.web.login.username";
+    public static final String WEB_LOGIN_PASSWORD = "alluxio.web.login.password";
+    public static final String WEB_LOGIN_SESSIONS = "alluxio.web.login.sessions";
+    // ALLUXIO CS END
     public static final String WEB_RESOURCES = "alluxio.web.resources";
     public static final String WEB_THREADS = "alluxio.web.threads";
     public static final String WORK_DIR = "alluxio.work.dir";
