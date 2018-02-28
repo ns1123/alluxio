@@ -35,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 @ThreadSafe
 public final class WebInterfaceLoginServlet extends HttpServlet {
+  private static final long serialVersionUID = 1655633448391122907L;
+
   /**
    * Path for the login servlet.
    */
@@ -86,6 +88,8 @@ public final class WebInterfaceLoginServlet extends HttpServlet {
 
   /**
    * Creates a new instance of {@link WebInterfaceLoginServlet}.
+   *
+   * @param userPasswords a map from username to password
    */
   public WebInterfaceLoginServlet(Map<String, String> userPasswords) {
     mUserPasswords = Collections.unmodifiableMap(userPasswords);
@@ -98,7 +102,8 @@ public final class WebInterfaceLoginServlet extends HttpServlet {
   }
 
   @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
     // Check username.
     String username = request.getParameter(REQUEST_PARAMETER_USERNAME);
     if (!mUserPasswords.containsKey(username)) {

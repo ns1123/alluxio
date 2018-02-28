@@ -234,7 +234,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue("admin")
           .setDescription("Password to log in to the web UI.")
           .build();
-    public static final PropertyKey WEB_LOGIN_SESSIONS =
+  public static final PropertyKey WEB_LOGIN_SESSIONS =
       new Builder(Name.WEB_LOGIN_SESSIONS)
           .setDefaultValue(1000)
           .setDescription("The maximum number of active sessions.")

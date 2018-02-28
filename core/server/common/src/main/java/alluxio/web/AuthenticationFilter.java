@@ -38,17 +38,18 @@ public class AuthenticationFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
+    @SuppressWarnings("unchecked")
     HttpServletRequest httpRequest = (HttpServletRequest) request;
 
     String path = httpRequest.getRequestURI();
     // For login page and static assets like js, css, and images, do not check login status.
-    if (path.equals(WebInterfaceLoginServlet.PATH) ||
-        path.equals(WebInterfaceLoginServlet.JSP_PATH) ||
-        path.endsWith(".js") ||
-        path.endsWith(".css") ||
-        path.endsWith(".png") ||
-        path.endsWith(".ico")) {
-      // Continue to the login servlet.
+    if (path.equals(WebInterfaceLoginServlet.PATH)
+        || path.equals(WebInterfaceLoginServlet.JSP_PATH)
+        || path.endsWith(".js")
+        || path.endsWith(".css")
+        || path.endsWith(".png")
+        || path.endsWith(".ico")) {
+      // Forward the request.
       chain.doFilter(request, response);
       return;
     }
@@ -68,6 +69,7 @@ public class AuthenticationFilter implements Filter {
 
     // User has not logged in or the authentication key is incorrect,
     // redirect to login page.
+    @SuppressWarnings("unchecked")
     HttpServletResponse httpResponse = (HttpServletResponse) response;
     httpResponse.sendRedirect(WebInterfaceLoginServlet.PATH);
   }
