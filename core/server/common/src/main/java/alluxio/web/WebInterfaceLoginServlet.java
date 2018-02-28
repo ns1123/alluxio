@@ -23,6 +23,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.servlet.ServletException;
@@ -79,7 +80,8 @@ public final class WebInterfaceLoginServlet extends HttpServlet {
    * {@link AuthenticationFilter} also needs access to this map.
    */
   public static final Cache<String, String> AUTHENTICATION_TOKENS =
-      CacheBuilder.newBuilder().maximumSize(MAX_SESSIONS).build();
+      CacheBuilder.newBuilder().maximumSize(MAX_SESSIONS)
+          .expireAfterAccess(8, TimeUnit.HOURS).build();
 
   /**
    * Unmodifiable map from usernames to passwords.
