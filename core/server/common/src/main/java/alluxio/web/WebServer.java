@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.servlet.DispatcherType;
 
 /**
  * Class that bootstraps and starts a web server.
@@ -110,7 +109,8 @@ public abstract class WebServer {
     // Add filter for authenticating users.
     AuthenticationFilter filter = new AuthenticationFilter();
     mWebAppContext.addFilter(new FilterHolder(filter), "/*",
-        EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.INCLUDE));
+        EnumSet.of(javax.servlet.DispatcherType.REQUEST,
+            javax.servlet.DispatcherType.FORWARD, javax.servlet.DispatcherType.INCLUDE));
     // ALLUXIO CS END
 
     // Set the ContainerIncludeJarPattern so that jetty examines these
