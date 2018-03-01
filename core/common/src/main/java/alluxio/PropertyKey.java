@@ -224,6 +224,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("Version of Alluxio. User should never modify this property.")
           .build();
   // ALLUXIO CS ADD
+  public static final PropertyKey WEB_LOGIN_ENABLED =
+      new Builder(Name.WEB_LOGIN_ENABLED)
+        .setDefaultValue(false)
+        .setDescription("Whether login and authentication are enabled for the web UI.")
+        .build();
   public static final PropertyKey WEB_LOGIN_USERNAME =
       new Builder(Name.WEB_LOGIN_USERNAME)
         .setDefaultValue("admin")
@@ -2453,6 +2458,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String TEST_MODE = "alluxio.test.mode";
     public static final String VERSION = "alluxio.version";
     // ALLUXIO CS ADD
+    public static final String WEB_LOGIN_ENABLED = "alluxio.web.login.enabled";
     public static final String WEB_LOGIN_USERNAME = "alluxio.web.login.username";
     public static final String WEB_LOGIN_PASSWORD = "alluxio.web.login.password";
     public static final String WEB_LOGIN_SESSIONS = "alluxio.web.login.sessions";

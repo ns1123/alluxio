@@ -91,8 +91,10 @@ public abstract class WebServer {
     mWebAppContext.setWar(warPath.getAbsolutePath());
 
     // ALLUXIO CS ADD
-    WebServerUtils.addLoginServlet(mWebAppContext);
-    WebServerUtils.addAuthenticationFilter(mWebAppContext);
+    if (WebServerUtils.isLoginEnabled()) {
+      WebServerUtils.addLoginServlet(mWebAppContext);
+      WebServerUtils.addAuthenticationFilter(mWebAppContext);
+    }
     // ALLUXIO CS END
 
     // Set the ContainerIncludeJarPattern so that jetty examines these

@@ -20,6 +20,13 @@ import java.util.Map;
  */
 public final class WebServerUtils {
   /**
+   * @return whether login and authentication is enabled
+   */
+  public static boolean isLoginEnabled() {
+    return Configuration.getBoolean(PropertyKey.WEB_LOGIN_ENABLED);
+  }
+
+  /**
    * Creates a {@link WebInterfaceLoginServlet} and add it to the application context.
    *
    * @param context the application context to add the login servlet to
