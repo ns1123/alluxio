@@ -59,17 +59,8 @@ import javax.security.auth.Subject;
  */
 @ThreadSafe
 public final class FileSystemContext implements Closeable {
-<<<<<<< HEAD
-  // ALLUXIO CS ADD
-  private static final org.slf4j.Logger LOG =
-      org.slf4j.LoggerFactory.getLogger(FileSystemContext.class);
-
-  // ALLUXIO CS END
-||||||| merged common ancestors
-=======
   private static final Logger LOG = LoggerFactory.getLogger(FileSystemContext.class);
 
->>>>>>> FETCH_HEAD
   public static final FileSystemContext INSTANCE = create();
 
   static {
