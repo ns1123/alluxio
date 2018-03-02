@@ -1,60 +1,3 @@
-<<<<<<< HEAD
-{
-	"version": 0,
-	"dependencies": [
-		{
-			"importpath": "github.com/TachyonNexus/golluxio/annotation",
-			"repository": "https://github.com/TachyonNexus/golluxio",
-			"revision": "577b8297e8774ccca1e2ac32138ef12eaabfc355",
-			"branch": "master",
-			"path": "/annotation"
-		},
-		{
-			"importpath": "v.io/x/lib/cmdline",
-			"repository": "https://github.com/vanadium/go.lib",
-			"revision": "a4b4937710e360572a474dfdd48cb10848b35f1b",
-			"branch": "master",
-			"path": "/cmdline"
-		},
-		{
-			"importpath": "v.io/x/lib/envvar",
-			"repository": "https://github.com/vanadium/go.lib",
-			"revision": "a4b4937710e360572a474dfdd48cb10848b35f1b",
-			"branch": "master",
-			"path": "/envvar"
-		},
-		{
-			"importpath": "v.io/x/lib/lookpath",
-			"repository": "https://github.com/vanadium/go.lib",
-			"revision": "a4b4937710e360572a474dfdd48cb10848b35f1b",
-			"branch": "master",
-			"path": "/lookpath"
-		},
-		{
-			"importpath": "v.io/x/lib/metadata",
-			"repository": "https://github.com/vanadium/go.lib",
-			"revision": "a4b4937710e360572a474dfdd48cb10848b35f1b",
-			"branch": "master",
-			"path": "/metadata"
-		},
-		{
-			"importpath": "v.io/x/lib/textutil",
-			"repository": "https://github.com/vanadium/go.lib",
-			"revision": "a4b4937710e360572a474dfdd48cb10848b35f1b",
-			"branch": "master",
-			"path": "/textutil"
-		},
-		{
-			"importpath": "v.io/x/lib/timing",
-			"repository": "https://github.com/vanadium/go.lib",
-			"revision": "a4b4937710e360572a474dfdd48cb10848b35f1b",
-			"branch": "master",
-			"path": "/timing"
-		}
-	]
-}
-||||||| merged common ancestors
-=======
 {
 	"version": 0,
 	"dependencies": [
@@ -102,4 +45,3 @@
 		}
 	]
 }
->>>>>>> OPENSOURCE/master
