@@ -70,8 +70,10 @@ pipeline {
                     // for older versions, run if old script exists
                     if (fileExists('tools/go/scripts/generate-release-tarballs.go')) {
                         buildCmd += "go run tools/go/scripts/generate-release-tarballs.go ${params.GenerateArgs}"
-                    } else {
+                    } else if (fileExists('dev/scripts/generate-enterprise-tarballs')) {
                         buildCmd += "./dev/scripts/generate-enterprise-tarballs release ${params.GenerateArgs}"
+                    } else {
+                        buildCmd += "./dev/scripts/generate-tarballs release ${params.GenerateArgs}"
                     }
                     sh buildCmd
                 }}
