@@ -181,7 +181,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		fmt.Sprintf("lib/alluxio-underfs-swift-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-wasb-%v.jar", version),
 		"libexec/alluxio-config.sh",
-
 	}
 	for _, path := range pathsToCopy {
 		mkdir(filepath.Join(dstPath, filepath.Dir(path)))
