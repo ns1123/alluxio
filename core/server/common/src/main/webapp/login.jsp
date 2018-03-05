@@ -13,29 +13,60 @@
 
 <html>
 <head>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="css/custom.min.css">
+    <script src="js/bootstrap.min.js"></script>
     <script src="js/md5.min.js"></script>
     <script src="js/jquery-1.9.1.min.js"></script>
 </head>
 <body>
-<form id="loginForm" action="" method="POST">
-    Username: <input id="username" type="text" name="username"/>
+<div class="container">
     <br/>
-
-    <% if (request.getAttribute("usernameNotExists") != null) { %>
-    <div id="usernameError">User does not exist.</div>
-    <br/>
-    <% } %>
-
-    Password: <input id="password" type="password" name="password"/>
-    <br/>
-
-    <% if (request.getAttribute("passwordIncorrect") != null) { %>
-    <div id="passwordError">Password is incorrect.</div>
-    <br/>
-    <% } %>
-
-    <input type="submit" value="Login"/>
-</form>
+    <div class="span6 offset3">
+        <div class="well">
+            <div class="navbar text-center">
+                <div class="navbar-inner">
+                    <h3>&nbsp;<img style="height:25px;margin-top:-5px;" src="img/logo.png" alt="Alluxio Logo">&nbsp;</h3>
+                </div>
+            </div>
+            <form id="loginForm" action="" method="POST" class="form-horizontal">
+                <div class="control-group">
+                    <label class="control-label" for="username">Username</label>
+                    <div class="controls">
+                        <input id="username" type="text" name="username" class="span3" placeholder="Username"/>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="password">Password</label>
+                    <div class="controls">
+                        <input id="password" type="password" name="password" class="span3" placeholder="Password"/>
+                    </div>
+                </div>
+                <div class="control-group">
+                <div class="controls">
+                        <input type="submit" class="btn span3" value="Login"/>
+                </div>
+                <div class="controls">
+                    <div class="text-error">
+                        <% if (request.getAttribute("usernameNotExists") != null) { %>
+                        <br/>
+                        <h5 id="usernameError">ERROR: User does not exist.</h5>
+                        <% } %>
+                    </div>
+                    <div class="text-error">
+                        <% if (request.getAttribute("passwordIncorrect") != null) { %>
+                        <br/>
+                        <h5 id="passwordError">ERROR: Password is incorrect.</h5>
+                        <% } %>
+                    </div>
+                </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
     $("#loginForm").submit(function (event) {
@@ -52,11 +83,11 @@
             type: "POST",
             url: "/login",
             data: formData,
-            success: function(data) {
+            success: function (data) {
                 // Redirect to /home.
                 window.location.replace("/home");
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 // Replace the current HTML with the response which contains error messages.
                 document.open();
                 document.write(xhr.responseText);
