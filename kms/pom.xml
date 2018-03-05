@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <version>1.7.0-A</version>
+    <version>1.7.1-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-kms</artifactId>
   <packaging>pom</packaging>

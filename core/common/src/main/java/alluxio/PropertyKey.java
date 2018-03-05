@@ -643,6 +643,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("The amount of time to keep retrying journal "
               + "writes before giving up and shutting down the master.")
           .build();
+  public static final PropertyKey MASTER_JOURNAL_FLUSH_RETRY_INTERVAL =
+      new Builder(Name.MASTER_JOURNAL_FLUSH_RETRY_INTERVAL)
+          .setDefaultValue("1sec")
+          .setDescription("The amount of time to sleep between retrying journal flushes")
+          .setIsHidden(true)
+          .build();
   public static final PropertyKey MASTER_JOURNAL_FOLDER =
       new Builder(Name.MASTER_JOURNAL_FOLDER)
           .setDefaultValue(String.format("${%s}/journal", Name.WORK_DIR))
@@ -770,6 +776,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.MASTER_RPC_PORT)
           .setDefaultValue(19998)
           .setDescription("The port that Alluxio master node runs on.")
+          .build();
+  public static final PropertyKey MASTER_SERVING_THREAD_TIMEOUT =
+      new Builder(Name.MASTER_SERVING_THREAD_TIMEOUT)
+          .setDefaultValue("5m")
+          .setDescription("When stepping down from being the primary, the master will wait this "
+              + "long for the thrift serving thread to stop before giving up and shutting down "
+              + "the server")
+          .setIsHidden(true)
           .build();
   public static final PropertyKey MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
       new Builder(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)
@@ -1067,6 +1081,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.WORKER_NETWORK_NETTY_BUFFER_SEND)
           .setDescription("Netty socket option for SO_SNDBUF: the proposed buffer size that will "
               + "be used for sends.")
+          .build();
+  public static final PropertyKey WORKER_MASTER_CONNECT_RETRY_TIMEOUT =
+      new Builder(Name.WORKER_MASTER_CONNECT_RETRY_TIMEOUT)
+          .setDescription("Retry period before workers give up on connecting to master")
+          .setDefaultValue("1hour")
+          // Leaving this hidden for now until we sort out how it should interact with
+          // WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS.
+          .setIsHidden(true)
           .build();
   public static final PropertyKey WORKER_NETWORK_NETTY_CHANNEL =
       new Builder(Name.WORKER_NETWORK_NETTY_CHANNEL)
@@ -1529,6 +1551,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("A block worker client is closed if it has been idle for more than "
               + "this threshold.")
           .build();
+  public static final PropertyKey USER_BLOCK_WORKER_CLIENT_READ_RETRY =
+      new Builder(Name.USER_BLOCK_WORKER_CLIENT_READ_RETRY)
+          .setDefaultValue(5)
+          .setDescription("The maximum number of workers to retry before the client gives up on "
+              + " reading a block")
+          .build();
   public static final PropertyKey USER_DATE_FORMAT_PATTERN =
       new Builder(Name.USER_DATE_FORMAT_PATTERN)
           .setDefaultValue("MM-dd-yyyy HH:mm:ss:SSS")
@@ -1765,6 +1793,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("Alluxio client RPCs automatically retry for transient errors with "
               + "an exponential backoff. This property determines the base time "
               + "in the exponential backoff.")
+          .build();
+  public static final PropertyKey USER_RPC_RETRY_MAX_DURATION =
+      new Builder(Name.USER_RPC_RETRY_MAX_DURATION)
+          .setDefaultValue("2min")
+          .setDescription("Alluxio client RPCs automatically retry for transient errors with "
+              + "an exponential backoff. This property determines the maximum duration to retry for"
+              + " before giving up.")
           .build();
   public static final PropertyKey USER_RPC_RETRY_MAX_NUM_RETRY =
       new Builder(Name.USER_RPC_RETRY_MAX_NUM_RETRY)
@@ -2543,6 +2578,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.journal.flush.batch.time";
     public static final String MASTER_JOURNAL_FLUSH_TIMEOUT_MS =
         "alluxio.master.journal.flush.timeout";
+    public static final String MASTER_JOURNAL_FLUSH_RETRY_INTERVAL =
+        "alluxio.master.journal.retry.interval";
     public static final String MASTER_JOURNAL_FOLDER = "alluxio.master.journal.folder";
     public static final String MASTER_JOURNAL_TYPE = "alluxio.master.journal.type";
     public static final String MASTER_JOURNAL_FORMATTER_CLASS =
@@ -2598,6 +2635,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     // ALLUXIO CS END
     public static final String MASTER_RETRY = "alluxio.master.retry";
     public static final String MASTER_RPC_PORT = "alluxio.master.port";
+    public static final String MASTER_SERVING_THREAD_TIMEOUT =
+        "alluxio.master.serving.thread.timeout";
     public static final String MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
         "alluxio.master.startup.consistency.check.enabled";
     public static final String MASTER_THRIFT_SHUTDOWN_TIMEOUT =
@@ -2681,6 +2720,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.worker.network.netty.buffer.receive";
     public static final String WORKER_NETWORK_NETTY_BUFFER_SEND =
         "alluxio.worker.network.netty.buffer.send";
+    public static final String WORKER_MASTER_CONNECT_RETRY_TIMEOUT =
+        "alluxio.worker.master.connect.retry.timeout";
     public static final String WORKER_NETWORK_NETTY_CHANNEL =
         "alluxio.worker.network.netty.channel";
     public static final String WORKER_NETWORK_NETTY_FILE_TRANSFER_TYPE =
@@ -2797,6 +2838,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.block.worker.client.pool.size.max";
     public static final String USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS =
         "alluxio.user.block.worker.client.pool.gc.threshold";
+    public static final String USER_BLOCK_WORKER_CLIENT_READ_RETRY =
+        "alluxio.user.block.worker.client.read.retry";
     public static final String USER_DATE_FORMAT_PATTERN = "alluxio.user.date.format.pattern";
     public static final String USER_FAILED_SPACE_REQUEST_LIMITS =
         "alluxio.user.failed.space.request.limits";
@@ -2876,6 +2919,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.network.netty.reader.packet.size.bytes";
     public static final String USER_RPC_RETRY_BASE_SLEEP_MS =
         "alluxio.user.rpc.retry.base.sleep";
+    public static final String USER_RPC_RETRY_MAX_DURATION =
+        "alluxio.user.rpc.retry.max.duration";
     public static final String USER_RPC_RETRY_MAX_NUM_RETRY =
         "alluxio.user.rpc.retry.max.num.retry";
     public static final String USER_RPC_RETRY_MAX_SLEEP_MS = "alluxio.user.rpc.retry.max.sleep";
