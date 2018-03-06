@@ -12,6 +12,8 @@
 package alluxio.web;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.servlet.Filter;
@@ -30,6 +32,15 @@ import javax.servlet.http.HttpSession;
  */
 @ThreadSafe
 public class AuthenticationFilter implements Filter {
+  private static final Pattern[] NO_AUTHENTICATION_PATH_PATTERNS = new Pattern[]{
+      Pattern.compile(WebInterfaceLoginServlet.PATH),
+      Pattern.compile(WebInterfaceLoginServlet.JSP_PATH),
+      Pattern.compile(".*\\.js"),
+      Pattern.compile(".*\\.css"),
+      Pattern.compile(".*\\.png"),
+      Pattern.compile(".*\\.ico")
+  };
+
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     // Nothing to initialize.
@@ -43,15 +54,13 @@ public class AuthenticationFilter implements Filter {
 
     String path = httpRequest.getRequestURI();
     // For login page and static assets like js, css, and images, do not check login status.
-    if (path.equals(WebInterfaceLoginServlet.PATH)
-        || path.equals(WebInterfaceLoginServlet.JSP_PATH)
-        || path.endsWith(".js")
-        || path.endsWith(".css")
-        || path.endsWith(".png")
-        || path.endsWith(".ico")) {
-      // Forward the request.
-      chain.doFilter(request, response);
-      return;
+    for (Pattern pattern : NO_AUTHENTICATION_PATH_PATTERNS) {
+      Matcher matcher = pattern.matcher(path);
+      if (matcher.find()) {
+        // Forward the request.
+        chain.doFilter(request, response);
+        return;
+      }
     }
 
     HttpSession session = httpRequest.getSession();

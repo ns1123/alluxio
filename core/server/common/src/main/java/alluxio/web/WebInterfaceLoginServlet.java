@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @ThreadSafe
 public final class WebInterfaceLoginServlet extends HttpServlet {
-  private static final long serialVersionUID = 1655633448391122907L;
+  private static final long serialVersionUID = -3680202572256962882L;
 
   /**
    * Path for the login servlet.
@@ -57,13 +57,9 @@ public final class WebInterfaceLoginServlet extends HttpServlet {
   public static final String REQUEST_PARAMETER_PASSWORD = "password";
 
   /**
-   * Request attribute representing that the username does not exist.
+   * Request attribute representing the login error.
    */
-  public static final String REQUEST_ATTRIBUTE_USERNAME_NOT_EXISTS = "usernameNotExists";
-  /**
-   * Request attribute representing that the password is incorrect.
-   */
-  public static final String REQUEST_ATTRIBUTE_PASSWORD_INCORRECT = "passwordIncorrect";
+  public static final String REQUEST_ATTRIBUTE_LOGIN_ERROR = "loginError";
 
   /**
    * Name of the session attribute to store authentication token.
@@ -108,15 +104,20 @@ public final class WebInterfaceLoginServlet extends HttpServlet {
     getServletContext().getRequestDispatcher(JSP_PATH).include(request, response);
   }
 
+  private void loginFailed(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    request.setAttribute(REQUEST_ATTRIBUTE_LOGIN_ERROR, true);
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    getServletContext().getRequestDispatcher(JSP_PATH).forward(request, response);
+  }
+
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     // Check username.
     String username = request.getParameter(REQUEST_PARAMETER_USERNAME);
     if (!mUserPasswords.containsKey(username)) {
-      request.setAttribute(REQUEST_ATTRIBUTE_USERNAME_NOT_EXISTS, true);
-      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-      getServletContext().getRequestDispatcher(JSP_PATH).forward(request, response);
+      loginFailed(request, response);
       return;
     }
 
@@ -126,9 +127,7 @@ public final class WebInterfaceLoginServlet extends HttpServlet {
     String sessionID = request.getSession().getId();
     String hash = generatePasswordHash(password, sessionID);
     if (!passwordHash.equals(hash)) {
-      request.setAttribute(REQUEST_ATTRIBUTE_PASSWORD_INCORRECT, true);
-      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-      getServletContext().getRequestDispatcher(JSP_PATH).forward(request, response);
+      loginFailed(request, response);
       return;
     }
 
