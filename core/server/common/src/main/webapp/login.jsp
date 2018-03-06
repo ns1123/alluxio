@@ -50,15 +50,9 @@
                 </div>
                 <div class="controls">
                     <div class="text-error">
-                        <% if (request.getAttribute("usernameNotExists") != null) { %>
+                        <% if (request.getAttribute("loginError") != null) { %>
                         <br/>
-                        <h5 id="usernameError">ERROR: User does not exist.</h5>
-                        <% } %>
-                    </div>
-                    <div class="text-error">
-                        <% if (request.getAttribute("passwordIncorrect") != null) { %>
-                        <br/>
-                        <h5 id="passwordError">ERROR: Password is incorrect.</h5>
+                        <h5 id="loginError">Login failed: user or password is incorrect.</h5>
                         <% } %>
                     </div>
                 </div>
