@@ -441,7 +441,7 @@ main() {
     job_master)
       start_job_master
       ;;
-    job_master)
+    job_masters)
       start_job_masters
       ;;
     job_worker)
