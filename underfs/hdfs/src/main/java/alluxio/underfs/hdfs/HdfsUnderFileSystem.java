@@ -12,6 +12,7 @@
 package alluxio.underfs.hdfs;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
@@ -28,6 +29,7 @@ import alluxio.underfs.options.DeleteOptions;
 import alluxio.underfs.options.FileLocationOptions;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.underfs.options.OpenOptions;
+import alluxio.util.CommonUtils;
 import alluxio.util.UnderFileSystemUtils;
 
 import com.google.common.base.Preconditions;
@@ -66,6 +68,16 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     implements AtomicFileOutputStreamCallback {
   private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystem.class);
   private static final int MAX_TRY = 5;
+  // ALLUXIO CS ADD
+  // According to the following link
+  // https://stackoverflow.com/questions/34616676/should-i-call-ugi-checktgtandreloginfromkeytab-before-every-action-on-hadoop,
+  // a process can perform a one-time invocation of UserGroupInformation#loginUserFromKeytab, a static method
+  // and let Hadoop IPC client layer handle relogin once ticket expires.
+  // HdfsUnderFileSystem calls UserGroupInformation#loginUserFromKeytab when the class HdfsUnderFileSystem
+  // is first loaded. We must ensure that loginUserFromKeytab is called once and only once.
+  // Therefore, we need a static boolean variable to track this.
+  private static boolean sIsAuthenticated;
+  // ALLUXIO CS END
 
   private FileSystem mFileSystem;
   private UnderFileSystemConfiguration mUfsConf;
@@ -152,7 +164,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
           org.apache.hadoop.security.UserGroupInformation proxyUgi =
               org.apache.hadoop.security.UserGroupInformation.createProxyUser(mUser,
                   org.apache.hadoop.security.UserGroupInformation.getLoginUser());
-          LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
+          LOG.info("Connecting to hdfs: {} proxyUgi: {} user: {}", ufsPrefix, proxyUgi.toString(),
+              mUser);
           HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
@@ -163,6 +176,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
           });
         } else {
           // Alluxio client runs HDFS operations as the current user.
+          LOG.info("Connecting to hdfs: {} ugi: {} user: {}", ufsPrefix,
+              org.apache.hadoop.security.UserGroupInformation.getLoginUser(), mUser);
           HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.SecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
@@ -260,13 +275,13 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   public OutputStream createDirect(String path, CreateOptions options) throws IOException {
     IOException te = null;
     RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-    while (retryPolicy.attemptRetry()) {
+    while (retryPolicy.attempt()) {
       try {
         // TODO(chaomin): support creating HDFS files with specified block size and replication.
         return new HdfsUnderFileOutputStream(FileSystem.create(mFileSystem, new Path(path),
             new FsPermission(options.getMode().toShort())));
       } catch (IOException e) {
-        LOG.warn("Retry count {} : {} ", retryPolicy.getRetryCount(), e.getMessage());
+        LOG.warn("Attempt count {} : {} ", retryPolicy.getAttemptCount(), e.getMessage());
         te = e;
       }
     }
@@ -486,7 +501,20 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
-    org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytab);
+    // Alluxio ensures that, when UserGroupInformation is loaded for the first time,
+    // it performs authentication once and only once to avoid unexpectedly changing
+    // loginUser. Multiple class loaders can load multiple UserGroupInformation
+    // classes. For each one of them, perform authentication once and only once.
+    synchronized (HdfsUnderFileSystem.class) {
+      if (!sIsAuthenticated) {
+        LOG.info("Login from server. principal: {} keytab: {}", principal, keytab);
+        org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytab);
+        sIsAuthenticated = true;
+      } else {
+        LOG.debug("Existing login from server. principal: {} keytab: {} existing ugi: {}",
+            principal, keytab, org.apache.hadoop.security.UserGroupInformation.getLoginUser());
+      }
+    }
   }
 
   private void loginAsAlluxioClient() throws IOException {
@@ -498,6 +526,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
+    LOG.info("Login from client. principal: {} keytab: {}", principal, keytab);
     org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytab);
   }
   // ALLUXIO CS END
@@ -514,7 +543,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   public boolean mkdirs(String path, MkdirsOptions options) throws IOException {
     IOException te = null;
     RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-    while (retryPolicy.attemptRetry()) {
+    while (retryPolicy.attempt()) {
       try {
         Path hdfsPath = new Path(path);
         if (mFileSystem.exists(hdfsPath)) {
@@ -547,7 +576,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
         }
         return true;
       } catch (IOException e) {
-        LOG.warn("{} try to make directory for {} : {}", retryPolicy.getRetryCount(), path,
+        LOG.warn("{} try to make directory for {} : {}", retryPolicy.getAttemptCount(), path,
             e.getMessage());
         te = e;
       }
@@ -559,7 +588,11 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   public InputStream open(String path, OpenOptions options) throws IOException {
     IOException te = null;
     RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-    while (retryPolicy.attemptRetry()) {
+    DistributedFileSystem dfs = null;
+    if (mFileSystem instanceof DistributedFileSystem) {
+      dfs = (DistributedFileSystem) mFileSystem;
+    }
+    while (retryPolicy.attempt()) {
       try {
         FSDataInputStream inputStream = mFileSystem.open(new Path(path));
         try {
@@ -570,8 +603,31 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
         }
         return new HdfsUnderFileInputStream(inputStream);
       } catch (IOException e) {
-        LOG.warn("{} try to open {} : {}", retryPolicy.getRetryCount(), path, e.getMessage());
+        LOG.warn("{} try to open {} : {}", retryPolicy.getAttemptCount(), path, e.getMessage());
         te = e;
+        if (options.getRecoverFailedOpen() && dfs != null && e.getMessage().toLowerCase()
+            .startsWith("cannot obtain block length for")) {
+          // This error can occur when an Alluxio journal file was not properly closed by Alluxio.
+          // In this scenario, the HDFS lease must be recovered in order for the file to be
+          // readable again. The 'recoverLease' API usually needs to be invoked multiple times
+          // to complete the lease recovery process.
+          try {
+            if (dfs.recoverLease(new Path(path))) {
+              LOG.warn("recoverLease-1 success for: {}", path);
+            } else {
+              // try one more time, after waiting
+              CommonUtils.sleepMs(5 * Constants.SECOND_MS);
+              if (dfs.recoverLease(new Path(path))) {
+                LOG.warn("recoverLease-2 success for: {}", path);
+              } else {
+                LOG.warn("recoverLease: path not closed: {}", path);
+              }
+            }
+          } catch (IOException e1) {
+            // ignore exception
+            LOG.warn("recoverLease failed for: {} error: {}", path, e1.getMessage());
+          }
+        }
       }
     }
     throw te;
@@ -598,6 +654,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
 
   @Override
   public void setOwner(String path, String user, String group) throws IOException {
+    if (user == null && group == null) {
+      return;
+    }
     try {
       FileStatus fileStatus = mFileSystem.getFileStatus(new Path(path));
       mFileSystem.setOwner(fileStatus.getPath(), user, group);
@@ -641,11 +700,11 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   private boolean delete(String path, boolean recursive) throws IOException {
     IOException te = null;
     RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-    while (retryPolicy.attemptRetry()) {
+    while (retryPolicy.attempt()) {
       try {
         return mFileSystem.delete(new Path(path), recursive);
       } catch (IOException e) {
-        LOG.warn("Retry count {} : {}", retryPolicy.getRetryCount(), e.getMessage());
+        LOG.warn("Attempt count {} : {}", retryPolicy.getAttemptCount(), e.getMessage());
         te = e;
       }
     }
@@ -684,11 +743,11 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   private boolean rename(String src, String dst) throws IOException {
     IOException te = null;
     RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-    while (retryPolicy.attemptRetry()) {
+    while (retryPolicy.attempt()) {
       try {
         return mFileSystem.rename(new Path(src), new Path(dst));
       } catch (IOException e) {
-        LOG.warn("{} try to rename {} to {} : {}", retryPolicy.getRetryCount(), src, dst,
+        LOG.warn("{} try to rename {} to {} : {}", retryPolicy.getAttemptCount(), src, dst,
             e.getMessage());
         te = e;
       }

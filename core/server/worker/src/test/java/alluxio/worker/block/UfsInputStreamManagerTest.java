@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.Invocation;
 
 import java.io.Closeable;
 import java.io.InputStream;
@@ -118,9 +119,6 @@ public final class UfsInputStreamManagerTest {
   /**
    * Tests concurrent acquisitions without expiration do not hit deadlock.
    */
-  // ALLUXIO CS ADD
-  @org.junit.Ignore
-  // ALLUXIO CS END
   @Test
   public void testConcurrency() throws Exception {
     try (Closeable r = new ConfigurationRule(new HashMap<PropertyKey, String>() {
@@ -151,8 +149,16 @@ public final class UfsInputStreamManagerTest {
       }
       ConcurrencyUtils.assertConcurrent(threads, 30);
       // Each subsequent check out per thread should be a seek operation
-      Mockito.verify(mSeekableInStreams[0], Mockito.times(numCheckOutPerThread - 1))
-          .seek(Mockito.anyLong());
+      int numSeek = 0;
+      for (int i = 0; i < mNumOfInputStreams; i++) {
+        for (Invocation invocation : Mockito.mockingDetails(mSeekableInStreams[i])
+            .getInvocations()) {
+          if (invocation.getMethod().getName().equals("seek")) {
+            numSeek++;
+          }
+        }
+      }
+      Assert.assertEquals(mNumOfInputStreams / 2 * (numCheckOutPerThread - 1), numSeek);
     }
   }
 

@@ -133,8 +133,14 @@ public enum ExceptionMessage {
   CANNOT_FREE_NON_EMPTY_DIR("Cannot free directory {0} which is not empty. Please set "
       + "the \"recursive\" flag of free operation to true"),
   CANNOT_FREE_NON_PERSISTED_FILE("Cannot free file {0} which is not persisted"),
-  CANNOT_FREE_PINNED_FILE("Cannot free file {0} which is pinned. Please unpin it first or"
-      + " set the \"forced\" flag of free operation to true"),
+  // ALLUXIO CS REPLACE
+  // CANNOT_FREE_PINNED_FILE("Cannot free file {0} which is pinned. Please unpin it first or"
+  //     + " set the \"forced\" flag of free operation to true"),
+  // ALLUXIO CS WITH
+  CANNOT_FREE_PINNED_FILE("Cannot free file {0} which has min replication > 0 (pinned). Please "
+      + "set the min replication to 0 (unpin it) or set the \"forced\" flag of free operation to "
+      + "true"),
+  // ALLUXIO CS END
   INODE_DOES_NOT_EXIST("inodeId {0,number,#} does not exist"),
   INODE_DOES_NOT_EXIST_RETRIES("inodeId {0,number,#} does not exist; too many retries"),
   NOT_MUTABLE_INODE_PATH("Not a MutableLockedInodePath: {0}"),
@@ -173,6 +179,7 @@ public enum ExceptionMessage {
   INVALID_ARGS_NULL("Null args for command {0}"),
   INVALID_ARGS_NUM("Command {0} takes {1} arguments, not {2}"),
   INVALID_ARGS_NUM_INSUFFICIENT("Command {0} requires at least {1} arguments ({2} provided)"),
+  INVALID_ARGS_SORT_FIELD("Invalid sort option ‘{0}’ for --sort"),
   // ALLUXIO CS ADD
   INVALID_ARG_TYPE("Arg {0} is not type {1}"),
   // ALLUXIO CS END
@@ -227,7 +234,7 @@ public enum ExceptionMessage {
   SECURITY_IS_NOT_ENABLED("Security is not enabled"),
   // ALLUXIO CS ADD
   CANNOT_GET_GROUPS_FROM_LDAP_SERVER("Cannot get groups for user {0} from the LDAP server "
-      + "after retrying {1} times"),
+      + "after {1} attempts"),
   CANNOT_INITIALIZE_DIR_CONTEXT("Cannot initialize DirContext: {0}"),
   CANNOT_READ_PASSWORD_FILE("Cannot read password file {0}"),
   // ALLUXIO CS END

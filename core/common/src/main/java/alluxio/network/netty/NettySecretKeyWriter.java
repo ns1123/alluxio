@@ -15,13 +15,19 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.metrics.MetricsSystem;
 import alluxio.proto.security.Key;
+import alluxio.retry.CountingRetry;
+import alluxio.retry.RetryPolicy;
+import alluxio.security.LoginUser;
 import alluxio.security.capability.CapabilityKey;
+import alluxio.util.network.NettyUtils;
 import alluxio.util.proto.ProtoMessage;
 import alluxio.util.proto.ProtoUtils;
 
 import com.codahale.metrics.Counter;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -32,6 +38,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * Write a secret key to a remote server using Netty secured by SSL.
  */
 public final class NettySecretKeyWriter {
+  private static final Logger LOG = LoggerFactory.getLogger(NettySecretKeyWriter.class);
+
   private NettySecretKeyWriter() {}  // prevent instantiation
 
   /**
@@ -45,12 +53,26 @@ public final class NettySecretKeyWriter {
       throws IOException {
     Channel channel = null;
     Metrics.NETTY_SECRET_KEY_WRITE_OPS.inc();
+    RetryPolicy retryPolicy = new CountingRetry(1);
     try {
       Bootstrap bs = NettySecureRpcClient.createClientBootstrap(address);
       bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY, address.getHostName());
-      channel = bs.connect().sync().channel();
-      NettySecureRpcClient.waitForChannelReady(channel);
-
+      boolean authenticated = false;
+      while (retryPolicy.attempt() && !authenticated) {
+        try {
+          channel = bs.connect().sync().channel();
+          NettyUtils.waitForClientChannelReady(channel);
+          authenticated = true;
+        } catch (Exception e) {
+          LOG.info("Failed to build an authenticated channel. "
+              + "This may be due to Kerberos credential expiration. Retry login.");
+          channel.close();
+          LoginUser.relogin();
+        }
+      }
+      if (!authenticated) {
+        throw new IOException("Failed to build an authenticated channel even after relogin");
+      }
       Key.SecretKey request =
           ProtoUtils.setSecretKey(
               Key.SecretKey.newBuilder().setKeyType(Key.KeyType.CAPABILITY)

@@ -11,9 +11,14 @@
 
 package alluxio.master.security.capability;
 
-import alluxio.network.netty.NettySecretKeyWriter;
+import alluxio.Configuration;
+import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.exception.status.UnavailableException;
 import alluxio.master.block.BlockMaster;
+import alluxio.network.netty.NettySecretKeyWriter;
+import alluxio.retry.RetryPolicy;
+import alluxio.retry.TimeoutRetry;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.security.capability.SecretManager;
 import alluxio.util.CommonUtils;
@@ -30,6 +35,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -178,13 +184,7 @@ public class CapabilityKeyManager implements Closeable {
    */
   private void distributeKey(WorkerInfo worker) {
     Set<Long> workerIds = new HashSet<>();
-    List<WorkerInfo> workerInfos;
-    try {
-      workerInfos = mBlockMaster.getWorkerInfoList();
-    } catch (UnavailableException e) {
-      LOG.warn("Failed to query the list of workers: {}", e.getMessage());
-      return;
-    }
+    List<WorkerInfo> workerInfos = getWorkerInfoList();
     for (WorkerInfo workerInfo : workerInfos) {
       workerIds.add(workerInfo.getId());
     }
@@ -261,13 +261,7 @@ public class CapabilityKeyManager implements Closeable {
     }
 
     prepareNewKey();
-    List<WorkerInfo> workerInfoList;
-    try {
-      workerInfoList = mBlockMaster.getWorkerInfoList();
-    } catch (UnavailableException e) {
-      LOG.warn("Failed to query the list of workers: {}", e.getMessage());
-      return;
-    }
+    List<WorkerInfo> workerInfoList = getWorkerInfoList();
     for (WorkerInfo worker : workerInfoList) {
       scheduleNewKeyDistribution(worker);
     }
@@ -281,5 +275,26 @@ public class CapabilityKeyManager implements Closeable {
       }
       mCountLock.unlock();
     }
+  }
+
+  /**
+   * @return a list of workers (with retries)
+   */
+  private List<WorkerInfo> getWorkerInfoList() {
+    long wait =
+        Configuration.getMs(PropertyKey.MASTER_WORKER_CONNECT_WAIT_TIME) + 10 * Constants.SECOND_MS;
+    RetryPolicy retry = new TimeoutRetry(wait, Constants.SECOND_MS);
+    while (retry.attempt()) {
+      try {
+        return mBlockMaster.getWorkerInfoList();
+      } catch (UnavailableException e) {
+        // This only happens when the server is in safe mode (a temporary state).
+        if (retry.getAttemptCount() == 1) {
+          LOG.warn("Failed to query the list of workers, retrying. error: {}", e.getMessage());
+        }
+      }
+    }
+    LOG.warn("Failed to get list of workers after retrying for {}ms.", wait);
+    return Collections.emptyList();
   }
 }

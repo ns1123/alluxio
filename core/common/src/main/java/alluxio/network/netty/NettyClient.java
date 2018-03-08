@@ -103,31 +103,4 @@ public final class NettyClient {
 
     return boot;
   }
-  // ALLUXIO CS ADD
-  /**
-   * Waits for the channel to be ready. If Kerberos security is enabled, waits until the channel
-   * is authenticated.
-   *
-   * @param channel the input channel
-   * @throws alluxio.exception.status.AlluxioStatusException if authentication failed
-   */
-  public static void waitForChannelReady(io.netty.channel.Channel channel)
-      throws alluxio.exception.status.AlluxioStatusException {
-    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
-        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      io.netty.channel.ChannelHandlerContext ctx =
-          channel.pipeline().context(KerberosSaslClientHandler.class);
-      if (ctx != null) {
-        try {
-          // Waits for the authentication result. Stop the process if authentication failed.
-          if (!((KerberosSaslClientHandler) ctx.handler()).channelAuthenticated(ctx)) {
-            throw new java.io.IOException("Sasl authentication is finished but failed.");
-          }
-        } catch (Exception e) {
-          throw alluxio.exception.status.AlluxioStatusException.fromThrowable(e);
-        }
-      }
-    }
-  }
-  // ALLUXIO CS END
 }

@@ -33,8 +33,11 @@ import alluxio.master.SafeModeManager;
 import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
+import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
+import alluxio.master.file.options.DeleteOptions;
 import alluxio.master.file.options.GetStatusOptions;
+import alluxio.master.file.options.RenameOptions;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalTestUtils;
 import alluxio.master.privilege.PrivilegeMasterFactory;
@@ -297,6 +300,84 @@ public final class PersistenceTest {
     }
     fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
+  }
+
+  /**
+   * Tests that a persist file job is retried after the file is renamed and the src directory is
+   * deleted.
+   */
+  @Test(timeout = 20000)
+  public void retryPersistJobRenameDelete() throws Exception {
+    AuthenticatedClientUser.set(LoginUser.get().getName());
+    // Create src file and directory, checking the internal state.
+    AlluxioURI alluxioDirSrc = new AlluxioURI("/src");
+    mFileSystemMaster.createDirectory(alluxioDirSrc,
+        CreateDirectoryOptions.defaults().setPersisted(true));
+    AlluxioURI alluxioFileSrc = new AlluxioURI("/src/in_alluxio");
+    long fileId = mFileSystemMaster.createFile(alluxioFileSrc,
+        CreateFileOptions.defaults().setPersisted(false));
+    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(fileId).getPersistenceState());
+
+    // Schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(alluxioFileSrc);
+    checkPersistenceRequested(alluxioFileSrc);
+
+    // Mock the job service interaction.
+    Random random = new Random();
+    long jobId = random.nextLong();
+    Mockito.when(mMockJobMasterClient.run(Mockito.any(JobConfig.class))).thenReturn(jobId);
+
+    // Execute the persistence scheduler heartbeat, checking the internal state.
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+    CommonUtils.waitFor("Scheduler heartbeat", (input -> getPersistJobs().size() > 0));
+    checkPersistenceInProgress(alluxioFileSrc, jobId);
+
+    // Mock the job service interaction.
+    JobInfo jobInfo = new JobInfo();
+    jobInfo.setStatus(Status.CREATED);
+    Mockito.when(mMockJobMasterClient.getStatus(Mockito.anyLong())).thenReturn(jobInfo);
+
+    // Execute the persistence checker heartbeat, checking the internal state.
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
+    CommonUtils.waitFor("Checker heartbeat", (input -> getPersistJobs().size() > 0));
+    checkPersistenceInProgress(alluxioFileSrc, jobId);
+
+    // Mock the job service interaction.
+    jobInfo.setStatus(Status.COMPLETED);
+    Mockito.when(mMockJobMasterClient.getStatus(Mockito.anyLong())).thenReturn(jobInfo);
+
+    // Create the temporary UFS file.
+    {
+      Map<Long, PersistJob> persistJobs = getPersistJobs();
+      PersistJob job = persistJobs.get(fileId);
+      UnderFileSystem ufs = UnderFileSystem.Factory.create(job.getTempUfsPath());
+      UnderFileSystemUtils.touch(ufs, job.getTempUfsPath());
+    }
+
+    // Rename the src file before the persist is commited.
+    mFileSystemMaster.createDirectory(new AlluxioURI("/dst"),
+        CreateDirectoryOptions.defaults().setPersisted(true));
+    AlluxioURI alluxioFileDst = new AlluxioURI("/dst/in_alluxio");
+    mFileSystemMaster.rename(alluxioFileSrc, alluxioFileDst, RenameOptions.defaults());
+
+    // Delete the src directory recursively.
+    mFileSystemMaster.delete(alluxioDirSrc, DeleteOptions.defaults().setRecursive(true));
+
+    // Execute the persistence checker heartbeat, checking the internal state. This should
+    // re-schedule the persist task as tempUfsPath is deleted.
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
+    CommonUtils.waitFor("Checker heartbeat", (input -> getPersistRequests().size() > 0));
+    checkPersistenceRequested(alluxioFileDst);
+
+    // Mock job service interaction.
+    jobId = random.nextLong();
+    Mockito.when(mMockJobMasterClient.run(Mockito.any(JobConfig.class))).thenReturn(jobId);
+
+    // Execute the persistence scheduler heartbeat, checking the internal state.
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+    CommonUtils.waitFor("Scheduler heartbeat", (input -> getPersistJobs().size() > 0));
+    checkPersistenceInProgress(alluxioFileDst, jobId);
   }
 
   /**

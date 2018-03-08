@@ -12,6 +12,7 @@
 package alluxio.master.file;
 
 import alluxio.AlluxioURI;
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.LoginUserRule;
@@ -31,9 +32,9 @@ import alluxio.security.group.GroupMappingService;
 import alluxio.wire.Privilege;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -47,25 +48,28 @@ import java.util.List;
  * Groups are set up so that TEST_USER is in only TEST_GROUP, while SUPER_USER is in only the
  * supergroup.
  */
-public final class FileSystemPrivilegesIntegrationTest {
+public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTest {
   private static final String TEST_USER = "testuser";
   private static final String SUPER_USER = "superuser";
   private static final String TEST_GROUP = "testgroup";
   private static final AlluxioURI TEST_FILE = new AlluxioURI("/file");
 
-  @Rule
-  public ExpectedException mThrown = ExpectedException.none();
+  public ExpectedException mThrown;
+  public LocalAlluxioClusterResource mLocalAlluxioClusterResource;
+  public LoginUserRule mLoginUser;
 
-  @Rule
-  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER);
-
-  @Rule
-  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
+  @Override
+  protected List<TestRule> rules() {
+    mThrown = ExpectedException.none();
+    mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
           .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
           .setProperty(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
               FileSystemPrivilegesIntegrationTest.TestGroupsMapping.class.getName())
           .build();
+    mLoginUser = new LoginUserRule(TEST_USER);
+    return Arrays.asList(mThrown, mLocalAlluxioClusterResource, mLoginUser);
+  }
 
   private PrivilegeMasterClient mPrivilegeClient;
   private FileSystem mFileSystem;

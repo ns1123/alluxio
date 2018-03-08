@@ -547,22 +547,25 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     } else if (entry.hasDeleteMountPoint()) {
       unmountFromEntry(entry.getDeleteMountPoint());
     } else if (entry.hasAsyncPersistRequest()) {
-      try {
-        long fileId = (entry.getAsyncPersistRequest()).getFileId();
-        try (LockedInodePath inodePath = mInodeTree
-            .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+      long fileId = (entry.getAsyncPersistRequest()).getFileId();
+      try (LockedInodePath inodePath = mInodeTree
+          .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+        try {
           scheduleAsyncPersistenceInternal(inodePath);
+        } catch (AlluxioException e) {
+          // It's possible that rescheduling the async persist calls fails, because the blocks may
+          // no longer be in the memory
+          LOG.warn("Failed to reschedule async persistence for {}: {}", inodePath.getUri(),
+              e.toString());
         }
-      } catch (AlluxioException e) {
-        // It's possible that rescheduling the async persist calls fails, because the blocks may no
-        // longer be in the memory
-        LOG.error(e.getMessage());
+      } catch (FileDoesNotExistException e) {
+        throw new RuntimeException(e);
       }
     } else if (entry.hasUpdateUfsMode()) {
       try {
         updateUfsModeFromEntry(entry.getUpdateUfsMode());
       } catch (AlluxioException e) {
-        LOG.error(e.getMessage());
+        throw new RuntimeException(e);
       }
     } else {
       throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
@@ -627,8 +630,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         if (SecurityUtils.isSecurityEnabled() && !root.getOwner().isEmpty()
             && !root.getOwner().equals(serverOwner)) {
           // user is not the previous owner
-          throw new PermissionDeniedException(
-              ExceptionMessage.PERMISSION_DENIED.getMessage("Unauthorized user on root"));
+          throw new PermissionDeniedException(ExceptionMessage.PERMISSION_DENIED.getMessage(String
+              .format("Unauthorized user on root. inode owner: %s current user: %s",
+                  root.getOwner(), serverOwner)));
         }
       }
 
@@ -2384,7 +2388,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
       handle.setPersistenceState(PersistenceState.PERSISTED);
       if (!replayed) {
-        persistedInodes.add(inode);
+        persistedInodes.add(handle);
       }
     }
     return persistedInodes;
@@ -2769,6 +2773,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     try {
       createDirectoryAndJournal(inodePath, createDirectoryOptions, journalContext);
+      if (inodePath.getLockMode() == InodeTree.LockMode.READ) {
+        // If the directory is successfully created, createDirectoryAndJournal will add a write lock
+        // to the inodePath's lock list. We are done modifying the directory, so we downgrade it to
+        // a read lock.
+        inodePath.downgradeLast();
+      }
     } catch (FileAlreadyExistsException e) {
       // This may occur if there are concurrent load metadata requests. To allow loading metadata
       // to be idempotent, ensure the full path exists when this happens.
@@ -3828,11 +3838,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
       }
 
-      // If previous persist job failed, clean up the temporary file.
-      cleanup(tempUfsPath);
+      MountTable.Resolution resolution = mMountTable.resolve(uri);
+      try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
+        // If previous persist job failed, clean up the temporary file.
+        cleanup(ufsResource.get(), tempUfsPath);
+      }
 
       // Generate a temporary path to be used by the persist job.
-      MountTable.Resolution resolution = mMountTable.resolve(uri);
       tempUfsPath =
           PathUtils.temporaryFileName(System.currentTimeMillis(), resolution.getUri().toString());
       alluxio.job.persist.PersistConfig config =
@@ -3880,6 +3892,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       for (long fileId : mPersistRequests.keySet()) {
         boolean remove = true;
         alluxio.time.ExponentialTimer timer = mPersistRequests.get(fileId);
+        if (timer == null) {
+          // This could occur if a key is removed from mPersistRequests while we are iterating.
+          continue;
+        }
         alluxio.time.ExponentialTimer.Result timerResult = timer.tick();
         if (timerResult == alluxio.time.ExponentialTimer.Result.NOT_READY) {
           // operation is not ready to be scheduled
@@ -3965,6 +3981,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
         InodeFile inode = inodePath.getInodeFile();
+        MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
+        ufsClient = mUfsManager.get(resolution.getMountId());
         switch (inode.getPersistenceState()) {
           case LOST:
             // fall through
@@ -3975,7 +3993,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 job.getUri(), fileId, inode.getPersistenceState());
             break;
           case TO_BE_PERSISTED:
-            MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
             try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
               UnderFileSystem ufs = ufsResource.get();
               String ufsPath = resolution.getUri().toString();
@@ -3991,6 +4008,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
             inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
             journalPersistedInodes(propagatePersistedInternal(inodePath, false), journalContext);
+            Metrics.FILES_PERSISTED.inc();
 
             // Journal the action.
             SetAttributeEntry.Builder builder =
@@ -4001,7 +4019,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
             // Save state for possible cleanup
             blockIds.addAll(inode.getBlockIds());
-            ufsClient = mUfsManager.get(resolution.getMountId());
             break;
           default:
             throw new IllegalStateException(
@@ -4012,14 +4029,22 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             e.getMessage());
         LOG.debug("Exception: ", e);
         // Cleanup the temporary file.
-        cleanup(tempUfsPath);
+        if (ufsClient != null) {
+          try (CloseableResource<UnderFileSystem> ufsResource = ufsClient.acquireUfsResource()) {
+            cleanup(ufsResource.get(), tempUfsPath);
+          }
+        }
       } catch (Exception e) {
         LOG.warn(
             "Unexpected exception encountered when trying to complete persistence of a file {} "
                 + "(id={}) : {}",
             job.getUri(), fileId, e.getMessage());
         LOG.debug("Exception: ", e);
-        cleanup(tempUfsPath);
+        if (ufsClient != null) {
+          try (CloseableResource<UnderFileSystem> ufsResource = ufsClient.acquireUfsResource()) {
+            cleanup(ufsResource.get(), tempUfsPath);
+          }
+        }
         mPersistRequests.put(fileId, job.getTimer());
       } finally {
         mPersistJobs.remove(fileId);
@@ -4125,11 +4150,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
   }
 
-  private static void cleanup(String ufsPath) {
+  private static void cleanup(UnderFileSystem ufs, String ufsPath) {
     final String errMessage = "Failed to delete UFS file {}.";
     if (!ufsPath.isEmpty()) {
       try {
-        UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
         if (!ufs.deleteFile(ufsPath)) {
           LOG.warn(errMessage, ufsPath);
         }

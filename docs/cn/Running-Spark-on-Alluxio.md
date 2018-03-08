@@ -23,7 +23,9 @@ Alluxio直接兼容Spark 1.1或更新版本而无需修改.
 
 * 我们建议您从Alluxio[下载页面](http://www.alluxio.org/download)下载tarball.
   另外，高级用户可以选择根据[这里](Building-Alluxio-Master-Branch.html#compute-framework-support)的说明将源代码编译为客户端jar包，并在本文余下部分使用于`{{site.ALLUXIO_CLIENT_JAR_PATH}}`路径处生成的jar包。
-  
+
+* 为使Spark应用程序能够在Alluxio中读写文件， 必须将Alluxio客户端jar包分布在不同节点的应用程序的classpath中（每个节点必须使客户端jar包具有相同的本地路径{{site.ALLUXIO_CLIENT_JAR_PATH}}）
+
 * 请添加如下代码到`spark/conf/spark-defaults.conf`。
 
 ```bash
@@ -60,6 +62,18 @@ spark.executor.extraClassPath {{site.ALLUXIO_CLIENT_JAR_PATH}}
 spark.driver.extraJavaOptions -Dalluxio.zookeeper.address=zookeeperHost1:2181,zookeeperHost2:2181 -Dalluxio.zookeeper.enabled=true
 spark.executor.extraJavaOptions -Dalluxio.zookeeper.address=zookeeperHost1:2181,zookeeperHost2:2181 -Dalluxio.zookeeper.enabled=true
 ```
+
+## 检查Spark和Alluxio的一体化（支持Spark 2.x）
+
+在Alluxio上运行Spark前，你可能想确定你的Spark与Alluxio一体化的配置已经正确设置了。Spark一体化检查器可以帮你实现这一点。
+
+当你拥有一个正在运行的Spark集群（或者Spark单机），你可以在Alluxio项目目录下运行以下的命令：
+
+```bash
+$ checker/bin/alluxio-checker.sh spark <spark master uri> <spark partition number(optional)>
+```
+
+这将会报告可能阻止你在Alluxio上运行Spark的潜在问题。
 
 ## 使用Alluxio作为输入输出
 

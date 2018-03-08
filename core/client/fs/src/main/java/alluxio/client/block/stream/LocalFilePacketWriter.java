@@ -109,7 +109,6 @@ public final class LocalFilePacketWriter implements PacketWriter {
         builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
       }
       ProtoMessage createRequest = new ProtoMessage(builder.build());
-      alluxio.network.netty.NettyClient.waitForChannelReady(channel);
       // ALLUXIO CS END
       NettyRPCContext nettyRPCContext =
           NettyRPCContext.defaults().setChannel(channel).setTimeout(WRITE_TIMEOUT_MS);

@@ -48,6 +48,7 @@ dependency-reduced-pom.xml
 target/
 tests.log*
 # ALLUXIO CS ADD
+/annotation/
 /lib/
 /core/client/fs/src/main/native/cmake/
 /underfs/hdfs/src/main/java/alluxio/UfsConstants.java

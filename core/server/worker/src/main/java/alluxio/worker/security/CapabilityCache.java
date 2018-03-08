@@ -185,8 +185,8 @@ public final class CapabilityCache implements Closeable {
         key = mOldCapabilityKey;
       } else {
         throw new InvalidCapabilityException(String.format(
-            "No matching capability key found. Expected key ID: %d. Current key ID: %d. Old key ID:"
-                + " %d.", cap.getKeyId(), mCapabilityKey.getKeyId(),
+            "No matching capability key found. Client key ID: %d. Current server key ID: %d. "
+                + "Old server key ID: %d.", cap.getKeyId(), mCapabilityKey.getKeyId(),
             mOldCapabilityKey == null ? -1 : mOldCapabilityKey.getKeyId()));
       }
     } finally {

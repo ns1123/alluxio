@@ -9,39 +9,22 @@
 
 package alluxio.job.replicate;
 
-import alluxio.AlluxioURI;
-import alluxio.client.Cancelable;
 import alluxio.client.block.AlluxioBlockStore;
-import alluxio.client.block.BlockWorkerInfo;
-import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
-import alluxio.client.file.URIStatus;
-import alluxio.client.file.options.InStreamOptions;
-import alluxio.client.file.options.OutStreamOptions;
-import alluxio.client.security.CapabilityFetcher;
-import alluxio.exception.AlluxioException;
-import alluxio.exception.ExceptionMessage;
-import alluxio.exception.NoWorkerException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.util.JobUtils;
 import alluxio.job.util.SerializableVoid;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.WorkerInfo;
-import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -121,73 +104,7 @@ public final class ReplicateDefinition
   @Override
   public SerializableVoid runTask(ReplicateConfig config, SerializableVoid arg,
       JobWorkerContext jobWorkerContext) throws Exception {
-    AlluxioBlockStore blockStore = AlluxioBlockStore.create(mFileSystemContext);
-
-    long blockId = config.getBlockId();
-    String localHostName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-    List<BlockWorkerInfo> workerInfoList = blockStore.getAllWorkers();
-    WorkerNetAddress localNetAddress = null;
-
-    for (BlockWorkerInfo workerInfo : workerInfoList) {
-      if (workerInfo.getNetAddress().getHost().equals(localHostName)) {
-        localNetAddress = workerInfo.getNetAddress();
-        break;
-      }
-    }
-    if (localNetAddress == null) {
-      throw new NoWorkerException(ExceptionMessage.NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK
-          .getMessage(blockId));
-    }
-
-    // TODO(jiri): Replace with internal client that uses file ID once the internal client is
-    // factored out of the core server module. The reason to prefer using file ID for this job is
-    // to avoid the the race between "replicate" and "rename", so that even a file to replicate is
-    // renamed, the job is still working on the correct file.
-    AlluxioURI path = new AlluxioURI(config.getPath());
-    FileSystem fs = FileSystem.Factory.get();
-    URIStatus status = fs.getStatus(path);
-
-    OutStreamOptions options = OutStreamOptions.defaults();
-    if (status.getCapability() != null) {
-      options.setCapabilityFetcher(
-          new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
-    }
-
-    // use -1 to reuse the existing block size for this block
-    try (OutputStream outputStream =
-        blockStore.getOutStream(blockId, -1, localNetAddress, options)) {
-      try (InputStream inputStream = createInputStream(status, blockId, blockStore)) {
-        ByteStreams.copy(inputStream, outputStream);
-      } catch (Throwable t) {
-        try {
-          ((Cancelable) outputStream).cancel();
-        } catch (Throwable t2) {
-          t.addSuppressed(t2);
-        }
-        throw t;
-      }
-    }
+    JobUtils.loadBlock(mFileSystemContext, config.getPath(), config.getBlockId());
     return null;
-  }
-
-  /**
-   * Creates an input stream for the given block. If the block is stored in Alluxio, the input
-   * stream will read the worker having this block; otherwise, try to read from ufs.
-   *
-   * @param status the status of the Alluxio file
-   * @param blockId block ID
-   * @param blockStore handler to Alluxio block store
-   * @return the input stream
-   * @throws IOException if an I/O error occurs
-   * @throws AlluxioException if an Alluxio error occurs
-   */
-  private InputStream createInputStream(URIStatus status, long blockId,
-      AlluxioBlockStore blockStore) throws AlluxioException, IOException {
-    InStreamOptions options = new InStreamOptions(status);
-    if (status.getCapability() != null) {
-      options.setCapabilityFetcher(
-          new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
-    }
-    return blockStore.getInStream(blockId, options);
   }
 }

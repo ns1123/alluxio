@@ -45,13 +45,13 @@ public interface JobMasterProcess extends Process {
           .build();
       if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
         Preconditions.checkState(
-            !(journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystemWrapper),
+            !(journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystem),
             "Raft journal cannot be used with Zookeeper enabled");
         PrimarySelector primarySelector = PrimarySelector.Factory.createZkJobPrimarySelector();
         return new FaultTolerantAlluxioJobMasterProcess(journalSystem, primarySelector);
-      } else if (journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystemWrapper) {
+      } else if (journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystem) {
         PrimarySelector primarySelector =
-            ((alluxio.master.journal.raft.RaftJournalSystemWrapper) journalSystem)
+            ((alluxio.master.journal.raft.RaftJournalSystem) journalSystem)
                 .getPrimarySelector();
         return new FaultTolerantAlluxioJobMasterProcess(journalSystem, primarySelector);
       }

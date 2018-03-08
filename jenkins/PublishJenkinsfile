@@ -13,7 +13,7 @@ pipeline {
         )
         string(
             name: 'GenerateArgs',
-            defaultValue: '-hadoop-distributions hadoop-2.7 -native',
+            defaultValue: '-hadoop-distributions hadoop-2.7 -ufs-modules all -native',
             description: 'Arguments passed to Go script that generates the tarballs'
         )
         string(
@@ -25,6 +25,11 @@ pipeline {
             name: 'AwsCredentialsIdPrefix',
             defaultValue: 'JENKINS',
             description: 'Prefix of the ID of AWS credentials to use for uploading (ex. BOT for BOT_AWS_ACCESS_KEY_ID and BOT_AWS_SECRET_ACCESS_KEY)'
+        )
+        booleanParam(
+            name: 'AppendBranchAndSHA',
+            defaultValue: true,
+            description: 'Whether to append the branch and SHA to the generated tarballs'
         )
     }
     stages {
@@ -50,6 +55,8 @@ pipeline {
                         url: 'https://github.com/TachyonNexus/enterprise',
                     ]]
                 ])
+                // delete any existing artifacts
+                sh 'rm -f *.tar.gz'
                 
                 // build artifact, using jenkins credentials to access maven
                 withCredentials([
@@ -63,8 +70,10 @@ pipeline {
                     // for older versions, run if old script exists
                     if (fileExists('tools/go/scripts/generate-release-tarballs.go')) {
                         buildCmd += "go run tools/go/scripts/generate-release-tarballs.go ${params.GenerateArgs}"
-                    } else {
+                    } else if (fileExists('dev/scripts/generate-enterprise-tarballs')) {
                         buildCmd += "./dev/scripts/generate-enterprise-tarballs release ${params.GenerateArgs}"
+                    } else {
+                        buildCmd += "./dev/scripts/generate-tarballs release ${params.GenerateArgs}"
                     }
                     sh buildCmd
                 }}
@@ -74,13 +83,16 @@ pipeline {
                     returnStdout: true
                 ).trim()
                 def tarballs = sh (
-                    script: "ls alluxio-enterprise-*",
+                    script: "ls alluxio-*",
                     returnStdout: true
                 ).trim()
                 tarballs.split().each {
-                    // append branch and commit hash before .tar.gz
-                    def tarballName = it.substring(0, it.length() - '.tar.gz'.length())
-                    tarballName += "-${params.Branch}-${commitHash}.tar.gz"
+                    def tarballName = it
+                    if (params.AppendBranchAndSHA) {
+                        tarballName = tarballName.substring(0, it.length() - '.tar.gz'.length())
+                        // append branch and commit hash before .tar.gz
+                        tarballName += "-${params.Branch}-${commitHash}.tar.gz"
+                    }
                     sh "aws s3 cp $it ${params.S3Path}/$tarballName ${params.CpArgs}"
                     sh "rm $it"
                 }
@@ -88,4 +100,3 @@ pipeline {
         }
     }
 }
-

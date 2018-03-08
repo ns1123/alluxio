@@ -16,6 +16,7 @@ import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.retry.CountingRetry;
 import alluxio.util.CommonUtils;
+import alluxio.util.WaitForOptions;
 import alluxio.worker.job.JobMasterClientConfig;
 
 import com.google.common.base.Function;
@@ -56,7 +57,7 @@ public final class JobThriftClientUtils {
    */
   public static void run(JobConfig config, int attempts) {
     CountingRetry retryPolicy = new CountingRetry(attempts);
-    while (retryPolicy.attemptRetry()) {
+    while (retryPolicy.attempt()) {
       long jobId;
       try (JobMasterClient client =
           JobMasterClient.Factory.create(JobMasterClientConfig.defaults())) {
@@ -122,32 +123,36 @@ public final class JobThriftClientUtils {
    */
   private static JobInfo waitFor(final long jobId) {
     final AtomicReference<JobInfo> finishedJobInfo = new AtomicReference<>();
-    CommonUtils.waitFor("Job to finish", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        JobInfo jobInfo;
-        try (JobMasterClient client =
-            JobMasterClient.Factory.create(JobMasterClientConfig.defaults())) {
-          jobInfo = client.getStatus(jobId);
-        } catch (Exception e) {
-          LOG.warn("Failed to get status for job (jobId={})", jobId, e);
-          finishedJobInfo.set(null);
-          return true;
-        }
-        switch (jobInfo.getStatus()) {
-          case FAILED: // fall through
-          case CANCELED: // fall through
-          case COMPLETED:
-            finishedJobInfo.set(jobInfo);
+    try (final JobMasterClient client =
+        JobMasterClient.Factory.create(JobMasterClientConfig.defaults())) {
+      CommonUtils.waitFor("Job to finish", new Function<Void, Boolean>() {
+        @Override
+        public Boolean apply(Void input) {
+          JobInfo jobInfo;
+          try {
+            jobInfo = client.getStatus(jobId);
+          } catch (Exception e) {
+            LOG.warn("Failed to get status for job (jobId={})", jobId, e);
             return true;
-          case RUNNING: // fall through
-          case CREATED:
-            return false;
-          default:
-            throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
+          }
+          switch (jobInfo.getStatus()) {
+            case FAILED: // fall through
+            case CANCELED: // fall through
+            case COMPLETED:
+              finishedJobInfo.set(jobInfo);
+              return true;
+            case RUNNING: // fall through
+            case CREATED:
+              return false;
+            default:
+              throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
+          }
         }
-      }
-    });
+      }, WaitForOptions.defaults().setInterval(1000));
+    } catch (IOException e) {
+      LOG.warn("Failed to close job master client: {}", e.toString());
+    }
+
     return finishedJobInfo.get();
   }
 

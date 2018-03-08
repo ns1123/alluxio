@@ -14,19 +14,19 @@ package alluxio.master;
 import alluxio.Constants;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
-import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
-import alluxio.security.authentication.AuthenticatedThriftProtocol;
+import alluxio.security.authentication.TProtocols;
 import alluxio.security.authentication.TransportProvider;
 
-import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -39,26 +39,38 @@ public class PollingMasterInquireClient implements MasterInquireClient {
   private static final Logger LOG = LoggerFactory.getLogger(PollingMasterInquireClient.class);
 
   private final List<InetSocketAddress> mMasterAddresses;
+  private final Supplier<RetryPolicy> mRetryPolicySupplier;
 
+  // ALLUXIO CS ADD
   /**
    * @param masterAddresses the potential master addresses
    */
   public PollingMasterInquireClient(List<InetSocketAddress> masterAddresses) {
+    this(masterAddresses, () -> new alluxio.retry.ExponentialBackoffRetry(20, 2000, 30));
+  }
+  // ALLUXIO CS END
+  /**
+   * @param masterAddresses the potential master addresses
+   * @param retryPolicySupplier the retry policy supplier
+   */
+  public PollingMasterInquireClient(List<InetSocketAddress> masterAddresses,
+      Supplier<RetryPolicy> retryPolicySupplier) {
     mMasterAddresses = masterAddresses;
+    mRetryPolicySupplier = retryPolicySupplier;
   }
 
   @Override
   public InetSocketAddress getPrimaryRpcAddress() throws UnavailableException {
-    RetryPolicy retry = new ExponentialBackoffRetry(20, 2000, 30);
-    do {
+    RetryPolicy retry = mRetryPolicySupplier.get();
+    while (retry.attempt()) {
       InetSocketAddress address = getAddress();
       if (address != null) {
         return address;
       }
-    } while (retry.attemptRetry());
+    }
     throw new UnavailableException(String.format(
         "Failed to determine primary master rpc address after polling each of %s %d times",
-        mMasterAddresses, retry.getRetryCount()));
+        mMasterAddresses, retry.getAttemptCount()));
   }
 
   @Nullable
@@ -82,13 +94,10 @@ public class PollingMasterInquireClient implements MasterInquireClient {
 
   private void pingMetaService(InetSocketAddress address)
       throws UnauthenticatedException, TTransportException {
-    TransportProvider transportProvider = TransportProvider.Factory.create();
-    TProtocol binaryProtocol =
-        new TBinaryProtocol(transportProvider.getClientTransport(null, address));
-    AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(binaryProtocol,
-        Constants.META_MASTER_SERVICE_NAME);
-    protocol.openTransport();
-    protocol.closeTransport();
+    TTransport transport = TransportProvider.Factory.create().getClientTransport(address);
+    TProtocol protocol = TProtocols.createProtocol(transport, Constants.META_MASTER_SERVICE_NAME);
+    protocol.getTransport().open();
+    protocol.getTransport().close();
   }
 
   @Override
