@@ -450,7 +450,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     if (fingerprint == null) {
       return Constants.INVALID_UFS_FINGERPRINT;
     }
-    fingerprint.updateTag(Fingerprint.Tag.CONTENT_HASH, contentHash.toString());
+    fingerprint.putTag(Fingerprint.Tag.CONTENT_HASH, contentHash.toString());
     return fingerprint.serialize();
   }
 

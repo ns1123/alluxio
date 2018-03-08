@@ -191,13 +191,12 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	mkdir(filepath.Join(dstPath, "underFSStorage"))
 	mkdir(filepath.Join(dstPath, "integration/docker/conf"))
 
-<<<<<<< HEAD
 	// ALLUXIO CS REMOVE
 	// // Add links for previous jar locations for backwards compatibility
 	// for _, jar := range []string{"client", "server"} {
 	// 	oldLocation := filepath.Join(dstPath, "assembly/client/target", fmt.Sprintf("alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, version))
 	// 	mkdir(filepath.Dir(oldLocation))
-	// 	symlink(fmt.Sprintf("../../alluxio-%v-1.7.1-SNAPSHOT.jar", jar), oldLocation)
+	// 	symlink(fmt.Sprintf("../../alluxio-%v-%v.jar", jar, version), oldLocation)
 	// }
 	// mkdir(filepath.Join(dstPath, "assembly/server/target"))
 	// ALLUXIO CS END
@@ -215,19 +214,6 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	}
 	if nativeFlag {
 		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/native"), filepath.Join(dstPath, "lib", "native"))
-||||||| merged common ancestors
-	// Add links for previous jar locations for backwards compatibility
-	for _, jar := range []string{"client", "server"} {
-		oldLocation := filepath.Join(dstPath, "assembly/client/target", fmt.Sprintf("alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, version))
-		mkdir(filepath.Dir(oldLocation))
-		symlink(fmt.Sprintf("../../alluxio-%v-1.7.1-SNAPSHOT.jar", jar), oldLocation)
-=======
-	// Add links for previous jar locations for backwards compatibility
-	for _, jar := range []string{"client", "server"} {
-		oldLocation := filepath.Join(dstPath, "assembly/client/target", fmt.Sprintf("alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, version))
-		mkdir(filepath.Dir(oldLocation))
-		symlink(fmt.Sprintf("../../alluxio-%v-%v.jar", jar, version), oldLocation)
->>>>>>> 684625f34b8f601858352dcf604702e9b8f08f4b
 	}
 	// ALLUXIO CS END
 }

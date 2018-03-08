@@ -150,9 +150,22 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         initRequestContext(mContext);
       }
 
-<<<<<<< HEAD
-      // Validate the write request.
-      validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
+      // If we have seen an error, return early and release the data. This can only
+      // happen for those mis-behaving clients who first sends some invalid requests, then
+      // then some random data. It can leak memory if we do not release buffers here.
+      if (mContext.getError() != null) {
+        if (msg.getPayloadDataBuffer() != null) {
+          msg.getPayloadDataBuffer().release();
+        }
+        LOG.warn("Ignore the request {} due to the error {} on context", mContext.getRequest(),
+            mContext.getError());
+        return;
+      } else {
+        // Validate the write request. The validation is performed only when no error is in the
+        // context in order to prevent excessive logging on the subsequent arrived asynchronous
+        // requests after a previous request fails and triggers the abortion
+        validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
+      }
       // ALLUXIO CS ADD
 
       // We only check permission for the first packet.
@@ -168,36 +181,6 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         }
       }
       // ALLUXIO CS END
-
-      // If we have seen an error, return early and release the data. This can only
-      // happen for those mis-behaving clients who first sends some invalid requests, then
-      // then some random data. It can leak memory if we do not release buffers here.
-||||||| merged common ancestors
-      // Validate the write request.
-      validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
-
-      // If we have seen an error, return early and release the data. This can only
-      // happen for those mis-behaving clients who first sends some invalid requests, then
-      // then some random data. It can leak memory if we do not release buffers here.
-=======
-      // If we have seen an error, return early and release the data. This can
-      // happen for (1) those mis-behaving clients who first sends some invalid requests, then
-      // then some random data, or (2) asynchronous requests arrive after the previous request fails
-      // and triggers abortion. It can leak memory if we do not release buffers here.
->>>>>>> 684625f34b8f601858352dcf604702e9b8f08f4b
-      if (mContext.getError() != null) {
-        if (msg.getPayloadDataBuffer() != null) {
-          msg.getPayloadDataBuffer().release();
-        }
-        LOG.warn("Ignore the request {} due to the error {} on context", mContext.getRequest(),
-            mContext.getError());
-        return;
-      } else {
-        // Validate the write request. The validation is performed only when no error is in the
-        // context in order to prevent excessive logging on the subsequent arrived asynchronous
-        // requests after a previous request fails and triggers the abortion
-        validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
-      }
 
       ByteBuf buf;
       if (writeRequest.getEof()) {
