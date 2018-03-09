@@ -43,6 +43,8 @@ public final class LoginUser {
   private static LoginContext sLoginContext;
   private static String sPrincipal;
   private static String sKeytab;
+  /** Provider of external Kerberos credentials allows hooking up with 3rd party login functions. */
+  private static alluxio.security.authentication.KerberosLoginProvider sExternalLoginProvider;
   /**
    * Minimum time interval until next login attempt is 60 seconds.
    */
@@ -100,6 +102,16 @@ public final class LoginUser {
   public static User getServerUser() throws UnauthenticatedException {
     return getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+  }
+
+  /**
+   * Sets the external login provider that provides alternative login functionality.
+   *
+   * @param provider an external Kerberos login provider
+   */
+  public static void setExternalLoginProvider(
+      alluxio.security.authentication.KerberosLoginProvider provider) {
+    sExternalLoginProvider = provider;
   }
 
   /**
@@ -186,6 +198,10 @@ public final class LoginUser {
           } catch (org.ietf.jgss.GSSException e) {
             throw new LoginException("Cannot add private credential to subject with JGSS: " + e);
           }
+        } else if (principal.isEmpty() && sExternalLoginProvider != null
+            && sExternalLoginProvider.hasKerberosCrendentials()) {
+          // Try external login if a Kerberos principal is not provided in configuration.
+          subject = sExternalLoginProvider.login();
         } else {
           // Use Java Kerberos library to login
           sLoginContext = jaasLogin(authType, principal, keytab, subject);
@@ -247,6 +263,17 @@ public final class LoginUser {
     // this case at the moment.
     if (Boolean.getBoolean("sun.security.jgss.native")) {
       // TODO(gene) maybe implement the relogin via native JGSS
+      return;
+    }
+    if (com.google.common.base.Strings.isNullOrEmpty(sPrincipal)
+        && sExternalLoginProvider != null && sExternalLoginProvider.hasKerberosCrendentials()) {
+      try {
+        sExternalLoginProvider.relogin();
+      } catch (LoginException e) {
+        String msg = String.format("Failed to relogin user %s using external login provider.",
+            sLoginUser.getName());
+        throw new UnauthenticatedException(msg, e);
+      }
       return;
     }
     // Check whether this TGT is sufficiently close to expiration. If there is still more

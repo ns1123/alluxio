@@ -125,7 +125,7 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
               return null;
             }
           });
-    } catch (PrivilegedActionException e) {
+    } catch (PrivilegedActionException | IllegalStateException e) {
       throw new TTransportException("Failed to open Kerberos transport", e);
     }
   }
