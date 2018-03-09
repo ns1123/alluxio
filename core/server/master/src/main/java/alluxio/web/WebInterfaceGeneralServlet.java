@@ -244,6 +244,7 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
       // Exception may be thrown when UFS connection is lost
       LOG.warn("Failed to get size of free space of root UFS: {}", e.getMessage());
     }
+<<<<<<< HEAD
     request.setAttribute("diskFreeCapacity", freeSpace);
 
     // ALLUXIO CS ADD
@@ -254,6 +255,12 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
       request.setAttribute("licenseCheck", licenseMaster.getLicenseCheck());
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+
+=======
+    request.setAttribute("diskFreeCapacity", freeSpace);
+
+>>>>>>> openSource/branch-1.7
     StorageTierInfo[] infos = generateOrderedStorageTierInfo();
     request.setAttribute("storageTierInfos", infos);
   }

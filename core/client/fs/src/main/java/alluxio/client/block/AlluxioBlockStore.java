@@ -166,6 +166,7 @@ public final class AlluxioBlockStore {
       info = masterClientResource.get().getBlockInfo(blockId);
     }
     List<BlockLocation> locations = info.getLocations();
+<<<<<<< HEAD
     List<BlockWorkerInfo> blockWorkerInfo = Collections.EMPTY_LIST;
     // Initial target workers to read the block given the block locations.
     Set<WorkerNetAddress> workerPool;
@@ -181,6 +182,20 @@ public final class AlluxioBlockStore {
       workerPool = locations.stream().map(BlockLocation::getWorkerAddress).collect(toSet());
     }
     if (workerPool.isEmpty()) {
+||||||| merged common ancestors
+    if (locations.isEmpty() && !options.getStatus().isPersisted()) {
+=======
+    List<BlockWorkerInfo> blockWorkerInfo = Collections.EMPTY_LIST;
+    // Initial target workers to read the block given the block locations.
+    Set<WorkerNetAddress> workerPool;
+    if (options.getStatus().isPersisted()) {
+      blockWorkerInfo = getEligibleWorkers();
+      workerPool = blockWorkerInfo.stream().map(BlockWorkerInfo::getNetAddress).collect(toSet());
+    } else {
+      workerPool = locations.stream().map(BlockLocation::getWorkerAddress).collect(toSet());
+    }
+    if (workerPool.isEmpty()) {
+>>>>>>> openSource/branch-1.7
       throw new NotFoundException(ExceptionMessage.BLOCK_UNAVAILABLE.getMessage(info.getBlockId()));
     }
     // Workers to read the block, after considering failed workers.

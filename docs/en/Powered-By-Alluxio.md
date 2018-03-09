@@ -30,11 +30,19 @@ or let us know by email (project.alluxio@gmail.com) or
 * [Intel](http://www.intel.com/)
 * [JD](http://www.jd.com/)
 * [Juniper Networks](http://www.juniper.net/)
+<<<<<<< HEAD
 * []
 * [Lenovo](https://www3.lenovo.com/us/en/)
 * [Microsoft](https://www.microsoft.com/en-us/)
 * [Momo](https://www.immomo.com/)
 * [NetEase](https://game.163.com/en/)
+||||||| merged common ancestors
+=======
+* [Lenovo](https://www3.lenovo.com/us/en/)
+* [Microsoft](https://www.microsoft.com/en-us/)
+* [Momo](https://www.immomo.com/)
+* [NetEase](https://game.163.com/en/)
+>>>>>>> openSource/branch-1.7
 * [Neusoft](http://www.neusoft.com/)
 * [PerceptIn](http://www.perceptin.io/)
 * [Qunar](http://www.qunar.com/)
@@ -48,9 +56,17 @@ or let us know by email (project.alluxio@gmail.com) or
 * [Verizon](https://www.verizonwireless.com/)
 * [Walmart](https://www.walmart.com/)
 * [ZTE](http://www.zte.com.cn)
+<<<<<<< HEAD
 * [Kyligence](http://en.kyligence.io/)
 Here is a list that tracks external software projects that supplement Alluxio and add to its ecosystem.
 
+||||||| merged common ancestors
+
+Here is a list that tracks external software projects that supplement Alluxio and add to its ecosystem.
+
+=======
+* [Kyligence](http://en.kyligence.io/)
+>>>>>>> openSource/branch-1.7
 * [Alibaba OSS](http://www.aliyun.com/product/oss/?lang=en)
 * [Amazon S3](https://aws.amazon.com/s3/)
 * [Alluxio C++ Client](https://github.com/stormspirit/libtachyon)
