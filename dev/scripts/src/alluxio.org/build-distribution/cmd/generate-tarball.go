@@ -90,6 +90,9 @@ func getCommonMvnArgs(hadoopDistribution string) []string {
 	if hadoopDistribution != "" {
 		hadoopVersion := hadoopDistributions[hadoopDistribution]
 		args = append(args, fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion), fmt.Sprintf("-P%v", hadoopVersion.hadoopProfile()))
+		if hadoopVersion.major >= 2 && hadoopVersion.minor >= 4 {
+			args = append(args, "-Pyarn")
+		}
 	}
 	return args
 }
@@ -147,6 +150,13 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		"integration/kubernetes/conf/alluxio.properties.template",
 		// FUSE
 		"integration/fuse/bin/alluxio-fuse",
+		// MESOS
+		"integration/mesos/bin/alluxio-env-mesos.sh",
+		"integration/mesos/bin/alluxio-mesos-start.sh",
+		"integration/mesos/bin/alluxio-master-mesos.sh",
+		"integration/mesos/bin/alluxio-mesos-stop.sh",
+		"integration/mesos/bin/alluxio-worker-mesos.sh",
+		"integration/mesos/bin/common.sh",
 	}
 	for _, path := range pathsToCopy {
 		mkdir(filepath.Join(dstPath, filepath.Dir(path)))
