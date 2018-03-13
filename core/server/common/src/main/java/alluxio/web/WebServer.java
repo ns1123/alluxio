@@ -90,6 +90,13 @@ public abstract class WebServer {
     File warPath = new File(Configuration.get(PropertyKey.WEB_RESOURCES));
     mWebAppContext.setWar(warPath.getAbsolutePath());
 
+    // ALLUXIO CS ADD
+    if (WebServerUtils.isLoginEnabled()) {
+      WebServerUtils.addLoginServlet(mWebAppContext);
+      WebServerUtils.addAuthenticationFilter(mWebAppContext);
+    }
+    // ALLUXIO CS END
+
     // Set the ContainerIncludeJarPattern so that jetty examines these
     // container-path jars for tlds, web-fragments etc.
     // If you omit the jar that contains the jstl .tlds, the jsp engine will

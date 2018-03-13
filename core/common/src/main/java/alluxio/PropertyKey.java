@@ -223,6 +223,36 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue(ProjectConstants.VERSION)
           .setDescription("Version of Alluxio. User should never modify this property.")
           .build();
+  // ALLUXIO CS ADD
+  public static final PropertyKey WEB_LOGIN_ENABLED =
+      new Builder(Name.WEB_LOGIN_ENABLED)
+        .setDefaultValue(false)
+        .setDescription("Whether login and authentication are enabled for the web UI.")
+        .build();
+  public static final PropertyKey WEB_LOGIN_USERNAME =
+      new Builder(Name.WEB_LOGIN_USERNAME)
+        .setDefaultValue("admin")
+        .setDescription("Username to log in to the web UI.")
+        .build();
+  public static final PropertyKey WEB_LOGIN_PASSWORD =
+      new Builder(Name.WEB_LOGIN_PASSWORD)
+          .setDefaultValue("admin")
+          .setDescription("Password to log in to the web UI.")
+          .build();
+  public static final PropertyKey WEB_LOGIN_SESSIONS =
+      new Builder(Name.WEB_LOGIN_SESSIONS)
+          .setDefaultValue(1000)
+          .setDescription("The maximum number of active sessions.")
+          .build();
+  public static final PropertyKey WEB_LOGIN_SESSION_TIMEOUT =
+      new Builder(Name.WEB_LOGIN_SESSION_TIMEOUT)
+          .setDefaultValue("8h")
+          .setDescription("If a session is inactive for a certain time period, then the session "
+              + "is automatically invalidated. This property specifies the time period. "
+              + "Valid values are formatted like 1min, 1h, 1d, representing 1 minute, 1 hour, "
+              + "and 1 day respectively.")
+          .build();
+  // ALLUXIO CS END
   public static final PropertyKey WEB_RESOURCES =
       new Builder(Name.WEB_RESOURCES)
           .setDefaultValue(String.format("${%s}/core/server/common/src/main/webapp", Name.HOME))
@@ -2462,6 +2492,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SITE_CONF_DIR = "alluxio.site.conf.dir";
     public static final String TEST_MODE = "alluxio.test.mode";
     public static final String VERSION = "alluxio.version";
+    // ALLUXIO CS ADD
+    public static final String WEB_LOGIN_ENABLED = "alluxio.web.login.enabled";
+    public static final String WEB_LOGIN_USERNAME = "alluxio.web.login.username";
+    public static final String WEB_LOGIN_PASSWORD = "alluxio.web.login.password";
+    public static final String WEB_LOGIN_SESSIONS = "alluxio.web.login.sessions";
+    public static final String WEB_LOGIN_SESSION_TIMEOUT = "alluxio.web.login.session.timeout";
+    // ALLUXIO CS END
     public static final String WEB_RESOURCES = "alluxio.web.resources";
     public static final String WEB_THREADS = "alluxio.web.threads";
     public static final String WORK_DIR = "alluxio.work.dir";
