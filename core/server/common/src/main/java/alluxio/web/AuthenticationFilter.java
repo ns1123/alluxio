@@ -78,7 +78,6 @@ public class AuthenticationFilter implements Filter {
 
     // User has not logged in or the authentication key is incorrect,
     // redirect to login page.
-    @SuppressWarnings("unchecked")
     HttpServletResponse httpResponse = (HttpServletResponse) response;
     httpResponse.sendRedirect(WebInterfaceLoginServlet.PATH);
   }
