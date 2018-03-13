@@ -78,8 +78,11 @@ public class AuthenticationFilter implements Filter {
 
     // User has not logged in or the authentication key is incorrect,
     // redirect to login page.
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-    httpResponse.sendRedirect(WebInterfaceLoginServlet.PATH);
+    if (response instanceof HttpServletResponse) {
+      HttpServletResponse httpResponse = (HttpServletResponse) response;
+      httpResponse.sendRedirect(WebInterfaceLoginServlet.PATH);
+    }
+    throw new IllegalArgumentException("response is not HttpServletResponse");
   }
 
   @Override
