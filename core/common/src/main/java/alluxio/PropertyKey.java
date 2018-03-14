@@ -218,6 +218,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue(false)
           .setDescription("Flag used only during tests to allow special behavior.")
           .build();
+  public static final PropertyKey TMP_DIRS =
+      new Builder(Name.TMP_DIRS)
+          .setDefaultValue("/tmp")
+          .setDescription("The path(s) to store Alluxio temporary files, use commas as delimiters. "
+              + "If multiple paths are specified, one will be selected at random per temporary "
+              + "file. Currently, only files to be uploaded to object stores are stored in these "
+              + "paths.")
+          .build();
   public static final PropertyKey VERSION =
       new Builder(Name.VERSION)
           .setDefaultValue(ProjectConstants.VERSION)
@@ -1802,7 +1810,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey USER_NETWORK_NETTY_WRITER_CLOSE_TIMEOUT_MS =
       new Builder(Name.USER_NETWORK_NETTY_WRITER_CLOSE_TIMEOUT_MS)
           .setAlias(new String[]{"alluxio.user.network.netty.writer.close.timeout.ms"})
-          .setDefaultValue("5min")
+          .setDefaultValue("30min")
           .setDescription("The timeout to close a netty writer client.")
           .build();
   public static final PropertyKey USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS =
@@ -2491,6 +2499,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.network.thrift.frame.size.bytes.max";
     public static final String SITE_CONF_DIR = "alluxio.site.conf.dir";
     public static final String TEST_MODE = "alluxio.test.mode";
+    public static final String TMP_DIRS = "alluxio.tmp.dirs";
     public static final String VERSION = "alluxio.version";
     // ALLUXIO CS ADD
     public static final String WEB_LOGIN_ENABLED = "alluxio.web.login.enabled";
