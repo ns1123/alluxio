@@ -1135,6 +1135,7 @@ public class InodeTree implements JournalEntryIterable {
           AlluxioURI uri = getPath(dir);
           MountTable.Resolution resolution = mMountTable.resolve(uri);
           String ufsUri = resolution.getUri().toString();
+<<<<<<< HEAD
           try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
             UnderFileSystem ufs = ufsResource.get();
             MkdirsOptions mkdirsOptions =
@@ -1156,7 +1157,48 @@ public class InodeTree implements JournalEntryIterable {
               dir.setOwner(status.getOwner())
                   .setGroup(status.getGroup())
                   .setMode(status.getMode());
+||||||| merged common ancestors
+          UnderFileSystem ufs = resolution.getUfs();
+          MkdirsOptions mkdirsOptions =
+              MkdirsOptions.defaults().setCreateParent(false).setOwner(dir.getOwner())
+                  .setGroup(dir.getGroup()).setMode(new Mode(dir.getMode()));
+          if (!ufs.mkdirs(ufsUri, mkdirsOptions)) {
+            // Directory might already exist. Try loading the status from ufs.
+            try {
+              UfsStatus status = ufs.getStatus(ufsUri);
+              if (status.isFile()) {
+                throw new InvalidPathException(String.format(
+                    "Error persisting directory. A file exists at the UFS location %s.", ufsUri));
+              }
+              dir.setOwner(status.getOwner())
+                  .setGroup(status.getGroup())
+                  .setMode(status.getMode());
+            } catch (FileNotFoundException e) {
+              // Retry creation given that the directory might have just been removed.
+              LOG.warn("Directory {} no longer exists on UFS. Retry creation.", ufsUri);
+              continue;
+=======
+          UnderFileSystem ufs = resolution.getUfs();
+          MkdirsOptions mkdirsOptions =
+              MkdirsOptions.defaults().setCreateParent(false).setOwner(dir.getOwner())
+                  .setGroup(dir.getGroup()).setMode(new Mode(dir.getMode()));
+          if (!ufs.mkdirs(ufsUri, mkdirsOptions)) {
+            // Directory might already exist. Try loading the status from ufs.
+            UfsStatus status;
+            try {
+              status = ufs.getStatus(ufsUri);
+            } catch (Exception e) {
+              throw new IOException(String.format("Cannot sync UFS directory %s: %s.", ufsUri,
+                  e.getMessage()), e);
+>>>>>>> FETCH_HEAD
             }
+            if (status.isFile()) {
+              throw new InvalidPathException(String.format(
+                  "Error persisting directory. A file exists at the UFS location %s.", ufsUri));
+            }
+            dir.setOwner(status.getOwner())
+                .setGroup(status.getGroup())
+                .setMode(status.getMode());
           }
           dir.setPersistenceState(PersistenceState.PERSISTED);
 
