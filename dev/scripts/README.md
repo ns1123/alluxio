@@ -1,4 +1,4 @@
-We vendor dependencies for generate-enterprise-tarballs using gb vendor
+We vendor dependencies for generate-tarballs using gb vendor
 
 # Update a dependency
 gb vendor update github.com/TachyonNexus/golluxio/annotation
