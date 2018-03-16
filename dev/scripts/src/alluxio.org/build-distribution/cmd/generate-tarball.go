@@ -16,10 +16,11 @@ import (
 	annotation "github.com/TachyonNexus/golluxio/annotation/cmd"
 	// ALLUXIO CS END
 )
+
 // ALLUXIO CS ADD
 const edition = "enterprise"
-// ALLUXIO CS END
 
+// ALLUXIO CS END
 var (
 	cmdSingle = &cmdline.Command{
 		Name:   "single",
@@ -28,9 +29,9 @@ var (
 		Runner: cmdline.RunnerFunc(single),
 	}
 
-	hadoopDistributionFlag  string
-	targetFlag              string
-	mvnArgsFlag             string
+	hadoopDistributionFlag string
+	targetFlag             string
+	mvnArgsFlag            string
 
 	webappDir = "core/server/common/src/main/webapp"
 	webappWar = "assembly/webapp.war"
