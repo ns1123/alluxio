@@ -179,7 +179,6 @@
         <groupId>com.coderplus.maven.plugins</groupId>
         <artifactId>copy-rename-maven-plugin</artifactId>
       </plugin>
-<<<<<<< HEAD
       <!-- ALLUXIO CS ADD -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -197,10 +196,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-=======
-
       <plugin>
         <groupId>com.igormaznitsa</groupId>
         <artifactId>jcp</artifactId>
@@ -214,7 +209,6 @@
           </execution>
         </executions>
       </plugin>
->>>>>>> openSource/master
     </plugins>
   </build>
 </project>
