@@ -56,7 +56,8 @@ Where ACTION is one of:
   job_worker         \tStart a job worker on this node.
   job_workers        \tStart job workers on worker nodes.
   local [MOPT]       \tStart all processes locally.
-  master             \tStart the master on this node.
+  master             \tStart the local master on this node.
+  secondary_master   \tStart the local secondary master on this node.
   masters            \tStart masters on master nodes.
   proxy              \tStart the proxy on this node.
   proxies            \tStart proxies on master and worker nodes.
@@ -485,6 +486,11 @@ main() {
 # ALLUXIO CS END
     master)
       start_master "${FORMAT}"
+      ;;
+    secondary_master)
+      ALLUXIO_MASTER_SECONDARY=true
+      start_master
+      ALLUXIO_MASTER_SECONDARY=false
       ;;
     masters)
       start_masters

@@ -39,7 +39,8 @@ Where component is one of:
   job_worker        \tStop local job worker.
   job_workers       \tStop job workers on worker nodes.
   local             \tStop all processes locally.
-  master            \tStop local master.
+  master            \tStop local primary master.
+  secondary_master  \tStop local secondary master.
   masters           \tStop masters on master nodes.
   proxy             \tStop local proxy.
   proxies           \tStop proxies on master and worker nodes.
@@ -143,6 +144,11 @@ case "${WHAT}" in
 # ALLUXIO CS END
   master)
     stop_master
+    ;;
+  secondary_master)
+    ALLUXIO_MASTER_SECONDARY=true
+    stop_master
+    ALLUXIO_MASTER_SECONDARY=false
     ;;
   masters)
     stop_masters
