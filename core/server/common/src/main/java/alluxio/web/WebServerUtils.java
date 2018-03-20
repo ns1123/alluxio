@@ -55,6 +55,16 @@ public final class WebServerUtils {
   }
 
   /**
+   * Creates a {@link WebInterfaceLogoutServlet} and add it to the application context.
+   *
+   * @param context the application context to add the logout servlet to
+   */
+  public static void addLogoutServlet(WebAppContext context) {
+    WebInterfaceLogoutServlet logoutServlet = new WebInterfaceLogoutServlet();
+    context.addServlet(new ServletHolder(logoutServlet), WebInterfaceLogoutServlet.PATH);
+  }
+
+  /**
    * Creates a {@link AuthenticationFilter} and add it to the application context.
    *
    * @param context the application context to add the login servlet to

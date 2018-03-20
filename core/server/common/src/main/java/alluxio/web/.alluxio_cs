@@ -1,3 +1,4 @@
 AuthenticationFilter.java
 WebInterfaceLoginServlet.java
+WebInterfaceLogoutServlet.java
 WebServerUtils.java

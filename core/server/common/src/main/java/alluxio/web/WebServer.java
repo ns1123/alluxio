@@ -93,6 +93,8 @@ public abstract class WebServer {
     // ALLUXIO CS ADD
     if (WebServerUtils.isLoginEnabled()) {
       WebServerUtils.addLoginServlet(mWebAppContext);
+      WebServerUtils.addLogoutServlet(mWebAppContext);
+
       WebServerUtils.addAuthenticationFilter(mWebAppContext);
     }
     // ALLUXIO CS END
