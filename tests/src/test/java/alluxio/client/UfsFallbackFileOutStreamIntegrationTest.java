@@ -78,6 +78,7 @@ public class UfsFallbackFileOutStreamIntegrationTest extends AbstractFileOutStre
   @Parameterized.Parameter(2)
   public int mUserFileBufferSize;
 
+  @Ignore("https://tachyonnexus.atlassian.net/browse/AE-377")
   @Test
   public void shortCircuitWrite() throws Exception {
     try (Closeable c = new ConfigurationRule(new HashMap<PropertyKey, String>() {
