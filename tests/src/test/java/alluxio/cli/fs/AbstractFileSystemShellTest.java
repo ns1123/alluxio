@@ -16,12 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
-import alluxio.BaseIntegrationTest;
-import alluxio.Constants;
-import alluxio.LocalAlluxioClusterResource;
-import alluxio.PropertyKey;
-import alluxio.SystemErrRule;
-import alluxio.SystemOutRule;
+import alluxio.cli.AbstractShellIntegrationTest;
 import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileInStream;
@@ -36,10 +31,7 @@ import alluxio.util.io.PathUtils;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -51,6 +43,7 @@ import javax.annotation.Nullable;
 /**
  * The base class for all the {@link FileSystemShell} test classes.
  */
+<<<<<<< HEAD:tests/src/test/java/alluxio/cli/fs/AbstractAlluxioShellTest.java
 public abstract class AbstractAlluxioShellTest extends BaseIntegrationTest {
   protected static final int SIZE_BYTES = Constants.MB * 16;
   @Rule
@@ -87,9 +80,44 @@ public abstract class AbstractAlluxioShellTest extends BaseIntegrationTest {
     mJobShell.close();
     // ALLUXIO CS END
   }
+||||||| merged common ancestors
+public abstract class AbstractAlluxioShellTest extends BaseIntegrationTest {
+  protected static final int SIZE_BYTES = Constants.MB * 16;
+  @Rule
+  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
+      new LocalAlluxioClusterResource.Builder()
+          .setProperty(PropertyKey.WORKER_MEMORY_SIZE, SIZE_BYTES)
+          .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, SIZE_BYTES)
+          .setProperty(PropertyKey.MASTER_TTL_CHECKER_INTERVAL_MS, Integer.MAX_VALUE).build();
+  protected LocalAlluxioCluster mLocalAlluxioCluster = null;
+  protected FileSystem mFileSystem = null;
+  protected FileSystemShell mFsShell = null;
+  protected ByteArrayOutputStream mOutput = new ByteArrayOutputStream();
+  protected ByteArrayOutputStream mErrOutput = new ByteArrayOutputStream();
+
+  @Rule
+  public ExpectedException mException = ExpectedException.none();
+
+  @Rule
+  public SystemOutRule mOutRule = new SystemOutRule(mOutput);
+
+  @Rule
+  public SystemErrRule mErrRule = new SystemErrRule(mErrOutput);
+
+  @After
+  public final void after() throws Exception {
+    mFsShell.close();
+  }
+=======
+public abstract class AbstractFileSystemShellTest extends AbstractShellIntegrationTest {
+  public LocalAlluxioCluster mLocalAlluxioCluster = null;
+  public FileSystem mFileSystem = null;
+  public FileSystemShell mFsShell = null;
+>>>>>>> FETCH_HEAD:tests/src/test/java/alluxio/cli/fs/AbstractFileSystemShellTest.java
 
   @Before
   public final void before() throws Exception {
+<<<<<<< HEAD:tests/src/test/java/alluxio/cli/fs/AbstractAlluxioShellTest.java
     clearLoginUser();
     // ALLUXIO CS ADD
     mLocalAlluxioJobCluster = new alluxio.master.LocalAlluxioJobCluster();
@@ -97,9 +125,18 @@ public abstract class AbstractAlluxioShellTest extends BaseIntegrationTest {
     mJobMaster = mLocalAlluxioJobCluster.getMaster().getJobMaster();
     mJobShell = new alluxio.cli.job.JobShell();
     // ALLUXIO CS END
+||||||| merged common ancestors
+    clearLoginUser();
+=======
+>>>>>>> FETCH_HEAD:tests/src/test/java/alluxio/cli/fs/AbstractFileSystemShellTest.java
     mLocalAlluxioCluster = mLocalAlluxioClusterResource.get();
     mFileSystem = mLocalAlluxioCluster.getClient();
     mFsShell = new FileSystemShell();
+  }
+
+  @After
+  public final void after() throws Exception {
+    mFsShell.close();
   }
 
   /**
