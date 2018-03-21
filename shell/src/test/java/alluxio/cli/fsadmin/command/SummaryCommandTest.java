@@ -21,6 +21,7 @@ import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -82,6 +83,7 @@ public class SummaryCommandTest {
   }
 
   @Test
+  @Ignore
   public void summary() throws IOException {
     SummaryCommand summaryCommand = new SummaryCommand(mMetaMasterClient,
         mBlockMasterClient, mPrintStream);
