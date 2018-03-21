@@ -11,6 +11,7 @@
 
 package alluxio.master.journal.raft;
 
+import alluxio.exception.status.UnavailableException;
 import alluxio.master.journal.AsyncJournalWriter;
 import alluxio.master.journal.JournalContext;
 import alluxio.master.journal.MasterJournalContext;
@@ -52,7 +53,7 @@ public final class RaftJournalContext implements JournalContext {
   }
 
   @Override
-  public void close() {
+  public void close() throws UnavailableException {
     try {
       mContext.close();
     } finally {

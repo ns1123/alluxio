@@ -43,95 +43,27 @@ import javax.annotation.Nullable;
 /**
  * The base class for all the {@link FileSystemShell} test classes.
  */
-<<<<<<< HEAD:tests/src/test/java/alluxio/cli/fs/AbstractAlluxioShellTest.java
-public abstract class AbstractAlluxioShellTest extends BaseIntegrationTest {
-  protected static final int SIZE_BYTES = Constants.MB * 16;
-  @Rule
-  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource.Builder()
-          .setProperty(PropertyKey.WORKER_MEMORY_SIZE, SIZE_BYTES)
-          .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, SIZE_BYTES)
-          .setProperty(PropertyKey.MASTER_TTL_CHECKER_INTERVAL_MS, Integer.MAX_VALUE).build();
-  protected LocalAlluxioCluster mLocalAlluxioCluster = null;
+public abstract class AbstractFileSystemShellTest extends AbstractShellIntegrationTest {
+  public LocalAlluxioCluster mLocalAlluxioCluster = null;
+  public FileSystem mFileSystem = null;
+  public FileSystemShell mFsShell = null;
   // ALLUXIO CS ADD
   protected alluxio.master.job.JobMaster mJobMaster;
   protected alluxio.master.LocalAlluxioJobCluster mLocalAlluxioJobCluster = null;
   protected alluxio.cli.job.JobShell mJobShell = null;
   // ALLUXIO CS END
-  protected FileSystem mFileSystem = null;
-  protected FileSystemShell mFsShell = null;
-  protected ByteArrayOutputStream mOutput = new ByteArrayOutputStream();
-  protected ByteArrayOutputStream mErrOutput = new ByteArrayOutputStream();
-
-  @Rule
-  public ExpectedException mException = ExpectedException.none();
-
-  @Rule
-  public SystemOutRule mOutRule = new SystemOutRule(mOutput);
-
-  @Rule
-  public SystemErrRule mErrRule = new SystemErrRule(mErrOutput);
-
-  @After
-  public final void after() throws Exception {
-    mFsShell.close();
-    // ALLUXIO CS ADD
-    mLocalAlluxioJobCluster.stop();
-    mJobShell.close();
-    // ALLUXIO CS END
-  }
-||||||| merged common ancestors
-public abstract class AbstractAlluxioShellTest extends BaseIntegrationTest {
-  protected static final int SIZE_BYTES = Constants.MB * 16;
-  @Rule
-  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource.Builder()
-          .setProperty(PropertyKey.WORKER_MEMORY_SIZE, SIZE_BYTES)
-          .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, SIZE_BYTES)
-          .setProperty(PropertyKey.MASTER_TTL_CHECKER_INTERVAL_MS, Integer.MAX_VALUE).build();
-  protected LocalAlluxioCluster mLocalAlluxioCluster = null;
-  protected FileSystem mFileSystem = null;
-  protected FileSystemShell mFsShell = null;
-  protected ByteArrayOutputStream mOutput = new ByteArrayOutputStream();
-  protected ByteArrayOutputStream mErrOutput = new ByteArrayOutputStream();
-
-  @Rule
-  public ExpectedException mException = ExpectedException.none();
-
-  @Rule
-  public SystemOutRule mOutRule = new SystemOutRule(mOutput);
-
-  @Rule
-  public SystemErrRule mErrRule = new SystemErrRule(mErrOutput);
-
-  @After
-  public final void after() throws Exception {
-    mFsShell.close();
-  }
-=======
-public abstract class AbstractFileSystemShellTest extends AbstractShellIntegrationTest {
-  public LocalAlluxioCluster mLocalAlluxioCluster = null;
-  public FileSystem mFileSystem = null;
-  public FileSystemShell mFsShell = null;
->>>>>>> FETCH_HEAD:tests/src/test/java/alluxio/cli/fs/AbstractFileSystemShellTest.java
 
   @Before
   public final void before() throws Exception {
-<<<<<<< HEAD:tests/src/test/java/alluxio/cli/fs/AbstractAlluxioShellTest.java
-    clearLoginUser();
+    mLocalAlluxioCluster = mLocalAlluxioClusterResource.get();
+    mFileSystem = mLocalAlluxioCluster.getClient();
+    mFsShell = new FileSystemShell();
     // ALLUXIO CS ADD
     mLocalAlluxioJobCluster = new alluxio.master.LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
     mJobMaster = mLocalAlluxioJobCluster.getMaster().getJobMaster();
     mJobShell = new alluxio.cli.job.JobShell();
     // ALLUXIO CS END
-||||||| merged common ancestors
-    clearLoginUser();
-=======
->>>>>>> FETCH_HEAD:tests/src/test/java/alluxio/cli/fs/AbstractFileSystemShellTest.java
-    mLocalAlluxioCluster = mLocalAlluxioClusterResource.get();
-    mFileSystem = mLocalAlluxioCluster.getClient();
-    mFsShell = new FileSystemShell();
   }
 
   @After

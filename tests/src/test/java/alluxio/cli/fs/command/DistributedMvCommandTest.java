@@ -13,7 +13,7 @@ package alluxio.cli.fs.command;
 
 import static org.junit.Assert.assertEquals;
 
-import alluxio.cli.fs.AbstractAlluxioShellTest;
+import alluxio.cli.fs.AbstractFileSystemShellTest;
 import alluxio.cli.fs.command.MvCommand;
 import alluxio.util.io.PathUtils;
 
@@ -28,7 +28,7 @@ import java.io.File;
 /**
  * Tests for enterprise-specific functionality in {@link MvCommand}.
  */
-public final class DistributedMvCommandTest extends AbstractAlluxioShellTest {
+public final class DistributedMvCommandTest extends AbstractFileSystemShellTest {
   @Rule
   public TemporaryFolder mFolder = new TemporaryFolder();
 

@@ -12,7 +12,7 @@
 package alluxio.cli.job.command;
 
 import alluxio.AlluxioURI;
-import alluxio.cli.fs.AbstractAlluxioShellTest;
+import alluxio.cli.fs.AbstractFileSystemShellTest;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
@@ -22,7 +22,7 @@ import alluxio.job.util.JobTestUtils;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 
-public abstract class JobShellTest extends AbstractAlluxioShellTest {
+public abstract class JobShellTest extends AbstractFileSystemShellTest {
   protected long runPersistJob() throws Exception {
     // write a file in alluxio only
     AlluxioURI filePath = new AlluxioURI("/test");
