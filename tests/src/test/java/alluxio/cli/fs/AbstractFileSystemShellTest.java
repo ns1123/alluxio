@@ -69,6 +69,10 @@ public abstract class AbstractFileSystemShellTest extends AbstractShellIntegrati
   @After
   public final void after() throws Exception {
     mFsShell.close();
+    // ALLUXIO CS ADD
+    mLocalAlluxioJobCluster.stop();
+    mJobShell.close();
+    // ALLUXIO CS END
   }
 
   /**
