@@ -83,7 +83,9 @@ public class SummaryCommandTest {
   }
 
   @Test
+  // ALLUXIO CS ADD
   @Ignore
+  // ALLUXIO CS END
   public void summary() throws IOException {
     SummaryCommand summaryCommand = new SummaryCommand(mMetaMasterClient,
         mBlockMasterClient, mPrintStream);
