@@ -44,7 +44,7 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 #   SudoMount is assumed if MOPT is not specified.
 #
 # -f  format Journal, UnderFS Data and Workers Folder on master
-# -N  do not try to kill prior running masters and/or workers in all or local
+# -N  do not try to kill previous running processes before starting new ones
 # -w  wait for processes to end before returning
 # -h  display this help."
 # ALLUXIO CS WITH
