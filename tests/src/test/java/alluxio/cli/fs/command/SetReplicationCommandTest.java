@@ -12,7 +12,7 @@
 package alluxio.cli.fs.command;
 
 import alluxio.AlluxioURI;
-import alluxio.cli.fs.AbstractAlluxioShellTest;
+import alluxio.cli.fs.AbstractFileSystemShellTest;
 import alluxio.cli.fs.FileSystemShellUtilsTest;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileSystemTestUtils;
@@ -27,7 +27,7 @@ import org.junit.rules.ExpectedException;
 /**
  * Tests for setReplication command.
  */
-public final class SetReplicationCommandTest extends AbstractAlluxioShellTest {
+public final class SetReplicationCommandTest extends AbstractFileSystemShellTest {
   private static final String TEST_FILE = "/testFile";
 
   @Rule

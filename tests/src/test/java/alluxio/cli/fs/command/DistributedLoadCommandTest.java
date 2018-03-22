@@ -12,7 +12,7 @@
 package alluxio.cli.fs.command;
 
 import alluxio.AlluxioURI;
-import alluxio.cli.fs.AbstractAlluxioShellTest;
+import alluxio.cli.fs.AbstractFileSystemShellTest;
 import alluxio.cli.fs.command.DistributedLoadCommand;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileSystemTestUtils;
@@ -27,7 +27,7 @@ import java.io.IOException;
 /**
  * Test for {@link DistributedLoadCommand}.
  */
-public final class DistributedLoadCommandTest extends AbstractAlluxioShellTest {
+public final class DistributedLoadCommandTest extends AbstractFileSystemShellTest {
   @Test
   public void loadDir() throws IOException, AlluxioException {
     FileSystemTestUtils.createByteFile(mFileSystem, "/testRoot/testFileA", WriteType.THROUGH, 10);
