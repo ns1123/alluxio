@@ -21,7 +21,6 @@ import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -84,7 +83,7 @@ public class SummaryCommandTest {
 
   @Test
   // ALLUXIO CS ADD
-  @Ignore
+  @org.junit.Ignore
   // ALLUXIO CS END
   public void summary() throws IOException {
     SummaryCommand summaryCommand = new SummaryCommand(mMetaMasterClient,
