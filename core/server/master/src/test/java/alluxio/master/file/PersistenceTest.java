@@ -68,6 +68,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
@@ -467,7 +468,7 @@ public final class PersistenceTest {
           FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
           return fileInfo.getPersistenceState().equals(PersistenceState.PERSISTED.toString());
         } catch (FileDoesNotExistException | InvalidPathException | AccessControlException
-            | UnavailableException e) {
+            | IOException e) {
           return false;
         }
       }

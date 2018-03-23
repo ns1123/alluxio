@@ -98,13 +98,9 @@ import alluxio.proto.journal.File.RenameEntry;
 import alluxio.proto.journal.File.SetAttributeEntry;
 import alluxio.proto.journal.File.StringPairEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
-<<<<<<< HEAD
 import alluxio.resource.CloseableResource;
-||||||| merged common ancestors
-=======
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
->>>>>>> os/branch-1.7
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
@@ -355,7 +351,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostFilesDetectionService;
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Services used for asynchronous persistence.
@@ -375,15 +370,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   /** Thread pool which asynchronously handles the completion of persist jobs. */
   private java.util.concurrent.ThreadPoolExecutor mPersistCheckerPool;
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
   /**
    * The service that checks for blocks which no longer correspond to existing inodes.
    */
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mBlockIntegrityCheck;
 
->>>>>>> os/branch-1.7
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
 
   /**
@@ -400,17 +392,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   DefaultFileSystemMaster(BlockMaster blockMaster, MasterContext masterContext) {
     // ALLUXIO CS REPLACE
     // this(blockMaster, masterContext, ExecutorServiceFactories
-    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
+    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 4));
     // ALLUXIO CS WITH
     this(blockMaster, masterContext, ExecutorServiceFactories
-<<<<<<< HEAD
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 7));
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 8));
     // ALLUXIO CS END
-||||||| merged common ancestors
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
-=======
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 4));
->>>>>>> os/branch-1.7
   }
 
   /**
@@ -1715,8 +1701,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
         }
         if (!failedToDelete) {
-<<<<<<< HEAD
-          deletedInodes.add(delInode);
           // ALLUXIO CS ADD
           if (delInode.isFile()) {
             long fileId = delInode.getId();
@@ -1729,10 +1713,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             }
           }
           // ALLUXIO CS END
-||||||| merged common ancestors
-          deletedInodes.add(delInode);
-=======
->>>>>>> os/branch-1.7
           inodesToDelete.add(new Pair<>(alluxioUriToDel, delInode));
         } else {
           unsafeInodes.add(delInode.getId());
@@ -3410,7 +3390,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
         MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
         AlluxioURI ufsUri = resolution.getUri();
-<<<<<<< HEAD
         try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
           UnderFileSystem ufs = ufsResource.get();
           String ufsFingerprint = ufs.getFingerprint(ufsUri.toString());
@@ -3434,93 +3413,20 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           if (syncPlan.toDelete()) {
             try {
               deleteInternal(inodePath, false, System.currentTimeMillis(), syncDeleteOptions,
-                  journalContext);
+                  journalContext, blockDeletionContext);
               deletedInode = true;
             } catch (DirectoryNotEmptyException | IOException e) {
               // Should not happen, since it is an unchecked delete.
-              LOG.error("Unexpected error for unchecked delete. error: {}", e.toString());
+              LOG.error("Unexpected error for unchecked delete.", e);
             }
           }
           if (syncPlan.toLoadMetadata()) {
             loadMetadata = true;
           }
           if (syncPlan.toSyncChildren()) {
-            loadMetadata = syncChildrenMetadata(journalContext, inodePath, syncDescendantType);
-||||||| merged common ancestors
-        UnderFileSystem ufs = resolution.getUfs();
-        String ufsFingerprint = ufs.getFingerprint(ufsUri.toString());
-        boolean isMountPoint = mMountTable.isMountPoint(inodePath.getUri());
-
-        UfsSyncUtils.SyncPlan syncPlan =
-            UfsSyncUtils.computeSyncPlan(inode, ufsFingerprint, isMountPoint);
-
-        if (syncPlan.toUpdateDirectory()) {
-          // Fingerprints only consider permissions for directory inodes.
-          UfsStatus ufsStatus = ufs.getStatus(ufsUri.toString());
-          SetAttributeOptions options =
-              SetAttributeOptions.defaults().setOwner(ufsStatus.getOwner())
-                  .setGroup(ufsStatus.getGroup()).setMode(ufsStatus.getMode())
-                  .setUfsFingerprint(ufsFingerprint);
-          long opTimeMs = System.currentTimeMillis();
-          // use replayed, since updating UFS is not desired.
-          setAttributeInternal(inodePath, true, opTimeMs, options);
-          journalSetAttribute(inodePath, opTimeMs, options, journalContext);
-        }
-        if (syncPlan.toDelete()) {
-          try {
-            deleteInternal(inodePath, false, System.currentTimeMillis(), syncDeleteOptions,
-                journalContext);
-            deletedInode = true;
-          } catch (DirectoryNotEmptyException | IOException e) {
-            // Should not happen, since it is an unchecked delete.
-            LOG.error("Unexpected error for unchecked delete. error: {}", e.toString());
-=======
-        UnderFileSystem ufs = resolution.getUfs();
-        String ufsFingerprint = ufs.getFingerprint(ufsUri.toString());
-        boolean isMountPoint = mMountTable.isMountPoint(inodePath.getUri());
-
-        UfsSyncUtils.SyncPlan syncPlan =
-            UfsSyncUtils.computeSyncPlan(inode, ufsFingerprint, isMountPoint);
-
-        if (syncPlan.toUpdateDirectory()) {
-          // Fingerprints only consider permissions for directory inodes.
-          UfsStatus ufsStatus = ufs.getStatus(ufsUri.toString());
-          SetAttributeOptions options =
-              SetAttributeOptions.defaults().setOwner(ufsStatus.getOwner())
-                  .setGroup(ufsStatus.getGroup()).setMode(ufsStatus.getMode())
-                  .setUfsFingerprint(ufsFingerprint);
-          long opTimeMs = System.currentTimeMillis();
-          // use replayed, since updating UFS is not desired.
-          setAttributeInternal(inodePath, true, opTimeMs, options);
-          journalSetAttribute(inodePath, opTimeMs, options, journalContext);
-        }
-        if (syncPlan.toDelete()) {
-          try {
-            deleteInternal(inodePath, false, System.currentTimeMillis(), syncDeleteOptions,
-                journalContext, blockDeletionContext);
-            deletedInode = true;
-          } catch (DirectoryNotEmptyException | IOException e) {
-            // Should not happen, since it is an unchecked delete.
-            LOG.error("Unexpected error for unchecked delete.", e);
->>>>>>> os/branch-1.7
+            loadMetadata = syncChildrenMetadata(journalContext, inodePath, syncDescendantType,
+                blockDeletionContext);
           }
-<<<<<<< HEAD
-||||||| merged common ancestors
-        }
-        if (syncPlan.toLoadMetadata()) {
-          loadMetadata = true;
-        }
-        if (syncPlan.toSyncChildren()) {
-          loadMetadata = syncChildrenMetadata(journalContext, inodePath, syncDescendantType);
-=======
-        }
-        if (syncPlan.toLoadMetadata()) {
-          loadMetadata = true;
-        }
-        if (syncPlan.toSyncChildren()) {
-          loadMetadata = syncChildrenMetadata(journalContext, inodePath, syncDescendantType,
-              blockDeletionContext);
->>>>>>> os/branch-1.7
         }
       }
     } catch (Exception e) {
@@ -3596,7 +3502,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
         }
 
-<<<<<<< HEAD
         // Iterate over Alluxio children and process persisted children.
         for (Map.Entry<String, Inode<?>> inodeEntry : inodeChildren.entrySet()) {
           if (!inodeEntry.getValue().isPersisted()) {
@@ -3615,7 +3520,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 inodePath.getUri().join(inodeEntry.getKey()));
 
             deleteInternal(tempInodePath, false, System.currentTimeMillis(), syncDeleteOptions,
-                journalContext);
+                journalContext, blockDeletionContext);
             // Must load metadata afterwards.
             loadMetadata = true;
           } else if (inodeEntry.getValue().isDirectory()) {
@@ -3627,60 +3532,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
             if (syncDescendantType == DescendantType.ALL) {
               // Recursively sync children
-              loadMetadata |= syncChildrenMetadata(journalContext, tempInodePath, DescendantType.ALL);
+              loadMetadata |= syncChildrenMetadata(journalContext, tempInodePath, DescendantType.ALL,
+                  blockDeletionContext);
             }
-||||||| merged common ancestors
-        String ufsFingerprint = ufsChildFingerprints.get(inodeEntry.getKey());
-        boolean deleteChild =
-            !UfsSyncUtils.inodeUfsIsSynced(inodeEntry.getValue(), ufsFingerprint);
-
-        if (deleteChild) {
-          TempInodePathForDescendant tempInodePath =
-              new TempInodePathForDescendant(inodePath);
-          tempInodePath.setDescendant(inodeEntry.getValue(),
-              inodePath.getUri().join(inodeEntry.getKey()));
-
-          deleteInternal(tempInodePath, false, System.currentTimeMillis(), syncDeleteOptions,
-              journalContext);
-          // Must load metadata afterwards.
-          loadMetadata = true;
-        } else if (inodeEntry.getValue().isDirectory()) {
-          // Recursively sync for this directory.
-          TempInodePathForDescendant tempInodePath =
-              new TempInodePathForDescendant(inodePath);
-          tempInodePath.setDescendant(inodeEntry.getValue(),
-              inodePath.getUri().join(inodeEntry.getKey()));
-
-          if (syncDescendantType == DescendantType.ALL) {
-            // Recursively sync children
-            loadMetadata |= syncChildrenMetadata(journalContext, tempInodePath, DescendantType.ALL);
-=======
-        String ufsFingerprint = ufsChildFingerprints.get(inodeEntry.getKey());
-        boolean deleteChild =
-            !UfsSyncUtils.inodeUfsIsSynced(inodeEntry.getValue(), ufsFingerprint);
-
-        if (deleteChild) {
-          TempInodePathForDescendant tempInodePath =
-              new TempInodePathForDescendant(inodePath);
-          tempInodePath.setDescendant(inodeEntry.getValue(),
-              inodePath.getUri().join(inodeEntry.getKey()));
-
-          deleteInternal(tempInodePath, false, System.currentTimeMillis(), syncDeleteOptions,
-              journalContext, blockDeletionContext);
-          // Must load metadata afterwards.
-          loadMetadata = true;
-        } else if (inodeEntry.getValue().isDirectory()) {
-          // Recursively sync for this directory.
-          TempInodePathForDescendant tempInodePath =
-              new TempInodePathForDescendant(inodePath);
-          tempInodePath.setDescendant(inodeEntry.getValue(),
-              inodePath.getUri().join(inodeEntry.getKey()));
-
-          if (syncDescendantType == DescendantType.ALL) {
-            // Recursively sync children
-            loadMetadata |= syncChildrenMetadata(journalContext, tempInodePath, DescendantType.ALL,
-                blockDeletionContext);
->>>>>>> os/branch-1.7
           }
         }
       }
