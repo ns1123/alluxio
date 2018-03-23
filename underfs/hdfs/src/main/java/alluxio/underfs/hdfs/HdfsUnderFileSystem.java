@@ -317,7 +317,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   public UfsDirectoryStatus getDirectoryStatus(String path) throws IOException {
     Path tPath = new Path(path);
     FileStatus fs = mFileSystem.getFileStatus(tPath);
-    return new UfsDirectoryStatus(path, fs.getOwner(), fs.getGroup(), fs.getPermission().toShort());
+    return new UfsDirectoryStatus(path, fs.getOwner(), fs.getGroup(), fs.getPermission().toShort(),
+        fs.getModificationTime());
   }
 
   @Override
@@ -414,7 +415,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
           fs.getOwner(), fs.getGroup(), fs.getPermission().toShort());
     }
     // Return directory status.
-    return new UfsDirectoryStatus(path, fs.getOwner(), fs.getGroup(), fs.getPermission().toShort());
+    return new UfsDirectoryStatus(path, fs.getOwner(), fs.getGroup(), fs.getPermission().toShort(),
+        fs.getModificationTime());
   }
 
   @Override
@@ -447,7 +449,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
             status.getPermission().toShort());
       } else {
         retStatus = new UfsDirectoryStatus(status.getPath().getName(), status.getOwner(),
-            status.getGroup(), status.getPermission().toShort());
+            status.getGroup(), status.getPermission().toShort(), status.getModificationTime());
       }
       rtn[i++] = retStatus;
     }
