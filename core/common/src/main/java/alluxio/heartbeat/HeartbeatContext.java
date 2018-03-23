@@ -29,6 +29,7 @@ public final class HeartbeatContext {
   public static final Class<? extends HeartbeatTimer> SLEEPING_TIMER_CLASS = SleepingTimer.class;
 
   // Names of different heartbeat executors.
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   public static final String JOB_MASTER_LOST_WORKER_DETECTION = "Job Master Lost Worker Detection";
   public static final String JOB_WORKER_COMMAND_HANDLING =
@@ -39,6 +40,10 @@ public final class HeartbeatContext {
   public static final String MASTER_PERSISTENCE_SCHEDULER = "Master Persistence Scheduler";
   public static final String MASTER_REPLICATION_CHECK = "Master Replication Check";
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  public static final String MASTER_BLOCK_INTEGRITY_CHECK = "Master Block Integrity Check";
+>>>>>>> os/branch-1.7
   public static final String MASTER_CHECKPOINT_SCHEDULING = "Master Checkpoint Scheduling";
   public static final String MASTER_FILE_RECOMPUTATION = "Master File Recomputation";
   public static final String MASTER_LOST_FILES_DETECTION = "Master Lost Files Detection";
@@ -52,6 +57,7 @@ public final class HeartbeatContext {
 
   static {
     sTimerClasses = new HashMap<>();
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     sTimerClasses.put(JOB_MASTER_LOST_WORKER_DETECTION, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(JOB_WORKER_COMMAND_HANDLING, SLEEPING_TIMER_CLASS);
@@ -61,6 +67,10 @@ public final class HeartbeatContext {
     sTimerClasses.put(MASTER_PERSISTENCE_SCHEDULER, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_REPLICATION_CHECK, SLEEPING_TIMER_CLASS);
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    sTimerClasses.put(MASTER_BLOCK_INTEGRITY_CHECK, SLEEPING_TIMER_CLASS);
+>>>>>>> os/branch-1.7
     sTimerClasses.put(MASTER_CHECKPOINT_SCHEDULING, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_FILE_RECOMPUTATION, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_LOST_FILES_DETECTION, SLEEPING_TIMER_CLASS);
