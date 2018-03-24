@@ -74,8 +74,14 @@ public class BlockMasterIntegrityIntegrationTest {
     BlockWorker worker = mCluster.getWorkerProcess().getWorker(BlockWorker.class);
     FileSystemTestUtils.createByteFile(fs, uri, WriteType.MUST_CACHE, len);
     Assert.assertEquals(1, worker.getStoreMetaFull().getNumberOfBlocks());
-    FileSystemMaster fsm =
+    // ALLUXIO CS REPLACE
+    // FileSystemMaster fsm =
+    //     mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
+    // ALLUXIO CS WITH
+    FileSystemMaster pfsm =
         mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
+    FileSystemMaster fsm = Whitebox.getInternalState(pfsm, "mFileSystemMaster");
+    // ALLUXIO CS END
     InodeTree tree = Whitebox.getInternalState(fsm, "mInodeTree");
     LockedInodePath path = tree.lockInodePath(uri, InodeTree.LockMode.WRITE);
     DeleteOptions options = DeleteOptions.defaults();
@@ -106,8 +112,14 @@ public class BlockMasterIntegrityIntegrationTest {
     BlockWorker worker = mCluster.getWorkerProcess().getWorker(BlockWorker.class);
     FileSystemTestUtils.createByteFile(fs, uri, WriteType.MUST_CACHE, len);
     Assert.assertEquals(1, worker.getStoreMetaFull().getNumberOfBlocks());
-    FileSystemMaster fsm =
+    // ALLUXIO CS REPLACE
+    // FileSystemMaster fsm =
+    //     mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
+    // ALLUXIO CS WITH
+    FileSystemMaster pfsm =
         mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
+    FileSystemMaster fsm = Whitebox.getInternalState(pfsm, "mFileSystemMaster");
+    // ALLUXIO CS END
     InodeTree tree = Whitebox.getInternalState(fsm, "mInodeTree");
     LockedInodePath path = tree.lockInodePath(uri, InodeTree.LockMode.WRITE);
     DeleteOptions options = DeleteOptions.defaults();
