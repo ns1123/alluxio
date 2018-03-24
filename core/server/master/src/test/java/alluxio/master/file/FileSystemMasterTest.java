@@ -199,6 +199,31 @@ public final class FileSystemMasterTest {
   }
 
   @Test
+  public void createPathWithWhiteSpaces() throws Exception {
+    String[] paths = new String[]{
+        "/ ",
+        "/  ",
+        "/ path",
+        "/path ",
+        "/pa th",
+        "/ pa th ",
+        "/pa/ th",
+        "/pa / th",
+        "/ pa / th ",
+    };
+    for (String path : paths) {
+      AlluxioURI uri = new AlluxioURI(path);
+      long id = mFileSystemMaster.createFile(uri,
+          CreateFileOptions.defaults().setRecursive(true));
+      Assert.assertEquals(id, mFileSystemMaster.getFileId(uri));
+      mFileSystemMaster.delete(uri, DeleteOptions.defaults());
+      id = mFileSystemMaster.createDirectory(uri,
+          CreateDirectoryOptions.defaults().setRecursive(true));
+      Assert.assertEquals(id, mFileSystemMaster.getFileId(uri));
+    }
+  }
+
+  @Test
   public void createFileMustCacheThenCacheThrough() throws Exception {
     File file = mTestFolder.newFile();
     AlluxioURI path = new AlluxioURI("/test");
@@ -1921,6 +1946,49 @@ public final class FileSystemMasterTest {
             .getUfsFingerprint());
   }
 
+  @Test
+  public void propagatePersisted() throws Exception {
+    AlluxioURI nestedFile = new AlluxioURI("/nested1/nested2/file");
+    AlluxioURI parent1 = new AlluxioURI("/nested1/");
+    AlluxioURI parent2 = new AlluxioURI("/nested1/nested2/");
+
+    createFileWithSingleBlock(nestedFile);
+
+    // Nothing is persisted yet.
+    assertEquals(PersistenceState.NOT_PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(nestedFile, GetStatusOptions.defaults())
+            .getPersistenceState());
+    assertEquals(PersistenceState.NOT_PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(parent1, GetStatusOptions.defaults()).getPersistenceState());
+    assertEquals(PersistenceState.NOT_PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(parent2, GetStatusOptions.defaults()).getPersistenceState());
+
+    // Persist the file.
+    mFileSystemMaster.setAttribute(nestedFile, SetAttributeOptions.defaults().setPersisted(true));
+
+    // Everything component should be persisted.
+    assertEquals(PersistenceState.PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(nestedFile, GetStatusOptions.defaults())
+            .getPersistenceState());
+    assertEquals(PersistenceState.PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(parent1, GetStatusOptions.defaults()).getPersistenceState());
+    assertEquals(PersistenceState.PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(parent2, GetStatusOptions.defaults()).getPersistenceState());
+
+    // Simulate restart.
+    stopServices();
+    startServices();
+
+    // Everything component should be persisted.
+    assertEquals(PersistenceState.PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(nestedFile, GetStatusOptions.defaults())
+            .getPersistenceState());
+    assertEquals(PersistenceState.PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(parent1, GetStatusOptions.defaults()).getPersistenceState());
+    assertEquals(PersistenceState.PERSISTED.toString(),
+        mFileSystemMaster.getFileInfo(parent2, GetStatusOptions.defaults()).getPersistenceState());
+  }
+
   private long createFileWithSingleBlock(AlluxioURI uri) throws Exception {
     mFileSystemMaster.createFile(uri, mNestedFileOptions);
     long blockId = mFileSystemMaster.getNewBlockIdForFile(uri);
@@ -1940,7 +2008,7 @@ public final class FileSystemMasterTest {
     // ALLUXIO CS END
     mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalSystem, mSafeModeManager);
     mExecutorService = Executors
-        .newFixedThreadPool(2, ThreadFactoryUtils.build("DefaultFileSystemMasterTest-%d", true));
+        .newFixedThreadPool(4, ThreadFactoryUtils.build("DefaultFileSystemMasterTest-%d", true));
     mFileSystemMaster = new DefaultFileSystemMaster(mBlockMaster,
         new MasterContext(mJournalSystem, mSafeModeManager),
         ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));

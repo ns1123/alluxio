@@ -120,13 +120,13 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
     try {
       Subject.doAs(mSubject,
           new PrivilegedExceptionAction<Void>() {
-            public Void run() throws Exception {
+            public Void run() throws TTransportException {
               transport.open();
               return null;
             }
           });
-    } catch (PrivilegedActionException e) {
-      throw new TTransportException("Failed to open Kerberos transport" , e);
+    } catch (PrivilegedActionException | IllegalStateException e) {
+      throw new TTransportException("Failed to open Kerberos transport", e);
     }
   }
 

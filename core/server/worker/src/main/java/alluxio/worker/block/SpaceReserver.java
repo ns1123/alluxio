@@ -22,12 +22,14 @@ import alluxio.exception.InvalidWorkerStateException;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatExecutor;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -75,18 +77,34 @@ public class SpaceReserver implements HeartbeatExecutor {
         // High watermark defines when to start the space reserving process
         PropertyKey tierHighWatermarkProp =
             PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_HIGH_WATERMARK_RATIO.format(ordinal);
-        long highWatermark =
-            (long) (tierCapacity * Configuration.getDouble(tierHighWatermarkProp));
+        double tierHighWatermarkConf = Configuration.getDouble(tierHighWatermarkProp);
+        Preconditions.checkArgument(tierHighWatermarkConf > 0,
+            "The high watermark of tier %d should be positive, but is %f", ordinal,
+            tierHighWatermarkConf);
+        Preconditions.checkArgument(tierHighWatermarkConf < 1,
+            "The high watermark of tier %d should be less than 1.0, but is %f", ordinal,
+            tierHighWatermarkConf);
+        long highWatermark = (long) (tierCapacity * Configuration.getDouble(tierHighWatermarkProp));
         mHighWatermarks.put(tierAlias, highWatermark);
 
         // Low watermark defines when to stop the space reserving process if started
         PropertyKey tierLowWatermarkProp =
             PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_LOW_WATERMARK_RATIO.format(ordinal);
+        double tierLowWatermarkConf = Configuration.getDouble(tierLowWatermarkProp);
+        Preconditions.checkArgument(tierLowWatermarkConf >= 0,
+            "The low watermark of tier %d should not be negative, but is %f", ordinal,
+            tierLowWatermarkConf);
+        Preconditions.checkArgument(tierLowWatermarkConf < tierHighWatermarkConf,
+            "The low watermark (%f) of tier %d should not be smaller than the high watermark (%f)",
+            tierLowWatermarkConf, ordinal, tierHighWatermarkConf);
         reservedSpace =
             (long) (tierCapacity - tierCapacity * Configuration.getDouble(tierLowWatermarkProp));
       }
-      mReservedSpaces.put(tierAlias, reservedSpace + lastTierReservedBytes);
       lastTierReservedBytes += reservedSpace;
+      // On each tier, we reserve no more than its capacity
+      lastTierReservedBytes =
+          (lastTierReservedBytes <= tierCapacity) ? lastTierReservedBytes : tierCapacity;
+      mReservedSpaces.put(tierAlias, lastTierReservedBytes);
     }
   }
 
@@ -97,13 +115,13 @@ public class SpaceReserver implements HeartbeatExecutor {
       long reservedSpace = mReservedSpaces.get(tierAlias);
       if (mHighWatermarks.containsKey(tierAlias)) {
         long highWatermark = mHighWatermarks.get(tierAlias);
-        if (highWatermark > reservedSpace && usedBytesOnTiers.get(tierAlias) >= highWatermark) {
+        if (usedBytesOnTiers.get(tierAlias) >= highWatermark) {
           try {
             mBlockWorker.freeSpace(Sessions.MIGRATE_DATA_SESSION_ID, reservedSpace, tierAlias);
           } catch (WorkerOutOfSpaceException | BlockDoesNotExistException
               | BlockAlreadyExistsException | InvalidWorkerStateException | IOException e) {
-            LOG.warn("SpaceReserver failed to free tier {} to {} bytes used", tierAlias,
-                reservedSpace, e.getMessage());
+            LOG.warn("SpaceReserver failed to free tier {} to {} bytes used for high watermarks: "
+                + "{}", tierAlias, reservedSpace, e.getMessage());
           }
         }
       } else {
@@ -111,7 +129,8 @@ public class SpaceReserver implements HeartbeatExecutor {
           mBlockWorker.freeSpace(Sessions.MIGRATE_DATA_SESSION_ID, reservedSpace, tierAlias);
         } catch (WorkerOutOfSpaceException | BlockDoesNotExistException
             | BlockAlreadyExistsException | InvalidWorkerStateException | IOException e) {
-          LOG.warn(e.getMessage());
+          LOG.warn("SpaceReserver failed to free tier {} to {} bytes used: {}", tierAlias,
+              reservedSpace, e.getMessage());
         }
       }
     }

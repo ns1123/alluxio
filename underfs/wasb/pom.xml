@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-underfs</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.1-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-underfs-wasb</artifactId>
   <name>Alluxio Under File System - Microsoft Azure Blob Storage</name>
@@ -136,6 +136,12 @@
                     <exclude>META-INF/*.RSA</exclude>
                     <!-- Because this module depends on alluxio-underfs-hdfs, eliminate HDFS factory implementation -->
                     <exclude>alluxio/underfs/hdfs/HdfsUnderFileSystemFactory.*</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <artifact>org.alluxio:alluxio-underfs-hdfs</artifact>
+                  <excludes>
+                    <exclude>META-INF/services/alluxio.underfs.UnderFileSystemFactory</exclude>
                   </excludes>
                 </filter>
               </filters>

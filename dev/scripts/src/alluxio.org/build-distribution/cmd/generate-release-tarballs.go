@@ -10,8 +10,8 @@ import (
 var (
 	cmdRelease = &cmdline.Command{
 		Name:   "release",
-		Short:  "Generates all enterprise release tarballs",
-		Long:   "Generates all enterprise release tarballs",
+		Short:  "Generates all release tarballs",
+		Long:   "Generates all release tarballs",
 		Runner: cmdline.RunnerFunc(release),
 	}
 
@@ -23,9 +23,11 @@ func init() {
 }
 
 func checkReleaseFlags() error {
+	// ALLUXIO CS ADD
 	if err := checkRootFlags(); err != nil {
 		return err
 	}
+	// ALLUXIO CS END
 	for _, distribution := range strings.Split(hadoopDistributionsFlag, ",") {
 		_, ok := hadoopDistributions[distribution]
 		if !ok {
@@ -36,9 +38,11 @@ func checkReleaseFlags() error {
 }
 
 func release(_ *cmdline.Env, _ []string) error {
+	// ALLUXIO CS ADD
 	if err := updateRootFlags(); err != nil {
 		return err
 	}
+	// ALLUXIO CS END
 	if err := checkReleaseFlags(); err != nil {
 		return err
 	}

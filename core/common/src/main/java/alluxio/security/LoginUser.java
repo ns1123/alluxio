@@ -39,6 +39,17 @@ public final class LoginUser {
 
   /** User instance of the login user in Alluxio client process. */
   private static User sLoginUser;
+  // ALLUXIO CS ADD
+  private static LoginContext sLoginContext;
+  private static String sPrincipal;
+  private static String sKeytab;
+  /** Provider of external Kerberos credentials allows hooking up with 3rd party login functions. */
+  private static alluxio.security.authentication.KerberosLoginProvider sExternalLoginProvider;
+  /**
+   * Minimum time interval until next login attempt is 60 seconds.
+   */
+  private static final long MIN_RELOGIN_INTERVAL = 60 * 1000;
+  // ALLUXIO CS END
 
   private LoginUser() {} // prevent instantiation
 
@@ -91,6 +102,16 @@ public final class LoginUser {
   public static User getServerUser() throws UnauthenticatedException {
     return getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+  }
+
+  /**
+   * Sets the external login provider that provides alternative login functionality.
+   *
+   * @param provider an external Kerberos login provider
+   */
+  public static void setExternalLoginProvider(
+      alluxio.security.authentication.KerberosLoginProvider provider) {
+    sExternalLoginProvider = provider;
   }
 
   /**
@@ -177,19 +198,15 @@ public final class LoginUser {
           } catch (org.ietf.jgss.GSSException e) {
             throw new LoginException("Cannot add private credential to subject with JGSS: " + e);
           }
+        } else if (principal.isEmpty() && sExternalLoginProvider != null
+            && sExternalLoginProvider.hasKerberosCrendentials()) {
+          // Try external login if a Kerberos principal is not provided in configuration.
+          subject = sExternalLoginProvider.login();
         } else {
-          // Use Java native Kerberos library to login
-          LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
-
-          LoginContext loginContext = createLoginContext(authType, subject,
-              javax.security.auth.kerberos.KerberosPrincipal.class.getClassLoader(), loginConf);
-          loginContext.login();
-
-          Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
-              subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class);
-          if (krb5Principals.isEmpty()) {
-            throw new LoginException("Kerberos login failed: login subject has no principals.");
-          }
+          // Use Java Kerberos library to login
+          sLoginContext = jaasLogin(authType, principal, keytab, subject);
+          sPrincipal = principal;
+          sKeytab = keytab;
         }
 
         try {
@@ -223,6 +240,69 @@ public final class LoginUser {
     }
     return userSet.iterator().next();
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Performs relogin for {@link #sLoginUser}.
+   *
+   * This method retrieves the previous {@link LoginContext} used by {@link #sLoginUser},
+   * logs out, and performs login again.
+   */
+  public static synchronized void relogin() throws UnauthenticatedException {
+    AuthType authType =
+        Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+    Subject subject = sLoginUser.getSubject();
+    // Relogin is required only for Kerberos authentication due to ticket expiration.
+    // When authType is SIMPLE, it's not needed.
+    if (!authType.equals(AuthType.KERBEROS)) {
+      return;
+    }
+    // Furthermore, if the user sets sun.security.jgss.native to true, it's assumed that
+    // the user will take the responsibility of keeping the tickets in the ticket
+    // cache always valid. Therefore, Alluxio does not perform automatic relogin in
+    // this case at the moment.
+    if (Boolean.getBoolean("sun.security.jgss.native")) {
+      // TODO(gene) maybe implement the relogin via native JGSS
+      return;
+    }
+    if (com.google.common.base.Strings.isNullOrEmpty(sPrincipal)
+        && sExternalLoginProvider != null && sExternalLoginProvider.hasKerberosCrendentials()) {
+      try {
+        sExternalLoginProvider.relogin();
+      } catch (LoginException e) {
+        String msg = String.format("Failed to relogin user %s using external login provider.",
+            sLoginUser.getName());
+        throw new UnauthenticatedException(msg, e);
+      }
+      return;
+    }
+    // Check whether this TGT is sufficiently close to expiration. If there is still more
+    // than 60 seconds until expiration, do not attempt to relogin.
+    javax.security.auth.kerberos.KerberosTicket tgt = getTGT();
+    if (tgt != null) {
+      long expirationTime = tgt.getEndTime().getTime();
+      if (expirationTime - System.currentTimeMillis() >= MIN_RELOGIN_INTERVAL) {
+        return;
+      }
+    }
+    if (sLoginContext != null) {
+      try {
+        sLoginContext.logout();
+      } catch (LoginException e) {
+        String msg = String.format("Failed to log out for %s before relogin attempt",
+            sLoginUser.getName());
+        throw new UnauthenticatedException(msg, e);
+      }
+    }
+    try {
+      sLoginContext = jaasLogin(authType, sPrincipal, sKeytab, subject);
+    } catch (LoginException e) {
+      String msg = String.format("Failed to login for %s: %s",
+          sLoginUser.getName(), e.getMessage());
+      throw new UnauthenticatedException(msg, e);
+    }
+  }
+  // ALLUXIO CS END
 
   /**
    * Checks whether Alluxio is running in secure mode, such as {@link AuthType#SIMPLE},
@@ -243,6 +323,20 @@ public final class LoginUser {
     }
   }
   // ALLUXIO CS ADD
+
+  private static LoginContext jaasLogin(AuthType authType, String principal, String keytab,
+      Subject subject) throws LoginException {
+    LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
+    LoginContext loginContext = createLoginContext(authType, subject,
+        javax.security.auth.kerberos.KerberosPrincipal.class.getClassLoader(), loginConf);
+    loginContext.login();
+    Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
+        subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class);
+    if (krb5Principals.isEmpty()) {
+      throw new LoginException("Kerberos login failed: login subject has no principal.");
+    }
+    return loginContext;
+  }
 
   /**
    * Gets the client login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
@@ -270,6 +364,14 @@ public final class LoginUser {
       return null;
     }
     return getServerUser().getSubject();
+  }
+
+  private static javax.security.auth.kerberos.KerberosTicket getTGT() {
+    if (sLoginUser == null) {
+      return null;
+    }
+    return alluxio.security.util.KerberosUtils
+        .extractOriginalTGTFromSubject(sLoginUser.getSubject());
   }
   // ALLUXIO CS END
 

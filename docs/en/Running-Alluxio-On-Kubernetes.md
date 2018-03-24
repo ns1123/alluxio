@@ -43,8 +43,6 @@ From the host machine, create a directory for the shared domain socket.
 ```bash
 $ mkdir /tmp/domain
 $ chmod a+w /tmp/domain
-$ touch /tmp/domain/d
-$ chmod a+w /tmp/domain/d
 ```
 
 This step can be skipped in case short-circuit accesss is not desired or cannot be set up. To disable
@@ -125,4 +123,19 @@ From the master pod, execute the following:
 ```bash
 $ cd /opt/alluxio
 $ ./bin/alluxio runTests
+```
+
+## Uninstall
+
+Uninstall Alluxio:
+```bash
+kubectl delete -f alluxio-worker.yaml
+kubectl delete -f alluxio-master.yaml
+kubectl delete configmaps alluxio-config
+```
+
+Execute the following to remove the persistent volume storing the Alluxio journal. Note: Alluxio metadata
+will be lost.
+```bash
+kubectl delete -f alluxio-journal-volume.yaml
 ```

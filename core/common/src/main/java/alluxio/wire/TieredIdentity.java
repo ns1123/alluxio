@@ -136,8 +136,13 @@ public final class TieredIdentity implements Serializable {
       if (alluxio.Configuration.containsKey(strictKey)
           && alluxio.Configuration.getBoolean(strictKey)) {
         for (LocalityTier tier : other.getTiers()) {
-          if (tier.getTierName().equals(t.getTierName()) && !tier.getValue().equals(t.getValue())) {
-            return false;
+          if (Objects.equal(tier.getTierName(), t.getTierName())) {
+            // unspecified locality != unspecified locality
+            if (tier.getValue() == null
+                || t.getValue() == null
+                || !Objects.equal(tier.getValue(), t.getValue())) {
+              return false;
+            }
           }
         }
       }

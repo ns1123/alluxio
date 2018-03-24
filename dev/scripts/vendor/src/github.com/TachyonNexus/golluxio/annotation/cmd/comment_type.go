@@ -64,7 +64,7 @@ func inferCommentTypeFromName(filename string) commentType {
 	switch filepath.Ext(filename) {
 	case "":
 		return unknownType
-	case ".java", ".proto", ".thrift":
+	case ".java", ".proto", ".thrift", ".go":
 		return slashType
 	case ".properties", ".sh", ".yaml":
 		return poundType

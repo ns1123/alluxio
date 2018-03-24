@@ -11,23 +11,27 @@ import (
 	"runtime"
 	"strings"
 
-	annotation "github.com/TachyonNexus/golluxio/annotation/cmd"
 	"v.io/x/lib/cmdline"
+	// ALLUXIO CS ADD
+	annotation "github.com/TachyonNexus/golluxio/annotation/cmd"
+	// ALLUXIO CS END
 )
 
+// ALLUXIO CS ADD
 const edition = "enterprise"
 
+// ALLUXIO CS END
 var (
 	cmdSingle = &cmdline.Command{
 		Name:   "single",
-		Short:  "Generates an enterprise tarball",
-		Long:   "Generates an enterprise tarball",
+		Short:  "Generates an alluxio tarball",
+		Long:   "Generates an alluxio tarball",
 		Runner: cmdline.RunnerFunc(single),
 	}
 
-	hadoopDistributionFlag  string
-	targetFlag              string
-	mvnArgsFlag             string
+	hadoopDistributionFlag string
+	targetFlag             string
+	mvnArgsFlag            string
 
 	webappDir = "core/server/common/src/main/webapp"
 	webappWar = "assembly/webapp.war"
@@ -42,12 +46,14 @@ func init() {
 }
 
 func single(_ *cmdline.Env, _ []string) error {
+	// ALLUXIO CS ADD
 	if err := updateRootFlags(); err != nil {
 		return err
 	}
 	if err := checkRootFlags(); err != nil {
 		return err
 	}
+	// ALLUXIO CS END
 	if err := generateTarball(hadoopDistributionFlag); err != nil {
 		return err
 	}
@@ -81,13 +87,29 @@ func chdir(path string) {
 	}
 }
 
+func symlink(oldname, newname string) {
+	if err := os.Symlink(oldname, newname); err != nil {
+		fmt.Fprintf(os.Stderr, "Symlink(%v, %v) failed: %v\n", oldname, newname, err)
+		os.Exit(1)
+	}
+}
+
 func getCommonMvnArgs(hadoopDistribution string) []string {
-	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip"}
+	args := []string{"clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos"}
 	if mvnArgsFlag != "" {
 		for _, arg := range strings.Split(mvnArgsFlag, ",") {
 			args = append(args, arg)
 		}
 	}
+
+	if hadoopDistribution != "" {
+		hadoopVersion := hadoopDistributions[hadoopDistribution]
+		args = append(args, fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion), fmt.Sprintf("-P%v", hadoopVersion.hadoopProfile()))
+		if hadoopVersion.major >= 2 && hadoopVersion.minor >= 4 {
+			args = append(args, "-Pyarn")
+		}
+	}
+	// ALLUXIO CS ADD
 	if nativeFlag {
 		args = append(args, "-Pnative")
 	}
@@ -106,11 +128,7 @@ func getCommonMvnArgs(hadoopDistribution string) []string {
 	if proxyURLFlag != "" {
 		args = append(args, fmt.Sprintf("-Dproxy.url=%s", proxyURLFlag))
 	}
-
-	if hadoopDistribution != "" {
-		hadoopVersion := hadoopDistributions[hadoopDistribution]
-		args = append(args, fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion), fmt.Sprintf("-P%v", hadoopVersion.hadoopProfile()))
-	}
+	// ALLUXIO CS END
 	return args
 }
 
@@ -119,7 +137,7 @@ func getVersion() (string, error) {
 	re := regexp.MustCompile(".*<version>(.*)</version>.*")
 	match := re.FindStringSubmatch(versionLine)
 	if len(match) < 2 {
-		return "", errors.New("Failed to find version")
+		return "", errors.New("failed to find version")
 	}
 	return match[1], nil
 }
@@ -127,16 +145,19 @@ func getVersion() (string, error) {
 func addAdditionalFiles(srcPath, dstPath, version string) {
 	chdir(srcPath)
 	pathsToCopy := []string{
-		// BIN
+		// ALLUXIO CS ADD
+		fmt.Sprintf("lib/alluxio-underfs-fork-%v.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-jdbc-%v.jar", version),
+		"integration/docker/bin/alluxio-job-master.sh",
+		"integration/docker/bin/alluxio-job-worker.sh",
+		// ALLUXIO CS END
 		"bin/alluxio",
 		"bin/alluxio-masters.sh",
 		"bin/alluxio-mount.sh",
 		"bin/alluxio-start.sh",
 		"bin/alluxio-stop.sh",
 		"bin/alluxio-workers.sh",
-		// CLIENT
 		fmt.Sprintf("client/alluxio-%v-client.jar", version),
-		// CONF
 		"conf/alluxio-env.sh.template",
 		"conf/alluxio-site.properties.template",
 		"conf/core-site.xml.template",
@@ -144,32 +165,32 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		"conf/masters",
 		"conf/metrics.properties.template",
 		"conf/workers",
-		// LIB
-		fmt.Sprintf("lib/alluxio-underfs-fork-%v.jar", version),
-		fmt.Sprintf("lib/alluxio-underfs-gcs-%v.jar", version),
-		fmt.Sprintf("lib/alluxio-underfs-jdbc-%v.jar", version),
-		fmt.Sprintf("lib/alluxio-underfs-local-%v.jar", version),
-		fmt.Sprintf("lib/alluxio-underfs-oss-%v.jar", version),
-		fmt.Sprintf("lib/alluxio-underfs-swift-%v.jar", version),
-		fmt.Sprintf("lib/alluxio-underfs-s3a-%v.jar", version),
-		fmt.Sprintf("lib/alluxio-underfs-wasb-%v.jar", version),
-		// LIBEXEC
-		"libexec/alluxio-config.sh",
-		// DOCKER
 		"integration/docker/Dockerfile",
 		"integration/docker/entrypoint.sh",
 		"integration/docker/bin/alluxio-master.sh",
-		"integration/docker/bin/alluxio-job-master.sh",
-		"integration/docker/bin/alluxio-job-worker.sh",
 		"integration/docker/bin/alluxio-proxy.sh",
 		"integration/docker/bin/alluxio-worker.sh",
-		// KUBERNETES
+		"integration/fuse/bin/alluxio-fuse",
 		"integration/kubernetes/alluxio-journal-volume.yaml.template",
 		"integration/kubernetes/alluxio-master.yaml.template",
 		"integration/kubernetes/alluxio-worker.yaml.template",
 		"integration/kubernetes/conf/alluxio.properties.template",
-		// FUSE
-		"integration/fuse/bin/alluxio-fuse",
+		"integration/mesos/bin/alluxio-env-mesos.sh",
+		"integration/mesos/bin/alluxio-mesos-start.sh",
+		"integration/mesos/bin/alluxio-master-mesos.sh",
+		"integration/mesos/bin/alluxio-mesos-stop.sh",
+		"integration/mesos/bin/alluxio-worker-mesos.sh",
+		"integration/mesos/bin/common.sh",
+		fmt.Sprintf("lib/alluxio-underfs-gcs-%v.jar", version),
+		// ALLUXIO CS REMOVE
+		// fmt.Sprintf("lib/alluxio-underfs-hdfs-%v.jar", version),
+		// ALLUXIO CS END
+		fmt.Sprintf("lib/alluxio-underfs-local-%v.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-oss-%v.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-s3a-%v.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-swift-%v.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-wasb-%v.jar", version),
+		"libexec/alluxio-config.sh",
 	}
 	for _, path := range pathsToCopy {
 		mkdir(filepath.Join(dstPath, filepath.Dir(path)))
@@ -179,7 +200,17 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 	// Create empty directories for default UFS and Docker integration.
 	mkdir(filepath.Join(dstPath, "underFSStorage"))
 	mkdir(filepath.Join(dstPath, "integration/docker/conf"))
-	// UFS MODULES
+
+	// ALLUXIO CS REMOVE
+	// // Add links for previous jar locations for backwards compatibility
+	// for _, jar := range []string{"client", "server"} {
+	// 	oldLocation := filepath.Join(dstPath, "assembly/client/target", fmt.Sprintf("alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, version))
+	// 	mkdir(filepath.Dir(oldLocation))
+	// 	symlink(fmt.Sprintf("../../alluxio-%v-%v.jar", jar, version), oldLocation)
+	// }
+	// mkdir(filepath.Join(dstPath, "assembly/server/target"))
+	// ALLUXIO CS END
+	// ALLUXIO CS ADD
 	mkdir(filepath.Join(dstPath, "lib"))
 	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
 		ufsModule, ok := ufsModules[moduleName]
@@ -191,10 +222,10 @@ func addAdditionalFiles(srcPath, dstPath, version string) {
 		ufsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", ufsModule.name, version)
 		run(fmt.Sprintf("adding ufs module %v to lib/", moduleName), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
 	}
-	// NATIVE LIBRARIES
 	if nativeFlag {
 		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/native"), filepath.Join(dstPath, "lib", "native"))
 	}
+	// ALLUXIO CS END
 }
 
 func generateTarball(hadoopDistribution string) error {
@@ -203,12 +234,7 @@ func generateTarball(hadoopDistribution string) error {
 		return err
 	}
 
-	hadoopVersion, ok := hadoopDistributions[hadoopDistribution]
-	if !ok {
-		return fmt.Errorf("hadoop distribution %s not recognized\n", hadoopDistribution)
-	}
-
-	srcPath, err := ioutil.TempDir("", edition)
+	srcPath, err := ioutil.TempDir("", "alluxio")
 	if err != nil {
 		return fmt.Errorf("Failed to create temp directory: %v", err)
 	}
@@ -217,23 +243,25 @@ func generateTarball(hadoopDistribution string) error {
 	if !ok {
 		return errors.New("Failed to determine file of the go script")
 	}
-	// Relative path from this class to the root enterprise directory.
+	// Relative path from this class to the root directory.
 	repoPath := filepath.Join(filepath.Dir(file), "../../../../../../")
 	run(fmt.Sprintf("copying source from %v to %v", repoPath, srcPath), "cp", "-R", repoPath+"/.", srcPath)
 
 	chdir(srcPath)
 	run("running git clean -fdx", "git", "clean", "-fdx")
 
-	// GET THE VERSION AND PREPEND WITH `edition-`
-	originalVersion, err := getVersion()
+	version, err := getVersion()
 	if err != nil {
 		return err
 	}
-	version := edition + "-" + originalVersion
+	// ALLUXIO CS ADD
+	// prepend the version with `edition-`
+	originalVersion := version
+	version = edition + "-" + originalVersion
 	run("updating version to "+version, "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
 	run("updating version to "+version+" in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), "libexec/alluxio-config.sh")
+	// ALLUXIO CS END
 
-	// OVERRIDE DEFAULT SETTINGS
 	// Update the web app location.
 	replace("core/common/src/main/java/alluxio/PropertyKey.java", webappDir, webappWar)
 	// Update the assembly jar paths.
@@ -241,17 +269,17 @@ func generateTarball(hadoopDistribution string) error {
 	replace("libexec/alluxio-config.sh", "assembly/server/target/alluxio-assembly-server-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-server-${VERSION}.jar")
 	// Update the FUSE jar path
 	replace("integration/fuse/bin/alluxio-fuse", "target/alluxio-integration-fuse-${VERSION}-jar-with-dependencies.jar", "alluxio-fuse-${VERSION}.jar")
-
-	// ERASE CS ANNOTATIONS
+	// ALLUXIO CS ADD
 	fmt.Printf("  erasing annotations ... ")
 	if err := annotation.Erase(srcPath); err != nil {
 		return err
 	}
 	fmt.Println("done")
+	// ALLUXIO CS END
 
-	// COMPILE
 	mvnArgs := getCommonMvnArgs(hadoopDistribution)
 	run("compiling repo", "mvn", mvnArgs...)
+	// ALLUXIO CS ADD
 	// Compile ufs modules for the main build
 	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
 		ufsModule := ufsModules[moduleName]
@@ -264,15 +292,14 @@ func generateTarball(hadoopDistribution string) error {
 		dstUfsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", ufsModule.name, version)
 		run(fmt.Sprintf("saving ufs module %v", moduleName), "mv", filepath.Join(srcPath, "lib", srcUfsJar), filepath.Join(srcPath, "lib", dstUfsJar))
 	}
+	// ALLUXIO CS END
 
-	// SET DESTINATION PATHS
 	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
 	dstDir := strings.TrimSuffix(filepath.Base(tarball), ".tar.gz")
 	dstPath := filepath.Join(cwd, dstDir)
 	run(fmt.Sprintf("removing any existing %v", dstPath), "rm", "-rf", dstPath)
 	fmt.Printf("Creating %s:\n", tarball)
 
-	// CREATE NEEDED DIRECTORIES
 	// Create the directory for the server jar.
 	mkdir(filepath.Join(dstPath, "assembly"))
 	// Create directories for the client jar.
@@ -281,30 +308,31 @@ func generateTarball(hadoopDistribution string) error {
 	// Create directories for the fuse connector
 	mkdir(filepath.Join(dstPath, "integration", "fuse"))
 
-	// ADD ALLUXIO ASSEMBLY JARS TO DISTRIBUTION
 	run("adding Alluxio client assembly jar", "mv", fmt.Sprintf("assembly/client/target/alluxio-assembly-client-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-client-%v.jar", version)))
 	run("adding Alluxio server assembly jar", "mv", fmt.Sprintf("assembly/server/target/alluxio-assembly-server-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "assembly", fmt.Sprintf("alluxio-server-%v.jar", version)))
 	run("adding Alluxio FUSE jar", "mv", fmt.Sprintf("integration/fuse/target/alluxio-integration-fuse-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "integration", "fuse", fmt.Sprintf("alluxio-fuse-%v.jar", version)))
 	// Condense the webapp into a single .war file.
 	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webappWar), "-C", webappDir, ".")
 
-	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
 	addAdditionalFiles(srcPath, dstPath, version)
-
-	// COMPILE CLIENT WITH KMS AND COPY CLIENT JAR WITH KMS TO DEST
-	// Note that, run this lastly to avoid changing other jars depending on client
+	// ALLUXIO CS ADD
+	hadoopVersion, ok := hadoopDistributions[hadoopDistribution]
+	if !ok {
+		return fmt.Errorf("hadoop distribution %s not recognized\n", hadoopDistribution)
+	}
+	// This must be run at the end to avoid changing other jars depending on client
 	if hadoopVersion.hasHadoopKMS() {
 		kmsClientMvnArgs := append(mvnArgs, "-Phadoop-kms")
 		run("compiling client module with Hadoop KMS", "mvn", kmsClientMvnArgs...)
 		srcClientJar := filepath.Join(srcPath, "client", fmt.Sprintf("alluxio-%v-client.jar", version))
 		dstClientJar := filepath.Join(dstPath, "client", fmt.Sprintf("alluxio-%v-client-with-kms.jar", version))
 		run("adding Alluxio KMS client jar", "mv", srcClientJar, dstClientJar)
-    }
+	}
+	// ALLUXIO CS END
 
-	// CREATE DISTRIBUTION TARBALL AND CLEANUP
 	chdir(cwd)
 	run("creating the distribution tarball", "tar", "-czvf", tarball, dstDir)
-	run("removing the repository", "rm", "-rf", srcPath, dstPath)
+	run("removing the temporary repositories", "rm", "-rf", srcPath, dstPath)
 
 	return nil
 }

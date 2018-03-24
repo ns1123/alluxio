@@ -21,6 +21,7 @@ import alluxio.network.netty.NettyClient;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.util.network.NettyUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.WorkerProcess;
 import alluxio.worker.block.BlockWorker;
@@ -122,7 +123,7 @@ public final class SaslNettyDataServerTest extends BaseIntegrationTest {
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();
     // Waits for the channel authentication complete.
-    NettyClient.waitForChannelReady(channel);
+    NettyUtils.waitForClientChannelReady(channel);
     channel.close().sync();
   }
 }

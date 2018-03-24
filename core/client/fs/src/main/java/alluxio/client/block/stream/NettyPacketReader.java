@@ -17,6 +17,7 @@ import alluxio.client.file.FileSystemContext;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.CanceledException;
 import alluxio.exception.status.DeadlineExceededException;
+import alluxio.exception.status.UnavailableException;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.network.protocol.databuffer.DataNettyBufferV2;
@@ -125,14 +126,6 @@ public final class NettyPacketReader implements PacketReader {
     mReadRequest = readRequest;
 
     mChannel = mContext.acquireNettyChannel(address);
-    // ALLUXIO CS ADD
-    // TODO(peis): Move this logic to NettyClient.
-    try {
-      alluxio.network.netty.NettyClient.waitForChannelReady(mChannel);
-    } catch (IOException e) {
-      throw alluxio.exception.status.AlluxioStatusException.fromIOException(e);
-    }
-    // ALLUXIO CS END
     mChannel.pipeline().addLast(new PacketReadHandler());
     mChannel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(mReadRequest)))
         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
@@ -319,7 +312,7 @@ public final class NettyPacketReader implements PacketReader {
       // Make sure to set mPacketReaderException before pushing THROWABLE to mPackets.
       if (mPacketReaderException == null) {
         mPacketReaderException =
-            new IOException(String.format("Channel %s is closed.", mChannel.toString()));
+            new UnavailableException(String.format("Channel %s is closed.", mChannel.toString()));
         mPackets.offer(THROWABLE);
       }
       ctx.fireChannelUnregistered();

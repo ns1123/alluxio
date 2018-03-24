@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"sort"
@@ -22,25 +23,30 @@ var hadoopDistributions = map[string]version{
 	"hadoop-2.6": parseVersion("2.6.5"),
 	"hadoop-2.7": parseVersion("2.7.3"),
 	"hadoop-2.8": parseVersion("2.8.0"),
-	"cdh-4.1":    parseVersion("2.0.0-mr1-cdh4.1.2"),
-	"cdh-5.4":    parseVersion("2.6.0-cdh5.4.9"),
-	"cdh-5.6":    parseVersion("2.6.0-cdh5.6.1"),
-	"cdh-5.8":    parseVersion("2.6.0-cdh5.8.5"),
-	"cdh-5.11":   parseVersion("2.6.0-cdh5.11.0"),
-	"cdh-5.12":   parseVersion("2.6.0-cdh5.12.1"),
-	"hdp-2.0":    parseVersion("2.2.0.2.0.6.3-7"),
-	"hdp-2.1":    parseVersion("2.4.0.2.1.7.4-3"),
-	"hdp-2.2":    parseVersion("2.6.0.2.2.9.18-1"),
-	"hdp-2.3":    parseVersion("2.7.1.2.3.99.0-195"),
-	"hdp-2.4":    parseVersion("2.7.1.2.4.4.1-9"),
-	"hdp-2.5":    parseVersion("2.7.3.2.5.5.5-2"),
-	"hdp-2.6":    parseVersion("2.7.3.2.6.1.0-129"),
-	"mapr-4.1":   parseVersion("2.5.1-mapr-1503"),
-	"mapr-5.0":   parseVersion("2.7.0-mapr-1506"),
-	"mapr-5.1":   parseVersion("2.7.0-mapr-1602"),
-	"mapr-5.2":   parseVersion("2.7.0-mapr-1607"),
+	// ALLUXIO CS ADD
+	"cdh-4.1":  parseVersion("2.0.0-mr1-cdh4.1.2"),
+	"cdh-5.4":  parseVersion("2.6.0-cdh5.4.9"),
+	"cdh-5.6":  parseVersion("2.6.0-cdh5.6.1"),
+	"cdh-5.8":  parseVersion("2.6.0-cdh5.8.5"),
+	"cdh-5.11": parseVersion("2.6.0-cdh5.11.2"),
+	"cdh-5.12": parseVersion("2.6.0-cdh5.12.2"),
+	"cdh-5.13": parseVersion("2.6.0-cdh5.13.2"),
+	"cdh-5.14": parseVersion("2.6.0-cdh5.14.0"),
+	"hdp-2.0":  parseVersion("2.2.0.2.0.6.3-7"),
+	"hdp-2.1":  parseVersion("2.4.0.2.1.7.4-3"),
+	"hdp-2.2":  parseVersion("2.6.0.2.2.9.18-1"),
+	"hdp-2.3":  parseVersion("2.7.1.2.3.99.0-195"),
+	"hdp-2.4":  parseVersion("2.7.1.2.4.4.1-9"),
+	"hdp-2.5":  parseVersion("2.7.3.2.5.5.5-2"),
+	"hdp-2.6":  parseVersion("2.7.3.2.6.1.0-129"),
+	"mapr-4.1": parseVersion("2.5.1-mapr-1503"),
+	"mapr-5.0": parseVersion("2.7.0-mapr-1506"),
+	"mapr-5.1": parseVersion("2.7.0-mapr-1602"),
+	"mapr-5.2": parseVersion("2.7.0-mapr-1607"),
+	// ALLUXIO CS END
 }
 
+// ALLUXIO CS ADD
 type module struct {
 	name      string // the name used in the generated tarball
 	isDefault bool   // whether to build the module by default
@@ -60,9 +66,11 @@ var ufsModules = map[string]module{
 	"ufs-hadoop-2.8": {"hadoop-2.8", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.8.0"},
 	"ufs-cdh-5.6":    {"cdh-5.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.6.1"},
 	"ufs-cdh-5.8":    {"cdh-5.8", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.8.5"},
-	"ufs-cdh-5.11":   {"cdh-5.11", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.11.0"},
-	"ufs-cdh-5.12":   {"cdh-5.12", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.12.1"},
-	"ufs-hdp-2.4":    {"hdp-2.4", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.1.2.4.4.1-9"},
+	"ufs-cdh-5.11":   {"cdh-5.11", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.11.2"},
+	"ufs-cdh-5.12":   {"cdh-5.12", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.12.2"},
+	"ufs-cdh-5.13":   {"cdh-5.13", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.13.2"},
+	"ufs-cdh-5.14":   {"cdh-5.14", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.14.0"},
+	"ufs-hdp-2.4":    {"hdp-2.4", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.1.2.4.4.1-9"},
 	"ufs-hdp-2.5":    {"hdp-2.5", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.5.5.5-2"},
 	"ufs-hdp-2.6":    {"hdp-2.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.6.1.0-129"},
 	"ufs-mapr-4.1":   {"mapr-4.1", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.5.1-mapr-1503"},
@@ -91,8 +99,9 @@ func defaultUfsModules() []string {
 	return result
 }
 
+// ALLUXIO CS END
 func validHadoopDistributions() []string {
-	result := []string{}
+	var result []string
 	for distribution := range hadoopDistributions {
 		result = append(result, distribution)
 	}
@@ -106,13 +115,31 @@ func run(desc, cmd string, args ...string) string {
 		fmt.Printf("\n    command: %s %s ... ", cmd, strings.Join(args, " "))
 	}
 	c := exec.Command(cmd, args...)
-	stderr := &bytes.Buffer{}
 	stdout := &bytes.Buffer{}
-	c.Stderr = stderr
-	c.Stdout = stdout
-	if err := c.Run(); err != nil {
-		fmt.Printf("\"%v %v\" failed: %v\nstderr: <%v>\nstdout: <%v>\n", cmd, strings.Join(args, " "), err, stderr.String(), stdout.String())
-		os.Exit(1)
+	if debugFlag {
+		// Stream the cmd's output (stdout and stderr) to os.Stdout, so that users can see the output while cmd is running.
+		stdoutR, stdoutW := io.Pipe()
+		stderrR, stderrW := io.Pipe()
+		c.Stdout = stdoutW
+		c.Stderr = stderrW
+		stdouts := io.MultiWriter(stdout, os.Stdout)
+		go func() {
+			io.Copy(stdouts, stdoutR)
+		}()
+		go func() {
+			io.Copy(os.Stderr, stderrR)
+		}()
+		if c.Run() != nil {
+			os.Exit(1)
+		}
+	} else {
+		c.Stdout = stdout
+		stderr := &bytes.Buffer{}
+		c.Stderr = stderr
+		if err := c.Run(); err != nil {
+			fmt.Printf("\"%v %v\" failed: %v\nstderr: <%v>\nstdout: <%v>\n", cmd, strings.Join(args, " "), err, stderr.String(), stdout.String())
+			os.Exit(1)
+		}
 	}
 	fmt.Println("done")
 	return stdout.String()
