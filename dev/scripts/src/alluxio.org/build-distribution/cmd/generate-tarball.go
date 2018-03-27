@@ -340,7 +340,7 @@ func generateTarball(hadoopDistribution string) error {
 
 	addAdditionalFiles(srcPath, dstPath, hadoopVersion, version)
 	// ALLUXIO CS ADD
-	hadoopVersion, ok := hadoopDistributions[hadoopDistribution]
+	hadoopVersion, ok = hadoopDistributions[hadoopDistribution]
 	if !ok {
 		return fmt.Errorf("hadoop distribution %s not recognized\n", hadoopDistribution)
 	}
