@@ -133,7 +133,7 @@ func includeYarnIntegration(hadoopVersion version) bool {
 	// ALLUXIO CS REPLACE
 	// return hadoopVersion.major >= 2 && hadoopVersion.minor >= 4;
 	// ALLUXIO CS WITH
-	return false;
+	return false
 	// ALLUXIO CS END
 }
 
