@@ -212,11 +212,10 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 	mkdir(filepath.Join(dstPath, "underFSStorage"))
 	mkdir(filepath.Join(dstPath, "integration/docker/conf"))
 
-<<<<<<< HEAD
 	// ALLUXIO CS REMOVE
 	// // Add links for previous jar locations for backwards compatibility
 	// for _, jar := range []string{"client", "server"} {
-	// 	oldLocation := filepath.Join(dstPath, "assembly/client/target", fmt.Sprintf("alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, version))
+	// 	oldLocation := filepath.Join(dstPath, fmt.Sprintf("assembly/%v/target/alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, jar, version))
 	// 	mkdir(filepath.Dir(oldLocation))
 	// 	symlink(fmt.Sprintf("../../alluxio-%v-%v.jar", jar, version), oldLocation)
 	// }
@@ -236,19 +235,6 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 	}
 	if nativeFlag {
 		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/native"), filepath.Join(dstPath, "lib", "native"))
-||||||| merged common ancestors
-	// Add links for previous jar locations for backwards compatibility
-	for _, jar := range []string{"client", "server"} {
-		oldLocation := filepath.Join(dstPath, "assembly/client/target", fmt.Sprintf("alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, version))
-		mkdir(filepath.Dir(oldLocation))
-		symlink(fmt.Sprintf("../../alluxio-%v-%v.jar", jar, version), oldLocation)
-=======
-	// Add links for previous jar locations for backwards compatibility
-	for _, jar := range []string{"client", "server"} {
-		oldLocation := filepath.Join(dstPath, fmt.Sprintf("assembly/%v/target/alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, jar, version))
-		mkdir(filepath.Dir(oldLocation))
-		symlink(fmt.Sprintf("../../alluxio-%v-%v.jar", jar, version), oldLocation)
->>>>>>> os/branch-1.7
 	}
 	// ALLUXIO CS END
 }
@@ -340,8 +326,15 @@ func generateTarball(hadoopDistribution string) error {
 	// Condense the webapp into a single .war file.
 	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webappWar), "-C", webappDir, ".")
 
-<<<<<<< HEAD
-	addAdditionalFiles(srcPath, dstPath, version)
+	if includeYarnIntegration(hadoopVersion) {
+		// Update the YARN jar path
+		replace("integration/yarn/bin/alluxio-yarn.sh", "target/alluxio-integration-yarn-${VERSION}-jar-with-dependencies.jar", "alluxio-yarn-${VERSION}.jar")
+		// Create directories for the yarn integration
+		mkdir(filepath.Join(dstPath, "integration", "yarn"))
+		run("adding Alluxio YARN jar", "mv", fmt.Sprintf("integration/yarn/target/alluxio-integration-yarn-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "integration", "yarn", fmt.Sprintf("alluxio-yarn-%v.jar", version)))
+	}
+
+	addAdditionalFiles(srcPath, dstPath, hadoopVersion, version)
 	// ALLUXIO CS ADD
 	hadoopVersion, ok := hadoopDistributions[hadoopDistribution]
 	if !ok {
@@ -356,19 +349,6 @@ func generateTarball(hadoopDistribution string) error {
 		run("adding Alluxio KMS client jar", "mv", srcClientJar, dstClientJar)
 	}
 	// ALLUXIO CS END
-||||||| merged common ancestors
-	addAdditionalFiles(srcPath, dstPath, version)
-=======
-	if includeYarnIntegration(hadoopVersion) {
-		// Update the YARN jar path
-		replace("integration/yarn/bin/alluxio-yarn.sh", "target/alluxio-integration-yarn-${VERSION}-jar-with-dependencies.jar", "alluxio-yarn-${VERSION}.jar")
-		// Create directories for the yarn integration
-		mkdir(filepath.Join(dstPath, "integration", "yarn"))
-		run("adding Alluxio YARN jar", "mv", fmt.Sprintf("integration/yarn/target/alluxio-integration-yarn-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "integration", "yarn", fmt.Sprintf("alluxio-yarn-%v.jar", version)))
-	}
-
-	addAdditionalFiles(srcPath, dstPath, hadoopVersion, version)
->>>>>>> os/branch-1.7
 
 	chdir(cwd)
 	run("creating the distribution tarball", "tar", "-czvf", tarball, dstDir)
