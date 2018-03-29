@@ -14,7 +14,19 @@ ALLUXIO_MASTER_VERSION_SHORT: master
 ALLUXIO_MAJOR_VERSION: master
 # We must inline the version string (e.g., "1.4.0-SNAPSHOT") rather than using the macro of Alluxio version.
 # Otherwise the macro name remains in the output.
+<<<<<<< HEAD
 ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-enterprise-1.8.0-SNAPSHOT-client.jar
+||||||| merged common ancestors
+<<<<<<< Temporary merge branch 1
+ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-enterprise-1.7.0-client.jar
+||||||| merged common ancestors
+ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-1.7.0-RC1-client.jar
+=======
+ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-1.7.0-client.jar
+>>>>>>> Temporary merge branch 2
+=======
+ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-enterprise-1.7.0-client.jar
+>>>>>>> enterprise-1.7
 
 # These attach the pages of different languages with different 'lang' attributes
 defaults:

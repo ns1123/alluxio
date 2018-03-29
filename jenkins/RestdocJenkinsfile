@@ -29,7 +29,7 @@ pipeline {
                 script {
                     def folderName = "ee"
                     def edition = "enterprise"
-                    
+
                     for (tag in params.Tags.split(" ")) {
                         def branch = "refs/tags/${tag}"
                         if (tag == "master") {
@@ -38,6 +38,7 @@ pipeline {
                         checkout([
                             $class: 'GitSCM',
                             branches: [[name: branch]],
+                            extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CleanCheckout']],
                             userRemoteConfigs: [[
                                 credentialsId: 'ALLUXIO-CI_GITHUB',
                                 url: "https://github.com/TachyonNexus/${edition}",
@@ -76,4 +77,3 @@ pipeline {
         }
     }
 }
-

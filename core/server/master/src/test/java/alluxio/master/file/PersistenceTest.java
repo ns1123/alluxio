@@ -20,7 +20,6 @@ import alluxio.client.job.JobMasterClient;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
-import alluxio.exception.status.UnavailableException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
@@ -68,6 +67,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
@@ -467,7 +467,7 @@ public final class PersistenceTest {
           FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
           return fileInfo.getPersistenceState().equals(PersistenceState.PERSISTED.toString());
         } catch (FileDoesNotExistException | InvalidPathException | AccessControlException
-            | UnavailableException e) {
+            | IOException e) {
           return false;
         }
       }

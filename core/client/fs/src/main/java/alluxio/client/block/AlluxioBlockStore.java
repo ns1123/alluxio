@@ -117,7 +117,13 @@ public final class AlluxioBlockStore {
     return getAllWorkers().stream()
         // Filter out workers in different strict tiers.
         .filter(w -> w.getNetAddress().getTieredIdentity().strictTiersMatch(mTieredIdentity))
+<<<<<<< HEAD
         .collect(toList());
+||||||| merged common ancestors
+        .collect(Collectors.toList());
+=======
+        .collect(java.util.stream.Collectors.toList());
+>>>>>>> enterprise-1.7
     // ALLUXIO CS END
   }
 
@@ -172,9 +178,18 @@ public final class AlluxioBlockStore {
     // ALLUXIO CS REPLACE
     // if (options.getStatus().isPersisted()) {
     // ALLUXIO CS WITH
+<<<<<<< HEAD
     // Note that, it is possible that the blocks have been written as UFS blocks
     if (options.getStatus().isPersisted()
         || options.getStatus().getPersistenceState().equals("TO_BE_PERSISTED")) {
+||||||| merged common ancestors
+    // Note that, it is possible that the blocks have been written as UFS blocks
+    if (locations.isEmpty() && !options.getStatus().isPersisted() && !options.getStatus()
+        .getPersistenceState().equals("TO_BE_PERSISTED")) {
+=======
+    if (options.getStatus().isPersisted() || options.getStatus()
+        .getPersistenceState().equals("TO_BE_PERSISTED")) {
+>>>>>>> enterprise-1.7
     // ALLUXIO CS END
       blockWorkerInfo = getEligibleWorkers();
       workerPool = blockWorkerInfo.stream().map(BlockWorkerInfo::getNetAddress).collect(toSet());

@@ -57,6 +57,7 @@ public final class NettySecretKeyWriter {
     try {
       Bootstrap bs = NettySecureRpcClient.createClientBootstrap(address);
       bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY, address.getHostName());
+<<<<<<< HEAD
       boolean authenticated = false;
       while (retryPolicy.attempt() && !authenticated) {
         try {
@@ -73,6 +74,28 @@ public final class NettySecretKeyWriter {
       if (!authenticated) {
         throw new IOException("Failed to build an authenticated channel even after relogin");
       }
+||||||| merged common ancestors
+      channel = bs.connect().sync().channel();
+      NettySecureRpcClient.waitForChannelReady(channel);
+
+=======
+      boolean authenticated = false;
+      do {
+        try {
+          channel = bs.connect().sync().channel();
+          NettyUtils.waitForClientChannelReady(channel);
+          authenticated = true;
+        } catch (Exception e) {
+          LOG.info("Failed to build an authenticated channel. "
+              + "This may be due to Kerberos credential expiration. Retry login.");
+          channel.close();
+          LoginUser.relogin();
+        }
+      } while (retryPolicy.attemptRetry() && !authenticated);
+      if (!authenticated) {
+        throw new IOException("Failed to build an authenticated channel even after relogin");
+      }
+>>>>>>> enterprise-1.7
       Key.SecretKey request =
           ProtoUtils.setSecretKey(
               Key.SecretKey.newBuilder().setKeyType(Key.KeyType.CAPABILITY)
