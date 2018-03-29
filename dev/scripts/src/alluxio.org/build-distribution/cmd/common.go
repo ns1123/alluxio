@@ -23,28 +23,6 @@ var hadoopDistributions = map[string]version{
 	"hadoop-2.6": parseVersion("2.6.5"),
 	"hadoop-2.7": parseVersion("2.7.3"),
 	"hadoop-2.8": parseVersion("2.8.0"),
-<<<<<<< HEAD
-	// ALLUXIO CS ADD
-	"cdh-4.1":    parseVersion("2.0.0-mr1-cdh4.1.2"),
-	"cdh-5.4":    parseVersion("2.6.0-cdh5.4.9"),
-	"cdh-5.6":    parseVersion("2.6.0-cdh5.6.1"),
-	"cdh-5.8":    parseVersion("2.6.0-cdh5.8.5"),
-	"cdh-5.11":   parseVersion("2.6.0-cdh5.11.0"),
-	"cdh-5.12":   parseVersion("2.6.0-cdh5.12.1"),
-	"hdp-2.0":    parseVersion("2.2.0.2.0.6.3-7"),
-	"hdp-2.1":    parseVersion("2.4.0.2.1.7.4-3"),
-	"hdp-2.2":    parseVersion("2.6.0.2.2.9.18-1"),
-	"hdp-2.3":    parseVersion("2.7.1.2.3.99.0-195"),
-	"hdp-2.4":    parseVersion("2.7.1.2.4.4.1-9"),
-	"hdp-2.5":    parseVersion("2.7.3.2.5.5.5-2"),
-	"hdp-2.6":    parseVersion("2.7.3.2.6.1.0-129"),
-	"mapr-4.1":   parseVersion("2.5.1-mapr-1503"),
-	"mapr-5.0":   parseVersion("2.7.0-mapr-1506"),
-	"mapr-5.1":   parseVersion("2.7.0-mapr-1602"),
-	"mapr-5.2":   parseVersion("2.7.0-mapr-1607"),
-	// ALLUXIO CS END
-||||||| merged common ancestors
-=======
 	// ALLUXIO CS ADD
 	"cdh-4.1":  parseVersion("2.0.0-mr1-cdh4.1.2"),
 	"cdh-5.4":  parseVersion("2.6.0-cdh5.4.9"),
@@ -66,7 +44,6 @@ var hadoopDistributions = map[string]version{
 	"mapr-5.1": parseVersion("2.7.0-mapr-1602"),
 	"mapr-5.2": parseVersion("2.7.0-mapr-1607"),
 	// ALLUXIO CS END
->>>>>>> enterprise-1.7
 }
 
 // ALLUXIO CS ADD

@@ -15,13 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-kms</artifactId>
-<<<<<<< HEAD
     <version>1.8.0-SNAPSHOT</version>
-||||||| merged common ancestors
-    <version>1.7.0-SNAPSHOT</version>
-=======
-    <version>1.7.1-SNAPSHOT</version>
->>>>>>> enterprise-1.7
   </parent>
   <artifactId>alluxio-kms-twosigma</artifactId>
   <name>Alluxio Key Management Service - TwoSigma</name>

@@ -14,44 +14,15 @@ package alluxio.client.file;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-<<<<<<< HEAD
-||||||| merged common ancestors
-<<<<<<< Temporary merge branch 1
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.any;
-||||||| merged common ancestors
-=======
-=======
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
->>>>>>> enterprise-1.7
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-<<<<<<< HEAD
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.any;
-||||||| merged common ancestors
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.any;
->>>>>>> Temporary merge branch 2
-=======
-import static org.mockito.Mockito.when;
->>>>>>> enterprise-1.7
 
 import alluxio.client.ReadType;
 import alluxio.client.block.AlluxioBlockStore;
@@ -554,23 +525,7 @@ public final class FileInStreamTest {
    */
   @Test
   public void failGetInStream() throws IOException {
-<<<<<<< HEAD
-    when(mBlockStore
-        .getInStream(anyLong(), any(InStreamOptions.class), any()))
-||||||| merged common ancestors
-<<<<<<< Temporary merge branch 1
-    when(mBlockStore
-        .getInStream(anyLong(), any(InStreamOptions.class)))
-||||||| merged common ancestors
-    Mockito.when(mBlockStore
-        .getInStream(Mockito.anyLong(), Mockito.any(InStreamOptions.class)))
-=======
-    Mockito.when(mBlockStore
-        .getInStream(Mockito.anyLong(), Mockito.any(InStreamOptions.class), any()))
->>>>>>> Temporary merge branch 2
-=======
     when(mBlockStore.getInStream(anyLong(), any(InStreamOptions.class), any()))
->>>>>>> enterprise-1.7
         .thenThrow(new UnavailableException("test exception"));
     try {
       mTestStream.read();
@@ -727,23 +682,7 @@ public final class FileInStreamTest {
    */
   @Test
   public void blockInStreamOutOfSync() throws Exception {
-<<<<<<< HEAD
-    when(
-        mBlockStore.getInStream(anyLong(), any(InStreamOptions.class), any()))
-||||||| merged common ancestors
-<<<<<<< Temporary merge branch 1
-    when(
-        mBlockStore.getInStream(anyLong(), any(InStreamOptions.class)))
-||||||| merged common ancestors
-    Mockito.when(
-        mBlockStore.getInStream(Mockito.anyLong(), Mockito.any(InStreamOptions.class)))
-=======
-    Mockito.when(
-        mBlockStore.getInStream(Mockito.anyLong(), Mockito.any(InStreamOptions.class), any()))
->>>>>>> Temporary merge branch 2
-=======
     when(mBlockStore.getInStream(anyLong(), any(InStreamOptions.class), any()))
->>>>>>> enterprise-1.7
         .thenAnswer(new Answer<BlockInStream>() {
           @Override
           public BlockInStream answer(InvocationOnMock invocation) throws Throwable {

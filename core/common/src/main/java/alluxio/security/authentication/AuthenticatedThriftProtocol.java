@@ -53,34 +53,6 @@ public final class AuthenticatedThriftProtocol extends DelegatingTProtocol {
       mTransport = transport;
       mSubject = subject;
     }
-<<<<<<< HEAD
-||||||| merged common ancestors
-    try {
-      Subject.doAs(mSubject,
-          new PrivilegedExceptionAction<Void>() {
-            public Void run() throws Exception {
-              transport.open();
-              return null;
-            }
-          });
-    } catch (PrivilegedActionException e) {
-      throw new TTransportException("Failed to open Kerberos transport" , e);
-    }
-  }
-=======
-    try {
-      Subject.doAs(mSubject,
-          new PrivilegedExceptionAction<Void>() {
-            public Void run() throws TTransportException {
-              transport.open();
-              return null;
-            }
-          });
-    } catch (PrivilegedActionException | IllegalStateException e) {
-      throw new TTransportException("Failed to open Kerberos transport", e);
-    }
-  }
->>>>>>> enterprise-1.7
 
     @Override
     public void open() throws TTransportException {

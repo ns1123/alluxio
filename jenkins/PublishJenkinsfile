@@ -56,17 +56,9 @@ pipeline {
                         url: 'https://github.com/TachyonNexus/enterprise',
                     ]]
                 ])
-<<<<<<< HEAD
-                // delete any existing artifacts
-                sh 'rm -f *.tar.gz'
-                
-||||||| merged common ancestors
-                
-=======
                 // delete any existing artifacts
                 sh 'rm -f *.tar.gz'
 
->>>>>>> enterprise-1.7
                 // build artifact, using jenkins credentials to access maven
                 withCredentials([
                     string(credentialsId: 'JENKINS_AWS_ACCESS_KEY_ID', variable: 'AwsKey'),

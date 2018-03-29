@@ -279,7 +279,6 @@ public final class FileSystemContext implements Closeable {
         pool.close();
       }
     }
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return mNettyChannelPools.get(address).acquire();
     // ALLUXIO CS WITH
@@ -302,29 +301,6 @@ public final class FileSystemContext implements Closeable {
     throw new IOException("Failed to build an authenticated channel with valid credential",
         exception);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    return mNettyChannelPools.get(address).acquire();
-=======
-    // ALLUXIO CS REPLACE
-    //return mNettyChannelPools.get(address).acquire();
-    // ALLUXIO CS WITH
-    alluxio.retry.RetryPolicy retryPolicy = new alluxio.retry.CountingRetry(1);
-    Channel channel;
-    do {
-      channel = mNettyChannelPools.get(address).acquire();
-      try {
-        alluxio.util.network.NettyUtils.waitForClientChannelReady(channel);
-        return channel;
-      } catch (Exception e) {
-        LOG.info("Failed to build an authenticated channel. "
-            + "This may be due to Kerberos credential expiration. Retry login.");
-        releaseNettyChannel(workerNetAddress, channel);
-        alluxio.security.LoginUser.relogin();
-      }
-    } while (retryPolicy.attemptRetry());
-    throw new IOException("Failed to build an authenticated channel even after relogin");
-    // ALLUXIO CS END
->>>>>>> enterprise-1.7
   }
 
   /**
