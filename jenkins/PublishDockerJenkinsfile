@@ -40,7 +40,7 @@ pipeline {
 
                 // delete any existing artifacts
                 sh 'rm -f *.tar.gz'
-                sh 'rm -rf ${aeeDir}'
+                sh "rm -rf ${aeeDir}"
 
                 // Download and untar
                 sh "aws s3 cp ${params.tarball} ${aeeTarball}"
