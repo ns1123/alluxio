@@ -1149,7 +1149,6 @@ public class InodeTree implements JournalEntryIterable {
           String ufsUri = resolution.getUri().toString();
           try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
             UnderFileSystem ufs = ufsResource.get();
-<<<<<<< HEAD
             MkdirsOptions mkdirsOptions = MkdirsOptions.defaults().setCreateParent(false)
                 .setOwner(dir.getOwner()).setGroup(dir.getGroup()).setMode(new Mode(dir.getMode()));
             if (!ufs.mkdirs(ufsUri, mkdirsOptions)) {
@@ -1172,55 +1171,6 @@ public class InodeTree implements JournalEntryIterable {
               if (lastModificationTime != null) {
                 dir.setLastModificationTimeMs(status.getLastModifiedTime(), true);
               }
-||||||| merged common ancestors
-            MkdirsOptions mkdirsOptions = MkdirsOptions.defaults().setCreateParent(false)
-                .setOwner(dir.getOwner()).setGroup(dir.getGroup()).setMode(new Mode(dir.getMode()));
-            ufs.mkdirs(ufsUri, mkdirsOptions);
-          }
-||||||| merged common ancestors
-          UnderFileSystem ufs = resolution.getUfs();
-          MkdirsOptions mkdirsOptions =
-              MkdirsOptions.defaults().setCreateParent(false).setOwner(dir.getOwner())
-                  .setGroup(dir.getGroup()).setMode(new Mode(dir.getMode()));
-          ufs.mkdirs(ufsUri, mkdirsOptions);
-=======
-          UnderFileSystem ufs = resolution.getUfs();
-          MkdirsOptions mkdirsOptions =
-              MkdirsOptions.defaults().setCreateParent(false).setOwner(dir.getOwner())
-                  .setGroup(dir.getGroup()).setMode(new Mode(dir.getMode()));
-          if (!ufs.mkdirs(ufsUri, mkdirsOptions)) {
-            // Directory might already exist. Try loading the status from ufs.
-            UfsStatus status;
-            try {
-              status = ufs.getStatus(ufsUri);
-            } catch (Exception e) {
-              throw new IOException(String.format("Cannot sync UFS directory %s: %s.", ufsUri,
-                  e.getMessage()), e);
-            }
-            if (status.isFile()) {
-              throw new InvalidPathException(String.format(
-                  "Error persisting directory. A file exists at the UFS location %s.", ufsUri));
-=======
-            MkdirsOptions mkdirsOptions =
-                MkdirsOptions.defaults().setCreateParent(false).setOwner(dir.getOwner())
-                    .setGroup(dir.getGroup()).setMode(new Mode(dir.getMode()));
-            if (!ufs.mkdirs(ufsUri, mkdirsOptions)) {
-              // Directory might already exist. Try loading the status from ufs.
-              UfsStatus status;
-              try {
-                status = ufs.getStatus(ufsUri);
-              } catch (Exception e) {
-                throw new IOException(String.format("Cannot sync UFS directory %s: %s.", ufsUri,
-                    e.getMessage()), e);
-              }
-              if (status.isFile()) {
-                throw new InvalidPathException(String.format(
-                    "Error persisting directory. A file exists at the UFS location %s.", ufsUri));
-              }
-              dir.setOwner(status.getOwner())
-                  .setGroup(status.getGroup())
-                  .setMode(status.getMode());
->>>>>>> enterprise-1.7
             }
           }
           dir.setPersistenceState(PersistenceState.PERSISTED);
