@@ -1,0 +1,65 @@
+pipeline {
+    agent {
+        label 'nonDockerized'
+    }
+    parameters {
+        string(
+            name: 'tarball',
+            defaultValue: 's3://alluxio-release/v1.7.1/alluxio-enterprise-1.7.1-all.tar.gz',
+            description: 'Enterprise tarball to build a Docker image from'
+        )
+        string(
+            name: 'tag',
+            defaultValue: '1.7.1',
+            description: 'Tag for the generated Docker image'
+        )
+        string(
+            name: 'S3Path',
+            defaultValue: 's3://alluxio-release/v1.7.1/',
+            description: 'S3 path to directory to copy tarballs to'
+        )
+        string(
+            name: 'AwsCredentialsIdPrefix',
+            defaultValue: 'JENKINS',
+            description: 'Prefix of the ID of AWS credentials to use for uploading (ex. BOT for BOT_AWS_ACCESS_KEY_ID and BOT_AWS_SECRET_ACCESS_KEY)'
+        )
+    }
+    stages {
+        stage('build') {
+            environment {
+                AWS_ACCESS_KEY_ID     = credentials("${params.AwsCredentialsIdPrefix}_AWS_ACCESS_KEY_ID")
+                AWS_SECRET_ACCESS_KEY = credentials("${params.AwsCredentialsIdPrefix}_AWS_SECRET_ACCESS_KEY")
+                AWS_DEFAULT_REGION    = 'us-east-1'
+            }
+            steps {script {
+                aeeDir = "aee"
+                dockerDir = "${aeeDir}/integration/docker"
+                image = "alluxio/alluxio-enterprise:${params.tag}"
+                aeeTarball = "aee.tar.gz"
+                finalTarball = "alluxio-enterprise-${params.tag}-docker.tar"
+
+                // delete any existing artifacts
+                sh 'rm -f *.tar.gz'
+                sh 'rm -rf ${aeeDir}'
+
+                // Download and untar
+                sh "aws s3 cp ${params.tarball} ${aeeTarball}"
+                sh "mkdir ${aeeDir}"
+                sh "tar -xzf ${aeeTarball} -C ${aeeDir} --strip-components 1"
+
+                // Build Docker image
+                sh "mv ${aeeTarball} ${dockerDir}"
+                // Hack to work around a bug where some versions of Docker cannot deal with conf/ being empty.
+                sh "mv ${aeeDir}/conf/alluxio-site.properties.template ${dockerDir}/conf/"
+                sh "docker build -t ${image} --build-arg ALLUXIO_TARBALL=${aeeTarball} ${dockerDir}"
+
+                sh "docker save ${image} -o ${finalTarball}"
+
+                // Upload and clean up
+                sh "aws s3 cp ${finalTarball} ${params.S3Path}"
+                sh "rm -rf ${aeeDir}"
+                sh "rm ${finalTarball}"
+            }}
+        }
+    }
+}
