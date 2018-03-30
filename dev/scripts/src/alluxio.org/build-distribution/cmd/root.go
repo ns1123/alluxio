@@ -73,4 +73,3 @@ func init() {
 		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
 	// ALLUXIO CS END
 }
-// ALLUXIO CS END
