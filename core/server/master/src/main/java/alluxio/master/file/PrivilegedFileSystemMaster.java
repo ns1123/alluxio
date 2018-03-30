@@ -219,7 +219,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public FileInfo getFileInfo(AlluxioURI path, GetStatusOptions options)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException,
-      UnavailableException {
+      UnavailableException, IOException {
     return mFileSystemMaster.getFileInfo(path, options);
   }
 
@@ -231,7 +231,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public List<FileInfo> listStatus(AlluxioURI path, ListStatusOptions listStatusOptions)
       throws AccessControlException, FileDoesNotExistException, InvalidPathException,
-      UnavailableException {
+      UnavailableException, IOException {
     return mFileSystemMaster.listStatus(path, listStatusOptions);
   }
 
@@ -394,5 +394,10 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   public void updateUfsMode(AlluxioURI ufsPath, UfsMode ufsMode) throws InvalidPathException,
       InvalidArgumentException, UnavailableException, AccessControlException {
     mFileSystemMaster.updateUfsMode(ufsPath, ufsMode);
+  }
+
+  @Override
+  public void validateInodeBlocks(boolean repair) throws UnavailableException {
+    mFileSystemMaster.validateInodeBlocks(repair);
   }
 }

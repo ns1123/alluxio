@@ -382,6 +382,36 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setIgnoredSiteProperty(true)
           .setIsHidden(true)
           .build();
+  // ALLUXIO CS ADD
+  public static final PropertyKey WEB_LOGIN_ENABLED =
+      new Builder(Name.WEB_LOGIN_ENABLED)
+        .setDefaultValue(false)
+        .setDescription("Whether login and authentication are enabled for the web UI.")
+        .build();
+  public static final PropertyKey WEB_LOGIN_USERNAME =
+      new Builder(Name.WEB_LOGIN_USERNAME)
+        .setDefaultValue("admin")
+        .setDescription("Username to log in to the web UI.")
+        .build();
+  public static final PropertyKey WEB_LOGIN_PASSWORD =
+      new Builder(Name.WEB_LOGIN_PASSWORD)
+          .setDefaultValue("admin")
+          .setDescription("Password to log in to the web UI.")
+          .build();
+  public static final PropertyKey WEB_LOGIN_SESSIONS =
+      new Builder(Name.WEB_LOGIN_SESSIONS)
+          .setDefaultValue(1000)
+          .setDescription("The maximum number of active sessions.")
+          .build();
+  public static final PropertyKey WEB_LOGIN_SESSION_TIMEOUT =
+      new Builder(Name.WEB_LOGIN_SESSION_TIMEOUT)
+          .setDefaultValue("8h")
+          .setDescription("If a session is inactive for a certain time period, then the session "
+              + "is automatically invalidated. This property specifies the time period. "
+              + "Valid values are formatted like 1min, 1h, 1d, representing 1 minute, 1 hour, "
+              + "and 1 day respectively.")
+          .build();
+  // ALLUXIO CS END
   public static final PropertyKey WEB_RESOURCES =
       new Builder(Name.WEB_RESOURCES)
           .setDefaultValue(String.format("${%s}/core/server/common/src/main/webapp", Name.HOME))
@@ -1094,6 +1124,17 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
+  public static final PropertyKey MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_REPAIR =
+      new Builder(Name.MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_REPAIR)
+          .setDefaultValue(false)
+          .setDescription("Whether the system should delete orphaned blocks found during the "
+              + "periodic integrity check. This is an experimental feature.")
+          .build();
+  public static final PropertyKey MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_INTERVAL =
+      new Builder(Name.MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_INTERVAL)
+          .setDefaultValue("1hr")
+          .setDescription("The period for the block integrity check, disabled if <= 0.")
+          .build();
   public static final PropertyKey MASTER_PRINCIPAL = new Builder(Name.MASTER_PRINCIPAL)
       .setDescription("Kerberos principal for Alluxio master.")
       .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
@@ -1127,6 +1168,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "long for the thrift serving thread to stop before giving up and shutting down "
               + "the server")
           .setIsHidden(true)
+          .build();
+  public static final PropertyKey MASTER_STARTUP_BLOCK_INTEGRITY_CHECK_ENABLED =
+      new Builder(Name.MASTER_STARTUP_BLOCK_INTEGRITY_CHECK_ENABLED)
+          .setDefaultValue(false)
+          .setDescription("Whether the system should be checked for orphaned blocks on startup. "
+              + "Orphaned blocks will be deleted.")
           .build();
   public static final PropertyKey MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
       new Builder(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)
@@ -3177,6 +3224,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String USER_HOME = "user.home";
     public static final String TMP_DIRS = "alluxio.tmp.dirs";
     public static final String VERSION = "alluxio.version";
+    // ALLUXIO CS ADD
+    public static final String WEB_LOGIN_ENABLED = "alluxio.web.login.enabled";
+    public static final String WEB_LOGIN_USERNAME = "alluxio.web.login.username";
+    public static final String WEB_LOGIN_PASSWORD = "alluxio.web.login.password";
+    public static final String WEB_LOGIN_SESSIONS = "alluxio.web.login.sessions";
+    public static final String WEB_LOGIN_SESSION_TIMEOUT = "alluxio.web.login.session.timeout";
+    // ALLUXIO CS END
     public static final String WEB_RESOURCES = "alluxio.web.resources";
     public static final String WEB_THREADS = "alluxio.web.threads";
     public static final String WORK_DIR = "alluxio.work.dir";
@@ -3345,6 +3399,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
         "alluxio.master.persistence.scheduler.interval.ms";
     // ALLUXIO CS END
+    public static final String MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_REPAIR =
+        "alluxio.master.periodic.block.integrity.check.repair";
+    public static final String MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_INTERVAL =
+        "alluxio.master.periodic.block.integrity.check.interval";
     public static final String MASTER_PRINCIPAL = "alluxio.master.principal";
     // ALLUXIO CS ADD
     public static final String MASTER_REPLICATION_CHECK_INTERVAL_MS =
@@ -3354,6 +3412,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_RPC_PORT = "alluxio.master.port";
     public static final String MASTER_SERVING_THREAD_TIMEOUT =
         "alluxio.master.serving.thread.timeout";
+    public static final String MASTER_STARTUP_BLOCK_INTEGRITY_CHECK_ENABLED =
+        "alluxio.master.startup.block.integrity.check.enabled";
     public static final String MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
         "alluxio.master.startup.consistency.check.enabled";
     public static final String MASTER_THRIFT_SHUTDOWN_TIMEOUT =

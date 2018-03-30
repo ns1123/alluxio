@@ -35,6 +35,9 @@
         <% if (request.getAttribute("useWorkerHeader") != null) { %>
           <li id="returnmaster-li"><a href="http://<%=request.getAttribute("masterHost") %>:<%= request.getAttribute("masterPort") %>">Return to Master</a></li>
         <% } %>
+        <%-- ALLUXIO CS ADD --%>
+        <li id="logout-li"><a href="./logout">Log Out</a></li>
+        <%-- ALLUXIO CS END --%>
       </ul>
     </div>
   </div>

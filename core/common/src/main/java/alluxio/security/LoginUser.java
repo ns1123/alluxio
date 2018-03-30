@@ -43,15 +43,12 @@ public final class LoginUser {
   private static LoginContext sLoginContext;
   private static String sPrincipal;
   private static String sKeytab;
-  private static long sLastLoginAttemptTimeMs;
+  /** Provider of external Kerberos credentials allows hooking up with 3rd party login functions. */
+  private static alluxio.security.authentication.KerberosLoginProvider sExternalLoginProvider;
   /**
-   * Alluxio performs relogin only after at least this amount of time has elapsed since the
-   * last relogin attempt. The purpose is to rate limit access to the KDC from the same
-   * process. Please contact your KDC admin to make sure that the lifetime of the ticket
-   * granting ticket (TGT) issued to the principals is greater than this value.
+   * Minimum time interval until next login attempt is 60 seconds.
    */
-  private static final long RELOGIN_RETRY_DELAY_MS = 30 * 1000;
-  private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(LoginUser.class);
+  private static final long MIN_RELOGIN_INTERVAL = 60 * 1000;
   // ALLUXIO CS END
 
   private LoginUser() {} // prevent instantiation
@@ -105,6 +102,16 @@ public final class LoginUser {
   public static User getServerUser() throws UnauthenticatedException {
     return getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+  }
+
+  /**
+   * Sets the external login provider that provides alternative login functionality.
+   *
+   * @param provider an external Kerberos login provider
+   */
+  public static void setExternalLoginProvider(
+      alluxio.security.authentication.KerberosLoginProvider provider) {
+    sExternalLoginProvider = provider;
   }
 
   /**
@@ -191,6 +198,10 @@ public final class LoginUser {
           } catch (org.ietf.jgss.GSSException e) {
             throw new LoginException("Cannot add private credential to subject with JGSS: " + e);
           }
+        } else if (principal.isEmpty() && sExternalLoginProvider != null
+            && sExternalLoginProvider.hasKerberosCrendentials()) {
+          // Try external login if a Kerberos principal is not provided in configuration.
+          subject = sExternalLoginProvider.login();
         } else {
           // Use Java Kerberos library to login
           sLoginContext = jaasLogin(authType, principal, keytab, subject);
@@ -254,14 +265,26 @@ public final class LoginUser {
       // TODO(gene) maybe implement the relogin via native JGSS
       return;
     }
-    long timeSinceLastLoginAttemptMs = System.currentTimeMillis() - sLastLoginAttemptTimeMs;
-    if (timeSinceLastLoginAttemptMs <= RELOGIN_RETRY_DELAY_MS) {
-      LOG.info("Not attempting to relogin since only {} seconds have elapsed "
-          + "since last login attempt. This is expected to happen when multiple threads are "
-          + "running when expiration hits.", timeSinceLastLoginAttemptMs / 1000.0);
+    if (com.google.common.base.Strings.isNullOrEmpty(sPrincipal)
+        && sExternalLoginProvider != null && sExternalLoginProvider.hasKerberosCrendentials()) {
+      try {
+        sExternalLoginProvider.relogin();
+      } catch (LoginException e) {
+        String msg = String.format("Failed to relogin user %s using external login provider.",
+            sLoginUser.getName());
+        throw new UnauthenticatedException(msg, e);
+      }
       return;
     }
-    sLastLoginAttemptTimeMs = System.currentTimeMillis();
+    // Check whether this TGT is sufficiently close to expiration. If there is still more
+    // than 60 seconds until expiration, do not attempt to relogin.
+    javax.security.auth.kerberos.KerberosTicket tgt = getTGT();
+    if (tgt != null) {
+      long expirationTime = tgt.getEndTime().getTime();
+      if (expirationTime - System.currentTimeMillis() >= MIN_RELOGIN_INTERVAL) {
+        return;
+      }
+    }
     if (sLoginContext != null) {
       try {
         sLoginContext.logout();
@@ -343,6 +366,13 @@ public final class LoginUser {
     return getServerUser().getSubject();
   }
 
+  private static javax.security.auth.kerberos.KerberosTicket getTGT() {
+    if (sLoginUser == null) {
+      return null;
+    }
+    return alluxio.security.util.KerberosUtils
+        .extractOriginalTGTFromSubject(sLoginUser.getSubject());
+  }
   // ALLUXIO CS END
 
   /**

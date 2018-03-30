@@ -16,9 +16,12 @@ import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
+import alluxio.hadoop.HadoopKerberosLoginProvider;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 
+import org.apache.hadoop.security.SecurityUtil;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -85,6 +88,7 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
   public void after() {
     ConfigurationTestUtils.resetConfiguration();
     LoginUserTestUtils.resetLoginUser();
+    LoginUser.setExternalLoginProvider(null);
   }
 
   /**
@@ -99,6 +103,27 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sFooKeytab.getPath());
 
     User loginUser = LoginUser.get();
+
+    Assert.assertNotNull(loginUser);
+    Assert.assertEquals("foo", loginUser.getName());
+    Assert.assertEquals("[foo/host@EXAMPLE.COM]",
+        loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+  }
+
+  /**
+   * Tests the {@link LoginUser} with valid Kerberos principal and keytab from Hadoop APIs.
+   */
+  @Test
+  public void kerberosLoginUserWithHadoopTest() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+    org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
+    SecurityUtil.setAuthenticationMethod(
+        UserGroupInformation.AuthenticationMethod.KERBEROS, hadoopConf);
+    UserGroupInformation.setConfiguration(hadoopConf);
+    UserGroupInformation.loginUserFromKeytab(sFooPrincipal, sFooKeytab.getPath());
+
+    User loginUser = LoginUser.getClientUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());

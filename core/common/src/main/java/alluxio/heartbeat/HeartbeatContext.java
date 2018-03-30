@@ -39,6 +39,7 @@ public final class HeartbeatContext {
   public static final String MASTER_PERSISTENCE_SCHEDULER = "Master Persistence Scheduler";
   public static final String MASTER_REPLICATION_CHECK = "Master Replication Check";
   // ALLUXIO CS END
+  public static final String MASTER_BLOCK_INTEGRITY_CHECK = "Master Block Integrity Check";
   public static final String MASTER_CHECKPOINT_SCHEDULING = "Master Checkpoint Scheduling";
   public static final String MASTER_FILE_RECOMPUTATION = "Master File Recomputation";
   public static final String MASTER_LOST_FILES_DETECTION = "Master Lost Files Detection";
@@ -61,6 +62,7 @@ public final class HeartbeatContext {
     sTimerClasses.put(MASTER_PERSISTENCE_SCHEDULER, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_REPLICATION_CHECK, SLEEPING_TIMER_CLASS);
     // ALLUXIO CS END
+    sTimerClasses.put(MASTER_BLOCK_INTEGRITY_CHECK, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_CHECKPOINT_SCHEDULING, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_FILE_RECOMPUTATION, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_LOST_FILES_DETECTION, SLEEPING_TIMER_CLASS);

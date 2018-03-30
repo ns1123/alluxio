@@ -17,6 +17,7 @@ pipeline {
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: 'refs/remotes/origin/master']],
+                    extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CleanCheckout']],
                     userRemoteConfigs: [[
                         credentialsId: 'ALLUXIO-CI_GITHUB',
                         url: 'https://github.com/TachyonNexus/enterprise',
@@ -52,4 +53,3 @@ pipeline {
         }
     }
 }
-
