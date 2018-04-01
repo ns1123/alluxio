@@ -57,8 +57,3 @@ func (v version) hadoopProfile() string {
 		panic(fmt.Sprintf("unexpected hadoop major version %v", v.major))
 	}
 }
-// ALLUXIO CS ADD
-func (v version) hasHadoopKMS() bool {
-	return v.major > 2 || (v.major == 2 && v.minor > 5)
-}
-// ALLUXIO CS END

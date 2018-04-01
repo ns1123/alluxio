@@ -18,10 +18,6 @@ import (
 )
 // ALLUXIO CS ADD
 const edition = "enterprise"
-// ALLUXIO CS END
-
-// ALLUXIO CS ADD
-const edition = "enterprise"
 
 // ALLUXIO CS END
 var (
