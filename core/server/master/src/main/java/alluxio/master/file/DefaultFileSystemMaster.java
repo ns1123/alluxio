@@ -3641,15 +3641,35 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       Preconditions.checkArgument(((InodeFile) inode).isCompleted(),
           PreconditionMessage.FILE_TO_PERSIST_MUST_BE_COMPLETE);
       InodeFile file = (InodeFile) inode;
-      // TODO(manugoyal) figure out valid behavior in the un-persist case
-      Preconditions
-          .checkArgument(options.getPersisted(), PreconditionMessage.ERR_SET_STATE_UNPERSIST);
-      if (!file.isPersisted()) {
-        file.setPersistenceState(PersistenceState.PERSISTED);
-        persistedInodes = propagatePersistedInternal(inodePath, false);
-        file.setLastModificationTimeMs(opTimeMs);
-        Metrics.FILES_PERSISTED.inc();
+      // ALLUXIO CS REPLACE
+      // // TODO(manugoyal) figure out valid behavior in the un-persist case
+      // Preconditions
+      //     .checkArgument(options.getPersisted(), PreconditionMessage.ERR_SET_STATE_UNPERSIST);
+      // if (!file.isPersisted()) {
+      //   file.setPersistenceState(PersistenceState.PERSISTED);
+      //   persistedInodes = propagatePersistedInternal(inodePath, false);
+      //   file.setLastModificationTimeMs(opTimeMs);
+      //   Metrics.FILES_PERSISTED.inc();
+      // }
+      // ALLUXIO CS WITH
+      // In enterprise edition the async persist job can expire and reset the persistence state from
+      // TO_BE_PERSISTED to NOT PERSISTED. We replace this check to allow resetting the state.
+      if (options.getPersisted()) {
+        if (!file.isPersisted()) {
+          file.setPersistenceState(PersistenceState.PERSISTED);
+          persistedInodes = propagatePersistedInternal(inodePath, false);
+          file.setLastModificationTimeMs(opTimeMs);
+          Metrics.FILES_PERSISTED.inc();
+        }
+      } else {
+        if (file.getPersistenceState() != PersistenceState.TO_BE_PERSISTED
+            && file.getPersistenceState() != PersistenceState.NOT_PERSISTED) {
+          LOG.warn("Invalid operation setting persistence state of {} from {} to NOT_PERSISTED.",
+              file.toString(), file.getPersistenceState().name());
+        }
+        file.setPersistenceState(PersistenceState.NOT_PERSISTED);
       }
+      // ALLUXIO CS END
     }
     boolean ownerGroupChanged = (options.getOwner() != null) || (options.getGroup() != null);
     boolean modeChanged = (options.getMode() != Constants.INVALID_MODE);
