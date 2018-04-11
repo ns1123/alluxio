@@ -38,6 +38,8 @@ public final class ListCommand extends AbstractFileSystemCommand {
 
   /**
    * Creates the job list command.
+   *
+   * @param fs the Alluxio filesystem client
    */
   public ListCommand(FileSystem fs) {
     super(fs);

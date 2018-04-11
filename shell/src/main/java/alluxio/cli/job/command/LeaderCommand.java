@@ -34,6 +34,8 @@ public final class LeaderCommand extends AbstractFileSystemCommand {
 
   /**
    * creates the job leader command.
+   *
+   * @param fs the Alluxio filesystem client
    */
   public LeaderCommand(FileSystem fs) {
     super(fs);

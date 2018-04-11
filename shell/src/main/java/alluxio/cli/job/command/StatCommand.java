@@ -48,6 +48,8 @@ public final class StatCommand extends AbstractFileSystemCommand {
 
   /**
    * Creates the job stat command.
+   *
+   * @param fs the Alluxio filesystem client
    */
   public StatCommand(FileSystem fs) {
     super(fs);
