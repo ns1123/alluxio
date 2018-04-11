@@ -19,9 +19,8 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 
 #start up alluxio
 
-<<<<<<< HEAD
 # ALLUXIO CS REPLACE
-# USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
+# USAGE="Usage: alluxio-start.sh [-hNwm] ACTION [MOPT] [-f]
 # Where ACTION is one of:
 #   all [MOPT]         \tStart all masters, proxies, and workers.
 #   local [MOPT]       \tStart all processes locally.
@@ -47,14 +46,10 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 # -f  format Journal, UnderFS Data and Workers Folder on master
 # -N  do not try to kill previous running processes before starting new ones
 # -w  wait for processes to end before returning
+# -m  launch monitor process to ensure the target processes come up.
 # -h  display this help."
 # ALLUXIO CS WITH
-USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
-||||||| merged common ancestors
-USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
-=======
 USAGE="Usage: alluxio-start.sh [-hNwm] ACTION [MOPT] [-f]
->>>>>>> OPENSOURCE/master
 Where ACTION is one of:
   all [MOPT]         \tStart all masters, proxies, and workers.
   job_master         \tStart the job master on this node.
@@ -85,19 +80,13 @@ MOPT (Mount Option) is one of:
 -f  format Journal, UnderFS Data and Workers Folder on master
 -N  do not try to kill previous running processes before starting new ones
 -w  wait for processes to end before returning
-<<<<<<< HEAD
+-m  launch monitor process to ensure the target processes come up.
 -h  display this help.
 
 Supported environment variables:
 
 ALLUXIO_JOB_WORKER_COUNT - identifies how many job workers to start per node (default = 1)"
 # ALLUXIO CS END
-||||||| merged common ancestors
--h  display this help."
-=======
--m  launch monitor process to ensure the target processes come up.
--h  display this help."
->>>>>>> OPENSOURCE/master
 
 ensure_dirs() {
   if [[ ! -d "${ALLUXIO_LOGS_DIR}" ]]; then
