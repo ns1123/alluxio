@@ -700,7 +700,6 @@ public final class NetworkAddressUtils {
     return address;
   }
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Extracts secureRpcPort InetSocketAddress from Alluxio representation of network address.
@@ -715,8 +714,6 @@ public final class NetworkAddressUtils {
   }
 
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
   /**
    * Test if the input address is serving an Alluxio service. This method make use of the
    * Thrift protocol for performing service communication.
@@ -742,6 +739,4 @@ public final class NetworkAddressUtils {
       throw new ConnectionFailedException(e.getMessage());
     }
   }
-
->>>>>>> OPENSOURCE/master
 }
