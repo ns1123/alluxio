@@ -750,7 +750,7 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
     // ALLUXIO CS ADD
 
     if (mCapabilityEnabled) {
-      mCapabilityKeyManager.scheduleNewKeyDistribution(worker.generateClientWorkerInfo());
+      mCapabilityKeyManager.scheduleNewKeyDistribution(worker.generateWorkerInfo(null, true));
     }
     // ALLUXIO CS END
 

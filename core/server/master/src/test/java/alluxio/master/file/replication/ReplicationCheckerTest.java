@@ -22,6 +22,7 @@ import alluxio.master.SafeModeManager;
 import alluxio.master.TestSafeModeManager;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterFactory;
+import alluxio.master.file.RpcContext;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
 import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeTree;
@@ -31,7 +32,6 @@ import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalTestUtils;
-import alluxio.master.journal.NoopJournalContext;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
 import alluxio.wire.WorkerNetAddress;
@@ -150,7 +150,7 @@ public final class ReplicationCheckerTest {
   private long createBlockHelper(AlluxioURI path, CreatePathOptions<?> options) throws Exception {
     try (LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.WRITE)) {
       InodeTree.CreatePathResult result =
-          mInodeTree.createPath(inodePath, options, new NoopJournalContext());
+          mInodeTree.createPath(RpcContext.NOOP, inodePath, options);
       InodeFile inodeFile = (InodeFile) result.getCreated().get(0);
       inodeFile.setBlockSizeBytes(1);
       inodeFile.complete(1);
