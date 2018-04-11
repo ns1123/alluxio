@@ -74,39 +74,7 @@ public class BlockMasterIntegrityIntegrationTest {
     BlockWorker worker = mCluster.getWorkerProcess().getWorker(BlockWorker.class);
     FileSystemTestUtils.createByteFile(fs, uri, WriteType.MUST_CACHE, len);
     Assert.assertEquals(1, worker.getStoreMetaFull().getNumberOfBlocks());
-<<<<<<< HEAD
-    // ALLUXIO CS REPLACE
-    // FileSystemMaster fsm =
-    //     mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
-    // ALLUXIO CS WITH
-    FileSystemMaster pfsm =
-        mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
-    FileSystemMaster fsm = Whitebox.getInternalState(pfsm, "mFileSystemMaster");
-    // ALLUXIO CS END
-    InodeTree tree = Whitebox.getInternalState(fsm, "mInodeTree");
-    LockedInodePath path = tree.lockInodePath(uri, InodeTree.LockMode.WRITE);
-    DeleteOptions options = DeleteOptions.defaults();
-    BlockDeletionContext bctx = Whitebox.invokeMethod(fsm, "createBlockDeletionContext");
-    JournalContext jctx = Whitebox.invokeMethod(fsm, "createJournalContext");
-    Whitebox.invokeMethod(fsm, "deleteAndJournal", path, options, jctx, bctx);
-    path.close();
-    jctx.close(); // Journal Context is closed before Block Context
-    bctx.close();
-||||||| merged common ancestors
-    FileSystemMaster fsm =
-        mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
-    InodeTree tree = Whitebox.getInternalState(fsm, "mInodeTree");
-    LockedInodePath path = tree.lockInodePath(uri, InodeTree.LockMode.WRITE);
-    DeleteOptions options = DeleteOptions.defaults();
-    BlockDeletionContext bctx = Whitebox.invokeMethod(fsm, "createBlockDeletionContext");
-    JournalContext jctx = Whitebox.invokeMethod(fsm, "createJournalContext");
-    Whitebox.invokeMethod(fsm, "deleteAndJournal", path, options, jctx, bctx);
-    path.close();
-    jctx.close(); // Journal Context is closed before Block Context
-    bctx.close();
-=======
     removeFileMetadata(uri);
->>>>>>> OPENSOURCE/master
     mCluster.stopWorkers();
     mCluster.restartMasters();
     mCluster.startWorkers(); // creates a new worker, so need to get the new BlockWorker
@@ -128,15 +96,6 @@ public class BlockMasterIntegrityIntegrationTest {
     BlockWorker worker = mCluster.getWorkerProcess().getWorker(BlockWorker.class);
     FileSystemTestUtils.createByteFile(fs, uri, WriteType.MUST_CACHE, len);
     Assert.assertEquals(1, worker.getStoreMetaFull().getNumberOfBlocks());
-<<<<<<< HEAD
-    // ALLUXIO CS REPLACE
-    // FileSystemMaster fsm =
-    //     mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
-    // ALLUXIO CS WITH
-    FileSystemMaster pfsm =
-||||||| merged common ancestors
-    FileSystemMaster fsm =
-=======
     removeFileMetadata(uri);
     CommonUtils.waitFor("invalid blocks to be deleted",
         (v) -> worker.getStoreMetaFull().getNumberOfBlocks() == 0,
@@ -144,8 +103,11 @@ public class BlockMasterIntegrityIntegrationTest {
   }
 
   private void removeFileMetadata(AlluxioURI uri) throws Exception {
-    FileSystemMaster fsm =
->>>>>>> OPENSOURCE/master
+    // ALLUXIO CS REPLACE
+    // FileSystemMaster fsm =
+    //     mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
+    // ALLUXIO CS WITH
+    FileSystemMaster pfsm =
         mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(FileSystemMaster.class);
     FileSystemMaster fsm = Whitebox.getInternalState(pfsm, "mFileSystemMaster");
     // ALLUXIO CS END
