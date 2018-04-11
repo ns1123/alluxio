@@ -12,7 +12,7 @@
 package alluxio.cli.fs.command;
 
 import alluxio.AlluxioURI;
-import alluxio.cli.fs.command.AbstractFileSystemCommand;
+import alluxio.cli.CommandUtils;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.exception.AlluxioException;
@@ -55,22 +55,14 @@ public final class SetReplicationCommand extends AbstractFileSystemCommand {
   }
 
   @Override
-  protected int getNumOfArgs() {
-    return 1;
-  }
-
-  @Override
   public Options getOptions() {
     return new Options().addOption(RECURSIVE_OPTION).addOption(REPLICATION_MAX_OPTION)
         .addOption(REPLICATION_MIN_OPTION);
   }
 
   @Override
-  public void validateArgs(String... args) throws InvalidArgumentException {
-    if (args.length < getNumOfArgs()) {
-      throw new InvalidArgumentException(
-          getCommandName() + " takes " + getNumOfArgs() + " argument at least\n");
-    }
+  public void validateArgs(CommandLine cl) throws InvalidArgumentException {
+    CommandUtils.checkNumOfArgsEquals(this, cl, 1);
   }
 
   /**

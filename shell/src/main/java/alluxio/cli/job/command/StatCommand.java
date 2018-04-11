@@ -11,7 +11,9 @@
 
 package alluxio.cli.job.command;
 
-import alluxio.cli.AbstractCommand;
+import alluxio.cli.CommandUtils;
+import alluxio.cli.fs.command.AbstractFileSystemCommand;
+import alluxio.client.file.FileSystem;
 import alluxio.client.job.JobContext;
 import alluxio.client.job.JobMasterClient;
 import alluxio.exception.AlluxioException;
@@ -35,7 +37,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Displays the status of the job.
  */
 @ThreadSafe
-public final class StatCommand extends AbstractCommand {
+public final class StatCommand extends AbstractFileSystemCommand {
   private static final Logger LOG = LoggerFactory.getLogger(StatCommand.class);
   private static final Option VERBOSE_OPTION =
       Option.builder("v")
@@ -43,6 +45,13 @@ public final class StatCommand extends AbstractCommand {
           .hasArg(false)
           .desc("show the status of every task")
           .build();
+
+  /**
+   * Creates the job stat command.
+   */
+  public StatCommand(FileSystem fs) {
+    super(fs);
+  }
 
   @Override
   public String getCommandName() {
@@ -109,14 +118,9 @@ public final class StatCommand extends AbstractCommand {
   }
 
   @Override
-  protected int getNumOfArgs() {
-    return 1;
-  }
-
-  @Override
-  public void validateArgs(String... args) throws InvalidArgumentException {
-    super.validateArgs(args);
-    String arg = args[0];
+  public void validateArgs(CommandLine cl) throws InvalidArgumentException {
+    CommandUtils.checkNumOfArgsEquals(this, cl, 1);
+    String arg = cl.getArgs()[0];
     try {
       Long.parseLong(arg);
     } catch (Exception e) {

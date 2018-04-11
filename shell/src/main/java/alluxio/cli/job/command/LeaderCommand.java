@@ -11,8 +11,11 @@
 
 package alluxio.cli.job.command;
 
-import alluxio.cli.AbstractCommand;
+import alluxio.cli.CommandUtils;
+import alluxio.cli.fs.command.AbstractFileSystemCommand;
+import alluxio.client.file.FileSystem;
 import alluxio.client.job.JobContext;
+import alluxio.exception.status.InvalidArgumentException;
 
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
@@ -26,14 +29,14 @@ import javax.annotation.concurrent.ThreadSafe;
  * Prints the current leader master host name.
  */
 @ThreadSafe
-public final class LeaderCommand extends AbstractCommand {
+public final class LeaderCommand extends AbstractFileSystemCommand {
   private static final Logger LOG = LoggerFactory.getLogger(LeaderCommand.class);
 
   /**
    * creates the job leader command.
    */
-  public LeaderCommand() {
-    super();
+  public LeaderCommand(FileSystem fs) {
+    super(fs);
   }
 
   @Override
@@ -42,8 +45,8 @@ public final class LeaderCommand extends AbstractCommand {
   }
 
   @Override
-  public int getNumOfArgs() {
-    return 0;
+  public void validateArgs(CommandLine cl) throws InvalidArgumentException {
+    CommandUtils.checkNumOfArgsEquals(this, cl, 0);
   }
 
   @Override
