@@ -3265,20 +3265,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @Override
   public void scheduleAsyncPersistence(AlluxioURI path)
       throws AlluxioException, UnavailableException {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // checkUfsMode(path, OperationType.WRITE);
     // ALLUXIO CS WITH
     // NOTE: In CS we retry an async persist request until ufs permits the operation
     // ALLUXIO CS END
-    try (JournalContext journalContext = createJournalContext();
-||||||| merged common ancestors
-    checkUfsMode(path, OperationType.WRITE);
-    try (JournalContext journalContext = createJournalContext();
-=======
-    checkUfsMode(path, OperationType.WRITE);
     try (RpcContext rpcContext = createRpcContext();
->>>>>>> OPENSOURCE/master
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
       scheduleAsyncPersistenceAndJournal(rpcContext, inodePath);
     }
@@ -3478,52 +3470,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
     AlluxioURI ufsUri = resolution.getUri();
-<<<<<<< HEAD
-    try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
-      UnderFileSystem ufs = ufsResource.get();
-      String ufsFingerprint = ufs.getFingerprint(ufsUri.toString());
-      boolean containsMountPoint = mMountTable.containsMountPoint(inodePath.getUri());
-||||||| merged common ancestors
-    UnderFileSystem ufs = resolution.getUfs();
-    String ufsFingerprint = ufs.getFingerprint(ufsUri.toString());
-    boolean containsMountPoint = mMountTable.containsMountPoint(inodePath.getUri());
->>>>>>>>> Temporary merge branch 2
-
-<<<<<<<<< Temporary merge branch 1
-      if (listStatus != null) {
-        // maps children name to up-to-date ufs fingerprint
-        Map<String, String> ufsChildFingerprints = new HashMap<>();
-        // maps children name to inode
-        Map<String, Inode<?>> inodeChildren = new HashMap<>();
-||||||||| merged common ancestors
-    if (listStatus != null) {
-      // maps children name to up-to-date ufs fingerprint
-      Map<String, String> ufsChildFingerprints = new HashMap<>();
-      // maps children name to inode
-      Map<String, Inode<?>> inodeChildren = new HashMap<>();
-=========
-    UfsSyncUtils.SyncPlan syncPlan =
-        UfsSyncUtils.computeSyncPlan(inode, ufsFingerprint, containsMountPoint);
->>>>>>>>> Temporary merge branch 2
-
-<<<<<<<<< Temporary merge branch 1
-        for (UfsStatus ufsChildStatus : listStatus) {
-          ufsChildFingerprints.put(ufsChildStatus.getName(),
-              Fingerprint.create(ufs.getUnderFSType(), ufsChildStatus).serialize());
-        }
-        InodeDirectory inodeDir = (InodeDirectory) inode;
-        for (Inode<?> child : inodeDir.getChildren()) {
-          inodeChildren.put(child.getName(), child);
-||||||||| merged common ancestors
-      for (UfsStatus ufsChildStatus : listStatus) {
-        ufsChildFingerprints.put(ufsChildStatus.getName(),
-            Fingerprint.create(ufs.getUnderFSType(), ufsChildStatus).serialize());
-      }
-      InodeDirectory inodeDir = (InodeDirectory) inode;
-      for (Inode<?> child : inodeDir.getChildren()) {
-        inodeChildren.put(child.getName(), child);
-      }
-=======
     try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
       UnderFileSystem ufs = ufsResource.get();
       String ufsFingerprint = ufs.getFingerprint(ufsUri.toString());
@@ -3531,7 +3477,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
       UfsSyncUtils.SyncPlan syncPlan =
           UfsSyncUtils.computeSyncPlan(inode, ufsFingerprint, containsMountPoint);
-
       if (syncPlan.toUpdateDirectory()) {
         // Fingerprints only consider permissions for directory inodes.
         UfsStatus ufsStatus = null;
@@ -3555,78 +3500,16 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         try {
           deleteInternal(rpcContext, inodePath, false, System.currentTimeMillis(),
               syncDeleteOptions);
->>>>>>> OPENSOURCE/master
 
-<<<<<<< HEAD
-      UfsSyncUtils.SyncPlan syncPlan =
-          UfsSyncUtils.computeSyncPlan(inode, ufsFingerprint, containsMountPoint);
-
-      if (syncPlan.toUpdateDirectory()) {
-        // Fingerprints only consider permissions for directory inodes.
-        UfsStatus ufsStatus = null;
-        try {
-          ufsStatus = ufs.getStatus(ufsUri.toString());
-        } catch (IOException e) {
-          // Ignore, since this directory inode could be out of sync (contains a mount point)
-        }
-        if (ufsStatus != null) {
-          SetAttributeOptions options =
-              SetAttributeOptions.defaults().setOwner(ufsStatus.getOwner())
-                  .setGroup(ufsStatus.getGroup()).setMode(ufsStatus.getMode())
-                  .setUfsFingerprint(ufsFingerprint);
-          long opTimeMs = System.currentTimeMillis();
-          // use replayed, since updating UFS is not desired.
-          setAttributeInternal(inodePath, true, opTimeMs, options);
-          journalSetAttribute(inodePath, opTimeMs, options, journalContext);
-        }
-      }
-      if (syncPlan.toDelete()) {
-        try {
-          deleteInternal(inodePath, false, System.currentTimeMillis(), syncDeleteOptions,
-              journalContext, blockDeletionContext);
           deletedInode = true;
         } catch (DirectoryNotEmptyException | IOException e) {
           // Should not happen, since it is an unchecked delete.
           LOG.error("Unexpected error for unchecked delete.", e);
         }
-||||||| merged common ancestors
-      // Iterate over ufs children and process children which do not exist in Alluxio.
-      for (Map.Entry<String, String> ufsEntry : ufsChildFingerprints.entrySet()) {
-        if (!inodeChildren.containsKey(ufsEntry.getKey()) && !PathUtils
-            .isTemporaryFileName(ufsEntry.getKey())) {
-          // Ufs child exists, but Alluxio child does not. Must load metadata.
-          loadMetadata = true;
-          break;
-=========
-    if (syncPlan.toUpdateDirectory()) {
-      // Fingerprints only consider permissions for directory inodes.
-      UfsStatus ufsStatus = null;
-      try {
-        ufsStatus = ufs.getStatus(ufsUri.toString());
-      } catch (IOException e) {
-        // Ignore, since this directory inode could be out of sync (contains a mount point)
-      }
-      if (ufsStatus != null) {
-        SetAttributeOptions options =
-            SetAttributeOptions.defaults().setOwner(ufsStatus.getOwner())
-                .setGroup(ufsStatus.getGroup()).setMode(ufsStatus.getMode())
-                .setUfsFingerprint(ufsFingerprint);
-        long opTimeMs = System.currentTimeMillis();
-        // use replayed, since updating UFS is not desired.
-        setAttributeInternal(inodePath, true, opTimeMs, options);
-        journalSetAttribute(inodePath, opTimeMs, options, journalContext);
-=======
-          deletedInode = true;
-        } catch (DirectoryNotEmptyException | IOException e) {
-          // Should not happen, since it is an unchecked delete.
-          LOG.error("Unexpected error for unchecked delete.", e);
-        }
->>>>>>> OPENSOURCE/master
       }
       if (syncPlan.toLoadMetadata()) {
         loadMetadata = true;
       }
-<<<<<<< HEAD
       if (syncPlan.toSyncChildren() && inode instanceof InodeDirectory
           && syncDescendantType != DescendantType.NONE) {
         UfsStatus[] listStatus = ufs.listStatus(ufsUri.toString());
@@ -3637,60 +3520,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           for (Inode<?> child : inodeDir.getChildren()) {
             inodeChildren.put(child.getName(), child);
           }
-||||||| merged common ancestors
-    }
-    if (syncPlan.toLoadMetadata()) {
-      loadMetadata = true;
-    }
-    if (syncPlan.toSyncChildren() && inode instanceof InodeDirectory
-        && syncDescendantType != DescendantType.NONE) {
-      UfsStatus[] listStatus = ufs.listStatus(ufsUri.toString());
-      if (listStatus != null) {
-        InodeDirectory inodeDir = (InodeDirectory) inode;
-        // maps children name to inode
-        Map<String, Inode<?>> inodeChildren = new HashMap<>();
-        for (Inode<?> child : inodeDir.getChildren()) {
-          inodeChildren.put(child.getName(), child);
->>>>>>>>> Temporary merge branch 2
-        }
-
-<<<<<<<<< Temporary merge branch 1
-        // Iterate over ufs children and process children which do not exist in Alluxio.
-        for (Map.Entry<String, String> ufsEntry : ufsChildFingerprints.entrySet()) {
-          if (!inodeChildren.containsKey(ufsEntry.getKey()) && !PathUtils
-              .isTemporaryFileName(ufsEntry.getKey())) {
-            // Ufs child exists, but Alluxio child does not. Must load metadata.
-            loadMetadata = true;
-            break;
-          }
-||||||||| merged common ancestors
-      // Iterate over Alluxio children and process persisted children.
-      for (Map.Entry<String, Inode<?>> inodeEntry : inodeChildren.entrySet()) {
-        if (!inodeEntry.getValue().isPersisted()) {
-          // Ignore non-persisted inodes.
-          continue;
-=========
-        for (UfsStatus ufsChildStatus : listStatus) {
-          if (!inodeChildren.containsKey(ufsChildStatus.getName()) && !PathUtils
-              .isTemporaryFileName(ufsChildStatus.getName())) {
-            // Ufs child exists, but Alluxio child does not. Must load metadata.
-            loadMetadata = true;
-            break;
-          }
->>>>>>>>> Temporary merge branch 2
-        }
-=======
-      if (syncPlan.toSyncChildren() && inode instanceof InodeDirectory
-          && syncDescendantType != DescendantType.NONE) {
-        UfsStatus[] listStatus = ufs.listStatus(ufsUri.toString());
-        if (listStatus != null) {
-          InodeDirectory inodeDir = (InodeDirectory) inode;
-          // maps children name to inode
-          Map<String, Inode<?>> inodeChildren = new HashMap<>();
-          for (Inode<?> child : inodeDir.getChildren()) {
-            inodeChildren.put(child.getName(), child);
-          }
->>>>>>> OPENSOURCE/master
 
           for (UfsStatus ufsChildStatus : listStatus) {
             if (!inodeChildren.containsKey(ufsChildStatus.getName()) && !PathUtils
@@ -3711,25 +3540,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             tempInodePath
                 .setDescendant(inodeEntry.getValue(), inodePath.getUri().join(inodeEntry.getKey()));
 
-<<<<<<< HEAD
-            // Recursively sync children
-            if (syncDescendantType != DescendantType.ALL) {
-              syncDescendantType = DescendantType.NONE;
-            }
-            loadMetadata |= syncInodeMetadata(journalContext, tempInodePath, syncDescendantType,
-                blockDeletionContext).getLoadMetadata();
-||||||| merged common ancestors
-          // Recursively sync children
-          if (syncDescendantType != DescendantType.ALL) {
-            syncDescendantType = DescendantType.NONE;
-=======
             // Recursively sync children
             if (syncDescendantType != DescendantType.ALL) {
               syncDescendantType = DescendantType.NONE;
             }
             loadMetadata |=
                 syncInodeMetadata(rpcContext, tempInodePath, syncDescendantType).getLoadMetadata();
->>>>>>> OPENSOURCE/master
           }
         }
       }
@@ -4688,10 +4504,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         lastThrown = e;
       }
     }
-<<<<<<< HEAD
-    throw new IOException("Failed to remove deleted blocks from block master", lastThrown);
-||||||| merged common ancestors
-=======
     throw new IOException("Failed to remove deleted blocks from block master", lastThrown);
   }
 
@@ -4701,7 +4513,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @VisibleForTesting
   public RpcContext createRpcContext() throws UnavailableException {
     return new RpcContext(createBlockDeletionContext(), createJournalContext());
->>>>>>> OPENSOURCE/master
   }
 
   private LockingScheme createLockingScheme(AlluxioURI path, CommonOptions options,
