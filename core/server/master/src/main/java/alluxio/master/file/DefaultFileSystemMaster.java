@@ -3477,6 +3477,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
       UfsSyncUtils.SyncPlan syncPlan =
           UfsSyncUtils.computeSyncPlan(inode, ufsFingerprint, containsMountPoint);
+
       if (syncPlan.toUpdateDirectory()) {
         // Fingerprints only consider permissions for directory inodes.
         UfsStatus ufsStatus = null;
