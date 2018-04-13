@@ -22,7 +22,6 @@ or generating a suite of release tarballs.
 		},
 	}
 
-<<<<<<< HEAD
 	debugFlag bool
 	// ALLUXIO CS ADD
 	callHomeFlag       bool
@@ -36,11 +35,6 @@ or generating a suite of release tarballs.
 	proxyURLFlag   string
 	ufsModulesFlag string
 	// ALLUXIO CS END
-||||||| merged common ancestors
-	debugFlag  bool
-=======
-	debugFlag bool
->>>>>>> os/master
 )
 
 // ALLUXIO CS ADD
