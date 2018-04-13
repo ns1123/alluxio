@@ -130,7 +130,7 @@ func getCommonMvnArgs(hadoopVersion version) []string {
 
 func includeYarnIntegration(hadoopVersion version) bool {
 	// ALLUXIO CS REPLACE
-	// return hadoopVersion.major >= 2 && hadoopVersion.minor >= 4;
+	// return hadoopVersion.major >= 2 && hadoopVersion.minor >= 4
 	// ALLUXIO CS WITH
 	return false
 	// ALLUXIO CS END

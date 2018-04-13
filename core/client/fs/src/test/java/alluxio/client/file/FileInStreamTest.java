@@ -136,8 +136,7 @@ public final class FileInStreamTest {
       mInStreams.add(new TestBlockInStream(input, i, input.length, false, mBlockSource));
       when(mBlockStore.getEligibleWorkers())
           .thenReturn(Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress(), 0, 0)));
-      when(mBlockStore.getInStream(eq((long) i), any(InStreamOptions
-          .class), any()))
+      when(mBlockStore.getInStream(eq((long) i), any(InStreamOptions.class), any()))
           .thenAnswer(new Answer<BlockInStream>() {
             @Override
             public BlockInStream answer(InvocationOnMock invocation) throws Throwable {
