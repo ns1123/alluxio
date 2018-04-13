@@ -99,12 +99,7 @@ public final class FileSystemMasterClientRestServiceHandler {
   @Path(SERVICE_NAME)
   @ReturnType("java.lang.String")
   public Response getServiceName() {
-    return RestUtils.call(new RestUtils.RestCallable<String>() {
-      @Override
-      public String call() throws Exception {
-        return Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME;
-      }
-    });
+    return RestUtils.call(() -> Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME);
   }
 
   /**
@@ -231,12 +226,9 @@ public final class FileSystemMasterClientRestServiceHandler {
   @Path(GET_NEW_BLOCK_ID_FOR_FILE)
   @ReturnType("java.lang.Long")
   public Response getNewBlockIdForFile(@QueryParam("path") final String path) {
-    return RestUtils.call(new RestUtils.RestCallable<Long>() {
-      @Override
-      public Long call() throws Exception {
-        Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-        return mFileSystemMaster.getNewBlockIdForFile(new AlluxioURI(path));
-      }
+    return RestUtils.call(() -> {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
+      return mFileSystemMaster.getNewBlockIdForFile(new AlluxioURI(path));
     });
   }
   /**
