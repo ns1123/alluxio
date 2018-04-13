@@ -12,10 +12,12 @@
 package alluxio.cli.fs.command;
 
 import alluxio.AlluxioURI;
+import alluxio.cli.CommandUtils;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.job.JobThriftClientUtils;
 import alluxio.exception.AlluxioException;
+import alluxio.exception.status.InvalidArgumentException;
 import alluxio.job.load.LoadConfig;
 
 import org.apache.commons.cli.CommandLine;
@@ -31,7 +33,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Loads a file or directory in Alluxio space, makes it resident in memory.
  */
 @ThreadSafe
-public final class DistributedLoadCommand extends WithWildCardPathCommand {
+public final class DistributedLoadCommand extends AbstractFileSystemCommand {
   private static final String REPLICATION = "replication";
 
   /**
@@ -58,12 +60,20 @@ public final class DistributedLoadCommand extends WithWildCardPathCommand {
   }
 
   @Override
-  protected void runCommand(AlluxioURI path, CommandLine cl) throws AlluxioException, IOException {
+  public void validateArgs(CommandLine cl) throws InvalidArgumentException {
+    CommandUtils.checkNumOfArgsEquals(this, cl, 1);
+  }
+
+  @Override
+  public int run(CommandLine cl) throws AlluxioException, IOException {
+    String[] args = cl.getArgs();
+    AlluxioURI path = new AlluxioURI(args[0]);
     int replication = 1;
     if (cl.hasOption(REPLICATION)) {
       replication = Integer.parseInt(cl.getOptionValue(REPLICATION));
     }
     load(path, replication);
+    return 0;
   }
 
   /**

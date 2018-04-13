@@ -16,6 +16,7 @@ import alluxio.PropertyKey;
 import alluxio.cli.AbstractShell;
 import alluxio.cli.Command;
 import alluxio.cli.CommandUtils;
+import alluxio.client.file.FileSystem;
 import alluxio.util.ConfigurationUtils;
 
 import com.google.common.collect.ImmutableMap;
@@ -75,7 +76,7 @@ public final class JobShell extends AbstractShell {
 
   @Override
   protected Map<String, Command> loadCommands() {
-    return CommandUtils.loadCommands(JobShell.class.getPackage().getName(), new Class[] {},
-        new Object[] {});
+    return CommandUtils.loadCommands(JobShell.class.getPackage().getName(),
+        new Class[] {FileSystem.class}, new Object[] {FileSystem.Factory.get()});
   }
 }

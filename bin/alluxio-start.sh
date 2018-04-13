@@ -20,7 +20,7 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 #start up alluxio
 
 # ALLUXIO CS REPLACE
-# USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
+# USAGE="Usage: alluxio-start.sh [-hNwm] ACTION [MOPT] [-f]
 # Where ACTION is one of:
 #   all [MOPT]         \tStart all masters, proxies, and workers.
 #   local [MOPT]       \tStart all processes locally.
@@ -46,9 +46,10 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 # -f  format Journal, UnderFS Data and Workers Folder on master
 # -N  do not try to kill previous running processes before starting new ones
 # -w  wait for processes to end before returning
+# -m  launch monitor process to ensure the target processes come up.
 # -h  display this help."
 # ALLUXIO CS WITH
-USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
+USAGE="Usage: alluxio-start.sh [-hNwm] ACTION [MOPT] [-f]
 Where ACTION is one of:
   all [MOPT]         \tStart all masters, proxies, and workers.
   job_master         \tStart the job master on this node.
@@ -79,6 +80,7 @@ MOPT (Mount Option) is one of:
 -f  format Journal, UnderFS Data and Workers Folder on master
 -N  do not try to kill previous running processes before starting new ones
 -w  wait for processes to end before returning
+-m  launch monitor process to ensure the target processes come up.
 -h  display this help.
 
 Supported environment variables:
@@ -354,6 +356,60 @@ restart_workers() {
   ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" "restart_worker"
 }
 
+get_offline_worker() {
+  local run=
+  local result=""
+  run=$(ps -ef | grep "alluxio.worker.AlluxioWorker" | grep "java" | wc | awk '{ print $1; }')
+  if [[ ${run} -eq 0 ]]; then
+    result=$(hostname -f)
+  fi
+  echo "${result}"
+}
+
+get_offline_workers() {
+  local result=""
+  local run=
+  local i=0
+  local workers=$(cat "${ALLUXIO_CONF_DIR}/workers" | sed  "s/#.*$//;/^$/d")
+  for worker in $(echo ${workers}); do
+    if [[ ${i} -gt 0 ]]; then
+      result+=","
+    fi
+    run=$(ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -tt ${worker} \
+        ps -ef | grep "alluxio.worker.AlluxioWorker" | grep "java" | wc | awk '{ print $1; }')
+    if [[ ${run} -eq 0 ]]; then
+      result+="${worker}"
+    fi
+    i=$((i+1))
+  done
+  echo "${result}"
+}
+
+start_monitor() {
+  local action=$1
+  local nodes=$2
+  local run=
+  if [[ "${action}" == "restart_worker" ]]; then
+    action="worker"
+    if [[ -z "${nodes}" ]]; then
+      run="false"
+    fi
+  elif [[ "${action}" == "restart_workers" ]]; then
+    action="workers"
+    if [[ -z "${nodes}" ]]; then
+      run="false"
+    fi
+  elif [[ "${action}" == "logserver" || "${action}" == "safe" ]]; then
+    echo -e "Error: Invalid Monitor ACTION: ${action}" >&2
+    exit 1
+  fi
+  if [[ -z "${run}" ]]; then
+    ${LAUNCHER} "${BIN}/alluxio-monitor.sh" "${action}" "${nodes}"
+  else
+    echo "Skipping the monitor checks..."
+  fi
+}
+
 run_safe() {
   while [ 1 ]
   do
@@ -374,7 +430,7 @@ main() {
   # ensure log/data dirs
   ensure_dirs
 
-  while getopts "hNw" o; do
+  while getopts "hNwm" o; do
     case "${o}" in
       h)
         echo -e "${USAGE}"
@@ -385,6 +441,9 @@ main() {
         ;;
       w)
         wait="true"
+        ;;
+      m)
+        monitor="true"
         ;;
       *)
         echo -e "${USAGE}" >&2
@@ -425,6 +484,21 @@ main() {
     exit 1
   fi
 
+  MONITOR_NODES=
+  if [[ "${monitor}" ]]; then
+    case "${ACTION}" in
+      restart_worker)
+        MONITOR_NODES=$(get_offline_worker)
+        ;;
+      restart_workers)
+        MONITOR_NODES=$(get_offline_workers)
+        ;;
+      *)
+        MONITOR_NODES=""
+      ;;
+    esac
+  fi
+
   if [[ "${killonstart}" != "no" ]]; then
     case "${ACTION}" in
       all | local | master | masters | proxy | proxies | worker | workers | logserver)
@@ -433,6 +507,7 @@ main() {
         ;;
     esac
   fi
+
   case "${ACTION}" in
     all)
       start_masters "${FORMAT}"
@@ -528,6 +603,10 @@ main() {
 
   if [[ "${wait}" ]]; then
     wait
+  fi
+
+  if [[ "${monitor}" ]]; then
+    start_monitor "${ACTION}" "${MONITOR_NODES}"
   fi
 }
 

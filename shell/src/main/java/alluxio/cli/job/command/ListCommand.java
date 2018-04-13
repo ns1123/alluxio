@@ -11,10 +11,13 @@
 
 package alluxio.cli.job.command;
 
-import alluxio.cli.AbstractCommand;
+import alluxio.cli.CommandUtils;
+import alluxio.cli.fs.command.AbstractFileSystemCommand;
+import alluxio.client.file.FileSystem;
 import alluxio.client.job.JobContext;
 import alluxio.client.job.JobMasterClient;
 import alluxio.exception.AlluxioException;
+import alluxio.exception.status.InvalidArgumentException;
 import alluxio.resource.CloseableResource;
 
 import org.apache.commons.cli.CommandLine;
@@ -30,19 +33,26 @@ import javax.annotation.concurrent.ThreadSafe;
  * Lists the job ids in the history.
  */
 @ThreadSafe
-public final class ListCommand extends AbstractCommand {
+public final class ListCommand extends AbstractFileSystemCommand {
   private static final Logger LOG = LoggerFactory.getLogger(ListCommand.class);
 
   /**
    * Creates the job list command.
+   *
+   * @param fs the Alluxio filesystem client
    */
-  public ListCommand() {
-    super();
+  public ListCommand(FileSystem fs) {
+    super(fs);
   }
 
   @Override
   public String getCommandName() {
     return "ls";
+  }
+
+  @Override
+  public void validateArgs(CommandLine cl) throws InvalidArgumentException {
+    CommandUtils.checkNumOfArgsEquals(this, cl, 0);
   }
 
   @Override
@@ -70,10 +80,5 @@ public final class ListCommand extends AbstractCommand {
   public String getDescription() {
     return "Prints the IDs of the most recent jobs, running and finished,"
         + " in the history up to the capacity set in alluxio.job.master.job.capacity";
-  }
-
-  @Override
-  protected int getNumOfArgs() {
-    return 0;
   }
 }
