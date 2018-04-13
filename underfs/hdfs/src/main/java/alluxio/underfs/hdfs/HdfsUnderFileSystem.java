@@ -120,7 +120,6 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // Stash the classloader to prevent service loading throwing exception due to
     // classloader mismatch.
     ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
-    // ALLUXIO CS ADD
     try {
       Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
@@ -129,9 +128,11 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     } finally {
       Thread.currentThread().setContextClassLoader(previousClassLoader);
     }
+    // ALLUXIO CS ADD
 
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
+
     // NOTE, hdfsConf.get("hadoop.security.authentication") may return null for hadoop 1.x
     mIsHdfsKerberized = "KERBEROS".equalsIgnoreCase(hdfsConf.get("hadoop.security.authentication"));
     if (mIsHdfsKerberized) {
@@ -156,8 +157,15 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       } catch (IOException e) {
         LOG.error("Failed to Login", e);
       }
+    }
+    // ALLUXIO CS END
 
-      try {
+    mUserFs = CacheBuilder.newBuilder().build(new CacheLoader<String, FileSystem>() {
+      @Override
+      public FileSystem load(String userKey) throws Exception {
+        // ALLUXIO CS REPLACE
+        // return path.getFileSystem(hdfsConf);
+        // ALLUXIO CS WITH
         boolean isImpersonationEnabled =
             Boolean.valueOf(
                 conf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
@@ -172,49 +180,28 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
                   org.apache.hadoop.security.UserGroupInformation.getLoginUser());
           LOG.info("Connecting to hdfs: {} proxyUgi: {} user: {}", ufsPrefix, proxyUgi.toString(),
               mUser);
-          HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<Void>() {
-            @Override
-            public Void run() throws IOException {
-              Path path = new Path(ufsPrefix);
-              mFileSystem = path.getFileSystem(ufsHdfsConf);
-              return null;
-            }
-          });
+          return HdfsSecurityUtils
+              .runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<FileSystem>() {
+                @Override
+                public FileSystem run() throws IOException {
+                  Path path = new Path(ufsPrefix);
+                  return path.getFileSystem(ufsHdfsConf);
+                }
+              });
         } else {
           // Alluxio client runs HDFS operations as the current user.
           LOG.info("Connecting to hdfs: {} ugi: {} user: {}", ufsPrefix,
               org.apache.hadoop.security.UserGroupInformation.getLoginUser(), mUser);
-          HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.SecuredRunner<Void>() {
-            @Override
-            public Void run() throws IOException {
-              Path path = new Path(ufsPrefix);
-              mFileSystem = path.getFileSystem(ufsHdfsConf);
-              return null;
-            }
-          });
+          return HdfsSecurityUtils
+              .runAsCurrentUser(new HdfsSecurityUtils.SecuredRunner<FileSystem>() {
+                @Override
+                public FileSystem run() throws IOException {
+                  Path path = new Path(ufsPrefix);
+                  return path.getFileSystem(ufsHdfsConf);
+                }
+              });
         }
-      } catch (IOException e) {
-        LOG.error("Exception thrown when trying to get FileSystem for {}", ufsPrefix, e);
-        throw new RuntimeException(e);
-      } finally {
-        Thread.currentThread().setContextClassLoader(previousClassLoader);
-      }
-      return;
-    }
-    // ALLUXIO CS END
-    try {
-      Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
-      // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
-      // group service.
-      UserGroupInformation.setConfiguration(hdfsConf);
-    } finally {
-      Thread.currentThread().setContextClassLoader(previousClassLoader);
-    }
-
-    mUserFs = CacheBuilder.newBuilder().build(new CacheLoader<String, FileSystem>() {
-      @Override
-      public FileSystem load(String userKey) throws Exception {
-        return path.getFileSystem(hdfsConf);
+        // ALLUXIO CS END
       }
     });
   }
