@@ -25,7 +25,9 @@ import alluxio.master.journal.JournalEntryAssociation;
 import alluxio.master.journal.JournalEntryStateMachine;
 import alluxio.master.journal.JournalWriter;
 import alluxio.proto.journal.Journal.JournalEntry;
+import alluxio.resource.LockResource;
 import alluxio.util.CommonUtils;
+import alluxio.util.WaitForOptions;
 import alluxio.util.io.FileUtils;
 
 import com.google.common.base.Preconditions;
@@ -33,7 +35,6 @@ import io.atomix.catalyst.concurrent.Listener;
 import io.atomix.catalyst.serializer.Serializer;
 import io.atomix.catalyst.transport.Address;
 import io.atomix.catalyst.transport.netty.NettyTransport;
-import io.atomix.copycat.client.ConnectionStrategies;
 import io.atomix.copycat.client.CopycatClient;
 import io.atomix.copycat.server.CopycatServer;
 import io.atomix.copycat.server.StateMachine;
@@ -55,6 +56,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
@@ -168,8 +171,11 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mLastUpdateMs = new AtomicLong(-1);
     mLastReadSequenceNumber = new AtomicLong(-1);
     mLastCommittedSequenceNumber = new AtomicLong(-1);
-    mClient = CopycatClient.builder(getClusterAddresses(conf))
-        .withConnectionStrategy(ConnectionStrategies.EXPONENTIAL_BACKOFF).build();
+    mClient = CopycatClient.builder(getClusterAddresses(mConf))
+        .withConnectionStrategy(attempt -> {
+          attempt.retry(Duration.ofSeconds(
+              Math.min(Math.round(0.1D * Math.pow(2D, (double) attempt.attempt())), 1L)));
+        }).build();
     mJournalStateLock = new ReentrantReadWriteLock(true);
     mPrimarySelector = new RaftPrimarySelector();
     mAsyncJournalWriter = new AsyncJournalWriter(new RaftJournalWriter());
@@ -255,28 +261,37 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       return;
     }
     LOG.info("Locking journal for daily snapshot");
-    mJournalStateLock.writeLock().lock();
-    try {
+    try (LockResource l = new LockResource(mJournalStateLock.writeLock())) {
       mSnapshotAllowed.set(true);
-      // Submit a journal entry to trigger snapshotting.
       try {
-        mClient.submit(new JournalEntryCommand(JournalEntry.getDefaultInstance())).get();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      } catch (ExecutionException e) {
-        LOG.error("Exception submitting empty journal entry during snapshot", e);
+        // Submit a journal entry to trigger snapshotting.
+        try {
+          mClient.submit(new JournalEntryCommand(JournalEntry.getDefaultInstance())).get();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+          LOG.error("Exception submitting empty journal entry during snapshot", e);
+        }
+        // Give Copycat time to initiate snapshotting. It shouldn't take more than a second, but we wait
+        // 10 seconds to be on the safe side.
+        CommonUtils.sleepMs(10 * Constants.SECOND_MS);
+      } finally {
+        mSnapshotAllowed.set(false);
+        // There are a few instructions between where Copycat checks mSnapshotAllowed and invokes
+        // our snapshot method. We need a short wait to make sure Copycat doesn't start snapshotting
+        // after we've waited for snapshotting to finish.
+        CommonUtils.sleepMs(2 * Constants.SECOND_MS);
+        int timeoutMs = 60 * Constants.MINUTE_MS;
+        long startMs = System.currentTimeMillis();
+        CommonUtils.waitFor("snapshotting to finish", x -> !mSnapshotting,
+            WaitForOptions.defaults().setTimeoutMs(timeoutMs));
+        if (mSnapshotting) {
+          LOG.error(
+              "Failed to finish snapshot within {}ms. Interrupted: {}. System exiting to avoid corruption.",
+              System.currentTimeMillis() - startMs, Thread.interrupted());
+          System.exit(-1);
+        }
       }
-      // Give Copycat time to initiate snapshotting. It shouldn't take more than a second, but we wait
-      // 10 seconds to be on the safe side.
-      CommonUtils.sleepMs(10 * Constants.SECOND_MS);
-      mSnapshotAllowed.set(false);
-      // There are a few instructions between where Copycat checks mSnapshotAllowed and invokes
-      // our snapshot method. We need a short wait to make sure Copycat doesn't start snapshotting
-      // after we've waited for snapshotting to finish.
-      CommonUtils.sleepMs(2 * Constants.SECOND_MS);
-      CommonUtils.waitFor("snapshotting to finish", x -> !mSnapshotting);
-    } finally {
-      mJournalStateLock.writeLock().unlock();
     }
     LOG.info("Journal unlocked");
   }
@@ -362,7 +377,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       throw new IOException(errorMessage, e.getCause());
     }
     try {
-      mClient.connect(getClusterAddresses(mConf)).get();
+      mClient.connect().get();
     } catch (ExecutionException e) {
       String errorMessage = ExceptionMessage.FAILED_RAFT_CONNECT.getMessage(
           Arrays.toString(getClusterAddresses(mConf).toArray()), e.getCause().toString());
@@ -565,14 +580,18 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       if (mJournalEntryBuilder != null) {
         try {
           // It is ok to submit the same entries multiple times because we de-duplicate by sequence
-          // number when applying them.
-          mClient.submit(new JournalEntryCommand(mJournalEntryBuilder.build())).get();
+          // number when applying them. This could happen if a previous client and new client both
+          // successfully submit the same entries.
+          mClient.submit(new JournalEntryCommand(mJournalEntryBuilder.build())).get(10,
+              TimeUnit.SECONDS);
           mLastCommittedSequenceNumber.set(mNextSequenceNumber.get() - 1);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           throw new IOException(e);
         } catch (ExecutionException e) {
           throw new IOException(e.getCause());
+        } catch (TimeoutException e) {
+          throw new IOException("Timed out after waiting 10 seconds for journal flush", e);
         }
         mJournalEntryBuilder = null;
       }
