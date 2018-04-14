@@ -35,7 +35,6 @@ import alluxio.wire.Capacity;
 // ALLUXIO CS ADD
 import alluxio.wire.LicenseInfo;
 // ALLUXIO CS END
-import alluxio.wire.LogInfo;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.WorkerInfo;
 
@@ -189,12 +188,7 @@ public final class AlluxioMasterRestServiceHandler {
   @ReturnType("java.util.SortedMap<java.lang.String, java.lang.Long>")
   @Deprecated
   public Response getMetrics() {
-    return RestUtils.call(new RestUtils.RestCallable<Map<String, Long>>() {
-      @Override
-      public Map<String, Long> call() throws Exception {
-        return getMetricsInternal();
-      }
-    });
+    return RestUtils.call(() -> getMetricsInternal());
   }
 
   /**
@@ -326,12 +320,7 @@ public final class AlluxioMasterRestServiceHandler {
   @ReturnType("java.lang.Long")
   @Deprecated
   public Response getUfsCapacityBytes() {
-    return RestUtils.call(new RestUtils.RestCallable<Long>() {
-      @Override
-      public Long call() throws Exception {
-        return mUfs.getSpace(mUfsRoot, UnderFileSystem.SpaceType.SPACE_TOTAL);
-      }
-    });
+    return RestUtils.call(() -> mUfs.getSpace(mUfsRoot, UnderFileSystem.SpaceType.SPACE_USED));
   }
 
   /**
@@ -424,15 +413,12 @@ public final class AlluxioMasterRestServiceHandler {
   @ReturnType("java.util.SortedMap<java.lang.String, java.lang.Long>")
   @Deprecated
   public Response getUsedBytesOnTiers() {
-    return RestUtils.call(new RestUtils.RestCallable<Map<String, Long>>() {
-      @Override
-      public Map<String, Long> call() throws Exception {
-        SortedMap<String, Long> usedBytesOnTiers = new TreeMap<>(getTierAliasComparator());
-        for (Map.Entry<String, Long> tierBytes : mBlockMaster.getUsedBytesOnTiers().entrySet()) {
-          usedBytesOnTiers.put(tierBytes.getKey(), tierBytes.getValue());
-        }
-        return usedBytesOnTiers;
+    return RestUtils.call((RestUtils.RestCallable<Map<String, Long>>) () -> {
+      SortedMap<String, Long> usedBytesOnTiers = new TreeMap<>(getTierAliasComparator());
+      for (Map.Entry<String, Long> tierBytes : mBlockMaster.getUsedBytesOnTiers().entrySet()) {
+        usedBytesOnTiers.put(tierBytes.getKey(), tierBytes.getValue());
       }
+      return usedBytesOnTiers;
     });
   }
 
@@ -580,11 +566,6 @@ public final class AlluxioMasterRestServiceHandler {
   @ReturnType("alluxio.wire.LogInfo")
   public Response logLevel(@QueryParam(LOG_ARGUMENT_NAME) final String logName, @QueryParam
       (LOG_ARGUMENT_LEVEL) final String level) {
-    return RestUtils.call(new RestUtils.RestCallable<LogInfo>() {
-      @Override
-      public LogInfo call() throws Exception {
-        return LogUtils.setLogLevel(logName, level);
-      }
-    });
+    return RestUtils.call(() -> LogUtils.setLogLevel(logName, level));
   }
 }
