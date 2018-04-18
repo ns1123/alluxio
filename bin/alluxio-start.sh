@@ -24,7 +24,8 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 # Where ACTION is one of:
 #   all [MOPT]         \tStart all masters, proxies, and workers.
 #   local [MOPT]       \tStart all processes locally.
-#   master             \tStart the master on this node.
+#   master             \tStart the local master on this node.
+#   secondary_master   \tStart the local secondary master on this node.
 #   masters            \tStart masters on master nodes.
 #   proxy              \tStart the proxy on this node.
 #   proxies            \tStart proxies on master and worker nodes.

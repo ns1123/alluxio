@@ -3553,8 +3553,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
         }
       }
-      return new SyncResult(loadMetadata, deletedInode);
     }
+    return new SyncResult(loadMetadata, deletedInode);
   }
 
   @Override

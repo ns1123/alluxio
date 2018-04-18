@@ -22,7 +22,8 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 # Where component is one of:
 #   all               \tStop all masters, proxies, and workers.
 #   local             \tStop all processes locally.
-#   master            \tStop local master.
+#   master            \tStop local primary master.
+#   secondary_master  \tStop local secondary master.
 #   masters           \tStop masters on master nodes.
 #   proxy             \tStop local proxy.
 #   proxies           \tStop proxies on master and worker nodes.
