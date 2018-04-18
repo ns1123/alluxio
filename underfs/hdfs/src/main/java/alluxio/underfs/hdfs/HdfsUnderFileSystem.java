@@ -166,40 +166,24 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
         // ALLUXIO CS REPLACE
         // return path.getFileSystem(hdfsConf);
         // ALLUXIO CS WITH
-        boolean isImpersonationEnabled =
-            Boolean.valueOf(
-                conf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
-        if (isImpersonationEnabled
-            && alluxio.util.CommonUtils.isAlluxioServer() && !mUser.isEmpty()
-            && !org.apache.hadoop.security.UserGroupInformation.getLoginUser().getShortUserName()
-            .equals(mUser)) {
-          // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
-          // The Alluxio server user must be configured as a superuser proxy in HDFS configuration.
+        if (!HDFS_USER.equals(userKey)) {
+          // Impersonate this user
           org.apache.hadoop.security.UserGroupInformation proxyUgi =
-              org.apache.hadoop.security.UserGroupInformation.createProxyUser(mUser,
+              org.apache.hadoop.security.UserGroupInformation.createProxyUser(userKey,
                   org.apache.hadoop.security.UserGroupInformation.getLoginUser());
-          LOG.info("Connecting to hdfs: {} proxyUgi: {} user: {}", ufsPrefix, proxyUgi.toString(),
-              mUser);
-          return HdfsSecurityUtils
-              .runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<FileSystem>() {
-                @Override
-                public FileSystem run() throws IOException {
-                  Path path = new Path(ufsPrefix);
-                  return path.getFileSystem(ufsHdfsConf);
-                }
-              });
+          LOG.info("Connecting to hdfs(impersonation): {} proxyUgi: {} user: {}", ufsPrefix,
+              proxyUgi, userKey);
+          return HdfsSecurityUtils.runAs(proxyUgi, () -> {
+            Path path = new Path(ufsPrefix);
+            return path.getFileSystem(ufsHdfsConf);
+          });
         } else {
-          // Alluxio client runs HDFS operations as the current user.
-          LOG.info("Connecting to hdfs: {} ugi: {} user: {}", ufsPrefix,
-              org.apache.hadoop.security.UserGroupInformation.getLoginUser(), mUser);
-          return HdfsSecurityUtils
-              .runAsCurrentUser(new HdfsSecurityUtils.SecuredRunner<FileSystem>() {
-                @Override
-                public FileSystem run() throws IOException {
-                  Path path = new Path(ufsPrefix);
-                  return path.getFileSystem(ufsHdfsConf);
-                }
-              });
+          LOG.info("Connecting to hdfs: {} ugi: {}", ufsPrefix,
+              org.apache.hadoop.security.UserGroupInformation.getLoginUser());
+          return HdfsSecurityUtils.runAsCurrentUser(() -> {
+            Path path = new Path(ufsPrefix);
+            return path.getFileSystem(ufsHdfsConf);
+          });
         }
         // ALLUXIO CS END
       }
@@ -791,9 +775,21 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
    * @return the underlying HDFS {@link FileSystem} object
    */
   private FileSystem getFs() throws IOException {
+    // ALLUXIO CS ADD
+    boolean isImpersonationEnabled =
+        Boolean.valueOf(mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
+    String user = HDFS_USER;
+    if (isImpersonationEnabled) {
+      user = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
+    }
+    // ALLUXIO CS END
     try {
       // TODO(gpang): handle different users
-      return mUserFs.get(HDFS_USER);
+      // ALLUXIO CS REPLACE
+      // return mUserFs.get(HDFS_USER);
+      // ALLUXIO CS WITH
+      return mUserFs.get(user);
+      // ALLUXIO CS END
     } catch (ExecutionException e) {
       throw new IOException("Failed get FileSystem for " + mUri, e.getCause());
     }
