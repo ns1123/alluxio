@@ -56,6 +56,7 @@ import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.codahale.metrics.Gauge;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -1009,6 +1010,7 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
      *
      * @param master the block master handle
      */
+    @VisibleForTesting
     public static void registerGauges(final BlockMaster master) {
       MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMasterMetricName(CAPACITY_TOTAL),
           new Gauge<Long>() {
