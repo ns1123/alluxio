@@ -130,8 +130,7 @@ public class ForkUnderFileSystemInterfaceTest {
       Assert.assertTrue(mUnderFileSystem.isDirectory(dirname));
       Assert.assertFalse(mUnderFileSystem.isFile(dirname));
       UfsDirectoryStatus status = mUnderFileSystem.getDirectoryStatus(dirname);
-      Assert.assertTrue(exists(PathUtils.concatPath(mUfsPathA, status.getName())));
-      Assert.assertTrue(exists(PathUtils.concatPath(mUfsPathB, status.getName())));
+      Assert.assertTrue(exists(PathUtils.concatPath(status.getName())));
       Assert.assertTrue(mUnderFileSystem.deleteDirectory(dirname));
     }
   }
@@ -144,8 +143,7 @@ public class ForkUnderFileSystemInterfaceTest {
       Assert.assertFalse(mUnderFileSystem.isDirectory(filename));
       Assert.assertTrue(mUnderFileSystem.isFile(filename));
       UfsFileStatus status = mUnderFileSystem.getFileStatus(filename);
-      Assert.assertTrue(exists(PathUtils.concatPath(mUfsPathA, status.getName())));
-      Assert.assertTrue(exists(PathUtils.concatPath(mUfsPathB, status.getName())));
+      Assert.assertTrue(exists(PathUtils.concatPath(status.getName())));
       Assert.assertTrue(mUnderFileSystem.deleteFile(filename));
     }
   }
