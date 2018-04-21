@@ -13,8 +13,9 @@ package alluxio.client;
 
 import alluxio.AlluxioURI;
 import alluxio.ConfigurationRule;
-import alluxio.IntegrationTestUtils;
-import alluxio.LocalAlluxioClusterResource;
+import alluxio.client.fs.AbstractFileOutStreamIntegrationTest;
+import alluxio.testutils.IntegrationTestUtils;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;

@@ -12,7 +12,7 @@
 package alluxio.underfs.fork;
 
 import alluxio.AlluxioURI;
-import alluxio.LocalAlluxioClusterResource;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;

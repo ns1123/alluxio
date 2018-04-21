@@ -12,17 +12,18 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
-import alluxio.IntegrationTestUtils;
 import alluxio.PersistenceTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.SetAttributeOptions;
+import alluxio.client.fs.AbstractFileOutStreamIntegrationTest;
 import alluxio.exception.AlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.security.authorization.Mode;
+import alluxio.testutils.IntegrationTestUtils;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.TtlAction;

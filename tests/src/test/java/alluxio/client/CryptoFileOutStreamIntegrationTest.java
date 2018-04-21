@@ -13,7 +13,8 @@ package alluxio.client;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
-import alluxio.LocalAlluxioClusterResource;
+import alluxio.client.fs.AbstractFileOutStreamIntegrationTest;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.CryptoFileInStream;
 import alluxio.client.file.CryptoFileOutStream;

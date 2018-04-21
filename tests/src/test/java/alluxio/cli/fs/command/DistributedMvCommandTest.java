@@ -13,8 +13,7 @@ package alluxio.cli.fs.command;
 
 import static org.junit.Assert.assertEquals;
 
-import alluxio.cli.fs.AbstractFileSystemShellTest;
-import alluxio.cli.fs.command.MvCommand;
+import alluxio.client.cli.fs.AbstractFileSystemShellTest;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Joiner;

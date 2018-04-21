@@ -12,9 +12,9 @@
 package alluxio.cli.fs.command;
 
 import alluxio.AlluxioURI;
-import alluxio.cli.fs.AbstractFileSystemShellTest;
-import alluxio.cli.fs.FileSystemShellUtilsTest;
 import alluxio.client.WriteType;
+import alluxio.client.cli.fs.AbstractFileSystemShellTest;
+import alluxio.client.cli.fs.FileSystemShellUtilsTest;
 import alluxio.client.file.FileSystemTestUtils;
 import alluxio.client.file.URIStatus;
 import alluxio.util.io.PathUtils;

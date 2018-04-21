@@ -14,7 +14,7 @@ package alluxio.raft;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
-import alluxio.BaseIntegrationTest;
+import alluxio.testutils.BaseIntegrationTest;
 import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.multi.process.MultiProcessCluster;

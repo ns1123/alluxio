@@ -12,8 +12,8 @@
 package alluxio.cli.job.command;
 
 import alluxio.AlluxioURI;
-import alluxio.cli.fs.AbstractFileSystemShellTest;
 import alluxio.client.WriteType;
+import alluxio.client.cli.fs.AbstractFileSystemShellTest;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;

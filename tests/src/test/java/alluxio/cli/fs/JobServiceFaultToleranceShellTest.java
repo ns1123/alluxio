@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
-import alluxio.BaseIntegrationTest;
+import alluxio.testutils.BaseIntegrationTest;
 import alluxio.ConfigurationTestUtils;
 import alluxio.client.file.FileSystem;
 import alluxio.master.LocalAlluxioJobCluster;
