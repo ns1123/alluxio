@@ -11,7 +11,6 @@
 
 package alluxio.security;
 
-import alluxio.testutils.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
@@ -21,6 +20,7 @@ import alluxio.security.authentication.KerberosSaslTransportProvider;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.security.login.LoginModuleConfiguration;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.testutils.BaseIntegrationTest;
 import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.collect.Sets;

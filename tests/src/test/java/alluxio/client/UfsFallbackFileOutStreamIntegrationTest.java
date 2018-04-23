@@ -13,14 +13,14 @@ package alluxio.client;
 
 import alluxio.AlluxioURI;
 import alluxio.ConfigurationRule;
-import alluxio.client.fs.AbstractFileOutStreamIntegrationTest;
-import alluxio.testutils.IntegrationTestUtils;
-import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.fs.AbstractFileOutStreamIntegrationTest;
 import alluxio.master.file.meta.PersistenceState;
+import alluxio.testutils.IntegrationTestUtils;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 

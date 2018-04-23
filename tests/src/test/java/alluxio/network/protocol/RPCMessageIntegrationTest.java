@@ -12,8 +12,8 @@
 package alluxio.network.protocol;
 
 import alluxio.PropertyKey;
-import alluxio.testutils.BaseIntegrationTest;
 import alluxio.network.protocol.databuffer.DataByteBuffer;
+import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.network.MessageSavingHandler;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.network.NetworkAddressUtils;

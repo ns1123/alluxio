@@ -15,9 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import alluxio.testutils.BaseIntegrationTest;
 import alluxio.Configuration;
-import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.LoginUserRule;
 import alluxio.PropertyKey;
 import alluxio.client.privilege.PrivilegeMasterClient;
@@ -28,6 +26,8 @@ import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
 import alluxio.master.MasterClientConfig;
 import alluxio.security.group.GroupMappingService;
+import alluxio.testutils.BaseIntegrationTest;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.wire.Privilege;
 
 import org.junit.Before;
