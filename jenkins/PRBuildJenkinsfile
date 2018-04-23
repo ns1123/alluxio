@@ -26,7 +26,7 @@ pipeline {
                     ]]
                 ])
                 timeout(90) {timestamps {script {
-                    def cmd = 'mvn clean install -DreuseForks=false -DforkCount=2'
+                    def cmd = 'mvn clean install -DreuseForks=false -DforkCount=1'
                     // legacy branches that contain an annotation/ directory must skip annotation check because it requires cloning a private repo
                     if (fileExists("${WORKSPACE}/annotation")) {
                         cmd += ' -Dannotation.skip'
