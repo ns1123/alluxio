@@ -16,6 +16,7 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.InvalidJournalEntryException;
+import alluxio.exception.JournalClosedException;
 import alluxio.master.PrimarySelector;
 import alluxio.master.journal.AbstractJournalSystem;
 import alluxio.master.journal.AsyncJournalWriter;
@@ -36,6 +37,7 @@ import io.atomix.catalyst.serializer.Serializer;
 import io.atomix.catalyst.transport.Address;
 import io.atomix.catalyst.transport.netty.NettyTransport;
 import io.atomix.copycat.client.CopycatClient;
+import io.atomix.copycat.client.RecoveryStrategies;
 import io.atomix.copycat.server.CopycatServer;
 import io.atomix.copycat.server.StateMachine;
 import io.atomix.copycat.server.storage.Storage;
@@ -60,6 +62,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -125,7 +128,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private static final Logger LOG = LoggerFactory.getLogger(RaftJournalSystem.class);
 
   private final RaftJournalConfiguration mConf;
-  private final CopycatClient mClient;
 
   // Contains all journals created by this journal system.
   private final ConcurrentHashMap<String, RaftJournal> mJournals;
@@ -139,6 +141,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private Thread mSnapshotThread;
 
   private final RaftPrimarySelector mPrimarySelector;
+  private final AtomicReference<CopycatClient> mClient;
   private CopycatServer mServer;
 
   private AsyncJournalWriter mAsyncJournalWriter;
@@ -171,13 +174,9 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mLastUpdateMs = new AtomicLong(-1);
     mLastReadSequenceNumber = new AtomicLong(-1);
     mLastCommittedSequenceNumber = new AtomicLong(-1);
-    mClient = CopycatClient.builder(getClusterAddresses(mConf))
-        .withConnectionStrategy(attempt -> {
-          attempt.retry(Duration.ofSeconds(
-              Math.min(Math.round(0.1D * Math.pow(2D, (double) attempt.attempt())), 1L)));
-        }).build();
     mJournalStateLock = new ReentrantReadWriteLock(true);
     mPrimarySelector = new RaftPrimarySelector();
+    mClient = new AtomicReference<>();
     mAsyncJournalWriter = new AsyncJournalWriter(new RaftJournalWriter());
     mNextSequenceNumber = new AtomicLong(0);
   }
@@ -228,6 +227,14 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mPrimarySelector.init(mServer);
   }
 
+  private CopycatClient createClient() {
+    return CopycatClient.builder(getClusterAddresses(mConf))
+        .withRecoveryStrategy(RecoveryStrategies.RECOVER)
+        .withConnectionStrategy(attempt -> attempt.retry(Duration.ofMillis(
+            Math.min(Math.round(100D * Math.pow(2D, (double) attempt.attempt())), 1000L))))
+        .build();
+  }
+
   private void scheduleSnapshots() {
     LocalTime snapshotTime =
         LocalTime.parse(Configuration.get(PropertyKey.MASTER_EMBEDDED_JOURNAL_SNAPSHOT_TIME),
@@ -266,7 +273,12 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       try {
         // Submit a journal entry to trigger snapshotting.
         try {
-          mClient.submit(new JournalEntryCommand(JournalEntry.getDefaultInstance())).get();
+          CopycatClient client = mClient.get();
+          if (client == null) {
+            // Must have lost primacy.
+            return;
+          }
+          client.submit(new JournalEntryCommand(JournalEntry.getDefaultInstance())).get();
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
@@ -315,11 +327,34 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     mSnapshotAllowed.set(false);
     waitQuietPeriod();
     mIgnoreAppends = true;
+    mClient.set(createClient());
+    try {
+      mClient.get().connect().get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
+    } catch (ExecutionException e) {
+      String errorMessage = ExceptionMessage.FAILED_RAFT_CONNECT.getMessage(
+          Arrays.toString(getClusterAddresses(mConf).toArray()), e.getCause().toString());
+      throw new RuntimeException(errorMessage, e.getCause());
+    }
   }
 
   @Override
   public synchronized void losePrimacy() {
     mIgnoreAppends = false;
+    try {
+      mClient.get().close().get(10, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
+    } catch (ExecutionException e) {
+      LOG.error("Failed to close raft client", e);
+    } catch (TimeoutException e) {
+      LOG.warn("Failed to close raft client after 10 seconds");
+    }
+    mClient.set(null);
+    LOG.info("Shutting down Raft server");
     try {
       mServer.shutdown().get();
     } catch (ExecutionException e) {
@@ -331,7 +366,9 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       Thread.currentThread().interrupt();
       throw new RuntimeException("Interrupted while leaving Raft cluster");
     }
+    LOG.info("Shut down Raft server");
     initServer();
+    LOG.info("Bootstrapping new Raft server");
     try {
       mServer.bootstrap(getClusterAddresses(mConf)).get();
     } catch (InterruptedException e) {
@@ -373,13 +410,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       mServer.bootstrap(getClusterAddresses(mConf)).get();
     } catch (ExecutionException e) {
       String errorMessage = ExceptionMessage.FAILED_RAFT_BOOTSTRAP.getMessage(
-          Arrays.toString(getClusterAddresses(mConf).toArray()), e.getCause().toString());
-      throw new IOException(errorMessage, e.getCause());
-    }
-    try {
-      mClient.connect().get();
-    } catch (ExecutionException e) {
-      String errorMessage = ExceptionMessage.FAILED_RAFT_CONNECT.getMessage(
           Arrays.toString(getClusterAddresses(mConf).toArray()), e.getCause().toString());
       throw new IOException(errorMessage, e.getCause());
     }
@@ -576,13 +606,17 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     }
 
     @Override
-    public void flush() throws IOException {
+    public void flush() throws IOException, JournalClosedException {
       if (mJournalEntryBuilder != null) {
         try {
+          CopycatClient client = mClient.get();
+          if (client == null) {
+            throw new JournalClosedException("Cannot write journal entry; journal has been closed");
+          }
           // It is ok to submit the same entries multiple times because we de-duplicate by sequence
           // number when applying them. This could happen if a previous client and new client both
           // successfully submit the same entries.
-          mClient.submit(new JournalEntryCommand(mJournalEntryBuilder.build())).get(10,
+          client.submit(new JournalEntryCommand(mJournalEntryBuilder.build())).get(10,
               TimeUnit.SECONDS);
           mLastCommittedSequenceNumber.set(mNextSequenceNumber.get() - 1);
         } catch (InterruptedException e) {
