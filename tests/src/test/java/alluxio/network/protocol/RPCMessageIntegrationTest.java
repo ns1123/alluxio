@@ -48,6 +48,7 @@ import java.util.concurrent.TimeUnit;
  * the server side. In this case, the server simply stores the message received, and does not reply
  * to the client.
  */
+// TODO(calvin): See if this needs to be an integration test
 public class RPCMessageIntegrationTest extends BaseIntegrationTest {
   private static final long SESSION_ID = 10;
   private static final long BLOCK_ID = 11;
