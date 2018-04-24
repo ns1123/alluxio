@@ -13,15 +13,15 @@ package alluxio.master.job;
 
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
+import alluxio.client.rest.RestApiTest;
+import alluxio.client.rest.TestCase;
+import alluxio.client.rest.TestCaseOptions;
 import alluxio.job.JobConfig;
 import alluxio.job.ServiceConstants;
 import alluxio.job.SleepJobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
-import alluxio.rest.RestApiTest;
-import alluxio.rest.TestCase;
-import alluxio.rest.TestCaseOptions;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;

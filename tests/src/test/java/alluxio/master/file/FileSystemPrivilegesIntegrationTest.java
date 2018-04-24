@@ -12,9 +12,7 @@
 package alluxio.master.file;
 
 import alluxio.AlluxioURI;
-import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
-import alluxio.LocalAlluxioClusterResource;
 import alluxio.LoginUserRule;
 import alluxio.PropertyKey;
 import alluxio.client.WriteType;
@@ -27,6 +25,8 @@ import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.exception.ExceptionMessage;
 import alluxio.master.MasterClientConfig;
+import alluxio.testutils.BaseIntegrationTest;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
 import alluxio.wire.Privilege;

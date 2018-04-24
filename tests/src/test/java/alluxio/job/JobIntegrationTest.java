@@ -11,9 +11,7 @@
 
 package alluxio.job;
 
-import alluxio.BaseIntegrationTest;
 import alluxio.Constants;
-import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.job.util.JobTestUtils;
@@ -21,6 +19,8 @@ import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.JobMaster;
+import alluxio.testutils.BaseIntegrationTest;
+import alluxio.testutils.LocalAlluxioClusterResource;
 
 import org.junit.After;
 import org.junit.Before;

@@ -14,11 +14,11 @@ package alluxio.raft;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
-import alluxio.BaseIntegrationTest;
 import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.multi.process.MultiProcessCluster;
 import alluxio.multi.process.MultiProcessCluster.DeployMode;
+import alluxio.testutils.BaseIntegrationTest;
 
 import org.junit.Rule;
 import org.junit.Test;

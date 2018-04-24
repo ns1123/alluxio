@@ -12,8 +12,6 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
-import alluxio.BaseIntegrationTest;
-import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.CryptoFileInStream;
 import alluxio.client.file.CryptoFileOutStream;
@@ -24,6 +22,8 @@ import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.ListStatusOptions;
 import alluxio.security.authorization.Mode;
+import alluxio.testutils.BaseIntegrationTest;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.LoadMetadataType;

@@ -11,7 +11,6 @@
 
 package alluxio.security;
 
-import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
@@ -19,6 +18,7 @@ import alluxio.exception.status.UnauthenticatedException;
 import alluxio.hadoop.HadoopKerberosLoginProvider;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.testutils.BaseIntegrationTest;
 
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;

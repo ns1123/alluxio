@@ -14,13 +14,13 @@ package alluxio.cli.privileges;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
-import alluxio.BaseIntegrationTest;
-import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.master.MasterClientConfig;
 import alluxio.security.group.GroupMappingService;
+import alluxio.testutils.BaseIntegrationTest;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.wire.Privilege;
 
 import org.junit.Rule;

@@ -11,10 +11,10 @@
 
 package alluxio.security;
 
-import alluxio.BaseIntegrationTest;
 import alluxio.ConfigurationTestUtils;
 import alluxio.security.login.LoginModuleConfiguration;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.testutils.BaseIntegrationTest;
 
 import com.google.common.collect.Sets;
 import org.junit.AfterClass;

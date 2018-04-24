@@ -11,7 +11,6 @@
 
 package alluxio.worker.netty;
 
-import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
@@ -21,6 +20,7 @@ import alluxio.network.netty.NettyClient;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.testutils.BaseIntegrationTest;
 import alluxio.util.network.NettyUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.WorkerProcess;

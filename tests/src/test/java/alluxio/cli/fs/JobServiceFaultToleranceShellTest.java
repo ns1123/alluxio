@@ -15,11 +15,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
-import alluxio.BaseIntegrationTest;
 import alluxio.ConfigurationTestUtils;
 import alluxio.client.file.FileSystem;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.MultiMasterLocalAlluxioCluster;
+import alluxio.testutils.BaseIntegrationTest;
 
 import org.junit.After;
 import org.junit.Before;

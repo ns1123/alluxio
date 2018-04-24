@@ -15,8 +15,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import alluxio.BaseIntegrationTest;
-import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GetGroupPrivilegesOptions;
@@ -25,6 +23,8 @@ import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
 import alluxio.master.MasterClientConfig;
+import alluxio.testutils.BaseIntegrationTest;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.wire.Privilege;
 
 import org.junit.Before;
