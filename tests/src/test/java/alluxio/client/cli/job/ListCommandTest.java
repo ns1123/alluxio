@@ -9,20 +9,20 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.client.cli.command;
+package alluxio.client.cli.job;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests for the job leader shell command.
+ * Tests for job list command.
  */
-public final class LeaderCommandTest extends JobShellTest {
+public final class ListCommandTest extends JobShellTest {
   @Test
-  public void jobLeader() {
-    mJobShell.run("leader");
-    String expected =
-        mLocalAlluxioCluster.getLocalAlluxioMaster().getAddress().getHostName() + "\n";
-    Assert.assertEquals(expected, mOutput.toString());
+  public void listTest() throws Exception {
+    long jobId = runPersistJob();
+
+    mJobShell.run("ls");
+    Assert.assertEquals(jobId + "\n", mOutput.toString());
   }
 }

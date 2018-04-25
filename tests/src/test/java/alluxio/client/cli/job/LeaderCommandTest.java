@@ -9,21 +9,20 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.client.cli.command;
+package alluxio.client.cli.job;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests for getting job status command.
+ * Tests for the job leader shell command.
  */
-public final class StatCommandTest extends JobShellTest {
+public final class LeaderCommandTest extends JobShellTest {
   @Test
-  public void statTest() throws Exception {
-    long jobId = runPersistJob();
-    waitForJobToFinish(jobId);
-    mJobShell.run("stat", "-v", Long.toString(jobId));
-    String expected = "ID: " + jobId + "\nStatus: COMPLETED\nTask 0\n\tStatus: COMPLETED\n";
+  public void jobLeader() {
+    mJobShell.run("leader");
+    String expected =
+        mLocalAlluxioCluster.getLocalAlluxioMaster().getAddress().getHostName() + "\n";
     Assert.assertEquals(expected, mOutput.toString());
   }
 }

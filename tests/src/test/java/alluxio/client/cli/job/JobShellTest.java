@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.client.cli.command;
+package alluxio.client.cli.job;
 
 import alluxio.AlluxioURI;
 import alluxio.client.WriteType;
