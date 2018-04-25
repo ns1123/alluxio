@@ -1,3 +1,4 @@
+RPCMessageTest.java
 RPCSaslCompleteResponseTest.java
 RPCSaslTokenRequestTest.java
 RPCSecretKeyWriteRequestTest.java

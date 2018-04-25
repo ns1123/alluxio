@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.testutils.network;
+package alluxio.network;
 
 import alluxio.network.protocol.RPCMessage;
 
