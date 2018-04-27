@@ -102,9 +102,6 @@ public class AlluxioMasterProcess implements MasterProcess {
   private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
   // ALLUXIO CS END
 
-  /** is true if the master is serving the RPC server. */
-  private boolean mIsServing;
-
   /** The start time for when the master started serving the RPC server. */
   private long mStartTimeMs = -1;
 
@@ -211,7 +208,7 @@ public class AlluxioMasterProcess implements MasterProcess {
 
   @Override
   public boolean isServing() {
-    return mIsServing;
+    return mThriftServer != null && mThriftServer.isServing();
   }
 
   @Override
@@ -258,11 +255,10 @@ public class AlluxioMasterProcess implements MasterProcess {
 
   @Override
   public void stop() throws Exception {
-    if (mIsServing) {
+    if (isServing()) {
       stopServing();
       stopMasters();
       mJournalSystem.stop();
-      mIsServing = false;
     }
   }
 
@@ -407,7 +403,6 @@ public class AlluxioMasterProcess implements MasterProcess {
     // ALLUXIO CS END
 
     // start thrift rpc server
-    mIsServing = true;
     mStartTimeMs = System.currentTimeMillis();
     mSafeModeManager.notifyRpcServerStarted();
     mThriftServer.serve();
@@ -434,7 +429,6 @@ public class AlluxioMasterProcess implements MasterProcess {
       mWebServer = null;
     }
     MetricsSystem.stopSinks();
-    mIsServing = false;
   }
 
   @Override
