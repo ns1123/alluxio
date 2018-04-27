@@ -11,6 +11,8 @@
 
 package alluxio.master.callhome;
 
+import alluxio.wire.WorkerInfo;
+
 import com.google.common.base.Objects;
 
 import java.util.Arrays;
@@ -24,6 +26,11 @@ public final class CallHomeInfo {
   private String mClusterVersion;
   private boolean mFaultTolerant;
   private int mWorkerCount;
+  private WorkerInfo[] mWorkerInfos;
+  private int mLostWorkerCount;
+  private WorkerInfo[] mLostWorkerInfos;
+  private String mMasterAddress;
+  private int mNumberOfPaths;
   private long mStartTime; // unix time, milliseconds
   private long mUptime; // milliseconds
   private String mUfsType;
@@ -84,6 +91,42 @@ public final class CallHomeInfo {
     return mWorkerCount;
   }
 
+  /**
+   * @return the live worker info
+   */
+  public WorkerInfo[] getWorkerInfos() {
+    return mWorkerInfos;
+  }
+
+  /**
+   * @return the number of lost workers
+   */
+  public int getLostWorkerCount() {
+    return mLostWorkerCount;
+  }
+
+  /**
+   * @return the live worker info
+   */
+  public WorkerInfo[] getLostWorkerInfos() {
+    return mLostWorkerInfos;
+  }
+
+  /**
+   * @return the master rpc address
+   */
+  public String getMasterAddress() {
+    return mMasterAddress;
+  }
+
+  /**
+   * @return the number of paths in the file system
+   */
+  public long getNumberOfPaths() {
+    return mNumberOfPaths;
+  }
+
+  /**
   /**
    * @return the under storage's type
    */
@@ -155,6 +198,43 @@ public final class CallHomeInfo {
   }
 
   /**
+   * @param workers the live worker infos
+   */
+  public void setWorkerInfos(WorkerInfo[] workers) {
+    mWorkerInfos = new WorkerInfo[workers.length];
+    System.arraycopy(workers, 0, mWorkerInfos, 0, workers.length);
+  }
+
+  /**
+   * @param n the number of lost workers
+   */
+  public void setLostWorkerCount(int n) {
+    mLostWorkerCount = n;
+  }
+
+  /**
+   * @param lostWorkers the live worker infos
+   */
+  public void setLostWorkerInfos(WorkerInfo[] lostWorkers) {
+    mLostWorkerInfos = new WorkerInfo[lostWorkers.length];
+    System.arraycopy(lostWorkers, 0, mLostWorkerInfos, 0, lostWorkers.length);
+  }
+
+  /**
+   * @param masterAddress rpc address of primary master
+   */
+  public void setMasterAddress(String masterAddress) {
+    mMasterAddress = masterAddress;
+  }
+
+  /**
+   * @param n the number of paths in the file system
+   */
+  public void setNumberOfPaths(int n) {
+    mNumberOfPaths = n;
+  }
+
+  /**
    * @param type the under storage's type to use
    */
   public void setUfsType(String type) {
@@ -192,6 +272,11 @@ public final class CallHomeInfo {
         && Objects.equal(mClusterVersion, that.mClusterVersion)
         && Objects.equal(mFaultTolerant, that.mFaultTolerant)
         && Objects.equal(mWorkerCount, that.mWorkerCount)
+        && Arrays.equals(mWorkerInfos, that.mWorkerInfos)
+        && Objects.equal(mLostWorkerCount, that.mLostWorkerCount)
+        && Arrays.equals(mLostWorkerInfos, that.mLostWorkerInfos)
+        && Objects.equal(mMasterAddress, that.mMasterAddress)
+        && Objects.equal(mNumberOfPaths, that.mNumberOfPaths)
         && Objects.equal(mUfsType, that.mUfsType)
         && Objects.equal(mUfsSize, that.mUfsSize)
         && Arrays.equals(mStorageTiers, that.mStorageTiers);
@@ -200,7 +285,8 @@ public final class CallHomeInfo {
   @Override
   public int hashCode() {
     return Objects.hashCode(mVersion, mLicenseKey, mStartTime, mUptime, mClusterVersion,
-        mFaultTolerant, mWorkerCount, mUfsType, mUfsSize, mStorageTiers);
+        mFaultTolerant, mWorkerCount, mWorkerInfos, mLostWorkerCount, mLostWorkerInfos,
+        mMasterAddress, mNumberOfPaths, mUfsType, mUfsSize, mStorageTiers);
   }
 
   @Override
@@ -213,6 +299,11 @@ public final class CallHomeInfo {
         .add("version", mClusterVersion)
         .add("fault tolerant", mFaultTolerant)
         .add("worker count", mWorkerCount)
+        .add("worker infos", mWorkerInfos)
+        .add("lost worker count", mLostWorkerCount)
+        .add("lost worker infos", mLostWorkerInfos)
+        .add("master address", mMasterAddress)
+        .add("num paths", mNumberOfPaths)
         .add("ufs type", mUfsType)
         .add("ufs size", mUfsSize)
         .add("storage tiers", mStorageTiers)
@@ -225,6 +316,7 @@ public final class CallHomeInfo {
   public static final class StorageTier {
     private String mAlias;
     private long mSize; // bytes
+    private long mUsedSizeInBytes;
 
     /**
      * Creates a new instance of {@link StorageTier}.
@@ -246,6 +338,13 @@ public final class CallHomeInfo {
     }
 
     /**
+     * @return the tier's used size in bytes
+     */
+    public long getUsedSizeInBytes() {
+      return mUsedSizeInBytes;
+    }
+
+    /**
      * @param alias the tier's alias to use
      */
     public void setAlias(String alias) {
@@ -257,6 +356,13 @@ public final class CallHomeInfo {
      */
     public void setSize(long size) {
       mSize = size;
+    }
+
+    /**
+     * @param size the tier's used size (in bytes)
+     */
+    public void setUsedSizeInBytes(long size) {
+      mUsedSizeInBytes = size;
     }
 
     @Override

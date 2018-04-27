@@ -12,11 +12,8 @@
 package alluxio.master.callhome;
 
 import alluxio.CallHomeConstants;
-import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.ProjectConstants;
-import alluxio.PropertyKey;
-import alluxio.RuntimeConstants;
 import alluxio.Server;
 import alluxio.clock.SystemClock;
 import alluxio.heartbeat.HeartbeatContext;
@@ -27,9 +24,9 @@ import alluxio.master.MasterContext;
 import alluxio.master.MasterProcess;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.file.FileSystemMaster;
 import alluxio.master.license.License;
 import alluxio.master.license.LicenseMaster;
-import alluxio.underfs.UnderFileSystem;
 import alluxio.util.executor.ExecutorServiceFactories;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,7 +34,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -60,7 +56,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -75,7 +70,7 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class CallHomeMaster extends AbstractNonJournaledMaster {
   private static final Logger LOG = LoggerFactory.getLogger(CallHomeMaster.class);
   private static final Set<Class<? extends Server>> DEPS =
-      ImmutableSet.<Class<? extends Server>>of(BlockMaster.class, LicenseMaster.class);
+      ImmutableSet.of(BlockMaster.class, LicenseMaster.class, FileSystemMaster.class);
   private static final String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX"; // RFC3339
 
   /** The Alluxio master process. */
@@ -148,6 +143,7 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
     private MasterProcess mMasterProcess;
     private BlockMaster mBlockMaster;
     private LicenseMaster mLicenseMaster;
+    private FileSystemMaster mFsMaster;
 
     /**
      * Creates a new instance of {@link CallHomeExecutor}.
@@ -158,6 +154,7 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
       mMasterProcess = masterProcess;
       mBlockMaster = masterProcess.getMaster(BlockMaster.class);
       mLicenseMaster = masterProcess.getMaster(LicenseMaster.class);
+      mFsMaster = masterProcess.getMaster(FileSystemMaster.class);
     }
 
     @Override
@@ -194,38 +191,8 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
      * @throws IOException when failed to collect call home information
      */
     private CallHomeInfo collect() throws IOException {
-      License license = mLicenseMaster.getLicense();
-      if (license.getKey() == null) {
-        // License hasn't been loaded.
-        return null;
-      }
-      CallHomeInfo info = new CallHomeInfo();
-      info.setLicenseKey(license.getKey());
-      info.setFaultTolerant(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
-      info.setWorkerCount(mBlockMaster.getWorkerCount());
-      info.setStartTime(mMasterProcess.getStartTimeMs());
-      info.setUptime(mMasterProcess.getUptimeMs());
-      info.setClusterVersion(RuntimeConstants.VERSION);
-      // Set ufs information.
-      String ufsRoot = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
-      UnderFileSystem ufs = UnderFileSystem.Factory.createForRoot();
-      info.setUfsType(ufs.getUnderFSType());
-      info.setUfsSize(ufs.getSpace(ufsRoot, UnderFileSystem.SpaceType.SPACE_TOTAL));
-      // Set storage tiers.
-      List<String> aliases = mBlockMaster.getGlobalStorageTierAssoc()
-          .getOrderedStorageAliases();
-      Map<String, Long> tierSizes = mBlockMaster.getTotalBytesOnTiers();
-      List<CallHomeInfo.StorageTier> tiers = Lists.newArrayList();
-      for (String alias : aliases) {
-        CallHomeInfo.StorageTier tier = new CallHomeInfo.StorageTier();
-        if (tierSizes.containsKey(alias)) {
-          tier.setAlias(alias);
-          tier.setSize(tierSizes.get(alias));
-          tiers.add(tier);
-        }
-      }
-      info.setStorageTiers(tiers.toArray(new CallHomeInfo.StorageTier[tiers.size()]));
-      return info;
+      return CallHomeUtils.collectDiagnostics(mMasterProcess, mBlockMaster, mLicenseMaster,
+          mFsMaster);
     }
 
     /**

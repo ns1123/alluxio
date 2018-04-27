@@ -3128,6 +3128,25 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey CALL_HOME_ENABLED =
       new Builder(Name.CALL_HOME_ENABLED).setDefaultValue(true).build();
 
+  //
+  // Diagnostic logs
+  //
+  public static final PropertyKey DIAGNOSTIC_LOG_INTERVAL_MS =
+      new Builder(Name.DIAGNOSTIC_LOG_INTERVAL_MS)
+          .setDescription("Period between two consecutive diagnostic executions.")
+          .setDefaultValue("86400000")
+          .setIsHidden(true)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey DIAGNOSTIC_LOG_LEVEL = new Builder(Name.DIAGNOSTIC_LOG_LEVEL)
+      .setDescription(
+          "The log level for gathering diagnostic information. The options are "
+              + "[NONE, PLAIN, OBFUSCATED]")
+      .setDefaultValue("OBFUSCATED")
+      .setIsHidden(true)
+      .setScope(Scope.MASTER)
+      .build();
+
   static final java.util.Set<String> IMMUTABLE_KEYS;
 
   static {
@@ -3883,6 +3902,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     // Call home
     //
     public static final String CALL_HOME_ENABLED = "alluxio.call.home.enabled";
+
+    //
+    // Diagnostic logs
+    //
+    public static final String DIAGNOSTIC_LOG_INTERVAL_MS = "alluxio.master.diagnostic.log.interval.ms";
+    public static final String DIAGNOSTIC_LOG_LEVEL = "alluxio.master.diagnostic.log.level";
 
     // ALLUXIO CS END
     //

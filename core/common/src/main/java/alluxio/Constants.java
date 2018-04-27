@@ -196,6 +196,9 @@ public final class Constants {
   // License checking
   public static final String LICENSE_MASTER_NAME = "LicenseMaster";
 
+  // Diagnostic
+  public static final String DIAGNOSTIC_MASTER_NAME = "DiagnosticMaster";
+
   // Privilege checking
   public static final String PRIVILEGE_MASTER_NAME = "PrivilegeMaster";
   public static final String PRIVILEGE_MASTER_CLIENT_SERVICE_NAME = "PrivilegeMasterClient";

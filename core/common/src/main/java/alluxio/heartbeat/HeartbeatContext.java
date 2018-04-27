@@ -34,6 +34,7 @@ public final class HeartbeatContext {
   public static final String JOB_WORKER_COMMAND_HANDLING =
       "Job Worker Command Handling";
   public static final String MASTER_CALL_HOME = "Master Call Home";
+  public static final String MASTER_DIAGNOSTIC = "Master Diagnostic";
   public static final String MASTER_LICENSE_CHECK = "Master License Check";
   public static final String MASTER_PERSISTENCE_CHECKER = "Master Persistence Checker";
   public static final String MASTER_PERSISTENCE_SCHEDULER = "Master Persistence Scheduler";
@@ -57,6 +58,7 @@ public final class HeartbeatContext {
     sTimerClasses.put(JOB_MASTER_LOST_WORKER_DETECTION, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(JOB_WORKER_COMMAND_HANDLING, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_CALL_HOME, SLEEPING_TIMER_CLASS);
+    sTimerClasses.put(MASTER_DIAGNOSTIC, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_LICENSE_CHECK, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_PERSISTENCE_CHECKER, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_PERSISTENCE_SCHEDULER, SLEEPING_TIMER_CLASS);

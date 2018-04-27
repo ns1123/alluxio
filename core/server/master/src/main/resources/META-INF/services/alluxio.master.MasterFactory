@@ -14,6 +14,7 @@ alluxio.master.file.FileSystemMasterFactory
 alluxio.master.lineage.LineageMasterFactory
 # ALLUXIO CS ADD
 alluxio.master.callhome.CallHomeMasterFactory
+alluxio.master.diagnostic.DiagnosticMasterFactory
 alluxio.master.license.LicenseMasterFactory
 alluxio.master.privilege.PrivilegeMasterFactory
 # ALLUXIO CS END

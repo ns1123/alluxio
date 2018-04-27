@@ -113,6 +113,9 @@ ALLUXIO_MASTER_JAVA_OPTS+=" -Dalluxio.master.audit.logger.type=${ALLUXIO_MASTER_
 if [[ -n "${ALLUXIO_LOGSERVER_HOSTNAME}" && -n "${ALLUXIO_LOGSERVER_PORT}" ]]; then
     ALLUXIO_MASTER_JAVA_OPTS+=" -Dalluxio.remote.logger.type=REMOTE_MASTER_LOGGER"
 fi
+# ALLUXIO CS ADD
+ALLUXIO_MASTER_JAVA_OPTS+=" -Dalluxio.master.diagnostic.logger.type=${ALLUXIO_MASTER_DIAGNOSTIC_LOGGER:-MASTER_DIAGNOSTIC_LOGGER}"
+# ALLUXIO CS END
 
 # Secondary master specific parameters based on ALLUXIO_JAVA_OPTS.
 ALLUXIO_SECONDARY_MASTER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
