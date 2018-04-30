@@ -365,15 +365,12 @@
           </testExcludes>
         </configuration>
       </plugin>
-<<<<<<< HEAD
       <!-- ALLUXIO CS ADD -->
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
       </plugin>
       <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-=======
 
       <plugin>
         <groupId>com.igormaznitsa</groupId>
@@ -394,7 +391,6 @@
           </execution>
         </executions>
       </plugin>
->>>>>>> FETCH_HEAD
     </plugins>
   </build>
 </project>
