@@ -13,7 +13,6 @@ package alluxio.master;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.LicenseConstants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.master.journal.JournalSystem;
@@ -170,7 +169,7 @@ public class AlluxioMasterProcess implements MasterProcess {
       if (Configuration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL,
           alluxio.master.diagnostic.DiagnosticLogLevel.class)
           != alluxio.master.diagnostic.DiagnosticLogLevel.NONE
-          && Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
+          && Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
         mRegistry.get(alluxio.master.diagnostic.DiagnosticMaster.class).setMaster(this);
       }
       // ALLUXIO CS END
