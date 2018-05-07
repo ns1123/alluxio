@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +100,7 @@ public final class Configuration {
 
     // Now lets combine, order matters here
     PROPERTIES.clear();
+    SOURCES.clear();
     merge(systemProps, Source.SYSTEM_PROPERTY);
 
     // Load site specific properties file if not in test mode. Note that we decide whether in test
@@ -429,9 +430,11 @@ public final class Configuration {
   }
 
   /**
-   * @return a view of the internal {@link Properties} of as an immutable map
+   * @return a view of the resolved properties represented by this configuration,
+   *         including all default properties
    */
   public static Map<String, String> toMap() {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return Collections.unmodifiableMap(PROPERTIES);
     // ALLUXIO CS WITH
@@ -443,6 +446,34 @@ public final class Configuration {
     }
     return Collections.unmodifiableMap(result);
     // ALLUXIO CS END
+||||||| merged common ancestors
+    return Collections.unmodifiableMap(PROPERTIES);
+=======
+    Map<String, String> map = toRawMap();
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      String value = entry.getValue();
+      if (value != null) {
+        map.put(entry.getKey(), lookup(value));
+      }
+    }
+    return map;
+  }
+
+  /**
+   * @return a map of the raw properties represented by this configuration,
+   *         including all default properties
+   */
+  public static Map<String, String> toRawMap() {
+    Map<String, String> map = new HashMap<>(PROPERTIES);
+    for (PropertyKey key : PropertyKey.defaultKeys()) {
+      String keyName = key.getName();
+      String defaultValue = key.getDefaultValue();
+      if (!map.containsKey(keyName) && defaultValue != null) {
+        map.put(keyName, defaultValue);
+      }
+    }
+    return map;
+>>>>>>> 62a639b4798227c04a43477e6330fef3a7bb171e
   }
 
   /**
