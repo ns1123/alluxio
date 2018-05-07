@@ -434,21 +434,6 @@ public final class Configuration {
    *         including all default properties
    */
   public static Map<String, String> toMap() {
-<<<<<<< HEAD
-    // ALLUXIO CS REPLACE
-    // return Collections.unmodifiableMap(PROPERTIES);
-    // ALLUXIO CS WITH
-    Map<String, String> result = new java.util.HashMap<>();
-    for (Map.Entry<String, String> entry : PROPERTIES.entrySet()) {
-      if (!PropertyKey.IMMUTABLE_KEYS.contains(entry.getKey())) {
-        result.put(entry.getKey(), entry.getValue());
-      }
-    }
-    return Collections.unmodifiableMap(result);
-    // ALLUXIO CS END
-||||||| merged common ancestors
-    return Collections.unmodifiableMap(PROPERTIES);
-=======
     Map<String, String> map = toRawMap();
     for (Map.Entry<String, String> entry : map.entrySet()) {
       String value = entry.getValue();
@@ -468,12 +453,16 @@ public final class Configuration {
     for (PropertyKey key : PropertyKey.defaultKeys()) {
       String keyName = key.getName();
       String defaultValue = key.getDefaultValue();
+      // ALLUXIO CS ADD
+      if (PropertyKey.IMMUTABLE_KEYS.contains(keyName)) {
+        continue;
+      }
+      // ALLUXIO CS END
       if (!map.containsKey(keyName) && defaultValue != null) {
         map.put(keyName, defaultValue);
       }
     }
     return map;
->>>>>>> 62a639b4798227c04a43477e6330fef3a7bb171e
   }
 
   /**
@@ -511,7 +500,12 @@ public final class Configuration {
       String value = lookupRecursively(lookupNonRecursively(match), seen);
       seen.remove(match);
       if (value == null) {
-        throw new RuntimeException("No value specified for configuration property " + match);
+        // ALLUXIO CS REPLACE
+        // throw new RuntimeException("No value specified for configuration property " + match);
+        // ALLUXIO CS WITH
+        // TODO(binfan): enable validation again after ALLUXIO-3183
+        continue;
+        // ALLUXIO CS END
       }
       LOG.debug("Replacing {} with {}", matcher.group(1), value);
       resolved = resolved.replaceFirst(REGEX_STRING, Matcher.quoteReplacement(value));
