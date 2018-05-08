@@ -484,11 +484,6 @@ public class ConfigurationTest {
       assertEquals("new_master", Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
     }
   }
-
-  @Test
-  public void jobMasterHostnameDefaultsToUnset() throws Exception {
-    assertFalse(Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME));
-  }
   // ALLUXIO CS END
 
   @Test

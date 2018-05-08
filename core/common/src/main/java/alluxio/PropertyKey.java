@@ -3086,7 +3086,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey JOB_MASTER_BIND_HOST =
       new Builder(Name.JOB_MASTER_BIND_HOST).setDefaultValue("0.0.0.0").build();
   public static final PropertyKey JOB_MASTER_HOSTNAME =
-      new Builder(Name.JOB_MASTER_HOSTNAME).build();
+      new Builder(Name.JOB_MASTER_HOSTNAME).setDefaultValue("${alluxio.master.hostname}").build();
   public static final PropertyKey JOB_MASTER_LOST_WORKER_INTERVAL_MS =
       new Builder(Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS).setDefaultValue(1000).build();
   public static final PropertyKey JOB_MASTER_RPC_PORT =

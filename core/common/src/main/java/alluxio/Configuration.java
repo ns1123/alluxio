@@ -125,13 +125,6 @@ public final class Configuration {
       }
     }
 
-    // ALLUXIO CS ADD
-
-    // Default job master hostname to Alluxio master hostname.
-    if (containsKey(PropertyKey.MASTER_HOSTNAME) && !containsKey(PropertyKey.JOB_MASTER_HOSTNAME)) {
-      set(PropertyKey.JOB_MASTER_HOSTNAME, get(PropertyKey.MASTER_HOSTNAME));
-    }
-    // ALLUXIO CS END
     validate();
   }
 
