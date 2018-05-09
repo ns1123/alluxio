@@ -339,6 +339,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "should be the same on the clients and server.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .build();
+  /**
+   * @deprecated since 1.8.0 and will be removed in 2.0.
+   */
+  @Deprecated
   public static final PropertyKey NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX =
       new Builder(Name.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX)
           .setDefaultValue("16MB")
@@ -2778,8 +2782,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey INTEGRATION_MESOS_JDK_URL =
       new Builder(Name.INTEGRATION_MESOS_JDK_URL)
-          .setDefaultValue("https://alluxio-mesos.s3.amazonaws.com/jdk-8u151-linux-x64.tar.gz")
-          .setDescription("A url from which to install the jdk during Mesos deployment. When "
+          .setDefaultValue(Constants.MESOS_LOCAL_INSTALL)
+          .setDescription("A url from which to install the jdk during Mesos deployment. Default to "
+              + "LOCAL which tells Mesos to use the local JDK on the system. When "
               + "using this property, alluxio.integration.mesos.jdk.path must also be set "
               + "correctly.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
@@ -3081,7 +3086,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey JOB_MASTER_BIND_HOST =
       new Builder(Name.JOB_MASTER_BIND_HOST).setDefaultValue("0.0.0.0").build();
   public static final PropertyKey JOB_MASTER_HOSTNAME =
-      new Builder(Name.JOB_MASTER_HOSTNAME).build();
+      new Builder(Name.JOB_MASTER_HOSTNAME).setDefaultValue("${alluxio.master.hostname}").build();
   public static final PropertyKey JOB_MASTER_LOST_WORKER_INTERVAL_MS =
       new Builder(Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS).setDefaultValue(1000).build();
   public static final PropertyKey JOB_MASTER_RPC_PORT =

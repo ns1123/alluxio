@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +100,7 @@ public final class Configuration {
 
     // Now lets combine, order matters here
     PROPERTIES.clear();
+    SOURCES.clear();
     merge(systemProps, Source.SYSTEM_PROPERTY);
 
     // Load site specific properties file if not in test mode. Note that we decide whether in test
@@ -124,13 +125,6 @@ public final class Configuration {
       }
     }
 
-    // ALLUXIO CS ADD
-
-    // Default job master hostname to Alluxio master hostname.
-    if (containsKey(PropertyKey.MASTER_HOSTNAME) && !containsKey(PropertyKey.JOB_MASTER_HOSTNAME)) {
-      set(PropertyKey.JOB_MASTER_HOSTNAME, get(PropertyKey.MASTER_HOSTNAME));
-    }
-    // ALLUXIO CS END
     validate();
   }
 
@@ -429,20 +423,39 @@ public final class Configuration {
   }
 
   /**
-   * @return a view of the internal {@link Properties} of as an immutable map
+   * @return a view of the resolved properties represented by this configuration,
+   *         including all default properties
    */
   public static Map<String, String> toMap() {
-    // ALLUXIO CS REPLACE
-    // return Collections.unmodifiableMap(PROPERTIES);
-    // ALLUXIO CS WITH
-    Map<String, String> result = new java.util.HashMap<>();
-    for (Map.Entry<String, String> entry : PROPERTIES.entrySet()) {
-      if (!PropertyKey.IMMUTABLE_KEYS.contains(entry.getKey())) {
-        result.put(entry.getKey(), entry.getValue());
+    Map<String, String> map = toRawMap();
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      String value = entry.getValue();
+      if (value != null) {
+        map.put(entry.getKey(), lookup(value));
       }
     }
-    return Collections.unmodifiableMap(result);
-    // ALLUXIO CS END
+    return map;
+  }
+
+  /**
+   * @return a map of the raw properties represented by this configuration,
+   *         including all default properties
+   */
+  public static Map<String, String> toRawMap() {
+    Map<String, String> map = new HashMap<>(PROPERTIES);
+    for (PropertyKey key : PropertyKey.defaultKeys()) {
+      String keyName = key.getName();
+      String defaultValue = key.getDefaultValue();
+      // ALLUXIO CS ADD
+      if (PropertyKey.IMMUTABLE_KEYS.contains(keyName)) {
+        continue;
+      }
+      // ALLUXIO CS END
+      if (!map.containsKey(keyName) && defaultValue != null) {
+        map.put(keyName, defaultValue);
+      }
+    }
+    return map;
   }
 
   /**
@@ -480,7 +493,12 @@ public final class Configuration {
       String value = lookupRecursively(lookupNonRecursively(match), seen);
       seen.remove(match);
       if (value == null) {
-        throw new RuntimeException("No value specified for configuration property " + match);
+        // ALLUXIO CS REPLACE
+        // throw new RuntimeException("No value specified for configuration property " + match);
+        // ALLUXIO CS WITH
+        // TODO(binfan): enable validation again after ALLUXIO-3183
+        continue;
+        // ALLUXIO CS END
       }
       LOG.debug("Replacing {} with {}", matcher.group(1), value);
       resolved = resolved.replaceFirst(REGEX_STRING, Matcher.quoteReplacement(value));
