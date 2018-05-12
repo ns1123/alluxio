@@ -1030,29 +1030,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       if (inode.isDirectory()) {
         try (TempInodePathForDescendant tempInodePath = new TempInodePathForDescendant(inodePath)) {
           try {
-<<<<<<< HEAD
-            // the path to child for getPath should already be locked.
-            tempInodePath.setDescendant(child, mInodeTree.getPath(child));
-            // ALLUXIO CS REPLACE
-            // ret.add(getFileInfoInternal(tempInodePath));
-            // ALLUXIO CS WITH
-            FileInfo fileInfo = getFileInfoInternal(tempInodePath);
-            if (fileInfo.isEncrypted() && !fileInfo.isFolder()) {
-              // Capability should be attached in listStatus for encrypted files, so that
-              // Alluxio client can read the footer to get encryption layout and metadata.
-              populateCapability(fileInfo, tempInodePath);
-            }
-            ret.add(fileInfo);
-            // ALLUXIO CS END
-          } finally {
-            child.unlockRead();
-||||||| merged common ancestors
-            // the path to child for getPath should already be locked.
-            tempInodePath.setDescendant(child, mInodeTree.getPath(child));
-            ret.add(getFileInfoInternal(tempInodePath));
-          } finally {
-            child.unlockRead();
-=======
             mPermissionChecker.checkPermission(Mode.Bits.EXECUTE, inodePath);
           } catch (AccessControlException e) {
             auditContext.setAllowed(false);
@@ -1063,11 +1040,21 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             try {
               // the path to child for getPath should already be locked.
               tempInodePath.setDescendant(child, mInodeTree.getPath(child));
-              ret.add(getFileInfoInternal(tempInodePath));
+
+              // ALLUXIO CS REPLACE
+              // ret.add(getFileInfoInternal(tempInodePath));
+              // ALLUXIO CS WITH
+              FileInfo fileInfo = getFileInfoInternal(tempInodePath);
+              if (fileInfo.isEncrypted() && !fileInfo.isFolder()) {
+                // Capability should be attached in listStatus for encrypted files, so that
+                // Alluxio client can read the footer to get encryption layout and metadata.
+                populateCapability(fileInfo, tempInodePath);
+              }
+              ret.add(fileInfo);
+              // ALLUXIO CS END
             } finally {
               child.unlockRead();
             }
->>>>>>> OPENSOURCE/master
           }
         }
       } else {
@@ -1716,6 +1703,18 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             }
           }
           if (!failedToDelete) {
+            // ALLUXIO CS ADD
+            if (delInode.isFile()) {
+              long fileId = delInode.getId();
+              // Remove the file from the set of files to persist.
+              mPersistRequests.remove(fileId);
+              // Cancel any ongoing jobs.
+              PersistJob job = mPersistJobs.get(fileId);
+              if (job != null) {
+                job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
+              }
+            }
+            // ALLUXIO CS END
             inodesToDelete.add(new Pair<>(alluxioUriToDel, delInode));
           } else {
             unsafeInodes.add(delInode.getId());
@@ -1724,53 +1723,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             failedUris.add(alluxioUriToDel.toString());
           }
         }
-<<<<<<< HEAD
-        if (!failedToDelete) {
-          // ALLUXIO CS ADD
-          if (delInode.isFile()) {
-            long fileId = delInode.getId();
-            // Remove the file from the set of files to persist.
-            mPersistRequests.remove(fileId);
-            // Cancel any ongoing jobs.
-            PersistJob job = mPersistJobs.get(fileId);
-            if (job != null) {
-              job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
-            }
-          }
-          // ALLUXIO CS END
-          inodesToDelete.add(new Pair<>(alluxioUriToDel, delInode));
-        } else {
-          unsafeInodes.add(delInode.getId());
-          // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
-          unsafeInodes.add(delInode.getParentId());
-          failedUris.add(alluxioUriToDel.toString());
-        }
-      }
-      // Delete Inodes
-      for (Pair<AlluxioURI, Inode> delInodePair : inodesToDelete) {
-        Inode delInode = delInodePair.getSecond();
-        tempInodePath.setDescendant(delInode, delInodePair.getFirst());
-        // Do not journal entries covered recursively for performance
-        if (delInode.getId() == inode.getId() || unsafeInodes.contains(delInode.getParentId())) {
-          mInodeTree.deleteInode(rpcContext, tempInodePath, opTimeMs, deleteOptions);
-||||||| merged common ancestors
-        if (!failedToDelete) {
-          inodesToDelete.add(new Pair<>(alluxioUriToDel, delInode));
-        } else {
-          unsafeInodes.add(delInode.getId());
-          // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
-          unsafeInodes.add(delInode.getParentId());
-          failedUris.add(alluxioUriToDel.toString());
-        }
-      }
-      // Delete Inodes
-      for (Pair<AlluxioURI, Inode> delInodePair : inodesToDelete) {
-        Inode delInode = delInodePair.getSecond();
-        tempInodePath.setDescendant(delInode, delInodePair.getFirst());
-        // Do not journal entries covered recursively for performance
-        if (delInode.getId() == inode.getId() || unsafeInodes.contains(delInode.getParentId())) {
-          mInodeTree.deleteInode(rpcContext, tempInodePath, opTimeMs, deleteOptions);
-=======
         // Delete Inodes
         for (Pair<AlluxioURI, Inode> delInodePair : inodesToDelete) {
           Inode delInode = delInodePair.getSecond();
@@ -1778,8 +1730,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           // Do not journal entries covered recursively for performance
           if (delInode.getId() == inode.getId() || unsafeInodes.contains(delInode.getParentId())) {
             mInodeTree.deleteInode(rpcContext, tempInodePath, opTimeMs, deleteOptions);
->>>>>>> OPENSOURCE/master
-
           } else {
             mInodeTree.deleteInode(
                 new RpcContext(rpcContext.getBlockDeletionContext(), NoopJournalContext.INSTANCE),
