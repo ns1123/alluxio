@@ -1040,7 +1040,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             try {
               // the path to child for getPath should already be locked.
               tempInodePath.setDescendant(child, mInodeTree.getPath(child));
-
               // ALLUXIO CS REPLACE
               // ret.add(getFileInfoInternal(tempInodePath));
               // ALLUXIO CS WITH
