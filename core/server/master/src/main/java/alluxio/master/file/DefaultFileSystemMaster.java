@@ -151,6 +151,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -166,6 +167,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -1664,8 +1666,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       List<Pair<AlluxioURI, Inode>> inodesToDelete = new ArrayList<>();
       // Inodes that are not safe for recursive deletes
       Set<Long> unsafeInodes = new HashSet<>();
-      // Alluxio URIs which could not be deleted
-      List<String> failedUris = new ArrayList<>();
+      // Alluxio URIs (and the reason for failure) which could not be deleted
+      List<Pair<String, String>> failedUris = new ArrayList<>();
 
       try (TempInodePathForDescendant tempInodePath = new TempInodePathForDescendant(inodePath)) {
         // We go through each inode, removing it from its parent set and from mDelInodes. If it's a
@@ -1675,8 +1677,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           AlluxioURI alluxioUriToDel = delInodePair.getFirst();
           Inode delInode = delInodePair.getSecond();
 
-          boolean failedToDelete = unsafeInodes.contains(delInode.getId());
-          if (!failedToDelete && !replayed && delInode.isPersisted()) {
+          String failureReason = null;
+          if (unsafeInodes.contains(delInode.getId())) {
+            failureReason = ExceptionMessage.DELETE_FAILED_DIR_NONEMPTY.getMessage();
+          } else if (!replayed && delInode.isPersisted()) {
             try {
               // If this is a mount point, we have deleted all the children and can unmount it
               // TODO(calvin): Add tests (ALLUXIO-1831)
@@ -1687,13 +1691,15 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                   try {
                     checkUfsMode(alluxioUriToDel, OperationType.WRITE);
                     // Attempt to delete node if all children were deleted successfully
-                    failedToDelete = !ufsDeleter.delete(alluxioUriToDel, delInode);
+                    ufsDeleter.delete(alluxioUriToDel, delInode);
                   } catch (AccessControlException e) {
                     // In case ufs is not writable, we will still attempt to delete other entries
                     // if any as they may be from a different mount point
                     // TODO(adit): reason for failure is swallowed here
                     LOG.warn(e.getMessage());
-                    failedToDelete = true;
+                    failureReason = e.getMessage();
+                  } catch (IOException e) {
+                    failureReason = e.getMessage();
                   }
                 }
               }
@@ -1701,7 +1707,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               LOG.warn("Failed to delete path from UFS: {}", e.getMessage());
             }
           }
-          if (!failedToDelete) {
+          if (failureReason == null) {
             // ALLUXIO CS ADD
             if (delInode.isFile()) {
               long fileId = delInode.getId();
@@ -1719,7 +1725,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             unsafeInodes.add(delInode.getId());
             // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
             unsafeInodes.add(delInode.getParentId());
-            failedUris.add(alluxioUriToDel.toString());
+            failedUris.add(new Pair<>(alluxioUriToDel.toString(), failureReason));
           }
         }
         // Delete Inodes
@@ -1736,9 +1742,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
         }
         if (!failedUris.isEmpty()) {
-          // TODO(adit): Distinguish b/w different failure types
-          throw new FailedPreconditionException(ExceptionMessage.DELETE_FAILED_UFS
-              .getMessage(StringUtils.join(failedUris, ',')));
+          Collection<String> messages = failedUris.stream()
+              .map(pair -> String.format("%s (%s)", pair.getFirst(), pair.getSecond()))
+              .collect(Collectors.toList());
+          throw new FailedPreconditionException(
+              ExceptionMessage.DELETE_FAILED_UFS.getMessage(StringUtils.join(messages, ", ")));
         }
       }
     }
