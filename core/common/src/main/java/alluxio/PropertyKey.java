@@ -3980,17 +3980,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   @ThreadSafe
   public enum Template {
     LOCALITY_TIER("alluxio.locality.%s", "alluxio\\.locality\\.(\\w+)"),
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     LOCALITY_TIER_STRICT("alluxio.locality.%s.strict", "alluxio\\.locality\\.(\\w+)\\.strict"),
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     MASTER_IMPERSONATION_GROUPS_OPTION("alluxio.master.security.impersonation.%s.groups",
         "alluxio.master.security.impersonation.(\\w+).groups"),
     MASTER_IMPERSONATION_USERS_OPTION("alluxio.master.security.impersonation.%s.users",
         "alluxio.master.security.impersonation.(\\w+).users"),
->>>>>>> os/master
     MASTER_JOURNAL_UFS_OPTION("alluxio.master.journal.ufs.option",
         "alluxio\\.master\\.journal\\.ufs\\.option"),
     MASTER_JOURNAL_UFS_OPTION_PROPERTY("alluxio.master.journal.ufs.option.%s",

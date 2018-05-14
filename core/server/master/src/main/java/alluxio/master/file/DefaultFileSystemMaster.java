@@ -1707,8 +1707,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               LOG.warn("Failed to delete path from UFS: {}", e.getMessage());
             }
           }
-<<<<<<< HEAD
-          if (!failedToDelete) {
+          if (failureReason == null) {
             // ALLUXIO CS ADD
             if (delInode.isFile()) {
               long fileId = delInode.getId();
@@ -1721,11 +1720,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               }
             }
             // ALLUXIO CS END
-||||||| merged common ancestors
-          if (!failedToDelete) {
-=======
-          if (failureReason == null) {
->>>>>>> os/master
             inodesToDelete.add(new Pair<>(alluxioUriToDel, delInode));
           } else {
             unsafeInodes.add(delInode.getId());
