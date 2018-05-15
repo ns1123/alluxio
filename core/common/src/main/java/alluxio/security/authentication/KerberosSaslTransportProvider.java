@@ -84,6 +84,10 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
       final InetSocketAddress serverAddress) throws UnauthenticatedException {
     String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName();
     final String instanceName = unifiedInstanceName != null ? unifiedInstanceName : serverName;
+
+    // Determine the impersonation user
+    String impersonationUser = TransportProviderUtils.getImpersonationUser(subject);
+
     try {
       return Subject.doAs(subject, new
           PrivilegedExceptionAction<TSaslClientTransport>() {
@@ -92,7 +96,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
             TTransport wrappedTransport =
                 TransportProviderUtils.createThriftSocket(serverAddress, mSocketTimeoutMs);
             return new TSaslClientTransport(
-                KerberosUtils.GSSAPI_MECHANISM_NAME, null /* authorizationId */,
+                KerberosUtils.GSSAPI_MECHANISM_NAME, impersonationUser,
                 protocol, instanceName, KerberosUtils.SASL_PROPERTIES, null, wrappedTransport);
           } catch (SaslException e) {
             throw new AuthenticationException("Exception initializing SASL client", e);
