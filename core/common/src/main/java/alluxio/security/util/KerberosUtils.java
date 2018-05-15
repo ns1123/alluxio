@@ -16,6 +16,7 @@ import alluxio.PropertyKey;
 import alluxio.netty.NettyAttributes;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
+import alluxio.security.authentication.ImpersonationAuthenticator;
 import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
@@ -25,6 +26,8 @@ import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.Oid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -219,10 +222,15 @@ public final class KerberosUtils {
    * CallbackHandler for SASL GSSAPI Kerberos mechanism.
    */
   private abstract static class AbstractGssSaslCallbackHandler implements CallbackHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractGssSaslCallbackHandler.class);
+    private final ImpersonationAuthenticator mImpersonationAuthenticator;
+
     /**
      * Creates a new instance of {@link AbstractGssSaslCallbackHandler}.
      */
-    public AbstractGssSaslCallbackHandler() {}
+    public AbstractGssSaslCallbackHandler() {
+      mImpersonationAuthenticator = new ImpersonationAuthenticator();
+    }
 
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
@@ -238,15 +246,26 @@ public final class KerberosUtils {
 
       if (ac != null) {
         // Extract and verify the Kerberos id, which is the full principal name.
-        // Currently because Kerberos impersonation is not supported, authenticationId and
-        // authorizationId must match in order to make Kerberos login succeed.
         String authenticationId = ac.getAuthenticationID();
         String authorizationId = ac.getAuthorizationID();
-        if (authenticationId.equals(authorizationId)) {
-          ac.setAuthorized(true);
-        } else {
-          ac.setAuthorized(false);
+
+        try {
+          authorizationId = new KerberosName(authorizationId).getShortName();
+        } catch (Exception e) {
+          // Ignore, since the impersonation user is not guaranteed to be a Kerberos name
         }
+
+        try {
+          mImpersonationAuthenticator
+              .authenticate(new KerberosName(authenticationId).getShortName(), authorizationId);
+          ac.setAuthorized(true);
+        } catch (Exception e) {
+          // Logging here to show the error on the master. Otherwise, error messages get swallowed.
+          LOG.error("Impersonation failed.", e);
+          ac.setAuthorized(false);
+          throw e;
+        }
+
         if (ac.isAuthorized()) {
           ac.setAuthorizedID(authorizationId);
           done(new KerberosName(authorizationId).getShortName());
