@@ -16,6 +16,7 @@ import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
+import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.JobUfsManager;
@@ -99,7 +100,7 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
       // Setup Thrift server
       mTransportProvider = TransportProvider.Factory.create();
       mThriftServerSocket = createThriftServerSocket();
-      mRPCPort = NetworkAddressUtils.getThriftPort(mThriftServerSocket);
+      mRPCPort = ThriftUtils.getThriftPort(mThriftServerSocket);
       // Reset worker RPC port based on assigned port number
       Configuration.set(PropertyKey.JOB_WORKER_RPC_PORT, Integer.toString(mRPCPort));
       mThriftServer = createThriftServer();

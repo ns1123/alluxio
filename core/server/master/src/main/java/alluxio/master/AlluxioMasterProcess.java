@@ -37,17 +37,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
-<<<<<<< HEAD
-import org.apache.thrift.protocol.TBinaryProtocol;
 // ALLUXIO CS REMOVE
 // import org.apache.thrift.server.TServer;
 // ALLUXIO CS END
-||||||| merged common ancestors
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.server.TServer;
-=======
-import org.apache.thrift.server.TServer;
->>>>>>> 536b261b702b100abbf01e52244ead9915fbfc0d
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -400,12 +392,13 @@ public class AlluxioMasterProcess implements MasterProcess {
       throw new RuntimeException(e);
     }
     // create master thrift service with the multiplexed processor.
-<<<<<<< HEAD
-    Args args = new TThreadPoolServer.Args(mRpcServerSocket).maxWorkerThreads(mMaxWorkerThreads)
-        .minWorkerThreads(mMinWorkerThreads).processor(processor).transportFactory(transportFactory)
-        .protocolFactory(new TBinaryProtocol.Factory(true, true));
-
-    args.stopTimeoutVal = (int) Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT);
+    Args args = new TThreadPoolServer.Args(mRpcServerSocket)
+        .maxWorkerThreads(mMaxWorkerThreads)
+        .minWorkerThreads(mMinWorkerThreads)
+        .processor(processor)
+        .transportFactory(transportFactory)
+        .protocolFactory(ThriftUtils.createThriftProtocolFactory())
+        .stopTimeoutVal((int) Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT));
     // ALLUXIO CS ADD
     args.executorService(
         alluxio.concurrent.Executors.createDefaultExecutorServiceWithSecurityOn(args));
@@ -415,23 +408,6 @@ public class AlluxioMasterProcess implements MasterProcess {
     // ALLUXIO CS WITH
     mThriftServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    Args args = new TThreadPoolServer.Args(mRpcServerSocket).maxWorkerThreads(mMaxWorkerThreads)
-        .minWorkerThreads(mMinWorkerThreads).processor(processor).transportFactory(transportFactory)
-        .protocolFactory(new TBinaryProtocol.Factory(true, true));
-
-    args.stopTimeoutVal = (int) Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT);
-    mThriftServer = new TThreadPoolServer(args);
-=======
-    Args args = new TThreadPoolServer.Args(mRpcServerSocket)
-        .maxWorkerThreads(mMaxWorkerThreads)
-        .minWorkerThreads(mMinWorkerThreads)
-        .processor(processor)
-        .transportFactory(transportFactory)
-        .protocolFactory(ThriftUtils.createThriftProtocolFactory())
-        .stopTimeoutVal((int) Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT));
-    mThriftServer = new TThreadPoolServer(args);
->>>>>>> 536b261b702b100abbf01e52244ead9915fbfc0d
 
     // start thrift rpc server
     mStartTimeMs = System.currentTimeMillis();

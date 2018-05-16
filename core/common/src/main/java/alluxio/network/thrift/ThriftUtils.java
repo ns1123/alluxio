@@ -48,6 +48,21 @@ public final class ThriftUtils {
       throws UnauthenticatedException {
     TProtocol binaryProtocol = new TBinaryProtocol(transport);
     TProtocol multiplexedProtocol = new TMultiplexedProtocol(binaryProtocol, serviceName);
+    // ALLUXIO CS ADD
+    if (alluxio.Configuration
+        .getEnum(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE,
+            alluxio.security.authentication.AuthType.class)
+        .equals(alluxio.security.authentication.AuthType.KERBEROS)) {
+      javax.security.auth.Subject subject;
+      try {
+        subject = alluxio.security.LoginUser.getClientLoginSubject();
+      } catch (java.io.IOException e) {
+        throw new UnauthenticatedException("Failed to determine subject: " + e.toString(), e);
+      }
+      multiplexedProtocol =
+          new alluxio.security.authentication.AuthenticatedThriftProtocol(multiplexedProtocol, subject);
+    }
+    // ALLUXIO CS END
     return multiplexedProtocol;
   }
 

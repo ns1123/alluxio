@@ -20,6 +20,7 @@ import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
+import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.JobMasterClientService;
@@ -128,7 +129,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
       mTransportProvider = TransportProvider.Factory.create();
       mTServerSocket = new TServerSocket(
           NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_RPC));
-      mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);
+      mPort = ThriftUtils.getThriftPort(mTServerSocket);
       // reset master port
       Configuration.set(PropertyKey.JOB_MASTER_RPC_PORT, Integer.toString(mPort));
       mRpcBindAddress = NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_RPC);
