@@ -11,8 +11,6 @@
 
 package alluxio.security.authentication;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.LoginUser;
