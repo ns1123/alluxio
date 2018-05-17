@@ -14,6 +14,7 @@ package alluxio.server.auth;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
+import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.LoginUser;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
@@ -119,7 +120,7 @@ public final class TransportAndProtocolAuthenticationTest extends BaseIntegratio
     // Use port 0 to assign each test case an available port (possibly different)
     Configuration.set(PropertyKey.TEST_MODE, "true");
     mServerTSocket = new TServerSocket(new InetSocketAddress(sServerName, 0));
-    int port = NetworkAddressUtils.getThriftPort(mServerTSocket);
+    int port = ThriftUtils.getThriftPort(mServerTSocket);
     mServerAddress = new InetSocketAddress(sServerName, port);
   }
 

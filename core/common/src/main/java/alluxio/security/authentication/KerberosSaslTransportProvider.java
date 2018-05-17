@@ -11,9 +11,8 @@
 
 package alluxio.security.authentication;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
+import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosUtils;
 
@@ -39,16 +38,10 @@ import javax.security.sasl.SaslException;
  */
 @ThreadSafe
 public final class KerberosSaslTransportProvider implements TransportProvider {
-  /** Timeout for socket in ms. */
-  private final int mSocketTimeoutMs;
-
   /**
    * Constructor for transport provider when authentication type is {@link AuthType#KERBEROS).
    */
-  public KerberosSaslTransportProvider() {
-    mSocketTimeoutMs =
-        (int) Configuration.getMs(PropertyKey.SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS);
-  }
+  public KerberosSaslTransportProvider() {}
 
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress)
@@ -94,7 +87,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
         public TSaslClientTransport run() throws AuthenticationException {
           try {
             TTransport wrappedTransport =
-                TransportProviderUtils.createThriftSocket(serverAddress, mSocketTimeoutMs);
+                ThriftUtils.createThriftSocket(serverAddress);
             return new TSaslClientTransport(
                 KerberosUtils.GSSAPI_MECHANISM_NAME, impersonationUser,
                 protocol, instanceName, KerberosUtils.SASL_PROPERTIES, null, wrappedTransport);
