@@ -442,6 +442,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // TODO(gene): Handle default config value for whitelist.
     mWhitelist = new PrefixList(Configuration.getList(PropertyKey.MASTER_WHITELIST, ","));
 
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
     // ALLUXIO CS WITH
@@ -450,6 +451,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
+||||||| merged common ancestors
+    mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
+    mPermissionChecker = new PermissionChecker(mInodeTree);
+=======
+    mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
+    mPermissionChecker = new DefaultPermissionChecker(mInodeTree);
+>>>>>>> OPENSOURCE/master
     mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
     mUfsBlockLocationCache = UfsBlockLocationCache.Factory.create(mMountTable);
     mUfsSyncPathCache = new UfsSyncPathCache();
