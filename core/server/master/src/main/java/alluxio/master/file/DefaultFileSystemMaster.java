@@ -449,7 +449,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     // ALLUXIO CS END
-    mPermissionChecker = new PermissionChecker(mInodeTree);
+    mPermissionChecker = new DefaultPermissionChecker(mInodeTree);
     mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
     mUfsBlockLocationCache = UfsBlockLocationCache.Factory.create(mMountTable);
     mUfsSyncPathCache = new UfsSyncPathCache();
