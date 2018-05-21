@@ -291,7 +291,7 @@ public class URIStatus {
    * @return a clone of the file info
    */
   public FileInfo toFileInfo() {
-    return alluxio.wire.ThriftUtils.fromThrift(alluxio.wire.ThriftUtils.toThrift(mInfo));
+    return FileInfo.fromThrift(mInfo.toThrift());
   }
   // ALLUXIO CS END
 }

@@ -18,7 +18,6 @@ import alluxio.thrift.GetFileInfoTOptions;
 import alluxio.thrift.GetUfsInfoTOptions;
 import alluxio.thrift.UfsInfo;
 import alluxio.wire.FileInfo;
-import alluxio.wire.ThriftUtils;
 
 import org.apache.thrift.TException;
 
@@ -74,7 +73,7 @@ public final class FileSystemMasterClient extends AbstractMasterClient {
     return retryRPC(new RpcCallable<FileInfo>() {
       @Override
       public FileInfo call() throws TException {
-        return ThriftUtils
+        return FileInfo
             .fromThrift(mClient.getFileInfo(fileId, new GetFileInfoTOptions()).getFileInfo());
       }
     });

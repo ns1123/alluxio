@@ -23,7 +23,6 @@ import alluxio.thrift.GetServiceVersionTOptions;
 import alluxio.thrift.GetServiceVersionTResponse;
 import alluxio.thrift.GetUfsInfoTOptions;
 import alluxio.thrift.GetUfsInfoTResponse;
-import alluxio.wire.ThriftUtils;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -64,8 +63,7 @@ public final class FileSystemMasterJobServiceHandler
       @Override
       public GetFileInfoTResponse call() throws AlluxioException {
         try {
-          return new GetFileInfoTResponse(
-              ThriftUtils.toThrift(mFileSystemMaster.getFileInfo(fileId)));
+          return new GetFileInfoTResponse(mFileSystemMaster.getFileInfo(fileId).toThrift());
         } catch (UnavailableException e) {
           throw new AlluxioException("File system master is unavailable", e);
         }
