@@ -18,7 +18,6 @@ import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.SecurityUtils;
 import alluxio.wire.CommonOptions;
-import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
@@ -70,7 +69,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
       // ALLUXIO CS END
       mTtl = options.getTtl();
-      mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
+      mTtlAction = TtlAction.fromThrift(options.getTtlAction());
       if (SecurityUtils.isAuthenticationEnabled()) {
         mOwner = SecurityUtils.getOwnerFromThriftClient();
         mGroup = SecurityUtils.getGroupFromThriftClient();

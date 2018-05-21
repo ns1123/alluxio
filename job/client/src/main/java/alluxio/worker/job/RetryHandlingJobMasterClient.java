@@ -17,7 +17,6 @@ import alluxio.thrift.JobHeartbeatTOptions;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.RegisterJobWorkerTOptions;
 import alluxio.thrift.TaskInfo;
-import alluxio.wire.ThriftUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import org.apache.thrift.TException;
@@ -73,7 +72,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
     return retryRPC(new RpcCallable<Long>() {
       public Long call() throws TException {
         return mClient
-            .registerJobWorker(ThriftUtils.toThrift(address), new RegisterJobWorkerTOptions())
+            .registerJobWorker(address.toThrift(), new RegisterJobWorkerTOptions())
             .getId();
       }
     });

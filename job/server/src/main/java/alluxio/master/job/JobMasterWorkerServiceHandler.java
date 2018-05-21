@@ -21,7 +21,6 @@ import alluxio.thrift.RegisterJobWorkerTOptions;
 import alluxio.thrift.RegisterJobWorkerTResponse;
 import alluxio.thrift.TaskInfo;
 import alluxio.thrift.WorkerNetAddress;
-import alluxio.wire.ThriftUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -63,7 +62,7 @@ public final class JobMasterWorkerServiceHandler implements Iface {
       @Override
       public RegisterJobWorkerTResponse call() throws AlluxioException {
         return new RegisterJobWorkerTResponse(
-            mJobMaster.registerWorker(ThriftUtils.fromThrift((workerNetAddress))));
+            mJobMaster.registerWorker(alluxio.wire.WorkerNetAddress.fromThrift(workerNetAddress)));
       }
     });
   }
