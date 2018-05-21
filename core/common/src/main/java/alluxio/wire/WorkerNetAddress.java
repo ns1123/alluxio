@@ -47,6 +47,7 @@ public final class WorkerNetAddress implements Serializable {
   public WorkerNetAddress() {}
 
   /**
+<<<<<<< HEAD
    * Creates a new instance of {@link WorkerNetAddress} from thrift representation.
    *
    * @param workerNetAddress the thrift net address
@@ -79,6 +80,29 @@ public final class WorkerNetAddress implements Serializable {
   // ALLUXIO CS END
 
   /**
+||||||| merged common ancestors
+   * Creates a new instance of {@link WorkerNetAddress} from thrift representation.
+   *
+   * @param workerNetAddress the thrift net address
+   */
+  protected WorkerNetAddress(alluxio.thrift.WorkerNetAddress workerNetAddress) {
+    mHost = workerNetAddress.getHost();
+    mRpcPort = workerNetAddress.getRpcPort();
+    mDataPort = workerNetAddress.getDataPort();
+    mWebPort = workerNetAddress.getWebPort();
+    mDomainSocketPath = workerNetAddress.getDomainSocketPath();
+    mTieredIdentity = TieredIdentity.fromThrift(workerNetAddress.getTieredIdentity());
+    if (mTieredIdentity == null) {
+      // This means the worker is pre-1.7.0. We handle this in post-1.7.0 clients by filling out
+      // the tiered identity using the hostname field.
+      mTieredIdentity =
+          new TieredIdentity(Arrays.asList(new LocalityTier(Constants.LOCALITY_NODE, mHost)));
+    }
+  }
+
+  /**
+=======
+>>>>>>> FETCH_HEAD
    * @return the host of the worker
    */
   public String getHost() {
@@ -192,7 +216,7 @@ public final class WorkerNetAddress implements Serializable {
   /**
    * @return a net address of thrift construct
    */
-  protected alluxio.thrift.WorkerNetAddress toThrift() {
+  public alluxio.thrift.WorkerNetAddress toThrift() {
     alluxio.thrift.WorkerNetAddress address = new alluxio.thrift.WorkerNetAddress();
     // ALLUXIO CS ADD
     address.setSecureRpcPort(mSecureRpcPort);
@@ -206,6 +230,29 @@ public final class WorkerNetAddress implements Serializable {
       address.setTieredIdentity(mTieredIdentity.toThrift());
     }
     return address;
+  }
+
+  /**
+   * Creates a new instance of {@link WorkerNetAddress} from thrift representation.
+   *
+   * @param address the thrift net address
+   * @return the instance
+   */
+  public static WorkerNetAddress fromThrift(alluxio.thrift.WorkerNetAddress address) {
+    TieredIdentity tieredIdentity = TieredIdentity.fromThrift(address.getTieredIdentity());
+    if (tieredIdentity == null) {
+      // This means the worker is pre-1.7.0. We handle this in post-1.7.0 clients by filling out
+      // the tiered identity using the hostname field.
+      tieredIdentity = new TieredIdentity(
+          Arrays.asList(new LocalityTier(Constants.LOCALITY_NODE, address.getHost())));
+    }
+    return new WorkerNetAddress()
+        .setDataPort(address.getDataPort())
+        .setDomainSocketPath(address.getDomainSocketPath())
+        .setHost(address.getHost())
+        .setRpcPort(address.getRpcPort())
+        .setTieredIdentity(tieredIdentity)
+        .setWebPort(address.getWebPort());
   }
 
   @Override

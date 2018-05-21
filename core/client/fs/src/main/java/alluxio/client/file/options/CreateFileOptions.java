@@ -23,7 +23,6 @@ import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.CommonUtils;
 import alluxio.wire.CommonOptions;
-import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -413,7 +412,7 @@ public final class CreateFileOptions {
     options.setReplicationMin(mReplicationMin);
     // ALLUXIO CS END
     options.setTtl(mTtl);
-    options.setTtlAction(ThriftUtils.toThrift(mTtlAction));
+    options.setTtlAction(TtlAction.toThrift(mTtlAction));
     if (mMode != null) {
       options.setMode(mMode.toShort());
     }
