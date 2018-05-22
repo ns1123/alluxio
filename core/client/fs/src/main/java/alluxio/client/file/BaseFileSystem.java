@@ -160,7 +160,7 @@ public class BaseFileSystem implements FileSystem {
           alluxio.client.EncryptionMetaFactory.create(status.getFileId(),
               status.getFileId() /* encryption id */, options.getBlockSizeBytes());
       outStreamOptions.setEncryptionMeta(meta);
-      mFileSystemContext.put(status.getFileId(), meta);
+      mFileSystemContext.putEncryptionMeta(status.getFileId(), meta);
     }
     // ALLUXIO CS END
     try {
@@ -273,7 +273,7 @@ public class BaseFileSystem implements FileSystem {
       URIStatus physicalStatus = getStatusInternal(masterClient, path, options);
       if (physicalStatus.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
-            mFileSystemContext.get(physicalStatus.getFileId());
+            mFileSystemContext.getEncryptionMeta(physicalStatus.getFileId());
         return new URIStatus(
             alluxio.client.LayoutUtils.convertFileInfoToLogical(physicalStatus.toFileInfo(), meta));
       }
@@ -364,12 +364,12 @@ public class BaseFileSystem implements FileSystem {
     long fileId = status.getFileId();
     // Criteria to find the encryption metadata:
     // 1. Lookup in the client cache
-    alluxio.proto.security.EncryptionProto.Meta meta = mFileSystemContext.get(fileId);
+    alluxio.proto.security.EncryptionProto.Meta meta = mFileSystemContext.getEncryptionMeta(fileId);
     if (meta == null) {
       // 2. Read from file footer with unencrypted fileInStream. It will locate to the
       // UFS physical offset if the footer is not in Alluxio memory.
       meta = getEncryptionMetaFromFooter(status);
-      mFileSystemContext.put(fileId, meta);
+      mFileSystemContext.putEncryptionMeta(fileId, meta);
     }
     return meta;
   }
@@ -524,7 +524,7 @@ public class BaseFileSystem implements FileSystem {
       inStreamOptions.setEncrypted(status.isEncrypted());
       if (status.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
-            mFileSystemContext.get(status.getFileId());
+            mFileSystemContext.getEncryptionMeta(status.getFileId());
         if (meta == null || !meta.hasCryptoKey()) {
           // Retry getting the crypto key if the cached meta does not have a valid crypto key.
           meta = getEncryptionMetaFromFooter(status);
@@ -533,7 +533,7 @@ public class BaseFileSystem implements FileSystem {
                 "Can not open an encrypted file because the client can not get the crypto key.");
           }
           // Update the meta in cache with the new crypto key set.
-          mFileSystemContext.put(status.getFileId(), meta);
+          mFileSystemContext.putEncryptionMeta(status.getFileId(), meta);
         }
         inStreamOptions.setEncryptionMeta(meta);
       }

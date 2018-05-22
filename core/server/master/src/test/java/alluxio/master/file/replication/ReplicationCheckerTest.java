@@ -32,6 +32,8 @@ import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalTestUtils;
+import alluxio.master.metrics.MetricsMasterFactory;
+import alluxio.metrics.Metric;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
 import alluxio.wire.WorkerNetAddress;
@@ -65,6 +67,7 @@ public final class ReplicationCheckerTest {
   private static final AlluxioURI TEST_FILE_1 = new AlluxioURI("/test1");
   private static final AlluxioURI TEST_FILE_2 = new AlluxioURI("/test2");
   private static final List<Long> NO_BLOCKS = ImmutableList.of();
+  private static final List<Metric> NO_METRICS = ImmutableList.of();
   private static final Map<String, List<Long>> NO_BLOCKS_ON_TIERS = ImmutableMap.of();
   private static final Map<Long, Integer> EMPTY = ImmutableMap.of();
 
@@ -116,6 +119,7 @@ public final class ReplicationCheckerTest {
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
 
     mSafeModeManager = new TestSafeModeManager();
+    new MetricsMasterFactory().create(registry, journalSystem, mSafeModeManager);
     mBlockMaster = new BlockMasterFactory().create(registry, journalSystem, mSafeModeManager);
     InodeDirectoryIdGenerator directoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
     UfsManager manager = Mockito.mock(UfsManager.class);
@@ -202,7 +206,7 @@ public final class ReplicationCheckerTest {
   private void heartbeatToAddLocationHelper(long blockId, long workerId) throws Exception {
     List<Long> addedBlocks = ImmutableList.of(blockId);
     mBlockMaster.workerHeartbeat(workerId, ImmutableMap.of("MEM", 0L), NO_BLOCKS,
-        ImmutableMap.of("MEM", addedBlocks));
+        ImmutableMap.of("MEM", addedBlocks), NO_METRICS);
   }
 
   @Test
@@ -280,7 +284,7 @@ public final class ReplicationCheckerTest {
 
     // Indicate that blockId is removed on the worker.
     mBlockMaster.workerHeartbeat(workerId, ImmutableMap.of("MEM", 0L), ImmutableList.of(blockId),
-        NO_BLOCKS_ON_TIERS);
+        NO_BLOCKS_ON_TIERS, NO_METRICS);
 
     mReplicationChecker.heartbeat();
     Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequests());

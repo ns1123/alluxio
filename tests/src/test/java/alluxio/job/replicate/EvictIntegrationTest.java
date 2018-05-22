@@ -55,8 +55,8 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
     mBlockId1 = status.getBlockIds().get(0);
     mBlockId2 = status.getBlockIds().get(1);
 
-    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, FileSystemContext.INSTANCE);
-    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, FileSystemContext.INSTANCE);
+    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, FileSystemContext.get());
+    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, FileSystemContext.get());
     mWorker = blockInfo1.getLocations().get(0).getWorkerAddress();
   }
 
@@ -68,14 +68,14 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
       @Override
       public Boolean apply(Void input) {
         try {
-          return !AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.INSTANCE);
+          return !AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.get());
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
       }
     }, WaitForOptions.defaults().setTimeoutMs(5 * Constants.SECOND_MS));
     // block 2 should not be evicted
-    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.INSTANCE));
+    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.get()));
   }
 
   @Test
@@ -86,13 +86,13 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
       @Override
       public Boolean apply(Void input) {
         try {
-          return !AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.INSTANCE);
+          return !AdjustJobTestUtils.hasBlock(mBlockId2, mWorker, FileSystemContext.get());
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
       }
     }, WaitForOptions.defaults().setTimeoutMs(5 * Constants.SECOND_MS));
     // block 1 should not be evicted
-    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.INSTANCE));
+    Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker, FileSystemContext.get()));
   }
 }

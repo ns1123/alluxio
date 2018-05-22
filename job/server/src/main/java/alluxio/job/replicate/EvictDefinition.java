@@ -60,7 +60,7 @@ public final class EvictDefinition
    * Constructs a new {@link EvictDefinition}.
    */
   public EvictDefinition() {
-    mFileSystemContext = FileSystemContext.INSTANCE;
+    mFileSystemContext = FileSystemContext.get();
   }
 
   /**
@@ -135,7 +135,7 @@ public final class EvictDefinition
 
     Channel channel = null;
     try {
-      channel = FileSystemContext.INSTANCE.acquireNettyChannel(localNetAddress);
+      channel = FileSystemContext.get().acquireNettyChannel(localNetAddress);
       ProtoMessage request =
           new ProtoMessage(Protocol.RemoveBlockRequest.newBuilder().setBlockId(blockId).build());
       NettyRPC.call(NettyRPCContext.defaults().setChannel(channel).setTimeout(
@@ -146,7 +146,7 @@ public final class EvictDefinition
       LOG.warn("Failed to delete block {} on {}: block does not exist", blockId, localNetAddress);
     } finally {
       if (channel != null) {
-        FileSystemContext.INSTANCE.releaseNettyChannel(localNetAddress, channel);
+        FileSystemContext.get().releaseNettyChannel(localNetAddress, channel);
       }
     }
     return null;

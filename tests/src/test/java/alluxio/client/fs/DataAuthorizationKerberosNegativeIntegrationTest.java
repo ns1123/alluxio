@@ -82,13 +82,13 @@ public final class DataAuthorizationKerberosNegativeIntegrationTest extends Base
 
   @Before
   public void before() throws Exception {
-    FileSystemContext.INSTANCE.reset();
+    FileSystemContext.get().reset();
     LoginUserTestUtils.resetLoginUser();
   }
 
   @After
   public void after() throws Exception {
-    FileSystemContext.INSTANCE.reset();
+    FileSystemContext.get().reset();
     LoginUserTestUtils.resetLoginUser();
   }
 
