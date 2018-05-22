@@ -12,6 +12,7 @@
 alluxio.master.block.BlockMasterFactory
 alluxio.master.file.FileSystemMasterFactory
 alluxio.master.lineage.LineageMasterFactory
+<<<<<<< HEAD
 # ALLUXIO CS ADD
 alluxio.master.callhome.CallHomeMasterFactory
 alluxio.master.diagnostic.DiagnosticMasterFactory
@@ -19,3 +20,7 @@ alluxio.master.license.LicenseMasterFactory
 alluxio.master.privilege.PrivilegeMasterFactory
 # ALLUXIO CS END
 # ALLUXIO CS MODIFIED
+||||||| merged common ancestors
+=======
+alluxio.master.metrics.MetricsMasterFactory
+>>>>>>> FETCH_HEAD

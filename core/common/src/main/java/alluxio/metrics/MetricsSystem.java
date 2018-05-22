@@ -19,6 +19,7 @@ import alluxio.util.network.NetworkAddressUtils;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -41,20 +43,67 @@ import javax.annotation.concurrent.ThreadSafe;
  * A MetricsSystem is created by a specific instance(master, worker). It polls the metrics sources
  * periodically and pass the data to the sinks.
  *
- * The syntax of the metrics configuration file is:
- * sink.[name].[options]=[value]
+ * The syntax of the metrics configuration file is: sink.[name].[options]=[value]
  */
 @ThreadSafe
 public final class MetricsSystem {
   private static final Logger LOG = LoggerFactory.getLogger(MetricsSystem.class);
 
+  /**
+   * An enum of supported instance type.
+   */
+  public enum InstanceType {
+    MASTER("master"),
+    WORKER("worker"),
+    CLIENT("client");
+
+    private String mValue;
+
+    /**
+     * Creates the instance type with value.
+     *
+     * @param value value of the instance type
+     */
+    InstanceType(String value) {
+      mValue = value;
+    }
+
+    @Override
+    public String toString() {
+      return mValue;
+    }
+
+    /**
+     * Creates an instance type from the string. This method is case insensitive.
+     *
+     * @param text the instance type in string
+     * @return the created instance
+     */
+    public static InstanceType fromString(String text) {
+      for (InstanceType type : InstanceType.values()) {
+        if (type.toString().equalsIgnoreCase(text)) {
+          return type;
+        }
+      }
+      throw new IllegalArgumentException("No constant with text " + text + " found");
+    }
+  }
+
   // Supported special instance names.
+<<<<<<< HEAD
   public static final String MASTER_INSTANCE = "master";
   public static final String WORKER_INSTANCE = "worker";
   public static final String CLIENT_INSTANCE = "client";
   // ALLUXIO CS ADD
   public static final String JOB_WORKER_INSTANCE = "job_worker";
   // ALLUXIO CS END
+||||||| merged common ancestors
+  public static final String MASTER_INSTANCE = "master";
+  public static final String WORKER_INSTANCE = "worker";
+  public static final String CLIENT_INSTANCE = "client";
+=======
+  public static final String CLUSTER = "cluster";
+>>>>>>> FETCH_HEAD
 
   public static final MetricRegistry METRIC_REGISTRY;
 
@@ -73,8 +122,7 @@ public final class MetricsSystem {
 
   /**
    * Starts sinks specified in the configuration. This is an no-op if the sinks have already been
-   * started.
-   * Note: This has to be called after Alluxio configuration is initialized.
+   * started. Note: This has to be called after Alluxio configuration is initialized.
    */
   public static void startSinks() {
     synchronized (MetricsSystem.class) {
@@ -153,7 +201,7 @@ public final class MetricsSystem {
    * @return the metric registry name
    */
   public static String getMasterMetricName(String name) {
-    return Joiner.on(".").join(MASTER_INSTANCE, name);
+    return Joiner.on(".").join(MetricsSystem.InstanceType.MASTER, name);
   }
 
   /**
@@ -163,7 +211,7 @@ public final class MetricsSystem {
    * @return the metric registry name
    */
   public static String getWorkerMetricName(String name) {
-    return getMetricNameWithUniqueId(WORKER_INSTANCE, name);
+    return getMetricNameWithUniqueId(InstanceType.WORKER, name);
   }
 
   /**
@@ -173,7 +221,17 @@ public final class MetricsSystem {
    * @return the metric registry name
    */
   public static String getClientMetricName(String name) {
-    return getMetricNameWithUniqueId(CLIENT_INSTANCE, name);
+    return getMetricNameWithUniqueId(InstanceType.CLIENT, name);
+  }
+
+  /**
+   * Builds metric registry names for cluster. The pattern is cluster.metricName.
+   *
+   * @param name the metric name
+   * @return the metric registry name
+   */
+  public static String getClusterMetricName(String name) {
+    return Joiner.on(".").join(CLUSTER, name);
   }
   // ALLUXIO CS ADD
 
@@ -197,9 +255,9 @@ public final class MetricsSystem {
    * @param name the metric name
    * @return the metric registry name
    */
-  public static String getMetricNameWithUniqueId(String instance, String name) {
-    return Joiner.on(".")
-        .join(instance, NetworkAddressUtils.getLocalHostName().replace('.', '_'), name);
+  public static String getMetricNameWithUniqueId(InstanceType instance, String name) {
+    return Joiner.on(".").join(instance, NetworkAddressUtils.getLocalHostName().replace('.', '_'),
+        name);
   }
 
   /**
@@ -218,6 +276,7 @@ public final class MetricsSystem {
 
   /**
    * Removes the instance and host from the given metric name, returning the result.
+   *
    * @param metricsName the long metrics name with instance and host name
    * @return the metrics name without instance and host name
    */
@@ -226,7 +285,7 @@ public final class MetricsSystem {
     Preconditions.checkArgument(pieces.length > 1, "Incorrect metrics name: %s.", metricsName);
 
     // Master metrics doesn't have hostname included.
-    if (!pieces[0].equals(MASTER_INSTANCE)) {
+    if (!pieces[0].equals(MetricsSystem.InstanceType.MASTER.toString())) {
       pieces[1] = null;
     }
     pieces[0] = null;
@@ -253,6 +312,7 @@ public final class MetricsSystem {
   public static Timer masterTimer(String name) {
     return METRIC_REGISTRY.timer(getMasterMetricName(name));
   }
+
   /**
    * @param name the metric name
    * @return the counter
@@ -268,6 +328,15 @@ public final class MetricsSystem {
   public static Timer workerTimer(String name) {
     return METRIC_REGISTRY.timer(getWorkerMetricName(name));
   }
+
+  /**
+   * @param name the meter name
+   * @return the meter
+   */
+  public static Meter workerMeter(String name) {
+    return METRIC_REGISTRY.meter(getWorkerMetricName(name));
+  }
+
   /**
    * @param name the metric name
    * @return the counter
@@ -283,6 +352,7 @@ public final class MetricsSystem {
   public static Timer clientTimer(String name) {
     return METRIC_REGISTRY.timer(getClientMetricName(name));
   }
+
   /**
    * @param name the metric name
    * @return the counter
@@ -300,6 +370,14 @@ public final class MetricsSystem {
     return METRIC_REGISTRY.counter((getJobWorkerMetricName(name)));
   }
   // ALLUXIO CS END
+
+  /**
+   * @param name the meter name
+   * @return the meter
+   */
+  public static Meter clientMeter(String name) {
+    return METRIC_REGISTRY.meter(getClientMetricName(name));
+  }
 
   /**
    * Registers a gauge if it has not been registered.
@@ -321,6 +399,47 @@ public final class MetricsSystem {
     for (Map.Entry<String, Counter> entry : METRIC_REGISTRY.getCounters().entrySet()) {
       entry.getValue().dec(entry.getValue().getCount());
     }
+  }
+
+  /**
+   * @return all the worker's gauges and counters in the format of {@link Metric}
+   */
+  public static List<Metric> allWorkerMetrics() {
+    return allMetrics(InstanceType.WORKER);
+  }
+
+  /**
+   * @return all the client's gauges and counters in the format of {@link Metric}
+   */
+  public static List<Metric> allClientMetrics() {
+    return allMetrics(InstanceType.CLIENT);
+  }
+
+  private static List<Metric> allMetrics(MetricsSystem.InstanceType instanceType) {
+    List<Metric> metrics = new ArrayList<>();
+    for (Entry<String, Gauge> entry : METRIC_REGISTRY.getGauges().entrySet()) {
+      if (entry.getKey().startsWith(instanceType.toString())) {
+        Object value = entry.getValue().getValue();
+        if (!(value instanceof Number)) {
+          LOG.warn(
+              "The value of metric {} of type {} is not sent to metrics master,"
+                  + " only metrics value of number can be collected",
+              entry.getKey(), entry.getValue().getClass().getSimpleName());
+          continue;
+        }
+        metrics.add(Metric.from(entry.getKey(), ((Number) value).longValue()));
+      }
+    }
+    for (Entry<String, Counter> entry : METRIC_REGISTRY.getCounters().entrySet()) {
+      metrics.add(Metric.from(entry.getKey(), entry.getValue().getCount()));
+    }
+    for (Entry<String, Meter> entry : METRIC_REGISTRY.getMeters().entrySet()) {
+      // TODO(yupeng): From Meter's implementation, getOneMinuteRate can only report at rate of at
+      // least seconds. if the client's duration is too short (i.e. < 1s), then getOneMinuteRate
+      // would return 0
+      metrics.add(Metric.from(entry.getKey(), entry.getValue().getOneMinuteRate()));
+    }
+    return metrics;
   }
 
   /**
