@@ -72,9 +72,9 @@ final class FaultTolerantAlluxioMasterProcess extends AlluxioMasterProcess {
       startMasters(false);
       LOG.info("Secondary started");
       mLeaderSelector.waitForState(State.PRIMARY);
-      mJournalSystem.setMode(Mode.PRIMARY);
       stopMasters();
       LOG.info("Secondary stopped");
+      mJournalSystem.setMode(Mode.PRIMARY);
 
       startMasters(true);
       mServingThread = new Thread(() -> {

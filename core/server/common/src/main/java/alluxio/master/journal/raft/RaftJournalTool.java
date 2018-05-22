@@ -39,6 +39,8 @@ import io.atomix.copycat.server.storage.snapshot.SnapshotWriter;
 import io.atomix.copycat.server.storage.util.StorageSerialization;
 import io.atomix.copycat.server.util.ServerSerialization;
 import io.atomix.copycat.util.ProtocolSerialization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -51,6 +53,8 @@ import java.util.stream.Collectors;
  * Tool for reading a Raft journal.
  */
 public final class RaftJournalTool {
+  private static final Logger LOG = LoggerFactory.getLogger(RaftJournalTool.class);
+
   private static final String USAGE = "Reads a Raft journal. This requires a running Raft cluster "
       + "so as not to rely on the local log being authoritative. This tool connects to the Raft "
       + "cluster and prints all journal entries.";
@@ -231,6 +235,25 @@ public final class RaftJournalTool {
     @Override
     public void snapshot(SnapshotWriter writer) {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void install(SnapshotReader snapshotReader) {
+      resetState();
+      JournalEntryStreamReader reader =
+          new JournalEntryStreamReader(new SnapshotReaderStream(snapshotReader));
+
+      while (snapshotReader.hasRemaining()) {
+        JournalEntry entry;
+        try {
+          entry = reader.readEntry();
+        } catch (IOException e) {
+          LOG.error("Failed to install snapshot", e);
+          throw new RuntimeException(e);
+        }
+        applyJournalEntry(entry);
+      }
+      LOG.info("Successfully installed snapshot");
     }
   }
 }

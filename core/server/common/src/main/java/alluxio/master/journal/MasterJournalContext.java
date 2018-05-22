@@ -79,19 +79,17 @@ public final class MasterJournalContext implements JournalContext {
         throw new UnavailableException(String.format("Failed to complete request: %s",
             e.getMessage()), e);
       } catch (Throwable e) {
-        LOG.error("Journal flush failed. Terminating process to prevent inconsistency.", e);
+        LOG.error("Fatal error: Journal flush failed", e);
         if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
           throw new RuntimeException("Journal flush failed", e);
         }
         System.exit(-1);
       }
     }
-    LOG.error(
-        "Journal flush failed after {} attempts. Terminating process to prevent inconsistency.",
-        retry.getAttemptCount());
+    LOG.error("Fatal error: Journal flush failed after {} attempts", retry.getAttemptCount());
     if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
-      throw new RuntimeException("Journal flush failed after " + retry.getAttemptCount()
-          + " attempts. Terminating process to prevent inconsistency.");
+      throw new RuntimeException(
+          "Journal flush failed after " + retry.getAttemptCount() + " attempts");
     }
     System.exit(-1);
   }

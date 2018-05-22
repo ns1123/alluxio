@@ -11,18 +11,14 @@
 
 package alluxio.master.journal.raft;
 
-import alluxio.master.journal.JournalEntryStreamReader;
 import alluxio.proto.journal.Journal.JournalEntry;
 
 import com.google.common.base.Preconditions;
 import io.atomix.copycat.server.Commit;
 import io.atomix.copycat.server.Snapshottable;
 import io.atomix.copycat.server.StateMachine;
-import io.atomix.copycat.server.storage.snapshot.SnapshotReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * Abstract class for journal entry based state machines.
@@ -30,7 +26,7 @@ import java.io.IOException;
 public abstract class AbstractRaftStateMachine extends StateMachine implements Snapshottable {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractRaftStateMachine.class);
 
-  private long mPreviousSequenceNumber = -1;
+  private volatile long mLastAppliedCommitIndex = -1;
 
   /**
    * Resets all state machine state.
@@ -47,6 +43,8 @@ public abstract class AbstractRaftStateMachine extends StateMachine implements S
   /**
    * Applies a journal entry commit to the state machine.
    *
+   * This method is automatically discovered by the Copycat framework.
+   *
    * @param commit the commit
    */
   public void applyJournalEntryCommand(Commit<JournalEntryCommand> commit) {
@@ -54,14 +52,15 @@ public abstract class AbstractRaftStateMachine extends StateMachine implements S
     try {
       entry = JournalEntry.parseFrom(commit.command().getSerializedJournalEntry());
     } catch (Exception e) {
-      LOG.error("Encountered invalid journal entry in commit: {}. Terminating process to prevent "
-          + "inconsistency", commit, e);
+      LOG.error("Fatal error: Encountered invalid journal entry in commit: {}.", commit, e);
       System.exit(-1);
       throw new IllegalStateException(e); // We should never reach here.
     }
     try {
       applyEntryInternal(entry);
     } finally {
+      Preconditions.checkState(commit.index() > mLastAppliedCommitIndex);
+      mLastAppliedCommitIndex = commit.index();
       commit.release();
     }
   }
@@ -84,42 +83,11 @@ public abstract class AbstractRaftStateMachine extends StateMachine implements S
       for (JournalEntry e : entry.getJournalEntriesList()) {
         applyEntryInternal(e);
       }
-    } else if (entry.equals(JournalEntry.getDefaultInstance())) {
+    } else if (entry.toBuilder().clearSequenceNumber().build()
+        .equals(JournalEntry.getDefaultInstance())) {
       // Ignore empty entries, they are created during snapshotting.
     } else {
-      if (!entry.hasSequenceNumber()) {
-        // Snapshots don't use sequence numbers, and can't have duplicate entries.
-        applyJournalEntry(entry);
-        return;
-      }
-      long sequenceNumber = entry.getSequenceNumber();
-      // Sequence number restarts at 0 whenever a new master starts writing entries. Otherwise, if
-      // the sequence number is less than or equal to the previous, the entry must be a duplicate
-      // and can safely be ignored.
-      if (sequenceNumber == 0 || sequenceNumber > mPreviousSequenceNumber) {
-        applyJournalEntry(entry);
-        mPreviousSequenceNumber = sequenceNumber;
-      }
-    }
-  }
-
-  @Override
-  public void install(SnapshotReader snapshotReader) {
-    resetState();
-    JournalEntryStreamReader reader =
-        new JournalEntryStreamReader(new SnapshotReaderStream(snapshotReader));
-
-    while (snapshotReader.hasRemaining()) {
-      JournalEntry entry;
-      try {
-        entry = reader.readEntry();
-      } catch (IOException e) {
-        LOG.error("Failed to install snapshot. Terminating process to prevent inconsistency.", e);
-        System.exit(-1);
-        throw new IllegalStateException(e); // We should never reach here.
-      }
       applyJournalEntry(entry);
     }
-    LOG.info("Successfully installed snapshot");
   }
 }

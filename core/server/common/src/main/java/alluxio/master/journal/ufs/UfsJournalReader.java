@@ -188,8 +188,7 @@ public final class UfsJournalReader implements JournalReader {
     } else {
       Preconditions.checkState(mInputStream.mFile.isCompletedLog(),
           "Expected log to be either checkpoint, incomplete, or complete");
-      LOG.error("Journal entry {} was truncated, exiting to prevent inconsistency",
-          mNextSequenceNumber);
+      LOG.error("Fatal error: Journal entry {} was truncated", mNextSequenceNumber);
       System.exit(-1);
       return null;
     }
