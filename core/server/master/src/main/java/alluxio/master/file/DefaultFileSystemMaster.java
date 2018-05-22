@@ -1124,7 +1124,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
     statusList.add(fileInfo);
     // ALLUXIO CS END
-
   }
 
   /**
