@@ -1044,71 +1044,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       inode = inodePath.getInode();
       auditContext.setSrcInode(inode);
       List<FileInfo> ret = new ArrayList<>();
-<<<<<<< HEAD
-      if (inode.isDirectory()) {
-        try (TempInodePathForDescendant tempInodePath = new TempInodePathForDescendant(inodePath)) {
-          try {
-            mPermissionChecker.checkPermission(Mode.Bits.EXECUTE, inodePath);
-          } catch (AccessControlException e) {
-            auditContext.setAllowed(false);
-            throw e;
-          }
-          for (Inode<?> child : ((InodeDirectory) inode).getChildren()) {
-            child.lockReadAndCheckParent(inode);
-            try {
-              // the path to child for getPath should already be locked.
-              tempInodePath.setDescendant(child, mInodeTree.getPath(child));
-              // ALLUXIO CS REPLACE
-              // ret.add(getFileInfoInternal(tempInodePath));
-              // ALLUXIO CS WITH
-              FileInfo fileInfo = getFileInfoInternal(tempInodePath);
-              if (fileInfo.isEncrypted() && !fileInfo.isFolder()) {
-                // Capability should be attached in listStatus for encrypted files, so that
-                // Alluxio client can read the footer to get encryption layout and metadata.
-                populateCapability(fileInfo, tempInodePath);
-              }
-              ret.add(fileInfo);
-              // ALLUXIO CS END
-            } finally {
-              child.unlockRead();
-            }
-          }
-        }
-      } else {
-        // ALLUXIO CS REPLACE
-        // ret.add(getFileInfoInternal(inodePath));
-        // ALLUXIO CS WITH
-        FileInfo fileInfo = getFileInfoInternal(inodePath);
-        if (fileInfo.isEncrypted() && !fileInfo.isFolder()) {
-          // Capability should be attached in listStatus for encrypted files, so that
-          // Alluxio client can read the footer to get encryption layout and metadata.
-          populateCapability(fileInfo, inodePath);
-        }
-        ret.add(fileInfo);
-        // ALLUXIO CS END
-||||||| merged common ancestors
-      if (inode.isDirectory()) {
-        try (TempInodePathForDescendant tempInodePath = new TempInodePathForDescendant(inodePath)) {
-          try {
-            mPermissionChecker.checkPermission(Mode.Bits.EXECUTE, inodePath);
-          } catch (AccessControlException e) {
-            auditContext.setAllowed(false);
-            throw e;
-          }
-          for (Inode<?> child : ((InodeDirectory) inode).getChildren()) {
-            child.lockReadAndCheckParent(inode);
-            try {
-              // the path to child for getPath should already be locked.
-              tempInodePath.setDescendant(child, mInodeTree.getPath(child));
-              ret.add(getFileInfoInternal(tempInodePath));
-            } finally {
-              child.unlockRead();
-            }
-          }
-        }
-      } else {
-        ret.add(getFileInfoInternal(inodePath));
-=======
       DescendantType descendantTypeForListStatus = (listStatusOptions.isRecursive())
           ? DescendantType.ALL : DescendantType.ONE;
       listStatusInternal(inodePath, auditContext, descendantTypeForListStatus, ret);
@@ -1116,7 +1051,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       // If we are listing the status of a directory, we remove the directory info that we inserted
       if (inode.isDirectory() && ret.size() >= 1) {
         ret.remove(ret.size() - 1);
->>>>>>> OPENSOURCE/master
       }
 
       auditContext.setSucceeded(true);
@@ -1179,7 +1113,18 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
       }
     }
-    statusList.add(getFileInfoInternal(currInodePath));
+    // ALLUXIO CS REPLACE
+    // statusList.add(getFileInfoInternal(currInodePath));
+    // ALLUXIO CS WITH
+    FileInfo fileInfo = getFileInfoInternal(currInodePath);
+    if (fileInfo.isEncrypted() && !fileInfo.isFolder()) {
+      // Capability should be attached in listStatus for encrypted files, so that
+      // Alluxio client can read the footer to get encryption layout and metadata.
+      populateCapability(fileInfo, currInodePath);
+    }
+    statusList.add(fileInfo);
+    // ALLUXIO CS END
+
   }
 
   /**
