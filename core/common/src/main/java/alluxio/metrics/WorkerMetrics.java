@@ -29,6 +29,9 @@ public final class WorkerMetrics {
 
   // Tags
   public static final String TAG_UFS = "UFS";
+  // ALLUXIO CS ADD
+  public static final String TAG_USER = "User";
+  // ALLUXIO CS END
 
   private WorkerMetrics() {} // prevent instantiation
 }

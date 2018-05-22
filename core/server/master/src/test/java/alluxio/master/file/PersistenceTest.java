@@ -39,6 +39,7 @@ import alluxio.master.file.options.GetStatusOptions;
 import alluxio.master.file.options.RenameOptions;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalTestUtils;
+import alluxio.master.metrics.MetricsMasterFactory;
 import alluxio.master.privilege.PrivilegeMasterFactory;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
@@ -520,6 +521,7 @@ public final class PersistenceTest {
     mRegistry = new MasterRegistry();
     JournalSystem journalSystem =
         JournalTestUtils.createJournalSystem(mJournalFolder.getAbsolutePath());
+    new MetricsMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
     new PrivilegeMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
     new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);

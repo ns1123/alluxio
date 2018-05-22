@@ -94,8 +94,8 @@ public final class MoveDefinition
    * Constructs a new {@link MoveDefinition}.
    */
   public MoveDefinition() {
-    mFileSystemContext = FileSystemContext.INSTANCE;
-    mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
+    mFileSystemContext = FileSystemContext.get();
+    mFileSystem = BaseFileSystem.get(FileSystemContext.get());
   }
 
   /**

@@ -165,20 +165,15 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
           try {
             BlockReader reader =
                 mWorker.readBlockRemote(request.getSessionId(), request.getId(), lockId);
-<<<<<<< HEAD
-            String metricName = "BytesReadAlluxio";
+            String counterName = WorkerMetrics.BYTES_READ_ALLUXIO;
             // ALLUXIO CS ADD
             String user =
                 channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
             if (user != null) {
-              metricName = String.format("BytesReadAlluxio-User:%s", user);
+              counterName = Metric.getMetricNameWithTags(
+                  WorkerMetrics.BYTES_READ_ALLUXIO, WorkerMetrics.TAG_USER, user);
             }
             // ALLUXIO CS END
-||||||| merged common ancestors
-            String metricName = "BytesReadAlluxio";
-=======
-            String counterName = WorkerMetrics.BYTES_READ_ALLUXIO;
->>>>>>> FETCH_HEAD
             context.setBlockReader(reader);
             context.setCounter(MetricsSystem.workerCounter(counterName));
             String meterName = WorkerMetrics.BYTES_READ_ALLUXIO_THROUGHPUT;
@@ -207,19 +202,14 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
             AlluxioURI ufsMountPointUri =
                 ((UnderFileSystemBlockReader) reader).getUfsMountPointUri();
             String ufsString = MetricsSystem.escape(ufsMountPointUri);
-<<<<<<< HEAD
-            String metricName = String.format("BytesReadUfs-Ufs:%s", ufsString);
-            // ALLUXIO CS ADD
-            if (user != null) {
-              metricName = String.format("BytesReadUfs-Ufs:%s-User:%s", ufsString, user);
-            }
-            // ALLUXIO CS END
-||||||| merged common ancestors
-            String metricName = String.format("BytesReadUfs-Ufs:%s", ufsString);
-=======
             String counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_READ_UFS,
                 WorkerMetrics.TAG_UFS, ufsString);
->>>>>>> FETCH_HEAD
+            // ALLUXIO CS ADD
+            if (user != null) {
+              counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_READ_UFS,
+                  WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
+            }
+            // ALLUXIO CS END
             context.setBlockReader(reader);
             context.setCounter(MetricsSystem.workerCounter(counterName));
             String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_READ_UFS_THROUGHPUT,

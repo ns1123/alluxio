@@ -53,6 +53,9 @@ public final class MetricsSystem {
    * An enum of supported instance type.
    */
   public enum InstanceType {
+    // ALLUXIO CS ADD
+    JOB_WORKER("job_worker"),
+    // ALLUXIO CS END
     MASTER("master"),
     WORKER("worker"),
     CLIENT("client");
@@ -90,20 +93,7 @@ public final class MetricsSystem {
   }
 
   // Supported special instance names.
-<<<<<<< HEAD
-  public static final String MASTER_INSTANCE = "master";
-  public static final String WORKER_INSTANCE = "worker";
-  public static final String CLIENT_INSTANCE = "client";
-  // ALLUXIO CS ADD
-  public static final String JOB_WORKER_INSTANCE = "job_worker";
-  // ALLUXIO CS END
-||||||| merged common ancestors
-  public static final String MASTER_INSTANCE = "master";
-  public static final String WORKER_INSTANCE = "worker";
-  public static final String CLIENT_INSTANCE = "client";
-=======
   public static final String CLUSTER = "cluster";
->>>>>>> FETCH_HEAD
 
   public static final MetricRegistry METRIC_REGISTRY;
 
@@ -243,7 +233,7 @@ public final class MetricsSystem {
    * @return the metric registry name
    */
   public static String getJobWorkerMetricName(String name) {
-    return getMetricNameWithUniqueId(JOB_WORKER_INSTANCE, name);
+    return getMetricNameWithUniqueId(InstanceType.JOB_WORKER, name);
   }
   // ALLUXIO CS END
 

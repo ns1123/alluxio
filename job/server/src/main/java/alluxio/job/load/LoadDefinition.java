@@ -57,7 +57,7 @@ public final class LoadDefinition
    * Constructs a new {@link LoadDefinition}.
    */
   public LoadDefinition() {
-    mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
+    mFileSystem = BaseFileSystem.get(FileSystemContext.get());
   }
 
   /**
@@ -132,7 +132,7 @@ public final class LoadDefinition
   public SerializableVoid runTask(LoadConfig config, ArrayList<LoadTask> tasks,
       JobWorkerContext jobWorkerContext) throws Exception {
     for (LoadTask task : tasks) {
-      JobUtils.loadBlock(FileSystemContext.INSTANCE, config.getFilePath(), task.getBlockId());
+      JobUtils.loadBlock(FileSystemContext.get(), config.getFilePath(), task.getBlockId());
       LOG.info("Loaded block " + task.getBlockId());
     }
     return null;

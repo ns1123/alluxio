@@ -48,7 +48,7 @@ public final class ReplicateDefinition
    * Constructs a new {@link ReplicateDefinition} instance.
    */
   public ReplicateDefinition() {
-    mFileSystemContext = FileSystemContext.INSTANCE;
+    mFileSystemContext = FileSystemContext.get();
   }
 
   /**

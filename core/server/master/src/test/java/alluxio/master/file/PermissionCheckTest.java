@@ -198,20 +198,12 @@ public final class PermissionCheckTest {
     mSafeModeManager = new DefaultSafeModeManager();
     mMetricsMaster = new MetricsMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
     mBlockMaster = new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem,
         mSafeModeManager);
     // ALLUXIO CS END
-    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem,
-        mSafeModeManager);
-||||||| merged common ancestors
-    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem,
-        mSafeModeManager);
-=======
     mFileSystemMaster =
         new FileSystemMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
->>>>>>> FETCH_HEAD
     mRegistry.start(true);
 
     createDirAndFileForTest();

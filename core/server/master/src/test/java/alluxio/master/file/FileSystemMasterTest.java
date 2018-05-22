@@ -2007,21 +2007,15 @@ public final class FileSystemMasterTest {
     mRegistry = new MasterRegistry();
     mSafeModeManager = new TestSafeModeManager();
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem,
         mSafeModeManager);
     // ALLUXIO CS END
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalSystem, mSafeModeManager);
-||||||| merged common ancestors
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalSystem, mSafeModeManager);
-=======
     mMetricsMaster = new MetricsMasterFactory().create(mRegistry, mJournalSystem, mSafeModeManager);
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     mMetrics = Lists.newArrayList();
     mBlockMaster =
         new BlockMasterFactory().create(mRegistry, mJournalSystem, mSafeModeManager);
->>>>>>> FETCH_HEAD
     mExecutorService = Executors
         .newFixedThreadPool(4, ThreadFactoryUtils.build("DefaultFileSystemMasterTest-%d", true));
     mFileSystemMaster = new DefaultFileSystemMaster(mBlockMaster,

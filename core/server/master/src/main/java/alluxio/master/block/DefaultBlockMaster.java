@@ -936,7 +936,6 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
     mLostBlocks.addAll(blockIds);
   }
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   @Override
   public void setMaxWorkers(int maxWorkers) {
@@ -959,14 +958,11 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
   }
 
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
   @Override
   public Set<Class<? extends Server>> getDependencies() {
     return DEPS;
   }
 
->>>>>>> FETCH_HEAD
   /**
    * Lost worker periodic check.
    */

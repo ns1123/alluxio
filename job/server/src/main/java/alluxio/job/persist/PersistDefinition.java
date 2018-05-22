@@ -63,8 +63,8 @@ public final class PersistDefinition
    * Constructs a new {@link PersistDefinition}.
    */
   public PersistDefinition() {
-    mFileSystemContext = FileSystemContext.INSTANCE;
-    mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
+    mFileSystemContext = FileSystemContext.get();
+    mFileSystem = BaseFileSystem.get(FileSystemContext.get());
   }
 
   /**
