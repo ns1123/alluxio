@@ -56,9 +56,7 @@ public final class PlainSaslTransportProvider implements TransportProvider {
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress)
       throws UnauthenticatedException {
-    String username = LoginUser.get().getName();
-    String password = "noPassword";
-    return getClientTransport(username, password, serverAddress);
+    return getClientTransport(null, serverAddress);
   }
 
   @Override
