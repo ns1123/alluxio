@@ -178,7 +178,7 @@
     <call.home.enabled>false</call.home.enabled>
     <!-- Determines how frequently to run the call home (in milliseconds). -->
     <call.home.period>86400000</call.home.period>
-    <copycat.version>1.2.10</copycat.version>
+    <copycat.version>1.2.11</copycat.version>
     <!-- Determines whether license checks should be enforced.
          This flag should only be set at compile time when generating distributions. -->
     <license.check.enabled>false</license.check.enabled>
