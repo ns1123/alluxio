@@ -12,9 +12,11 @@
 package alluxio.client.fs;
 
 import alluxio.AlluxioURI;
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
+import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
@@ -23,8 +25,6 @@ import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.security.User;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
-import alluxio.testutils.BaseIntegrationTest;
-import alluxio.testutils.LocalAlluxioClusterResource;
 
 import com.google.common.collect.Lists;
 import org.junit.After;

@@ -51,7 +51,7 @@ public final class ImpersonationAuthenticator {
   public ImpersonationAuthenticator() {
     mImpersonationGroups = new HashMap<>();
     mImpersonationUsers = new HashMap<>();
-    Map<String, String> properties = Configuration.toRawMap();
+    Map<String, String> properties = Configuration.toMap();
     for (Map.Entry<String, String> entry : properties.entrySet()) {
       // Process impersonation groups
       Matcher matcher =
