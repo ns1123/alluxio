@@ -13,7 +13,6 @@ package alluxio.master.callhome;
 
 import alluxio.CallHomeConstants;
 import alluxio.Constants;
-import alluxio.ProjectConstants;
 import alluxio.Server;
 import alluxio.clock.SystemClock;
 import alluxio.heartbeat.HeartbeatContext;
@@ -38,8 +37,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.thrift.TProcessor;
 import org.slf4j.Logger;
@@ -47,14 +45,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.NetworkInterface;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -166,7 +158,7 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
       CallHomeInfo info = null;
       try {
         info = collect();
-      } catch (IOException e) {
+      } catch (IOException | GeneralSecurityException e) {
         LOG.error("Failed to collect call home information: {}", e);
       }
       if (info == null) {
@@ -190,71 +182,9 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
      * @return the collected call home information, null if license hasn't been loaded
      * @throws IOException when failed to collect call home information
      */
-    private CallHomeInfo collect() throws IOException {
+    private CallHomeInfo collect() throws IOException, GeneralSecurityException {
       return CallHomeUtils.collectDiagnostics(mMasterProcess, mBlockMaster, mLicenseMaster,
           mFsMaster);
-    }
-
-    /**
-     * @return the MAC address of the network interface being used by the master
-     * @throws IOException when no MAC address is found
-     */
-    private byte[] getMACAddress() throws IOException {
-      // Try to get the MAC address of the network interface of the master's RPC address.
-      NetworkInterface nic =
-          NetworkInterface.getByInetAddress(mMasterProcess.getRpcAddress().getAddress());
-      byte[] mac = nic.getHardwareAddress();
-      if (mac != null) {
-        return mac;
-      }
-
-      // Try to get the MAC address of the common "en0" interface.
-      nic = NetworkInterface.getByName("en0");
-      mac = nic.getHardwareAddress();
-      if (mac != null) {
-        return mac;
-      }
-
-      // Try to get the first non-empty MAC address in the enumeration of all network interfaces.
-      Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
-      while (ifaces.hasMoreElements()) {
-        nic = ifaces.nextElement();
-        mac = nic.getHardwareAddress();
-        if (mac != null) {
-          return mac;
-        }
-      }
-
-      throw new IOException("No MAC address was found");
-    }
-
-    /**
-     * @return the object key of the call home information
-     * @throws IOException when failed to construct the object key
-     */
-    private String getObjectKey(String licenseKey) throws IOException {
-      // Get time related information.
-      Date now = new Date(System.currentTimeMillis());
-      DateFormat formatter = new SimpleDateFormat(TIME_FORMAT);
-      String time = formatter.format(now);
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(now);
-      int year = calendar.get(Calendar.YEAR);
-      int month = calendar.get(Calendar.MONTH) + 1; // get(Calendar.MONTH) returns 0 for January
-      int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-      // Get MAC address.
-      StringBuilder sb = new StringBuilder(18);
-      for (byte b : getMACAddress()) {
-        if (sb.length() > 0) {
-          sb.append(':');
-        }
-        sb.append(String.format("%02x", b));
-      }
-      String mac = sb.toString();
-
-      Joiner joiner = Joiner.on("/");
-      return joiner.join("user", year, month, day, licenseKey, mac + "-" + time);
     }
 
     /**
@@ -263,11 +193,10 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
      * @param info the call home information to be uploaded
      */
     private void upload(CallHomeInfo info) throws IOException {
-      // Encode info into json as payload.
-      String payload = "";
+      String body = "";
       try {
         ObjectMapper mapper = new ObjectMapper();
-        payload = mapper.writeValueAsString(info);
+        body = mapper.writeValueAsString(info);
       } catch (JsonProcessingException e) {
         throw new IOException("Failed to encode CallHomeInfo as json: " + e);
       }
@@ -277,26 +206,19 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
       if (license == null) {
         throw new IOException("License not found");
       }
-      if (!license.getKey().equals(info.getLicenseKey())) {
+      if (!license.getKey().equals(info.getLicenseInfo().getLicenseKey())) {
         throw new IOException("Inconsistent license key");
       }
 
       // Create the upload request.
-      String objectKey = getObjectKey(info.getLicenseKey());
       Joiner joiner = Joiner.on("/");
-      String path = joiner.join("upload", CallHomeConstants.CALL_HOME_BUCKET, objectKey);
-      String url = new URL(new URL(ProjectConstants.PROXY_URL), path).toString();
+      String path = joiner.join("v0", "upload");
+      path += "?product=" + info.getProduct();
+      String url = new URL(new URL(CallHomeConstants.CALL_HOME_HOST), path).toString();
+
       HttpPost post = new HttpPost(url);
-      MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-      builder.addBinaryBody("payload", payload.getBytes(), ContentType.APPLICATION_OCTET_STREAM,
-          "payload");
-      builder.addTextBody("email", license.getEmail());
-      try {
-        builder.addTextBody("token", license.getToken());
-      } catch (GeneralSecurityException e) {
-        throw new IOException(e);
-      }
-      post.setEntity(builder.build());
+      post.setEntity(new StringEntity(body));
+      post.setHeader("Content-type", "application/json");
 
       // Fire off the upload request.
       HttpClient client = HttpClientBuilder.create().build();
@@ -305,7 +227,7 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
       // Check the response code.
       int responseCode = response.getStatusLine().getStatusCode();
       if (responseCode != HttpURLConnection.HTTP_OK) {
-        throw new IOException("Call home upload request failed with: " + responseCode);
+        throw new IOException("Call home upload request failed with code: " + responseCode);
       }
     }
   }

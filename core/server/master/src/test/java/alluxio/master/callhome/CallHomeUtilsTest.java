@@ -41,7 +41,7 @@ public final class CallHomeUtilsTest {
 
   CallHomeInfo getTestDiagnosticInfo() {
     CallHomeInfo info = new CallHomeInfo();
-    info.setLicenseKey("dummy");
+
     info.setFaultTolerant(false);
     info.setStartTime(1111);
     info.setUptime(11111);
@@ -65,6 +65,12 @@ public final class CallHomeUtilsTest {
     // Set file system master info
     info.setMasterAddress("masterhost/12.0.0.1:19998");
     info.setNumberOfPaths(100);
+    // Set license info
+    CallHomeInfo.LicenseInfo licenseInfo = new CallHomeInfo.LicenseInfo();
+    licenseInfo.setToken("token");
+    licenseInfo.setLicenseKey("dummy");
+    licenseInfo.setEmail("test@alluxio.com");
+    info.setLicenseInfo(licenseInfo);
     return info;
   }
 

@@ -171,8 +171,8 @@
     <!-- ALLUXIO CS ADD -->
     <!-- The native library path used in tests related to JNI. -->
     <alluxio.native.library.path>lib/native/</alluxio.native.library.path>
-    <!-- AWS S3 bucket for storing call home information. -->
-    <call.home.bucket>alluxio-release</call.home.bucket>
+    <!-- Host to report call home information to. -->
+    <call.home.host>http://diagnostics.alluxio.com</call.home.host>
     <!-- Determines whether call home should be enforced.
          This flag should only be set at compile time when generating distributions. -->
     <call.home.enabled>false</call.home.enabled>

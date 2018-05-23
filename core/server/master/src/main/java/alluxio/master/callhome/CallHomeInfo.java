@@ -22,7 +22,7 @@ import java.util.Arrays;
  */
 public final class CallHomeInfo {
   private int mVersion;
-  private String mLicenseKey;
+  private String mProduct;
   private String mClusterVersion;
   private boolean mFaultTolerant;
   private int mWorkerCount;
@@ -36,6 +36,8 @@ public final class CallHomeInfo {
   private String mUfsType;
   private long mUfsSize; // bytes
   private StorageTier[] mStorageTiers;
+  private String mMACAddress;
+  private LicenseInfo mLicenseInfo;
 
   /**
    * Creates a new instance of {@link CallHomeInfo}.
@@ -50,10 +52,10 @@ public final class CallHomeInfo {
   }
 
   /**
-   * @return the license key
+   * @return the product name
    */
-  public String getLicenseKey() {
-    return mLicenseKey;
+  public String getProduct() {
+    return mProduct;
   }
 
   /**
@@ -149,6 +151,21 @@ public final class CallHomeInfo {
   }
 
   /**
+   * @return the MAC address of the primary master
+   */
+  public String getMACAddress() {
+    return mMACAddress;
+  }
+
+  /**
+   *
+   * @return the license info
+   */
+  public LicenseInfo getLicenseInfo() {
+    return mLicenseInfo;
+  }
+
+  /**
    * @param version the json format version to use
    */
   public void setVersion(int version) {
@@ -156,10 +173,10 @@ public final class CallHomeInfo {
   }
 
   /**
-   * @param key the license key to use
+   * @param product the product name
    */
-  public void setLicenseKey(String key) {
-    mLicenseKey = key;
+  public void setProduct(String product) {
+    mProduct = product;
   }
 
   /**
@@ -256,6 +273,20 @@ public final class CallHomeInfo {
     System.arraycopy(storageTiers, 0, mStorageTiers, 0, storageTiers.length);
   }
 
+  /**
+   * @param mac the MAC address of primary master
+   */
+  public void setMACAddress(String mac) {
+    mMACAddress = mac;
+  }
+
+  /**
+   * @param licenseInfo the license info
+   */
+  public void setLicenseInfo(LicenseInfo licenseInfo) {
+    mLicenseInfo = licenseInfo;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -266,7 +297,7 @@ public final class CallHomeInfo {
     }
     CallHomeInfo that = (CallHomeInfo) o;
     return Objects.equal(mVersion, that.mVersion)
-        && Objects.equal(mLicenseKey, that.mLicenseKey)
+        && Objects.equal(mProduct, that.mProduct)
         && Objects.equal(mStartTime, that.mStartTime)
         && Objects.equal(mUptime, that.mUptime)
         && Objects.equal(mClusterVersion, that.mClusterVersion)
@@ -279,21 +310,24 @@ public final class CallHomeInfo {
         && Objects.equal(mNumberOfPaths, that.mNumberOfPaths)
         && Objects.equal(mUfsType, that.mUfsType)
         && Objects.equal(mUfsSize, that.mUfsSize)
-        && Arrays.equals(mStorageTiers, that.mStorageTiers);
+        && Arrays.equals(mStorageTiers, that.mStorageTiers)
+        && Objects.equal(mMACAddress, that.mMACAddress)
+        && Objects.equal(mLicenseInfo, that.mLicenseInfo);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mVersion, mLicenseKey, mStartTime, mUptime, mClusterVersion,
+    return Objects.hashCode(mVersion, mProduct, mStartTime, mUptime, mClusterVersion,
         mFaultTolerant, mWorkerCount, mWorkerInfos, mLostWorkerCount, mLostWorkerInfos,
-        mMasterAddress, mNumberOfPaths, mUfsType, mUfsSize, mStorageTiers);
+        mMasterAddress, mNumberOfPaths, mUfsType, mUfsSize, mStorageTiers, mMACAddress,
+        mLicenseInfo);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
-        .add("version", mVersion)
-        .add("license", mLicenseKey)
+        .add("json version", mVersion)
+        .add("product", mProduct)
         .add("start time", mStartTime)
         .add("uptime", mUptime)
         .add("version", mClusterVersion)
@@ -307,6 +341,8 @@ public final class CallHomeInfo {
         .add("ufs type", mUfsType)
         .add("ufs size", mUfsSize)
         .add("storage tiers", mStorageTiers)
+        .add("MAC address", mMACAddress)
+        .add("license info", mLicenseInfo)
         .toString();
   }
 
@@ -386,6 +422,91 @@ public final class CallHomeInfo {
     @Override
     public String toString() {
       return Objects.toStringHelper(this).add("alias", mAlias).add("size", mSize).toString();
+    }
+  }
+
+  /**
+   * Contains license information to authenticate with.
+   */
+  public static final class LicenseInfo {
+    private String mLicenseKey;
+    private String mToken;
+    private String mEmail;
+
+    /**
+     * Creates a new instance of {@link LicenseInfo}.
+     */
+    public LicenseInfo() {}
+
+    /**
+     * @return the license key
+     */
+    public String getLicenseKey() {
+      return mLicenseKey;
+    }
+
+     /**
+     * @return the email address of the user registered with the license
+     */
+    public String getEmail() {
+      return mEmail;
+    }
+
+    /**
+     /**
+     * @return the token registered with the license
+     */
+    public String getToken() {
+      return mToken;
+    }
+
+    /**
+     * @param key the license key to use
+     */
+    public void setLicenseKey(String key) {
+      mLicenseKey = key;
+    }
+
+    /**
+     * @param token the token registered with the license
+     */
+    public void setToken(String token) {
+      mToken = token;
+    }
+
+    /**
+     * @param email the email address of the user registered with the license
+     */
+    public void setEmail(String email) {
+      mEmail = email;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof LicenseInfo)) {
+        return false;
+      }
+      LicenseInfo that = (LicenseInfo) o;
+      return Objects.equal(mLicenseKey, that.mLicenseKey)
+              && Objects.equal(mToken, that.mToken)
+              && Objects.equal(mEmail, that.mEmail);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(mLicenseKey, mToken, mEmail);
+    }
+
+    @Override
+    public String toString() {
+      return Objects.toStringHelper(this)
+              .add("licenseKey", mLicenseKey)
+              .add("token", mToken)
+              .add("email", mEmail)
+              .toString();
     }
   }
 }
