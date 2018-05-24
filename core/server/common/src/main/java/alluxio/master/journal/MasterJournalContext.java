@@ -12,6 +12,7 @@
 package alluxio.master.journal;
 
 import alluxio.Configuration;
+import alluxio.ProcessUtils;
 import alluxio.PropertyKey;
 import alluxio.exception.JournalClosedException;
 import alluxio.exception.status.UnavailableException;
@@ -79,19 +80,10 @@ public final class MasterJournalContext implements JournalContext {
         throw new UnavailableException(String.format("Failed to complete request: %s",
             e.getMessage()), e);
       } catch (Throwable e) {
-        LOG.error("Fatal error: Journal flush failed", e);
-        if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
-          throw new RuntimeException("Journal flush failed", e);
-        }
-        System.exit(-1);
+        ProcessUtils.fatalError(LOG, e, "Journal flush failed");
       }
     }
-    LOG.error("Fatal error: Journal flush failed after {} attempts", retry.getAttemptCount());
-    if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
-      throw new RuntimeException(
-          "Journal flush failed after " + retry.getAttemptCount() + " attempts");
-    }
-    System.exit(-1);
+    ProcessUtils.fatalError(LOG, "Journal flush failed after %d attempts", retry.getAttemptCount());
   }
 
   @Override

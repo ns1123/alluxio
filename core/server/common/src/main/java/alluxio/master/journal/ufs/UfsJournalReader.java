@@ -11,6 +11,7 @@
 
 package alluxio.master.journal.ufs;
 
+import alluxio.ProcessUtils;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.InvalidJournalEntryException;
 import alluxio.master.journal.JournalEntryStreamReader;
@@ -188,8 +189,7 @@ public final class UfsJournalReader implements JournalReader {
     } else {
       Preconditions.checkState(mInputStream.mFile.isCompletedLog(),
           "Expected log to be either checkpoint, incomplete, or complete");
-      LOG.error("Fatal error: Journal entry {} was truncated", mNextSequenceNumber);
-      System.exit(-1);
+      ProcessUtils.fatalError(LOG, "Journal entry %s was truncated", mNextSequenceNumber);
       return null;
     }
   }
