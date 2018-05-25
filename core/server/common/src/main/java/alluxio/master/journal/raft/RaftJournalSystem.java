@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -111,7 +113,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   /// Lifecycle: constant from when the journal system is constructed.
 
   private final RaftJournalConfiguration mConf;
-  private Thread mSnapshotThread;
   /**
    * Whenever in-memory state may be inconsistent with the state represented by all flushed journal
    * entries, a read lock on this lock must be held.
@@ -187,9 +188,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   public static RaftJournalSystem create(RaftJournalConfiguration conf) {
     RaftJournalSystem system = new RaftJournalSystem(conf);
     system.initServer();
-    // TODO(andrew): re-enable primary snapshots after we've addressed race conditions surrounding
-    // losing/gaining primacy during a snapshot
-//    system.scheduleSnapshots();
     return system;
   }
 
@@ -242,67 +240,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   private static Address getLocalAddress(RaftJournalConfiguration conf) {
     return new Address(conf.getLocalAddress().getHostName(), conf.getLocalAddress().getPort());
   }
-
-//  private void scheduleSnapshots() {
-//    LocalTime snapshotTime =
-//        LocalTime.parse(Configuration.get(PropertyKey.MASTER_EMBEDDED_JOURNAL_SNAPSHOT_TIME),
-//            DateTimeFormatter.ISO_OFFSET_TIME);
-//    int dailySnapshots =
-//        Configuration.getInt(PropertyKey.MASTER_EMBEDDED_JOURNAL_SNAPSHOT_FREQUENCY);
-//
-//    mSnapshotThread =
-//        new Thread(new AnchoredFixedRateRunnable(snapshotTime, dailySnapshots, this::snapshot));
-//    mSnapshotThread.setName("alluxio-embedded-journal-snapshot");
-//    mSnapshotThread.setDaemon(true);
-//    mSnapshotThread.start();
-//  }
-//
-//  /**
-//   * Locks down all state machines to give Copycat an opportunity to take a snapshot.
-//   */
-//  private synchronized void snapshot() {
-//    // We only trigger manual snapshots on the primary when automatic snapshots are disabled.
-//    if (!mSnapshotAllowed.get()) {
-//      return;
-//    }
-//    LOG.info("Locking journal for snapshot");
-//    try (LockResource l = new LockResource(mJournalStateLock.writeLock())) {
-//      mSnapshotAllowed.set(true);
-//      try {
-//        // Submit a journal entry to trigger snapshotting.
-//        try {
-//          mSnapshotClient.get(3, TimeUnit.SECONDS)
-//              .submit(new JournalEntryCommand(JournalEntry.getDefaultInstance()))
-//              .get(3, TimeUnit.SECONDS);
-//        } catch (InterruptedException e) {
-//          Thread.currentThread().interrupt();
-//        } catch (ExecutionException | TimeoutException e) {
-//          LOG.error("Exception submitting empty journal entry during snapshot", e);
-//        }
-//        // Give Copycat time to initiate snapshotting. It shouldn't take more than a second, but we wait
-//        // 10 seconds to be on the safe side.
-//        CommonUtils.sleepMs(10 * Constants.SECOND_MS);
-//      } finally {
-//        mSnapshotAllowed.set(false);
-//        // There are a few instructions between where Copycat checks mSnapshotAllowed and invokes
-//        // our snapshot method. We need a short wait to make sure Copycat doesn't start snapshotting
-//        // after we've waited for snapshotting to finish.
-//        CommonUtils.sleepMs(2 * Constants.SECOND_MS);
-//        int timeoutMs = 60 * Constants.MINUTE_MS;
-//        long startMs = System.currentTimeMillis();
-//        CommonUtils.waitFor("snapshotting to finish", x -> !mStateMachine.isSnapshotting(),
-//            WaitForOptions.defaults().setTimeoutMs(timeoutMs));
-//        if (mStateMachine.isSnapshotting()) {
-//          LOG.error(
-//              "Failed to finish snapshot within {}ms. Interrupted: {}. System exiting to avoid corruption.",
-//              System.currentTimeMillis() - startMs, Thread.interrupted());
-//          System.exit(-1);
-//        }
-//      }
-//    } finally {
-//      LOG.info("Journal unlocked");
-//    }
-//  }
 
   /**
    * @return the serializer for commands in the {@link StateMachine}
@@ -454,15 +391,12 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   public synchronized void stopInternal() throws InterruptedException, IOException {
     LOG.info("Shutting down raft journal");
     mRaftJournalWriter.close();
-    mSnapshotThread.interrupt();
     try {
-      mServer.shutdown().get();
+      mServer.shutdown().get(2, TimeUnit.SECONDS);
     } catch (ExecutionException e) {
       throw new RuntimeException("Failed to shut down Raft server", e);
-    }
-    mSnapshotThread.join(60 * Constants.SECOND_MS);
-    if (mSnapshotThread.isAlive()) {
-      LOG.error("Failed to stop snapshot thread");
+    } catch (TimeoutException e) {
+      LOG.info("Timed out shutting down raft server");
     }
     LOG.info("Journal shutdown complete");
   }
