@@ -190,7 +190,9 @@ public final class FileSystemContext implements Closeable {
     mBlockMasterClientPool = new BlockMasterClientPool(mParentSubject, mMasterInquireClient);
     mClosed.set(false);
 
-    if (Configuration.getBoolean(PropertyKey.USER_METRICS_COLLECTION_ENABLED)) {
+    // Only send metrics if enabled and the port is set (can be zero when tests are setting up).
+    if (Configuration.getBoolean(PropertyKey.USER_METRICS_COLLECTION_ENABLED)
+        && Configuration.getInt(PropertyKey.MASTER_RPC_PORT) != 0) {
       // setup metrics master client sync
       mMetricsMasterClient = new MetricsMasterClient(MasterClientConfig.defaults()
           .withSubject(mParentSubject).withMasterInquireClient(mMasterInquireClient));
@@ -228,7 +230,7 @@ public final class FileSystemContext implements Closeable {
     // ALLUXIO CS END
 
     synchronized (this) {
-      if (Configuration.getBoolean(PropertyKey.USER_METRICS_COLLECTION_ENABLED)) {
+      if (mMetricsMasterClient != null) {
         ThreadUtils.shutdownAndAwaitTermination(mExecutorService);
         mMetricsMasterClient.close();
         mMetricsMasterClient = null;
