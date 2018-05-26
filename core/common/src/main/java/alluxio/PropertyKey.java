@@ -16,6 +16,7 @@ import alluxio.network.ChannelType;
 import alluxio.util.OSUtils;
 import alluxio.util.io.PathUtils;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -33,6 +34,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -116,7 +118,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   }
 
   /**
-   * Builder to create {@link PropertyKey} instances.
+   * Builder to create {@link PropertyKey} instances. Note that, <code>Builder.build()</code> will
+   * throw exception if there is an existing property built with the same name.
    */
   public static final class Builder {
     private String[] mAlias;
@@ -238,8 +241,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
             : new DefaultSupplier(() -> defaultString, defaultString);
       }
 
-      return PropertyKey.create(mName, defaultSupplier, mAlias, mDescription, mIgnoredSiteProperty,
-          mIsHidden, mConsistencyCheckLevel, mScope);
+      PropertyKey key = new PropertyKey(mName, mDescription, defaultSupplier, mAlias,
+          mIgnoredSiteProperty, mIsHidden, mConsistencyCheckLevel, mScope);
+      Preconditions.checkState(PropertyKey.register(key), "Cannot register existing key \"%s\"",
+          mName);
+      return key;
     }
 
     @Override
@@ -3196,21 +3202,21 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       .setScope(Scope.MASTER)
       .build();
 
-  static final java.util.Set<String> IMMUTABLE_KEYS;
+  public static final java.util.Set<PropertyKey> IMMUTABLE_KEYS;
 
   static {
-    IMMUTABLE_KEYS = new java.util.HashSet<>();
-    IMMUTABLE_KEYS.add(Name.KEY_VALUE_ENABLED);
-    IMMUTABLE_KEYS.add(Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX);
-    IMMUTABLE_KEYS.add(Name.MASTER_FILE_ASYNC_PERSIST_HANDLER);
-    IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_CHECKPOINT_CLASS);
-    IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS);
-    IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS);
-    IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH);
-    IMMUTABLE_KEYS.add(Name.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
-    IMMUTABLE_KEYS.add(Name.USER_FILE_WRITE_TIER_DEFAULT);
-    IMMUTABLE_KEYS.add(Name.USER_LINEAGE_ENABLED);
-    IMMUTABLE_KEYS.add(Name.USER_LINEAGE_MASTER_CLIENT_THREADS);
+    IMMUTABLE_KEYS = com.google.common.collect.ImmutableSet.of(
+        PropertyKey.KEY_VALUE_ENABLED,
+        PropertyKey.KEY_VALUE_PARTITION_SIZE_BYTES_MAX,
+        PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER,
+        PropertyKey.MASTER_LINEAGE_CHECKPOINT_CLASS,
+        PropertyKey.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS,
+        PropertyKey.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS,
+        PropertyKey.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
+        PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX,
+        PropertyKey.USER_FILE_WRITE_TIER_DEFAULT,
+        PropertyKey.USER_LINEAGE_ENABLED,
+        PropertyKey.USER_LINEAGE_MASTER_CLIENT_THREADS);
   }
 
   // ALLUXIO CS END
@@ -4205,28 +4211,37 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   }
 
   /**
-   * Factory method to create a constant default property and assign a default value together with
-   * its alias.
+   * Registers the given key to the global key map.
    *
-   * @param name name of this property
-   * @param defaultSupplier a supplier to return the default value for this property
-   * @param aliases list of aliases of this property
-   * @param description description of this property key
-   * @param ignoredSiteProperty true if Alluxio ignores user-specified value for this property in
-   *        the site properties file
+   * @param key th property
+   * @return whether the property key is successfully registered
    */
-  static PropertyKey create(String name, DefaultSupplier defaultSupplier, String[] aliases,
-      String description, boolean ignoredSiteProperty, boolean isHidden,
-      ConsistencyCheckLevel consistencyCheckLevel, Scope scope) {
-    PropertyKey key = new PropertyKey(name, description, defaultSupplier, aliases,
-        ignoredSiteProperty, isHidden, consistencyCheckLevel, scope);
+  @VisibleForTesting
+  public static boolean register(PropertyKey key) {
+    String name = key.getName();
+    String[] aliases = key.getAliases();
+    if (DEFAULT_KEYS_MAP.containsKey(name)) {
+      return false;
+    }
     DEFAULT_KEYS_MAP.put(name, key);
     if (aliases != null) {
       for (String alias : aliases) {
         DEFAULT_ALIAS_MAP.put(alias, key);
       }
     }
-    return key;
+    return true;
+  }
+
+  /**
+   * Unregisters the given key from the global key map.
+   *
+   * @param key the property to unregister
+   */
+  @VisibleForTesting
+  public static void unregister(PropertyKey key) {
+    String name = key.getName();
+    DEFAULT_KEYS_MAP.remove(name);
+    DEFAULT_ALIAS_MAP.remove(name);
   }
 
   @Override
@@ -4293,8 +4308,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   }
 
   /**
-   * @return the default value of a property key
+   * @return the default value of a property key or null if value not set
    */
+  @Nullable
   public String getDefaultValue() {
     Object defaultValue = mDefaultSupplier.get();
     return defaultValue == null ? null : defaultValue.toString();
