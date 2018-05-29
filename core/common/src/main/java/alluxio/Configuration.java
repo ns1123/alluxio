@@ -130,12 +130,18 @@ public final class Configuration {
   public static void set(PropertyKey key, Object value) {
     Preconditions.checkArgument(key != null && value != null,
         String.format("the key value pair (%s, %s) cannot have null", key, value));
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     Preconditions.checkArgument(
         getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
     PROPERTIES.put(key, String.valueOf(value), Source.RUNTIME);
+||||||| merged common ancestors
+    PROPERTIES.put(key.toString(), value.toString());
+=======
+    PROPERTIES.put(key, String.valueOf(value), Source.RUNTIME);
+>>>>>>> b1d15094c69ae9ca9a2ec0883facdc1918ee6678
   }
 
   /**
@@ -145,12 +151,18 @@ public final class Configuration {
    */
   public static void unset(PropertyKey key) {
     Preconditions.checkNotNull(key, "key");
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     Preconditions.checkArgument(
         getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
     PROPERTIES.remove(key);
+||||||| merged common ancestors
+    PROPERTIES.remove(key.toString());
+=======
+    PROPERTIES.remove(key);
+>>>>>>> b1d15094c69ae9ca9a2ec0883facdc1918ee6678
   }
 
   /**
