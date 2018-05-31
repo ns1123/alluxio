@@ -198,30 +198,17 @@ public final class PermissionCheckTest {
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     JournalSystem journalSystem = new NoopJournalSystem();
     mSafeModeManager = new DefaultSafeModeManager();
-<<<<<<< HEAD
-    mMetricsMaster = new MetricsMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-    // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem,
-        mSafeModeManager);
-    // ALLUXIO CS END
-    mFileSystemMaster =
-        new FileSystemMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-||||||| merged common ancestors
-    mMetricsMaster = new MetricsMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-    mFileSystemMaster =
-        new FileSystemMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-=======
-    mStartTimeMs = System.currentTimeMillis();
     mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     mMetricsMaster = new MetricsMasterFactory()
         .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
     mBlockMaster = new BlockMasterFactory()
         .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem,
+        mSafeModeManager);
+    // ALLUXIO CS END
     mFileSystemMaster = new FileSystemMasterFactory()
         .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
->>>>>>> OPENSOURCE/master
     mRegistry.start(true);
 
     createDirAndFileForTest();

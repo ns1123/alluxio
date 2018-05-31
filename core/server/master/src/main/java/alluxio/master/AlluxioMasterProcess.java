@@ -155,8 +155,7 @@ public class AlluxioMasterProcess implements MasterProcess {
       // Create masters.
       mRegistry = new MasterRegistry();
       mSafeModeManager = new DefaultSafeModeManager();
-<<<<<<< HEAD
-      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager);
+      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager, mStartTimeMs, mPort);
       // ALLUXIO CS ADD
       if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
           && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED)) {
@@ -169,12 +168,6 @@ public class AlluxioMasterProcess implements MasterProcess {
         mRegistry.get(alluxio.master.diagnostic.DiagnosticMaster.class).setMaster(this);
       }
       // ALLUXIO CS END
-||||||| merged common ancestors
-      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager);
-=======
-      mStartTimeMs = System.currentTimeMillis();
-      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager, mStartTimeMs, mPort);
->>>>>>> OPENSOURCE/master
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

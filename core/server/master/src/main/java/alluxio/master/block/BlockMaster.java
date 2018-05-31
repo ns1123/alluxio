@@ -200,7 +200,6 @@ public interface BlockMaster extends Master, ContainerIdGenerable {
    * @param blockIds the ids of the lost blocks
    */
   void reportLostBlocks(List<Long> blockIds);
-<<<<<<< HEAD
   // ALLUXIO CS ADD
 
   /**
@@ -223,8 +222,6 @@ public interface BlockMaster extends Master, ContainerIdGenerable {
    */
   alluxio.master.security.capability.CapabilityKeyManager getCapabilityKeyManager();
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
 
   /**
    * Registers callback functions to use when lost workers become alive.
@@ -246,5 +243,4 @@ public interface BlockMaster extends Master, ContainerIdGenerable {
    * @param function the function to register
    */
   void registerNewWorkerConfListener(BiConsumer<Address, List<ConfigProperty>> function);
->>>>>>> OPENSOURCE/master
 }

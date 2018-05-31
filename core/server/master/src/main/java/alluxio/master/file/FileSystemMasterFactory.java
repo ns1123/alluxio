@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.ws.rs.HEAD;
 
 /**
  * Factory to create a {@link FileSystemMaster} instance.
@@ -53,24 +54,15 @@ public final class FileSystemMasterFactory implements MasterFactory {
     Preconditions.checkArgument(journalFactory != null, "journal factory may not be null");
     LOG.info("Creating {} ", FileSystemMaster.class.getName());
     BlockMaster blockMaster = registry.get(BlockMaster.class);
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
-    //     new MasterContext(journalFactory, safeModeManager));
+    //     new MasterContext(journalFactory, safeModeManager, startTimeMs, port));
     // ALLUXIO CS WITH
     alluxio.master.privilege.PrivilegeMaster privilegeMaster =
         registry.get(alluxio.master.privilege.PrivilegeMaster.class);
-    FileSystemMaster fileSystemMaster =
-        new PrivilegedFileSystemMaster(blockMaster, privilegeMaster,
-            new MasterContext(journalFactory, safeModeManager));
-    // ALLUXIO CS END
-||||||| merged common ancestors
-    FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
-        new MasterContext(journalFactory, safeModeManager));
-=======
-    FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
+    FileSystemMaster fileSystemMaster = new PrivilegedFileSystemMaster(blockMaster, privilegeMaster,
         new MasterContext(journalFactory, safeModeManager, startTimeMs, port));
->>>>>>> OPENSOURCE/master
+    // ALLUXIO CS END
     registry.add(FileSystemMaster.class, fileSystemMaster);
     return fileSystemMaster;
   }

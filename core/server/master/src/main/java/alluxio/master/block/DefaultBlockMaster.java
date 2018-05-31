@@ -793,15 +793,12 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
       processWorkerAddedBlocks(worker, currentBlocksOnTiers);
       processWorkerOrphanedBlocks(worker);
     }
-<<<<<<< HEAD
     // ALLUXIO CS ADD
 
     if (mCapabilityEnabled) {
       mCapabilityKeyManager.scheduleNewKeyDistribution(worker.generateWorkerInfo(null, true));
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     if (options.isSetConfigList()) {
       List<alluxio.wire.ConfigProperty> wireConfigList = options.getConfigList()
           .stream().map(alluxio.wire.ConfigProperty::fromThrift)
@@ -812,7 +809,6 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
             wireConfigList);
       }
     }
->>>>>>> OPENSOURCE/master
 
     LOG.info("registerWorker(): {}", worker);
   }

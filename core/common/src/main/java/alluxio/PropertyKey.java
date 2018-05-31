@@ -3498,7 +3498,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.lineage.recompute.interval";
     public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
         "alluxio.master.lineage.recompute.log.path";
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
         "alluxio.master.persistence.checker.interval.ms";
@@ -3513,11 +3512,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
         "alluxio.master.persistence.scheduler.interval.ms";
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     public static final String MASTER_LOG_CONFIG_REPORT_HEARTBEAT_INTERVAL =
         "alluxio.master.log.config.report.heartbeat.interval";
->>>>>>> OPENSOURCE/master
     public static final String MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_REPAIR =
         "alluxio.master.periodic.block.integrity.check.repair";
     public static final String MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_INTERVAL =

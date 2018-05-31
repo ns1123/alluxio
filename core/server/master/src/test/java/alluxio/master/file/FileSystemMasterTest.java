@@ -2128,18 +2128,12 @@ public final class FileSystemMasterTest {
     mStartTimeMs = System.currentTimeMillis();
     mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem,
         mSafeModeManager);
     // ALLUXIO CS END
-    mMetricsMaster = new MetricsMasterFactory().create(mRegistry, mJournalSystem, mSafeModeManager);
-||||||| merged common ancestors
-    mMetricsMaster = new MetricsMasterFactory().create(mRegistry, mJournalSystem, mSafeModeManager);
-=======
     mMetricsMaster = new MetricsMasterFactory()
         .create(mRegistry, mJournalSystem, mSafeModeManager, mStartTimeMs, mPort);
->>>>>>> OPENSOURCE/master
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     mMetrics = Lists.newArrayList();
     mBlockMaster = new BlockMasterFactory()

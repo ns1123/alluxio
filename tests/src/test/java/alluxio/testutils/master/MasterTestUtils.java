@@ -67,24 +67,14 @@ public class MasterTestUtils {
     long startTimeMs = System.currentTimeMillis();
     int port = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, journalSystem,
         safeModeManager);
     // ALLUXIO CS END
-    new MetricsMasterFactory().create(registry, journalSystem, safeModeManager);
-    new BlockMasterFactory().create(registry, journalSystem, safeModeManager);
-    new FileSystemMasterFactory().create(registry, journalSystem, safeModeManager);
-||||||| merged common ancestors
-    new MetricsMasterFactory().create(registry, journalSystem, safeModeManager);
-    new BlockMasterFactory().create(registry, journalSystem, safeModeManager);
-    new FileSystemMasterFactory().create(registry, journalSystem, safeModeManager);
-=======
     new MetricsMasterFactory().create(registry, journalSystem, safeModeManager, startTimeMs, port);
     new BlockMasterFactory().create(registry, journalSystem, safeModeManager, startTimeMs, port);
     new FileSystemMasterFactory()
         .create(registry, journalSystem, safeModeManager, startTimeMs, port);
->>>>>>> OPENSOURCE/master
     journalSystem.start();
     journalSystem.setMode(isLeader ? Mode.PRIMARY : Mode.SECONDARY);
     registry.start(isLeader);

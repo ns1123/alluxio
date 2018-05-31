@@ -687,8 +687,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       mLostFilesDetectionService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_LOST_FILES_DETECTION,
               new LostFileDetector(this, mInodeTree),
-<<<<<<< HEAD
-              (int) Configuration.getMs(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
+              (int) Configuration.getMs(PropertyKey.MASTER_WORKER_HEARTBEAT_INTERVAL)));
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
@@ -710,11 +709,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               new PersistenceChecker(),
               (int) Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
       // ALLUXIO CS END
-||||||| merged common ancestors
-              (int) Configuration.getMs(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
-=======
-              (int) Configuration.getMs(PropertyKey.MASTER_WORKER_HEARTBEAT_INTERVAL)));
->>>>>>> OPENSOURCE/master
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(() -> startupCheckConsistency(
             ExecutorServiceFactories
