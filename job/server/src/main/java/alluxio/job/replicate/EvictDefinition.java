@@ -14,7 +14,6 @@ import alluxio.PropertyKey;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
-import alluxio.exception.NoWorkerException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
@@ -130,7 +129,7 @@ public final class EvictDefinition
     }
     if (localNetAddress == null) {
       String message = String.format("Cannot find a local block worker to evict block %d", blockId);
-      throw new NoWorkerException(message);
+      throw new NotFoundException(message);
     }
 
     Channel channel = null;

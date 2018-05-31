@@ -49,12 +49,13 @@ public final class LicenseMasterFactory implements MasterFactory {
 
   @Override
   public LicenseMaster create(MasterRegistry registry, JournalSystem journalSystem,
-      SafeModeManager safeModeManager) {
+                SafeModeManager safeModeManager, long startTimeMs, int port) {
     if (!isEnabled()) {
       return null;
     }
     Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} ", LicenseMaster.class.getName());
-    return new LicenseMaster(registry, new MasterContext(journalSystem, safeModeManager));
+    return new LicenseMaster(registry,
+        new MasterContext(journalSystem, safeModeManager, startTimeMs, port));
   }
 }

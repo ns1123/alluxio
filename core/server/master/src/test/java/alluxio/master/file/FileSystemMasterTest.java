@@ -2130,7 +2130,7 @@ public final class FileSystemMasterTest {
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem,
-        mSafeModeManager);
+        mSafeModeManager, mStartTimeMs, mPort);
     // ALLUXIO CS END
     mMetricsMaster = new MetricsMasterFactory()
         .create(mRegistry, mJournalSystem, mSafeModeManager, mStartTimeMs, mPort);

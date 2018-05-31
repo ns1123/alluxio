@@ -53,13 +53,14 @@ public final class DiagnosticMasterFactory implements MasterFactory {
 
   @Override
   public DiagnosticMaster create(MasterRegistry registry, JournalSystem journalSystem,
-      SafeModeManager safeModeManager) {
+      SafeModeManager safeModeManager, long startTimeMs, int port) {
     if (!isEnabled()) {
       return null;
     }
     Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} with diagnostic log level {}", DiagnosticMaster.class.getName(),
         Configuration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL, DiagnosticLogLevel.class));
-    return new DiagnosticMaster(registry, new MasterContext(journalSystem, safeModeManager));
+    return new DiagnosticMaster(registry,
+        new MasterContext(journalSystem, safeModeManager, startTimeMs, port));
   }
 }

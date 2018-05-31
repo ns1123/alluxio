@@ -205,7 +205,7 @@ public final class PermissionCheckTest {
         .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem,
-        mSafeModeManager);
+        mSafeModeManager, mStartTimeMs, mPort);
     // ALLUXIO CS END
     mFileSystemMaster = new FileSystemMasterFactory()
         .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);

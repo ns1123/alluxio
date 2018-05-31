@@ -45,6 +45,8 @@ public final class MasterContext {
   public MasterContext(JournalSystem journalSystem) {
     mJournalSystem = Preconditions.checkNotNull(journalSystem, "journalSystem");
     mSafeModeManager = null;
+    mStartTimeMs = -1;
+    mPort = -1;
   }
 
   // ALLUXIO CS END

@@ -55,8 +55,8 @@ public final class JobMasterTest {
   public void before() throws Exception {
     // Can't use ConfigurationRule due to conflicts with PowerMock.
     Configuration.set(PropertyKey.JOB_MASTER_JOB_CAPACITY, TEST_JOB_MASTER_JOB_CAPACITY);
-    mJobMaster =
-        new JobMaster(new MasterContext(new NoopJournalSystem()), Mockito.mock(UfsManager.class));
+    mJobMaster = new JobMaster(new MasterContext(new NoopJournalSystem()),
+        Mockito.mock(UfsManager.class));
     mJobMaster.start(true);
   }
 

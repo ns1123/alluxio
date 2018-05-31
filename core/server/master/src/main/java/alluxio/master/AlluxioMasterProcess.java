@@ -97,8 +97,8 @@ public class AlluxioMasterProcess implements MasterProcess {
   private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
   // ALLUXIO CS END
 
-  /** The start time for when the master started serving the RPC server. */
-  private long mStartTimeMs = -1;
+  /** The start time for when the master started. */
+  private final long mStartTimeMs = System.currentTimeMillis();
 
   /** The journal system for writing journal entries and restoring master state. */
   protected final JournalSystem mJournalSystem;

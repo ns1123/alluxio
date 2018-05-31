@@ -69,7 +69,7 @@ public class MasterTestUtils {
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, journalSystem,
-        safeModeManager);
+        safeModeManager, startTimeMs, port);
     // ALLUXIO CS END
     new MetricsMasterFactory().create(registry, journalSystem, safeModeManager, startTimeMs, port);
     new BlockMasterFactory().create(registry, journalSystem, safeModeManager, startTimeMs, port);

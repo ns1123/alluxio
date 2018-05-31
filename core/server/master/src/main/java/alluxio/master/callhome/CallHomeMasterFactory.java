@@ -52,12 +52,13 @@ public final class CallHomeMasterFactory implements MasterFactory {
 
   @Override
   public CallHomeMaster create(MasterRegistry registry, JournalSystem journalSystem,
-      SafeModeManager safeModeManager) {
+      SafeModeManager safeModeManager, long startTimeMs, int port) {
     if (!isEnabled()) {
       return null;
     }
     Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} ", CallHomeMaster.class.getName());
-    return new CallHomeMaster(registry, new MasterContext(journalSystem, safeModeManager));
+    return new CallHomeMaster(registry,
+        new MasterContext(journalSystem, safeModeManager, startTimeMs, port));
   }
 }
