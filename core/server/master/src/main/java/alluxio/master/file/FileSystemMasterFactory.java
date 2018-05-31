@@ -49,10 +49,11 @@ public final class FileSystemMasterFactory implements MasterFactory {
 
   @Override
   public FileSystemMaster create(MasterRegistry registry, JournalSystem journalFactory,
-      SafeModeManager safeModeManager) {
+      SafeModeManager safeModeManager, long startTimeMs, int port) {
     Preconditions.checkArgument(journalFactory != null, "journal factory may not be null");
     LOG.info("Creating {} ", FileSystemMaster.class.getName());
     BlockMaster blockMaster = registry.get(BlockMaster.class);
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
     //     new MasterContext(journalFactory, safeModeManager));
@@ -63,6 +64,13 @@ public final class FileSystemMasterFactory implements MasterFactory {
         new PrivilegedFileSystemMaster(blockMaster, privilegeMaster,
             new MasterContext(journalFactory, safeModeManager));
     // ALLUXIO CS END
+||||||| merged common ancestors
+    FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
+        new MasterContext(journalFactory, safeModeManager));
+=======
+    FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
+        new MasterContext(journalFactory, safeModeManager, startTimeMs, port));
+>>>>>>> OPENSOURCE/master
     registry.add(FileSystemMaster.class, fileSystemMaster);
     return fileSystemMaster;
   }

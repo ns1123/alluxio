@@ -12,10 +12,8 @@
 package alluxio.master;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.conf.Source;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.metrics.MetricsSystem;
@@ -23,7 +21,6 @@ import alluxio.metrics.sink.MetricsServlet;
 import alluxio.metrics.sink.PrometheusMetricsServlet;
 import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.authentication.TransportProvider;
-import alluxio.thrift.MetaMasterClientService;
 import alluxio.util.CommonUtils;
 import alluxio.util.JvmPauseMonitor;
 import alluxio.util.WaitForOptions;
@@ -31,7 +28,6 @@ import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.web.MasterWebServer;
 import alluxio.web.WebServer;
-import alluxio.wire.ConfigProperty;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -51,8 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -161,6 +155,7 @@ public class AlluxioMasterProcess implements MasterProcess {
       // Create masters.
       mRegistry = new MasterRegistry();
       mSafeModeManager = new DefaultSafeModeManager();
+<<<<<<< HEAD
       MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager);
       // ALLUXIO CS ADD
       if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
@@ -174,6 +169,12 @@ public class AlluxioMasterProcess implements MasterProcess {
         mRegistry.get(alluxio.master.diagnostic.DiagnosticMaster.class).setMaster(this);
       }
       // ALLUXIO CS END
+||||||| merged common ancestors
+      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager);
+=======
+      mStartTimeMs = System.currentTimeMillis();
+      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager, mStartTimeMs, mPort);
+>>>>>>> OPENSOURCE/master
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -216,30 +217,6 @@ public class AlluxioMasterProcess implements MasterProcess {
   @Override
   public boolean isServing() {
     return mThriftServer != null && mThriftServer.isServing();
-  }
-
-  @Override
-  public List<ConfigProperty> getConfiguration() {
-    List<ConfigProperty> configInfoList = new ArrayList<>();
-    String alluxioConfPrefix = "alluxio";
-    for (Map.Entry<String, String> entry : Configuration.toMap().entrySet()) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      if (key.startsWith(alluxioConfPrefix)) {
-        PropertyKey propertyKey = PropertyKey.fromString(key);
-        Source source = Configuration.getSource(propertyKey);
-        String sourceStr;
-        if (source == Source.SITE_PROPERTY) {
-          sourceStr =
-              String.format("%s (%s)", source.name(), Configuration.getSitePropertiesFile());
-        } else {
-          sourceStr = source.name();
-        }
-        configInfoList.add(new ConfigProperty()
-            .setName(key).setValue(value).setSource(sourceStr));
-      }
-    }
-    return configInfoList;
   }
 
   @Override
@@ -372,9 +349,6 @@ public class AlluxioMasterProcess implements MasterProcess {
     for (Master master : mRegistry.getServers()) {
       registerServices(processor, master.getServices());
     }
-    // register meta services
-    processor.registerProcessor(Constants.META_MASTER_SERVICE_NAME,
-        new MetaMasterClientService.Processor<>(new MetaMasterClientServiceHandler(this)));
 
     // Return a TTransportFactory based on the authentication type
     TTransportFactory transportFactory;
@@ -411,7 +385,6 @@ public class AlluxioMasterProcess implements MasterProcess {
     // ALLUXIO CS END
 
     // start thrift rpc server
-    mStartTimeMs = System.currentTimeMillis();
     mSafeModeManager.notifyRpcServerStarted();
     mThriftServer.serve();
   }
