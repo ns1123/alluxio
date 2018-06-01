@@ -17,6 +17,8 @@ import alluxio.PropertyKey;
 import alluxio.security.User;
 
 import org.apache.thrift.transport.TSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.Set;
@@ -30,6 +32,7 @@ import javax.security.auth.Subject;
  */
 @ThreadSafe
 public final class TransportProviderUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(TransportProviderUtils.class);
 
   /**
    * Creates a new Thrift socket that will connect to the given address.
@@ -54,6 +57,7 @@ public final class TransportProviderUtils {
     if (subject != null) {
       // The HDFS client uses the subject to pass in the user
       Set<User> user = subject.getPrincipals(User.class);
+      LOG.debug("Impersonation: subject: {}", subject);
       if (user != null && !user.isEmpty()) {
         hdfsUser = user.iterator().next().getName();
       }
@@ -71,6 +75,7 @@ public final class TransportProviderUtils {
         impersonationUser = null;
       }
     }
+    LOG.debug("Impersonation: hdfsUser: {} impersonationUser: {}", hdfsUser, impersonationUser);
     return impersonationUser;
   }
 

@@ -58,7 +58,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -566,9 +565,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   private void updateFileSystemAndContext() {
     Subject subject = getHadoopSubject();
     if (subject != null) {
+      LOG.debug("Using Hadoop subject: {}", subject);
       mContext = FileSystemContext.create(subject);
       mFileSystem = FileSystem.Factory.get(mContext);
     } else {
+      LOG.debug("No Hadoop subject. Using default FS Context.");
       mContext = FileSystemContext.INSTANCE;
       mFileSystem = FileSystem.Factory.get();
     }
@@ -604,18 +605,27 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       String username = ugi.getShortUserName();
       if (username != null && !username.isEmpty()) {
         User user = new User(ugi.getShortUserName());
-        // ALLUXIO CS ADD
+        // ALLUXIO CS REPLACE
+        // HashSet<Principal> principals = new HashSet<>();
+        // principals.add(user);
+        // return new Subject(false, principals, new HashSet<>(), new HashSet<>());
+        // ALLUXIO CS WITH
+        Subject subject = null;
+        LOG.debug("Hadoop UGI: {} hasKerberos: {}", ugi, ugi.hasKerberosCredentials());
         if (ugi.hasKerberosCredentials()
             && Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
-                alluxio.security.authentication.AuthType.class)
-                == alluxio.security.authentication.AuthType.KERBEROS) {
+            alluxio.security.authentication.AuthType.class)
+            == alluxio.security.authentication.AuthType.KERBEROS) {
           java.security.AccessControlContext context = java.security.AccessController.getContext();
-          return Subject.getSubject(context);
+          subject = Subject.getSubject(context);
+          LOG.debug("Hadoop UGI subject: {}", subject);
         }
+        if (subject == null) {
+          subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
+        }
+        subject.getPrincipals().add(user);
+        return subject;
         // ALLUXIO CS END
-        HashSet<Principal> principals = new HashSet<>();
-        principals.add(user);
-        return new Subject(false, principals, new HashSet<>(), new HashSet<>());
       }
       return null;
     } catch (IOException e) {

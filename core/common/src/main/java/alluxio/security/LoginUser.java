@@ -18,6 +18,9 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -36,6 +39,7 @@ import javax.security.auth.login.LoginException;
  */
 @ThreadSafe
 public final class LoginUser {
+  private static final Logger LOG = LoggerFactory.getLogger(LoginUser.class);
 
   /** User instance of the login user in Alluxio client process. */
   private static User sLoginUser;
@@ -168,6 +172,7 @@ public final class LoginUser {
         // Get Kerberos principal and keytab file from conf.
         String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
         String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+        LOG.debug("Login principal: {} keytab: {}", principal, keytab);
 
         if (!principal.isEmpty()) {
           subject = new Subject(false,
@@ -177,6 +182,7 @@ public final class LoginUser {
         }
 
         if (Boolean.getBoolean("sun.security.jgss.native")) {
+          LOG.debug("Using native library (sun.security.jgss.native)");
           // Use MIT native Kerberos library
           // http://docs.oracle.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
           // Unlike the default Java GSS implementation which relies on JAAS KerberosLoginModule
@@ -200,14 +206,17 @@ public final class LoginUser {
           }
         } else if (principal.isEmpty() && sExternalLoginProvider != null
             && sExternalLoginProvider.hasKerberosCrendentials()) {
+          LOG.debug("Using external login provider");
           // Try external login if a Kerberos principal is not provided in configuration.
           subject = sExternalLoginProvider.login();
         } else {
+          LOG.debug("Using Java kerberos login");
           // Use Java Kerberos library to login
           sLoginContext = jaasLogin(authType, principal, keytab, subject);
           sPrincipal = principal;
           sKeytab = keytab;
         }
+        LOG.debug("login subject: {}", subject);
 
         try {
           return new User(subject);
