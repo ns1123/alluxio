@@ -31,9 +31,9 @@ import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.wire.Privilege;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TestRule;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -56,22 +56,19 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
   private static final String SUPER_USER = "superuser";
   private static final String TEST_GROUP = "testgroup";
 
-  public ExpectedException mThrown;
-  public LocalAlluxioClusterResource mLocalAlluxioClusterResource;
-  public LoginUserRule mLoginUser;
+  @Rule
+  public ExpectedException mThrown = ExpectedException.none();
 
-  @Override
-  protected List<TestRule> rules() {
-    mThrown = ExpectedException.none();
-    mLocalAlluxioClusterResource =
+  @Rule
+  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
-          .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
-          .setProperty(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
-              PrivilegesServiceIntegrationTest.TestGroupsMapping.class.getName())
-          .build();
-    mLoginUser = new LoginUserRule(TEST_USER);
-    return Arrays.asList(mThrown, mLocalAlluxioClusterResource, mLoginUser);
-  }
+      .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
+      .setProperty(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
+          PrivilegesServiceIntegrationTest.TestGroupsMapping.class.getName())
+      .build();
+
+  @Rule
+  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER);;
 
   private PrivilegeMasterClient mPrivilegeClient;
   private String mSupergroup;

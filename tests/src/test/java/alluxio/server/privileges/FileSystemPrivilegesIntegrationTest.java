@@ -25,16 +25,16 @@ import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.exception.ExceptionMessage;
 import alluxio.master.MasterClientConfig;
-import alluxio.testutils.BaseIntegrationTest;
-import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
+import alluxio.testutils.BaseIntegrationTest;
+import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.wire.Privilege;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TestRule;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -54,22 +54,19 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
   private static final String TEST_GROUP = "testgroup";
   private static final AlluxioURI TEST_FILE = new AlluxioURI("/file");
 
-  public ExpectedException mThrown;
-  public LocalAlluxioClusterResource mLocalAlluxioClusterResource;
-  public LoginUserRule mLoginUser;
+  @Rule
+  public ExpectedException mThrown = ExpectedException.none();
 
-  @Override
-  protected List<TestRule> rules() {
-    mThrown = ExpectedException.none();
-    mLocalAlluxioClusterResource =
+  @Rule
+  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
           .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
           .setProperty(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
               FileSystemPrivilegesIntegrationTest.TestGroupsMapping.class.getName())
           .build();
-    mLoginUser = new LoginUserRule(TEST_USER);
-    return Arrays.asList(mThrown, mLocalAlluxioClusterResource, mLoginUser);
-  }
+
+  @Rule
+  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER);
 
   private PrivilegeMasterClient mPrivilegeClient;
   private FileSystem mFileSystem;
