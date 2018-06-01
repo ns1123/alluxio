@@ -48,11 +48,11 @@ public final class PrivilegeMasterFactory implements MasterFactory {
 
   @Override
   public PrivilegeMaster create(MasterRegistry registry, JournalSystem journalSystem,
-      SafeModeManager safeModeManager) {
+      SafeModeManager safeModeManager, long startTimeMs, int port) {
     Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} ", DefaultPrivilegeMaster.class.getName());
-    PrivilegeMaster privilegeMaster =
-        new DefaultPrivilegeMaster(new MasterContext(journalSystem, safeModeManager));
+    PrivilegeMaster privilegeMaster = new DefaultPrivilegeMaster(
+        new MasterContext(journalSystem, safeModeManager, startTimeMs, port));
     registry.add(PrivilegeMaster.class, privilegeMaster);
     return privilegeMaster;
   }

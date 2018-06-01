@@ -35,6 +35,7 @@ import alluxio.master.journal.JournalTestUtils;
 import alluxio.master.metrics.MetricsMasterFactory;
 import alluxio.metrics.Metric;
 import alluxio.security.authorization.Mode;
+import alluxio.thrift.RegisterWorkerTOptions;
 import alluxio.underfs.UfsManager;
 import alluxio.wire.WorkerNetAddress;
 
@@ -105,6 +106,8 @@ public final class ReplicationCheckerTest {
   private ReplicationChecker mReplicationChecker;
   private MockHandler mMockReplicationHandler;
   private SafeModeManager mSafeModeManager;
+  private long mStartTimeMs;
+  private int mPort;
   private CreateFileOptions mFileOptions = CreateFileOptions.defaults()
       .setBlockSizeBytes(Constants.KB).setOwner(TEST_OWNER).setGroup(TEST_GROUP).setMode(TEST_MODE);
   private Set<Long> mKnownWorkers = Sets.newHashSet();
@@ -119,8 +122,12 @@ public final class ReplicationCheckerTest {
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
 
     mSafeModeManager = new TestSafeModeManager();
-    new MetricsMasterFactory().create(registry, journalSystem, mSafeModeManager);
-    mBlockMaster = new BlockMasterFactory().create(registry, journalSystem, mSafeModeManager);
+    mStartTimeMs = System.currentTimeMillis();
+    mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
+    new MetricsMasterFactory().create(registry, journalSystem, mSafeModeManager, mStartTimeMs,
+        mPort);
+    mBlockMaster = new BlockMasterFactory().create(registry, journalSystem, mSafeModeManager,
+        mStartTimeMs, mPort);
     InodeDirectoryIdGenerator directoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
     UfsManager manager = Mockito.mock(UfsManager.class);
     MountTable mountTable = new MountTable(manager);
@@ -191,7 +198,7 @@ public final class ReplicationCheckerTest {
     if (!mKnownWorkers.contains(workerId)) {
       // Do not re-register works, otherwise added block will be removed
       mBlockMaster.workerRegister(workerId, ImmutableList.of("MEM"), ImmutableMap.of("MEM", 100L),
-          ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
+          ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS, new RegisterWorkerTOptions());
       mKnownWorkers.add(workerId);
     }
     return workerId;
@@ -279,7 +286,7 @@ public final class ReplicationCheckerTest {
         .setRpcPort(80).setDataPort(81).setWebPort(82));
     mBlockMaster
         .workerRegister(workerId, Collections.singletonList("MEM"), ImmutableMap.of("MEM", 100L),
-            ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
+            ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS, new RegisterWorkerTOptions());
     mBlockMaster.commitBlock(workerId, 50L, "MEM", blockId, 20L);
 
     // Indicate that blockId is removed on the worker.

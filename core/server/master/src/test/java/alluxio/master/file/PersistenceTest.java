@@ -80,6 +80,8 @@ public final class PersistenceTest {
   private FileSystemMaster mFileSystemMaster;
   private JobMasterClient mMockJobMasterClient;
   private SafeModeManager mSafeModeManager;
+  private long mStartTimeMs;
+  private int mPort;
   private static final GetStatusOptions GET_STATUS_OPTIONS = GetStatusOptions.defaults();
 
   @Rule
@@ -100,6 +102,8 @@ public final class PersistenceTest {
     Configuration.set(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS, 1000);
     mJournalFolder = tmpFolder.newFolder();
     mSafeModeManager = new DefaultSafeModeManager();
+    mStartTimeMs = System.currentTimeMillis();
+    mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     startServices();
   }
 
@@ -521,10 +525,14 @@ public final class PersistenceTest {
     mRegistry = new MasterRegistry();
     JournalSystem journalSystem =
         JournalTestUtils.createJournalSystem(mJournalFolder.getAbsolutePath());
-    new MetricsMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-    new PrivilegeMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-    new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
-    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem, mSafeModeManager);
+    new MetricsMasterFactory().create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs,
+        mPort);
+    new PrivilegeMasterFactory().create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs,
+        mPort);
+    new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs,
+        mPort);
+    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem,
+        mSafeModeManager, mStartTimeMs, mPort);
     journalSystem.start();
     journalSystem.setMode(JournalSystem.Mode.PRIMARY);
     mRegistry.start(true);

@@ -87,8 +87,8 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   /** is true if the master is serving the RPC server. */
   private boolean mIsServing = false;
 
-  /** The start time for when the master started serving the RPC server. */
-  private long mStartTimeMs = -1;
+  /** The start time for when the master started. */
+  private final long mStartTimeMs = System.currentTimeMillis();
 
   /** The journal system for writing journal entries and restoring master state. */
   protected final JournalSystem mJournalSystem;
@@ -312,7 +312,6 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
 
     // start thrift rpc server
     mIsServing = true;
-    mStartTimeMs = System.currentTimeMillis();
     mMasterServiceServer.serve();
   }
 
