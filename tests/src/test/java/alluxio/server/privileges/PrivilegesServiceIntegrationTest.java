@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.RuleChain;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -59,7 +60,6 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
-  @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
       .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
@@ -67,8 +67,12 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
           PrivilegesServiceIntegrationTest.TestGroupsMapping.class.getName())
       .build();
 
+  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER);
+
+  // LocalAlluxioClusterResource resets the login user, so the login user rule must be used inside
+  // the cluster rule.
   @Rule
-  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER);;
+  public RuleChain mRules = RuleChain.outerRule(mLocalAlluxioClusterResource).around(mLoginUser);
 
   private PrivilegeMasterClient mPrivilegeClient;
   private String mSupergroup;
