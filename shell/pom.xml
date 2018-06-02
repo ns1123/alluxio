@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <version>1.7.1-B</version>
+    <version>1.7.1-C</version>
   </parent>
   <artifactId>alluxio-shell</artifactId>
   <packaging>jar</packaging>
