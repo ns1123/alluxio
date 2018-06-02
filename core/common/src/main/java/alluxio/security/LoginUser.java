@@ -21,6 +21,8 @@ import alluxio.security.login.LoginModuleConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -338,7 +340,25 @@ public final class LoginUser {
     LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
     LoginContext loginContext = createLoginContext(authType, subject,
         javax.security.auth.kerberos.KerberosPrincipal.class.getClassLoader(), loginConf);
-    loginContext.login();
+    try {
+      loginContext.login();
+    } catch (LoginException e) {
+      // Run some diagnostics on the keytab file
+      boolean exists = false;
+      boolean accessible = false;
+      File keytabFile = new File(keytab);
+      if (keytabFile.exists()) {
+        exists = true;
+      }
+      if (Files.isReadable(keytabFile.toPath())) {
+        accessible = true;
+      }
+      String keytabInfo = String
+          .format("%s (principal: %s keytab: %s keytabExists: %b keytabAccessible: %b)",
+              e.getMessage().trim(), principal, keytab.isEmpty() ? "<not specified>" : keytab,
+              exists, accessible);
+      throw new LoginException(keytabInfo);
+    }
     Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
         subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class);
     if (krb5Principals.isEmpty()) {
