@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -94,5 +95,22 @@ public class PollingMasterInquireClient implements MasterInquireClient {
   @Override
   public List<InetSocketAddress> getMasterRpcAddresses() {
     return mMasterAddresses;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof PollingMasterInquireClient)) {
+      return false;
+    }
+    PollingMasterInquireClient that = (PollingMasterInquireClient) o;
+    return mMasterAddresses.equals(that.mMasterAddresses);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mMasterAddresses);
   }
 }
