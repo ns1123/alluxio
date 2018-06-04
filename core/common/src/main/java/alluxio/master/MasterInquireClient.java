@@ -59,14 +59,12 @@ public interface MasterInquireClient {
      * @return a master inquire client
      */
     public static MasterInquireClient create(Config config) {
-      if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-        return ZkMasterInquireClient.getClient(Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS),
-            Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH),
-            Configuration.get(PropertyKey.ZOOKEEPER_LEADER_PATH));
+      if (config.isZookeeperEnabled()) {
+        return ZkMasterInquireClient.getClient(config.getZookeeperAddress(),
+            config.getElectionPath(), config.getLeaderPath());
         // ALLUXIO CS ADD
-      } else if (alluxio.util.ConfigurationUtils.getMasterRpcAddresses().size() > 1) {
-        return new PollingMasterInquireClient(
-            alluxio.util.ConfigurationUtils.getMasterRpcAddresses());
+      } else if (config.getMasterRpcAddresses().size() > 1) {
+        return new PollingMasterInquireClient(config.getMasterRpcAddresses());
         // ALLUXIO CS END
       } else {
         return new SingleMasterInquireClient(
@@ -102,6 +100,11 @@ public interface MasterInquireClient {
       private String mZookeeperAddress;
       private String mElectionPath;
       private String mLeaderPath;
+      // ALLUXIO CS ADD
+
+      // HA connect with embedded journal.
+      private List<InetSocketAddress> mMasterRpcAddresses;
+      // ALLUXIO CS END
 
       // Non-HA connect.
       private String mConnectHost;
@@ -118,6 +121,9 @@ public interface MasterInquireClient {
             ? Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS)
             : null;
         return new Config()
+            // ALLUXIO CS ADD
+            .setMasterRpcAddresses(alluxio.util.ConfigurationUtils.getMasterRpcAddresses())
+            // ALLUXIO CS END
             .setZookeeperEnabled(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED))
             .setZookeeperAddress(zkAddress)
             .setElectionPath(Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH))
@@ -128,6 +134,24 @@ public interface MasterInquireClient {
                 NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC).getPort());
       }
 
+      // ALLUXIO CS ADD
+      /**
+       * @param addresses master rpc addresses
+       * @return this
+       */
+      public Config setMasterRpcAddresses(List<InetSocketAddress> addresses) {
+        mMasterRpcAddresses = addresses;
+        return this;
+      }
+
+      /**
+       * @return the master rpc addresses
+       */
+      public List<InetSocketAddress> getMasterRpcAddresses() {
+        return mMasterRpcAddresses;
+      }
+
+      // ALLUXIO CS END
       /**
        * @param zookeeperEnabled whether zookeeper is enabled
        * @return this
