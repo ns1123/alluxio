@@ -198,6 +198,7 @@ public final class PermissionCheckTest {
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     JournalSystem journalSystem = new NoopJournalSystem();
     mSafeModeManager = new DefaultSafeModeManager();
+    mStartTimeMs = System.currentTimeMillis();
     mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     mMetricsMaster = new MetricsMasterFactory()
         .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
