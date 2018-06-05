@@ -172,6 +172,7 @@ public final class LoginUser {
         // Get Kerberos principal and keytab file from conf.
         String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
         String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+        LOG.debug("Login principal: {} keytab: {}", principal, keytab);
 
         if (!principal.isEmpty()) {
           subject = new Subject(false,
@@ -181,6 +182,7 @@ public final class LoginUser {
         }
 
         if (Boolean.getBoolean("sun.security.jgss.native")) {
+          LOG.debug("Using native library (sun.security.jgss.native)");
           // Use MIT native Kerberos library
           // http://docs.oracle.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
           // Unlike the default Java GSS implementation which relies on JAAS KerberosLoginModule
@@ -204,14 +206,17 @@ public final class LoginUser {
           }
         } else if (principal.isEmpty() && sExternalLoginProvider != null
             && sExternalLoginProvider.hasKerberosCrendentials()) {
+          LOG.debug("Using external login provider");
           // Try external login if a Kerberos principal is not provided in configuration.
           subject = sExternalLoginProvider.login();
         } else {
+          LOG.debug("Using Java kerberos login");
           // Use Java Kerberos library to login
           sLoginContext = jaasLogin(authType, principal, keytab, subject);
           sPrincipal = principal;
           sKeytab = keytab;
         }
+        LOG.debug("login subject: {}", subject);
 
         try {
           return new User(subject);
@@ -334,7 +339,25 @@ public final class LoginUser {
     LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
     LoginContext loginContext = createLoginContext(authType, subject,
         javax.security.auth.kerberos.KerberosPrincipal.class.getClassLoader(), loginConf);
-    loginContext.login();
+    try {
+      loginContext.login();
+    } catch (LoginException e) {
+      // Run some diagnostics on the keytab file
+      boolean exists = false;
+      boolean accessible = false;
+      java.io.File keytabFile = new java.io.File(keytab);
+      if (keytabFile.exists()) {
+        exists = true;
+      }
+      if (java.nio.file.Files.isReadable(keytabFile.toPath())) {
+        accessible = true;
+      }
+      String keytabInfo = String
+          .format("%s (principal: %s keytab: %s keytabExists: %b keytabAccessible: %b)",
+              e.getMessage().trim(), principal, keytab.isEmpty() ? "<not specified>" : keytab,
+              exists, accessible);
+      throw new LoginException(keytabInfo);
+    }
     Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
         subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class);
     if (krb5Principals.isEmpty()) {

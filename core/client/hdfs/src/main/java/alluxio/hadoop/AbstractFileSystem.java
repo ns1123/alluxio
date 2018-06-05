@@ -613,18 +613,28 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       String username = ugi.getShortUserName();
       if (username != null && !username.isEmpty()) {
         User user = new User(ugi.getShortUserName());
-        // ALLUXIO CS ADD
+        // ALLUXIO CS REPLACE
+        // HashSet<Principal> principals = new HashSet<>();
+        // principals.add(user);
+        // return new Subject(false, principals, new HashSet<>(), new HashSet<>());
+        // ALLUXIO CS WITH
+        Subject subject = null;
+        LOG.debug("Hadoop UGI: {} hasKerberos: {}", ugi, ugi.hasKerberosCredentials());
         if (ugi.hasKerberosCredentials()
             && Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
-                alluxio.security.authentication.AuthType.class)
-                == alluxio.security.authentication.AuthType.KERBEROS) {
+            alluxio.security.authentication.AuthType.class)
+            == alluxio.security.authentication.AuthType.KERBEROS) {
           java.security.AccessControlContext context = java.security.AccessController.getContext();
-          return Subject.getSubject(context);
+          subject = Subject.getSubject(context);
+          LOG.debug("Hadoop UGI subject: {}", subject);
         }
-        // ALLUXIO CS END
-        HashSet<Principal> principals = new HashSet<>();
+        if (subject == null) {
+          subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
+        }
+        java.util.Set<Principal> principals = subject.getPrincipals();
         principals.add(user);
-        return new Subject(false, principals, new HashSet<>(), new HashSet<>());
+        return subject;
+        // ALLUXIO CS END
       }
       return null;
     } catch (IOException e) {
