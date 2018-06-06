@@ -30,7 +30,6 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -53,7 +52,6 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
   private static final Logger LOG = LoggerFactory.getLogger(RaftJournalSystem.class);
 
   private final Map<String, RaftJournal> mJournals;
-  private final long mId;
   @GuardedBy("this")
   private boolean mIgnoreApplys;
   @GuardedBy("this")
@@ -68,7 +66,6 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
    *        journal state machine
    */
   public JournalStateMachine(Map<String, RaftJournal> journals) {
-    mId = ThreadLocalRandom.current().nextLong();
     mJournals = Collections.unmodifiableMap(journals);
     mIgnoreApplys = false;
     mNextSequenceNumberToRead = 0;
@@ -76,7 +73,7 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
     mSnapshotting = false;
     mClosed = false;
     resetState();
-    LOG.info("Initialized journal state machine with ID {}", mId);
+    LOG.info("Initialized new journal state machine");
   }
 
   @Override
@@ -102,15 +99,15 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
     }
     long newSN = entry.getSequenceNumber();
     if (newSN < mNextSequenceNumberToRead) {
-      LOG.info("Ignoring duplicate journal entry with SN {} when next SN is {}. ID={}", newSN,
-          mNextSequenceNumberToRead, mId);
+      LOG.info("Ignoring duplicate journal entry with SN {} when next SN is {}", newSN,
+          mNextSequenceNumberToRead);
       return;
     }
     if (newSN > mNextSequenceNumberToRead) {
       LOG.error(
           "Fatal error: unexpected journal entry. The next expected SN is {}, but"
-              + " encountered an entry with SN {}. ID={}. Full journal entry: {}",
-          mNextSequenceNumberToRead, newSN, mId, entry);
+              + " encountered an entry with SN {}. Full journal entry: {}",
+          mNextSequenceNumberToRead, newSN, entry);
       System.exit(-1);
     }
 
