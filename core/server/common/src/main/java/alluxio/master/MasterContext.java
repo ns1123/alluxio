@@ -63,7 +63,7 @@ public final class MasterContext {
     mJournalSystem = Preconditions.checkNotNull(journalSystem, "journalSystem");
     mSafeModeManager = null;
     mBackupManager = null;
-    mStateLock = null;
+    mStateLock = new ReentrantReadWriteLock();
     mStartTimeMs = -1;
     mPort = -1;
   }
