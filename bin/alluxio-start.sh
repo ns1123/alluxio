@@ -19,9 +19,8 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 
 #start up alluxio
 
-<<<<<<< HEAD
 # ALLUXIO CS REPLACE
-# USAGE="Usage: alluxio-start.sh [-hNwm] ACTION [MOPT] [-f]
+# USAGE="Usage: alluxio-start.sh [-hNwm] [-i backup] ACTION [MOPT] [-f]
 # Where ACTION is one of:
 #   all [MOPT]         \tStart all masters, proxies, and workers.
 #   local [MOPT]       \tStart all processes locally.
@@ -45,18 +44,16 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 #              set ALLUXIO_RAM_FOLDER=/dev/shm on each worker and use NoMount.
 #   SudoMount is assumed if MOPT is not specified.
 #
-# -f  format Journal, UnderFS Data and Workers Folder on master
-# -N  do not try to kill previous running processes before starting new ones
-# -w  wait for processes to end before returning
-# -m  launch monitor process to ensure the target processes come up.
-# -h  display this help."
+# -f         format Journal, UnderFS Data and Workers Folder on master.
+# -h         display this help.
+# -i backup  a journal backup to restore the master from. The backup should be
+#            a URI path within the root under filesystem, e.g.
+#            hdfs://mycluster/alluxio_backups/alluxio-journal-YYYY-MM-DD-timestamp.gz.
+# -m         launch monitor process to ensure the target processes come up.
+# -N         do not try to kill previous running processes before starting new ones.
+# -w         wait for processes to end before returning."
 # ALLUXIO CS WITH
-USAGE="Usage: alluxio-start.sh [-hNwm] ACTION [MOPT] [-f]
-||||||| merged common ancestors
-USAGE="Usage: alluxio-start.sh [-hNwm] ACTION [MOPT] [-f]
-=======
 USAGE="Usage: alluxio-start.sh [-hNwm] [-i backup] ACTION [MOPT] [-f]
->>>>>>> OPENSOURCE/master
 Where ACTION is one of:
   all [MOPT]         \tStart all masters, proxies, and workers.
   job_master         \tStart the job master on this node.
@@ -84,24 +81,6 @@ MOPT (Mount Option) is one of:
              set ALLUXIO_RAM_FOLDER=/dev/shm on each worker and use NoMount.
   SudoMount is assumed if MOPT is not specified.
 
-<<<<<<< HEAD
--f  format Journal, UnderFS Data and Workers Folder on master
--N  do not try to kill previous running processes before starting new ones
--w  wait for processes to end before returning
--m  launch monitor process to ensure the target processes come up.
--h  display this help.
-
-Supported environment variables:
-
-ALLUXIO_JOB_WORKER_COUNT - identifies how many job workers to start per node (default = 1)"
-# ALLUXIO CS END
-||||||| merged common ancestors
--f  format Journal, UnderFS Data and Workers Folder on master
--N  do not try to kill previous running processes before starting new ones
--w  wait for processes to end before returning
--m  launch monitor process to ensure the target processes come up.
--h  display this help."
-=======
 -f         format Journal, UnderFS Data and Workers Folder on master.
 -h         display this help.
 -i backup  a journal backup to restore the master from. The backup should be
@@ -109,8 +88,12 @@ ALLUXIO_JOB_WORKER_COUNT - identifies how many job workers to start per node (de
            hdfs://mycluster/alluxio_backups/alluxio-journal-YYYY-MM-DD-timestamp.gz.
 -m         launch monitor process to ensure the target processes come up.
 -N         do not try to kill previous running processes before starting new ones.
--w         wait for processes to end before returning."
->>>>>>> OPENSOURCE/master
+-w         wait for processes to end before returning.
+
+Supported environment variables:
+
+ALLUXIO_JOB_WORKER_COUNT - identifies how many job workers to start per node (default = 1)"
+# ALLUXIO CS END
 
 ensure_dirs() {
   if [[ ! -d "${ALLUXIO_LOGS_DIR}" ]]; then
@@ -296,7 +279,7 @@ start_master() {
       ALLUXIO_MASTER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
     fi
     if [[ -n ${journal_backup} ]]; then
-      ALLUXIO_MASTER_JAVA_OPTS+=" -Dalluxio.master.journal.init.from.backup=${journal_backup}"
+        ALLUXIO_MASTER_JAVA_OPTS+=" -Dalluxio.master.journal.init.from.backup=${journal_backup}"
     fi
 
     # use a default Xmx value for the master

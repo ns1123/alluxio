@@ -38,9 +38,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
-// ALLUXIO CS REMOVE
-// import org.apache.thrift.server.TServer;
-// ALLUXIO CS END
+import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -60,6 +58,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * This class encapsulates the different master services that are configured to run.
+ *
+// ALLUXIO CS ADD
+ * {@link TServer} so that it is used in both OS and CS.
+// ALLUXIO CS END
  */
 @NotThreadSafe
 public class AlluxioMasterProcess implements MasterProcess {
@@ -170,8 +172,11 @@ public class AlluxioMasterProcess implements MasterProcess {
       // Create masters.
       mRegistry = new MasterRegistry();
       mSafeModeManager = new DefaultSafeModeManager();
-<<<<<<< HEAD
-      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager, mStartTimeMs, mPort);
+      mBackupManager = new BackupManager(mRegistry);
+      MasterContext context =
+          new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort);
+      mPauseStateLock = context.pauseStateLock();
+      MasterUtils.createMasters(mRegistry, context);
       // ALLUXIO CS ADD
       if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
           && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED)) {
@@ -184,15 +189,6 @@ public class AlluxioMasterProcess implements MasterProcess {
         mRegistry.get(alluxio.master.diagnostic.DiagnosticMaster.class).setMaster(this);
       }
       // ALLUXIO CS END
-||||||| merged common ancestors
-      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager, mStartTimeMs, mPort);
-=======
-      mBackupManager = new BackupManager(mRegistry);
-      MasterContext context =
-          new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort);
-      mPauseStateLock = context.pauseStateLock();
-      MasterUtils.createMasters(mRegistry, context);
->>>>>>> OPENSOURCE/master
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

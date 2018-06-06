@@ -402,6 +402,11 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   }
 
   @Override
+  public synchronized boolean isEmpty() {
+    return mRaftJournalWriter != null && mRaftJournalWriter.getNextSequenceNumberToWrite() == 0;
+  }
+
+  @Override
   public boolean isFormatted() {
     return mConf.getPath().exists();
   }

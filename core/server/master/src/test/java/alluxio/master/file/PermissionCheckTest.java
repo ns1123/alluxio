@@ -197,34 +197,13 @@ public final class PermissionCheckTest {
     mRegistry = new MasterRegistry();
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     mSafeModeManager = new DefaultSafeModeManager();
-<<<<<<< HEAD
-    mStartTimeMs = System.currentTimeMillis();
-    mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
-    mMetricsMaster = new MetricsMasterFactory()
-        .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
-    mBlockMaster = new BlockMasterFactory()
-        .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
-    // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, journalSystem,
-        mSafeModeManager, mStartTimeMs, mPort);
-    // ALLUXIO CS END
-    mFileSystemMaster = new FileSystemMasterFactory()
-        .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
-||||||| merged common ancestors
-    mStartTimeMs = System.currentTimeMillis();
-    mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
-    mMetricsMaster = new MetricsMasterFactory()
-        .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
-    mBlockMaster = new BlockMasterFactory()
-        .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
-    mFileSystemMaster = new FileSystemMasterFactory()
-        .create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs, mPort);
-=======
     MasterContext masterContext = MasterTestUtils.testMasterContext();
     mMetricsMaster = new MetricsMasterFactory().create(mRegistry, masterContext);
     mBlockMaster = new BlockMasterFactory().create(mRegistry, masterContext);
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, masterContext);
+    // ALLUXIO CS END
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, masterContext);
->>>>>>> OPENSOURCE/master
     mRegistry.start(true);
 
     createDirAndFileForTest();

@@ -55,11 +55,15 @@ public final class MasterContext {
 
   // ALLUXIO CS ADD
   /**
+   * Create a master context to be used for job masters.
+   *
    * @param journalSystem the journal system to use for tracking master operations
    */
   public MasterContext(JournalSystem journalSystem) {
     mJournalSystem = Preconditions.checkNotNull(journalSystem, "journalSystem");
     mSafeModeManager = null;
+    mBackupManager = null;
+    mStateLock = null;
     mStartTimeMs = -1;
     mPort = -1;
   }

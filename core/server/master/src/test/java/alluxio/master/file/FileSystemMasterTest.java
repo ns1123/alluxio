@@ -2124,20 +2124,11 @@ public final class FileSystemMasterTest {
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
-<<<<<<< HEAD
-    // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem,
-        mSafeModeManager, mStartTimeMs, mPort);
-    // ALLUXIO CS END
-    mMetricsMaster = new MetricsMasterFactory()
-        .create(mRegistry, mJournalSystem, mSafeModeManager, mStartTimeMs, mPort);
-||||||| merged common ancestors
-    mMetricsMaster = new MetricsMasterFactory()
-        .create(mRegistry, mJournalSystem, mSafeModeManager, mStartTimeMs, mPort);
-=======
     MasterContext masterContext = MasterTestUtils.testMasterContext(mJournalSystem);
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, masterContext);
+    // ALLUXIO CS END
     mMetricsMaster = new MetricsMasterFactory().create(mRegistry, masterContext);
->>>>>>> OPENSOURCE/master
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     mMetrics = Lists.newArrayList();
     mBlockMaster = new BlockMasterFactory().create(mRegistry, masterContext);

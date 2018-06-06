@@ -93,11 +93,12 @@ public final class MultiProcessCluster implements TestRule {
   private final int mNumMasters;
   private final int mNumWorkers;
   private final String mClusterName;
-  private final DeployMode mDeployMode;
   /** Closer for closing all resources that must be closed when the cluster is destroyed. */
   private final Closer mCloser;
   private final List<Master> mMasters;
   private final List<Worker> mWorkers;
+
+  private DeployMode mDeployMode;
 
   /** Base directory for storing configuration and logs. */
   private File mWorkDir;
@@ -393,6 +394,30 @@ public final class MultiProcessCluster implements TestRule {
   }
 
   /**
+   * Updates the cluster's deploy mode.
+   *
+   * @param mode the mode to set
+   */
+  public synchronized void updateDeployMode(DeployMode mode) {
+    mDeployMode = mode;
+    // ALLUXIO CS ADD
+    if (mDeployMode == DeployMode.EMBEDDED_HA) {
+      // Ensure that the journal properties are set correctly.
+      for (int i = 0; i < mMasters.size(); i++) {
+        Master master = mMasters.get(i);
+        MasterNetAddress address = mMasterAddresses.get(i);
+        master.updateConf(PropertyKey.MASTER_EMBEDDED_JOURNAL_PORT,
+            Integer.toString(address.getEmbeddedJournalPort()));
+
+        File journalDir = new File(mWorkDir, "journal" + i);
+        journalDir.mkdirs();
+        master.updateConf(PropertyKey.MASTER_JOURNAL_FOLDER, journalDir.getAbsolutePath());
+      }
+    }
+    // ALLUXIO CS END
+  }
+
+  /**
    * @param i the index of the worker to stop
    */
   public synchronized void stopWorker(int i) throws IOException {
@@ -491,7 +516,17 @@ public final class MultiProcessCluster implements TestRule {
   /**
    * Formats the cluster journal.
    */
-  public synchronized void formatJournal() {
+  public synchronized void formatJournal() throws IOException {
+    // ALLUXIO CS ADD
+    if (mDeployMode == DeployMode.EMBEDDED_HA) {
+      for (Master master : mMasters) {
+        File journalDir = new File(master.getConf().get(PropertyKey.MASTER_JOURNAL_FOLDER));
+        FileUtils.deleteDirectory(journalDir);
+        journalDir.mkdirs();
+      }
+      return;
+    }
+    // ALLUXIO CS END
     try (Closeable c = new ConfigurationRule(PropertyKey.MASTER_JOURNAL_FOLDER,
         mProperties.get(PropertyKey.MASTER_JOURNAL_FOLDER)).toResource()) {
       Format.format(Format.Mode.MASTER);

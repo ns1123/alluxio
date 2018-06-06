@@ -56,7 +56,6 @@ public final class JournalEntryAssociation {
         || entry.hasLineage()) {
       return Constants.LINEAGE_MASTER_NAME;
     }
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (entry.hasLicenseCheck()) {
       return Constants.LICENSE_MASTER_NAME;
@@ -69,12 +68,7 @@ public final class JournalEntryAssociation {
       return Constants.JOB_MASTER_NAME;
     }
     // ALLUXIO CS END
-    throw new InvalidJournalEntryException("Unrecognized journal entry: " + entry);
-||||||| merged common ancestors
-    throw new InvalidJournalEntryException("Unrecognized journal entry: " + entry);
-=======
     throw new IllegalStateException("Unrecognized journal entry: " + entry);
->>>>>>> OPENSOURCE/master
   }
 
   private JournalEntryAssociation() {} // Not intended for instantiation.

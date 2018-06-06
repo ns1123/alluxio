@@ -48,22 +48,14 @@ public final class FileSystemMasterFactory implements MasterFactory {
   public FileSystemMaster create(MasterRegistry registry, MasterContext context) {
     LOG.info("Creating {} ", FileSystemMaster.class.getName());
     BlockMaster blockMaster = registry.get(BlockMaster.class);
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
-    //     new MasterContext(journalFactory, safeModeManager, startTimeMs, port));
+    // FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster, context);
     // ALLUXIO CS WITH
     alluxio.master.privilege.PrivilegeMaster privilegeMaster =
         registry.get(alluxio.master.privilege.PrivilegeMaster.class);
-    FileSystemMaster fileSystemMaster = new PrivilegedFileSystemMaster(blockMaster, privilegeMaster,
-        new MasterContext(journalFactory, safeModeManager, startTimeMs, port));
+    FileSystemMaster fileSystemMaster =
+        new PrivilegedFileSystemMaster(blockMaster, privilegeMaster, context);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster,
-        new MasterContext(journalFactory, safeModeManager, startTimeMs, port));
-=======
-    FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster, context);
->>>>>>> OPENSOURCE/master
     registry.add(FileSystemMaster.class, fileSystemMaster);
     return fileSystemMaster;
   }

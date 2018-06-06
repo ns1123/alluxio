@@ -11,7 +11,6 @@
 
 package alluxio.master.journal.raft;
 
-import alluxio.exception.InvalidJournalEntryException;
 import alluxio.master.journal.JournalEntryAssociation;
 import alluxio.master.journal.JournalEntryStateMachine;
 import alluxio.master.journal.JournalEntryStreamReader;
@@ -122,8 +121,8 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
     String masterName;
     try {
       masterName = JournalEntryAssociation.getMasterForEntry(entry);
-    } catch (InvalidJournalEntryException e) {
-      LOG.error("Fatal error: unrecognized journal entry: {}", entry, e);
+    } catch (Throwable t) {
+      LOG.error("Fatal error: unrecognized journal entry: {}", entry, t);
       System.exit(-1);
       throw new IllegalStateException(); // Proving to the compiler that control flow stops here.
     }

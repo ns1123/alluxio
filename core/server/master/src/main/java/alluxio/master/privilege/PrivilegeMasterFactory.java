@@ -15,10 +15,7 @@ import alluxio.Constants;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
-import alluxio.master.SafeModeManager;
-import alluxio.master.journal.JournalSystem;
 
-import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +44,9 @@ public final class PrivilegeMasterFactory implements MasterFactory {
   }
 
   @Override
-  public PrivilegeMaster create(MasterRegistry registry, JournalSystem journalSystem,
-      SafeModeManager safeModeManager, long startTimeMs, int port) {
-    Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
+  public PrivilegeMaster create(MasterRegistry registry, MasterContext context) {
     LOG.info("Creating {} ", DefaultPrivilegeMaster.class.getName());
-    PrivilegeMaster privilegeMaster = new DefaultPrivilegeMaster(
-        new MasterContext(journalSystem, safeModeManager, startTimeMs, port));
+    PrivilegeMaster privilegeMaster = new DefaultPrivilegeMaster(context);
     registry.add(PrivilegeMaster.class, privilegeMaster);
     return privilegeMaster;
   }
