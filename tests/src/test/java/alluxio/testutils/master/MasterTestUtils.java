@@ -11,9 +11,13 @@
 
 package alluxio.testutils.master;
 
+import static org.mockito.Mockito.mock;
+
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.master.BackupManager;
+import alluxio.master.MasterContext;
 import alluxio.master.MasterRegistry;
 import alluxio.master.SafeModeManager;
 import alluxio.master.TestSafeModeManager;
@@ -67,6 +71,7 @@ public class MasterTestUtils {
     long startTimeMs = System.currentTimeMillis();
     int port = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, journalSystem,
         safeModeManager, startTimeMs, port);
@@ -75,6 +80,18 @@ public class MasterTestUtils {
     new BlockMasterFactory().create(registry, journalSystem, safeModeManager, startTimeMs, port);
     new FileSystemMasterFactory()
         .create(registry, journalSystem, safeModeManager, startTimeMs, port);
+||||||| merged common ancestors
+    new MetricsMasterFactory().create(registry, journalSystem, safeModeManager, startTimeMs, port);
+    new BlockMasterFactory().create(registry, journalSystem, safeModeManager, startTimeMs, port);
+    new FileSystemMasterFactory()
+        .create(registry, journalSystem, safeModeManager, startTimeMs, port);
+=======
+    MasterContext masterContext = new MasterContext(journalSystem, safeModeManager,
+        mock(BackupManager.class), startTimeMs, port);
+    new MetricsMasterFactory().create(registry, masterContext);
+    new BlockMasterFactory().create(registry, masterContext);
+    new FileSystemMasterFactory().create(registry, masterContext);
+>>>>>>> OPENSOURCE/master
     journalSystem.start();
     journalSystem.setMode(isLeader ? Mode.PRIMARY : Mode.SECONDARY);
     registry.start(isLeader);
