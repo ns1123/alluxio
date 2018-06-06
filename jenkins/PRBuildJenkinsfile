@@ -37,7 +37,7 @@ pipeline {
             post {
                 always {
                     junit '**/TEST-*.xml'
-                    archive '**/target/artifacts/*,**/tests.log*'
+                    archive '**/target/artifacts/*,**/target/logs/*.log*'
                 }
             }
         }
