@@ -11,6 +11,7 @@
 
 package alluxio.util;
 
+import alluxio.AlluxioConfiguration;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.util.io.PathUtils;
@@ -38,48 +39,53 @@ public final class ConfigurationUtils {
   /**
    * Gets the RPC addresses of all masters based on the configuration.
    *
+   * @param conf the configuration to use
    * @return the master rpc addresses
    */
-  public static java.util.List<java.net.InetSocketAddress> getMasterRpcAddresses() {
-    if (Configuration.containsKey(PropertyKey.MASTER_RPC_ADDRESSES)) {
-      return parseInetSocketAddresses(Configuration.getList(PropertyKey.MASTER_RPC_ADDRESSES, ","));
+  public static java.util.List<java.net.InetSocketAddress> getMasterRpcAddresses(
+      AlluxioConfiguration conf) {
+    if (conf.containsKey(PropertyKey.MASTER_RPC_ADDRESSES)) {
+      return parseInetSocketAddresses(conf.getList(PropertyKey.MASTER_RPC_ADDRESSES, ","));
     } else {
       int rpcPort = alluxio.util.network.NetworkAddressUtils
-          .getPort(alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC);
-      return getRpcAddresses(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, rpcPort);
+          .getPort(alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC, conf);
+      return getRpcAddresses(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, rpcPort, conf);
     }
   }
 
   /**
    * Gets the RPC addresses of all job masters based on the configuration.
    *
+   * @param conf the configuration to use
    * @return the job master rpc addresses
    */
-  public static java.util.List<java.net.InetSocketAddress> getJobMasterRpcAddresses() {
+  public static java.util.List<java.net.InetSocketAddress> getJobMasterRpcAddresses(
+      AlluxioConfiguration conf) {
     int jobRpcPort = alluxio.util.network.NetworkAddressUtils
         .getPort(alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC);
-    if (Configuration.containsKey(PropertyKey.JOB_MASTER_RPC_ADDRESSES)) {
+    if (conf.containsKey(PropertyKey.JOB_MASTER_RPC_ADDRESSES)) {
       return parseInetSocketAddresses(
-          Configuration.getList(PropertyKey.JOB_MASTER_RPC_ADDRESSES, ","));
-    } else if (Configuration.containsKey(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES)) {
-      return getRpcAddresses(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES, jobRpcPort);
-    } else if (Configuration.containsKey(PropertyKey.MASTER_RPC_ADDRESSES)) {
-      return getRpcAddresses(PropertyKey.MASTER_RPC_ADDRESSES, jobRpcPort);
+          conf.getList(PropertyKey.JOB_MASTER_RPC_ADDRESSES, ","));
+    } else if (conf.containsKey(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES)) {
+      return getRpcAddresses(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES, jobRpcPort, conf);
+    } else if (conf.containsKey(PropertyKey.MASTER_RPC_ADDRESSES)) {
+      return getRpcAddresses(PropertyKey.MASTER_RPC_ADDRESSES, jobRpcPort, conf);
     } else {
-      return getRpcAddresses(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, jobRpcPort);
+      return getRpcAddresses(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, jobRpcPort, conf);
     }
   }
 
   /**
    * @param addressesKey configuration key for a list of addresses
    * @param overridePort the port to use
+   * @param conf the configuration to use
    * @return a list of inet addresses using the hostnames from addressesKey with the port
    *         overridePort
    */
   private static java.util.List<java.net.InetSocketAddress> getRpcAddresses(
-      PropertyKey addressesKey, int overridePort) {
+      PropertyKey addressesKey, int overridePort, AlluxioConfiguration conf) {
     java.util.List<java.net.InetSocketAddress> addresses =
-        parseInetSocketAddresses(Configuration.getList(addressesKey, ","));
+        parseInetSocketAddresses(conf.getList(addressesKey, ","));
     java.util.List<java.net.InetSocketAddress> newAddresses =
         new java.util.ArrayList<>(addresses.size());
     for (java.net.InetSocketAddress addr : addresses) {
@@ -188,7 +194,7 @@ public final class ConfigurationUtils {
     boolean usingZk = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
         && Configuration.containsKey(PropertyKey.ZOOKEEPER_ADDRESS);
     return Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME) || usingZk
-        || getJobMasterRpcAddresses().size() > 1;
+        || getJobMasterRpcAddresses(Configuration.global()).size() > 1;
   }
   // ALLUXIO CS END
 
@@ -203,7 +209,7 @@ public final class ConfigurationUtils {
     // return Configuration.containsKey(PropertyKey.MASTER_HOSTNAME) || usingZk;
     // ALLUXIO CS WITH
     return Configuration.containsKey(PropertyKey.MASTER_HOSTNAME) || usingZk
-        || getMasterRpcAddresses().size() > 1;
+        || getMasterRpcAddresses(Configuration.global()).size() > 1;
     // ALLUXIO CS END
   }
 

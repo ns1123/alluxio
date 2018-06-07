@@ -533,8 +533,8 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     // ALLUXIO CS REPLACE
     // if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
     // ALLUXIO CS WITH
-    if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
-        && alluxio.util.ConfigurationUtils.getMasterRpcAddresses().size() == 1) {
+    if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED) && alluxio.util.ConfigurationUtils
+        .getMasterRpcAddresses(Configuration.global()).size() == 1) {
     // ALLUXIO CS END
       Preconditions.checkNotNull(uri.getHost(), PreconditionMessage.URI_HOST_NULL);
       Preconditions.checkNotNull(uri.getPort(), PreconditionMessage.URI_PORT_NULL);
