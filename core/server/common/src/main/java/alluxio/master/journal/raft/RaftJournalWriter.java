@@ -111,6 +111,13 @@ public class RaftJournalWriter implements JournalWriter {
     closeClient();
   }
 
+  /**
+   * @return the next sequence number that will be written by this writer
+   */
+  public long getNextSequenceNumberToWrite() {
+    return mNextSequenceNumberToWrite.get();
+  }
+
   private void closeClient() {
     try {
       mClient.close().get(10, TimeUnit.SECONDS);

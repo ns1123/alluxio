@@ -20,7 +20,7 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 #start up alluxio
 
 # ALLUXIO CS REPLACE
-# USAGE="Usage: alluxio-start.sh [-hNwm] ACTION [MOPT] [-f]
+# USAGE="Usage: alluxio-start.sh [-hNwm] [-i backup] ACTION [MOPT] [-f]
 # Where ACTION is one of:
 #   all [MOPT]         \tStart all masters, proxies, and workers.
 #   local [MOPT]       \tStart all processes locally.
@@ -44,13 +44,16 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 #              set ALLUXIO_RAM_FOLDER=/dev/shm on each worker and use NoMount.
 #   SudoMount is assumed if MOPT is not specified.
 #
-# -f  format Journal, UnderFS Data and Workers Folder on master
-# -N  do not try to kill previous running processes before starting new ones
-# -w  wait for processes to end before returning
-# -m  launch monitor process to ensure the target processes come up.
-# -h  display this help."
+# -f         format Journal, UnderFS Data and Workers Folder on master.
+# -h         display this help.
+# -i backup  a journal backup to restore the master from. The backup should be
+#            a URI path within the root under filesystem, e.g.
+#            hdfs://mycluster/alluxio_backups/alluxio-journal-YYYY-MM-DD-timestamp.gz.
+# -m         launch monitor process to ensure the target processes come up.
+# -N         do not try to kill previous running processes before starting new ones.
+# -w         wait for processes to end before returning."
 # ALLUXIO CS WITH
-USAGE="Usage: alluxio-start.sh [-hNwm] ACTION [MOPT] [-f]
+USAGE="Usage: alluxio-start.sh [-hNwm] [-i backup] ACTION [MOPT] [-f]
 Where ACTION is one of:
   all [MOPT]         \tStart all masters, proxies, and workers.
   job_master         \tStart the job master on this node.
@@ -78,11 +81,14 @@ MOPT (Mount Option) is one of:
              set ALLUXIO_RAM_FOLDER=/dev/shm on each worker and use NoMount.
   SudoMount is assumed if MOPT is not specified.
 
--f  format Journal, UnderFS Data and Workers Folder on master
--N  do not try to kill previous running processes before starting new ones
--w  wait for processes to end before returning
--m  launch monitor process to ensure the target processes come up.
--h  display this help.
+-f         format Journal, UnderFS Data and Workers Folder on master.
+-h         display this help.
+-i backup  a journal backup to restore the master from. The backup should be
+           a URI path within the root under filesystem, e.g.
+           hdfs://mycluster/alluxio_backups/alluxio-journal-YYYY-MM-DD-timestamp.gz.
+-m         launch monitor process to ensure the target processes come up.
+-N         do not try to kill previous running processes before starting new ones.
+-w         wait for processes to end before returning.
 
 Supported environment variables:
 
@@ -272,6 +278,9 @@ start_master() {
     if [[ -z ${ALLUXIO_MASTER_JAVA_OPTS} ]]; then
       ALLUXIO_MASTER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
     fi
+    if [[ -n ${journal_backup} ]]; then
+        ALLUXIO_MASTER_JAVA_OPTS+=" -Dalluxio.master.journal.init.from.backup=${journal_backup}"
+    fi
 
     # use a default Xmx value for the master
     contains "${ALLUXIO_MASTER_JAVA_OPTS}" "Xmx"
@@ -431,20 +440,23 @@ main() {
   # ensure log/data dirs
   ensure_dirs
 
-  while getopts "hNwm" o; do
+  while getopts "hNwmi:" o; do
     case "${o}" in
       h)
         echo -e "${USAGE}"
         exit 0
+        ;;
+      i)
+        journal_backup=${OPTARG}
+        ;;
+      m)
+        monitor="true"
         ;;
       N)
         killonstart="no"
         ;;
       w)
         wait="true"
-        ;;
-      m)
-        monitor="true"
         ;;
       *)
         echo -e "${USAGE}" >&2

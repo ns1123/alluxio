@@ -11,6 +11,7 @@
 
 package alluxio.master;
 
+import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
@@ -21,8 +22,11 @@ import alluxio.metrics.sink.MetricsServlet;
 import alluxio.metrics.sink.PrometheusMetricsServlet;
 import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.authentication.TransportProvider;
+import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.util.CommonUtils;
 import alluxio.util.JvmPauseMonitor;
+import alluxio.util.URIUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -34,9 +38,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
-// ALLUXIO CS REMOVE
-// import org.apache.thrift.server.TServer;
-// ALLUXIO CS END
+import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -46,14 +48,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * This class encapsulates the different master services that are configured to run.
+ *
+// ALLUXIO CS ADD
+ * {@link TServer} so that it is used in both OS and CS.
+// ALLUXIO CS END
  */
 @NotThreadSafe
 public class AlluxioMasterProcess implements MasterProcess {
@@ -67,6 +75,12 @@ public class AlluxioMasterProcess implements MasterProcess {
 
   /** The port for the RPC server. */
   private final int mPort;
+
+  /**
+   * Lock for pausing modifications to master state. Holding the this lock allows a thread to
+   * guarantee that no other threads will modify master state.
+   */
+  private final Lock mPauseStateLock;
 
   /** The socket for thrift rpc server. */
   private TServerSocket mRpcServerSocket;
@@ -108,6 +122,9 @@ public class AlluxioMasterProcess implements MasterProcess {
 
   /** The manager of safe mode state. */
   protected final SafeModeManager mSafeModeManager;
+
+  /** The manager for creating and restoring backups. */
+  private final BackupManager mBackupManager;
 
   /**
    * Creates a new {@link AlluxioMasterProcess}.
@@ -155,7 +172,11 @@ public class AlluxioMasterProcess implements MasterProcess {
       // Create masters.
       mRegistry = new MasterRegistry();
       mSafeModeManager = new DefaultSafeModeManager();
-      MasterUtils.createMasters(mJournalSystem, mRegistry, mSafeModeManager, mStartTimeMs, mPort);
+      mBackupManager = new BackupManager(mRegistry);
+      MasterContext context =
+          new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort);
+      mPauseStateLock = context.pauseStateLock();
+      MasterUtils.createMasters(mRegistry, context);
       // ALLUXIO CS ADD
       if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
           && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED)) {
@@ -249,12 +270,36 @@ public class AlluxioMasterProcess implements MasterProcess {
   protected void startMasters(boolean isLeader) {
     try {
       if (isLeader) {
+        if (Configuration.containsKey(PropertyKey.MASTER_JOURNAL_INIT_FROM_BACKUP)) {
+          AlluxioURI backup =
+              new AlluxioURI(Configuration.get(PropertyKey.MASTER_JOURNAL_INIT_FROM_BACKUP));
+          if (mJournalSystem.isEmpty()) {
+            initFromBackup(backup);
+          } else {
+            LOG.info("The journal system is not freshly formatted, skipping restoring backup from "
+                + backup);
+          }
+        }
         mSafeModeManager.notifyPrimaryMasterStarted();
       }
       mRegistry.start(isLeader);
       LOG.info("All masters started");
     } catch (IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private void initFromBackup(AlluxioURI backup) throws IOException {
+    UnderFileSystem ufs;
+    if (URIUtils.isLocalFilesystem(backup.toString())) {
+      ufs = UnderFileSystem.Factory.create("/", UnderFileSystemConfiguration.defaults());
+    } else {
+      ufs = UnderFileSystem.Factory.createForRoot();
+    }
+    try (UnderFileSystem closeUfs = ufs;
+         InputStream ufsIn = ufs.open(backup.getPath())) {
+      LOG.info("Initializing metadata from backup {}", backup);
+      mBackupManager.initFromBackup(ufsIn);
     }
   }
 

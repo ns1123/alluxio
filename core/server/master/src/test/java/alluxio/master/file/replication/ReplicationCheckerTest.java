@@ -17,9 +17,9 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.job.replicate.ReplicationHandler;
+import alluxio.master.MasterContext;
 import alluxio.master.MasterRegistry;
-import alluxio.master.SafeModeManager;
-import alluxio.master.TestSafeModeManager;
+import alluxio.master.MasterTestUtils;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.RpcContext;
@@ -105,9 +105,6 @@ public final class ReplicationCheckerTest {
   private BlockMaster mBlockMaster;
   private ReplicationChecker mReplicationChecker;
   private MockHandler mMockReplicationHandler;
-  private SafeModeManager mSafeModeManager;
-  private long mStartTimeMs;
-  private int mPort;
   private CreateFileOptions mFileOptions = CreateFileOptions.defaults()
       .setBlockSizeBytes(Constants.KB).setOwner(TEST_OWNER).setGroup(TEST_GROUP).setMode(TEST_MODE);
   private Set<Long> mKnownWorkers = Sets.newHashSet();
@@ -120,14 +117,9 @@ public final class ReplicationCheckerTest {
   public void before() throws Exception {
     MasterRegistry registry = new MasterRegistry();
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
-
-    mSafeModeManager = new TestSafeModeManager();
-    mStartTimeMs = System.currentTimeMillis();
-    mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
-    new MetricsMasterFactory().create(registry, journalSystem, mSafeModeManager, mStartTimeMs,
-        mPort);
-    mBlockMaster = new BlockMasterFactory().create(registry, journalSystem, mSafeModeManager,
-        mStartTimeMs, mPort);
+    MasterContext context = MasterTestUtils.testMasterContext(journalSystem);
+    new MetricsMasterFactory().create(registry, context);
+    mBlockMaster = new BlockMasterFactory().create(registry, context);
     InodeDirectoryIdGenerator directoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
     UfsManager manager = Mockito.mock(UfsManager.class);
     MountTable mountTable = new MountTable(manager);
@@ -142,8 +134,8 @@ public final class ReplicationCheckerTest {
     mInodeTree.initializeRoot(TEST_OWNER, TEST_GROUP, TEST_MODE);
 
     mMockReplicationHandler = new MockHandler();
-    mReplicationChecker = new ReplicationChecker(mInodeTree, mBlockMaster, mSafeModeManager,
-        mMockReplicationHandler);
+    mReplicationChecker = new ReplicationChecker(mInodeTree, mBlockMaster,
+        context.getSafeModeManager(), mMockReplicationHandler);
   }
 
   @After

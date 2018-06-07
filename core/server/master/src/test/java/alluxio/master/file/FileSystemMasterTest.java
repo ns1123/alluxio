@@ -37,8 +37,8 @@ import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterRegistry;
+import alluxio.master.MasterTestUtils;
 import alluxio.master.SafeModeManager;
-import alluxio.master.TestSafeModeManager;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
@@ -2123,25 +2123,18 @@ public final class FileSystemMasterTest {
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-    mSafeModeManager = new TestSafeModeManager();
-    mStartTimeMs = System.currentTimeMillis();
-    mStartTimeMs = System.currentTimeMillis();
-    mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
+    MasterContext masterContext = MasterTestUtils.testMasterContext(mJournalSystem);
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalSystem,
-        mSafeModeManager, mStartTimeMs, mPort);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, masterContext);
     // ALLUXIO CS END
-    mMetricsMaster = new MetricsMasterFactory()
-        .create(mRegistry, mJournalSystem, mSafeModeManager, mStartTimeMs, mPort);
+    mMetricsMaster = new MetricsMasterFactory().create(mRegistry, masterContext);
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     mMetrics = Lists.newArrayList();
-    mBlockMaster = new BlockMasterFactory()
-        .create(mRegistry, mJournalSystem, mSafeModeManager, mStartTimeMs, mPort);
+    mBlockMaster = new BlockMasterFactory().create(mRegistry, masterContext);
     mExecutorService = Executors
         .newFixedThreadPool(4, ThreadFactoryUtils.build("DefaultFileSystemMasterTest-%d", true));
-    mFileSystemMaster = new DefaultFileSystemMaster(mBlockMaster,
-        new MasterContext(mJournalSystem, mSafeModeManager, mStartTimeMs, mPort),
+    mFileSystemMaster = new DefaultFileSystemMaster(mBlockMaster, masterContext,
         ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
     mRegistry.add(FileSystemMaster.class, mFileSystemMaster);
     mJournalSystem.start();

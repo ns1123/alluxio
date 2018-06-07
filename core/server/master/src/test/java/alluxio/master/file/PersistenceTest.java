@@ -27,7 +27,9 @@ import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.DefaultSafeModeManager;
+import alluxio.master.MasterContext;
 import alluxio.master.MasterRegistry;
+import alluxio.master.MasterTestUtils;
 import alluxio.master.SafeModeManager;
 import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
@@ -525,14 +527,11 @@ public final class PersistenceTest {
     mRegistry = new MasterRegistry();
     JournalSystem journalSystem =
         JournalTestUtils.createJournalSystem(mJournalFolder.getAbsolutePath());
-    new MetricsMasterFactory().create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs,
-        mPort);
-    new PrivilegeMasterFactory().create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs,
-        mPort);
-    new BlockMasterFactory().create(mRegistry, journalSystem, mSafeModeManager, mStartTimeMs,
-        mPort);
-    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalSystem,
-        mSafeModeManager, mStartTimeMs, mPort);
+    MasterContext context = MasterTestUtils.testMasterContext(journalSystem);
+    new MetricsMasterFactory().create(mRegistry, context);
+    new PrivilegeMasterFactory().create(mRegistry, context);
+    new BlockMasterFactory().create(mRegistry, context);
+    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, context);
     journalSystem.start();
     journalSystem.setMode(JournalSystem.Mode.PRIMARY);
     mRegistry.start(true);

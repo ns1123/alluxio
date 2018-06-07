@@ -18,10 +18,7 @@ import alluxio.PropertyKey;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
-import alluxio.master.SafeModeManager;
-import alluxio.master.journal.JournalSystem;
 
-import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,14 +48,11 @@ public final class CallHomeMasterFactory implements MasterFactory {
   }
 
   @Override
-  public CallHomeMaster create(MasterRegistry registry, JournalSystem journalSystem,
-      SafeModeManager safeModeManager, long startTimeMs, int port) {
+  public CallHomeMaster create(MasterRegistry registry, MasterContext context) {
     if (!isEnabled()) {
       return null;
     }
-    Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} ", CallHomeMaster.class.getName());
-    return new CallHomeMaster(registry,
-        new MasterContext(journalSystem, safeModeManager, startTimeMs, port));
+    return new CallHomeMaster(registry, context);
   }
 }

@@ -15,13 +15,11 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.PropertyKey;
+import alluxio.master.Master;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
-import alluxio.master.SafeModeManager;
-import alluxio.master.journal.JournalSystem;
 
-import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,15 +50,12 @@ public final class DiagnosticMasterFactory implements MasterFactory {
   }
 
   @Override
-  public DiagnosticMaster create(MasterRegistry registry, JournalSystem journalSystem,
-      SafeModeManager safeModeManager, long startTimeMs, int port) {
+  public Master create(MasterRegistry registry, MasterContext context) {
     if (!isEnabled()) {
       return null;
     }
-    Preconditions.checkArgument(journalSystem != null, "journal system may not be null");
     LOG.info("Creating {} with diagnostic log level {}", DiagnosticMaster.class.getName(),
         Configuration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL, DiagnosticLogLevel.class));
-    return new DiagnosticMaster(registry,
-        new MasterContext(journalSystem, safeModeManager, startTimeMs, port));
+    return new DiagnosticMaster(registry, context);
   }
 }

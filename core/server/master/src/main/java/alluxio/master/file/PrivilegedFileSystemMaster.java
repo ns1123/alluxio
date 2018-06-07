@@ -45,6 +45,7 @@ import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.master.file.options.WorkerHeartbeatOptions;
+import alluxio.master.journal.JournalContext;
 import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.proto.journal.Journal;
@@ -399,5 +400,10 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public void validateInodeBlocks(boolean repair) throws UnavailableException {
     mFileSystemMaster.validateInodeBlocks(repair);
+  }
+
+  @Override
+  public JournalContext createJournalContext() throws UnavailableException {
+    return mFileSystemMaster.createJournalContext();
   }
 }
