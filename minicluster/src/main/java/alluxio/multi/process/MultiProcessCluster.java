@@ -394,6 +394,7 @@ public final class MultiProcessCluster implements TestRule {
   }
 
   /**
+<<<<<<< HEAD
    * Updates the cluster's deploy mode.
    *
    * @param mode the mode to set
@@ -418,6 +419,18 @@ public final class MultiProcessCluster implements TestRule {
   }
 
   /**
+||||||| merged common ancestors
+=======
+   * Updates the cluster's deploy mode.
+   *
+   * @param mode the mode to set
+   */
+  public synchronized void updateDeployMode(DeployMode mode) {
+    mDeployMode = mode;
+  }
+
+  /**
+>>>>>>> OPENSOURCE/master
    * @param i the index of the worker to stop
    */
   public synchronized void stopWorker(int i) throws IOException {
@@ -516,6 +529,7 @@ public final class MultiProcessCluster implements TestRule {
   /**
    * Formats the cluster journal.
    */
+<<<<<<< HEAD
   public synchronized void formatJournal() throws IOException {
     // ALLUXIO CS ADD
     if (mDeployMode == DeployMode.EMBEDDED_HA) {
@@ -527,6 +541,11 @@ public final class MultiProcessCluster implements TestRule {
       return;
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+  public synchronized void formatJournal() {
+=======
+  public synchronized void formatJournal() throws IOException {
+>>>>>>> OPENSOURCE/master
     try (Closeable c = new ConfigurationRule(PropertyKey.MASTER_JOURNAL_FOLDER,
         mProperties.get(PropertyKey.MASTER_JOURNAL_FOLDER)).toResource()) {
       Format.format(Format.Mode.MASTER);

@@ -72,6 +72,7 @@ public final class JournalBackupIntegrationTest extends BaseIntegrationTest {
     backupRestoreTest(true);
   }
 
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   @Test
   public void backupRestoreEmbedded() throws Exception {
@@ -80,8 +81,21 @@ public final class JournalBackupIntegrationTest extends BaseIntegrationTest {
         .setDeployMode(DeployMode.EMBEDDED_HA)
         .setNumMasters(3).build();
     backupRestoreTest(true);
+||||||| merged common ancestors
+  @After
+  public void after() throws Exception {
+    mCluster.destroy();
+=======
+  @Test
+  public void backupRestoreSingleMaster() throws Exception {
+    mCluster = MultiProcessCluster.newBuilder()
+        .setClusterName("backupRestoreSingle")
+        .setNumMasters(1).build();
+    backupRestoreTest(false);
+>>>>>>> OPENSOURCE/master
   }
 
+<<<<<<< HEAD
   // ALLUXIO CS END
   @Test
   public void backupRestoreSingleMaster() throws Exception {
@@ -92,6 +106,12 @@ public final class JournalBackupIntegrationTest extends BaseIntegrationTest {
   }
 
   private void backupRestoreTest(boolean testFailover) throws Exception {
+||||||| merged common ancestors
+  @Test
+  public void backupRestore() throws Exception {
+=======
+  private void backupRestoreTest(boolean testFailover) throws Exception {
+>>>>>>> OPENSOURCE/master
     File backups = AlluxioTestDirectory.createTemporaryDirectory("backups");
     mCluster.start();
     List<Thread> opThreads = new ArrayList<>();
