@@ -60,7 +60,7 @@ public final class ConfigurationUtils {
    * @return the job master rpc addresses
    */
   public static java.util.List<java.net.InetSocketAddress> getJobMasterRpcAddresses(
-      AlluxioConfiguration conf) {
+      alluxio.AlluxioConfiguration conf) {
     int jobRpcPort = alluxio.util.network.NetworkAddressUtils
         .getPort(alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC);
     if (conf.containsKey(PropertyKey.JOB_MASTER_RPC_ADDRESSES)) {

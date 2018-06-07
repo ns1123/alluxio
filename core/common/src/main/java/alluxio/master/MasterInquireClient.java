@@ -15,7 +15,6 @@ import alluxio.AlluxioConfiguration;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.exception.status.UnavailableException;
-import alluxio.util.ConfigurationUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
@@ -66,8 +65,9 @@ public interface MasterInquireClient {
             conf.get(PropertyKey.ZOOKEEPER_ELECTION_PATH),
             conf.get(PropertyKey.ZOOKEEPER_LEADER_PATH));
         // ALLUXIO CS ADD
-      } else if (ConfigurationUtils.getMasterRpcAddresses(conf).size() > 1) {
-        return new PollingMasterInquireClient(ConfigurationUtils.getMasterRpcAddresses(conf));
+      } else if (alluxio.util.ConfigurationUtils.getMasterRpcAddresses(conf).size() > 1) {
+        return new PollingMasterInquireClient(
+            alluxio.util.ConfigurationUtils.getMasterRpcAddresses(conf));
         // ALLUXIO CS END
       } else {
         return new SingleMasterInquireClient(

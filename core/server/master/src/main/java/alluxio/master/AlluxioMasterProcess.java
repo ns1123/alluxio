@@ -58,7 +58,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * This class encapsulates the different master services that are configured to run.
- *
 // ALLUXIO CS ADD
  * {@link TServer} so that it is used in both OS and CS.
 // ALLUXIO CS END
