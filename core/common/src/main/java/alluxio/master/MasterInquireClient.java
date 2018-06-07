@@ -74,8 +74,8 @@ public interface MasterInquireClient {
             NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC, conf));
       }
     }
-    // ALLUXIO CS ADD
 
+    // ALLUXIO CS ADD
     public static MasterInquireClient createForJobMaster() {
       if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
         return ZkMasterInquireClient.getClient(Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS),
@@ -90,6 +90,7 @@ public interface MasterInquireClient {
             NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
       }
     }
+
     // ALLUXIO CS END
     private Factory() {
     } // Not intended for instantiation.
