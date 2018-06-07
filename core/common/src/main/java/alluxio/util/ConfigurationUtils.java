@@ -11,7 +11,6 @@
 
 package alluxio.util;
 
-import alluxio.AlluxioConfiguration;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.util.io.PathUtils;
@@ -43,7 +42,7 @@ public final class ConfigurationUtils {
    * @return the master rpc addresses
    */
   public static java.util.List<java.net.InetSocketAddress> getMasterRpcAddresses(
-      AlluxioConfiguration conf) {
+      alluxio.AlluxioConfiguration conf) {
     if (conf.containsKey(PropertyKey.MASTER_RPC_ADDRESSES)) {
       return parseInetSocketAddresses(conf.getList(PropertyKey.MASTER_RPC_ADDRESSES, ","));
     } else {
@@ -83,7 +82,7 @@ public final class ConfigurationUtils {
    *         overridePort
    */
   private static java.util.List<java.net.InetSocketAddress> getRpcAddresses(
-      PropertyKey addressesKey, int overridePort, AlluxioConfiguration conf) {
+      PropertyKey addressesKey, int overridePort, alluxio.AlluxioConfiguration conf) {
     java.util.List<java.net.InetSocketAddress> addresses =
         parseInetSocketAddresses(conf.getList(addressesKey, ","));
     java.util.List<java.net.InetSocketAddress> newAddresses =
