@@ -191,7 +191,7 @@
     <license.secret.key>invalid</license.secret.key>
     <maprfs.version>5.2</maprfs.version>
     <!-- URL of the Alluxio proxy server. -->
-    <proxy.url>https://alluxio-proxy.herokuapp.com</proxy.url>
+    <proxy.url>https://proxy.alluxio.com</proxy.url>
     <!-- Exclude tests related to JNI by default. -->
     <surefire.exclude>alluxio.client.security.OpenSSLCryptoUtilsTest</surefire.exclude>
     <!-- ALLUXIO CS END -->
