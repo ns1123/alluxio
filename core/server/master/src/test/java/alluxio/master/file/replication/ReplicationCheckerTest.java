@@ -126,7 +126,7 @@ public final class ReplicationCheckerTest {
     mInodeTree = new InodeTree(mBlockMaster, directoryIdGenerator, mountTable);
 
     journalSystem.start();
-    journalSystem.setMode(JournalSystem.Mode.PRIMARY);
+    journalSystem.gainPrimacy();
     mBlockMaster.start(true);
 
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");

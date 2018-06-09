@@ -31,6 +31,7 @@ import io.atomix.catalyst.transport.netty.NettyTransport;
 import io.atomix.copycat.client.CopycatClient;
 import io.atomix.copycat.client.RecoveryStrategies;
 import io.atomix.copycat.server.CopycatServer;
+import io.atomix.copycat.server.CopycatServer.State;
 import io.atomix.copycat.server.StateMachine;
 import io.atomix.copycat.server.state.ServerContext;
 import io.atomix.copycat.server.state.ServerStateMachine;
@@ -344,6 +345,10 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     LOG.info("Catching up to log index {}", loggedIndex);
     CommonUtils.waitFor("apply index to be caught up to the log index",
         x -> {
+          if (mServer.state() != State.LEADER) {
+            // Break out early if the server loses leadership.
+            return true;
+          }
           long lastApplied = copycatStateMachine.getLastApplied();
           long lastSubmittedCommand = copycatStateMachine.getLastSubmittedCommand();
           long lastCompletedCommand = copycatStateMachine.getLastCompletedCommand();
