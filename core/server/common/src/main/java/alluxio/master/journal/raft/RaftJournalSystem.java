@@ -345,7 +345,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     LOG.info("Catching up to log index {}", loggedIndex);
     CommonUtils.waitFor("apply index to be caught up to the log index",
         x -> {
-          if (mServer.state() != State.LEADER) {
+          if (mPrimarySelector.getState() != PrimarySelector.State.PRIMARY) {
             // Break out early if the server loses leadership.
             return true;
           }
