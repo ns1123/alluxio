@@ -31,7 +31,6 @@ import io.atomix.catalyst.transport.netty.NettyTransport;
 import io.atomix.copycat.client.CopycatClient;
 import io.atomix.copycat.client.RecoveryStrategies;
 import io.atomix.copycat.server.CopycatServer;
-import io.atomix.copycat.server.CopycatServer.State;
 import io.atomix.copycat.server.StateMachine;
 import io.atomix.copycat.server.state.ServerContext;
 import io.atomix.copycat.server.state.ServerStateMachine;
