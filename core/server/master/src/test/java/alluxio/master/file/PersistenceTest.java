@@ -533,7 +533,7 @@ public final class PersistenceTest {
     new BlockMasterFactory().create(mRegistry, context);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, context);
     journalSystem.start();
-    journalSystem.setMode(JournalSystem.Mode.PRIMARY);
+    journalSystem.gainPrimacy();
     mRegistry.start(true);
     mMockJobMasterClient = Mockito.mock(JobMasterClient.class);
     PowerMockito.mockStatic(JobMasterClient.Factory.class);

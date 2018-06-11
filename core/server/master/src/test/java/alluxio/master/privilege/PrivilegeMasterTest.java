@@ -18,7 +18,6 @@ import static org.junit.Assert.assertTrue;
 import alluxio.master.MasterRegistry;
 import alluxio.master.MasterTestUtils;
 import alluxio.master.journal.JournalSystem;
-import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.master.journal.JournalTestUtils;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PPrivilege;
@@ -57,7 +56,7 @@ public final class PrivilegeMasterTest {
         MasterTestUtils.testMasterContext(journalSystem));
     mRegistry.add(PrivilegeMaster.class, mMaster);
     journalSystem.start();
-    journalSystem.setMode(Mode.PRIMARY);
+    journalSystem.gainPrimacy();
     mRegistry.start(true);
   }
 

@@ -11,7 +11,6 @@ package alluxio.master;
 
 import alluxio.master.PrimarySelector.State;
 import alluxio.master.journal.JournalSystem;
-import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.util.CommonUtils;
 
 import com.google.common.base.Function;
@@ -64,7 +63,7 @@ final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess
         // We are in secondary mode. Nothing to do until we become the primary.
         mLeaderSelector.waitForState(State.PRIMARY);
         LOG.info("Transitioning from secondary to primary");
-        mJournalSystem.setMode(Mode.PRIMARY);
+        mJournalSystem.gainPrimacy();
         stopMaster();
         LOG.info("Secondary stopped");
         startMaster(true);
@@ -84,7 +83,7 @@ final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess
         mServingThread.join();
         mServingThread = null;
         stopMaster();
-        mJournalSystem.setMode(Mode.SECONDARY);
+        mJournalSystem.losePrimacy();
         LOG.info("Primary stopped");
         startMaster(false);
         LOG.info("Secondary started");

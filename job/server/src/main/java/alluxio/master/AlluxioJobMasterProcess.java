@@ -17,7 +17,6 @@ import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientServiceHandler;
 import alluxio.master.journal.JournalSystem;
-import alluxio.master.journal.JournalSystem.Mode;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.network.thrift.ThriftUtils;
@@ -198,7 +197,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
    */
   public void start() throws Exception {
     mJournalSystem.start();
-    mJournalSystem.setMode(Mode.PRIMARY);
+    mJournalSystem.gainPrimacy();
     startMaster(true);
     startServing();
   }

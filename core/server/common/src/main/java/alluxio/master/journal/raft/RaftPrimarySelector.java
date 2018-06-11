@@ -11,7 +11,7 @@
 
 package alluxio.master.journal.raft;
 
-import alluxio.master.PrimarySelector;
+import alluxio.master.AbstractPrimarySelector;
 
 import com.google.common.base.Preconditions;
 import io.atomix.catalyst.concurrent.Listener;
@@ -21,34 +21,18 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * A primary selector backed by a Raft consensus cluster.
  */
 @ThreadSafe
-public class RaftPrimarySelector implements PrimarySelector {
+public class RaftPrimarySelector extends AbstractPrimarySelector {
   private static final Logger LOG = LoggerFactory.getLogger(RaftPrimarySelector.class);
 
   private CopycatServer mServer;
   private Listener<CopycatServer.State> mStateListener;
-
-  private final Lock mStateLock = new ReentrantLock();
-  private final Condition mStateCond = mStateLock.newCondition();
-  @GuardedBy("mStateLock")
-  private State mState;
-
-  /**
-   * Constructs a new {@link RaftPrimarySelector}.
-   */
-  public RaftPrimarySelector() {
-    mState = State.SECONDARY;
-  }
 
   /**
    * @param server reference to the server backing this selector
@@ -61,28 +45,12 @@ public class RaftPrimarySelector implements PrimarySelector {
     // We must register the callback before initializing mState in case the state changes
     // immediately after initializing mState.
     mStateListener = server.onStateChange(state -> {
-      mStateLock.lock();
-      try {
-        State newState = getState();
-        if (mState != newState) {
-          LOG.info("Journal transitioned to state {}, Primary selector transitioning to {}", state,
-              newState);
-          mState = newState;
-          mStateCond.signalAll();
-        }
-      } finally {
-        mStateLock.unlock();
-      }
+      setState(serverState());
     });
-    mStateLock.lock();
-    try {
-      mState = getState();
-    } finally {
-      mStateLock.unlock();
-    }
+    setState(serverState());
   }
 
-  private State getState() {
+  private State serverState() {
     if (mServer.state() == CopycatServer.State.LEADER) {
       return State.PRIMARY;
     } else {
@@ -98,17 +66,5 @@ public class RaftPrimarySelector implements PrimarySelector {
   @Override
   public void stop() throws IOException {
     // The copycat cluster is owned by the outer {@link RaftJournalSystem}.
-  }
-
-  @Override
-  public void waitForState(State state) throws InterruptedException {
-    mStateLock.lock();
-    try {
-      while (mState != state) {
-        mStateCond.await();
-      }
-    } finally {
-      mStateLock.unlock();
-    }
   }
 }
