@@ -1735,29 +1735,26 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         if (unsafeInodes.contains(delInode.getId())) {
           failureReason = ExceptionMessage.DELETE_FAILED_DIR_NONEMPTY.getMessage();
         } else if (!replayed && delInode.isPersisted()) {
-          try {
-            // If this is a mount point, we have deleted all the children and can unmount it
-            // TODO(calvin): Add tests (ALLUXIO-1831)
-            if (mMountTable.isMountPoint(alluxioUriToDel)) {
-              unmountInternal(alluxioUriToDel);
-            } else {
-              if (!(replayed || deleteOptions.isAlluxioOnly())) {
-                try {
-                  checkUfsMode(alluxioUriToDel, OperationType.WRITE);
-                  // Attempt to delete node if all children were deleted successfully
-                  ufsDeleter.delete(alluxioUriToDel, delInode);
-                } catch (AccessControlException e) {
-                  // In case ufs is not writable, we will still attempt to delete other entries
-                  // if any as they may be from a different mount point
-                  // TODO(adit): reason for failure is swallowed here
-                  LOG.warn(e.getMessage());
-                  failureReason = e.getMessage();
-                } catch (IOException e) {
-                  failureReason = e.getMessage();
-                }
+          // If this is a mount point, we have deleted all the children and can unmount it
+          // TODO(calvin): Add tests (ALLUXIO-1831)
+          if (mMountTable.isMountPoint(alluxioUriToDel)) {
+            unmountInternal(alluxioUriToDel);
+          } else {
+            if (!(replayed || deleteOptions.isAlluxioOnly())) {
+              try {
+                checkUfsMode(alluxioUriToDel, OperationType.WRITE);
+                // Attempt to delete node if all children were deleted successfully
+                ufsDeleter.delete(alluxioUriToDel, delInode);
+              } catch (AccessControlException e) {
+                // In case ufs is not writable, we will still attempt to delete other entries
+                // if any as they may be from a different mount point
+                // TODO(adit): reason for failure is swallowed here
+                LOG.warn(e.getMessage());
+                failureReason = e.getMessage();
+              } catch (IOException e) {
+                failureReason = e.getMessage();
               }
             }
-<<<<<<< HEAD
           }
           if (failureReason == null) {
             // ALLUXIO CS ADD
@@ -1772,25 +1769,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               }
             }
             // ALLUXIO CS END
-            inodesToDelete.add(new Pair<>(alluxioUriToDel, delInode));
+            inodesToDelete.add(new Pair<>(alluxioUriToDel, delInodePair.getSecond()));
           } else {
             unsafeInodes.add(delInode.getId());
             // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
             unsafeInodes.add(delInode.getParentId());
             failedUris.add(new Pair<>(alluxioUriToDel.toString(), failureReason));
-||||||| merged common ancestors
-          }
-          if (failureReason == null) {
-            inodesToDelete.add(new Pair<>(alluxioUriToDel, delInode));
-          } else {
-            unsafeInodes.add(delInode.getId());
-            // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
-            unsafeInodes.add(delInode.getParentId());
-            failedUris.add(new Pair<>(alluxioUriToDel.toString(), failureReason));
-=======
-          } catch (InvalidPathException e) {
-            LOG.warn("Failed to delete path from UFS: {}", e.getMessage());
->>>>>>> OPENSOURCE/master
           }
         }
         if (failureReason == null) {
