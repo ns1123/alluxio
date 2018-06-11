@@ -1315,12 +1315,17 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     String ufsFingerprint = Constants.INVALID_UFS_FINGERPRINT;
     if (fileInode.isPersisted()) {
+      UfsStatus ufsStatus = options.getUfsStatus();
       // Retrieve the UFS fingerprint for this file.
       MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
       AlluxioURI resolvedUri = resolution.getUri();
       try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
         UnderFileSystem ufs = ufsResource.get();
-        ufsFingerprint = ufs.getFingerprint(resolvedUri.toString());
+        if (ufsStatus == null) {
+          ufsFingerprint = ufs.getFingerprint(resolvedUri.toString());
+        } else {
+          ufsFingerprint = Fingerprint.create(ufs.getUnderFSType(), ufsStatus).serialize();
+        }
       }
     }
 
@@ -2125,6 +2130,24 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       InodeTree.CreatePathResult createResult =
           mInodeTree.createPath(rpcContext, inodePath, options);
       InodeDirectory inodeDirectory = (InodeDirectory) inodePath.getInode();
+
+      String ufsFingerprint = Constants.INVALID_UFS_FINGERPRINT;
+      if (inodeDirectory.isPersisted()) {
+        UfsStatus ufsStatus = options.getUfsStatus();
+        // Retrieve the UFS fingerprint for this file.
+        MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
+        AlluxioURI resolvedUri = resolution.getUri();
+        try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
+          UnderFileSystem ufs = ufsResource.get();
+          if (ufsStatus == null) {
+            ufsFingerprint = ufs.getFingerprint(resolvedUri.toString());
+          } else {
+            ufsFingerprint = Fingerprint.create(ufs.getUnderFSType(), ufsStatus).serialize();
+          }
+        }
+      }
+      inodeDirectory.setUfsFingerprint(ufsFingerprint);
+
       // If inodeDirectory's ttl not equals Constants.NO_TTL, it should insert into mTtlBuckets
       if (createResult.getCreated().size() > 0) {
         mTtlBuckets.insert(inodeDirectory);
@@ -2801,7 +2824,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     try {
       createFileAndJournal(rpcContext, inodePath, createFileOptions);
-      CompleteFileOptions completeOptions = CompleteFileOptions.defaults().setUfsLength(ufsLength);
+      CompleteFileOptions completeOptions = CompleteFileOptions.defaults().setUfsLength(ufsLength)
+          .setUfsStatus(ufsStatus);
       if (ufsLastModified != null) {
         completeOptions.setOperationTimeMs(ufsLastModified);
       }
@@ -2864,8 +2888,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (resolution.getShared()) {
       mode.setOtherBits(mode.getOtherBits().or(mode.getOwnerBits()));
     }
-    createDirectoryOptions =
-        createDirectoryOptions.setOwner(ufsOwner).setGroup(ufsGroup).setMode(mode);
+    createDirectoryOptions = createDirectoryOptions.setOwner(ufsOwner).setGroup(ufsGroup)
+            .setMode(mode).setUfsStatus(ufsStatus);
     if (lastModifiedTime != null) {
       createDirectoryOptions.setOperationTimeMs(lastModifiedTime);
     }
