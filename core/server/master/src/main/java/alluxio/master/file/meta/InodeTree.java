@@ -1025,12 +1025,9 @@ public class InodeTree implements JournalEntryIterable {
     } else {
       try {
         for (Inode<?> child : ((InodeDirectory) inode).getChildren()) {
-          child.lockWrite();
-          try {
-            LockedInodePath tempInodePath = inodePath.createTempPathForExistingChild(child);
+          try (LockedInodePath tempInodePath =
+                   inodePath.createTempPathForExistingChild(child, LockMode.WRITE)) {
             setReplication(tempInodePath, replicationMax, replicationMin, opTimeMs);
-          } finally {
-            child.unlockWrite();
           }
         }
       } catch (InvalidPathException e) {

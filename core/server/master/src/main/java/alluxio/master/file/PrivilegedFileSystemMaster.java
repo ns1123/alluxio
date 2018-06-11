@@ -173,7 +173,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public void free(AlluxioURI path, FreeOptions options)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException,
-      UnexpectedAlluxioException, UnavailableException {
+      UnexpectedAlluxioException, UnavailableException, IOException{
     try {
       mPrivilegeChecker.check(Privilege.FREE);
     } catch (PermissionDeniedException | UnauthenticatedException e) {
@@ -369,7 +369,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public void resetFile(long fileId)
       throws UnexpectedAlluxioException, FileDoesNotExistException, InvalidPathException,
-      AccessControlException, UnavailableException {
+      AccessControlException, UnavailableException, IOException {
     mFileSystemMaster.resetFile(fileId);
   }
 
