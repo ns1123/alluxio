@@ -1756,28 +1756,20 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               }
             }
           }
-          if (failureReason == null) {
-            // ALLUXIO CS ADD
-            if (delInode.isFile()) {
-              long fileId = delInode.getId();
-              // Remove the file from the set of files to persist.
-              mPersistRequests.remove(fileId);
-              // Cancel any ongoing jobs.
-              PersistJob job = mPersistJobs.get(fileId);
-              if (job != null) {
-                job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
-              }
-            }
-            // ALLUXIO CS END
-            inodesToDelete.add(new Pair<>(alluxioUriToDel, delInodePair.getSecond()));
-          } else {
-            unsafeInodes.add(delInode.getId());
-            // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
-            unsafeInodes.add(delInode.getParentId());
-            failedUris.add(new Pair<>(alluxioUriToDel.toString(), failureReason));
-          }
         }
         if (failureReason == null) {
+          // ALLUXIO CS ADD
+          if (delInode.isFile()) {
+            long fileId = delInode.getId();
+            // Remove the file from the set of files to persist.
+            mPersistRequests.remove(fileId);
+            // Cancel any ongoing jobs.
+            PersistJob job = mPersistJobs.get(fileId);
+            if (job != null) {
+              job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
+            }
+          }
+          // ALLUXIO CS END
           inodesToDelete.add(new Pair<>(alluxioUriToDel, delInodePair.getSecond()));
         } else {
           unsafeInodes.add(delInode.getId());
