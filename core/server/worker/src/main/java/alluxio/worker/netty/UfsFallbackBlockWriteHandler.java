@@ -268,14 +268,15 @@ public final class UfsFallbackBlockWriteHandler
 
       String counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
           WorkerMetrics.TAG_UFS, ufsString);
-      context.setCounter(MetricsSystem.workerCounter(counterName));
-
       String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
           WorkerMetrics.TAG_UFS, ufsString);
       if (user != null) {
+        counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
+            WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
         meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
             WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
       }
+      context.setCounter(MetricsSystem.workerCounter(counterName));
       context.setMeter(MetricsSystem.workerMeter(meterName));
     }
 
