@@ -427,8 +427,8 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   private Map<String, String> getConfigurationInternal(boolean raw) {
-    return new TreeMap<>(Configuration.toMap(
-        ConfigurationValueOptions.defaults().useDisplayValue(true).useRawValue(raw)));
+    return new TreeMap<>(Configuration
+        .toMap(ConfigurationValueOptions.defaults().useDisplayValue(true).useRawValue(raw)));
   }
 
   // ALLUXIO CS ADD

@@ -351,13 +351,13 @@ public final class NetworkAddressUtils {
    *         service.
    */
   public static String getConnectHost(ServiceType service, AlluxioConfiguration conf) {
-    if (conf.containsKey(service.mHostNameKey)) {
+    if (conf.isSet(service.mHostNameKey)) {
       String connectHost = conf.get(service.mHostNameKey);
       if (!connectHost.isEmpty() && !connectHost.equals(WILDCARD_ADDRESS)) {
         return connectHost;
       }
     }
-    if (conf.containsKey(service.mBindHostKey)) {
+    if (conf.isSet(service.mBindHostKey)) {
       String bindHost = conf.get(service.mBindHostKey);
       if (!bindHost.isEmpty() && !bindHost.equals(WILDCARD_ADDRESS)) {
         return bindHost;
@@ -415,7 +415,7 @@ public final class NetworkAddressUtils {
    * @return the bind hostname
    */
   public static String getBindHost(ServiceType service) {
-    if (Configuration.containsKey(service.mBindHostKey) && !Configuration.get(service.mBindHostKey)
+    if (Configuration.isSet(service.mBindHostKey) && !Configuration.get(service.mBindHostKey)
         .isEmpty()) {
       return Configuration.get(service.mBindHostKey);
     } else {
@@ -430,7 +430,7 @@ public final class NetworkAddressUtils {
    * @return the local hostname for the client
    */
   public static String getClientHostName() {
-    if (Configuration.containsKey(PropertyKey.USER_HOSTNAME)) {
+    if (Configuration.isSet(PropertyKey.USER_HOSTNAME)) {
       return Configuration.get(PropertyKey.USER_HOSTNAME);
     }
     return getLocalHostName();
@@ -451,17 +451,17 @@ public final class NetworkAddressUtils {
         break;
       // ALLUXIO CS END
       case CLIENT:
-        if (Configuration.containsKey(PropertyKey.USER_HOSTNAME)) {
+        if (Configuration.isSet(PropertyKey.USER_HOSTNAME)) {
           return Configuration.get(PropertyKey.USER_HOSTNAME);
         }
         break;
       case MASTER:
-        if (Configuration.containsKey(PropertyKey.MASTER_HOSTNAME)) {
+        if (Configuration.isSet(PropertyKey.MASTER_HOSTNAME)) {
           return Configuration.get(PropertyKey.MASTER_HOSTNAME);
         }
         break;
       case WORKER:
-        if (Configuration.containsKey(PropertyKey.WORKER_HOSTNAME)) {
+        if (Configuration.isSet(PropertyKey.WORKER_HOSTNAME)) {
           return Configuration.get(PropertyKey.WORKER_HOSTNAME);
         }
         break;

@@ -11,7 +11,9 @@
 
 package alluxio.worker.netty;
 
+import alluxio.metrics.Metric;
 import alluxio.metrics.MetricsSystem;
+import alluxio.metrics.WorkerMetrics;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.resource.CloseableResource;
@@ -180,13 +182,13 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
       CloseableResource<UnderFileSystem> ufsResource = ufsClient.acquireUfsResource();
       context.setUfsResource(ufsResource);
       UnderFileSystem ufs = ufsResource.get();
-      CreateOptions createOptions =
-          CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
-              .setGroup(createUfsFileOptions.getGroup())
-              .setMode(new Mode((short) createUfsFileOptions.getMode()));
+      CreateOptions createOptions = CreateOptions.defaults()
+          .setOwner(createUfsFileOptions.getOwner()).setGroup(createUfsFileOptions.getGroup())
+          .setMode(new Mode((short) createUfsFileOptions.getMode()));
       context.setOutputStream(ufs.create(request.getUfsPath(), createOptions));
       context.setCreateOptions(createOptions);
       String ufsString = MetricsSystem.escape(ufsClient.getUfsMountPointUri());
+<<<<<<< HEAD
       String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsString);
       // ALLUXIO CS ADD
       if (user != null) {
@@ -194,7 +196,18 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
       }
       // ALLUXIO CS END
       Counter counter = MetricsSystem.workerCounter(metricName);
+||||||| merged common ancestors
+      String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsString);
+      Counter counter = MetricsSystem.workerCounter(metricName);
+=======
+      String counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
+          WorkerMetrics.TAG_UFS, ufsString);
+      Counter counter = MetricsSystem.workerCounter(counterName);
+>>>>>>> os/master
       context.setCounter(counter);
+      String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
+          WorkerMetrics.TAG_UFS, ufsString);
+      context.setMeter(MetricsSystem.workerMeter(meterName));
     }
   }
 }
