@@ -132,7 +132,8 @@ public final class LoadDefinition
   public SerializableVoid runTask(LoadConfig config, ArrayList<LoadTask> tasks,
       JobWorkerContext jobWorkerContext) throws Exception {
     for (LoadTask task : tasks) {
-      JobUtils.loadBlock(FileSystemContext.get(), config.getFilePath(), task.getBlockId());
+      JobUtils
+          .loadBlock(mFileSystem, FileSystemContext.get(), config.getFilePath(), task.getBlockId());
       LOG.info("Loaded block " + task.getBlockId());
     }
     return null;

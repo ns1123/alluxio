@@ -70,8 +70,7 @@ import java.util.Map;
  * Tests {@link ReplicateConfig}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AlluxioBlockStore.class, FileSystemContext.class, FileSystem.Factory.class,
-    JobMasterContext.class})
+@PrepareForTest({AlluxioBlockStore.class, FileSystemContext.class, JobMasterContext.class})
 public final class ReplicateDefinitionTest {
   private static final long TEST_BLOCK_ID = 1L;
   private static final long TEST_BLOCK_SIZE = 512L;
@@ -143,8 +142,6 @@ public final class ReplicateDefinitionTest {
         new FileInfo().setPath(path).setBlockIds(Lists.newArrayList(TEST_BLOCK_ID))
             .setFileBlockInfos(Lists.newArrayList(
                 new FileBlockInfo().setBlockInfo(new BlockInfo().setBlockId(TEST_BLOCK_ID)))));
-    PowerMockito.mockStatic(FileSystem.Factory.class);
-    when(FileSystem.Factory.get()).thenReturn(mMockFileSystem);
     when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
 
     when(mMockBlockStore.getAllWorkers()).thenReturn(blockWorkers);
@@ -160,7 +157,8 @@ public final class ReplicateDefinitionTest {
     when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
 
     ReplicateConfig config = new ReplicateConfig(path, TEST_BLOCK_ID, 1 /* value not used */);
-    ReplicateDefinition definition = new ReplicateDefinition(mMockFileSystemContext);
+    ReplicateDefinition definition =
+        new ReplicateDefinition(mMockFileSystem, mMockFileSystemContext);
     definition.runTask(config, null, new JobWorkerContext(1, 1, mMockUfsManager));
   }
 

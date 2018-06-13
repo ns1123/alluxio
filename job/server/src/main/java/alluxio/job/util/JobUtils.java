@@ -94,11 +94,12 @@ public final class JobUtils {
    * Loads a block into the local worker. If the block doesn't exist in Alluxio, it will be read
    * from the UFS.
    *
+   * @param fs the filesystem
    * @param context filesystem context
    * @param path the file path of the block to load
    * @param blockId the id of the block to load
    */
-  public static void loadBlock(FileSystemContext context, String path, long blockId)
+  public static void loadBlock(FileSystem fs, FileSystemContext context, String path, long blockId)
       throws AlluxioException, IOException {
     AlluxioBlockStore blockStore = AlluxioBlockStore.create(context);
 
@@ -121,7 +122,6 @@ public final class JobUtils {
     // factored out of the core server module. The reason to prefer using file ID for this job is
     // to avoid the the race between "replicate" and "rename", so that even a file to replicate is
     // renamed, the job is still working on the correct file.
-    FileSystem fs = FileSystem.Factory.get();
     URIStatus status = fs.getStatus(new AlluxioURI(path));
 
     InStreamOptions inOptions = new InStreamOptions(status);
