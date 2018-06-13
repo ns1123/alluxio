@@ -10,6 +10,7 @@
 package alluxio.master;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationValueOptions;
 import alluxio.RestUtils;
 import alluxio.RuntimeConstants;
 import alluxio.web.JobMasterWebServer;
@@ -87,7 +88,7 @@ public final class AlluxioJobMasterRestServiceHandler {
 
   private Map<String, String> getConfigurationInternal(boolean raw) {
     if (raw) {
-      return Configuration.toRawMap();
+      return Configuration.toMap(ConfigurationValueOptions.defaults().useRawValue(raw));
     } else {
       return Configuration.toMap();
     }
