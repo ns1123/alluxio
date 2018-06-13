@@ -188,22 +188,15 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
       context.setOutputStream(ufs.create(request.getUfsPath(), createOptions));
       context.setCreateOptions(createOptions);
       String ufsString = MetricsSystem.escape(ufsClient.getUfsMountPointUri());
-<<<<<<< HEAD
-      String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsString);
-      // ALLUXIO CS ADD
-      if (user != null) {
-        metricName = String.format("BytesWrittenUfs-Ufs:%s-User:%s", ufsString, user);
-      }
-      // ALLUXIO CS END
-      Counter counter = MetricsSystem.workerCounter(metricName);
-||||||| merged common ancestors
-      String metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsString);
-      Counter counter = MetricsSystem.workerCounter(metricName);
-=======
       String counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
           WorkerMetrics.TAG_UFS, ufsString);
+      // ALLUXIO CS ADD
+      if (user != null) {
+        counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
+            WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
+      }
+      // ALLUXIO CS END
       Counter counter = MetricsSystem.workerCounter(counterName);
->>>>>>> os/master
       context.setCounter(counter);
       String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
           WorkerMetrics.TAG_UFS, ufsString);
