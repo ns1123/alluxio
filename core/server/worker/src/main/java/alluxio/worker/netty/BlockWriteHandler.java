@@ -15,7 +15,9 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
+import alluxio.metrics.Metric;
 import alluxio.metrics.MetricsSystem;
+import alluxio.metrics.WorkerMetrics;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.underfs.UfsManager;
@@ -169,16 +171,19 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
         context.setBytesReserved(bytesReserved + bytesToReserve);
       }
       if (context.getBlockWriter() == null) {
-        String metricName = "BytesWrittenAlluxio";
+        String metricName = WorkerMetrics.BYTES_WRITTEN_ALLUXIO;
         // ALLUXIO CS ADD
         String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
         if (user != null) {
-          metricName = String.format("BytesWrittenAlluxio-User:%s", user);
+          metricName = Metric
+              .getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_ALLUXIO, WorkerMetrics.TAG_USER,
+                  user);
         }
         // ALLUXIO CS END
         context.setBlockWriter(
             mWorker.getTempBlockWriterRemote(request.getSessionId(), request.getId()));
         context.setCounter(MetricsSystem.workerCounter(metricName));
+        context.setMeter(MetricsSystem.workerMeter(WorkerMetrics.BYTES_WRITTEN_ALLUXIO_THROUGHPUT));
       }
       Preconditions.checkState(context.getBlockWriter() != null);
       int sz = buf.readableBytes();

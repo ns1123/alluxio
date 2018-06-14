@@ -10,6 +10,7 @@
 package alluxio.job.replicate;
 
 import alluxio.client.block.AlluxioBlockStore;
+import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
@@ -43,12 +44,13 @@ public final class ReplicateDefinition
   private static final Logger LOG = LoggerFactory.getLogger(ReplicateDefinition.class);
 
   private final FileSystemContext mFileSystemContext;
+  private final FileSystem mFileSystem;
 
   /**
    * Constructs a new {@link ReplicateDefinition} instance.
    */
   public ReplicateDefinition() {
-    mFileSystemContext = FileSystemContext.get();
+    this(FileSystemContext.get());
   }
 
   /**
@@ -57,6 +59,17 @@ public final class ReplicateDefinition
    * @param fileSystemContext file system context
    */
   public ReplicateDefinition(FileSystemContext fileSystemContext) {
+    this(FileSystem.Factory.get(), fileSystemContext);
+  }
+
+  /**
+   * Constructs a new {@link ReplicateDefinition} instance.
+   *
+   * @param fileSystem file system
+   * @param fileSystemContext file system context
+   */
+  public ReplicateDefinition(FileSystem fileSystem, FileSystemContext fileSystemContext) {
+    mFileSystem = fileSystem;
     mFileSystemContext = fileSystemContext;
   }
 
@@ -104,7 +117,7 @@ public final class ReplicateDefinition
   @Override
   public SerializableVoid runTask(ReplicateConfig config, SerializableVoid arg,
       JobWorkerContext jobWorkerContext) throws Exception {
-    JobUtils.loadBlock(mFileSystemContext, config.getPath(), config.getBlockId());
+    JobUtils.loadBlock(mFileSystem, mFileSystemContext, config.getPath(), config.getBlockId());
     return null;
   }
 }

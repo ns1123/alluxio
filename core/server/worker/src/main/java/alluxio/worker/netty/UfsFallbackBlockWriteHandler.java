@@ -19,7 +19,9 @@ import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.exception.status.NotFoundException;
+import alluxio.metrics.Metric;
 import alluxio.metrics.MetricsSystem;
+import alluxio.metrics.WorkerMetrics;
 import alluxio.netty.NettyAttributes;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
@@ -33,7 +35,6 @@ import alluxio.worker.BlockUtils;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.meta.TempBlockMeta;
 
-import com.codahale.metrics.Counter;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -264,14 +265,19 @@ public final class UfsFallbackBlockWriteHandler
           ufs.create(ufsPath, CreateOptions.defaults().setEnsureAtomic(true).setCreateParent(true));
       context.setOutputStream(ufsOutputStream);
       context.setUfsPath(ufsPath);
-      String metricName;
-      if (user == null) {
-        metricName = String.format("BytesWrittenUfs-Ufs:%s", ufsString);
-      } else {
-        metricName = String.format("BytesWrittenUfs-Ufs:%s-User:%s", ufsString, user);
+
+      String counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
+          WorkerMetrics.TAG_UFS, ufsString);
+      String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
+          WorkerMetrics.TAG_UFS, ufsString);
+      if (user != null) {
+        counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
+            WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
+        meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
+            WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
       }
-      Counter counter = MetricsSystem.workerCounter(metricName);
-      context.setCounter(counter);
+      context.setCounter(MetricsSystem.workerCounter(counterName));
+      context.setMeter(MetricsSystem.workerMeter(meterName));
     }
 
     /**

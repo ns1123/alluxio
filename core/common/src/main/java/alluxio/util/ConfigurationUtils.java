@@ -11,9 +11,14 @@
 
 package alluxio.util;
 
+import static java.util.stream.Collectors.toList;
+
 import alluxio.Configuration;
+import alluxio.ConfigurationValueOptions;
 import alluxio.PropertyKey;
 import alluxio.util.io.PathUtils;
+import alluxio.wire.ConfigProperty;
+import alluxio.wire.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.Nullable;
@@ -43,7 +49,7 @@ public final class ConfigurationUtils {
    */
   public static java.util.List<java.net.InetSocketAddress> getMasterRpcAddresses(
       alluxio.AlluxioConfiguration conf) {
-    if (conf.containsKey(PropertyKey.MASTER_RPC_ADDRESSES)) {
+    if (conf.isSet(PropertyKey.MASTER_RPC_ADDRESSES)) {
       return parseInetSocketAddresses(conf.getList(PropertyKey.MASTER_RPC_ADDRESSES, ","));
     } else {
       int rpcPort = alluxio.util.network.NetworkAddressUtils
@@ -62,12 +68,12 @@ public final class ConfigurationUtils {
       alluxio.AlluxioConfiguration conf) {
     int jobRpcPort = alluxio.util.network.NetworkAddressUtils
         .getPort(alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC);
-    if (conf.containsKey(PropertyKey.JOB_MASTER_RPC_ADDRESSES)) {
+    if (conf.isSet(PropertyKey.JOB_MASTER_RPC_ADDRESSES)) {
       return parseInetSocketAddresses(
           conf.getList(PropertyKey.JOB_MASTER_RPC_ADDRESSES, ","));
-    } else if (conf.containsKey(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES)) {
+    } else if (conf.isSet(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES)) {
       return getRpcAddresses(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES, jobRpcPort, conf);
-    } else if (conf.containsKey(PropertyKey.MASTER_RPC_ADDRESSES)) {
+    } else if (conf.isSet(PropertyKey.MASTER_RPC_ADDRESSES)) {
       return getRpcAddresses(PropertyKey.MASTER_RPC_ADDRESSES, jobRpcPort, conf);
     } else {
       return getRpcAddresses(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, jobRpcPort, conf);
@@ -203,13 +209,31 @@ public final class ConfigurationUtils {
    */
   public static boolean masterHostConfigured() {
     boolean usingZk = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
-        && Configuration.containsKey(PropertyKey.ZOOKEEPER_ADDRESS);
+        && Configuration.isSet(PropertyKey.ZOOKEEPER_ADDRESS);
     // ALLUXIO CS REPLACE
-    // return Configuration.containsKey(PropertyKey.MASTER_HOSTNAME) || usingZk;
+    // return Configuration.isSet(PropertyKey.MASTER_HOSTNAME) || usingZk;
     // ALLUXIO CS WITH
-    return Configuration.containsKey(PropertyKey.MASTER_HOSTNAME) || usingZk
+    return Configuration.isSet(PropertyKey.MASTER_HOSTNAME) || usingZk
         || getMasterRpcAddresses(Configuration.global()).size() > 1;
     // ALLUXIO CS END
+  }
+
+  /**
+   * Gets all global configuration properties filtered by the specified scope.
+   *
+   * @param scope the scope to filter by
+   * @return the properties
+   */
+  public static List<ConfigProperty> getConfiguration(Scope scope) {
+    ConfigurationValueOptions useRawDisplayValue =
+        ConfigurationValueOptions.defaults().useDisplayValue(true).useRawValue(true);
+    return Configuration.keySet().stream()
+        .filter(key -> key.getScope().contains(scope))
+        .map(key -> new ConfigProperty()
+            .setName(key.getName())
+            .setSource(Configuration.getSource(key).toString()).setValue(
+                Configuration.isSet(key) ? Configuration.get(key, useRawDisplayValue) : null))
+        .collect(toList());
   }
 
   /**

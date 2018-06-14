@@ -24,6 +24,7 @@ import alluxio.resource.LockResource;
 import alluxio.util.network.NettyUtils;
 
 import com.codahale.metrics.Counter;
+import com.codahale.metrics.Meter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import io.netty.buffer.ByteBuf;
@@ -166,21 +167,6 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         // context in order to prevent excessive logging on the subsequent arrived asynchronous
         // requests after a previous request fails and triggers the abortion
         validateWriteRequest(writeRequest, msg.getPayloadDataBuffer());
-        // ALLUXIO CS ADD
-
-        // We only check permission for the first packet.
-        if (msg.getMessage().asWriteRequest().getOffset() == 0) {
-          try {
-            checkAccessMode(ctx, mContext.getRequest().getId(), writeRequest.getCapability(),
-                alluxio.security.authorization.Mode.Bits.WRITE);
-          } catch (alluxio.exception.AccessControlException
-              | alluxio.exception.InvalidCapabilityException e) {
-            pushAbortPacket(ctx.channel(),
-                new Error(new alluxio.exception.status.PermissionDeniedException(e), true));
-            return;
-          }
-        }
-        // ALLUXIO CS END
       }
       // ALLUXIO CS ADD
 
@@ -541,7 +527,10 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
    */
   private void incrementMetrics(long bytesWritten) {
     Counter counter = mContext.getCounter();
-    Preconditions.checkState(counter != null);
+    Meter meter = mContext.getMeter();
+    Preconditions.checkState(counter != null, "counter");
+    Preconditions.checkState(meter != null, "meter");
     counter.inc(bytesWritten);
+    meter.mark(bytesWritten);
   }
 }
