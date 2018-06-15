@@ -12,6 +12,7 @@
 package alluxio.master.journal.raft;
 
 import alluxio.Constants;
+import alluxio.ProcessUtils;
 import alluxio.master.journal.JournalEntryStreamReader;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.util.CommonUtils;
@@ -20,6 +21,7 @@ import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.google.common.base.Preconditions;
 import io.atomix.catalyst.concurrent.SingleThreadContext;
 import io.atomix.catalyst.serializer.Serializer;
 import io.atomix.catalyst.transport.Address;
@@ -27,7 +29,10 @@ import io.atomix.catalyst.transport.netty.NettyTransport;
 import io.atomix.copycat.Command;
 import io.atomix.copycat.protocol.ClientRequestTypeResolver;
 import io.atomix.copycat.protocol.ClientResponseTypeResolver;
+import io.atomix.copycat.server.Commit;
 import io.atomix.copycat.server.CopycatServer;
+import io.atomix.copycat.server.Snapshottable;
+import io.atomix.copycat.server.StateMachine;
 import io.atomix.copycat.server.cluster.Member.Type;
 import io.atomix.copycat.server.storage.Log;
 import io.atomix.copycat.server.storage.Storage;
@@ -214,20 +219,57 @@ public final class RaftJournalTool {
     }
   }
 
-  private static class EchoJournalStateMachine extends AbstractRaftStateMachine {
+  private static class EchoJournalStateMachine extends StateMachine implements Snapshottable {
     private final AtomicLong mLastUpdate;
 
     public EchoJournalStateMachine(AtomicLong lastUpdate) {
       mLastUpdate = lastUpdate;
     }
 
-    @Override
-    protected void resetState() {
-      // No-op.
+    /**
+     * Applies a journal entry commit to the state machine.
+     *
+     * This method is automatically discovered by the Copycat framework.
+     *
+     * @param commit the commit
+     */
+    public void applyJournalEntryCommand(Commit<JournalEntryCommand> commit) {
+      JournalEntry entry;
+      try {
+        entry = JournalEntry.parseFrom(commit.command().getSerializedJournalEntry());
+      } catch (Throwable t) {
+        ProcessUtils.fatalError(LOG, t, "Encountered invalid journal entry in commit: {}.", commit);
+        throw new IllegalStateException();
+      }
+      applyEntry(entry);
     }
 
-    @Override
-    public void applyJournalEntry(JournalEntry entry) {
+    /**
+     * Applies the journal entry, handling empty entries and multi-entries.
+     *
+     * @param entry the entry to apply
+     */
+    private void applyEntry(JournalEntry entry) {
+      Preconditions.checkState(
+          entry.getAllFields().size() <= 1
+              || (entry.getAllFields().size() == 2 && entry.hasSequenceNumber()),
+          "Raft journal entries should never set multiple fields in addition to sequence "
+              + "number, but found %s",
+          entry);
+      if (entry.getJournalEntriesCount() > 0) {
+        // This entry aggregates multiple entries.
+        for (JournalEntry e : entry.getJournalEntriesList()) {
+          applyEntry(e);
+        }
+      } else if (entry.toBuilder().clearSequenceNumber().build()
+          .equals(JournalEntry.getDefaultInstance())) {
+        // Ignore empty entries, they are created during snapshotting.
+      } else {
+        printEntry(entry);
+      }
+    }
+
+    private void printEntry(JournalEntry entry) {
       mLastUpdate.set(System.currentTimeMillis());
       System.out.println(entry);
     }
@@ -239,7 +281,6 @@ public final class RaftJournalTool {
 
     @Override
     public void install(SnapshotReader snapshotReader) {
-      resetState();
       JournalEntryStreamReader reader =
           new JournalEntryStreamReader(new SnapshotReaderStream(snapshotReader));
 
@@ -251,9 +292,8 @@ public final class RaftJournalTool {
           LOG.error("Failed to install snapshot", e);
           throw new RuntimeException(e);
         }
-        applyJournalEntry(entry);
+        printEntry(entry);
       }
-      LOG.info("Successfully installed snapshot");
     }
   }
 }

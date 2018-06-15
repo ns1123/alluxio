@@ -11,6 +11,7 @@
 
 package alluxio.master.journal.raft;
 
+import alluxio.ProcessUtils;
 import alluxio.master.journal.JournalEntryAssociation;
 import alluxio.master.journal.JournalEntryStateMachine;
 import alluxio.master.journal.JournalEntryStreamReader;
@@ -18,6 +19,9 @@ import alluxio.proto.journal.Journal.JournalEntry;
 
 import com.google.common.base.Preconditions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.atomix.copycat.server.Commit;
+import io.atomix.copycat.server.Snapshottable;
+import io.atomix.copycat.server.StateMachine;
 import io.atomix.copycat.server.storage.snapshot.SnapshotReader;
 import io.atomix.copycat.server.storage.snapshot.SnapshotWriter;
 import net.jcip.annotations.ThreadSafe;
@@ -27,8 +31,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -47,15 +53,28 @@ import javax.annotation.concurrent.GuardedBy;
  * number as applying all of the individual entries represented by the snapshot.
  */
 @ThreadSafe
-public class JournalStateMachine extends AbstractRaftStateMachine {
+public class JournalStateMachine extends StateMachine implements Snapshottable {
   private static final Logger LOG = LoggerFactory.getLogger(RaftJournalSystem.class);
 
+  /**
+   * Tracks which commits are currently "live" for this state machine. We consider all commits live
+   * until a snapshot is taken or restored at or beyond their log index.
+   *
+   * Although the Copycat documentation says otherwise for Snapshottable state machines, it is not
+   * correct to release snapshottable entries as soon as they are applied. The problem is that
+   * Copycat's RegisterEntry entries may be compacted out of the log once all of the entries written
+   * in their session have been released and their session closed. Once the RegisterEntry is
+   * compacted, Copycat will ignore all of our entries for the session because it will not recognize
+   * the session for our commands. We've seen this happen with Copycat trace-level logging.
+   */
+  private final Set<Commit<JournalEntryCommand>> mLiveCommits = new HashSet<>();
   private final Map<String, RaftJournal> mJournals;
   @GuardedBy("this")
   private boolean mIgnoreApplys;
   @GuardedBy("this")
   private boolean mClosed;
 
+  private volatile long mLastAppliedCommitIndex = -1;
   private volatile long mNextSequenceNumberToRead;
   private volatile long mLastModified;
   private volatile boolean mSnapshotting;
@@ -75,24 +94,60 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
     LOG.info("Initialized new journal state machine");
   }
 
-  @Override
-  protected synchronized void resetState() {
-    if (mClosed) {
-      return;
+  /**
+   * Applies a journal entry commit to the state machine.
+   *
+   * This method is automatically discovered by the Copycat framework.
+   *
+   * @param commit the commit
+   */
+  public synchronized void applyJournalEntryCommand(Commit<JournalEntryCommand> commit) {
+    mLiveCommits.add(commit);
+    JournalEntry entry;
+    try {
+      entry = JournalEntry.parseFrom(commit.command().getSerializedJournalEntry());
+    } catch (Exception e) {
+      ProcessUtils.fatalError(LOG, e,
+          "Encountered invalid journal entry in commit: {}.", commit);
+      System.exit(-1);
+      throw new IllegalStateException(e); // We should never reach here.
     }
-    if (mIgnoreApplys) {
-      LOG.warn("Unexpected call to resetState() on a read-only journal state machine");
-      return;
+    try {
+      applyEntry(entry);
+    } finally {
+      Preconditions.checkState(commit.index() > mLastAppliedCommitIndex);
+      mLastAppliedCommitIndex = commit.index();
     }
-    for (RaftJournal journal : mJournals.values()) {
-      journal.getStateMachine().resetState();
+  }
+
+  /**
+   * Applies the journal entry, ignoring empty entries and expanding multi-entries.
+   *
+   * @param entry the entry to apply
+   */
+  private void applyEntry(JournalEntry entry) {
+    Preconditions.checkState(
+        entry.getAllFields().size() <= 1
+            || (entry.getAllFields().size() == 2 && entry.hasSequenceNumber()),
+        "Raft journal entries should never set multiple fields in addition to sequence "
+            + "number, but found %s",
+        entry);
+    if (entry.getJournalEntriesCount() > 0) {
+      // This entry aggregates multiple entries.
+      for (JournalEntry e : entry.getJournalEntriesList()) {
+        applyEntry(e);
+      }
+    } else if (entry.toBuilder().clearSequenceNumber().build()
+        .equals(JournalEntry.getDefaultInstance())) {
+      // Ignore empty entries, they are created during snapshotting.
+    } else {
+      applySingleEntry(entry);
     }
   }
 
   @SuppressFBWarnings(value = "VO_VOLATILE_INCREMENT",
       justification = "All writes to mNextSequenceNumberToRead are synchronized")
-  @Override
-  protected synchronized void applyJournalEntry(JournalEntry entry) {
+  private synchronized void applySingleEntry(JournalEntry entry) {
     if (mClosed) {
       return;
     }
@@ -103,36 +158,34 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
       return;
     }
     if (newSN > mNextSequenceNumberToRead) {
-      LOG.error(
-          "Fatal error: unexpected journal entry. The next expected SN is {}, but"
+      ProcessUtils.fatalError(LOG,
+          "Unexpected journal entry. The next expected SN is {}, but"
               + " encountered an entry with SN {}. Full journal entry: {}",
           mNextSequenceNumberToRead, newSN, entry);
-      System.exit(-1);
     }
 
     mNextSequenceNumberToRead++;
     if (!mIgnoreApplys) {
-      apply(entry);
+      applyToMaster(entry);
     }
   }
 
-  private synchronized void apply(JournalEntry entry) {
+  private synchronized void applyToMaster(JournalEntry entry) {
     mLastModified = System.currentTimeMillis();
     String masterName;
     try {
       masterName = JournalEntryAssociation.getMasterForEntry(entry);
     } catch (Throwable t) {
-      LOG.error("Fatal error: unrecognized journal entry: {}", entry, t);
-      System.exit(-1);
-      throw new IllegalStateException(); // Proving to the compiler that control flow stops here.
+      ProcessUtils.fatalError(LOG, t, "Unrecognized journal entry: {}", entry);
+      throw new IllegalStateException();
     }
     try {
       JournalEntryStateMachine master = mJournals.get(masterName).getStateMachine();
       LOG.trace("Applying entry to master {}: {} ", masterName, entry);
       master.processJournalEntry(entry);
     } catch (Throwable t) {
-      LOG.error("Fatal error: failed to apply journal entry to master {}. Entry: {}", masterName, entry, t);
-      System.exit(-1);
+      ProcessUtils.fatalError(LOG, t, "Failed to apply journal entry to master {}. Entry: {}",
+          masterName, entry);
     }
   }
 
@@ -168,23 +221,19 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
               }
             });
           } catch (IOException e) {
-            LOG.error(
-                "Fatal error: failed to take snapshot for master {}. Failed to write entry {}",
-                journal.getStateMachine().getName(), entry, e);
-            System.exit(-1);
-            // Prove to the compiler that this branch never returns.
-            throw new IllegalStateException();
+            ProcessUtils.fatalError(LOG, e,
+                "Failed to take snapshot for master {}. Failed to write entry {}",
+                journal.getStateMachine().getName(), entry);
           }
         }
       }
-      LOG.info("completed snapshot up to SN {} in {}ms", snapshotSN,
+      LOG.info("Completed snapshot up to SN {} in {}ms", snapshotSN,
           System.currentTimeMillis() - start);
     } catch (Throwable t) {
-      LOG.error("Failed to snapshot", t);
-      throw t;
-    } finally {
-      mSnapshotting = false;
+      ProcessUtils.fatalError(LOG, t, "Failed to snapshot");
     }
+    mSnapshotting = false;
+    clearCommits();
   }
 
   @Override
@@ -205,11 +254,9 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
       try {
         entry = reader.readEntry();
       } catch (IOException e) {
-        LOG.error("Fatal error: failed to install snapshot", e);
-        System.exit(-1);
-        throw new IllegalStateException(e); // We should never reach here.
+        ProcessUtils.fatalError(LOG, e, "Failed to install snapshot");
       }
-      apply(entry);
+      applyToMaster(entry);
     }
     long snapshotSN = entry != null ? entry.getSequenceNumber() : -1;
     if (snapshotSN < mNextSequenceNumberToRead - 1) {
@@ -217,7 +264,32 @@ public class JournalStateMachine extends AbstractRaftStateMachine {
           mNextSequenceNumberToRead);
     }
     mNextSequenceNumberToRead = snapshotSN + 1;
+    clearCommits();
     LOG.info("Successfully installed snapshot up to SN {}", snapshotSN);
+  }
+
+  private synchronized void resetState() {
+    if (mClosed) {
+      return;
+    }
+    if (mIgnoreApplys) {
+      LOG.warn("Unexpected call to resetState() on a read-only journal state machine");
+      return;
+    }
+    for (RaftJournal journal : mJournals.values()) {
+      journal.getStateMachine().resetState();
+    }
+  }
+
+  private synchronized void clearCommits() {
+    for (Commit<?> commit : mLiveCommits) {
+      try {
+        commit.release();
+      } catch (Throwable t) {
+        LOG.error("Failed to release commit {}", commit, t);
+      }
+    }
+    mLiveCommits.clear();
   }
 
   /**
