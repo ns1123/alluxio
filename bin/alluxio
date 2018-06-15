@@ -181,13 +181,36 @@ function runJavaClass {
       case "${arg}" in
           -debug)
               ALLUXIO_USER_JAVA_OPTS+=" ${ALLUXIO_USER_DEBUG_JAVA_OPTS}" ;;
-          -D* | -X*)
+          -D* | -X* | -agentlib*)
               ALLUXIO_SHELL_JAVA_OPTS+=" ${arg}" ;;
           *)
               CLASS_ARGS+=("${arg}")
       esac
   done
   "${JAVA}" -cp ${CLASSPATH} ${ALLUXIO_USER_JAVA_OPTS} ${ALLUXIO_SHELL_JAVA_OPTS} ${CLASS} ${PARAMETER} "${CLASS_ARGS[@]}"
+}
+
+function formatJournal {
+  echo "Formatting Alluxio Master @ $(hostname -f)"
+  CLASS="alluxio.cli.Format"
+  CLASSPATH=${ALLUXIO_SERVER_CLASSPATH}
+  PARAMETER="master"
+  ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
+  runJavaClass "$@"
+}
+
+function formatMasters {
+  # ALLUXIO CS REPLACE
+  # formatJournal "$@"
+  # ALLUXIO CS WITH
+  JOURNAL_TYPE=$(${BIN}/alluxio getConf ${ALLUXIO_MASTER_JAVA_OPTS} \
+                       alluxio.master.journal.type | awk '{print toupper($0)}')
+  if [[ ${JOURNAL_TYPE} == "EMBEDDED" ]]; then
+    ${LAUNCHER} ${BIN}/alluxio-masters.sh ${BIN}/alluxio formatJournal
+  else
+    formatJournal
+  fi
+  # ALLUXIO CS END
 }
 
 function main {
@@ -251,12 +274,7 @@ function main {
 
     ${LAUNCHER} ${BIN}/alluxio-workers.sh ${BIN}/alluxio formatWorker
 
-    echo "Formatting Alluxio Master @ $(hostname -f)"
-    CLASS="alluxio.cli.Format"
-    CLASSPATH=${ALLUXIO_SERVER_CLASSPATH}
-    PARAMETER="master"
-    ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
-    runJavaClass "$@"
+    formatMasters
   ;;
   "formatWorker")
     echo "Formatting Alluxio Worker @ $(hostname -f)"
@@ -266,13 +284,15 @@ function main {
     ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
     runJavaClass "$@"
   ;;
+  "formatJournal")
+    formatJournal
+  ;;
   "formatMaster")
-    echo "Formatting Alluxio Master @ $(hostname -f)"
-    CLASS="alluxio.cli.Format"
-    CLASSPATH=${ALLUXIO_SERVER_CLASSPATH}
-    PARAMETER="master"
-    ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
-    runJavaClass "$@"
+    echo "formatMaster is deprecated - use formatMasters instead"
+    formatJournal
+  ;;
+  "formatMasters")
+    formatMasters
   ;;
   "fs")
     CLASS="alluxio.cli.fs.FileSystemShell"

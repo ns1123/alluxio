@@ -41,7 +41,7 @@ ZOOKEEPER_ENABLED=$(${BIN}/alluxio getConf alluxio.zookeeper.enabled)
 JOURNAL_TYPE=$(${BIN}/alluxio getConf ${ALLUXIO_MASTER_JAVA_OPTS} \
                      alluxio.master.journal.type | awk '{print toupper($0)}')
 if [[ ${JOURNAL_TYPE} == "EMBEDDED" ]]; then
-    ZOOKEEPER_ENABLED="true"
+  ZOOKEEPER_ENABLED="true"
 fi
 # ALLUXIO CS END
 for master in $(echo ${HOSTLIST}); do
