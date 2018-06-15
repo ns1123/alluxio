@@ -604,7 +604,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
      * @param blockWorker the block worker handle
      */
     public static void registerGauges(final BlockWorker blockWorker) {
-      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getWorkerMetricName(CAPACITY_TOTAL),
+      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMetricName(CAPACITY_TOTAL),
           new Gauge<Long>() {
             @Override
             public Long getValue() {
@@ -612,7 +612,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
             }
           });
 
-      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getWorkerMetricName(CAPACITY_USED),
+      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMetricName(CAPACITY_USED),
           new Gauge<Long>() {
             @Override
             public Long getValue() {
@@ -620,7 +620,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
             }
           });
 
-      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getWorkerMetricName(CAPACITY_FREE),
+      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMetricName(CAPACITY_FREE),
           new Gauge<Long>() {
             @Override
             public Long getValue() {
@@ -633,7 +633,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
       for (int i = 0; i < assoc.size(); i++) {
         String tier = assoc.getAlias(i);
         MetricsSystem.registerGaugeIfAbsent(
-            MetricsSystem.getWorkerMetricName(CAPACITY_TOTAL + TIER + tier), new Gauge<Long>() {
+            MetricsSystem.getMetricName(CAPACITY_TOTAL + TIER + tier), new Gauge<Long>() {
               @Override
               public Long getValue() {
                 return blockWorker.getStoreMeta().getCapacityBytesOnTiers().getOrDefault(tier, 0L);
@@ -641,7 +641,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
             });
 
         MetricsSystem.registerGaugeIfAbsent(
-            MetricsSystem.getWorkerMetricName(CAPACITY_USED + TIER + tier), new Gauge<Long>() {
+            MetricsSystem.getMetricName(CAPACITY_USED + TIER + tier), new Gauge<Long>() {
               @Override
               public Long getValue() {
                 return blockWorker.getStoreMeta().getUsedBytesOnTiers().getOrDefault(tier, 0L);
@@ -649,7 +649,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
             });
 
         MetricsSystem.registerGaugeIfAbsent(
-            MetricsSystem.getWorkerMetricName(CAPACITY_FREE + TIER + tier), new Gauge<Long>() {
+            MetricsSystem.getMetricName(CAPACITY_FREE + TIER + tier), new Gauge<Long>() {
               @Override
               public Long getValue() {
                 return blockWorker.getStoreMeta().getCapacityBytesOnTiers().getOrDefault(tier, 0L)
@@ -658,7 +658,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
             });
       }
 
-      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getWorkerMetricName(BLOCKS_CACHED),
+      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMetricName(BLOCKS_CACHED),
           new Gauge<Integer>() {
             @Override
             public Integer getValue() {

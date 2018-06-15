@@ -19,6 +19,7 @@ import alluxio.master.journal.JournalSystem;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.metrics.sink.PrometheusMetricsServlet;
+import alluxio.network.thrift.BootstrapServerTransport;
 import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
@@ -390,7 +391,8 @@ public class AlluxioMasterProcess implements MasterProcess {
     TTransportFactory transportFactory;
     try {
       String serverName = NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC);
-      transportFactory = mTransportProvider.getServerTransportFactory(serverName);
+      transportFactory = new BootstrapServerTransport.Factory(
+          mTransportProvider.getServerTransportFactory(serverName));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

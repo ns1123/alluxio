@@ -20,6 +20,7 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.metrics.sink.PrometheusMetricsServlet;
 import alluxio.network.ChannelType;
+import alluxio.network.thrift.BootstrapServerTransport;
 import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UfsManager;
@@ -359,12 +360,19 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     }
 
     // Return a TTransportFactory based on the authentication type
+<<<<<<< HEAD
     TTransportFactory tTransportFactory;
     // ALLUXIO CS ADD
     final boolean isCapabilityEnabled =
         Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
     // ALLUXIO CS END
+||||||| merged common ancestors
+    TTransportFactory tTransportFactory;
+=======
+    TTransportFactory transportFactory;
+>>>>>>> 513878ec95d202cb8b9b68e30ccb60eb7c8f5f01
     try {
+<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
       // tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
@@ -389,12 +397,20 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
         tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
       }
       // ALLUXIO CS END
+||||||| merged common ancestors
+      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
+      tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
+=======
+      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
+      transportFactory = new BootstrapServerTransport.Factory(mTransportProvider
+          .getServerTransportFactory(serverName));
+>>>>>>> 513878ec95d202cb8b9b68e30ccb60eb7c8f5f01
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
     TThreadPoolServer.Args args = new TThreadPoolServer.Args(mThriftServerSocket)
         .minWorkerThreads(minWorkerThreads).maxWorkerThreads(maxWorkerThreads).processor(processor)
-        .transportFactory(tTransportFactory)
+        .transportFactory(transportFactory)
         .protocolFactory(new TBinaryProtocol.Factory(true, true));
     // ALLUXIO CS ADD
     args.executorService(

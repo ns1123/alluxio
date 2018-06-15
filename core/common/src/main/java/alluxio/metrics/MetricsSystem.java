@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.metrics.sink.Sink;
+import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 
 import com.codahale.metrics.Counter;
@@ -59,7 +60,8 @@ public final class MetricsSystem {
     // ALLUXIO CS END
     MASTER("master"),
     WORKER("worker"),
-    CLIENT("client");
+    CLIENT("client"),
+    PROXY("proxy");
 
     private String mValue;
 
@@ -187,12 +189,33 @@ public final class MetricsSystem {
   }
 
   /**
+   * Converts a simple string to a qualified metric name based on the process type.
+   *
+   * @param name the name of the metric
+   * @return the metric with instance and id tags
+   */
+  public static String getMetricName(String name) {
+    switch (CommonUtils.PROCESS_TYPE.get()) {
+      case CLIENT:
+        return getClientMetricName(name);
+      case MASTER:
+        return getMasterMetricName(name);
+      case PROXY:
+        return getProxyMetricName(name);
+      case WORKER:
+        return getWorkerMetricName(name);
+      default:
+        throw new IllegalStateException("Unknown process type");
+    }
+  }
+
+  /**
    * Builds metric registry names for master instance. The pattern is instance.metricName.
    *
    * @param name the metric name
    * @return the metric registry name
    */
-  public static String getMasterMetricName(String name) {
+  private static String getMasterMetricName(String name) {
     return Joiner.on(".").join(MetricsSystem.InstanceType.MASTER, name);
   }
 
@@ -202,7 +225,7 @@ public final class MetricsSystem {
    * @param name the metric name
    * @return the metric registry name
    */
-  public static String getWorkerMetricName(String name) {
+  private static String getWorkerMetricName(String name) {
     return getMetricNameWithUniqueId(InstanceType.WORKER, name);
   }
 
@@ -212,8 +235,18 @@ public final class MetricsSystem {
    * @param name the metric name
    * @return the metric registry name
    */
-  public static String getClientMetricName(String name) {
+  private static String getClientMetricName(String name) {
     return getMetricNameWithUniqueId(InstanceType.CLIENT, name);
+  }
+
+  /**
+   * Builds metric registry name for a proxy instance. The pattern is instance.uniqueId.metricName.
+   *
+   * @param name the metric name
+   * @return the metric registry name
+   */
+  private static String getProxyMetricName(String name) {
+    return getMetricNameWithUniqueId(InstanceType.PROXY, name);
   }
 
   /**
@@ -247,7 +280,7 @@ public final class MetricsSystem {
    * @param name the metric name
    * @return the metric registry name
    */
-  public static String getMetricNameWithUniqueId(InstanceType instance, String name) {
+  private static String getMetricNameWithUniqueId(InstanceType instance, String name) {
     return Joiner.on(".").join(instance, NetworkAddressUtils.getLocalHostName().replace('.', '_'),
         name);
   }
@@ -298,59 +331,19 @@ public final class MetricsSystem {
   // Some helper functions.
 
   /**
-   * @param name the metric name
-   * @return the timer
+   * @param name the name of the metric
+   * @return a counter object with the qualified metric name
    */
-  public static Timer masterTimer(String name) {
-    return METRIC_REGISTRY.timer(getMasterMetricName(name));
+  public static Counter counter(String name) {
+    return METRIC_REGISTRY.counter(getMetricName(name));
   }
 
   /**
-   * @param name the metric name
-   * @return the counter
+   * @param name the name of the metric
+   * @return a meter object with the qualified metric name
    */
-  public static Counter masterCounter(String name) {
-    return METRIC_REGISTRY.counter((getMasterMetricName(name)));
-  }
-
-  /**
-   * @param name the metric name
-   * @return the timer
-   */
-  public static Timer workerTimer(String name) {
-    return METRIC_REGISTRY.timer(getWorkerMetricName(name));
-  }
-
-  /**
-   * @param name the meter name
-   * @return the meter
-   */
-  public static Meter workerMeter(String name) {
-    return METRIC_REGISTRY.meter(getWorkerMetricName(name));
-  }
-
-  /**
-   * @param name the metric name
-   * @return the counter
-   */
-  public static Counter workerCounter(String name) {
-    return METRIC_REGISTRY.counter((getWorkerMetricName(name)));
-  }
-
-  /**
-   * @param name the metric name
-   * @return the timer
-   */
-  public static Timer clientTimer(String name) {
-    return METRIC_REGISTRY.timer(getClientMetricName(name));
-  }
-
-  /**
-   * @param name the metric name
-   * @return the counter
-   */
-  public static Counter clientCounter(String name) {
-    return METRIC_REGISTRY.counter(getClientMetricName(name));
+  public static Meter meter(String name) {
+    return METRIC_REGISTRY.meter(getMetricName(name));
   }
   // ALLUXIO CS ADD
 
@@ -364,11 +357,11 @@ public final class MetricsSystem {
   // ALLUXIO CS END
 
   /**
-   * @param name the meter name
-   * @return the meter
+   * @param name the name of the metric
+   * @return a timer object with the qualified metric name
    */
-  public static Meter clientMeter(String name) {
-    return METRIC_REGISTRY.meter(getClientMetricName(name));
+  public static Timer timer(String name) {
+    return METRIC_REGISTRY.timer(getMetricName(name));
   }
 
   /**

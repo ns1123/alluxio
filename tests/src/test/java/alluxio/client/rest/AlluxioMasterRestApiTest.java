@@ -130,8 +130,8 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
 
   @Test
   public void getMetrics() throws Exception {
-    assertEquals(Long.valueOf(0), getInfo(NO_PARAMS).getMetrics()
-        .get("master.CompleteFileOps"));
+    assertEquals(Long.valueOf(0),
+        getInfo(NO_PARAMS).getMetrics().get(MetricsSystem.getMetricName("CompleteFileOps")));
   }
 
   @Test

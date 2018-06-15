@@ -110,14 +110,31 @@ public final class Configuration {
    * @param value the value for the key
    */
   public static void set(PropertyKey key, Object value) {
+    set(key, String.valueOf(value), Source.RUNTIME);
+  }
+
+  /**
+   * Sets the value for the appropriate key in the {@link Properties} by source.
+   *
+   * @param key the key to set
+   * @param value the value for the key
+   * @param source the source of the the properties (e.g., system property, default and etc)
+   */
+  public static void set(PropertyKey key, Object value, Source source) {
     Preconditions.checkArgument(key != null && value != null,
         String.format("the key value pair (%s, %s) cannot have null", key, value));
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     Preconditions.checkArgument(
         getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
     PROPERTIES.put(key, String.valueOf(value), Source.RUNTIME);
+||||||| merged common ancestors
+    PROPERTIES.put(key, String.valueOf(value), Source.RUNTIME);
+=======
+    PROPERTIES.put(key, String.valueOf(value), source);
+>>>>>>> 513878ec95d202cb8b9b68e30ccb60eb7c8f5f01
   }
 
   /**

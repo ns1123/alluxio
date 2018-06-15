@@ -160,9 +160,11 @@ class ShortCircuitBlockWriteHandler extends ChannelInboundHandlerAdapter {
           @Override
           public String toString() {
             if (request.getOnlyReserveSpace()) {
-              return String.format("Session %d: reserve space: %s", mSessionId, request.toString());
+              return String.format("ReserveSpace: Session=%d, Request=%s", mSessionId,
+                  request.toString());
             } else {
-              return String.format("Session %d: create block: %s", mSessionId, request.toString());
+              return String.format("CreateBlock: Session=%d, Request=%s", mSessionId,
+                  request.toString());
             }
           }
         });
@@ -210,9 +212,11 @@ class ShortCircuitBlockWriteHandler extends ChannelInboundHandlerAdapter {
           @Override
           public String toString() {
             if (request.getCancel()) {
-              return String.format("Session %d: abort block: %s", mSessionId, request.toString());
+              return String.format("AbortBlock: Session=%d, Request=%s", mSessionId,
+                  request.toString());
             } else {
-              return String.format("Session %d: commit block: %s", mSessionId, request.toString());
+              return String.format("CommitBlock: Session=%d, Request=%s", mSessionId,
+                  request.toString());
             }
           }
         });

@@ -175,9 +175,9 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
             }
             // ALLUXIO CS END
             context.setBlockReader(reader);
-            context.setCounter(MetricsSystem.workerCounter(counterName));
+            context.setCounter(MetricsSystem.counter(counterName));
             String meterName = WorkerMetrics.BYTES_READ_ALLUXIO_THROUGHPUT;
-            context.setMeter(MetricsSystem.workerMeter(meterName));
+            context.setMeter(MetricsSystem.meter(meterName));
             mWorker.accessBlock(request.getSessionId(), request.getId());
             ((FileChannel) reader.getChannel()).position(request.getStart());
             return;
@@ -211,10 +211,10 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
             }
             // ALLUXIO CS END
             context.setBlockReader(reader);
-            context.setCounter(MetricsSystem.workerCounter(counterName));
+            context.setCounter(MetricsSystem.counter(counterName));
             String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_READ_UFS_THROUGHPUT,
                 WorkerMetrics.TAG_UFS, ufsString);
-            context.setMeter(MetricsSystem.workerMeter(meterName));
+            context.setMeter(MetricsSystem.meter(meterName));
             return;
           } catch (Exception e) {
             // TODO(binfan): remove the closeUfsBlock here as the exception will be handled in
