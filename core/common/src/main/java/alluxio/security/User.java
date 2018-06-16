@@ -77,6 +77,7 @@ public final class User implements Principal {
   /**
    * @return the subject
    */
+  @javax.annotation.Nullable
   public javax.security.auth.Subject getSubject() {
     return mSubject;
   }

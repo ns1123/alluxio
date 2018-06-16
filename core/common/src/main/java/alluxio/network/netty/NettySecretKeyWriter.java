@@ -98,9 +98,9 @@ public final class NettySecretKeyWriter {
   @ThreadSafe
   private static final class Metrics {
     private static final Counter NETTY_SECRET_KEY_WRITE_OPS =
-        MetricsSystem.clientCounter("NettySecretKeyWriteOps");
+        MetricsSystem.counter("NettySecretKeyWriteOps");
     private static final Counter NETTY_SECRET_KEY_WRITE_FAILURES =
-        MetricsSystem.clientCounter("NettySecretKeyWriteFailures");
+        MetricsSystem.counter("NettySecretKeyWriteFailures");
 
     private Metrics() {} // prevent instantiation
   }

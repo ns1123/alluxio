@@ -261,6 +261,9 @@ public final class LoginUser {
   public static synchronized void relogin() throws UnauthenticatedException {
     AuthType authType =
         Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+    if (sLoginUser == null) {
+      return;
+    }
     Subject subject = sLoginUser.getSubject();
     // Relogin is required only for Kerberos authentication due to ticket expiration.
     // When authType is SIMPLE, it's not needed.

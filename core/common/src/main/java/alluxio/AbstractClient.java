@@ -299,6 +299,10 @@ public abstract class AbstractClient implements Client {
       try {
         doConnect();
         return;
+      // ALLUXIO CS ADD
+      } catch (alluxio.exception.status.UnauthenticatedException e) {
+        throw e;
+      // ALLUXIO CS END
       } catch (IOException | TTransportException e) {
         LOG.warn("Failed to connect ({}) with {} @ {}: {}", retryPolicy.getAttemptCount(),
             getServiceName(), mAddress, e.getMessage());

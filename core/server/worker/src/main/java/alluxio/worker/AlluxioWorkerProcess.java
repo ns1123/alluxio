@@ -360,25 +360,19 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     }
 
     // Return a TTransportFactory based on the authentication type
-<<<<<<< HEAD
-    TTransportFactory tTransportFactory;
+    TTransportFactory transportFactory;
     // ALLUXIO CS ADD
     final boolean isCapabilityEnabled =
         Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    TTransportFactory tTransportFactory;
-=======
-    TTransportFactory transportFactory;
->>>>>>> 513878ec95d202cb8b9b68e30ccb60eb7c8f5f01
     try {
-<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-      // tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
+      // transportFactory = new BootstrapServerTransport.Factory(mTransportProvider
+      //     .getServerTransportFactory(serverName));
       // ALLUXIO CS WITH
       if (isCapabilityEnabled) {
-        tTransportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
+        transportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
           @Override
           public void run() {
             String user;
@@ -394,17 +388,10 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
         }, NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC));
       } else {
         String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-        tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
+        transportFactory = new BootstrapServerTransport.Factory(mTransportProvider
+            .getServerTransportFactory(serverName));
       }
       // ALLUXIO CS END
-||||||| merged common ancestors
-      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-      tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
-=======
-      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-      transportFactory = new BootstrapServerTransport.Factory(mTransportProvider
-          .getServerTransportFactory(serverName));
->>>>>>> 513878ec95d202cb8b9b68e30ccb60eb7c8f5f01
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
