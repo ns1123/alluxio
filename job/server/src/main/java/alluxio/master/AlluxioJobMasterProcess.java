@@ -26,11 +26,11 @@ import alluxio.thrift.JobMasterClientService;
 import alluxio.underfs.JobUfsManager;
 import alluxio.underfs.UfsManager;
 import alluxio.util.CommonUtils;
+import alluxio.util.WaitForOptions;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.web.JobMasterWebServer;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.apache.thrift.TMultiplexedProcessor;
@@ -180,14 +180,11 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   }
 
   @Override
-  public void waitForReady() {
-    CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        return mMasterServiceServer != null && mMasterServiceServer.isServing()
-            && mWebServer != null && mWebServer.getServer().isRunning();
-      }
-    });
+  public boolean waitForReady(int timeoutMs) {
+    return CommonUtils.waitFor(this + " to start",
+        input -> mMasterServiceServer != null && mMasterServiceServer.isServing()
+            && mWebServer != null && mWebServer.getServer().isRunning(),
+        WaitForOptions.defaults().setTimeoutMs(timeoutMs).setThrowOnTimeout(false));
   }
 
   /**

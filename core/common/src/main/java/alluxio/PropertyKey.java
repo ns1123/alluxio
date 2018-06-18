@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.sun.management.OperatingSystemMXBean;
+import com.sun.management.UnixOperatingSystemMXBean;
 
 import java.lang.annotation.Annotation;
 import java.lang.management.ManagementFactory;
@@ -1383,7 +1384,19 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey MASTER_WORKER_THREADS_MAX =
       new Builder(Name.MASTER_WORKER_THREADS_MAX)
-          .setDefaultValue(2048)
+          .setDefaultSupplier(() -> {
+            try {
+              java.lang.management.OperatingSystemMXBean os =
+                  ManagementFactory.getOperatingSystemMXBean();
+              if (os instanceof UnixOperatingSystemMXBean) {
+                return Math.min(32768, Math.max(2048,
+                    ((UnixOperatingSystemMXBean) os).getMaxFileDescriptorCount() / 3));
+              }
+            } catch (Exception e) {
+              // Set lower limit
+            }
+            return 2048;
+          }, "A third of the max file descriptors limit, if b/w 2048 and 32768")
           .setDescription("The maximum number of incoming RPC requests to master that can be "
               + "handled. This value is used to configure maximum number of threads in Thrift "
               + "thread pool with master.")
@@ -2402,6 +2415,17 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
           .build();
+  public static final PropertyKey USER_FILE_LOAD_TTL =
+      new Builder(Name.USER_FILE_LOAD_TTL)
+          .setDefaultValue(Constants.NO_TTL)
+          .setDescription("Time to live for files loaded from UFS by a user, no ttl by default.")
+          .build();
+  public static final PropertyKey USER_FILE_LOAD_TTL_ACTION =
+      new Builder(Name.USER_FILE_LOAD_TTL_ACTION)
+          .setDefaultValue("DELETE")
+          .setDescription("When file's ttl is expired, the action performs on it. "
+              + "DELETE by default")
+          .build();
   public static final PropertyKey USER_FILE_READ_TYPE_DEFAULT =
       new Builder(Name.USER_FILE_READ_TYPE_DEFAULT)
           .setDefaultValue("CACHE_PROMOTE")
@@ -2430,6 +2454,17 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "using waitCompleted.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
+          .build();
+  public static final PropertyKey USER_FILE_CREATE_TTL =
+      new Builder(Name.USER_FILE_CREATE_TTL)
+          .setDefaultValue(Constants.NO_TTL)
+          .setDescription("Time to live for files created by a user, no ttl by default.")
+          .build();
+  public static final PropertyKey USER_FILE_CREATE_TTL_ACTION =
+      new Builder(Name.USER_FILE_CREATE_TTL_ACTION)
+          .setDefaultValue("DELETE")
+          .setDescription("When file's ttl is expired, the action performs on it. "
+              + "DELETE by default")
           .build();
   public static final PropertyKey USER_FILE_WRITE_LOCATION_POLICY =
       new Builder(Name.USER_FILE_WRITE_LOCATION_POLICY)
@@ -3876,6 +3911,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.file.metadata.sync.interval";
     public static final String USER_FILE_PASSIVE_CACHE_ENABLED =
         "alluxio.user.file.passive.cache.enabled";
+    public static final String USER_FILE_LOAD_TTL =
+        "alluxio.user.file.load.ttl";
+    public static final String USER_FILE_LOAD_TTL_ACTION =
+        "alluxio.user.file.load.ttl.action";
     public static final String USER_FILE_READ_TYPE_DEFAULT = "alluxio.user.file.readtype.default";
     // ALLUXIO CS ADD
     public static final String USER_FILE_REPLICATION_MAX = "alluxio.user.file.replication.max";
@@ -3888,6 +3927,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.file.seek.buffer.size.bytes";
     public static final String USER_FILE_WAITCOMPLETED_POLL_MS =
         "alluxio.user.file.waitcompleted.poll";
+    public static final String USER_FILE_CREATE_TTL =
+        "alluxio.user.file.create.ttl";
+    public static final String USER_FILE_CREATE_TTL_ACTION =
+        "alluxio.user.file.create.ttl.action";
     public static final String USER_FILE_WRITE_LOCATION_POLICY =
         "alluxio.user.file.write.location.policy.class";
     public static final String USER_FILE_WRITE_AVOID_EVICTION_POLICY_RESERVED_BYTES =
