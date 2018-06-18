@@ -22,12 +22,12 @@ import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.JobUfsManager;
 import alluxio.underfs.UfsManager;
 import alluxio.util.CommonUtils;
+import alluxio.util.WaitForOptions;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.web.JobWorkerWebServer;
 import alluxio.wire.WorkerNetAddress;
 
-import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
@@ -137,14 +137,11 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
   }
 
   @Override
-  public void waitForReady() {
-    CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        return mThriftServer.isServing() && mWebServer != null && mWebServer.getServer()
-            .isRunning();
-      }
-    });
+  public boolean waitForReady(int timeoutMs) {
+    return CommonUtils.waitFor(this + " to start",
+        input->
+            mThriftServer.isServing() && mWebServer != null && mWebServer.getServer().isRunning(),
+        WaitForOptions.defaults().setTimeoutMs(timeoutMs));
   }
 
   @Override

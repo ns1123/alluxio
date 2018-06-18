@@ -56,9 +56,9 @@ public final class LocalAlluxioJobCluster {
     setupTest();
     updateTestConf();
     startMaster();
-    mMaster.waitForReady();
+    TestUtils.waitForReady(mMaster);
     startWorker();
-    mWorker.waitForReady();
+    TestUtils.waitForReady(mWorker);
   }
 
   /**

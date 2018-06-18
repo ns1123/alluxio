@@ -28,7 +28,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions> {
   private long mBlockSizeBytes;
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   private int mReplicationDurable;
   private int mReplicationMax;
@@ -36,12 +35,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   private boolean mEncrypted;
   // ALLUXIO CS END
   private long mTtl;
-  private TtlAction mTtlAction;
-||||||| merged common ancestors
-  private long mTtl;
-  private TtlAction mTtlAction;
-=======
->>>>>>> 8b5afeb9ddad38affc9bb2cb7ff4c9268c164494
   private boolean mCacheable;
 
   /**
@@ -66,20 +59,12 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       mBlockSizeBytes = options.getBlockSizeBytes();
       mPersisted = options.isPersisted();
       mRecursive = options.isRecursive();
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       mReplicationDurable = options.getReplicationDurable();
       mReplicationMax = options.getReplicationMax();
       mReplicationMin = options.getReplicationMin();
       mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
       // ALLUXIO CS END
-      mTtl = options.getTtl();
-      mTtlAction = TtlAction.fromThrift(options.getTtlAction());
-||||||| merged common ancestors
-      mTtl = options.getTtl();
-      mTtlAction = TtlAction.fromThrift(options.getTtlAction());
-=======
->>>>>>> 8b5afeb9ddad38affc9bb2cb7ff4c9268c164494
       if (SecurityUtils.isAuthenticationEnabled()) {
         mOwner = SecurityUtils.getOwnerFromThriftClient();
         mGroup = SecurityUtils.getGroupFromThriftClient();
@@ -95,20 +80,12 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   private CreateFileOptions() {
     super();
     mBlockSizeBytes = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
     // ALLUXIO CS END
-    mTtl = Constants.NO_TTL;
-    mTtlAction = TtlAction.DELETE;
-||||||| merged common ancestors
-    mTtl = Constants.NO_TTL;
-    mTtlAction = TtlAction.DELETE;
-=======
->>>>>>> 8b5afeb9ddad38affc9bb2cb7ff4c9268c164494
     mMode.applyFileUMask();
     mCacheable = false;
   }
@@ -230,57 +207,35 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       return false;
     }
     CreateFileOptions that = (CreateFileOptions) o;
-<<<<<<< HEAD
-    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects.equal(mTtl, that.mTtl)
+    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
-        && Objects.equal(mTtlAction, that.mTtlAction) && Objects.equal(mCacheable, that.mCacheable);
-||||||| merged common ancestors
-    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects.equal(mTtl, that.mTtl)
-        && Objects.equal(mTtlAction, that.mTtlAction) && Objects.equal(mCacheable, that.mCacheable);
-=======
-    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         && Objects.equal(mCacheable, that.mCacheable);
->>>>>>> 8b5afeb9ddad38affc9bb2cb7ff4c9268c164494
   }
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mCacheable);
+    // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mCacheable);
     // ALLUXIO CS WITH
     return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
-        mReplicationMax, mReplicationMin, mEncrypted, mTtl, mTtlAction, mCacheable);
+        mReplicationMax, mReplicationMin, mEncrypted, mCacheable);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mCacheable);
-=======
-    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mCacheable);
->>>>>>> 8b5afeb9ddad38affc9bb2cb7ff4c9268c164494
   }
 
   @Override
   public String toString() {
-<<<<<<< HEAD
-    return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
+    return toStringHelper().add("blockSizeBytes", mBlockSizeBytes)
         // ALLUXIO CS ADD
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("encrypted", mEncrypted)
         // ALLUXIO CS END
-        .add("ttlAction", mTtlAction).add("cacheable", mCacheable).toString();
-||||||| merged common ancestors
-    return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
-        .add("ttlAction", mTtlAction).add("cacheable", mCacheable).toString();
-=======
-    return toStringHelper().add("blockSizeBytes", mBlockSizeBytes)
         .add("cacheable", mCacheable).toString();
->>>>>>> 8b5afeb9ddad38affc9bb2cb7ff4c9268c164494
   }
 }

@@ -12,8 +12,8 @@ package alluxio.master;
 import alluxio.master.PrimarySelector.State;
 import alluxio.master.journal.JournalSystem;
 import alluxio.util.CommonUtils;
+import alluxio.util.WaitForOptions;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,12 +100,10 @@ final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess
   }
 
   @Override
-  public void waitForReady() {
-    CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        return (mServingThread == null || isServing());
-      }
-    });
+  public boolean waitForReady(int timeoutMs) {
+    return CommonUtils.waitFor(this + " to start",
+        input -> mServingThread == null || isServing(),
+        WaitForOptions.defaults().setTimeoutMs(timeoutMs));
   }
+
 }
