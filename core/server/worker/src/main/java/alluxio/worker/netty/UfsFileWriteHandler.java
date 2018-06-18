@@ -196,11 +196,11 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
             WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
       }
       // ALLUXIO CS END
-      Counter counter = MetricsSystem.workerCounter(counterName);
+      Counter counter = MetricsSystem.counter(counterName);
       context.setCounter(counter);
       String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
           WorkerMetrics.TAG_UFS, ufsString);
-      context.setMeter(MetricsSystem.workerMeter(meterName));
+      context.setMeter(MetricsSystem.meter(meterName));
     }
   }
 }

@@ -20,6 +20,7 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.metrics.sink.PrometheusMetricsServlet;
 import alluxio.network.ChannelType;
+import alluxio.network.thrift.BootstrapServerTransport;
 import alluxio.network.thrift.ThriftUtils;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UfsManager;
@@ -359,7 +360,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     }
 
     // Return a TTransportFactory based on the authentication type
-    TTransportFactory tTransportFactory;
+    TTransportFactory transportFactory;
     // ALLUXIO CS ADD
     final boolean isCapabilityEnabled =
         Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
@@ -367,10 +368,11 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     try {
       // ALLUXIO CS REPLACE
       // String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-      // tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
+      // transportFactory = new BootstrapServerTransport.Factory(mTransportProvider
+      //     .getServerTransportFactory(serverName));
       // ALLUXIO CS WITH
       if (isCapabilityEnabled) {
-        tTransportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
+        transportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
           @Override
           public void run() {
             String user;
@@ -386,7 +388,8 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
         }, NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC));
       } else {
         String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-        tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
+        transportFactory = new BootstrapServerTransport.Factory(mTransportProvider
+            .getServerTransportFactory(serverName));
       }
       // ALLUXIO CS END
     } catch (IOException e) {
@@ -394,7 +397,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     }
     TThreadPoolServer.Args args = new TThreadPoolServer.Args(mThriftServerSocket)
         .minWorkerThreads(minWorkerThreads).maxWorkerThreads(maxWorkerThreads).processor(processor)
-        .transportFactory(tTransportFactory)
+        .transportFactory(transportFactory)
         .protocolFactory(new TBinaryProtocol.Factory(true, true));
     // ALLUXIO CS ADD
     args.executorService(

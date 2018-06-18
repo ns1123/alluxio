@@ -269,4 +269,9 @@ public final class PropertyKeyTest {
         Template.LOCALITY_TIER_STRICT.format("custom").toString());
     // ALLUXIO CS END
   }
+
+  @Test
+  public void isBuiltIn() {
+    assertTrue(mTestProperty.isBuiltIn());
+  }
 }
