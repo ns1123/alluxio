@@ -15,7 +15,6 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
-import alluxio.metrics.Metric;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.WorkerMetrics;
 import alluxio.network.protocol.RPCProtoMessage;
@@ -175,7 +174,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
         // ALLUXIO CS ADD
         String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
         if (user != null) {
-          metricName = Metric
+          metricName = alluxio.metrics.Metric
               .getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_ALLUXIO, WorkerMetrics.TAG_USER,
                   user);
         }
