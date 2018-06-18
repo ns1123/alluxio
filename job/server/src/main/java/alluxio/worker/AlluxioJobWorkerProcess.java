@@ -141,7 +141,7 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
     return CommonUtils.waitFor(this + " to start",
         input->
             mThriftServer.isServing() && mWebServer != null && mWebServer.getServer().isRunning(),
-        WaitForOptions.defaults().setTimeoutMs(timeoutMs));
+        WaitForOptions.defaults().setTimeoutMs(timeoutMs).setThrowOnTimeout(false));
   }
 
   @Override

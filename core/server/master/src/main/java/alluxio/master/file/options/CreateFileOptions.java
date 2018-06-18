@@ -34,7 +34,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   private int mReplicationMin;
   private boolean mEncrypted;
   // ALLUXIO CS END
-  private long mTtl;
   private boolean mCacheable;
 
   /**

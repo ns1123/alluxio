@@ -184,7 +184,7 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
     return CommonUtils.waitFor(this + " to start",
         input -> mMasterServiceServer != null && mMasterServiceServer.isServing()
             && mWebServer != null && mWebServer.getServer().isRunning(),
-        WaitForOptions.defaults().setTimeoutMs(timeoutMs));
+        WaitForOptions.defaults().setTimeoutMs(timeoutMs).setThrowOnTimeout(false));
   }
 
   /**
