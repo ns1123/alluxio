@@ -311,6 +311,7 @@ func generateTarball(hadoopDistribution string) error {
 	for _, file := range []string{"bin/hive-checker.sh", "bin/mapreduce-checker.sh", "bin/spark-checker.sh"} {
 		replace(filepath.Join("integration/checker", file), "target/alluxio-checker-${VERSION}-jar-with-dependencies.jar", "alluxio-checker-${VERSION}.jar")
 	}
+
 	// ALLUXIO CS ADD
 	fmt.Printf("  erasing annotations ... ")
 	if err := annotation.Erase(srcPath); err != nil {
