@@ -55,6 +55,10 @@ var hadoopDistributions = map[string]version{
 	"mapr-5.1": parseVersion("2.7.0-mapr-1602"),
 	"mapr-5.2": parseVersion("2.7.0-mapr-1607"),
 	// ALLUXIO CS END
+  // ALLUXIO CS REMOVE
+	// // This distribution type is built with 2.2.0, but doesn't include the hadoop version in the name.
+	// "default": parseVersion("2.2.0"),
+  // ALLUXIO CS END
 }
 
 // ALLUXIO CS ADD
