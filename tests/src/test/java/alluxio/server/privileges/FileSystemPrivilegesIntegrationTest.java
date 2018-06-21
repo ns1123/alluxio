@@ -183,7 +183,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
    */
   private void refreshFileSystemClient() throws Exception {
     // Need to reset the pool in case we have a cached client for a different login user.
-    FileSystemContext.get().reset();
+    FileSystemContext.get().reset(Configuration.global());
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }
 

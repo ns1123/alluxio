@@ -410,7 +410,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setIgnoredSiteProperty(true)
           .setIsHidden(true)
           .build();
-<<<<<<< HEAD
+  public static final PropertyKey WEB_FILE_INFO_ENABLED =
+      new Builder(Name.WEB_FILE_INFO_ENABLED)
+          .setDefaultValue(true)
+          .setDescription("Whether detailed file information are enabled for the web UI.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.SERVER)
+          .build();
   // ALLUXIO CS ADD
   public static final PropertyKey WEB_LOGIN_ENABLED =
       new Builder(Name.WEB_LOGIN_ENABLED)
@@ -441,16 +447,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "and 1 day respectively.")
           .build();
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-  public static final PropertyKey WEB_FILE_INFO_ENABLED =
-      new Builder(Name.WEB_FILE_INFO_ENABLED)
-          .setDefaultValue(true)
-          .setDescription("Whether detailed file information are enabled for the web UI.")
-          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
-          .setScope(Scope.SERVER)
-          .build();
->>>>>>> 85ac62cc87d205af0f79cfd8318e444047532d7d
   public static final PropertyKey WEB_RESOURCES =
       new Builder(Name.WEB_RESOURCES)
           .setDefaultValue(String.format("${%s}/core/server/common/src/main/webapp", Name.HOME))
@@ -3493,7 +3489,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String TEST_MODE = "alluxio.test.mode";
     public static final String TMP_DIRS = "alluxio.tmp.dirs";
     public static final String VERSION = "alluxio.version";
-<<<<<<< HEAD
+    public static final String WEB_FILE_INFO_ENABLED = "alluxio.web.file.info.enabled";
     // ALLUXIO CS ADD
     public static final String WEB_LOGIN_ENABLED = "alluxio.web.login.enabled";
     public static final String WEB_LOGIN_USERNAME = "alluxio.web.login.username";
@@ -3501,10 +3497,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String WEB_LOGIN_SESSIONS = "alluxio.web.login.sessions";
     public static final String WEB_LOGIN_SESSION_TIMEOUT = "alluxio.web.login.session.timeout";
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-    public static final String WEB_FILE_INFO_ENABLED = "alluxio.web.file.info.enabled";
->>>>>>> 85ac62cc87d205af0f79cfd8318e444047532d7d
     public static final String WEB_RESOURCES = "alluxio.web.resources";
     public static final String WEB_THREADS = "alluxio.web.threads";
     public static final String WORK_DIR = "alluxio.work.dir";
