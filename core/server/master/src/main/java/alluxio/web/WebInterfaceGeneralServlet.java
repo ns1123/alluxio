@@ -19,9 +19,24 @@ import alluxio.master.MasterProcess;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.StartupConsistencyCheck;
+<<<<<<< HEAD
 import alluxio.underfs.UnderFileSystem;
+||||||| parent of 9ffb58c08e... [ALLUXIO-3233] Use mount info for web ufs info (#7467)
+import alluxio.master.meta.MetaMaster;
+import alluxio.underfs.UnderFileSystem;
+=======
+import alluxio.master.file.meta.MountTable;
+import alluxio.master.meta.MetaMaster;
+>>>>>>> 9ffb58c08e... [ALLUXIO-3233] Use mount info for web ufs info (#7467)
 import alluxio.util.CommonUtils;
 import alluxio.util.FormatUtils;
+<<<<<<< HEAD
+||||||| parent of 9ffb58c08e... [ALLUXIO-3233] Use mount info for web ufs info (#7467)
+import alluxio.wire.ConfigCheckReport;
+=======
+import alluxio.wire.ConfigCheckReport;
+import alluxio.wire.MountPointInfo;
+>>>>>>> 9ffb58c08e... [ALLUXIO-3233] Use mount info for web ufs info (#7467)
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,48 +226,36 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
   }
 
   private void setUfsAttributes(HttpServletRequest request) {
-    String ufsRoot = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
-    UnderFileSystem ufs = null;
-    try {
-      ufs = UnderFileSystem.Factory.createForRoot();
-    } catch (Exception e) {
-      LOG.error("Failed to create root UFS {}: {}", ufsRoot, e.getMessage());
+    FileSystemMaster fsMaster = mMasterProcess.getMaster(FileSystemMaster.class);
+    Map<String, MountPointInfo> mountPoints = fsMaster.getMountTable();
+    MountPointInfo mountInfo = mountPoints.get(MountTable.ROOT);
+    if (mountInfo == null) {
+      LOG.error("Missing root mount info");
       return;
     }
 
+    long capacityBytes = mountInfo.getUfsCapacityBytes();
+    long usedBytes = mountInfo.getUfsUsedBytes();
+    long freeBytes = -1;
+    if (capacityBytes >= 0 && usedBytes >= 0 && capacityBytes >= usedBytes) {
+      freeBytes = capacityBytes - usedBytes;
+    }
+
     String totalSpace = "UNKNOWN";
-    try {
-      long sizeBytes = ufs.getSpace(ufsRoot, UnderFileSystem.SpaceType.SPACE_TOTAL);
-      if (sizeBytes >= 0) {
-        totalSpace = FormatUtils.getSizeFromBytes(sizeBytes);
-      }
-    } catch (IOException e) {
-      // Exception may be thrown when UFS connection is lost
-      LOG.warn("Failed to get size of total space of root UFS: {}", e.getMessage());
+    if (capacityBytes >= 0) {
+      totalSpace = FormatUtils.getSizeFromBytes(capacityBytes);
     }
     request.setAttribute("diskCapacity", totalSpace);
 
     String usedSpace = "UNKNOWN";
-    try {
-      long sizeBytes = ufs.getSpace(ufsRoot, UnderFileSystem.SpaceType.SPACE_USED);
-      if (sizeBytes >= 0) {
-        usedSpace = FormatUtils.getSizeFromBytes(sizeBytes);
-      }
-    } catch (IOException e) {
-      // Exception may be thrown when UFS connection is lost
-      LOG.warn("Failed to get size of used space of root UFS: {}", e.getMessage());
+    if (usedBytes >= 0) {
+      usedSpace = FormatUtils.getSizeFromBytes(usedBytes);
     }
     request.setAttribute("diskUsedCapacity", usedSpace);
 
     String freeSpace = "UNKNOWN";
-    try {
-      long sizeBytes = ufs.getSpace(ufsRoot, UnderFileSystem.SpaceType.SPACE_FREE);
-      if (sizeBytes >= 0) {
-        freeSpace = FormatUtils.getSizeFromBytes(sizeBytes);
-      }
-    } catch (IOException e) {
-      // Exception may be thrown when UFS connection is lost
-      LOG.warn("Failed to get size of free space of root UFS: {}", e.getMessage());
+    if (freeBytes >= 0) {
+      freeSpace = FormatUtils.getSizeFromBytes(freeBytes);
     }
     request.setAttribute("diskFreeCapacity", freeSpace);
 
