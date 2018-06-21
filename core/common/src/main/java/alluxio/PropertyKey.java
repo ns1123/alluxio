@@ -410,6 +410,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setIgnoredSiteProperty(true)
           .setIsHidden(true)
           .build();
+  public static final PropertyKey WEB_FILE_INFO_ENABLED =
+      new Builder(Name.WEB_FILE_INFO_ENABLED)
+          .setDefaultValue(true)
+          .setDescription("Whether detailed file information are enabled for the web UI.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.SERVER)
+          .build();
   // ALLUXIO CS ADD
   public static final PropertyKey WEB_LOGIN_ENABLED =
       new Builder(Name.WEB_LOGIN_ENABLED)
@@ -2555,7 +2562,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_METRICS_COLLECTION_ENABLED =
       new Builder(Name.USER_METRICS_COLLECTION_ENABLED)
-          .setDefaultValue(false)
+          .setDefaultValue(true)
           .setDescription("Enable collecting the client-side metrics and hearbeat them to master")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
@@ -3482,6 +3489,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String TEST_MODE = "alluxio.test.mode";
     public static final String TMP_DIRS = "alluxio.tmp.dirs";
     public static final String VERSION = "alluxio.version";
+    public static final String WEB_FILE_INFO_ENABLED = "alluxio.web.file.info.enabled";
     // ALLUXIO CS ADD
     public static final String WEB_LOGIN_ENABLED = "alluxio.web.login.enabled";
     public static final String WEB_LOGIN_USERNAME = "alluxio.web.login.username";
