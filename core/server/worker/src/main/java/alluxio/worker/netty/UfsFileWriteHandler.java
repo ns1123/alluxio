@@ -180,10 +180,10 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
       CloseableResource<UnderFileSystem> ufsResource = ufsClient.acquireUfsResource();
       context.setUfsResource(ufsResource);
       UnderFileSystem ufs = ufsResource.get();
-          CreateOptions createOptions =
-              CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
-                  .setGroup(createUfsFileOptions.getGroup())
-                  .setMode(new Mode((short) createUfsFileOptions.getMode()));
+      CreateOptions createOptions =
+          CreateOptions.defaults().setOwner(createUfsFileOptions.getOwner())
+              .setGroup(createUfsFileOptions.getGroup())
+              .setMode(new Mode((short) createUfsFileOptions.getMode()));
       context.setOutputStream(ufs.create(request.getUfsPath(), createOptions));
       context.setCreateOptions(createOptions);
       String ufsString = MetricsSystem.escape(ufsClient.getUfsMountPointUri());

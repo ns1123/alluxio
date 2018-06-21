@@ -32,7 +32,10 @@ public class UfsJournalTest {
   @Test
   public void emptyConfiguration() throws Exception {
     UnderFileSystemConfiguration conf = UfsJournal.getJournalUfsConf();
-    Assert.assertTrue(conf.getUserSpecifiedConf().isEmpty());
+    // The impersonation configuration is added internally.
+    Assert.assertEquals(1, conf.getUserSpecifiedConf().size());
+    Assert.assertEquals("false", conf.getUserSpecifiedConf()
+        .get(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName()));
   }
 
   @Test
@@ -44,6 +47,9 @@ public class UfsJournalTest {
     Configuration.set(key, value);
     UnderFileSystemConfiguration conf = UfsJournal.getJournalUfsConf();
     Assert.assertEquals(value, conf.getValue(PropertyKey.UNDERFS_LISTING_LENGTH));
-    Assert.assertEquals(1, conf.getUserSpecifiedConf().size());
+    // The impersonation configuration is added internally.
+    Assert.assertEquals(2, conf.getUserSpecifiedConf().size());
+    Assert.assertEquals("false", conf.getUserSpecifiedConf()
+        .get(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName()));
   }
 }
