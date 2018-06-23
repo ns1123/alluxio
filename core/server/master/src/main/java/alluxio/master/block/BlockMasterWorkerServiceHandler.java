@@ -101,14 +101,10 @@ public final class BlockMasterWorkerServiceHandler implements BlockMasterWorkerS
   public alluxio.thrift.CommitBlockInUfsTResponse commitBlockInUfs(final long blockId,
       final long length, alluxio.thrift.CommitBlockInUfsTOptions options) throws AlluxioTException {
     return RpcUtils.call(LOG,
-        new RpcUtils.RpcCallableThrowsIOException<alluxio.thrift.CommitBlockInUfsTResponse>() {
-          @Override
-          public alluxio.thrift.CommitBlockInUfsTResponse call()
-              throws AlluxioException, IOException {
-            mBlockMaster.commitBlockInUFS(blockId, length);
-            return new alluxio.thrift.CommitBlockInUfsTResponse();
-          }
-        });
+        (RpcCallableThrowsIOException<alluxio.thrift.CommitBlockInUfsTResponse>) () -> {
+      mBlockMaster.commitBlockInUFS(blockId, length);
+      return new alluxio.thrift.CommitBlockInUfsTResponse();
+    }, "CommitBlockInUfs", "blockId=%s, length=%s, options=%s", blockId, length, options);
   }
 
   // ALLUXIO CS END
