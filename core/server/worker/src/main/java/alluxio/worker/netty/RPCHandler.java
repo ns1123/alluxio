@@ -79,7 +79,7 @@ class RPCHandler extends ChannelInboundHandlerAdapter {
       @Override
       public void run() {
         final long sessionId = IdUtils.createSessionId();
-        RpcUtils.nettyRPCAndLog(LOG, new RpcUtils.NettyRPCCallable<Void>() {
+        RpcUtils.nettyRPCAndLog(LOG, new RpcUtils.NettyRpcCallable<Void>() {
 
           @Override
           public Void call() throws Exception {
@@ -96,7 +96,7 @@ class RPCHandler extends ChannelInboundHandlerAdapter {
             // clean up any resources if it fails. Just to be safe.
             mWorker.cleanupSession(sessionId);
           }
-        });
+        }, "HandleRemoveBlockRequest", "Request=%s", request);
       }
     });
   }

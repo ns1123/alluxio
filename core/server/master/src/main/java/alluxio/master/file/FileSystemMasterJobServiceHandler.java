@@ -59,26 +59,19 @@ public final class FileSystemMasterJobServiceHandler
   @Override
   public GetFileInfoTResponse getFileInfo(final long fileId, GetFileInfoTOptions options)
       throws AlluxioTException {
-    return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<GetFileInfoTResponse>() {
-      @Override
-      public GetFileInfoTResponse call() throws AlluxioException {
-        try {
-          return new GetFileInfoTResponse(mFileSystemMaster.getFileInfo(fileId).toThrift());
-        } catch (UnavailableException e) {
-          throw new AlluxioException("File system master is unavailable", e);
-        }
-      }
-    });
+    return RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<GetFileInfoTResponse>) () -> {
+      try {
+        return new GetFileInfoTResponse(mFileSystemMaster.getFileInfo(fileId).toThrift());
+      } catch (UnavailableException e) {
+        throw new AlluxioException("File system master is unavailable", e);
+      }}, "GetFileInfo", "fileId=%s, options=%s", fileId, options);
   }
 
   @Override
   public GetUfsInfoTResponse getUfsInfo(final long mountId, GetUfsInfoTOptions options)
       throws AlluxioTException {
-    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<GetUfsInfoTResponse>() {
-      @Override
-      public GetUfsInfoTResponse call() throws AlluxioException {
-        return new GetUfsInfoTResponse(mFileSystemMaster.getUfsInfo(mountId));
-      }
-    });
+    return RpcUtils.call(LOG, (RpcUtils.RpcCallable<GetUfsInfoTResponse>) () ->
+        new GetUfsInfoTResponse(mFileSystemMaster.getUfsInfo(mountId)),
+        "GetUfsInfo", "mountId=%s, options=%s", mountId, options);
   }
 }
