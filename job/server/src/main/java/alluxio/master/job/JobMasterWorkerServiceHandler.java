@@ -57,7 +57,7 @@ public final class JobMasterWorkerServiceHandler implements Iface {
   @Override
   public RegisterJobWorkerTResponse registerJobWorker(final WorkerNetAddress workerNetAddress,
       RegisterJobWorkerTOptions options) throws TException {
-    return RpcUtils.call(LOG, (RpcUtils.RpcCallable<RegisterJobWorkerTResponse>)() ->
+    return RpcUtils.call(LOG, (RpcUtils.RpcCallable<RegisterJobWorkerTResponse>) () ->
         new RegisterJobWorkerTResponse(
             mJobMaster.registerWorker(alluxio.wire.WorkerNetAddress.fromThrift(workerNetAddress))),
         "RegisterJobWorker", "workerNetAddress=%s, options=%s", workerNetAddress, options
