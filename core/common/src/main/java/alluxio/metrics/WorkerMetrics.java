@@ -81,14 +81,10 @@ public final class WorkerMetrics {
 
   // Tags
   public static final String TAG_UFS = "UFS";
-<<<<<<< HEAD
+  public static final String TAG_UFS_TYPE = "UFS_TYPE";
   // ALLUXIO CS ADD
   public static final String TAG_USER = "User";
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-  public static final String TAG_UFS_TYPE = "UFS_TYPE";
->>>>>>> 58cf49720f5e60978b1c97d1a783a065437a28be
 
   private WorkerMetrics() {} // prevent instantiation
 }

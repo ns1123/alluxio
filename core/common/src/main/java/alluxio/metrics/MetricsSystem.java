@@ -55,26 +55,14 @@ public final class MetricsSystem {
    * An enum of supported instance type.
    */
   public enum InstanceType {
-<<<<<<< HEAD
     // ALLUXIO CS ADD
-    JOB_WORKER("job_worker"),
+    JOB_WORKER("JobWorker"),
     // ALLUXIO CS END
-    MASTER("master"),
-    WORKER("worker"),
-    CLIENT("client"),
-    PROXY("proxy");
-||||||| merged common ancestors
-    MASTER("master"),
-    WORKER("worker"),
-    CLIENT("client"),
-    PROXY("proxy");
-=======
     MASTER("Master"),
     WORKER("Worker"),
     CLUSTER("Cluster"),
     CLIENT("Client"),
     PROXY("Proxy");
->>>>>>> 58cf49720f5e60978b1c97d1a783a065437a28be
 
     private String mValue;
 

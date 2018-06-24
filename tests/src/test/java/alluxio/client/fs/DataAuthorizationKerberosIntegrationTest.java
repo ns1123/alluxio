@@ -12,6 +12,7 @@
 package alluxio.client.fs;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileInStream;
@@ -103,13 +104,13 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
 
   @Before
   public void before() throws Exception {
-    FileSystemContext.get().reset();
+    FileSystemContext.get().reset(Configuration.global());
     LoginUserTestUtils.resetLoginUser();
   }
 
   @After
   public void after() throws Exception {
-    FileSystemContext.get().reset();
+    FileSystemContext.get().reset(Configuration.global());
     LoginUserTestUtils.resetLoginUser();
   }
 
