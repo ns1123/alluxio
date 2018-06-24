@@ -34,10 +34,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  * This class is a Thrift handler for file system master RPCs invoked by Alluxio job service.
  */
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
-public final class FileSystemMasterJobServiceHandler
-    implements FileSystemMasterJobService.Iface {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(FileSystemMasterJobServiceHandler.class);
+public final class FileSystemMasterJobServiceHandler implements FileSystemMasterJobService.Iface {
+  private static final Logger LOG = LoggerFactory
+      .getLogger(FileSystemMasterJobServiceHandler.class);
 
   private final FileSystemMaster mFileSystemMaster;
 
@@ -64,14 +63,16 @@ public final class FileSystemMasterJobServiceHandler
         return new GetFileInfoTResponse(mFileSystemMaster.getFileInfo(fileId).toThrift());
       } catch (UnavailableException e) {
         throw new AlluxioException("File system master is unavailable", e);
-      }}, "GetFileInfo", "fileId=%s, options=%s", fileId, options);
+      }
+    }, "GetFileInfo", "fileId=%s, options=%s", fileId, options);
   }
 
   @Override
   public GetUfsInfoTResponse getUfsInfo(final long mountId, GetUfsInfoTOptions options)
       throws AlluxioTException {
-    return RpcUtils.call(LOG, (RpcUtils.RpcCallable<GetUfsInfoTResponse>) () ->
-        new GetUfsInfoTResponse(mFileSystemMaster.getUfsInfo(mountId)),
-        "GetUfsInfo", "mountId=%s, options=%s", mountId, options);
+    return RpcUtils.call(
+        LOG,
+        (RpcUtils.RpcCallable<GetUfsInfoTResponse>) () -> new GetUfsInfoTResponse(mFileSystemMaster
+            .getUfsInfo(mountId)), "GetUfsInfo", "mountId=%s, options=%s", mountId, options);
   }
 }
