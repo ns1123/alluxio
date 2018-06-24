@@ -190,6 +190,7 @@ function runJavaClass {
   "${JAVA}" -cp ${CLASSPATH} ${ALLUXIO_USER_JAVA_OPTS} ${ALLUXIO_SHELL_JAVA_OPTS} ${CLASS} ${PARAMETER} "${CLASS_ARGS[@]}"
 }
 
+<<<<<<< HEAD
 function formatJournal {
   echo "Formatting Alluxio Master @ $(hostname -f)"
   CLASS="alluxio.cli.Format"
@@ -213,6 +214,22 @@ function formatMasters {
   # ALLUXIO CS END
 }
 
+||||||| merged common ancestors
+=======
+function formatJournal {
+  echo "Formatting Alluxio Master @ $(hostname -f)"
+  CLASS="alluxio.cli.Format"
+  CLASSPATH=${ALLUXIO_SERVER_CLASSPATH}
+  PARAMETER="master"
+  ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
+  runJavaClass "$@"
+}
+
+function formatMasters {
+  formatJournal "$@"
+}
+
+>>>>>>> 58cf49720f5e60978b1c97d1a783a065437a28be
 function main {
   LAUNCHER=
   # If debugging is enabled propagate that through to sub-shells

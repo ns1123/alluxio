@@ -39,12 +39,18 @@ struct CreateFileTOptions {
   3: optional bool recursive
   4: optional i64 ttlNotUsed // deprecated from 1.8
   5: optional i16 mode
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   1001: optional i32 replicationMax;
   1002: optional i32 replicationMin;
   1003: optional i32 replicationDurable;
   // ALLUXIO CS END
   6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
+||||||| merged common ancestors
+  6: optional common.TTtlAction ttlAction
+=======
+  6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
+>>>>>>> 58cf49720f5e60978b1c97d1a783a065437a28be
   7: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct CreateFileTResponse {}
