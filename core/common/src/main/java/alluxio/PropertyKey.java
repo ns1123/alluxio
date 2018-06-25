@@ -231,6 +231,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue(ProjectConstants.VERSION)
           .setDescription("Version of Alluxio. User should never modify this property.")
           .build();
+  public static final PropertyKey WEB_FILE_INFO_ENABLED =
+      new Builder(Name.WEB_FILE_INFO_ENABLED)
+          .setDefaultValue(true)
+          .setDescription("Whether detailed file information are enabled for the web UI.")
+          .build();
   // ALLUXIO CS ADD
   public static final PropertyKey WEB_LOGIN_ENABLED =
       new Builder(Name.WEB_LOGIN_ENABLED)
@@ -2537,6 +2542,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String TEST_MODE = "alluxio.test.mode";
     public static final String TMP_DIRS = "alluxio.tmp.dirs";
     public static final String VERSION = "alluxio.version";
+    public static final String WEB_FILE_INFO_ENABLED = "alluxio.web.file.info.enabled";
     // ALLUXIO CS ADD
     public static final String WEB_LOGIN_ENABLED = "alluxio.web.login.enabled";
     public static final String WEB_LOGIN_USERNAME = "alluxio.web.login.username";
