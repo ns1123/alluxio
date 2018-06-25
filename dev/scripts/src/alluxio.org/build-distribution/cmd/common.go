@@ -34,6 +34,7 @@ var hadoopDistributions = map[string]version{
 	"hadoop-2.6": parseVersion("2.6.5"),
 	"hadoop-2.7": parseVersion("2.7.3"),
 	"hadoop-2.8": parseVersion("2.8.0"),
+<<<<<<< HEAD
 	// ALLUXIO CS ADD
 	"cdh-4.1":  parseVersion("2.0.0-mr1-cdh4.1.2"),
 	"cdh-5.4":  parseVersion("2.6.0-cdh5.4.9"),
@@ -55,6 +56,12 @@ var hadoopDistributions = map[string]version{
 	"mapr-5.1": parseVersion("2.7.0-mapr-1602"),
 	"mapr-5.2": parseVersion("2.7.0-mapr-1607"),
 	// ALLUXIO CS END
+||||||| merged common ancestors
+=======
+	"hadoop-2.9": parseVersion("2.9.0"),
+	// This distribution type is built with 2.2.0, but doesn't include the hadoop version in the name.
+	"default": parseVersion("2.2.0"),
+>>>>>>> 58cf49720f5e60978b1c97d1a783a065437a28be
 }
 
 // ALLUXIO CS ADD

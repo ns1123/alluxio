@@ -56,12 +56,13 @@ public final class MetricsSystem {
    */
   public enum InstanceType {
     // ALLUXIO CS ADD
-    JOB_WORKER("job_worker"),
+    JOB_WORKER("JobWorker"),
     // ALLUXIO CS END
-    MASTER("master"),
-    WORKER("worker"),
-    CLIENT("client"),
-    PROXY("proxy");
+    MASTER("Master"),
+    WORKER("Worker"),
+    CLUSTER("Cluster"),
+    CLIENT("Client"),
+    PROXY("Proxy");
 
     private String mValue;
 
@@ -387,14 +388,21 @@ public final class MetricsSystem {
   }
 
   /**
-   * @return all the worker's gauges and counters in the format of {@link Metric}
+   * @return all the master's metrics in the format of {@link Metric}
+   */
+  public static List<Metric> allMasterMetrics() {
+    return allMetrics(InstanceType.MASTER);
+  }
+
+  /**
+   * @return all the worker's metrics in the format of {@link Metric}
    */
   public static List<Metric> allWorkerMetrics() {
     return allMetrics(InstanceType.WORKER);
   }
 
   /**
-   * @return all the client's gauges and counters in the format of {@link Metric}
+   * @return all the client's metrics in the format of {@link Metric}
    */
   public static List<Metric> allClientMetrics() {
     return allMetrics(InstanceType.CLIENT);
@@ -423,6 +431,9 @@ public final class MetricsSystem {
       // least seconds. if the client's duration is too short (i.e. < 1s), then getOneMinuteRate
       // would return 0
       metrics.add(Metric.from(entry.getKey(), entry.getValue().getOneMinuteRate()));
+    }
+    for (Entry<String, Timer> entry : METRIC_REGISTRY.getTimers().entrySet()) {
+      metrics.add(Metric.from(entry.getKey(), entry.getValue().getCount()));
     }
     return metrics;
   }
