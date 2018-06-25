@@ -185,7 +185,7 @@ public final class PersistDefinition
   private void incrementPersistedMetric(AlluxioURI ufsMountPointUri, long bytes) {
     String mountPoint = MetricsSystem.escape(ufsMountPointUri);
     String metricName = String.format("BytesPersisted-Ufs:%s", mountPoint);
-    MetricsSystem.jobWorkerCounter(metricName).inc(bytes);
+    MetricsSystem.counter(metricName).inc(bytes);
   }
 
   @Override
