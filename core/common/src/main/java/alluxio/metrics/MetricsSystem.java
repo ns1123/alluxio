@@ -224,7 +224,7 @@ public final class MetricsSystem {
    * @return the metric registry name
    */
   private static String getMasterMetricName(String name) {
-    return Joiner.on(".").join(MetricsSystem.InstanceType.MASTER, name);
+    return InstanceType.MASTER + "." + name;
   }
 
   /**
@@ -299,8 +299,7 @@ public final class MetricsSystem {
    * @return the metric registry name
    */
   private static String getMetricNameWithUniqueId(InstanceType instance, String name) {
-    return Joiner.on(".").join(instance, NetworkAddressUtils.getLocalHostName().replace('.', '_'),
-        name);
+    return instance + "." + NetworkAddressUtils.getLocalHostMetricName() + "." + name;
   }
 
   /**

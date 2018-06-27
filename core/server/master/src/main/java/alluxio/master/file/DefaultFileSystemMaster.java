@@ -691,7 +691,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster,
-              mSafeModeManager, mJobMasterClientPool),
+              mMasterContext.getSafeModeManager(), mJobMasterClientPool),
           (int) Configuration.getMs(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       mPersistenceSchedulerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER,
