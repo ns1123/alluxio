@@ -545,6 +545,14 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void shortMasterHeartBeatTimeout() {
+    Configuration.set(PropertyKey.MASTER_MASTER_HEARTBEAT_INTERVAL, "5min");
+    Configuration.set(PropertyKey.MASTER_HEARTBEAT_TIMEOUT, "4min");
+    mThrown.expect(IllegalStateException.class);
+    Configuration.validate();
+  }
+
+  @Test
   public void setUserFileBufferBytesMaxInteger() {
     Configuration.set(PropertyKey.USER_FILE_BUFFER_BYTES, String.valueOf(Integer.MAX_VALUE) + "B");
     assertEquals(Integer.MAX_VALUE,
@@ -894,6 +902,16 @@ public class ConfigurationTest {
       assertEquals(Source.siteProperty(props.getPath()),
           Configuration.getSource(PropertyKey.MASTER_HOSTNAME));
       props.delete();
+    }
+  }
+
+  @Test
+  public void noPropertiesAnywhere() throws Exception {
+    try (Closeable p =
+             new SystemPropertyRule(PropertyKey.TEST_MODE.toString(), "false").toResource()) {
+      Configuration.set(PropertyKey.SITE_CONF_DIR, "");
+      Configuration.reset();
+      assertEquals("0.0.0.0", Configuration.get(PropertyKey.PROXY_WEB_BIND_HOST));
     }
   }
 }
