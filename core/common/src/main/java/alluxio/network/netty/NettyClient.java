@@ -45,10 +45,6 @@ public final class NettyClient {
   /**  Share both the encoder and decoder with all the client pipelines. */
   private static final RPCMessageEncoder ENCODER = new RPCMessageEncoder();
   private static final RPCMessageDecoder DECODER = new RPCMessageDecoder();
-  // ALLUXIO CS ADD
-  private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
-      new KerberosSaslClientHandler();
-  // ALLUXIO CS END
 
   /**
    * Reuse {@link EventLoopGroup} for all clients. Use daemon threads so the JVM is allowed to
@@ -97,7 +93,7 @@ public final class NettyClient {
         // ALLUXIO CS ADD
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
             alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-          pipeline.addLast(KERBEROS_SASL_CLIENT_HANDLER);
+          pipeline.addLast(new KerberosSaslClientHandler(subject));
         }
         // ALLUXIO CS END
       }
