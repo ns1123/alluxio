@@ -360,15 +360,14 @@ public final class FileSystemContext implements Closeable {
         pool.close();
       }
     }
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // return mNettyChannelPools.get(address).acquire();
+    // return mNettyChannelPools.get(key).acquire();
     // ALLUXIO CS WITH
     alluxio.retry.RetryPolicy retryPolicy = new alluxio.retry.CountingRetry(1);
     Channel channel;
     Exception exception = null;
     while (retryPolicy.attempt()) {
-      channel = mNettyChannelPools.get(address).acquire();
+      channel = mNettyChannelPools.get(key).acquire();
       try {
         alluxio.util.network.NettyUtils.waitForClientChannelReady(channel);
         return channel;
@@ -383,11 +382,6 @@ public final class FileSystemContext implements Closeable {
     throw new IOException("Failed to build an authenticated channel with valid credential",
         exception);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    return mNettyChannelPools.get(address).acquire();
-=======
-    return mNettyChannelPools.get(key).acquire();
->>>>>>> aos/master
   }
 
   /**
