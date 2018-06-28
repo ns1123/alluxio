@@ -43,10 +43,12 @@ public class KerberosSaslNettyClient {
   /**
    * Constructs a KerberosSaslNettyClient for authentication with servers.
    *
+   * @param clientSubject the client subject (can be null)
    * @param serverHostname the server hostname to authenticate with
    * @throws SaslException if failed to create a Sasl netty client
    */
-  public KerberosSaslNettyClient(final String serverHostname) throws SaslException {
+  public KerberosSaslNettyClient(final Subject clientSubject, final String serverHostname)
+      throws SaslException {
     try {
       mSubject = LoginUser.getClientLoginSubject();
     } catch (IOException e) {
@@ -60,7 +62,7 @@ public class KerberosSaslNettyClient {
     final String instanceName = unifiedInstanceName != null ? unifiedInstanceName : serverHostname;
 
     // Determine the impersonation user
-    String impersonationUser = TransportProviderUtils.getImpersonationUser(mSubject);
+    String impersonationUser = TransportProviderUtils.getImpersonationUser(clientSubject);
 
     try {
       mSaslClient = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslClient>() {

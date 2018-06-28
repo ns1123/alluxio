@@ -31,6 +31,7 @@ import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.security.auth.Subject;
 
 /**
  * This handles all the messages received by the client channel which is secured by Sasl Client,
@@ -44,11 +45,21 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
       AttributeKey.valueOf("CLIENT_KEY");
   private static final AttributeKey<SettableFuture<Boolean>> AUTHENTICATED_KEY =
       AttributeKey.valueOf("AUTHENTICATED_KEY");
+  private final Subject mSubject;
 
   /**
    * The default constructor.
    */
-  public KerberosSaslClientHandler() {}
+  public KerberosSaslClientHandler() {
+    this(null);
+  }
+
+  /**
+   * @param subject the client subject (can be null)
+  */
+  public KerberosSaslClientHandler(Subject subject) {
+    mSubject = subject;
+  }
 
   /**
    * Waits to receive the result whether the channel is authenticated.
@@ -71,7 +82,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient(
+    ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient(mSubject,
         ctx.channel().attr(NettyAttributes.HOSTNAME_KEY).get()));
     ctx.writeAndFlush(getInitialChallenge(ctx));
   }
