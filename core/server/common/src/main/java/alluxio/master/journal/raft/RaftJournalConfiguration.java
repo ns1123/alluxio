@@ -35,7 +35,6 @@ public class RaftJournalConfiguration {
   private InetSocketAddress mLocalAddress;
   private long mMaxLogSize;
   private File mPath;
-  private long mQuietTimeMs;
   private StorageLevel mStorageLevel;
 
   /**
@@ -60,8 +59,6 @@ public class RaftJournalConfiguration {
         .setLocalAddress(NetworkAddressUtils.getConnectAddress(serviceType))
         .setMaxLogSize(Configuration.getBytes(PropertyKey.MASTER_JOURNAL_LOG_SIZE_BYTES_MAX))
         .setPath(new File(JournalUtils.getJournalLocation().getPath()))
-        .setQuietTimeMs(
-            Configuration.getMs(PropertyKey.MASTER_JOURNAL_TAILER_SHUTDOWN_QUIET_WAIT_TIME_MS))
         .setStorageLevel(Configuration.getEnum(PropertyKey.MASTER_EMBEDDED_JOURNAL_STORAGE_LEVEL,
             StorageLevel.class));
   }
@@ -106,14 +103,6 @@ public class RaftJournalConfiguration {
    */
   public File getPath() {
     return mPath;
-  }
-
-  /**
-   * @return when gaining primacy, wait for this duration to elapse without seeing new journal
-   *         updates
-   */
-  public long getQuietTimeMs() {
-    return mQuietTimeMs;
   }
 
   /**
@@ -174,16 +163,6 @@ public class RaftJournalConfiguration {
    */
   public RaftJournalConfiguration setPath(File path) {
     mPath = path;
-    return this;
-  }
-
-  /**
-   * @param quietTimeMs when gaining primacy, wait for this duration to elapse without seeing new
-   *        journal updates
-   * @return the updated configuration
-   */
-  public RaftJournalConfiguration setQuietTimeMs(long quietTimeMs) {
-    mQuietTimeMs = quietTimeMs;
     return this;
   }
 

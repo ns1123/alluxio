@@ -171,16 +171,6 @@ public interface JournalSystem {
     }
 
     /**
-     * @param quietTimeMs before upgrading from SECONDARY to PRIMARY mode, the journal will wait
-     *        until this duration has passed without any journal entries being written.
-     * @return the updated builder
-     */
-    public Builder setQuietTimeMs(long quietTimeMs) {
-      mQuietTimeMs = quietTimeMs;
-      return this;
-    }
-
-    /**
      * @return a journal system
      */
     public JournalSystem build() {
@@ -204,8 +194,8 @@ public interface JournalSystem {
           }
           return alluxio.master.journal.raft.RaftJournalSystem.create(
               alluxio.master.journal.raft.RaftJournalConfiguration.defaults(serviceType)
-                  .setPath(new java.io.File(mLocation.getPath()))
-                  .setQuietTimeMs(mQuietTimeMs));
+                  .setPath(new java.io.File(mLocation.getPath())));
+
         // ALLUXIO CS END
         default:
           throw new IllegalStateException("Unrecognized journal type: " + journalType);

@@ -81,21 +81,29 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
     AtomicInteger successes = new AtomicInteger(0);
     FileSystem fs = mCluster.getFileSystemClient();
     List<OperationThread> threads = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
-      OperationThread t = new OperationThread(fs, i, failure, successes);
-      t.start();
-      threads.add(t);
-    }
-    for (int i = 0; i < 3; i++) {
-      System.out.printf("---------- Iteration %s ----------\n", i);
-      successes.set(0);
-      CommonUtils.waitFor("25 successes", x -> successes.get() >= 25,
-          WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS));
-      if (failure.get() != null) {
-        throw failure.get();
+    try {
+      for (int i = 0; i < 10; i++) {
+        OperationThread t = new OperationThread(fs, i, failure, successes);
+        t.start();
+        threads.add(t);
       }
-      restartMasters();
+      for (int i = 0; i < 2; i++) {
+        restartMasters();
+        System.out.printf("---------- Iteration %s ----------\n", i);
+        successes.set(0);
+        CommonUtils.waitFor("25 successes", x -> successes.get() >= 25,
+            WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS));
+        if (failure.get() != null) {
+          throw failure.get();
+        }
+      }
+    } finally {
+      threads.forEach(t -> t.interrupt());
+      for (Thread t : threads) {
+        t.join();
+      }
     }
+    mCluster.notifySuccess();
   }
 
   private void restartMasters() throws Exception {

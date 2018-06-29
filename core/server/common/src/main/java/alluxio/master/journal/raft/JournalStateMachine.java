@@ -70,14 +70,16 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
   private final Set<Commit<JournalEntryCommand>> mLiveCommits = new HashSet<>();
   private final Map<String, RaftJournal> mJournals;
   @GuardedBy("this")
-  private boolean mIgnoreApplys;
+  private boolean mIgnoreApplys = false;
   @GuardedBy("this")
-  private boolean mClosed;
+  private boolean mClosed = false;
 
   private volatile long mLastAppliedCommitIndex = -1;
-  private volatile long mNextSequenceNumberToRead;
-  private volatile long mLastModified;
-  private volatile boolean mSnapshotting;
+  // The last special "primary start" sequence number applied to this state machine. These special
+  // sequence numbers are identified by being negative.
+  private volatile long mLastPrimaryStartSequenceNumber = 0;
+  private volatile long mNextSequenceNumberToRead = 0;
+  private volatile boolean mSnapshotting = false;
 
   /**
    * @param journals master journals; these journals are still owned by the caller, not by the
@@ -85,11 +87,6 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
    */
   public JournalStateMachine(Map<String, RaftJournal> journals) {
     mJournals = Collections.unmodifiableMap(journals);
-    mIgnoreApplys = false;
-    mNextSequenceNumberToRead = 0;
-    mLastModified = -1;
-    mSnapshotting = false;
-    mClosed = false;
     resetState();
     LOG.info("Initialized new journal state machine");
   }
@@ -137,6 +134,10 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
       for (JournalEntry e : entry.getJournalEntriesList()) {
         applyEntry(e);
       }
+    } else if (entry.getSequenceNumber() < 0) {
+      // Negative sequence numbers indicate special entries used to indicate that a new primary is
+      // starting to serve.
+      mLastPrimaryStartSequenceNumber = entry.getSequenceNumber();
     } else if (entry.toBuilder().clearSequenceNumber().build()
         .equals(JournalEntry.getDefaultInstance())) {
       // Ignore empty entries, they are created during snapshotting.
@@ -171,7 +172,6 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
   }
 
   private synchronized void applyToMaster(JournalEntry entry) {
-    mLastModified = System.currentTimeMillis();
     String masterName;
     try {
       masterName = JournalEntryAssociation.getMasterForEntry(entry);
@@ -310,10 +310,10 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
   }
 
   /**
-   * @return the timestamp of the last modification to the state machine
+   * @return the last primary term start sequence number applied to this state machine
    */
-  public long getLastModifiedMs() {
-    return mLastModified;
+  public long getLastPrimaryStartSequenceNumber() {
+    return mLastPrimaryStartSequenceNumber;
   }
 
   /**

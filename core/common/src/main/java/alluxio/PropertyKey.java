@@ -3097,15 +3097,15 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription(
               "The election timeout for the embedded journal. When this period elapses without a "
                   + "master receiving any messages, the master will attempt to become the primary.")
-          .setDefaultValue("750ms")
+          .setDefaultValue("5s")
           .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL =
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL)
           .setDescription(
               "The period between sending heartbeats from the embedded journal primary to "
-                  + "followers. This must not exceed the election timeout "
+                  + "followers. This should be less than half of the election timeout "
                   + "(alluxio.master.embedded.journal.election.timeout).")
-          .setDefaultValue("250ms")
+          .setDefaultValue("1s")
           .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_PORT =
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_PORT)

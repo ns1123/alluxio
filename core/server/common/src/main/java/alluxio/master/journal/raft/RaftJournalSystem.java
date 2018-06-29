@@ -19,12 +19,12 @@ import alluxio.master.journal.AbstractJournalSystem;
 import alluxio.master.journal.AsyncJournalWriter;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalEntryStateMachine;
+import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.util.io.FileUtils;
 
 import com.google.common.base.Preconditions;
-import io.atomix.catalyst.concurrent.SingleThreadContext;
 import io.atomix.catalyst.serializer.Serializer;
 import io.atomix.catalyst.transport.Address;
 import io.atomix.catalyst.transport.netty.NettyTransport;
@@ -32,21 +32,19 @@ import io.atomix.copycat.client.CopycatClient;
 import io.atomix.copycat.client.RecoveryStrategies;
 import io.atomix.copycat.server.CopycatServer;
 import io.atomix.copycat.server.StateMachine;
-import io.atomix.copycat.server.state.ServerContext;
-import io.atomix.copycat.server.state.ServerStateMachine;
 import io.atomix.copycat.server.storage.Storage;
 import io.atomix.copycat.server.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -170,6 +168,9 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     Preconditions.checkState(conf.getMaxLogSize() <= Integer.MAX_VALUE,
         "{} has value {} but must not exceed {}", PropertyKey.MASTER_JOURNAL_LOG_SIZE_BYTES_MAX,
         conf.getMaxLogSize(), Integer.MAX_VALUE);
+    Preconditions.checkState(conf.getHeartbeatIntervalMs() < conf.getElectionTimeoutMs() / 2,
+        "Heartbeat interval (%sms) should be less than half of the election timeout (%sms)",
+        conf.getHeartbeatIntervalMs(), conf.getElectionTimeoutMs());
     mConf = conf;
     mJournals = new ConcurrentHashMap<>();
     mSnapshotAllowed = new AtomicBoolean(true);
@@ -259,9 +260,6 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   @Override
   public synchronized void gainPrimacy() {
     mSnapshotAllowed.set(false);
-    waitQuietPeriod(mStateMachine, mConf.getQuietTimeMs(), mServer);
-    long nextSN = mStateMachine.upgrade() + 1;
-
     CopycatClient client = createClient();
     try {
       client.connect().get();
@@ -273,6 +271,9 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           Arrays.toString(getClusterAddresses(mConf).toArray()), e.getCause().toString());
       throw new RuntimeException(errorMessage, e.getCause());
     }
+    catchUp(mStateMachine, client);
+    long nextSN = mStateMachine.upgrade() + 1;
+
     Preconditions.checkState(mRaftJournalWriter == null);
     mRaftJournalWriter = new RaftJournalWriter(nextSN, client);
     mAsyncJournalWriter.set(new AsyncJournalWriter(mRaftJournalWriter));
@@ -317,63 +318,50 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     LOG.info("Raft server successfully restarted");
   }
 
-  private boolean snapshotExists(CopycatServer server) {
-    SingleThreadContext context = new SingleThreadContext("readJournal", createSerializer());
-    try {
-      return context
-          .execute(
-              () -> server.storage().openSnapshotStore("copycat").currentSnapshot() != null)
-          .get();
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    } catch (ExecutionException e) {
-      throw new RuntimeException(e.getCause());
-    }
-  }
-
-  private void waitQuietPeriod(JournalStateMachine stateMachine, long quietPeriodMs, CopycatServer server) {
+  private void catchUp(JournalStateMachine stateMachine, CopycatClient client) {
     long startTime = System.currentTimeMillis();
-    // Sleep for quietDurationMs, then keep sleeping until we've gone quietDurationMs milliseconds
-    // without applying any journal entries.
-    CommonUtils.sleepMs(quietPeriodMs);
-    // Wait for any pending snapshot to finish
-    CommonUtils.waitFor("any pending snapshots to finish", x -> !stateMachine.isSnapshotting());
-    ServerContext serverContext = getServerContext();
-    ServerStateMachine copycatStateMachine = serverContext.getStateMachine();
-    long loggedIndex = copycatStateMachine.getLastLogged();
-    LOG.info("Catching up to log index {}", loggedIndex);
-    CommonUtils.waitFor("apply index to be caught up to the log index",
-        x -> {
-          if (mPrimarySelector.getState() != PrimarySelector.State.PRIMARY) {
-            // Break out early if the server loses leadership.
-            return true;
-          }
-          long lastApplied = copycatStateMachine.getLastApplied();
-          long lastSubmittedCommand = copycatStateMachine.getLastSubmittedCommand();
-          long lastCompletedCommand = copycatStateMachine.getLastCompletedCommand();
-          // Make sure that copycat has applied all entries up to the log index, and that all
-          // entries submitted to our state machine have been processed.
-          return lastApplied >= loggedIndex && lastCompletedCommand == lastSubmittedCommand;
-        },
-        WaitForOptions.defaults().setTimeoutMs(100 * Constants.SECOND_MS));
-    long quiet = System.currentTimeMillis() - stateMachine.getLastModifiedMs();
-    while (quiet < quietPeriodMs) {
-      CommonUtils.sleepMs(quietPeriodMs - quiet);
-      quiet = System.currentTimeMillis() - stateMachine.getLastModifiedMs();
+    // Wait for any outstanding snapshot to complete.
+    CommonUtils.waitFor("snapshotting to finish", () -> !stateMachine.isSnapshotting(),
+        WaitForOptions.defaults().setTimeoutMs(10 * Constants.MINUTE_MS));
+    // When a new master becomes primary, we write an empty journal entry with a random negative
+    // sequence number. Once that entry is applied to the copycat state machine, we know that all
+    // entries from previous terms must have been applied as well, so we can begin serving.
+    long gainPrimacySN = ThreadLocalRandom.current().nextLong(Long.MIN_VALUE, 0);
+    CompletableFuture<Void> future = null;
+    while (future == null || future.isCompletedExceptionally()) {
+      future = client.submit(new JournalEntryCommand(
+          JournalEntry.newBuilder().setSequenceNumber(gainPrimacySN).build()));
+      CompletableFuture<Void> finalFuture = future;
+      CommonUtils.waitFor("term start journal entry to be committed", () -> {
+        if (mPrimarySelector.getState() != PrimarySelector.State.PRIMARY) {
+          // Break out early if the server loses leadership.
+          return true;
+        }
+        return finalFuture.isDone();
+      });
+      if (future.isCompletedExceptionally()) {
+        try {
+          future.get();
+        } catch (Throwable t) {
+          LOG.error("Error submitting term start journal entry", t);
+        }
+      }
     }
-
-    LOG.info("Waited in quiet period for {}ms. Last sequence number from previous term: {}.",
+    CommonUtils.waitFor("term start journal entry to be applied to state machine", () -> {
+      if (mPrimarySelector.getState() != PrimarySelector.State.PRIMARY) {
+        // Break out early if the server loses leadership.
+        return true;
+      }
+      long sn = stateMachine.getLastPrimaryStartSequenceNumber();
+      boolean caughtUp = sn == gainPrimacySN;
+      if (!caughtUp) {
+        LOG.info("Catching up primary master state. Last applied sequence number: {}",
+            stateMachine.getLastAppliedSequenceNumber());
+      }
+      return caughtUp;
+    }, WaitForOptions.defaults().setInterval(Constants.SECOND_MS));
+    LOG.info("Caught up in {}ms. Last sequence number from previous term: {}.",
         System.currentTimeMillis() - startTime, stateMachine.getLastAppliedSequenceNumber());
-  }
-
-  private ServerContext getServerContext() {
-    try {
-      Field field = CopycatServer.class.getDeclaredField("context");
-      field.setAccessible(true);
-      return (ServerContext) field.get(mServer);
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @Override
