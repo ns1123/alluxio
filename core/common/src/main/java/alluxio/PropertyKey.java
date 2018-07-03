@@ -3388,7 +3388,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         PropertyKey.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS,
         PropertyKey.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
         PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX,
-        PropertyKey.USER_FILE_WRITE_TIER_DEFAULT,
         PropertyKey.USER_LINEAGE_ENABLED,
         PropertyKey.USER_LINEAGE_MASTER_CLIENT_THREADS);
   }
