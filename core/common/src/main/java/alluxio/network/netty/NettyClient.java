@@ -85,6 +85,15 @@ public final class NettyClient {
       public void initChannel(Channel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
 
+        // ALLUXIO CS ADD
+        if (Configuration.getBoolean(PropertyKey.NETWORK_TLS_ENABLED)) {
+          javax.net.ssl.SSLContext sslContext =
+              alluxio.util.network.SSLUtils.createClientSSLContext();
+          javax.net.ssl.SSLEngine sslEngine = sslContext.createSSLEngine();
+          sslEngine.setUseClientMode(true);
+          pipeline.addLast(new io.netty.handler.ssl.SslHandler(sslEngine));
+        }
+        // ALLUXIO CS END
         pipeline.addLast(RPCMessage.createFrameDecoder());
         pipeline.addLast(ENCODER);
         pipeline.addLast(DECODER);

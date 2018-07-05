@@ -3279,6 +3279,53 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.SECURITY_KMS_KERBEROS_ENABLED).setDefaultValue(false).build();
 
   //
+  // Network TLS support
+  //
+  public static final PropertyKey NETWORK_TLS_ENABLED =
+      new Builder(Name.NETWORK_TLS_ENABLED)
+          .setDescription("If true, enables TLS on all network communication between all Alluxio "
+              + "clients,  masters, and workers.")
+          .setDefaultValue(false)
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.ALL)
+          .build();
+  public static final PropertyKey NETWORK_TLS_KEYSTORE_PATH =
+      new Builder(Name.NETWORK_TLS_KEYSTORE_PATH)
+          .setDescription("The path to the keystore (in JKS format) for the server side of a "
+              + "TLS connection.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.ALL)
+          .build();
+  public static final PropertyKey NETWORK_TLS_KEYSTORE_PASSWORD =
+      new Builder(Name.NETWORK_TLS_KEYSTORE_PASSWORD)
+          .setDescription("The password for the keystore.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setDisplayType(DisplayType.CREDENTIALS)
+          .setScope(Scope.ALL)
+          .build();
+  public static final PropertyKey NETWORK_TLS_KEYSTORE_KEY_PASSWORD =
+      new Builder(Name.NETWORK_TLS_KEYSTORE_KEY_PASSWORD)
+          .setDescription("The password for the key in the keystore.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setDisplayType(DisplayType.CREDENTIALS)
+          .setScope(Scope.ALL)
+          .build();
+  public static final PropertyKey NETWORK_TLS_TRUSTSTORE_PATH =
+      new Builder(Name.NETWORK_TLS_TRUSTSTORE_PATH)
+          .setDescription("The path to the truststore (in JKS format) for the client side of a "
+              + "TLS connection.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.ALL)
+          .build();
+  public static final PropertyKey NETWORK_TLS_TRUSTSTORE_PASSWORD =
+      new Builder(Name.NETWORK_TLS_TRUSTSTORE_PASSWORD)
+          .setDescription("The password for the truststore.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setDisplayType(DisplayType.CREDENTIALS)
+          .setScope(Scope.ALL)
+          .build();
+
+  //
   // Native library
   //
   public static final PropertyKey NATIVE_LIBRARY_PATH =
@@ -4122,6 +4169,19 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SECURITY_KMS_PROVIDER = "alluxio.security.kms.provider";
     public static final String SECURITY_KMS_KERBEROS_ENABLED =
         "alluxio.security.kms.kerberos.enabled";
+
+    //
+    // Network TLS support
+    //
+    public static final String NETWORK_TLS_ENABLED = "alluxio.network.tls.enabled";
+    public static final String NETWORK_TLS_KEYSTORE_PATH = "alluxio.network.tls.keystore.path";
+    public static final String NETWORK_TLS_KEYSTORE_PASSWORD =
+        "alluxio.network.tls.keystore.password";
+    public static final String NETWORK_TLS_KEYSTORE_KEY_PASSWORD =
+        "alluxio.network.tls.keystore.key.password";
+    public static final String NETWORK_TLS_TRUSTSTORE_PATH = "alluxio.network.tls.truststore.path";
+    public static final String NETWORK_TLS_TRUSTSTORE_PASSWORD =
+        "alluxio.network.tls.truststore.password";
 
     //
     // Native library

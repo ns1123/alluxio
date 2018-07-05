@@ -55,6 +55,14 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
 
     final long timeoutMs = Configuration.getMs(PropertyKey.NETWORK_NETTY_HEARTBEAT_TIMEOUT_MS);
 
+    // ALLUXIO CS ADD
+    if (Configuration.getBoolean(PropertyKey.NETWORK_TLS_ENABLED)) {
+      javax.net.ssl.SSLContext sslContext = alluxio.util.network.SSLUtils.createServerSSLContext();
+      javax.net.ssl.SSLEngine sslEngine = sslContext.createSSLEngine();
+      sslEngine.setUseClientMode(false);
+      pipeline.addLast(new io.netty.handler.ssl.SslHandler(sslEngine));
+    }
+    // ALLUXIO CS END
     // Decoders & Encoders
     pipeline.addLast("frameDecoder", RPCMessage.createFrameDecoder());
     pipeline.addLast("RPCMessageDecoder", new RPCMessageDecoder());

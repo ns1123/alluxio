@@ -80,6 +80,21 @@ public final class ThriftUtils {
    * @return An unconnected socket
    */
   public static TSocket createThriftSocket(InetSocketAddress address) {
+    // ALLUXIO CS ADD
+    if (Configuration.getBoolean(PropertyKey.NETWORK_TLS_ENABLED)) {
+      try {
+        javax.net.ssl.SSLContext sslContext =
+            alluxio.util.network.SSLUtils.createClientSSLContext();
+
+        java.net.Socket socket =
+            sslContext.getSocketFactory().createSocket(address.getHostName(), address.getPort());
+        socket.setSoTimeout(SOCKET_TIMEOUT_MS);
+        return new TSocket(socket);
+      } catch (Exception e) {
+        throw new RuntimeException("failed to create client thrift socket", e);
+      }
+    }
+    // ALLUXIO CS END
     return new TSocket(address.getHostName(), address.getPort(), SOCKET_TIMEOUT_MS);
   }
 
@@ -91,6 +106,30 @@ public final class ThriftUtils {
    */
   public static TServerSocket createThriftServerSocket(InetSocketAddress address)
       throws TTransportException {
+    // ALLUXIO CS ADD
+    if (Configuration.getBoolean(PropertyKey.NETWORK_TLS_ENABLED)) {
+      try {
+        javax.net.ssl.SSLContext sslContext =
+            alluxio.util.network.SSLUtils.createServerSSLContext();
+
+        // 100 is the backlog. This is the default value thrift uses internally.
+        ServerSocket socket = sslContext.getServerSocketFactory()
+            .createServerSocket(address.getPort(), 100, address.getAddress());
+        if (socket instanceof javax.net.ssl.SSLServerSocket) {
+          javax.net.ssl.SSLServerSocket serverSocket = (javax.net.ssl.SSLServerSocket) socket;
+          serverSocket.setSoTimeout(SERVER_SOCKET_TIMEOUT_MS);
+          return new SocketTrackingTServerSocket(
+              (new TServerSocket.ServerSocketTransportArgs()).serverSocket(serverSocket)
+                  .clientTimeout(SOCKET_TIMEOUT_MS));
+        } else {
+          throw new IllegalStateException(
+              "Server socket not instance of javax.net.ssl.SSLServerSocket");
+        }
+      } catch (Exception e) {
+        throw new TTransportException("Failed to create server SSL socket", e);
+      }
+    }
+    // ALLUXIO CS END
     // The socket tracking socket will close all client sockets when the server socket is closed.
     // This is necessary so that clients don't receive spurious errors during failover. The master
     // will close this socket before resetting its state during stepdown.
