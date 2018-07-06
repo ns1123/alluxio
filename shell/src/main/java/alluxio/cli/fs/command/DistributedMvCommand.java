@@ -61,6 +61,9 @@ public final class DistributedMvCommand extends AbstractFileSystemCommand {
     thread.start();
     try {
       JobThriftClientUtils.run(new MoveConfig(srcPath.getPath(), dstPath.getPath(), null, true), 3);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return -1;
     } finally {
       thread.interrupt();
     }

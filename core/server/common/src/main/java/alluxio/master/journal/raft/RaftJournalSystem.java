@@ -271,7 +271,14 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           Arrays.toString(getClusterAddresses(mConf).toArray()), e.getCause().toString());
       throw new RuntimeException(errorMessage, e.getCause());
     }
-    catchUp(mStateMachine, client);
+    try {
+      catchUp(mStateMachine, client);
+    } catch (TimeoutException e) {
+      throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
+    }
     long nextSN = mStateMachine.upgrade() + 1;
 
     Preconditions.checkState(mRaftJournalWriter == null);
@@ -318,11 +325,13 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     LOG.info("Raft server successfully restarted");
   }
 
-  private void catchUp(JournalStateMachine stateMachine, CopycatClient client) {
+  private void catchUp(JournalStateMachine stateMachine, CopycatClient client)
+      throws TimeoutException, InterruptedException {
     long startTime = System.currentTimeMillis();
     // Wait for any outstanding snapshot to complete.
     CommonUtils.waitFor("snapshotting to finish", () -> !stateMachine.isSnapshotting(),
         WaitForOptions.defaults().setTimeoutMs(10 * Constants.MINUTE_MS));
+
     // When a new master becomes primary, we write an empty journal entry with a random negative
     // sequence number. Once that entry is applied to the copycat state machine, we know that all
     // entries from previous terms must have been applied as well, so we can begin serving.

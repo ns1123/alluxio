@@ -55,7 +55,6 @@ import alluxio.util.WaitForOptions;
 import alluxio.wire.FileInfo;
 import alluxio.worker.job.JobMasterClientConfig;
 
-import com.google.common.base.Function;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -337,7 +336,7 @@ public final class PersistenceTest {
 
     // Execute the persistence scheduler heartbeat, checking the internal state.
     HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
-    CommonUtils.waitFor("Scheduler heartbeat", (input -> getPersistJobs().size() > 0));
+    CommonUtils.waitFor("Scheduler heartbeat", (() -> getPersistJobs().size() > 0));
     checkPersistenceInProgress(alluxioFileSrc, jobId);
 
     // Mock the job service interaction.
@@ -347,7 +346,7 @@ public final class PersistenceTest {
 
     // Execute the persistence checker heartbeat, checking the internal state.
     HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-    CommonUtils.waitFor("Checker heartbeat", (input -> getPersistJobs().size() > 0));
+    CommonUtils.waitFor("Checker heartbeat", (() -> getPersistJobs().size() > 0));
     checkPersistenceInProgress(alluxioFileSrc, jobId);
 
     // Mock the job service interaction.
@@ -374,7 +373,7 @@ public final class PersistenceTest {
     // Execute the persistence checker heartbeat, checking the internal state. This should
     // re-schedule the persist task as tempUfsPath is deleted.
     HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-    CommonUtils.waitFor("Checker heartbeat", (input -> getPersistRequests().size() > 0));
+    CommonUtils.waitFor("Checker heartbeat", (() -> getPersistRequests().size() > 0));
     checkPersistenceRequested(alluxioFileDst);
 
     // Mock job service interaction.
@@ -383,7 +382,7 @@ public final class PersistenceTest {
 
     // Execute the persistence scheduler heartbeat, checking the internal state.
     HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
-    CommonUtils.waitFor("Scheduler heartbeat", (input -> getPersistJobs().size() > 0));
+    CommonUtils.waitFor("Scheduler heartbeat", (() -> getPersistJobs().size() > 0));
     checkPersistenceInProgress(alluxioFileDst, jobId);
   }
 
@@ -467,16 +466,13 @@ public final class PersistenceTest {
 
   private void waitUntilPersisted(final AlluxioURI testFile) throws Exception {
     // Persistence completion is asynchronous, so waiting is necessary.
-    CommonUtils.waitFor("async persistence is completed for file", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        try {
-          FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
-          return fileInfo.getPersistenceState().equals(PersistenceState.PERSISTED.toString());
-        } catch (FileDoesNotExistException | InvalidPathException | AccessControlException
-            | IOException e) {
-          return false;
-        }
+    CommonUtils.waitFor("async persistence is completed for file", () -> {
+      try {
+        FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
+        return fileInfo.getPersistenceState().equals(PersistenceState.PERSISTED.toString());
+      } catch (FileDoesNotExistException | InvalidPathException | AccessControlException
+          | IOException e) {
+        return false;
       }
     }, WaitForOptions.defaults().setTimeoutMs(30000));
 
@@ -484,7 +480,7 @@ public final class PersistenceTest {
     Map<Long, PersistJob> persistJobs = getPersistJobs();
     Assert.assertEquals(0, getPersistRequests().size());
     // We update the file info before removing the persist job, so we must wait here.
-    CommonUtils.waitFor("persist jobs list to be empty", (x) -> persistJobs.isEmpty(),
+    CommonUtils.waitFor("persist jobs list to be empty", () -> persistJobs.isEmpty(),
         WaitForOptions.defaults().setTimeoutMs(5 * Constants.SECOND_MS));
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), fileInfo.getPersistenceState());
   }

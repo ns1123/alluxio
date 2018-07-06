@@ -29,7 +29,6 @@ import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -40,6 +39,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import javax.ws.rs.HttpMethod;
 
@@ -129,17 +129,15 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     return new ObjectMapper().readValue(result, Long.TYPE);
   }
 
-  private void waitForStatus(final long jobId, final Status status) {
-    CommonUtils.waitFor("Waiting for job status", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        try {
-          return mJobMaster.getStatus(jobId).getStatus() == status;
-        } catch (Exception e) {
-          Throwables.propagate(e);
-        }
-        return null;
+  private void waitForStatus(final long jobId, final Status status)
+      throws InterruptedException, TimeoutException {
+    CommonUtils.waitFor("Waiting for job status", () -> {
+      try {
+        return mJobMaster.getStatus(jobId).getStatus() == status;
+      } catch (Exception e) {
+        Throwables.propagate(e);
       }
+      return null;
     }, WaitForOptions.defaults().setTimeoutMs(10 * Constants.SECOND_MS));
   }
 }

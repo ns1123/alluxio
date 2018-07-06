@@ -26,6 +26,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
+import java.util.concurrent.TimeoutException;
+
 /**
  * Prepares the environment for the job manager integration tests.
  */
@@ -61,19 +63,23 @@ public abstract class JobIntegrationTest extends BaseIntegrationTest {
     mLocalAlluxioJobCluster.stop();
   }
 
-  protected JobInfo waitForJobToFinish(final long jobId) {
+  protected JobInfo waitForJobToFinish(final long jobId)
+      throws InterruptedException, TimeoutException {
     return JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
   }
 
-  protected JobInfo waitForJobFailure(final long jobId) {
+  protected JobInfo waitForJobFailure(final long jobId)
+      throws InterruptedException, TimeoutException {
     return JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.FAILED);
   }
 
-  protected JobInfo waitForJobCancelled(final long jobId) {
+  protected JobInfo waitForJobCancelled(final long jobId)
+      throws InterruptedException, TimeoutException {
     return JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.CANCELED);
   }
 
-  protected JobInfo waitForJobRunning(final long jobId) {
+  protected JobInfo waitForJobRunning(final long jobId)
+      throws InterruptedException, TimeoutException {
     return JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.RUNNING);
   }
 }

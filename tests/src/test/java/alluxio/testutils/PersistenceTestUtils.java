@@ -17,7 +17,6 @@ import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.time.ExponentialTimer;
 import alluxio.util.CommonUtils;
 
-import com.google.common.base.Function;
 import org.powermock.reflect.Whitebox;
 
 import java.util.HashMap;
@@ -135,15 +134,11 @@ public final class PersistenceTestUtils {
   public static void waitForJobScheduled(LocalAlluxioClusterResource resource, final long fileId)
       throws Exception {
     final FileSystemMaster master = getFileSystemMaster(resource);
-    CommonUtils.waitFor(String.format("Persisted job scheduled for fileId %d", fileId),
-        new Function<Void, Boolean>() {
-          @Override
-          public Boolean apply(Void input) {
-            FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
-            Map<Long, ?> requests = Whitebox.getInternalState(nestedMaster, "mPersistRequests");
-            return !requests.containsKey(fileId);
-          }
-        });
+    CommonUtils.waitFor(String.format("Persisted job scheduled for fileId %d", fileId), () -> {
+      FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+      Map<Long, ?> requests = Whitebox.getInternalState(nestedMaster, "mPersistRequests");
+      return !requests.containsKey(fileId);
+    });
   }
 
   /**
@@ -156,15 +151,11 @@ public final class PersistenceTestUtils {
   public static void waitForJobComplete(LocalAlluxioClusterResource resource, final long fileId)
       throws Exception {
     final FileSystemMaster master = getFileSystemMaster(resource);
-    CommonUtils.waitFor(String.format("Persisted job complete for fileId %d", fileId),
-        new Function<Void, Boolean>() {
-          @Override
-          public Boolean apply(Void input) {
-            FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
-            Map<Long, ?> jobs = Whitebox.getInternalState(nestedMaster, "mPersistJobs");
-            return !jobs.containsKey(fileId);
-          }
-        });
+    CommonUtils.waitFor(String.format("Persisted job complete for fileId %d", fileId), () -> {
+      FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+      Map<Long, ?> jobs = Whitebox.getInternalState(nestedMaster, "mPersistJobs");
+      return !jobs.containsKey(fileId);
+    });
   }
 
   private static FileSystemMaster getFileSystemMaster(LocalAlluxioClusterResource resource) {

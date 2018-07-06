@@ -527,13 +527,15 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
    */
   public void waitForCapabilityKeyReady() {
     if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-      alluxio.util.CommonUtils.waitFor("worker capability key",
-          new com.google.common.base.Function<Void, Boolean>() {
-            @Override
-            public Boolean apply(Void input) {
-              return mCapabilityCache.getCapabilityKey().getEncodedKey() != null;
-            }
-          });
+      try {
+        alluxio.util.CommonUtils.waitFor("worker capability key",
+            () -> mCapabilityCache.getCapabilityKey().getEncodedKey() != null);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new RuntimeException(e);
+      } catch (TimeoutException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
   // ALLUXIO CS END

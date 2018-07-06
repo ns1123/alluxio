@@ -10,7 +10,6 @@
 package alluxio.client.job;
 
 import alluxio.Constants;
-import alluxio.exception.AlluxioException;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
@@ -19,12 +18,12 @@ import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.worker.job.JobMasterClientConfig;
 
-import com.google.common.base.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -37,17 +36,6 @@ public final class JobThriftClientUtils {
   private static final Logger LOG = LoggerFactory.getLogger(JobThriftClientUtils.class);
 
   /**
-   * Runs the specified job and waits for it to finish.
-   *
-   * @param config configuration for the job to run
-   * @throws AlluxioException if Alluxio error occurs
-   * @throws IOException if non-Alluxio error occurs
-   */
-  public static void run(JobConfig config) throws AlluxioException, IOException {
-    run(config, 1);
-  }
-
-  /**
    * Runs the specified job and waits for it to finish. If the job fails, it is retried the given
    * number of times. If the job does not complete in the given number of attempts, an exception
    * is thrown.
@@ -55,7 +43,7 @@ public final class JobThriftClientUtils {
    * @param config configuration for the job to run
    * @param attempts number of times to try running the job before giving up
    */
-  public static void run(JobConfig config, int attempts) {
+  public static void run(JobConfig config, int attempts) throws InterruptedException {
     CountingRetry retryPolicy = new CountingRetry(attempts);
     while (retryPolicy.attempt()) {
       long jobId;
@@ -121,36 +109,36 @@ public final class JobThriftClientUtils {
    * @param jobId the ID of the job to wait for
    * @return the job info for the job once it finishes or null if the job status cannot be fetched
    */
-  private static JobInfo waitFor(final long jobId) {
+  private static JobInfo waitFor(final long jobId) throws InterruptedException {
     final AtomicReference<JobInfo> finishedJobInfo = new AtomicReference<>();
     try (final JobMasterClient client =
         JobMasterClient.Factory.create(JobMasterClientConfig.defaults())) {
-      CommonUtils.waitFor("Job to finish", new Function<Void, Boolean>() {
-        @Override
-        public Boolean apply(Void input) {
-          JobInfo jobInfo;
-          try {
-            jobInfo = client.getStatus(jobId);
-          } catch (Exception e) {
-            LOG.warn("Failed to get status for job (jobId={})", jobId, e);
+      CommonUtils.waitFor("Job to finish", ()-> {
+        JobInfo jobInfo;
+        try {
+          jobInfo = client.getStatus(jobId);
+        } catch (Exception e) {
+          LOG.warn("Failed to get status for job (jobId={})", jobId, e);
+          return true;
+        }
+        switch (jobInfo.getStatus()) {
+          case FAILED: // fall through
+          case CANCELED: // fall through
+          case COMPLETED:
+            finishedJobInfo.set(jobInfo);
             return true;
-          }
-          switch (jobInfo.getStatus()) {
-            case FAILED: // fall through
-            case CANCELED: // fall through
-            case COMPLETED:
-              finishedJobInfo.set(jobInfo);
-              return true;
-            case RUNNING: // fall through
-            case CREATED:
-              return false;
-            default:
-              throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
-          }
+          case RUNNING: // fall through
+          case CREATED:
+            return false;
+          default:
+            throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
         }
       }, WaitForOptions.defaults().setInterval(1000));
     } catch (IOException e) {
       LOG.warn("Failed to close job master client: {}", e.toString());
+    } catch (TimeoutException e) {
+      // Should never happen since we use the default timeout of "never".
+      throw new IllegalStateException(e);
     }
 
     return finishedJobInfo.get();
