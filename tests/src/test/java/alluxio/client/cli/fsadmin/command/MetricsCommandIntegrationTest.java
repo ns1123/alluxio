@@ -15,7 +15,6 @@ import alluxio.client.cli.fsadmin.AbstractFsAdminShellTest;
 
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -26,7 +25,6 @@ import java.util.List;
  */
 public final class MetricsCommandIntegrationTest extends AbstractFsAdminShellTest {
   @Test
-  @Ignore("ALLUXIO-3226")
   public void metrics() {
     int ret = mFsAdminShell.run("report", "metrics");
     Assert.assertEquals(0, ret);
@@ -48,7 +46,6 @@ public final class MetricsCommandIntegrationTest extends AbstractFsAdminShellTes
         "    FilesCreated                                 0",
         "    FilesFreed                                   0",
         "    FilesPersisted                               0",
-        "    FilesPinned                                  0",
         "    NewBlocksGot                                 0",
         "    PathsDeleted                                 0",
         "    PathsMounted                                 0",
@@ -69,14 +66,7 @@ public final class MetricsCommandIntegrationTest extends AbstractFsAdminShellTes
         "    SetAttributeOps                              0",
         "    UnmountOps                                   0",
         "",
-        "Other metrics information: ",
-        "    AsyncCacheDuplicateRequests  (0)",
-        "    AsyncCacheFailedBlocks  (0)",
-        "    AsyncCacheRemoteBlocks  (0)",
-        "    AsyncCacheRequests  (0)",
-        "    AsyncCacheSucceededBlocks  (0)",
-        "    AsyncCacheUfsBlocks  (0)",
-        "    BlocksAccessed  (0)");
+        "Other metrics information: ");
     List<String> testOutput = Arrays.asList(output.split("\n")).subList(0, expectedOutput.size());
     Assert.assertThat(testOutput,
         IsIterableContainingInOrder.contains(expectedOutput.toArray()));
