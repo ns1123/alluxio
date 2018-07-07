@@ -271,8 +271,8 @@ public class LoadMetadataIntegrationTest extends BaseIntegrationTest {
   }
 
   private UfsAbsentPathCache getUfsAbsentPathCache() {
-    FileSystemMaster master = mLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getMasterProcess()
-        .getMaster(FileSystemMaster.class);
+    FileSystemMaster master = mLocalAlluxioClusterResource.get().getLocalAlluxioMaster()
+        .getMasterProcess().getMaster(FileSystemMaster.class);
     // ALLUXIO CS ADD
     master = Whitebox.getInternalState(master, "mFileSystemMaster");
     // ALLUXIO CS END
