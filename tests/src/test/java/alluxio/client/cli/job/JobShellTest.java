@@ -22,6 +22,8 @@ import alluxio.job.util.JobTestUtils;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 
+import java.util.concurrent.TimeoutException;
+
 public abstract class JobShellTest extends AbstractFileSystemShellTest {
   protected long runPersistJob() throws Exception {
     // write a file in alluxio only
@@ -37,7 +39,8 @@ public abstract class JobShellTest extends AbstractFileSystemShellTest {
     return mJobMaster.run(new PersistConfig("/test", 1, true, status.getUfsPath()));
   }
 
-  protected JobInfo waitForJobToFinish(final long jobId) {
+  protected JobInfo waitForJobToFinish(final long jobId)
+      throws InterruptedException, TimeoutException {
     return JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
   }
 }

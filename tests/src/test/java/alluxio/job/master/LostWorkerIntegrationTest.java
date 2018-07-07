@@ -26,7 +26,6 @@ import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.worker.JobWorkerIdRegistry;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Rule;
@@ -70,12 +69,9 @@ public class LostWorkerIntegrationTest extends BaseIntegrationTest {
 
     // Reregister the worker.
     HeartbeatScheduler.execute(HeartbeatContext.JOB_WORKER_COMMAND_HANDLING);
-    CommonUtils.waitFor("worker to reregister", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        return !mLocalAlluxioJobCluster.getMaster().getJobMaster().getWorkerInfoList().isEmpty()
-            && JobWorkerIdRegistry.getWorkerId() != initialId;
-      }
-    }, WaitForOptions.defaults().setTimeoutMs(10 * Constants.SECOND_MS));
+    CommonUtils.waitFor("worker to reregister",
+        () -> !mLocalAlluxioJobCluster.getMaster().getJobMaster().getWorkerInfoList().isEmpty()
+            && JobWorkerIdRegistry.getWorkerId() != initialId,
+        WaitForOptions.defaults().setTimeoutMs(10 * Constants.SECOND_MS));
   }
 }

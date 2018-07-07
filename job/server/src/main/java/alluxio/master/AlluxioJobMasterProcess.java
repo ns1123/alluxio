@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -181,10 +182,18 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
 
   @Override
   public boolean waitForReady(int timeoutMs) {
-    return CommonUtils.waitFor(this + " to start",
-        input -> mMasterServiceServer != null && mMasterServiceServer.isServing()
-            && mWebServer != null && mWebServer.getServer().isRunning(),
-        WaitForOptions.defaults().setTimeoutMs(timeoutMs).setThrowOnTimeout(false));
+    try {
+      CommonUtils.waitFor(this + " to start",
+          () -> mMasterServiceServer != null && mMasterServiceServer.isServing()
+              && mWebServer != null && mWebServer.getServer().isRunning(),
+          WaitForOptions.defaults().setTimeoutMs(timeoutMs));
+      return true;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return false;
+    } catch (TimeoutException e) {
+      return false;
+    }
   }
 
   /**

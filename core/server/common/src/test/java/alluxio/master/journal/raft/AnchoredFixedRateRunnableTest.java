@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -125,7 +126,7 @@ public class AnchoredFixedRateRunnableTest {
   }
 
   @Test
-  public void interruption() throws InterruptedException {
+  public void interruption() throws InterruptedException, TimeoutException {
     setTime(5, 30);
     run(LocalTime.of(4, 30), 1); // every 10 minutes.
     mThread.interrupt();

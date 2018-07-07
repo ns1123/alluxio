@@ -91,7 +91,7 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
         restartMasters();
         System.out.printf("---------- Iteration %s ----------\n", i);
         successes.set(0);
-        CommonUtils.waitFor("25 successes", x -> successes.get() >= 25,
+        CommonUtils.waitFor("25 successes", () -> successes.get() >= 25,
             WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS));
         if (failure.get() != null) {
           throw failure.get();

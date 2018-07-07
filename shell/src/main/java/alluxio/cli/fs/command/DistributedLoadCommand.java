@@ -72,7 +72,12 @@ public final class DistributedLoadCommand extends AbstractFileSystemCommand {
     if (cl.hasOption(REPLICATION)) {
       replication = Integer.parseInt(cl.getOptionValue(REPLICATION));
     }
-    load(path, replication);
+    try {
+      load(path, replication);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return -1;
+    }
     return 0;
   }
 
@@ -83,7 +88,8 @@ public final class DistributedLoadCommand extends AbstractFileSystemCommand {
    * @throws AlluxioException when Alluxio exception occurs
    * @throws IOException when non-Alluxio exception occurs
    */
-  private void load(AlluxioURI filePath, int replication) throws AlluxioException, IOException {
+  private void load(AlluxioURI filePath, int replication)
+      throws AlluxioException, IOException, InterruptedException {
     URIStatus status = mFileSystem.getStatus(filePath);
     if (status.isFolder()) {
       List<URIStatus> statuses = mFileSystem.listStatus(filePath);

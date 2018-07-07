@@ -19,9 +19,9 @@ import alluxio.master.job.JobMaster;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 
-import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -38,22 +38,19 @@ public final class JobTestUtils {
    * @return the status of the job waited for
    */
   public static JobInfo waitForJobStatus(final JobMaster jobMaster, final long jobId,
-      final Status status) {
+      final Status status) throws InterruptedException, TimeoutException {
     final AtomicReference<JobInfo> singleton = new AtomicReference<>();
     CommonUtils.waitFor(String.format("job %d to be in status %s", jobId, status.toString()),
-        new Function<Void, Boolean>() {
-          @Override
-          public Boolean apply(Void input) {
-            JobInfo info;
-            try {
-              info = jobMaster.getStatus(jobId);
-              if (info.getStatus().equals(status)) {
-                singleton.set(info);
-              }
-              return info.getStatus().equals(status);
-            } catch (JobDoesNotExistException e) {
-              throw Throwables.propagate(e);
+        () -> {
+          JobInfo info;
+          try {
+            info = jobMaster.getStatus(jobId);
+            if (info.getStatus().equals(status)) {
+              singleton.set(info);
             }
+            return info.getStatus().equals(status);
+          } catch (JobDoesNotExistException e) {
+            throw Throwables.propagate(e);
           }
         }, WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS));
     return singleton.get();
