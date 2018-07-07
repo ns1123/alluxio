@@ -171,6 +171,16 @@ public interface JournalSystem {
     }
 
     /**
+     * @param quietTimeMs before upgrading from SECONDARY to PRIMARY mode, the journal will wait
+     *        until this duration has passed without any journal entries being written.
+     * @return the updated builder
+     */
+    public Builder setQuietTimeMs(long quietTimeMs) {
+      mQuietTimeMs = quietTimeMs;
+      return this;
+    }
+
+    /**
      * @return a journal system
      */
     public JournalSystem build() {

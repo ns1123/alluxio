@@ -260,7 +260,6 @@ public final class CommonUtils {
    * @param condition the condition to wait on
    * @throws TimeoutException if the function times out while waiting for the condition to be true
    */
-
   public static void waitFor(String description, Supplier<Boolean> condition)
       throws InterruptedException, TimeoutException {
     waitFor(description, condition, WaitForOptions.defaults());
