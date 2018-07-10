@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 
@@ -416,7 +417,9 @@ public class AlluxioMasterProcess implements MasterProcess {
         .processor(processor)
         .transportFactory(transportFactory)
         .protocolFactory(ThriftUtils.createThriftProtocolFactory())
-        .stopTimeoutVal((int) Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT));
+        .stopTimeoutVal((int) TimeUnit.MILLISECONDS
+            .toSeconds(Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT)));
+    args.stopTimeoutUnit = TimeUnit.SECONDS;
     // ALLUXIO CS ADD
     args.executorService(
         alluxio.concurrent.Executors.createDefaultExecutorServiceWithSecurityOn(args));
