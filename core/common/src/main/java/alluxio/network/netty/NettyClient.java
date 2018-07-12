@@ -35,6 +35,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.security.auth.Subject;
 
 /**
  * Shared configuration and methods for the Netty client.
@@ -44,10 +45,6 @@ public final class NettyClient {
   /**  Share both the encoder and decoder with all the client pipelines. */
   private static final RPCMessageEncoder ENCODER = new RPCMessageEncoder();
   private static final RPCMessageDecoder DECODER = new RPCMessageDecoder();
-  // ALLUXIO CS ADD
-  private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
-      new KerberosSaslClientHandler();
-  // ALLUXIO CS END
 
   /**
    * Reuse {@link EventLoopGroup} for all clients. Use daemon threads so the JVM is allowed to
@@ -64,10 +61,11 @@ public final class NettyClient {
   /**
    * Creates and returns a new Netty client bootstrap for clients to connect to remote servers.
    *
+   * @param subject the subject for this client (can be null)
    * @param address the socket address
    * @return the new client {@link Bootstrap}
    */
-  public static Bootstrap createClientBootstrap(SocketAddress address) {
+  public static Bootstrap createClientBootstrap(Subject subject, SocketAddress address) {
     final Bootstrap boot = new Bootstrap();
 
     boot.group(WORKER_GROUP).channel(NettyUtils
@@ -95,7 +93,7 @@ public final class NettyClient {
         // ALLUXIO CS ADD
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
             alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-          pipeline.addLast(KERBEROS_SASL_CLIENT_HANDLER);
+          pipeline.addLast(new KerberosSaslClientHandler(subject));
         }
         // ALLUXIO CS END
       }
