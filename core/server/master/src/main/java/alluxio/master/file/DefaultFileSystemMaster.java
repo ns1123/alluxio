@@ -1755,27 +1755,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         String failureReason = null;
         if (unsafeInodes.contains(inodeToDelete.getId())) {
           failureReason = ExceptionMessage.DELETE_FAILED_DIR_NONEMPTY.getMessage();
-<<<<<<< HEAD
-        } else if (!replayed && delInode.isPersisted()) {
-          // If this is a mount point, we have deleted all the children and can unmount it
-          // TODO(calvin): Add tests (ALLUXIO-1831)
-          if (mMountTable.isMountPoint(alluxioUriToDel)) {
-            unmountInternal(alluxioUriToDel);
-          } else {
-            if (!(replayed || deleteOptions.isAlluxioOnly())) {
-              try {
-                checkUfsMode(alluxioUriToDel, OperationType.WRITE);
-                // Attempt to delete node if all children were deleted successfully
-                ufsDeleter.delete(alluxioUriToDel, delInode);
-              } catch (AccessControlException e) {
-                // In case ufs is not writable, we will still attempt to delete other entries
-                // if any as they may be from a different mount point
-                // TODO(adit): reason for failure is swallowed here
-                LOG.warn(e.getMessage());
-                failureReason = e.getMessage();
-              } catch (IOException e) {
-                failureReason = e.getMessage();
-=======
         } else if (!replayed && inodeToDelete.isPersisted()) {
           try {
             // If this is a mount point, we have deleted all the children and can unmount it
@@ -1797,16 +1776,16 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                   LOG.warn(e.getMessage());
                   failureReason = e.getMessage();
                 }
->>>>>>> OPENSOURCE/branch-1.8
               }
             }
+          } catch (InvalidPathException e) {
+            LOG.warn("Failed to delete path from UFS: {}", e.getMessage());
           }
         }
         if (failureReason == null) {
-<<<<<<< HEAD
           // ALLUXIO CS ADD
-          if (delInode.isFile()) {
-            long fileId = delInode.getId();
+          if (inodeToDelete.isFile()) {
+            long fileId = inodeToDelete.getId();
             // Remove the file from the set of files to persist.
             mPersistRequests.remove(fileId);
             // Cancel any ongoing jobs.
@@ -1816,10 +1795,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             }
           }
           // ALLUXIO CS END
-          inodesToDelete.add(new Pair<>(alluxioUriToDel, delInodePair.getSecond()));
-=======
           revisedInodesToDelete.add(new Pair<>(alluxioUriToDelete, inodePairToDelete.getSecond()));
->>>>>>> OPENSOURCE/branch-1.8
         } else {
           unsafeInodes.add(inodeToDelete.getId());
           // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
