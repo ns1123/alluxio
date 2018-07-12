@@ -307,7 +307,11 @@ func generateTarball(hadoopDistribution string) error {
 	replace("libexec/alluxio-config.sh", "assembly/server/target/alluxio-assembly-server-${VERSION}-jar-with-dependencies.jar", "assembly/alluxio-server-${VERSION}.jar")
 	// Update the FUSE jar path
 	replace("integration/fuse/bin/alluxio-fuse", "target/alluxio-integration-fuse-${VERSION}-jar-with-dependencies.jar", "alluxio-fuse-${VERSION}.jar")
-<<<<<<< HEAD
+	// Update the checker jar paths
+	for _, file := range []string{"bin/hive-checker.sh", "bin/mapreduce-checker.sh", "bin/spark-checker.sh"} {
+		replace(filepath.Join("integration/checker", file), "target/alluxio-checker-${VERSION}-jar-with-dependencies.jar", "alluxio-checker-${VERSION}.jar")
+	}
+
 	// ALLUXIO CS ADD
 	fmt.Printf("  erasing annotations ... ")
 	if err := annotation.Erase(srcPath); err != nil {
@@ -315,14 +319,6 @@ func generateTarball(hadoopDistribution string) error {
 	}
 	fmt.Println("done")
 	// ALLUXIO CS END
-||||||| merged common ancestors
-=======
-	// Update the checker jar paths
-	for _, file := range []string{"bin/hive-checker.sh", "bin/mapreduce-checker.sh", "bin/spark-checker.sh"} {
-		replace(filepath.Join("integration/checker", file), "target/alluxio-checker-${VERSION}-jar-with-dependencies.jar", "alluxio-checker-${VERSION}.jar")
-	}
->>>>>>> 58cf49720f5e60978b1c97d1a783a065437a28be
-
 	mvnArgs := getCommonMvnArgs(hadoopVersion)
 	run("compiling repo", "mvn", mvnArgs...)
 	// ALLUXIO CS ADD
