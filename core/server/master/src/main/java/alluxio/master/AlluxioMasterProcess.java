@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import javax.annotation.Nullable;
@@ -407,6 +408,7 @@ public class AlluxioMasterProcess implements MasterProcess {
         .processor(processor)
         .transportFactory(transportFactory)
         .protocolFactory(ThriftUtils.createThriftProtocolFactory())
+<<<<<<< HEAD
         .stopTimeoutVal((int) Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT));
     // ALLUXIO CS ADD
     args.executorService(
@@ -417,6 +419,15 @@ public class AlluxioMasterProcess implements MasterProcess {
     // ALLUXIO CS WITH
     mThriftServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
     // ALLUXIO CS END
+||||||| merged common ancestors
+        .stopTimeoutVal((int) Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT));
+    mThriftServer = new TThreadPoolServer(args);
+=======
+        .stopTimeoutVal((int) TimeUnit.MILLISECONDS
+            .toSeconds(Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT)));
+    args.stopTimeoutUnit = TimeUnit.SECONDS;
+    mThriftServer = new TThreadPoolServer(args);
+>>>>>>> os/branch-1.8
 
     // start thrift rpc server
     mSafeModeManager.notifyRpcServerStarted();
