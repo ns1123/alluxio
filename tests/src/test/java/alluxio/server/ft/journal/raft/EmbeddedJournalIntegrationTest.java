@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
   private static final int NUM_MASTERS = 3;
+  private static final int RESTART_TIMEOUT_MS = 2 * Constants.MINUTE_MS;
 
   @Rule
   public MultiProcessCluster mCluster = MultiProcessCluster.newBuilder()
@@ -54,7 +55,7 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
     AlluxioURI testDir = new AlluxioURI("/dir");
     FileSystem fs = mCluster.getFileSystemClient();
     fs.createDirectory(testDir);
-    mCluster.waitForAndKillPrimaryMaster(30 * Constants.SECOND_MS);
+    mCluster.waitForAndKillPrimaryMaster(RESTART_TIMEOUT_MS);
     assertTrue(fs.exists(testDir));
     mCluster.notifySuccess();
   }
@@ -90,7 +91,7 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
       System.out.printf("---------- Iteration %s ----------\n", i);
       successes.set(0);
       CommonUtils.waitFor("25 successes", x -> successes.get() >= 25,
-          WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS));
+          WaitForOptions.defaults().setTimeoutMs(RESTART_TIMEOUT_MS));
       if (failure.get() != null) {
         throw failure.get();
       }
