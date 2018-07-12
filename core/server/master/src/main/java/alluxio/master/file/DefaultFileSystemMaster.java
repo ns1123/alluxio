@@ -1795,6 +1795,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             }
           }
           // ALLUXIO CS END
+          revisedInodesToDelete.add(new Pair<>(alluxioUriToDelete, inodePairToDelete.getSecond()));
         } else {
           unsafeInodes.add(inodeToDelete.getId());
           // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
