@@ -2810,19 +2810,15 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
     // check for sub-struct validity
-<<<<<<< HEAD
     if (capability != null) {
       capability.validate();
     }
-||||||| parent of 464b37ce78... [MERGE] merge facl branch into master (#7620)
-=======
     if (acl != null) {
       acl.validate();
     }
     if (defaultAcl != null) {
       defaultAcl.validate();
     }
->>>>>>> 464b37ce78... [MERGE] merge facl branch into master (#7620)
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -3268,7 +3264,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         oprot.writeString(struct.ufsFingerprint);
         oprot.writeFieldEnd();
       }
-<<<<<<< HEAD
+      if (struct.acl != null) {
+        oprot.writeFieldBegin(ACL_FIELD_DESC);
+        struct.acl.write(oprot);
+        oprot.writeFieldEnd();
+      }
+      if (struct.defaultAcl != null) {
+        oprot.writeFieldBegin(DEFAULT_ACL_FIELD_DESC);
+        struct.defaultAcl.write(oprot);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
       oprot.writeI32(struct.replicationMax);
       oprot.writeFieldEnd();
@@ -3285,19 +3290,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       oprot.writeFieldBegin(ENCRYPTED_FIELD_DESC);
       oprot.writeBool(struct.encrypted);
       oprot.writeFieldEnd();
-||||||| parent of 464b37ce78... [MERGE] merge facl branch into master (#7620)
-=======
-      if (struct.acl != null) {
-        oprot.writeFieldBegin(ACL_FIELD_DESC);
-        struct.acl.write(oprot);
-        oprot.writeFieldEnd();
-      }
-      if (struct.defaultAcl != null) {
-        oprot.writeFieldBegin(DEFAULT_ACL_FIELD_DESC);
-        struct.defaultAcl.write(oprot);
-        oprot.writeFieldEnd();
-      }
->>>>>>> 464b37ce78... [MERGE] merge facl branch into master (#7620)
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -3394,7 +3386,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetEncrypted()) {
         optionals.set(25);
       }
-<<<<<<< HEAD
       if (struct.isSetTtlAction()) {
         optionals.set(26);
       }
@@ -3407,18 +3398,13 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetUfsFingerprint()) {
         optionals.set(29);
       }
-      oprot.writeBitSet(optionals, 30);
-||||||| parent of 464b37ce78... [MERGE] merge facl branch into master (#7620)
-      oprot.writeBitSet(optionals, 26);
-=======
       if (struct.isSetAcl()) {
-        optionals.set(26);
+        optionals.set(30);
       }
       if (struct.isSetDefaultAcl()) {
-        optionals.set(27);
+        optionals.set(31);
       }
-      oprot.writeBitSet(optionals, 28);
->>>>>>> 464b37ce78... [MERGE] merge facl branch into master (#7620)
+      oprot.writeBitSet(optionals, 32);
       if (struct.isSetFileId()) {
         oprot.writeI64(struct.fileId);
       }
@@ -3532,13 +3518,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, FileInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-<<<<<<< HEAD
-      BitSet incoming = iprot.readBitSet(30);
-||||||| parent of 464b37ce78... [MERGE] merge facl branch into master (#7620)
-      BitSet incoming = iprot.readBitSet(26);
-=======
-      BitSet incoming = iprot.readBitSet(28);
->>>>>>> 464b37ce78... [MERGE] merge facl branch into master (#7620)
+      BitSet incoming = iprot.readBitSet(32);
       if (incoming.get(0)) {
         struct.fileId = iprot.readI64();
         struct.setFileIdIsSet(true);
@@ -3679,12 +3659,12 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.ufsFingerprint = iprot.readString();
         struct.setUfsFingerprintIsSet(true);
       }
-      if (incoming.get(26)) {
+      if (incoming.get(30)) {
         struct.acl = new TAcl();
         struct.acl.read(iprot);
         struct.setAclIsSet(true);
       }
-      if (incoming.get(27)) {
+      if (incoming.get(31)) {
         struct.defaultAcl = new TAcl();
         struct.defaultAcl.read(iprot);
         struct.setDefaultAclIsSet(true);

@@ -8,10 +8,10 @@ public final class FileFooter {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface FileMetadataOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface FileMetadataOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:alluxio.proto.layout.FileMetadata)
+      com.google.protobuf.MessageOrBuilder {
 
-    // optional fixed64 block_header_size = 1;
     /**
      * <code>optional fixed64 block_header_size = 1;</code>
      *
@@ -29,7 +29,6 @@ public final class FileFooter {
      */
     long getBlockHeaderSize();
 
-    // optional fixed64 block_footer_size = 2;
     /**
      * <code>optional fixed64 block_footer_size = 2;</code>
      *
@@ -47,7 +46,6 @@ public final class FileFooter {
      */
     long getBlockFooterSize();
 
-    // optional fixed64 chunk_header_size = 3;
     /**
      * <code>optional fixed64 chunk_header_size = 3;</code>
      *
@@ -65,7 +63,6 @@ public final class FileFooter {
      */
     long getChunkHeaderSize();
 
-    // optional fixed64 chunk_size = 4;
     /**
      * <code>optional fixed64 chunk_size = 4;</code>
      *
@@ -83,7 +80,6 @@ public final class FileFooter {
      */
     long getChunkSize();
 
-    // optional fixed64 chunk_footer_size = 5;
     /**
      * <code>optional fixed64 chunk_footer_size = 5;</code>
      *
@@ -101,7 +97,6 @@ public final class FileFooter {
      */
     long getChunkFooterSize();
 
-    // optional fixed64 physical_block_size = 6;
     /**
      * <code>optional fixed64 physical_block_size = 6;</code>
      *
@@ -119,7 +114,6 @@ public final class FileFooter {
      */
     long getPhysicalBlockSize();
 
-    // optional fixed64 encryption_id = 7;
     /**
      * <code>optional fixed64 encryption_id = 7;</code>
      */
@@ -138,8 +132,9 @@ public final class FileFooter {
    * </pre>
    */
   public static final class FileMetadata extends
-      com.google.protobuf.GeneratedMessage
-      implements FileMetadataOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:alluxio.proto.layout.FileMetadata)
+      FileMetadataOrBuilder {
     // Use FileMetadata.newBuilder() to construct.
     private FileMetadata(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -260,7 +255,6 @@ public final class FileFooter {
     }
 
     private int bitField0_;
-    // optional fixed64 block_header_size = 1;
     public static final int BLOCK_HEADER_SIZE_FIELD_NUMBER = 1;
     private long blockHeaderSize_;
     /**
@@ -284,7 +278,6 @@ public final class FileFooter {
       return blockHeaderSize_;
     }
 
-    // optional fixed64 block_footer_size = 2;
     public static final int BLOCK_FOOTER_SIZE_FIELD_NUMBER = 2;
     private long blockFooterSize_;
     /**
@@ -308,7 +301,6 @@ public final class FileFooter {
       return blockFooterSize_;
     }
 
-    // optional fixed64 chunk_header_size = 3;
     public static final int CHUNK_HEADER_SIZE_FIELD_NUMBER = 3;
     private long chunkHeaderSize_;
     /**
@@ -332,7 +324,6 @@ public final class FileFooter {
       return chunkHeaderSize_;
     }
 
-    // optional fixed64 chunk_size = 4;
     public static final int CHUNK_SIZE_FIELD_NUMBER = 4;
     private long chunkSize_;
     /**
@@ -356,7 +347,6 @@ public final class FileFooter {
       return chunkSize_;
     }
 
-    // optional fixed64 chunk_footer_size = 5;
     public static final int CHUNK_FOOTER_SIZE_FIELD_NUMBER = 5;
     private long chunkFooterSize_;
     /**
@@ -380,7 +370,6 @@ public final class FileFooter {
       return chunkFooterSize_;
     }
 
-    // optional fixed64 physical_block_size = 6;
     public static final int PHYSICAL_BLOCK_SIZE_FIELD_NUMBER = 6;
     private long physicalBlockSize_;
     /**
@@ -404,7 +393,6 @@ public final class FileFooter {
       return physicalBlockSize_;
     }
 
-    // optional fixed64 encryption_id = 7;
     public static final int ENCRYPTION_ID_FIELD_NUMBER = 7;
     private long encryptionId_;
     /**
@@ -432,7 +420,8 @@ public final class FileFooter {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -586,8 +575,9 @@ public final class FileFooter {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements alluxio.proto.layout.FileFooter.FileMetadataOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:alluxio.proto.layout.FileMetadata)
+        alluxio.proto.layout.FileFooter.FileMetadataOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return alluxio.proto.layout.FileFooter.internal_static_alluxio_proto_layout_FileMetadata_descriptor;
@@ -754,7 +744,6 @@ public final class FileFooter {
       }
       private int bitField0_;
 
-      // optional fixed64 block_header_size = 1;
       private long blockHeaderSize_ ;
       /**
        * <code>optional fixed64 block_header_size = 1;</code>
@@ -803,7 +792,6 @@ public final class FileFooter {
         return this;
       }
 
-      // optional fixed64 block_footer_size = 2;
       private long blockFooterSize_ ;
       /**
        * <code>optional fixed64 block_footer_size = 2;</code>
@@ -852,7 +840,6 @@ public final class FileFooter {
         return this;
       }
 
-      // optional fixed64 chunk_header_size = 3;
       private long chunkHeaderSize_ ;
       /**
        * <code>optional fixed64 chunk_header_size = 3;</code>
@@ -901,7 +888,6 @@ public final class FileFooter {
         return this;
       }
 
-      // optional fixed64 chunk_size = 4;
       private long chunkSize_ ;
       /**
        * <code>optional fixed64 chunk_size = 4;</code>
@@ -950,7 +936,6 @@ public final class FileFooter {
         return this;
       }
 
-      // optional fixed64 chunk_footer_size = 5;
       private long chunkFooterSize_ ;
       /**
        * <code>optional fixed64 chunk_footer_size = 5;</code>
@@ -999,7 +984,6 @@ public final class FileFooter {
         return this;
       }
 
-      // optional fixed64 physical_block_size = 6;
       private long physicalBlockSize_ ;
       /**
        * <code>optional fixed64 physical_block_size = 6;</code>
@@ -1048,7 +1032,6 @@ public final class FileFooter {
         return this;
       }
 
-      // optional fixed64 encryption_id = 7;
       private long encryptionId_ ;
       /**
        * <code>optional fixed64 encryption_id = 7;</code>
@@ -1092,7 +1075,7 @@ public final class FileFooter {
     // @@protoc_insertion_point(class_scope:alluxio.proto.layout.FileMetadata)
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_layout_FileMetadata_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -1115,23 +1098,23 @@ public final class FileFooter {
       "\007 \001(\006"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_alluxio_proto_layout_FileMetadata_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_alluxio_proto_layout_FileMetadata_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_alluxio_proto_layout_FileMetadata_descriptor,
-              new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "EncryptionId", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_alluxio_proto_layout_FileMetadata_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_alluxio_proto_layout_FileMetadata_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_alluxio_proto_layout_FileMetadata_descriptor,
+        new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "EncryptionId", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
