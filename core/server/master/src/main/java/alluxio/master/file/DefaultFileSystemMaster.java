@@ -1783,6 +1783,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
         }
         if (failureReason == null) {
+<<<<<<< HEAD
           // ALLUXIO CS ADD
           if (inodeToDelete.isFile()) {
             long fileId = inodeToDelete.getId();
@@ -1796,6 +1797,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
           // ALLUXIO CS END
           revisedInodesToDelete.add(new Pair<>(alluxioUriToDelete, inodePairToDelete.getSecond()));
+||||||| merged common ancestors
+          inodesToDelete.add(new Pair<>(alluxioUriToDel, delInodePair.getSecond()));
+=======
+          revisedInodesToDelete.add(new Pair<>(alluxioUriToDelete, inodePairToDelete.getSecond()));
+>>>>>>> os/master
         } else {
           unsafeInodes.add(inodeToDelete.getId());
           // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
