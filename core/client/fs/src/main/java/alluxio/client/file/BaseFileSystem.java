@@ -41,12 +41,8 @@ import alluxio.exception.status.FailedPreconditionException;
 import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.exception.status.UnavailableException;
-<<<<<<< HEAD
 import alluxio.wire.CommonOptions;
-||||||| parent of 464b37ce78... [MERGE] merge facl branch into master (#7620)
-=======
 import alluxio.security.authorization.AclEntry;
->>>>>>> 464b37ce78... [MERGE] merge facl branch into master (#7620)
 import alluxio.wire.LoadMetadataType;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;

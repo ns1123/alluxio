@@ -74,7 +74,6 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystem.class);
   private static final int MAX_TRY = 5;
   private static final String HDFS_USER = "";
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   // According to the following link
   // https://stackoverflow.com/questions/34616676/should-i-call-ugi-checktgtandreloginfromkeytab-before-every-action-on-hadoop,
@@ -84,13 +83,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // is first loaded. We must ensure that loginUserFromKeytab is called once and only once.
   // Therefore, we need a static boolean variable to track this.
   private static boolean sIsAuthenticated;
-  // ALLUXIO CS END
-||||||| parent of 464b37ce78... [MERGE] merge facl branch into master (#7620)
-=======
   /** Name of the class for the HDFS Acl provider. */
   private static final String HDFS_ACL_PROVIDER_CLASS =
       "alluxio.underfs.hdfs.acl.SupportedHdfsAclProvider";
->>>>>>> 464b37ce78... [MERGE] merge facl branch into master (#7620)
 
   private final LoadingCache<String, FileSystem> mUserFs;
   private final HdfsAclProvider mHdfsAclProvider;
