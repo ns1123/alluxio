@@ -83,6 +83,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // is first loaded. We must ensure that loginUserFromKeytab is called once and only once.
   // Therefore, we need a static boolean variable to track this.
   private static boolean sIsAuthenticated;
+  // ALLUXIO CS END
   /** Name of the class for the HDFS Acl provider. */
   private static final String HDFS_ACL_PROVIDER_CLASS =
       "alluxio.underfs.hdfs.acl.SupportedHdfsAclProvider";
