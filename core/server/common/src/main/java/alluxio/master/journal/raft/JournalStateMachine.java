@@ -31,10 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -56,18 +54,6 @@ import javax.annotation.concurrent.GuardedBy;
 public class JournalStateMachine extends StateMachine implements Snapshottable {
   private static final Logger LOG = LoggerFactory.getLogger(RaftJournalSystem.class);
 
-  /**
-   * Tracks which commits are currently "live" for this state machine. We consider all commits live
-   * until a snapshot is taken or restored at or beyond their log index.
-   *
-   * Although the Copycat documentation says otherwise for Snapshottable state machines, it is not
-   * correct to release snapshottable entries as soon as they are applied. The problem is that
-   * Copycat's RegisterEntry entries may be compacted out of the log once all of the entries written
-   * in their session have been released and their session closed. Once the RegisterEntry is
-   * compacted, Copycat will ignore all of our entries for the session because it will not recognize
-   * the session for our commands. We've seen this happen with Copycat trace-level logging.
-   */
-  private final Set<Commit<JournalEntryCommand>> mLiveCommits = new HashSet<>();
   private final Map<String, RaftJournal> mJournals;
   @GuardedBy("this")
   private boolean mIgnoreApplys = false;
@@ -99,7 +85,6 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
    * @param commit the commit
    */
   public synchronized void applyJournalEntryCommand(Commit<JournalEntryCommand> commit) {
-    mLiveCommits.add(commit);
     JournalEntry entry;
     try {
       entry = JournalEntry.parseFrom(commit.command().getSerializedJournalEntry());
@@ -114,6 +99,7 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
     } finally {
       Preconditions.checkState(commit.index() > mLastAppliedCommitIndex);
       mLastAppliedCommitIndex = commit.index();
+      commit.close();
     }
   }
 
@@ -233,7 +219,6 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
       ProcessUtils.fatalError(LOG, t, "Failed to snapshot");
     }
     mSnapshotting = false;
-    clearCommits();
   }
 
   @Override
@@ -264,7 +249,6 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
           mNextSequenceNumberToRead);
     }
     mNextSequenceNumberToRead = snapshotSN + 1;
-    clearCommits();
     LOG.info("Successfully installed snapshot up to SN {}", snapshotSN);
   }
 
@@ -279,17 +263,6 @@ public class JournalStateMachine extends StateMachine implements Snapshottable {
     for (RaftJournal journal : mJournals.values()) {
       journal.getStateMachine().resetState();
     }
-  }
-
-  private synchronized void clearCommits() {
-    for (Commit<?> commit : mLiveCommits) {
-      try {
-        commit.release();
-      } catch (Throwable t) {
-        LOG.error("Failed to release commit {}", commit, t);
-      }
-    }
-    mLiveCommits.clear();
   }
 
   /**
