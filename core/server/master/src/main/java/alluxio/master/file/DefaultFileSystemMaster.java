@@ -4693,7 +4693,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     private static final Counter PATHS_UNMOUNTED = MetricsSystem.counter("PathsUnmounted");
 
     // TODO(peis): Increment the RPCs OPs at the place where we receive the RPCs.
-<<<<<<< HEAD
     private static final Counter COMPLETE_FILE_OPS = MetricsSystem.counter("CompleteFileOps");
     private static final Counter CREATE_DIRECTORIES_OPS =
         MetricsSystem.counter("CreateDirectoryOps");
@@ -4706,6 +4705,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     private static final Counter GET_NEW_BLOCK_OPS = MetricsSystem.counter("GetNewBlockOps");
     private static final Counter MOUNT_OPS = MetricsSystem.counter("MountOps");
     private static final Counter RENAME_PATH_OPS = MetricsSystem.counter("RenamePathOps");
+    private static final Counter SET_ACL_OPS = MetricsSystem.counter("SetAclOps");
     private static final Counter SET_ATTRIBUTE_OPS = MetricsSystem.counter("SetAttributeOps");
     private static final Counter UNMOUNT_OPS = MetricsSystem.counter("UnmountOps");
 
@@ -4714,59 +4714,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     public static final String UFS_CAPACITY_TOTAL = "UfsCapacityTotal";
     public static final String UFS_CAPACITY_USED = "UfsCapacityUsed";
     public static final String UFS_CAPACITY_FREE = "UfsCapacityFree";
-||||||| parent of 464b37ce78... [MERGE] merge facl branch into master (#7620)
-    private static final Counter COMPLETE_FILE_OPS
-        = MetricsSystem.counter(MasterMetrics.COMPLETE_FILE_OPS);
-    private static final Counter CREATE_DIRECTORIES_OPS
-        = MetricsSystem.counter(MasterMetrics.CREATE_DIRECTORIES_OPS);
-    private static final Counter CREATE_FILES_OPS
-        = MetricsSystem.counter(MasterMetrics.CREATE_FILES_OPS);
-    private static final Counter DELETE_PATHS_OPS
-        = MetricsSystem.counter(MasterMetrics.DELETE_PATHS_OPS);
-    private static final Counter FREE_FILE_OPS
-        = MetricsSystem.counter(MasterMetrics.FREE_FILE_OPS);
-    private static final Counter GET_FILE_BLOCK_INFO_OPS
-        = MetricsSystem.counter(MasterMetrics.GET_FILE_BLOCK_INFO_OPS);
-    private static final Counter GET_FILE_INFO_OPS
-        = MetricsSystem.counter(MasterMetrics.GET_FILE_INFO_OPS);
-    private static final Counter GET_NEW_BLOCK_OPS
-        = MetricsSystem.counter(MasterMetrics.GET_NEW_BLOCK_OPS);
-    private static final Counter MOUNT_OPS
-        = MetricsSystem.counter(MasterMetrics.MOUNT_OPS);
-    private static final Counter RENAME_PATH_OPS
-        = MetricsSystem.counter(MasterMetrics.RENAME_PATH_OPS);
-    private static final Counter SET_ATTRIBUTE_OPS
-        = MetricsSystem.counter(MasterMetrics.SET_ATTRIBUTE_OPS);
-    private static final Counter UNMOUNT_OPS
-        = MetricsSystem.counter(MasterMetrics.UNMOUNT_OPS);
-=======
-    private static final Counter COMPLETE_FILE_OPS
-        = MetricsSystem.counter(MasterMetrics.COMPLETE_FILE_OPS);
-    private static final Counter CREATE_DIRECTORIES_OPS
-        = MetricsSystem.counter(MasterMetrics.CREATE_DIRECTORIES_OPS);
-    private static final Counter CREATE_FILES_OPS
-        = MetricsSystem.counter(MasterMetrics.CREATE_FILES_OPS);
-    private static final Counter DELETE_PATHS_OPS
-        = MetricsSystem.counter(MasterMetrics.DELETE_PATHS_OPS);
-    private static final Counter FREE_FILE_OPS
-        = MetricsSystem.counter(MasterMetrics.FREE_FILE_OPS);
-    private static final Counter GET_FILE_BLOCK_INFO_OPS
-        = MetricsSystem.counter(MasterMetrics.GET_FILE_BLOCK_INFO_OPS);
-    private static final Counter GET_FILE_INFO_OPS
-        = MetricsSystem.counter(MasterMetrics.GET_FILE_INFO_OPS);
-    private static final Counter GET_NEW_BLOCK_OPS
-        = MetricsSystem.counter(MasterMetrics.GET_NEW_BLOCK_OPS);
-    private static final Counter MOUNT_OPS
-        = MetricsSystem.counter(MasterMetrics.MOUNT_OPS);
-    private static final Counter RENAME_PATH_OPS
-        = MetricsSystem.counter(MasterMetrics.RENAME_PATH_OPS);
-    private static final Counter SET_ACL_OPS
-        = MetricsSystem.counter(MasterMetrics.SET_ACL_OPS);
-    private static final Counter SET_ATTRIBUTE_OPS
-        = MetricsSystem.counter(MasterMetrics.SET_ATTRIBUTE_OPS);
-    private static final Counter UNMOUNT_OPS
-        = MetricsSystem.counter(MasterMetrics.UNMOUNT_OPS);
->>>>>>> 464b37ce78... [MERGE] merge facl branch into master (#7620)
 
     /**
      * Register some file system master related gauges.
