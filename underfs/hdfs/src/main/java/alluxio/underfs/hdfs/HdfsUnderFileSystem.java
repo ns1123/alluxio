@@ -16,6 +16,7 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
+import alluxio.security.authorization.AccessControlList;
 import alluxio.underfs.AtomicFileOutputStream;
 import alluxio.underfs.AtomicFileOutputStreamCallback;
 import alluxio.underfs.BaseUnderFileSystem;
@@ -73,6 +74,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystem.class);
   private static final int MAX_TRY = 5;
   private static final String HDFS_USER = "";
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   // According to the following link
   // https://stackoverflow.com/questions/34616676/should-i-call-ugi-checktgtandreloginfromkeytab-before-every-action-on-hadoop,
@@ -83,8 +85,15 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // Therefore, we need a static boolean variable to track this.
   private static boolean sIsAuthenticated;
   // ALLUXIO CS END
+||||||| parent of 464b37ce78... [MERGE] merge facl branch into master (#7620)
+=======
+  /** Name of the class for the HDFS Acl provider. */
+  private static final String HDFS_ACL_PROVIDER_CLASS =
+      "alluxio.underfs.hdfs.acl.SupportedHdfsAclProvider";
+>>>>>>> 464b37ce78... [MERGE] merge facl branch into master (#7620)
 
   private final LoadingCache<String, FileSystem> mUserFs;
+  private final HdfsAclProvider mHdfsAclProvider;
   private UnderFileSystemConfiguration mUfsConf;
   // ALLUXIO CS ADD
   private final boolean mIsHdfsKerberized;
@@ -113,6 +122,26 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   public HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
       Configuration hdfsConf) {
     super(ufsUri, conf);
+
+    // Create the supported HdfsAclProvider if possible.
+    HdfsAclProvider hdfsAclProvider = new NoopHdfsAclProvider();
+    try {
+      // The HDFS acl provider class may not be available, so the class must be created from a
+      // string literal.
+      Object o = Class.forName(HDFS_ACL_PROVIDER_CLASS).newInstance();
+      if (o instanceof HdfsAclProvider) {
+        hdfsAclProvider = (HdfsAclProvider) o;
+      } else {
+        LOG.warn(
+            "SupportedHdfsAclProvider is not instance of HdfsAclProvider. HDFS ACLs will not be "
+                + "supported.");
+      }
+    } catch (Exception e) {
+      // ignore
+      LOG.warn("Cannot create SupportedHdfsAclProvider. HDFS ACLs will not be supported.");
+    }
+    mHdfsAclProvider = hdfsAclProvider;
+
     mUfsConf = conf;
     Path path = new Path(ufsUri.toString());
     // UserGroupInformation.setConfiguration(hdfsConf) will trigger service loading.
@@ -282,6 +311,16 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   public boolean exists(String path) throws IOException {
     FileSystem hdfs = getFs();
     return hdfs.exists(new Path(path));
+  }
+
+  @Override
+  public AccessControlList getAcl(String path) throws IOException {
+    return mHdfsAclProvider.getAcl(getFs(), path);
+  }
+
+  @Override
+  public void setAcl(String path, AccessControlList acl) throws IOException {
+    mHdfsAclProvider.setAcl(getFs(), path, acl);
   }
 
   @Override
