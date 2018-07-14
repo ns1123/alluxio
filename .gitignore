@@ -51,6 +51,7 @@ tests.log*
 /annotation/
 /lib/
 /core/client/fs/src/main/native/cmake/
+/integration/authorization/hdfs/src/main/java/alluxio/security/authorization/AuthorizationPluginConstants.java
 /underfs/hdfs/src/main/java/alluxio/UfsConstants.java
 # ALLUXIO CS END
 # ALLUXIO CS MODIFIED
