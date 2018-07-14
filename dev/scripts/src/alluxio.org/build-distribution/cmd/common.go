@@ -95,20 +95,27 @@ var ufsModules = map[string]module{
 	"ufs-mapr-5.2":   {"mapr-5.2", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.0-mapr-1607"},
 }
 
-func validUfsModules() []string {
+// authModules is a map from authorization module to information for building the module.
+var authModules = map[string]module{
+	"auth-ranger-hdp-2.6": {"ranger-0.7-hdp-2.6", true, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.3.2.6.1.0-129 -Dauth.plugin.name=ranger-hdp-2.6 -Dauth.plugin.version=0.7.0.2.6.1.0-129"},
+	"auth-ranger-hdp-2.5": {"ranger-0.6-hdp-2.5", true, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.3.2.5.5.5-2 -Dauth.plugin.name=ranger-hdp-2.5 -Dauth.plugin.version=0.6.0.2.5.5.5-2"},
+	"auth-ranger-hdp-2.4": {"ranger-0.5-hdp-2.4", false, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.1.2.4.4.1-9 -Dauth.plugin.name=ranger-hdp-2.4 -Dauth.plugin.version=0.5.0.2.4.4.1-9"},
+}
+
+func validModules(modules map[string]module) []string {
 	result := []string{}
-	for ufsModule := range ufsModules {
-		result = append(result, ufsModule)
+	for moduleName := range modules {
+		result = append(result, moduleName)
 	}
 	sort.Strings(result)
 	return result
 }
 
-func defaultUfsModules() []string {
+func defaultModules(modules map[string]module) []string {
 	result := []string{}
-	for ufsModule := range ufsModules {
-		if ufsModules[ufsModule].isDefault {
-			result = append(result, ufsModule)
+	for moduleName := range modules {
+		if modules[moduleName].isDefault {
+			result = append(result, moduleName)
 		}
 	}
 	sort.Strings(result)

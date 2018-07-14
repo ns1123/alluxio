@@ -1,5 +1,12 @@
 replication/
+AbstractInodeAttributesProviderFactory.java
+AccessControlEnforcer.java
+ExtendablePermissionChecker.java
+ExtensionInodeAttributesProvider.java
 FileSystemMasterJobServiceHandler.java
+InodeAttributes.java
+InodeAttributesProvider.java
+InodeAttributesProviderFactory.java
 PersistJob.java
 PersistRequest.java
 PrivilegedFileSystemMaster.java

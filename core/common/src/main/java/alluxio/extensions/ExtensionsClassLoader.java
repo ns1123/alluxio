@@ -82,4 +82,16 @@ public class ExtensionsClassLoader extends URLClassLoader {
       return mDefaultClassloader.loadClass(name, resolve);
     }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Adds a path where the class loader can load resource from.
+   *
+   * @param path the path to add
+   */
+  public void addPath(String path) throws java.net.MalformedURLException {
+    URL url = java.nio.file.Paths.get(path).toUri().toURL();
+    addURL(url);
+  }
+  // ALLUXIO CS END
 }

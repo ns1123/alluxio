@@ -1,4 +1,5 @@
 replication/
+ExtensionInodeAttributesProviderTest.java
 PersistenceTest.java
 PersistJobTest.java
 PersistRequestTest.java

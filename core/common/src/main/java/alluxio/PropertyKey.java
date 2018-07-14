@@ -3028,6 +3028,21 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.UNDERFS_HDFS_VERSION)
           .setDefaultValue("2.2")
           .build();
+  public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
+      new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME)
+          .setDescription("Name of the authorization plugin for the under filesystem.")
+          .setDefaultValue("")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS =
+      new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS)
+          .setDescription("Classpaths for the under filesystem authorization plugin, separated by "
+              + "colons.")
+          .setDefaultValue("")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
 
   //
   // Master related CS properties
@@ -3233,6 +3248,27 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
       new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS)
           .setDefaultValue(Constants.DAY_MS)
+          .build();
+  public static final PropertyKey SECURITY_AUTHORIZATION_PLUGIN_NAME =
+      new Builder(Name.SECURITY_AUTHORIZATION_PLUGIN_NAME)
+          .setDefaultValue("")
+          .setDescription("Plugin for master authorization.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHORIZATION_PLUGIN_PATHS =
+      new Builder(Name.SECURITY_AUTHORIZATION_PLUGIN_PATHS)
+          .setDefaultValue("")
+          .setDescription("Classpath for master authorization plugin, separated by colons.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHORIZATION_PLUGINS_ENABLED =
+      new Builder(Name.SECURITY_AUTHORIZATION_PLUGINS_ENABLED)
+          .setDefaultValue(false)
+          .setDescription("Enable plugins for authorization.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
           .build();
   public static final PropertyKey SECURITY_PRIVILEGES_ENABLED =
       new Builder(Name.SECURITY_PRIVILEGES_ENABLED).setDefaultValue(false).build();
@@ -3549,6 +3585,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String UNDERFS_HDFS_REMOTE = "alluxio.underfs.hdfs.remote";
     // ALLUXIO CS ADD
     public static final String UNDERFS_HDFS_VERSION = "alluxio.underfs.hdfs.version";
+    public static final String UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
+        "alluxio.underfs.security.authorization.plugin.name";
+    public static final String UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS =
+        "alluxio.underfs.security.authorization.plugin.paths";
     // ALLUXIO CS END
     public static final String UNDERFS_OBJECT_STORE_SERVICE_THREADS =
         "alluxio.underfs.object.store.service.threads";
@@ -4063,6 +4103,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
 
     // ALLUXIO CS ADD
+    public static final String SECURITY_AUTHORIZATION_PLUGIN_NAME =
+        "alluxio.security.authorization.plugin.name";
+    public static final String SECURITY_AUTHORIZATION_PLUGIN_PATHS =
+        "alluxio.security.authorization.plugin.paths";
+    public static final String SECURITY_AUTHORIZATION_PLUGINS_ENABLED =
+        "alluxio.security.authorization.plugins.enabled";
     public static final String SECURITY_GROUP_MAPPING_LDAP_URL =
         "alluxio.security.group.mapping.ldap.url";
     public static final String SECURITY_GROUP_MAPPING_LDAP_SSL =
