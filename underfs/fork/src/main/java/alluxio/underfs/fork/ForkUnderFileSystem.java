@@ -13,6 +13,7 @@ package alluxio.underfs.fork;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
+import alluxio.security.authorization.AccessControlList;
 import alluxio.underfs.Fingerprint;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
@@ -295,6 +296,41 @@ public class ForkUnderFileSystem implements UnderFileSystem {
           }
         }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.values(), result));
     return result.get();
+  }
+
+  @Override
+  public AccessControlList getAcl(String path) throws IOException {
+    Collection<AccessControlList> result = new ConcurrentLinkedQueue<>();
+    try {
+      ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+          new Function<Pair<Pair<String, UnderFileSystem>, Collection<AccessControlList>>,
+              IOException>() {
+            @Nullable
+            @Override
+            public IOException apply(
+                Pair<Pair<String, UnderFileSystem>, Collection<AccessControlList>> arg) {
+              try {
+                Pair<String, UnderFileSystem> entry = arg.getKey();
+                Collection<AccessControlList> result = arg.getValue();
+                result.add(entry.getValue().getAcl(convert(entry.getKey(), path)));
+              } catch (IOException e) {
+                return e;
+              }
+              return null;
+            }
+          }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.values(), result));
+    } catch (IOException e) {
+      return null;
+    }
+
+    // If one of the getAcl result is non-null, we return that
+    for (AccessControlList acl: result) {
+      if (acl != null) {
+        return acl;
+      }
+    }
+
+    return null;
   }
 
   @Override
@@ -711,6 +747,23 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public AlluxioURI resolveUri(AlluxioURI ufsBaseUri, String alluxioPath) {
     return new AlluxioURI(ufsBaseUri.getScheme(), ufsBaseUri.getAuthority(),
         PathUtils.concatPath(ufsBaseUri.getPath(), alluxioPath), ufsBaseUri.getQueryMap());
+  }
+
+  @Override
+  public void setAcl(String path, AccessControlList acl) throws IOException {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+        new Function<Pair<String, UnderFileSystem>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Pair<String, UnderFileSystem> arg) {
+            try {
+              arg.getValue().setAcl(convert(arg.getKey(), path), acl);
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.values());
   }
 
   @Override

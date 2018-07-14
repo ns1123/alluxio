@@ -43,12 +43,14 @@ import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.RenameOptions;
+import alluxio.master.file.options.SetAclOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.master.file.options.WorkerHeartbeatOptions;
 import alluxio.master.journal.JournalContext;
 import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.proto.journal.Journal;
+import alluxio.security.authorization.AclEntry;
 import alluxio.thrift.FileSystemCommand;
 import alluxio.thrift.FileSystemMasterClientService;
 import alluxio.thrift.FileSystemMasterWorkerService;
@@ -58,6 +60,7 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.Privilege;
+import alluxio.wire.SetAclAction;
 import alluxio.wire.TtlAction;
 import alluxio.wire.WorkerInfo;
 
@@ -371,6 +374,13 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
       throws UnexpectedAlluxioException, FileDoesNotExistException, InvalidPathException,
       AccessControlException, UnavailableException, IOException {
     mFileSystemMaster.resetFile(fileId);
+  }
+
+  @Override
+  public void setAcl(AlluxioURI path, SetAclAction action,
+      List<AclEntry> entries, SetAclOptions options)
+      throws FileDoesNotExistException, AccessControlException, InvalidPathException, IOException {
+    mFileSystemMaster.setAcl(path, action, entries, options);
   }
 
   @Override
