@@ -401,6 +401,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   /** Thread pool which asynchronously handles the completion of persist jobs. */
   private java.util.concurrent.ThreadPoolExecutor mPersistCheckerPool;
+
+  /** The provider for authorization with external plugins. */
+  private InodeAttributesProvider mAuthProvider = null;
   // ALLUXIO CS END
   /**
    * The service that checks for blocks which no longer correspond to existing inodes.
@@ -454,12 +457,21 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     // ALLUXIO CS REPLACE
     // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
+    // mPermissionChecker = new DefaultPermissionChecker(mInodeTree);
     // ALLUXIO CS WITH
+    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_PLUGINS_ENABLED)) {
+      AbstractInodeAttributesProviderFactory authProviderFactory =
+          new AbstractInodeAttributesProviderFactory();
+      mUfsManager.registerUfsServiceFactory(InodeAttributesProvider.class, authProviderFactory);
+      mAuthProvider = new ExtensionInodeAttributesProvider(mMountTable, authProviderFactory);
+      mPermissionChecker = new ExtendablePermissionChecker(mInodeTree, mAuthProvider);
+    } else {
+      mPermissionChecker = new DefaultPermissionChecker(mInodeTree);
+    }
     mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
     mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     // ALLUXIO CS END
-    mPermissionChecker = new DefaultPermissionChecker(mInodeTree);
     mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
     mUfsBlockLocationCache = UfsBlockLocationCache.Factory.create(mMountTable);
     mUfsSyncPathCache = new UfsSyncPathCache();
@@ -702,6 +714,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               new LostFileDetector(this, mInodeTree),
               (int) Configuration.getMs(PropertyKey.MASTER_WORKER_HEARTBEAT_INTERVAL)));
       // ALLUXIO CS ADD
+      if (mAuthProvider != null) {
+        mAuthProvider.start();
+      }
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster,
@@ -740,6 +755,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       mAsyncAuditLogWriter.stop();
       mAsyncAuditLogWriter = null;
     }
+    // ALLUXIO CS ADD
+    if (mAuthProvider != null) {
+      mAuthProvider.stop();
+    }
+    // ALLUXIO CS END
     super.stop();
   }
 

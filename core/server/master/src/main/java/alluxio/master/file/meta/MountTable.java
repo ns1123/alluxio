@@ -288,6 +288,27 @@ public final class MountTable implements JournalEntryIterable {
       return mMountTable.containsKey(uri.getPath());
     }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Gets an UFS service for a given Alluxio location.
+   * @param uri Alluxio URI to check UFS service
+   * @param serviceType class of the UFS service
+   * @param <T> type of the UFS service
+   * @return the UFS service, or null if it is not found
+   */
+  public <T extends alluxio.underfs.UfsService> T getService(AlluxioURI uri, Class<T> serviceType)
+      throws InvalidPathException {
+    try (LockResource r = new LockResource(mReadLock)) {
+      String mountPoint = getMountPoint(uri);
+      if (mountPoint != null) {
+        MountInfo info = mMountTable.get(mountPoint);
+        return mUfsManager.getUfsService(info.getMountId(), serviceType);
+      }
+    }
+    return null;
+  }
+  // ALLUXIO CS END
 
   /**
    * Resolves the given Alluxio path. If the given Alluxio path is nested under a mount point, the

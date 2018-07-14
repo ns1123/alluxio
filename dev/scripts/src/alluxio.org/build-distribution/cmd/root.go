@@ -45,20 +45,29 @@ or generating a suite of release tarballs.
 
 	nativeFlag bool
 
-	proxyURLFlag   string
-	ufsModulesFlag string
+	proxyURLFlag    string
+	ufsModulesFlag  string
+	authModulesFlag string
 	// ALLUXIO CS END
 )
 
 // ALLUXIO CS ADD
 func updateRootFlags() error {
+	if strings.ToLower(authModulesFlag) == "all" {
+		authModulesFlag = strings.Join(validModules(authModules), ",")
+	}
 	if strings.ToLower(ufsModulesFlag) == "all" {
-		ufsModulesFlag = strings.Join(validUfsModules(), ",")
+		ufsModulesFlag = strings.Join(validModules(ufsModules), ",")
 	}
 	return nil
 }
 
 func checkRootFlags() error {
+	for _, module := range strings.Split(authModulesFlag, ",") {
+		if _, ok := authModules[module]; !ok {
+			return fmt.Errorf("auth module %v not recognized", module)
+		}
+	}
 	for _, module := range strings.Split(ufsModulesFlag, ",") {
 		if _, ok := ufsModules[module]; !ok {
 			return fmt.Errorf("ufs module %v not recognized", module)
@@ -82,7 +91,9 @@ func init() {
 	Root.Flags.BoolVar(&nativeFlag, "native", false, "whether to build the native Alluxio libraries. See core/client/fs/src/main/native/README.md for details.")
 
 	Root.Flags.StringVar(&proxyURLFlag, "proxy-url", "", "the URL used for communicating with company backend")
-	Root.Flags.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultUfsModules(), ","),
-		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validUfsModules(), ",")))
+	Root.Flags.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultModules(ufsModules), ","),
+		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validModules(ufsModules), ",")))
+	Root.Flags.StringVar(&authModulesFlag, "auth-modules", strings.Join(defaultModules(authModules), ","),
+		fmt.Sprintf("a comma-separated list of authorization modules to compile into the distribution tarball(s). Specify 'all' to build all authorization modules. Supported authorization modules: [%v]", strings.Join(validModules(authModules), ",")))
 	// ALLUXIO CS END
 }

@@ -128,6 +128,13 @@ public abstract class AbstractUfsManager implements UfsManager {
 
   private UfsClient mRootUfsClient;
   protected final Closer mCloser;
+  // ALLUXIO CS ADD
+  private final Map<Class<? extends UfsService>, UfsServiceFactory> mUfsServicesFactories =
+      new ConcurrentHashMap<>();
+
+  private final Map<Long, Map<Class<? extends UfsService>, UfsService>>
+      mMountIdToUfsServicesMap = new ConcurrentHashMap<>();
+  // ALLUXIO CS END
 
   AbstractUfsManager() {
     mCloser = Closer.create();
@@ -172,6 +179,22 @@ public abstract class AbstractUfsManager implements UfsManager {
         return getOrAdd(ufsUri, ufsConf);
       }
     }, ufsUri));
+    // ALLUXIO CS ADD
+    Map<Class<? extends UfsService>, UfsService> ufsServices =
+        mMountIdToUfsServicesMap.computeIfAbsent(mountId, id -> new ConcurrentHashMap<>());
+    for (Map.Entry<Class<? extends UfsService>, UfsServiceFactory> entry
+        : mUfsServicesFactories.entrySet()) {
+      ufsServices.computeIfAbsent(entry.getKey(), serviceType -> {
+        LOG.debug("Creating UFS service {} for URI {}", serviceType.getName(), ufsUri);
+        UfsService service = entry.getValue().createUfsService(ufsUri.toString(),
+            ufsConf, serviceType);
+        if (service != null) {
+          LOG.debug("Registering UFS service {} for URI {}", serviceType.getName(), ufsUri);
+        }
+        return service;
+      });
+    }
+    // ALLUXIO CS END
   }
 
   @Override
@@ -180,6 +203,23 @@ public abstract class AbstractUfsManager implements UfsManager {
     // TODO(binfan): check the refcount of this ufs in mUnderFileSystemMap and remove it if this is
     // no more used. Currently, it is possibly used by out mount too.
     mMountIdToUfsInfoMap.remove(mountId);
+    // ALLUXIO CS ADD
+    Map<Class<? extends UfsService>, UfsService> ufsServices =
+        mMountIdToUfsServicesMap.remove(mountId);
+    if (ufsServices != null) {
+      for (Map.Entry<Class<? extends UfsService>, UfsService>  entry
+          : ufsServices.entrySet()) {
+        LOG.debug("Stopping UFS service {} for mount {}", entry.getKey().getName(), mountId);
+        try {
+          entry.getValue().close();
+        } catch (IOException e) {
+          LOG.error("Unable to stop service {} for mount {}: {}", entry.getKey().getName(), mountId,
+              e.getMessage());
+        }
+      }
+      LOG.debug("Removed UFS services for mount {}", mountId);
+    }
+    // ALLUXIO CS END
   }
 
   @Override
@@ -219,4 +259,24 @@ public abstract class AbstractUfsManager implements UfsManager {
   public void close() throws IOException {
     mCloser.close();
   }
+  // ALLUXIO CS ADD
+
+  @Override
+  public void registerUfsServiceFactory(Class<? extends UfsService> serviceType,
+      UfsServiceFactory factory) {
+    Preconditions.checkNotNull(serviceType, "serviceType");
+    Preconditions.checkNotNull(factory, "factory");
+    mUfsServicesFactories.put(serviceType, factory);
+  }
+
+  @Override
+  public <T extends UfsService> T getUfsService(long mountId, Class<T> serviceType) {
+    Map<Class<? extends UfsService>, UfsService> services =
+        mMountIdToUfsServicesMap.get(mountId);
+    if (services != null) {
+      return (T) services.get(serviceType);
+    }
+    return null;
+  }
+  // ALLUXIO CS END
 }

@@ -162,6 +162,36 @@ func getVersion() (string, error) {
 	return match[1], nil
 }
 
+// ALLUXIO CS ADD
+func addModules(srcPath, dstPath, name, moduleFlag, version string, modules map[string]module) {
+	for _, moduleName := range strings.Split(moduleFlag, ",") {
+		moduleEntry, ok := modules[moduleName]
+		if !ok {
+			// This should be impossible, we validate modulesFlag at the start.
+			fmt.Fprintf(os.Stderr, "Unrecognized %v module: %v", name, moduleName)
+			os.Exit(1)
+		}
+		moduleJar := fmt.Sprintf("alluxio-%v-%v-%v.jar", name, moduleEntry.name, version)
+		run(fmt.Sprintf("adding %v module %v to lib/", name, moduleName), "mv", filepath.Join(srcPath, "lib", moduleJar), filepath.Join(dstPath, "lib"))
+	}
+}
+
+func buildModules(srcPath, name, ufsType, moduleFlag, version string, modules map[string]module, mvnArgs []string) {
+	// Compile modules for the main build
+	for _, moduleName := range strings.Split(moduleFlag, ",") {
+		moduleEntry := modules[moduleName]
+		moduleMvnArgs := mvnArgs
+		for _, arg := range strings.Split(moduleEntry.mavenArgs, " ") {
+			moduleMvnArgs = append(moduleMvnArgs, arg)
+		}
+		run(fmt.Sprintf("compiling %v module %v", name, moduleName), "mvn", moduleMvnArgs...)
+		srcJar := fmt.Sprintf("alluxio-%v-%v-%v.jar", name, ufsType, version)
+		dstJar := fmt.Sprintf("alluxio-%v-%v-%v.jar", name, moduleEntry.name, version)
+		run(fmt.Sprintf("saving %v module %v", name, moduleName), "mv", filepath.Join(srcPath, "lib", srcJar), filepath.Join(srcPath, "lib", dstJar))
+	}
+}
+
+// ALLUXIO CS END
 func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version string) {
 	chdir(srcPath)
 	pathsToCopy := []string{
@@ -249,16 +279,8 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 	// ALLUXIO CS END
 	// ALLUXIO CS ADD
 	mkdir(filepath.Join(dstPath, "lib"))
-	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
-		ufsModule, ok := ufsModules[moduleName]
-		if !ok {
-			// This should be impossible, we validate ufsModulesFlag at the start.
-			fmt.Fprintf(os.Stderr, "Unrecognized ufs module: %v", moduleName)
-			os.Exit(1)
-		}
-		ufsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", ufsModule.name, version)
-		run(fmt.Sprintf("adding ufs module %v to lib/", moduleName), "mv", filepath.Join(srcPath, "lib", ufsJar), filepath.Join(dstPath, "lib"))
-	}
+	addModules(srcPath, dstPath, "underfs", ufsModulesFlag, version, ufsModules)
+	addModules(srcPath, dstPath, "authorization", authModulesFlag, version, authModules)
 	if nativeFlag {
 		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/native"), filepath.Join(dstPath, "lib", "native"))
 	}
@@ -322,18 +344,9 @@ func generateTarball(hadoopDistribution string) error {
 	mvnArgs := getCommonMvnArgs(hadoopVersion)
 	run("compiling repo", "mvn", mvnArgs...)
 	// ALLUXIO CS ADD
-	// Compile ufs modules for the main build
-	for _, moduleName := range strings.Split(ufsModulesFlag, ",") {
-		ufsModule := ufsModules[moduleName]
-		ufsMvnArgs := mvnArgs
-		for _, arg := range strings.Split(ufsModule.mavenArgs, " ") {
-			ufsMvnArgs = append(ufsMvnArgs, arg)
-		}
-		run(fmt.Sprintf("compiling ufs module %v", moduleName), "mvn", ufsMvnArgs...)
-		srcUfsJar := fmt.Sprintf("alluxio-underfs-hdfs-%v.jar", version)
-		dstUfsJar := fmt.Sprintf("alluxio-underfs-%v-%v.jar", ufsModule.name, version)
-		run(fmt.Sprintf("saving ufs module %v", moduleName), "mv", filepath.Join(srcPath, "lib", srcUfsJar), filepath.Join(srcPath, "lib", dstUfsJar))
-	}
+	// Compile ufs/auth modules for the main build
+	buildModules(srcPath, "underfs", "hdfs", ufsModulesFlag, version, ufsModules, mvnArgs)
+	buildModules(srcPath, "authorization", "hdfs", authModulesFlag, version, authModules, mvnArgs)
 	// ALLUXIO CS END
 
 	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
