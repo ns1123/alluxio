@@ -255,8 +255,7 @@ public final class MultiProcessCluster implements TestRule {
   }
 
   /**
-   * Waits for the number of live nodes in server configuration store reached the number of nodes in
-   * this cluster and gets meta master client.
+   * Waits for all nodes to be registered.
    *
    * @param timeoutMs maximum amount of time to wait, in milliseconds
    */
@@ -601,6 +600,7 @@ public final class MultiProcessCluster implements TestRule {
       public void evaluate() throws Throwable {
         try {
           start();
+          waitForAllNodesRegistered(5 * Constants.MINUTE_MS);
           base.evaluate();
         } finally {
           try {
