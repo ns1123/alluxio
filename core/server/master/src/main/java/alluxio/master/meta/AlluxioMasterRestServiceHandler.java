@@ -20,23 +20,15 @@ import alluxio.RestUtils;
 import alluxio.RuntimeConstants;
 import alluxio.master.MasterProcess;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.file.DefaultFileSystemMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.StartupConsistencyCheck;
-// ALLUXIO CS ADD
-import alluxio.master.license.License;
-import alluxio.master.license.LicenseCheck;
-import alluxio.master.license.LicenseMaster;
-// ALLUXIO CS END
+import alluxio.metrics.MasterMetrics;
 import alluxio.metrics.MetricsSystem;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.LogUtils;
 import alluxio.web.MasterWebServer;
 import alluxio.wire.AlluxioMasterInfo;
 import alluxio.wire.Capacity;
-// ALLUXIO CS ADD
-import alluxio.wire.LicenseInfo;
-// ALLUXIO CS END
 import alluxio.wire.MountPointInfo;
 
 import com.codahale.metrics.Counter;
@@ -432,16 +424,17 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   // ALLUXIO CS ADD
-  private LicenseInfo getLicenseInfoInternal() {
+  private alluxio.wire.LicenseInfo getLicenseInfoInternal() {
     if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      LicenseMaster licenseMaster = mMasterProcess.getMaster(LicenseMaster.class);
-      License license = licenseMaster.getLicense();
-      LicenseCheck licenseCheck = licenseMaster.getLicenseCheck();
+      alluxio.master.license.LicenseMaster licenseMaster =
+          mMasterProcess.getMaster(alluxio.master.license.LicenseMaster.class);
+      alluxio.master.license.License license = licenseMaster.getLicense();
+      alluxio.master.license.LicenseCheck licenseCheck = licenseMaster.getLicenseCheck();
 
-      LicenseInfo licenseInfo = new LicenseInfo();
+      alluxio.wire.LicenseInfo licenseInfo = new alluxio.wire.LicenseInfo();
       licenseInfo.setVersion(license.getVersion()).setName(license.getName())
-          .setEmail(license.getEmail()).setKey(license.getKey())
-          .setChecksum(license.getChecksum()).setLastCheckMs(licenseCheck.getLastCheckMs())
+          .setEmail(license.getEmail()).setKey(license.getKey()).setChecksum(license.getChecksum())
+          .setLastCheckMs(licenseCheck.getLastCheckMs())
           .setLastCheckSuccessMs(licenseCheck.getLastCheckSuccessMs());
       return licenseInfo;
     }
@@ -458,7 +451,7 @@ public final class AlluxioMasterRestServiceHandler {
     // free/used
     // spaces, those statistics can be gotten via other REST apis.
     String filesPinnedProperty =
-        MetricsSystem.getMetricName(DefaultFileSystemMaster.Metrics.FILES_PINNED);
+        MetricsSystem.getMetricName(MasterMetrics.FILES_PINNED);
     @SuppressWarnings("unchecked") Gauge<Integer> filesPinned =
         (Gauge<Integer>) MetricsSystem.METRIC_REGISTRY.getGauges().get(filesPinnedProperty);
 
