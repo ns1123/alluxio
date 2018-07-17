@@ -4726,50 +4726,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         = MetricsSystem.counter(MasterMetrics.PATHS_UNMOUNTED);
 
     // TODO(peis): Increment the RPCs OPs at the place where we receive the RPCs.
-<<<<<<< HEAD
-    private static final Counter COMPLETE_FILE_OPS = MetricsSystem.counter("CompleteFileOps");
-    private static final Counter CREATE_DIRECTORIES_OPS =
-        MetricsSystem.counter("CreateDirectoryOps");
-    private static final Counter CREATE_FILES_OPS = MetricsSystem.counter("CreateFileOps");
-    private static final Counter DELETE_PATHS_OPS = MetricsSystem.counter("DeletePathOps");
-    private static final Counter FREE_FILE_OPS = MetricsSystem.counter("FreeFileOps");
-    private static final Counter GET_FILE_BLOCK_INFO_OPS =
-        MetricsSystem.counter("GetFileBlockInfoOps");
-    private static final Counter GET_FILE_INFO_OPS = MetricsSystem.counter("GetFileInfoOps");
-    private static final Counter GET_NEW_BLOCK_OPS = MetricsSystem.counter("GetNewBlockOps");
-    private static final Counter MOUNT_OPS = MetricsSystem.counter("MountOps");
-    private static final Counter RENAME_PATH_OPS = MetricsSystem.counter("RenamePathOps");
-    private static final Counter SET_ACL_OPS = MetricsSystem.counter("SetAclOps");
-    private static final Counter SET_ATTRIBUTE_OPS = MetricsSystem.counter("SetAttributeOps");
-    private static final Counter UNMOUNT_OPS = MetricsSystem.counter("UnmountOps");
-
-    public static final String FILES_PINNED = "FilesPinned";
-    public static final String PATHS_TOTAL = "PathsTotal";
-    public static final String UFS_CAPACITY_TOTAL = "UfsCapacityTotal";
-    public static final String UFS_CAPACITY_USED = "UfsCapacityUsed";
-    public static final String UFS_CAPACITY_FREE = "UfsCapacityFree";
-||||||| merged common ancestors
-    private static final Counter COMPLETE_FILE_OPS = MetricsSystem.counter("CompleteFileOps");
-    private static final Counter CREATE_DIRECTORIES_OPS =
-        MetricsSystem.counter("CreateDirectoryOps");
-    private static final Counter CREATE_FILES_OPS = MetricsSystem.counter("CreateFileOps");
-    private static final Counter DELETE_PATHS_OPS = MetricsSystem.counter("DeletePathOps");
-    private static final Counter FREE_FILE_OPS = MetricsSystem.counter("FreeFileOps");
-    private static final Counter GET_FILE_BLOCK_INFO_OPS =
-        MetricsSystem.counter("GetFileBlockInfoOps");
-    private static final Counter GET_FILE_INFO_OPS = MetricsSystem.counter("GetFileInfoOps");
-    private static final Counter GET_NEW_BLOCK_OPS = MetricsSystem.counter("GetNewBlockOps");
-    private static final Counter MOUNT_OPS = MetricsSystem.counter("MountOps");
-    private static final Counter RENAME_PATH_OPS = MetricsSystem.counter("RenamePathOps");
-    private static final Counter SET_ATTRIBUTE_OPS = MetricsSystem.counter("SetAttributeOps");
-    private static final Counter UNMOUNT_OPS = MetricsSystem.counter("UnmountOps");
-
-    public static final String FILES_PINNED = "FilesPinned";
-    public static final String PATHS_TOTAL = "PathsTotal";
-    public static final String UFS_CAPACITY_TOTAL = "UfsCapacityTotal";
-    public static final String UFS_CAPACITY_USED = "UfsCapacityUsed";
-    public static final String UFS_CAPACITY_FREE = "UfsCapacityFree";
-=======
     private static final Counter COMPLETE_FILE_OPS
         = MetricsSystem.counter(MasterMetrics.COMPLETE_FILE_OPS);
     private static final Counter CREATE_DIRECTORIES_OPS
@@ -4790,11 +4746,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         = MetricsSystem.counter(MasterMetrics.MOUNT_OPS);
     private static final Counter RENAME_PATH_OPS
         = MetricsSystem.counter(MasterMetrics.RENAME_PATH_OPS);
+    private static final Counter SET_ACL_OPS
+        = MetricsSystem.counter(MasterMetrics.SET_ACL_OPS);
     private static final Counter SET_ATTRIBUTE_OPS
         = MetricsSystem.counter(MasterMetrics.SET_ATTRIBUTE_OPS);
     private static final Counter UNMOUNT_OPS
         = MetricsSystem.counter(MasterMetrics.UNMOUNT_OPS);
->>>>>>> OPENSOURCE/branch-1.8
 
     /**
      * Register some file system master related gauges.
