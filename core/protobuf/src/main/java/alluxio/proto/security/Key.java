@@ -81,10 +81,10 @@ public final class Key {
     // @@protoc_insertion_point(enum_scope:alluxio.proto.security.KeyType)
   }
 
-  public interface SecretKeyOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:alluxio.proto.security.SecretKey)
-      com.google.protobuf.MessageOrBuilder {
+  public interface SecretKeyOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
 
+    // optional .alluxio.proto.security.KeyType key_type = 1;
     /**
      * <code>optional .alluxio.proto.security.KeyType key_type = 1;</code>
      */
@@ -94,6 +94,7 @@ public final class Key {
      */
     alluxio.proto.security.Key.KeyType getKeyType();
 
+    // optional int64 key_id = 2;
     /**
      * <code>optional int64 key_id = 2;</code>
      */
@@ -103,6 +104,7 @@ public final class Key {
      */
     long getKeyId();
 
+    // optional int64 expiration_time_ms = 3;
     /**
      * <code>optional int64 expiration_time_ms = 3;</code>
      */
@@ -112,6 +114,7 @@ public final class Key {
      */
     long getExpirationTimeMs();
 
+    // optional bytes secret_key = 4;
     /**
      * <code>optional bytes secret_key = 4;</code>
      */
@@ -125,9 +128,8 @@ public final class Key {
    * Protobuf type {@code alluxio.proto.security.SecretKey}
    */
   public static final class SecretKey extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:alluxio.proto.security.SecretKey)
-      SecretKeyOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements SecretKeyOrBuilder {
     // Use SecretKey.newBuilder() to construct.
     private SecretKey(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -239,6 +241,7 @@ public final class Key {
     }
 
     private int bitField0_;
+    // optional .alluxio.proto.security.KeyType key_type = 1;
     public static final int KEY_TYPE_FIELD_NUMBER = 1;
     private alluxio.proto.security.Key.KeyType keyType_;
     /**
@@ -254,6 +257,7 @@ public final class Key {
       return keyType_;
     }
 
+    // optional int64 key_id = 2;
     public static final int KEY_ID_FIELD_NUMBER = 2;
     private long keyId_;
     /**
@@ -269,6 +273,7 @@ public final class Key {
       return keyId_;
     }
 
+    // optional int64 expiration_time_ms = 3;
     public static final int EXPIRATION_TIME_MS_FIELD_NUMBER = 3;
     private long expirationTimeMs_;
     /**
@@ -284,6 +289,7 @@ public final class Key {
       return expirationTimeMs_;
     }
 
+    // optional bytes secret_key = 4;
     public static final int SECRET_KEY_FIELD_NUMBER = 4;
     private com.google.protobuf.ByteString secretKey_;
     /**
@@ -308,8 +314,7 @@ public final class Key {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+      if (isInitialized != -1) return isInitialized == 1;
 
       memoizedIsInitialized = 1;
       return true;
@@ -437,9 +442,8 @@ public final class Key {
      * Protobuf type {@code alluxio.proto.security.SecretKey}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:alluxio.proto.security.SecretKey)
-        alluxio.proto.security.Key.SecretKeyOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.security.Key.SecretKeyOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return alluxio.proto.security.Key.internal_static_alluxio_proto_security_SecretKey_descriptor;
@@ -579,6 +583,7 @@ public final class Key {
       }
       private int bitField0_;
 
+      // optional .alluxio.proto.security.KeyType key_type = 1;
       private alluxio.proto.security.Key.KeyType keyType_ = alluxio.proto.security.Key.KeyType.CAPABILITY;
       /**
        * <code>optional .alluxio.proto.security.KeyType key_type = 1;</code>
@@ -614,6 +619,7 @@ public final class Key {
         return this;
       }
 
+      // optional int64 key_id = 2;
       private long keyId_ ;
       /**
        * <code>optional int64 key_id = 2;</code>
@@ -646,6 +652,7 @@ public final class Key {
         return this;
       }
 
+      // optional int64 expiration_time_ms = 3;
       private long expirationTimeMs_ ;
       /**
        * <code>optional int64 expiration_time_ms = 3;</code>
@@ -678,6 +685,7 @@ public final class Key {
         return this;
       }
 
+      // optional bytes secret_key = 4;
       private com.google.protobuf.ByteString secretKey_ = com.google.protobuf.ByteString.EMPTY;
       /**
        * <code>optional bytes secret_key = 4;</code>
@@ -724,7 +732,7 @@ public final class Key {
     // @@protoc_insertion_point(class_scope:alluxio.proto.security.SecretKey)
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_security_SecretKey_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -745,23 +753,23 @@ public final class Key {
       "et_key\030\004 \001(\014*\031\n\007KeyType\022\016\n\nCAPABILITY\020\000"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          internal_static_alluxio_proto_security_SecretKey_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+          internal_static_alluxio_proto_security_SecretKey_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_security_SecretKey_descriptor,
+              new java.lang.String[] { "KeyType", "KeyId", "ExpirationTimeMs", "SecretKey", });
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_alluxio_proto_security_SecretKey_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_alluxio_proto_security_SecretKey_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_security_SecretKey_descriptor,
-        new java.lang.String[] { "KeyType", "KeyId", "ExpirationTimeMs", "SecretKey", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
