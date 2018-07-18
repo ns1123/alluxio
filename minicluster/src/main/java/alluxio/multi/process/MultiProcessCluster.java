@@ -151,14 +151,18 @@ public final class MultiProcessCluster implements TestRule {
       // ALLUXIO CS ADD
       case EMBEDDED_HA:
         List<String> journalAddresses = new ArrayList<>();
+        List<String> rpcAddresses = new ArrayList<>();
         for (MasterNetAddress address : mMasterAddresses) {
           journalAddresses
               .add(String.format("%s:%d", address.getHostname(), address.getEmbeddedJournalPort()));
+          rpcAddresses.add(String.format("%s:%d", address.getHostname(), address.getRpcPort()));
         }
         mProperties.put(PropertyKey.MASTER_JOURNAL_TYPE,
             alluxio.master.journal.JournalType.EMBEDDED.toString());
         mProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES,
             com.google.common.base.Joiner.on(",").join(journalAddresses));
+        mProperties.put(PropertyKey.MASTER_RPC_ADDRESSES,
+            com.google.common.base.Joiner.on(",").join(rpcAddresses));
         break;
       // ALLUXIO CS END
       case ZOOKEEPER_HA:
@@ -267,13 +271,19 @@ public final class MultiProcessCluster implements TestRule {
         MasterInfo masterInfo = metaMasterClient.getMasterInfo(null);
         int liveNodeNum = masterInfo.getMasterAddresses().size()
             + masterInfo.getWorkerAddresses().size();
-        return liveNodeNum == (mNumMasters + mNumWorkers);
+        if (liveNodeNum == (mNumMasters + mNumWorkers)) {
+          return true;
+        } else {
+          LOG.info("Master addresses: {}. Worker addresses: {}", masterInfo.getMasterAddresses(),
+              masterInfo.getWorkerAddresses());
+          return false;
+        }
       } catch (UnavailableException e) {
         return false;
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-    }, WaitForOptions.defaults().setTimeoutMs(timeoutMs));
+    }, WaitForOptions.defaults().setInterval(200).setTimeoutMs(timeoutMs));
   }
 
   /**

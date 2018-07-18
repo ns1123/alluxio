@@ -47,7 +47,9 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
       .setNumWorkers(0)
       .setDeployMode(DeployMode.EMBEDDED_HA)
       .addProperty(PropertyKey.MASTER_JOURNAL_FLUSH_TIMEOUT_MS, "5min")
-      .addProperty(PropertyKey.MASTER_JOURNAL_TAILER_SHUTDOWN_QUIET_WAIT_TIME_MS, "50ms")
+      // To make the test run faster.
+      .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT, "750ms")
+      .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL, "250ms")
       .build();
 
   @Test
@@ -92,7 +94,7 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
         restartMasters();
         System.out.printf("---------- Iteration %s ----------\n", i);
         successes.set(0);
-        CommonUtils.waitFor("25 successes", () -> successes.get() >= 25,
+        CommonUtils.waitFor("11 successes", () -> successes.get() >= 11,
             WaitForOptions.defaults().setTimeoutMs(RESTART_TIMEOUT_MS));
         if (failure.get() != null) {
           throw failure.get();
