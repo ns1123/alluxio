@@ -14,6 +14,7 @@ package alluxio.server.ft.journal.raft;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
+import alluxio.ConfigurationRule;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
@@ -39,6 +40,10 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
   private static final int NUM_MASTERS = 3;
   private static final int RESTART_TIMEOUT_MS = 2 * Constants.MINUTE_MS;
+
+  @Rule
+  public ConfigurationRule mConf =
+      new ConfigurationRule(PropertyKey.USER_METRICS_COLLECTION_ENABLED, "false");
 
   @Rule
   public MultiProcessCluster mCluster = MultiProcessCluster.newBuilder()
