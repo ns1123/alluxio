@@ -162,6 +162,15 @@ public abstract class AbstractClient implements Client {
   protected void beforeDisconnect() {
     // Empty implementation.
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @return whether this client should load cluster defaults
+   */
+  protected boolean shouldLoadClusterDefaults() {
+    return true;
+  }
+  // ALLUXIO CS END
 
   private void doConnect() throws IOException, TTransportException {
     LOG.info("Alluxio client (version {}) is trying to connect with {} @ {}",
@@ -202,7 +211,11 @@ public abstract class AbstractClient implements Client {
         continue;
       }
       // Bootstrap once for clients
-      if (!isConnected()) {
+      // ALLUXIO CS REPLACE
+      // if (!isConnected()) {
+      // ALLUXIO CS WITH
+      if (!isConnected() && shouldLoadClusterDefaults()) {
+      // ALLUXIO CS END
         try {
           Configuration.loadClusterDefault(mAddress);
         } catch (UnavailableException e) {
