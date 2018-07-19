@@ -32,6 +32,7 @@ import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalTestUtils;
+import alluxio.master.journal.NoopJournalContext;
 import alluxio.master.metrics.MetricsMasterFactory;
 import alluxio.metrics.Metric;
 import alluxio.security.authorization.Mode;
@@ -131,7 +132,7 @@ public final class ReplicationCheckerTest {
 
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP, "test-supergroup");
-    mInodeTree.initializeRoot(TEST_OWNER, TEST_GROUP, TEST_MODE);
+    mInodeTree.initializeRoot(TEST_OWNER, TEST_GROUP, TEST_MODE, NoopJournalContext.INSTANCE);
 
     mMockReplicationHandler = new MockHandler();
     mReplicationChecker = new ReplicationChecker(mInodeTree, mBlockMaster,
