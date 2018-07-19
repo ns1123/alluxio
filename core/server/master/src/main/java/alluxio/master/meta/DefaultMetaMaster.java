@@ -29,7 +29,6 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.MasterClientConfig;
 import alluxio.master.MasterContext;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.journal.JournalType;
 import alluxio.master.meta.checkconf.ServerConfigurationChecker;
 import alluxio.master.meta.checkconf.ServerConfigurationStore;
 import alluxio.proto.journal.Journal.JournalEntry;
@@ -220,7 +219,7 @@ public final class DefaultMetaMaster extends AbstractMaster implements MetaMaste
       boolean haEnabled = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED);
       // ALLUXIO CS ADD
       haEnabled = haEnabled || (Configuration.getEnum(PropertyKey.MASTER_JOURNAL_TYPE,
-          JournalType.class) == JournalType.EMBEDDED);
+          alluxio.master.journal.JournalType.class) == alluxio.master.journal.JournalType.EMBEDDED);
       // ALLUXIO CS END
       if (haEnabled) {
         // Standby master should setup MetaMasterSync to communicate with the leader master
