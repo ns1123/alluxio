@@ -62,6 +62,12 @@ public class JournalEntryAssociationTest {
   // This list must contain one of every type of journal entry. If you create a new type of
   // journal entry, make sure to add it here.
   private static List<JournalEntry> ENTRIES = Arrays.asList(
+      // ALLUXIO CS ADD
+      JournalEntry.newBuilder().setFinishJob(alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setPrivilegeUpdate(alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setStartJob(alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance()).build(),
+      // ALLUXIO CS END
       JournalEntry.newBuilder().setAddMountPoint(AddMountPointEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setAsyncPersistRequest(AsyncPersistRequestEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setBlockContainerIdGenerator(BlockContainerIdGeneratorEntry.getDefaultInstance()).build(),
@@ -110,6 +116,10 @@ public class JournalEntryAssociationTest {
     int expectedNumFields = JournalEntry.getDescriptor().getFields().size();
     // subtract 1 for sequence_number
     expectedNumFields--;
+    // ALLUXIO CS ADD
+    // subtract 1 for journal_entries
+    expectedNumFields--;
+    // ALLUXIO CS END
     assertEquals(expectedNumFields, ENTRIES.size());
   }
 }
