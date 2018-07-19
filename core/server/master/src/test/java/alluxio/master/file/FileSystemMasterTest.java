@@ -1191,8 +1191,8 @@ public final class FileSystemMasterTest {
   public void setDefaultAcl() throws Exception {
     SetAclOptions options = SetAclOptions.defaults();
     createFileWithSingleBlock(NESTED_FILE_URI);
-    Set<String> entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).getDefaultAclEntries());
+    Set<String> entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     assertEquals(0, entries.size());
 
     // replace
@@ -1201,16 +1201,16 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_URI, SetAclAction.REPLACE,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).getDefaultAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     assertEquals(newEntries, entries);
 
     // replace
     newEntries = Sets.newHashSet("default:user::rw-", "default:group::r--", "default:other::r--");
     mFileSystemMaster.setAcl(NESTED_URI, SetAclAction.REPLACE,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).getDefaultAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     assertEquals(newEntries, entries);
 
     // modify existing
@@ -1218,8 +1218,8 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_URI, SetAclAction.MODIFY,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).getDefaultAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     assertEquals(newEntries, entries);
 
     // modify add
@@ -1228,8 +1228,8 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_URI, SetAclAction.MODIFY,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).getDefaultAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     assertTrue(entries.containsAll(oldEntries));
     assertTrue(entries.containsAll(newEntries));
 
@@ -1239,16 +1239,16 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_URI, SetAclAction.MODIFY,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).getDefaultAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     assertTrue(entries.containsAll(newEntries));
 
     // remove default
     mFileSystemMaster
         .setAcl(NESTED_URI, SetAclAction.REMOVE_DEFAULT, Collections.emptyList(), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).getDefaultAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     assertEquals(0, entries.size());
 
     // remove
@@ -1259,8 +1259,8 @@ public final class FileSystemMasterTest {
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
     oldEntries = new HashSet<>(entries);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).getDefaultAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     assertTrue(entries.containsAll(oldEntries));
 
     Set<String> deleteEntries = Sets.newHashSet("default:user:userb:rwx",
@@ -1268,8 +1268,8 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_URI, SetAclAction.REMOVE,
         deleteEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).getDefaultAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     Set<String> remainingEntries = new HashSet<>(newEntries);
     assertTrue(remainingEntries.removeAll(deleteEntries));
     assertTrue(entries.containsAll(remainingEntries));
@@ -1283,8 +1283,8 @@ public final class FileSystemMasterTest {
     SetAclOptions options = SetAclOptions.defaults();
     createFileWithSingleBlock(NESTED_FILE_URI);
 
-    Set<String> entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).getAclEntries());
+    Set<String> entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     assertEquals(3, entries.size());
 
     // replace
@@ -1292,8 +1292,8 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_FILE_URI, SetAclAction.REPLACE,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).getAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     assertEquals(newEntries, entries);
 
     // replace
@@ -1301,8 +1301,8 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_FILE_URI, SetAclAction.REPLACE,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).getAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     assertEquals(newEntries, entries);
 
     // modify existing
@@ -1310,8 +1310,8 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_FILE_URI, SetAclAction.MODIFY,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).getAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     assertEquals(newEntries, entries);
 
     // modify add
@@ -1320,8 +1320,8 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_FILE_URI, SetAclAction.MODIFY,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).getAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     assertTrue(entries.containsAll(oldEntries));
     assertTrue(entries.containsAll(newEntries));
 
@@ -1330,16 +1330,16 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.setAcl(NESTED_FILE_URI, SetAclAction.MODIFY,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).getAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     assertTrue(entries.containsAll(newEntries));
 
     // remove all
     mFileSystemMaster
         .setAcl(NESTED_FILE_URI, SetAclAction.REMOVE_ALL, Collections.emptyList(), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).getAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     assertEquals(3, entries.size());
 
     // remove
@@ -1349,16 +1349,16 @@ public final class FileSystemMasterTest {
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
     oldEntries = new HashSet<>(entries);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).getAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     assertTrue(entries.containsAll(oldEntries));
 
     Set<String> deleteEntries = Sets.newHashSet("user:userb:rwx", "group:groupa:--x");
     mFileSystemMaster.setAcl(NESTED_FILE_URI, SetAclAction.REMOVE,
         deleteEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
-    entries = Sets.newHashSet(
-        mFileSystemMaster.getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).getAclEntries());
+    entries = Sets.newHashSet(mFileSystemMaster
+        .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     Set<String> remainingEntries = new HashSet<>(newEntries);
     assertTrue(remainingEntries.removeAll(deleteEntries));
     assertTrue(entries.containsAll(remainingEntries));
@@ -1395,7 +1395,7 @@ public final class FileSystemMasterTest {
         .setLoadMetadataType(LoadMetadataType.Once).setRecursive(true));
     assertEquals(files * 3 + 3, infos.size());
     for (FileInfo info : infos) {
-      assertEquals(newEntries, Sets.newHashSet(info.getAclEntries()));
+      assertEquals(newEntries, Sets.newHashSet(info.convertAclToStringEntries()));
     }
   }
 
@@ -2392,7 +2392,7 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.loadMetadata(uri,
         LoadMetadataOptions.defaults().setCreateAncestors(true));
     FileInfo info = mFileSystemMaster.getFileInfo(uri, GetStatusOptions.defaults());
-    Assert.assertTrue(info.getAclEntries().contains("user::rw-"));
+    Assert.assertTrue(info.convertAclToStringEntries().contains("user::rw-"));
 
   }
 

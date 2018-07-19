@@ -111,7 +111,7 @@ public final class InodeFile extends Inode<InodeFile> {
     ret.setEncrypted(isEncrypted());
     // ALLUXIO CS END
     ret.setUfsFingerprint(getUfsFingerprint());
-    ret.setAclEntries(mAcl.toStringEntries());
+    ret.setAcl(mAcl);
     return ret;
   }
 
