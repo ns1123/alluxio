@@ -36,6 +36,7 @@ public final class JournalEntryAssociation {
         || entry.hasPersistDirectory()
         || entry.hasRename()
         || entry.hasReinitializeFile()
+        || entry.hasSetAcl()
         || entry.hasSetAttribute()
         || entry.hasUpdateUfsMode()) {
       return Constants.FILE_SYSTEM_MASTER_NAME;
