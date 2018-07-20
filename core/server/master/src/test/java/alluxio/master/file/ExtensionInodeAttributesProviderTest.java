@@ -47,6 +47,7 @@ import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.journal.JournalSystem;
+import alluxio.master.journal.NoopJournalContext;
 import alluxio.master.journal.noop.NoopJournalSystem;
 import alluxio.master.metrics.MetricsMaster;
 import alluxio.master.metrics.MetricsMasterFactory;
@@ -194,7 +195,8 @@ public final class ExtensionInodeAttributesProviderTest {
     mMountTable = new MountTable(mUfsManager);
     // setup an InodeTree
     mTree = new InodeTree(sBlockMaster, sDirectoryIdGenerator, mMountTable);
-    mTree.initializeRoot(TEST_USER_ADMIN.getUser(), TEST_USER_ADMIN.getGroup(), TEST_NORMAL_MODE);
+    mTree.initializeRoot(TEST_USER_ADMIN.getUser(), TEST_USER_ADMIN.getGroup(), TEST_NORMAL_MODE,
+        NoopJournalContext.INSTANCE);
 
     // build file structure
     createAndSetPermission(TEST_DIR_FILE_URI, sFileOptions);
