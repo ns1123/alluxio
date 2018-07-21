@@ -34,7 +34,9 @@ public class SnapshotReaderStream extends InputStream {
     if (!mReader.hasRemaining()) {
       return -1;
     }
-    return mReader.readByte();
+    // readByte returns a signed byte cast as an int, but InputStream expects bytes to be
+    // represented as ints in the range 0 to 255.
+    return Byte.toUnsignedInt((byte) mReader.readByte());
   }
 
   @Override
