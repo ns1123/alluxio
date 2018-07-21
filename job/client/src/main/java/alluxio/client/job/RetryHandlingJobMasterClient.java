@@ -67,6 +67,12 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
+  protected void beforeConnect() throws IOException {
+    // Job master client does not load cluster-default configuration because only the master
+    // will use this client
+  }
+
+  @Override
   protected void afterConnect() throws IOException {
     mClient = new JobMasterClientService.Client(mProtocol);
   }
