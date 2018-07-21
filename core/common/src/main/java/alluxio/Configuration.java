@@ -433,8 +433,13 @@ public final class Configuration {
       // A plain socket transport to bootstrap
       TSocket socket = ThriftUtils.createThriftSocket(address);
       TTransport bootstrapTransport = new BootstrapClientTransport(socket);
-      TProtocol protocol = ThriftUtils.createThriftProtocol(bootstrapTransport,
+      // ALLUXIO CS REPLACE
+      // TProtocol protocol = ThriftUtils.createThriftProtocol(bootstrapTransport,
+      //     Constants.META_MASTER_CLIENT_SERVICE_NAME);
+      // ALLUXIO CS WITH
+      TProtocol protocol = ThriftUtils.createBootstrapThriftProtocol(bootstrapTransport,
           Constants.META_MASTER_CLIENT_SERVICE_NAME);
+      // ALLUXIO CS END
       List<ConfigProperty> clusterConfig;
       try {
         bootstrapTransport.open();
