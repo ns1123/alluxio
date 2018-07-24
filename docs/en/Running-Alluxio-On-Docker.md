@@ -10,7 +10,7 @@ priority: 3
 {:toc}
 
 Alluxio can be run in a Docker container. This guide demonstrates how to run Alluxio
-in Docker using the Dockerfile that comes in the Alluxio Github repository.
+in Docker using the Dockerfile provided in the distribution.
 
 # Basic Tutorial
 
@@ -19,9 +19,13 @@ This tutorial walks through a basic dockerized Alluxio setup on a single node.
 ## Prerequisites
 
 A Linux machine. For the purposes of this guide, we will use a fresh EC2 machine running
-Amazon Linux. The machine size doesn't need to be large; we will use t2.small. When
-setting up the network security for the instance, allow traffic on ports 19998-19999 and
-29998-30000.
+Amazon Linux. The machine size doesn't need to be large; we will use t2.small.
+<!-- ALLUXIO CS REPLACE -->
+<!-- When setting up the network security for the instance, allow traffic on ports 19998-19999 -->
+<!-- and 29998-30000. -->
+<!-- ALLUXIO CS WITH -->
+Make sure the ports listed in [requirements](Requirements.html) are open.
+<!-- ALLUXIO CS END -->
 
 ## Launch a standalone cluster
 
@@ -30,7 +34,7 @@ All steps below should be executed from your Linux machine.
 ### Install Docker
 
 ```bash
-$ sudo yum install -y docker git
+$ sudo yum install -y docker
 $ sudo service docker start
 $ # Add the current user to the docker group
 $ sudo usermod -a -G docker $(id -u -n)
@@ -38,17 +42,24 @@ $ # Log out and log back in again to pick up the group changes
 $ exit
 ```
 
-### Clone the Alluxio repo
+### Download and unpack Alluxio
 
+<!-- ALLUXIO CS REPLACE -->
+<!-- 1. [Download](https://www.alluxio.org/download) Alluxio and copy it to the linux machine. -->
+<!-- ALLUXIO CS WITH -->
+1. [Download](/account/#download-{{site.EDITION}}-edition) Alluxio and copy it to the linux machine.
+<!-- ALLUXIO CS END -->
+1. Unpack the Alluxio tarball to a directory.
 ```bash
-$ git clone https://github.com/Alluxio/alluxio.git
+$ tar xvfz alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-<hadoop distribution>.tar.gz
 ```
 
 ### Build the Alluxio Docker image
 
 ```bash
-$ cd alluxio/integration/docker
-$ docker build -t alluxio .
+$ cd alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-<hadoop distribution>/integration/docker
+$ mv ../../../alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-<hadoop distribution>.tar.gz .
+$ docker build -t alluxio --build-arg ALLUXIO_TARBALL=alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-<hadoop distribution>.tar.gz .
 ```
 
 ### Set up under storage
@@ -58,7 +69,7 @@ Create an under storage folder on the host.
 $ mkdir underStorage
 ```
 
-### Set up ramdisk to enable short-circuit reads
+### Set up ramdisk to enable short-circuit IO
 
 From the host machine:
 
@@ -75,6 +86,9 @@ $ sudo service docker restart
 ```
 
 ### Run the Alluxio master
+<!-- ALLUXIO CS ADD -->
+Pass the Alluxio {{site.EDITION}} license using the `ALLUXIO_LICENSE_BASE64` environment variable.
+<!-- ALLUXIO CS END -->
 
 ```bash
 $ # This gets the public ip of the current EC2 instance
@@ -82,6 +96,9 @@ $ export INSTANCE_PUBLIC_IP=$(curl http://169.254.169.254/latest/meta-data/publi
 $ docker run -d --net=host \
              -v $PWD/underStorage:/underStorage \
              -e ALLUXIO_MASTER_HOSTNAME=${INSTANCE_PUBLIC_IP} \
+             <!-- ALLUXIO CS ADD -->
+             -e ALLUXIO_LICENSE_BASE64="$(cat /path/to/license.json | base64)" \
+             <!-- ALLUXIO CS END -->
              -e ALLUXIO_UNDERFS_ADDRESS=/underStorage \
              alluxio master
 ```
@@ -121,24 +138,25 @@ $ docker exec -it ${ALLUXIO_WORKER_CONTAINER_ID} /bin/sh
 
 Now run Alluxio tests.
 ```bash
-$ cd opt/alluxio
+$ cd /opt/alluxio
 $ bin/alluxio runTests
 ```
 
-# Building from a specific Alluxio distribution
-
-To build an Alluxio Docker image from a local or remote Alluxio tarball, use `--build-arg`
-
-Local tarball:
-```bash
-$ docker build -t alluxio --build-arg ALLUXIO_TARBALL=alluxio-snapshot.tar.gz .
-```
-
-Remote tarball:
-```bash
-$ docker build -t alluxio --build-arg ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/{{site.ALLUXIO_RELEASED_VERSION}}/alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-bin.tar.gz .
-```
-
+<!-- ALLUXIO CS REMOVE -->
+<!-- # Building from a specific Alluxio distribution -->
+<!-- -->
+<!-- To build an Alluxio Docker image from a local or remote Alluxio tarball, use `--build-arg` -->
+<!-- -->
+<!-- Local tarball: -->
+<!-- ```bash -->
+<!-- $ docker build -t alluxio --build-arg ALLUXIO_TARBALL=alluxio-snapshot.tar.gz . -->
+<!-- ``` -->
+<!-- -->
+<!-- Remote tarball: -->
+<!-- ```bash -->
+<!-- $ docker build -t alluxio --build-arg ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/{{site.ALLUXIO_RELEASED_VERSION}}/alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-bin.tar.gz . -->
+<!-- ``` -->
+<!-- ALLUXIO CS END -->
 # Alluxio Configuration Properties
 
 To set an Alluxio configuration property, convert it to an environment variable by uppercasing
@@ -248,5 +266,3 @@ with
 ```bash
 FROM tensorflow/tensorflow:1.3.0
 ```
-
-You can then build the image with the same command for building image with FUSE support and run it. There is a pre-built docker image with TensorFlow at https://hub.docker.com/r/alluxio/alluxio-tensorflow/
