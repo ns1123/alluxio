@@ -119,6 +119,12 @@ public final class AlluxioMasterRestServiceHandlerTest {
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     registerMockUfs();
     mBlockMaster = new BlockMasterFactory().create(mRegistry, masterContext);
+    // ALLUXIO CS ADD
+    alluxio.master.privilege.PrivilegeMaster privilegeMaster =
+        new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, masterContext);
+    when(mMasterProcess.getMaster(alluxio.master.privilege.PrivilegeMaster.class)).thenReturn(
+        privilegeMaster);
+    // ALLUXIO CS END
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, masterContext);
     mRegistry.start(true);
     when(mMasterProcess.getMaster(BlockMaster.class)).thenReturn(mBlockMaster);
