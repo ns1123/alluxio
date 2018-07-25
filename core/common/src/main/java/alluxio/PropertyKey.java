@@ -3027,6 +3027,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey UNDERFS_HDFS_VERSION =
       new Builder(Name.UNDERFS_HDFS_VERSION)
           .setDefaultValue("2.2")
+          .setIsHidden(true)
           .build();
   public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
       new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME)
@@ -3150,15 +3151,20 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   // User related CS properties
   //
   public static final PropertyKey USER_BLOCK_FOOTER_SIZE_BYTES =
-      new Builder(Name.USER_BLOCK_FOOTER_SIZE_BYTES).setDefaultValue("0B").build();
+      new Builder(Name.USER_BLOCK_FOOTER_SIZE_BYTES).setDefaultValue("0B").setIsHidden(true)
+          .build();
   public static final PropertyKey USER_BLOCK_HEADER_SIZE_BYTES =
-      new Builder(Name.USER_BLOCK_HEADER_SIZE_BYTES).setDefaultValue("0B").build();
+      new Builder(Name.USER_BLOCK_HEADER_SIZE_BYTES).setDefaultValue("0B").setIsHidden(true)
+          .build();
   public static final PropertyKey USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
-      new Builder(Name.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES).setDefaultValue("16B").build();
+      new Builder(Name.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES).setDefaultValue("16B")
+          .setIsHidden(true).build();
   public static final PropertyKey USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES =
-      new Builder(Name.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES).setDefaultValue("0B").build();
+      new Builder(Name.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES).setDefaultValue("0B")
+          .setIsHidden(true).build();
   public static final PropertyKey USER_ENCRYPTION_CHUNK_SIZE_BYTES =
-      new Builder(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES).setDefaultValue("64KB").build();
+      new Builder(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES).setDefaultValue("64KB").setIsHidden(true)
+          .build();
   public static final PropertyKey USER_FILE_REPLICATION_MAX =
       new Builder(Name.USER_FILE_REPLICATION_MAX)
           .setDefaultValue(-1 /* negative value means infinity */)
@@ -3409,7 +3415,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   // Call home
   //
   public static final PropertyKey CALL_HOME_ENABLED =
-      new Builder(Name.CALL_HOME_ENABLED).setDefaultValue(true).build();
+      new Builder(Name.CALL_HOME_ENABLED).setDefaultValue(true).setIsHidden(true).build();
 
   //
   // Diagnostic logs
