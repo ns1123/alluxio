@@ -144,18 +144,19 @@ $ bin/alluxio runTests
 
 <!-- ALLUXIO CS REMOVE -->
 <!-- # Building from a specific Alluxio distribution -->
-<!-- -->
+
 <!-- To build an Alluxio Docker image from a local or remote Alluxio tarball, use `--build-arg` -->
-<!-- -->
+
 <!-- Local tarball: -->
 <!-- ```bash -->
 <!-- $ docker build -t alluxio --build-arg ALLUXIO_TARBALL=alluxio-snapshot.tar.gz . -->
 <!-- ``` -->
-<!-- -->
+
 <!-- Remote tarball: -->
 <!-- ```bash -->
 <!-- $ docker build -t alluxio --build-arg ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/{{site.ALLUXIO_RELEASED_VERSION}}/alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-bin.tar.gz . -->
 <!-- ``` -->
+
 <!-- ALLUXIO CS END -->
 # Alluxio Configuration Properties
 
