@@ -631,27 +631,19 @@ public final class FileInfo implements Serializable {
         new alluxio.thrift.FileInfo(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
-<<<<<<< HEAD
         // ALLUXIO CS REPLACE
         // mPersistenceState, mMountPoint, fileBlockInfos, TtlAction.toThrift(mTtlAction), mMountId,
-        // mInAlluxioPercentage, mUfsFingerprint, tAcl.toThrift(), defaultAcl.toThrift());
+        // mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl);
         // ALLUXIO CS WITH
         mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
         mEncrypted, TtlAction.toThrift(mTtlAction), mMountId, mInAlluxioPercentage,
-        mUfsFingerprint, tAcl.toThrift(), defaultAcl.toThrift());
+        mUfsFingerprint, tAcl, tDefaultAcl);
         // ALLUXIO CS END
     // ALLUXIO CS ADD
     if (mCapability != null) {
       info.setCapability(mCapability.toThrift());
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-        mPersistenceState, mMountPoint, fileBlockInfos, TtlAction.toThrift(mTtlAction), mMountId,
-        mInAlluxioPercentage, mUfsFingerprint, tAcl.toThrift(), defaultAcl.toThrift());
-=======
-        mPersistenceState, mMountPoint, fileBlockInfos, TtlAction.toThrift(mTtlAction), mMountId,
-        mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl);
->>>>>>> aos/master
 
     return info;
   }
