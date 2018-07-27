@@ -191,7 +191,7 @@ public final class NettySecureRpcServer {
         NettyUtils.createEventLoop(type, workerThreadCount, "secure-rpc-server-worker-%d", false);
 
     final Class<? extends ServerChannel> socketChannelClass =
-        NettyUtils.getServerChannelClass(type, false);
+        NettyUtils.getServerChannelClass(false);
     boot.group(bossGroup, workerGroup).channel(socketChannelClass);
 
     return boot;
