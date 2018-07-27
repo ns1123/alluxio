@@ -13,7 +13,6 @@ package alluxio.network.netty;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
-import alluxio.network.ChannelType;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCMessageDecoder;
 import alluxio.network.protocol.RPCMessageEncoder;
@@ -46,19 +45,18 @@ public final class NettySecureRpcClient {
   private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
       new KerberosSaslClientHandler();
 
-  private static final ChannelType CHANNEL_TYPE =
-      Configuration.getEnum(PropertyKey.USER_NETWORK_NETTY_CHANNEL, ChannelType.class);
   private static final Class<? extends Channel> CLIENT_CHANNEL_CLASS = NettyUtils
-      .getClientChannelClass(CHANNEL_TYPE, false);
+      .getClientChannelClass(false);
 
   /**
    * Reuse {@link EventLoopGroup} for all clients. Use daemon threads so the JVM is allowed to
    * shutdown even when daemon threads are alive. If number of worker threads is 0, Netty creates
    * (#processors * 2) threads by default.
    */
-  private static final EventLoopGroup WORKER_GROUP = NettyUtils.createEventLoop(CHANNEL_TYPE,
-      Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_WORKER_THREADS), "netty-master-worker-%d",
-      true);
+  private static final EventLoopGroup WORKER_GROUP =
+      NettyUtils.createEventLoop(NettyUtils.USER_CHANNEL_TYPE,
+          Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_WORKER_THREADS),
+          "netty-master-worker-%d", true);
 
   /** The maximum number of milliseconds to wait for a response from the server. */
   public static final long TIMEOUT_MS =
