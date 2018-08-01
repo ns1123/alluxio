@@ -81,7 +81,11 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class MultiProcessCluster {
   public static final String ALLUXIO_USE_FIXED_TEST_PORTS = "ALLUXIO_USE_FIXED_TEST_PORTS";
-  public static final int PORTS_PER_MASTER = 2;
+  // ALLUXIO CS REPLACE
+  // public static final int PORTS_PER_MASTER = 2;
+  // ALLUXIO CS WITH
+  public static final int PORTS_PER_MASTER = 3;
+  // ALLUXIO CS END
   public static final int PORTS_PER_WORKER = 3;
 
   private static final Logger LOG = LoggerFactory.getLogger(MultiProcessCluster.class);
@@ -642,22 +646,14 @@ public final class MultiProcessCluster {
   private List<MasterNetAddress> generateMasterAddresses(int numMasters) throws IOException {
     List<MasterNetAddress> addrs = new ArrayList<>();
     for (int i = 0; i < numMasters; i++) {
-<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
-      //     PortUtils.getFreePort(), PortUtils.getFreePort()));
+      //     getNewPort(), getNewPort()));
       // ALLUXIO CS WITH
       // Enterprise requires an additional port for embedded journal communication.
       addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
-          PortUtils.getFreePort(), PortUtils.getFreePort(), PortUtils.getFreePort()));
+          getNewPort(), getNewPort(), getNewPort()));
       // ALLUXIO CS END
-||||||| merged common ancestors
-      addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
-          PortUtils.getFreePort(), PortUtils.getFreePort()));
-=======
-      addrs.add(
-          new MasterNetAddress(NetworkAddressUtils.getLocalHostName(), getNewPort(), getNewPort()));
->>>>>>> OPENSOURCE/master
     }
     return addrs;
   }
