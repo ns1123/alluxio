@@ -45,10 +45,10 @@ import java.util.concurrent.ConcurrentMap;
  * Utility class to make it easier to write jobs.
  */
 public final class JobUtils {
-  private static final IndexDefinition<BlockWorkerInfo> WORKER_ADDRESS_INDEX =
-      new IndexDefinition<BlockWorkerInfo>(true) {
+  private static final IndexDefinition<BlockWorkerInfo, WorkerNetAddress> WORKER_ADDRESS_INDEX =
+      new IndexDefinition<BlockWorkerInfo, WorkerNetAddress>(true) {
         @Override
-        public Object getFieldValue(BlockWorkerInfo o) {
+        public WorkerNetAddress getFieldValue(BlockWorkerInfo o) {
           return o.getNetAddress();
         }
       };

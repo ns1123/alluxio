@@ -69,18 +69,18 @@ public final class JobMaster extends AbstractNonJournaledMaster {
       Configuration.getLong(PropertyKey.JOB_MASTER_FINISHED_JOB_RETENTION_MS);
 
   // Worker metadata management.
-  private final IndexDefinition<MasterWorkerInfo> mIdIndex =
-      new IndexDefinition<MasterWorkerInfo>(true) {
+  private final IndexDefinition<MasterWorkerInfo, Long> mIdIndex =
+      new IndexDefinition<MasterWorkerInfo, Long>(true) {
         @Override
-        public Object getFieldValue(MasterWorkerInfo o) {
+        public Long getFieldValue(MasterWorkerInfo o) {
           return o.getId();
         }
       };
 
-  private final IndexDefinition<MasterWorkerInfo> mAddressIndex =
-      new IndexDefinition<MasterWorkerInfo>(true) {
+  private final IndexDefinition<MasterWorkerInfo, WorkerNetAddress> mAddressIndex =
+      new IndexDefinition<MasterWorkerInfo, WorkerNetAddress>(true) {
         @Override
-        public Object getFieldValue(MasterWorkerInfo o) {
+        public WorkerNetAddress getFieldValue(MasterWorkerInfo o) {
           return o.getWorkerAddress();
         }
       };
