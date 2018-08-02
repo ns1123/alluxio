@@ -4,7 +4,7 @@ pipeline {
         stage('build') {
             agent {
                 docker {
-                    image 'agent-docker'
+                    image 'agent'
                     label 'workerXLarge'
                     alwaysPull false
                 }
@@ -26,14 +26,7 @@ pipeline {
                     ]]
                 ])
                 timeout(90) {timestamps {script {
-                    def cmd = 'sudo -u jenkins docker run -u jenkins --rm ' + 
-                              '-v "/home/jenkins/.m2":/home/jenkins/.m2 ' + 
-                              '-v "\$(pwd)":/usr/src/alluxio ' + 
-                              '-e MAVEN_CONFIG=/home/jenkins/.m2 ' + 
-                              '-w /usr/src/alluxio ' + 
-                              'alluxio/alluxio-maven:0.0.1 ' + 
-                              'mvn -Duser.home=/home/jenkins -T 2C clean install ' + 
-                              '-Dsurefire.forkCount=4'
+                    def cmd = 'mvn clean install -DreuseForks=false -DforkCount=2'
                     // legacy branches that contain an annotation/ directory must skip annotation check because it requires cloning a private repo
                     if (fileExists("${WORKSPACE}/annotation")) {
                         cmd += ' -Dannotation.skip'
