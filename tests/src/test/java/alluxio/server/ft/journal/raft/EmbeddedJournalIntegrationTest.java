@@ -22,10 +22,12 @@ import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.multi.process.MultiProcessCluster;
 import alluxio.multi.process.MultiProcessCluster.DeployMode;
+import alluxio.multi.process.PortCoordination;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -45,20 +47,29 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
   public ConfigurationRule mConf =
       new ConfigurationRule(PropertyKey.USER_METRICS_COLLECTION_ENABLED, "false");
 
-  @Rule
-  public MultiProcessCluster mCluster = MultiProcessCluster.newBuilder()
-      .setClusterName("EmbeddedJournalIntegrationTest")
-      .setNumMasters(NUM_MASTERS)
-      .setNumWorkers(0)
-      .setDeployMode(DeployMode.EMBEDDED_HA)
-      .addProperty(PropertyKey.MASTER_JOURNAL_FLUSH_TIMEOUT_MS, "5min")
-      // To make the test run faster.
-      .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT, "750ms")
-      .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL, "250ms")
-      .build();
+  public MultiProcessCluster mCluster;
+
+  @After
+  public void after() throws Exception {
+    if (mCluster != null) {
+      mCluster.destroy();
+    }
+  }
 
   @Test
   public void failover() throws Exception {
+    mCluster = MultiProcessCluster.newBuilder(PortCoordination.EMBEDDED_JOURNAL_FAILOVER)
+        .setClusterName("EmbeddedJournalFailover")
+        .setNumMasters(NUM_MASTERS)
+        .setNumWorkers(0)
+        .setDeployMode(DeployMode.EMBEDDED_HA)
+        .addProperty(PropertyKey.MASTER_JOURNAL_FLUSH_TIMEOUT_MS, "5min")
+        // To make the test run faster.
+        .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT, "750ms")
+        .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL, "250ms")
+        .build();
+    mCluster.start();
+
     AlluxioURI testDir = new AlluxioURI("/dir");
     FileSystem fs = mCluster.getFileSystemClient();
     fs.createDirectory(testDir);
@@ -69,6 +80,18 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void restart() throws Exception {
+    mCluster = MultiProcessCluster.newBuilder(PortCoordination.EMBEDDED_JOURNAL_RESTART)
+        .setClusterName("EmbeddedJournalRestart")
+        .setNumMasters(NUM_MASTERS)
+        .setNumWorkers(0)
+        .setDeployMode(DeployMode.EMBEDDED_HA)
+        .addProperty(PropertyKey.MASTER_JOURNAL_FLUSH_TIMEOUT_MS, "5min")
+        // To make the test run faster.
+        .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT, "750ms")
+        .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL, "250ms")
+        .build();
+    mCluster.start();
+
     AlluxioURI testDir = new AlluxioURI("/dir");
     FileSystem fs = mCluster.getFileSystemClient();
     fs.createDirectory(testDir);
@@ -84,6 +107,18 @@ public final class EmbeddedJournalIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void restartStress() throws Throwable {
+    mCluster = MultiProcessCluster.newBuilder(PortCoordination.EMBEDDED_JOURNAL_RESTART_STRESS)
+        .setClusterName("EmbeddedJournalRestartStress")
+        .setNumMasters(NUM_MASTERS)
+        .setNumWorkers(0)
+        .setDeployMode(DeployMode.EMBEDDED_HA)
+        .addProperty(PropertyKey.MASTER_JOURNAL_FLUSH_TIMEOUT_MS, "5min")
+        // To make the test run faster.
+        .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT, "750ms")
+        .addProperty(PropertyKey.MASTER_EMBEDDED_JOURNAL_HEARTBEAT_INTERVAL, "250ms")
+        .build();
+    mCluster.start();
+
     // Run and verify operations while restarting the cluster multiple times.
     AtomicReference<Throwable> failure = new AtomicReference<>();
     AtomicInteger successes = new AtomicInteger(0);

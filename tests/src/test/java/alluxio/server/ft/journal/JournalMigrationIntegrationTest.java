@@ -22,6 +22,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.master.MasterClientConfig;
 import alluxio.multi.process.MultiProcessCluster;
 import alluxio.multi.process.MultiProcessCluster.DeployMode;
+import alluxio.multi.process.PortCoordination;
 import alluxio.testutils.BaseIntegrationTest;
 
 import org.junit.Test;
@@ -36,7 +37,7 @@ public final class JournalMigrationIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void migration() throws Exception {
-    MultiProcessCluster cluster = MultiProcessCluster.newBuilder()
+    MultiProcessCluster cluster = MultiProcessCluster.newBuilder(PortCoordination.JOURNAL_MIGRATION)
         .setClusterName("journalMigration")
         .setDeployMode(DeployMode.ZOOKEEPER_HA)
         .setNumMasters(3)

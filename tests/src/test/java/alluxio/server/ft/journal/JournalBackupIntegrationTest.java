@@ -27,6 +27,7 @@ import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.master.MasterClientConfig;
 import alluxio.multi.process.MultiProcessCluster;
 import alluxio.multi.process.MultiProcessCluster.DeployMode;
+import alluxio.multi.process.PortCoordination;
 import alluxio.testutils.AlluxioOperationThread;
 import alluxio.testutils.BaseIntegrationTest;
 
@@ -63,7 +64,7 @@ public final class JournalBackupIntegrationTest extends BaseIntegrationTest {
   // This test needs to stop and start master many times, so it can take up to a minute to complete.
   @Test
   public void backupRestoreZk() throws Exception {
-    mCluster = MultiProcessCluster.newBuilder()
+    mCluster = MultiProcessCluster.newBuilder(PortCoordination.BACKUP_RESTORE_ZK)
         .setClusterName("backupRestoreZk")
         .setDeployMode(DeployMode.ZOOKEEPER_HA)
         .setNumMasters(3)
@@ -75,7 +76,7 @@ public final class JournalBackupIntegrationTest extends BaseIntegrationTest {
   // ALLUXIO CS ADD
   @Test
   public void backupRestoreEmbedded() throws Exception {
-    mCluster = MultiProcessCluster.newBuilder()
+    mCluster = MultiProcessCluster.newBuilder(PortCoordination.BACKUP_RESTORE_EMBEDDED)
         .setClusterName("backupRestoreEmbedded")
         .setDeployMode(DeployMode.EMBEDDED_HA)
         .setNumMasters(3).build();
@@ -85,7 +86,7 @@ public final class JournalBackupIntegrationTest extends BaseIntegrationTest {
   // ALLUXIO CS END
   @Test
   public void backupRestoreSingleMaster() throws Exception {
-    mCluster = MultiProcessCluster.newBuilder()
+    mCluster = MultiProcessCluster.newBuilder(PortCoordination.BACKUP_RESTORE_SINGLE)
         .setClusterName("backupRestoreSingle")
         .setNumMasters(1).build();
     backupRestoreTest(false);
