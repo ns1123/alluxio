@@ -647,8 +647,8 @@ public final class MultiProcessCluster {
     List<MasterNetAddress> addrs = new ArrayList<>();
     for (int i = 0; i < numMasters; i++) {
       // ALLUXIO CS REPLACE
-      // addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
-      //     getNewPort(), getNewPort()));
+      // addrs.add(
+      //     new MasterNetAddress(NetworkAddressUtils.getLocalHostName(), getNewPort(), getNewPort()));
       // ALLUXIO CS WITH
       // Enterprise requires an additional port for embedded journal communication.
       addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
