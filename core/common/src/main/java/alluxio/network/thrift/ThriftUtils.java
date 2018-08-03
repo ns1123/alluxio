@@ -91,7 +91,7 @@ public final class ThriftUtils {
         socket.setSoTimeout(SOCKET_TIMEOUT_MS);
         return new TSocket(socket);
       } catch (Exception e) {
-        throw new RuntimeException("failed to create client thrift socket", e);
+        throw new RuntimeException("failed to create client thrift socket to " + address, e);
       }
     }
     // ALLUXIO CS END
