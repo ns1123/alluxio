@@ -192,7 +192,7 @@ public final class LoginUser {
         }
 
         if (Boolean.getBoolean("sun.security.jgss.native")) {
-          jgssLogin(subject, principal, keytab);
+          jgssLogin(subject);
         } else if (principal.isEmpty() && sExternalLoginProvider != null
             && sExternalLoginProvider.hasKerberosCrendentials()) {
           LOG.debug("Using external login provider");
@@ -240,7 +240,7 @@ public final class LoginUser {
     return userSet.iterator().next();
   }
 
-  private static void jgssLogin(Subject subject, String principal, String keytab)
+  private static void jgssLogin(Subject subject)
       throws LoginException {
     LOG.debug("Using native library (sun.security.jgss.native)");
     // Use MIT native Kerberos library
@@ -257,6 +257,8 @@ public final class LoginUser {
           + "in order to use native platform GSS integration.");
     }
 
+    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
+    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
     try {
       org.ietf.jgss.GSSCredential cred =
           alluxio.security.util.KerberosUtils.getCredentialFromJGSS();
@@ -271,8 +273,16 @@ public final class LoginUser {
             LOG.debug("KRB5CCNAME = {}", System.getenv("KRB5CCNAME"));
             LOG.debug("KRB5_CONFIG = {}", System.getenv("KRB5_CONFIG"));
           }
+          if (org.apache.commons.lang.StringUtils.isEmpty(keytab)) {
+            throw new LoginException("Cannot perform a kinit: keytab is not set.");
+          }
+          if (org.apache.commons.lang.StringUtils.isEmpty(principal)) {
+            throw new LoginException("Cannot perform a kinit: principal is not set.");
+          }
           String[] cmd = new String[] {"kinit", "-kt", keytab, principal};
-          LOG.debug("Running kinit command: {}", cmd);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Running kinit command: {}", java.util.Arrays.toString(cmd));
+          }
           Process p = Runtime.getRuntime().exec(cmd);
           if (!p.waitFor(30, java.util.concurrent.TimeUnit.SECONDS)) {
             LOG.warn("Timeout after 30 seconds while waiting for kinit to complete.");
@@ -289,11 +299,15 @@ public final class LoginUser {
           LOG.debug("kinit succeeded");
           e = null;
         } catch (Exception e2) {
-          LOG.error("Error running kinit to obtain ticket from JGSS {}", e2.getMessage());
+          LOG.error(
+              "Error running kinit to obtain ticket from JGSS: {}, principal = {}, keytab = {}",
+              e2.getMessage(), principal, keytab);
         }
       }
       if (e != null) {
-        throw new LoginException("Cannot add private credential to subject with JGSS: " + e);
+        throw new LoginException(String.format(
+            "Cannot add private credential to subject with JGSS: %s, principal = %s, keytab = %s",
+            e.getMessage(), principal, keytab));
       }
     }
   }
@@ -316,7 +330,7 @@ public final class LoginUser {
     }
     if (Boolean.getBoolean("sun.security.jgss.native")) {
       try {
-        jgssLogin(subject, sPrincipal, sKeytab);
+        jgssLogin(subject);
       } catch (LoginException e) {
         String msg = String.format("Failed to relogin user %s using jgss.",
             sLoginUser.getName());
