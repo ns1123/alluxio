@@ -2317,9 +2317,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED =
       new Builder(Name.SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED)
-          .setDescription("Whether the Alluxio client will use native Kerberos command to populate"
+          .setDescription(String.format(
+              "Whether the Alluxio client will use native Kerberos command to populate"
               + " ticket cache if a valid ticket is not found. This is only in effect when Alluxio"
-              + " is configured to authenticate using native Kerberos library.")
+              + " is configured to authenticate using native Kerberos library. Both %s and %s need"
+              + " to be set correctly for the login to succeed.",
+              Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE))
           .setDefaultValue(false)
           .setIsHidden(true)
           .build();
