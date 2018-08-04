@@ -3236,6 +3236,17 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL).setDefaultValue("").build();
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
       new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED =
+      new Builder(Name.SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED)
+          .setDescription(String.format(
+              "Whether the Alluxio client will use native Kerberos command to populate"
+              + " ticket cache if a valid ticket is not found. This is only in effect when Alluxio"
+              + " is configured to authenticate using native Kerberos library. Both %s and %s need"
+              + " to be set correctly for the login to succeed.",
+              Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE))
+          .setDefaultValue(false)
+          .setIsHidden(true)
+          .build();
   public static final PropertyKey SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED =
       new Builder(Name.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED).setDefaultValue(true).build();
   public static final PropertyKey SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL =
@@ -4158,6 +4169,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.security.kerberos.client.principal";
     public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
         "alluxio.security.kerberos.client.keytab.file";
+    public static final String SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED =
+        "alluxio.security.kerberos.client.ticketcache.login.enabled";
     public static final String SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED =
         "alluxio.security.underfs.hdfs.impersonation.enabled";
     public static final String SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL =
