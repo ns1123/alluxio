@@ -1232,6 +1232,7 @@ public final class FileSystemMasterTest {
         .getFileInfo(NESTED_URI, GET_STATUS_OPTIONS).convertDefaultAclToStringEntries());
     assertTrue(entries.containsAll(oldEntries));
     assertTrue(entries.containsAll(newEntries));
+    assertTrue(entries.contains("default:mask::rwx"));
 
     // modify existing and add
     newEntries = Sets.newHashSet("default:user:usera:---", "default:group:groupa:--x",
@@ -1306,7 +1307,7 @@ public final class FileSystemMasterTest {
     assertEquals(newEntries, entries);
 
     // modify existing
-    newEntries = Sets.newHashSet("user::rwx", "group::rw-", "other::r-x");
+    newEntries = Sets.newHashSet("user::rwx", "group::r--", "other::r-x");
     mFileSystemMaster.setAcl(NESTED_FILE_URI, SetAclAction.MODIFY,
         newEntries.stream().map(AclEntry::fromCliString).collect(Collectors.toList()), options);
 
@@ -1324,6 +1325,8 @@ public final class FileSystemMasterTest {
         .getFileInfo(NESTED_FILE_URI, GET_STATUS_OPTIONS).convertAclToStringEntries());
     assertTrue(entries.containsAll(oldEntries));
     assertTrue(entries.containsAll(newEntries));
+    // check if the mask got updated correctly
+    assertTrue(entries.contains("mask::r-x"));
 
     // modify existing and add
     newEntries = Sets.newHashSet("user:usera:---", "group:groupa:--x", "other::r-x");
