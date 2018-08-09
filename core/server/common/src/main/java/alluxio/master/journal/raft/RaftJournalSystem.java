@@ -325,6 +325,11 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     LOG.info("Raft server successfully restarted");
   }
 
+  /**
+   * Attempts to catch up. If the master loses leadership during this method, it will return early.
+   *
+   * The caller is responsible for detecting and responding to leadership changes.
+   */
   private void catchUp(JournalStateMachine stateMachine, CopycatClient client)
       throws TimeoutException, InterruptedException {
     long startTime = System.currentTimeMillis();
@@ -332,45 +337,59 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     CommonUtils.waitFor("snapshotting to finish", () -> !stateMachine.isSnapshotting(),
         WaitForOptions.defaults().setTimeoutMs(10 * Constants.MINUTE_MS));
 
-    // When a new master becomes primary, we write an empty journal entry with a random negative
-    // sequence number. Once that entry is applied to the copycat state machine, we know that all
-    // entries from previous terms must have been applied as well, so we can begin serving.
-    long gainPrimacySN = ThreadLocalRandom.current().nextLong(Long.MIN_VALUE, 0);
-    CompletableFuture<Void> future = null;
-    while (future == null || future.isCompletedExceptionally()) {
-      future = client.submit(new JournalEntryCommand(
-          JournalEntry.newBuilder().setSequenceNumber(gainPrimacySN).build()));
-      CompletableFuture<Void> finalFuture = future;
-      CommonUtils.waitFor("term start journal entry to be committed", () -> {
-        if (mPrimarySelector.getState() != PrimarySelector.State.PRIMARY) {
-          // Break out early if the server loses leadership.
-          return true;
-        }
-        return finalFuture.isDone();
-      });
-      if (future.isCompletedExceptionally()) {
-        try {
-          future.get();
-        } catch (Throwable t) {
-          LOG.error("Error submitting term start journal entry", t);
-        }
-      }
-    }
-    CommonUtils.waitFor("term start journal entry to be applied to state machine", () -> {
+    // Loop until we lose leadership or convince ourselves that we are caught up and we are the only
+    // master serving. To convince ourselves of this, we need to accomplish three steps:
+    //
+    // 1. Write a unique ID to the copycat.
+    // 2. Wait for the ID to by applied to the state machine. This proves that we are
+    //    caught up since the copycat cannot apply commits from a previous term after applying
+    //    commits from a later term.
+    // 3. Wait for a quiet period to elapse without anything new being written to Copycat. This is a
+    //    heuristic to account for the time it takes for a node to realize it is no longer the
+    //    leader. If two nodes think they are leader at the same time, they will both write unique
+    //    IDs to the journal, but only the second one has a chance of becoming leader. The first
+    //    will see that an entry was written after its ID, and double check that it is still the
+    //    leader before trying again.
+    while (true) {
       if (mPrimarySelector.getState() != PrimarySelector.State.PRIMARY) {
-        // Break out early if the server loses leadership.
-        return true;
+        return;
       }
-      long sn = stateMachine.getLastPrimaryStartSequenceNumber();
-      boolean caughtUp = sn == gainPrimacySN;
-      if (!caughtUp) {
-        LOG.info("Catching up primary master state. Last applied sequence number: {}",
-            stateMachine.getLastAppliedSequenceNumber());
+      long lastAppliedSN = stateMachine.getLastAppliedSequenceNumber();
+      long gainPrimacySN = ThreadLocalRandom.current().nextLong(Long.MIN_VALUE, 0);
+      LOG.info("Performing catchup. Last applied SN: {}. Catchup ID: {}", lastAppliedSN, gainPrimacySN);
+      CompletableFuture<Void> future = client.submit(new JournalEntryCommand(
+          JournalEntry.newBuilder().setSequenceNumber(gainPrimacySN).build()));
+      try {
+        future.get(5, TimeUnit.SECONDS);
+      } catch (TimeoutException | ExecutionException e) {
+        LOG.info("Exception submitting term start entry: {}", e.toString());
+        continue;
       }
-      return caughtUp;
-    }, WaitForOptions.defaults().setInterval(Constants.SECOND_MS));
-    LOG.info("Caught up in {}ms. Last sequence number from previous term: {}.",
-        System.currentTimeMillis() - startTime, stateMachine.getLastAppliedSequenceNumber());
+
+      try {
+        CommonUtils.waitFor("term start entry " + gainPrimacySN + " to be applied to state machine", () ->
+            stateMachine.getLastPrimaryStartSequenceNumber() == gainPrimacySN,
+            WaitForOptions.defaults()
+                .setInterval(Constants.SECOND_MS)
+                .setTimeoutMs(5 * Constants.SECOND_MS));
+      } catch (TimeoutException e) {
+        LOG.info(e.toString());
+        continue;
+      }
+
+      // Wait 2 election timeouts so that this master and other masters have time to realize they
+      // are not leader.
+      CommonUtils.sleepMs(2 * mConf.getElectionTimeoutMs());
+      if (stateMachine.getLastAppliedSequenceNumber() != lastAppliedSN
+          || stateMachine.getLastPrimaryStartSequenceNumber() != gainPrimacySN) {
+        // Someone has committed a journal entry since we started trying to catch up.
+        // Restart the catchup process.
+        continue;
+      }
+      LOG.info("Caught up in {}ms. Last sequence number from previous term: {}.",
+          System.currentTimeMillis() - startTime, stateMachine.getLastAppliedSequenceNumber());
+      return;
+    }
   }
 
   @Override
