@@ -203,6 +203,7 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 		// ALLUXIO CS END
 		"bin/alluxio",
 		"bin/alluxio-masters.sh",
+		"bin/alluxio-monitor.sh",
 		"bin/alluxio-mount.sh",
 		"bin/alluxio-start.sh",
 		"bin/alluxio-stop.sh",
