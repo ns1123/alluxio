@@ -20,17 +20,12 @@ This tutorial walks through a basic dockerized Alluxio setup on a single node.
 
 A Linux machine. For the purposes of this guide, we will use a fresh EC2 machine running
 Amazon Linux. The machine size doesn't need to be large; we will use t2.small.
-<<<<<<< HEAD
 <!-- ALLUXIO CS REPLACE -->
 <!-- When setting up the network security for the instance, allow traffic on ports 19998-19999 -->
 <!-- and 29998-30000. -->
 <!-- ALLUXIO CS WITH -->
 Make sure the ports listed in [requirements](Requirements.html) are open.
 <!-- ALLUXIO CS END -->
-=======
-When setting up the network security for the instance, allow traffic on ports 19998-19999
-and 29998-30000.
->>>>>>> OPENSOURCE/branch-1.8
 
 ### Launch a standalone cluster
 
@@ -47,7 +42,6 @@ $ # Log out and log back in again to pick up the group changes
 $ exit
 ```
 
-<<<<<<< HEAD
 ### Download and unpack Alluxio
 
 <!-- ALLUXIO CS REPLACE -->
@@ -55,11 +49,6 @@ $ exit
 <!-- ALLUXIO CS WITH -->
 1. [Download](/account/#download-{{site.EDITION}}-edition) Alluxio and copy it to the linux machine.
 <!-- ALLUXIO CS END -->
-=======
-#### Download and unpack Alluxio
-
-1. [Download](https://www.alluxio.org/download) Alluxio and copy it to the linux machine.
->>>>>>> OPENSOURCE/branch-1.8
 1. Unpack the Alluxio tarball to a directory.
 ```bash
 $ tar xvfz alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-<hadoop distribution>.tar.gz
@@ -80,11 +69,7 @@ Create an under storage folder on the host.
 $ mkdir underStorage
 ```
 
-<<<<<<< HEAD
-### Set up ramdisk to enable short-circuit IO
-=======
 #### Set up ramdisk to enable short-circuit IO
->>>>>>> OPENSOURCE/branch-1.8
 
 From the host machine:
 
@@ -100,14 +85,10 @@ Restart Docker so that it is aware of the new mount point.
 $ sudo service docker restart
 ```
 
-<<<<<<< HEAD
-### Run the Alluxio master
+#### Run the Alluxio master
 <!-- ALLUXIO CS ADD -->
 Pass the Alluxio {{site.EDITION}} license using the `ALLUXIO_LICENSE_BASE64` environment variable.
 <!-- ALLUXIO CS END -->
-=======
-#### Run the Alluxio master
->>>>>>> OPENSOURCE/branch-1.8
 
 ```bash
 $ # This gets the public ip of the current EC2 instance
@@ -161,12 +142,8 @@ $ cd /opt/alluxio
 $ bin/alluxio runTests
 ```
 
-<<<<<<< HEAD
 <!-- ALLUXIO CS REMOVE -->
-<!-- # Building from a specific Alluxio distribution -->
-=======
-## Building from a specific Alluxio distribution
->>>>>>> OPENSOURCE/branch-1.8
+<!-- ## Building from a specific Alluxio distribution -->
 
 <!-- To build an Alluxio Docker image from a local or remote Alluxio tarball, use `--build-arg` -->
 
@@ -180,12 +157,8 @@ $ bin/alluxio runTests
 <!-- $ docker build -t alluxio --build-arg ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/{{site.ALLUXIO_RELEASED_VERSION}}/alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-bin.tar.gz . -->
 <!-- ``` -->
 
-<<<<<<< HEAD
 <!-- ALLUXIO CS END -->
-# Alluxio Configuration Properties
-=======
 ## Alluxio Configuration Properties
->>>>>>> OPENSOURCE/branch-1.8
 
 To set an Alluxio configuration property, convert it to an environment variable by uppercasing
 and replacing periods with underscores. For example, `alluxio.master.hostname` converts to
