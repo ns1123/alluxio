@@ -524,36 +524,20 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     // modifications to ClientContext are global, affecting all Alluxio clients in this JVM.
     // We assume here that all clients use the same configuration.
     HadoopConfigurationUtils.mergeHadoopConfiguration(conf, Configuration.global());
-<<<<<<< HEAD
-    Configuration.set(PropertyKey.ZOOKEEPER_ENABLED, isZookeeperMode());
-    // When using zookeeper we get the leader master address from the alluxio.zookeeper.address
-    // configuration property, so the user doesn't need to specify the authority.
-    // ALLUXIO CS REPLACE
-    // if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-    // ALLUXIO CS WITH
-    if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED) && alluxio.util.ConfigurationUtils
-        .getMasterRpcAddresses(Configuration.global()).size() == 1) {
-    // ALLUXIO CS END
-      Preconditions.checkNotNull(uri.getHost(), PreconditionMessage.URI_HOST_NULL);
-      Preconditions.checkNotNull(uri.getPort(), PreconditionMessage.URI_PORT_NULL);
-      Configuration.set(PropertyKey.MASTER_HOSTNAME, uri.getHost());
-      Configuration.set(PropertyKey.MASTER_RPC_PORT, uri.getPort());
-    }
-||||||| merged common ancestors
-    Configuration.set(PropertyKey.ZOOKEEPER_ENABLED, isZookeeperMode());
-    // When using zookeeper we get the leader master address from the alluxio.zookeeper.address
-    // configuration property, so the user doesn't need to specify the authority.
-    if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      Preconditions.checkNotNull(uri.getHost(), PreconditionMessage.URI_HOST_NULL);
-      Preconditions.checkNotNull(uri.getPort(), PreconditionMessage.URI_PORT_NULL);
-      Configuration.set(PropertyKey.MASTER_HOSTNAME, uri.getHost());
-      Configuration.set(PropertyKey.MASTER_RPC_PORT, uri.getPort());
-    }
-=======
 
     // Connection details in the URI has the highest priority
+    // ALLUXIO CS ADD
+    // TODO(lu) support embedded journal URI
+    // We occasionally let the embedded journal configuration has the higher priority
+    // over the single master Alluxio URI. When the embedded journal URI is supported,
+    // all the connection details in the URI have the highest priority.
+    // ALLUXIO CS END
     Configuration.global().merge(uriConfProperties, Source.RUNTIME);
->>>>>>> OPENSOURCE/master
+
+    // ALLUXIO CS ADD
+    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+
+    // ALLUXIO CS END
 
     // These must be reset to pick up the change to the master address.
     // TODO(andrew): We should reset key value system in this situation - see ALLUXIO-1706.
@@ -563,29 +547,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     FileSystemContext.get().reset(Configuration.global());
   }
 
-<<<<<<< HEAD
-    // ALLUXIO CS ADD
-    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
-
-    // ALLUXIO CS END
-    // Try to connect to master, if it fails, the provided uri is invalid.
-    FileSystemMasterClient client = FileSystemContext.get().acquireMasterClient();
-    try {
-      client.connect();
-      // Connected, initialize.
-    } finally {
-      FileSystemContext.get().releaseMasterClient(client);
-    }
-||||||| merged common ancestors
-    // Try to connect to master, if it fails, the provided uri is invalid.
-    FileSystemMasterClient client = FileSystemContext.get().acquireMasterClient();
-    try {
-      client.connect();
-      // Connected, initialize.
-    } finally {
-      FileSystemContext.get().releaseMasterClient(client);
-    }
-=======
   /**
    * Gets the connection configuration from the input uri.
    *
@@ -607,7 +568,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ADDRESS.getName(), null);
     }
     return alluxioConfProperties;
->>>>>>> OPENSOURCE/master
   }
 
   /**
