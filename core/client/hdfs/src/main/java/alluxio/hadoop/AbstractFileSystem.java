@@ -528,17 +528,15 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     // Connection details in the URI has the highest priority
     Configuration.global().merge(uriConfProperties, Source.RUNTIME);
 
-    // ALLUXIO CS ADD
-    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
-
-    // ALLUXIO CS END
-
     // These must be reset to pick up the change to the master address.
     // TODO(andrew): We should reset key value system in this situation - see ALLUXIO-1706.
     LineageContext.INSTANCE.reset();
     LOG.info("Initializing filesystem context with connect details {}",
         Factory.getConnectDetails(Configuration.global()));
     FileSystemContext.get().reset(Configuration.global());
+    // ALLUXIO CS ADD
+    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+    // ALLUXIO CS END
   }
 
   /**
