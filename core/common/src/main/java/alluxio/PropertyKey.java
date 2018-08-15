@@ -461,6 +461,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.SERVER)
           .build();
+  public static final PropertyKey WEB_TEMP_PATH =
+      new Builder(Name.WEB_TEMP_PATH)
+          .setDefaultValue(String.format("${%s}/web/", Name.WORK_DIR))
+          .setDescription("Path to store temporary web server files.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.IGNORE)
+          .setScope(Scope.SERVER)
+          .build();
   public static final PropertyKey WEB_THREADS =
       new Builder(Name.WEB_THREADS)
           .setDefaultValue(1)
@@ -3602,6 +3609,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String WEB_LOGIN_SESSION_TIMEOUT = "alluxio.web.login.session.timeout";
     // ALLUXIO CS END
     public static final String WEB_RESOURCES = "alluxio.web.resources";
+    public static final String WEB_TEMP_PATH = "alluxio.web.temp.path";
     public static final String WEB_THREADS = "alluxio.web.threads";
     public static final String WORK_DIR = "alluxio.work.dir";
     public static final String ZOOKEEPER_ADDRESS = "alluxio.zookeeper.address";
