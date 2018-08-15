@@ -526,12 +526,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     HadoopConfigurationUtils.mergeHadoopConfiguration(conf, Configuration.global());
 
     // Connection details in the URI has the highest priority
-    // ALLUXIO CS ADD
-    // TODO(lu) support embedded journal URI
-    // We occasionally let the embedded journal configuration has the higher priority
-    // over the single master Alluxio URI. When the embedded journal URI is supported,
-    // all the connection details in the URI have the highest priority.
-    // ALLUXIO CS END
     Configuration.global().merge(uriConfProperties, Source.RUNTIME);
 
     // ALLUXIO CS ADD
@@ -566,6 +560,16 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       alluxioConfProperties.put(PropertyKey.MASTER_RPC_PORT.getName(), alluxioUri.getPort());
       alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ENABLED.getName(), false);
       alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ADDRESS.getName(), null);
+      // ALLUXIO CS ADD
+      // Unset the embedded journal related configuration to support alluxio URI has the highest priority
+      alluxioConfProperties.put(PropertyKey.MASTER_JOURNAL_TYPE.getName(),
+          PropertyKey.MASTER_JOURNAL_TYPE.getDefaultValue());
+      alluxioConfProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES.getName(),
+          PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES.getDefaultValue());
+      alluxioConfProperties.put(PropertyKey.MASTER_RPC_ADDRESSES.getName(), null);
+      alluxioConfProperties.put(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES.getName(), null);
+      alluxioConfProperties.put(PropertyKey.JOB_MASTER_RPC_ADDRESSES.getName(), null);
+      // ALLUXIO CS END
     }
     return alluxioConfProperties;
   }
