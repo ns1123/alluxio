@@ -3436,13 +3436,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         PropertyKey.KEY_VALUE_ENABLED,
         PropertyKey.KEY_VALUE_PARTITION_SIZE_BYTES_MAX,
         PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER,
-        PropertyKey.MASTER_LINEAGE_CHECKPOINT_CLASS,
-        PropertyKey.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS,
-        PropertyKey.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS,
-        PropertyKey.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
-        PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX,
-        PropertyKey.USER_LINEAGE_ENABLED,
-        PropertyKey.USER_LINEAGE_MASTER_CLIENT_THREADS);
+        PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
   }
 
   // ALLUXIO CS END
@@ -3721,15 +3715,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.embedded.journal.storage.level";
     // ALLUXIO CS END
     public static final String MASTER_KEYTAB_KEY_FILE = "alluxio.master.keytab.file";
-<<<<<<< HEAD
-    public static final String MASTER_LINEAGE_CHECKPOINT_CLASS =
-        "alluxio.master.lineage.checkpoint.class";
-    public static final String MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS =
-        "alluxio.master.lineage.checkpoint.interval";
-    public static final String MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS =
-        "alluxio.master.lineage.recompute.interval";
-    public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
-        "alluxio.master.lineage.recompute.log.path";
     // ALLUXIO CS ADD
     public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
         "alluxio.master.persistence.checker.interval.ms";
@@ -3744,17 +3729,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
         "alluxio.master.persistence.scheduler.interval.ms";
     // ALLUXIO CS END
-||||||| merged common ancestors
-    public static final String MASTER_LINEAGE_CHECKPOINT_CLASS =
-        "alluxio.master.lineage.checkpoint.class";
-    public static final String MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS =
-        "alluxio.master.lineage.checkpoint.interval";
-    public static final String MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS =
-        "alluxio.master.lineage.recompute.interval";
-    public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
-        "alluxio.master.lineage.recompute.log.path";
-=======
->>>>>>> OPENSOURCE/master
     public static final String MASTER_LOG_CONFIG_REPORT_HEARTBEAT_INTERVAL =
         "alluxio.master.log.config.report.heartbeat.interval";
     public static final String MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_REPAIR =
