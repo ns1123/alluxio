@@ -61,7 +61,6 @@ import alluxio.wire.FileInfo;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.Privilege;
 import alluxio.wire.SetAclAction;
-import alluxio.wire.TtlAction;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.ImmutableSet;
@@ -258,12 +257,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public long reinitializeFile(AlluxioURI path, long blockSizeBytes, long ttl, TtlAction ttlAction)
-      throws InvalidPathException, FileDoesNotExistException, UnavailableException {
-    return mFileSystemMaster.reinitializeFile(path, blockSizeBytes, ttl, ttlAction);
-  }
-
-  @Override
   public long getNewBlockIdForFile(AlluxioURI path)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
     return mFileSystemMaster.getNewBlockIdForFile(path);
@@ -345,11 +338,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void reportLostFile(long fileId) throws FileDoesNotExistException, UnavailableException {
-    mFileSystemMaster.reportLostFile(fileId);
-  }
-
-  @Override
   public long loadMetadata(AlluxioURI path, LoadMetadataOptions options)
       throws BlockInfoException, FileDoesNotExistException, InvalidPathException,
       InvalidFileSizeException, FileAlreadyCompletedException, IOException, AccessControlException {
@@ -367,13 +355,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   public void unmount(AlluxioURI alluxioPath)
       throws FileDoesNotExistException, InvalidPathException, IOException, AccessControlException {
     mFileSystemMaster.unmount(alluxioPath);
-  }
-
-  @Override
-  public void resetFile(long fileId)
-      throws UnexpectedAlluxioException, FileDoesNotExistException, InvalidPathException,
-      AccessControlException, UnavailableException, IOException {
-    mFileSystemMaster.resetFile(fileId);
   }
 
   @Override

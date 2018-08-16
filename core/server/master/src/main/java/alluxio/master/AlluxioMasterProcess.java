@@ -267,8 +267,7 @@ public class AlluxioMasterProcess implements MasterProcess {
   }
 
   /**
-   * Starts all masters, including block master, FileSystem master, lineage master and additional
-   * masters.
+   * Starts all masters, including block master, FileSystem master, and additional masters.
    *
    * @param isLeader if the Master is leader
    */
@@ -309,8 +308,7 @@ public class AlluxioMasterProcess implements MasterProcess {
   }
 
   /**
-   * Stops all masters, including lineage master, block master and fileSystem master and additional
-   * masters.
+   * Stops all masters, including block master, fileSystem master and additional masters.
    */
   protected void stopMasters() {
     try {
