@@ -222,7 +222,7 @@ public final class LoginUser {
       throw new UnauthenticatedException("Failed to login: " + e.getMessage(), e);
     }
 
-    LOG.info("login subject for SIMPLE: {}", subject);
+    LOG.debug("login subject for SIMPLE: {}", subject);
     Set<User> userSet = subject.getPrincipals(User.class);
     if (userSet.isEmpty()) {
       throw new UnauthenticatedException("Failed to login: No Alluxio User is found.");
