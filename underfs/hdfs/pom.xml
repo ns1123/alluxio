@@ -24,6 +24,7 @@
   <properties>
     <!-- The following paths need to be defined here as well as in the parent pom so that mvn can -->
     <!-- run properly from sub-project directories -->
+<<<<<<< HEAD
     <license.header.path>${project.parent.parent.basedir}/build/license/</license.header.path>
     <checkstyle.path>${project.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.parent.basedir}/build/findbugs/</findbugs.path>
@@ -33,6 +34,15 @@
     <!-- Decouple hadoop versions between north and south bound -->
     <ufs.hadoop.version>2.2.0</ufs.hadoop.version>
     <!-- ALLUXIO CS END -->
+||||||| merged common ancestors
+    <license.header.path>${project.parent.parent.basedir}/build/license/</license.header.path>
+    <checkstyle.path>${project.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
+    <findbugs.path>${project.parent.parent.basedir}/build/findbugs/</findbugs.path>
+    <ufs.hadoop.version>${hadoop.version}</ufs.hadoop.version>
+=======
+    <build.path>${project.parent.parent.basedir}/build</build.path>
+    <ufs.hadoop.version>${hadoop.version}</ufs.hadoop.version>
+>>>>>>> OPENSOURCE/master
   </properties>
 
   <dependencies>
