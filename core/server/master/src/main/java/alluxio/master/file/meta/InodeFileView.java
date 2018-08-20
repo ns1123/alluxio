@@ -19,7 +19,38 @@ import java.util.List;
  * Read-only interface for an inode file.
  */
 public interface InodeFileView extends InodeView {
+  // ALLUXIO CS ADD
+  /**
+   * @return the job id of the job persisting this file
+   */
+  long getPersistJobId();
 
+  /**
+   * @return the durable number of block replication
+   */
+  int getReplicationDurable();
+
+  /**
+   * @return the maximum number of block replication
+   */
+  int getReplicationMax();
+
+  /**
+   * @return the minimum number of block replication
+   */
+  int getReplicationMin();
+
+  /**
+   * @return the temporary UFS path this file is persisted to
+   */
+  String getTempUfsPath();
+
+  /**
+   * @return true if the file is encrypted, false otherwise
+   */
+  boolean isEncrypted();
+
+  // ALLUXIO CS END
   /**
    * @return a duplication of all the block ids of the file
    */
@@ -55,7 +86,7 @@ public interface InodeFileView extends InodeView {
   boolean isCacheable();
 
   /**
-   * @return true if the file is complete, false otherwise
+   * @return true if the file is cacheable, false otherwise
    */
   boolean isCompleted();
 }

@@ -134,6 +134,13 @@ message UpdateInodeDirectoryEntry {
 
 // next available id: 8
 message UpdateInodeFileEntry {
+  // ALLUXIO CS ADD
+  // next available id: 1005
+  optional int64 persist_job_id = 1003;
+  optional int32 replication_max = 1001;
+  optional int32 replication_min = 1002;
+  optional string temp_ufs_path = 1004;
+  // ALLUXIO CS END
   optional int64 id = 1;
   optional int64 block_size_bytes = 2;
   optional int64 length = 3;

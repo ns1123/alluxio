@@ -432,7 +432,7 @@ public final class PermissionCheckerTest {
     try (LockedInodePath inodePath = sTree.lockInodePath(
         new AlluxioURI(TEST_DIR_FILE_URI), InodeTree.LockMode.READ)) {
       mPermissionChecker.checkPermission(Mode.Bits.READ, inodePath);
-      List<Inode<?>> inodes = inodePath.getInodeList();
+      List<InodeView> inodes = inodePath.getInodeList();
       org.mockito.Mockito.verify(ace).checkPermission(TEST_USER_1.getUser(),
           Lists.newArrayList(TEST_USER_1.getGroup()), Mode.Bits.READ, TEST_DIR_FILE_URI,
           inodes, inodes.stream()

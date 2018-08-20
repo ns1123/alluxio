@@ -167,6 +167,8 @@
     <surefire.excludesFile>slow-tests</surefire.excludesFile>
     <test.output.redirect>true</test.output.redirect>
     <!-- ALLUXIO CS ADD -->
+    <!-- The name of the license directory, may be overridden for cs-only projects -->
+    <license.dir>license</license.dir>
     <!-- The native library path used in tests related to JNI. -->
     <alluxio.native.library.path>lib/native/</alluxio.native.library.path>
     <!-- Host to report call home information to. -->
@@ -1036,16 +1038,12 @@
           <version>2.19.1</version>
           <configuration>
             <argLine>-Djava.net.preferIPv4Stack=true</argLine>
-<<<<<<< HEAD
             <!-- ALLUXIO CS ADD -->
             <excludes>
               <exclude>${surefire.exclude}</exclude>
             </excludes>
             <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-=======
             <excludesFile>${build.path}/surefire/${surefire.excludesFile}</excludesFile>
->>>>>>> OPENSOURCE/master
             <forkCount>${surefire.forkCount}</forkCount>
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
             <reuseForks>false</reuseForks>
@@ -1285,7 +1283,11 @@
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
-          <header>${build.path}/license/HEADER.txt</header>
+          <!-- ALLUXIO CS REPLACE -->
+          <!-- <header>${build.path}/license/HEADER.txt</header> -->
+          <!-- ALLUXIO CS WITH -->
+          <header>${build.path}/${license.dir}/HEADER.txt</header>
+          <!-- ALLUXIO CS END -->
           <failIfMissing>true</failIfMissing>
           <aggregate>false</aggregate>
           <excludes>

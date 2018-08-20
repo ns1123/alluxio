@@ -17,6 +17,7 @@ import alluxio.exception.InvalidPathException;
 import alluxio.extensions.ClassLoaderContext;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
+import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.MountTable;
 import alluxio.proto.journal.Journal;
 import alluxio.security.authorization.DefaultAccessControlList;
@@ -150,7 +151,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
      */
     @Override
     public void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
-        List<Inode<?>> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
+        List<InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
         throws AccessControlException {
       // checks permission with master plugin
       if (mExternalMasterEnforcer != null) {
@@ -182,7 +183,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
     }
 
     private void checkUfsPermission(String user, List<String> groups, Mode.Bits bits, String path,
-        List<Inode<?>> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
+        List<InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
         throws InvalidPathException, AccessControlException {
       AlluxioURI alluxioUri = new AlluxioURI(path);
       AlluxioURI mountPoint = new AlluxioURI(mMountTable.getMountPoint(alluxioUri));
@@ -191,7 +192,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
       InodeAttributesProvider ufsAuthProvider = getUfsProvider(mMountTable, alluxioUri);
       if (ufsAuthProvider != null) {
         // converts inodes and inode attributes to match ufs paths
-        List<Inode<?>> ufsNodes = convertToUfsInodeList(alluxioUri, mountPoint, inodeList,
+        List<InodeView> ufsNodes = convertToUfsInodeList(alluxioUri, mountPoint, inodeList,
             PassThroughInode::new, resolution);
         List<InodeAttributes> ufsAttributes = convertToUfsInodeList(alluxioUri, mountPoint,
             attributes, PassThroughInode::new, resolution);
@@ -210,7 +211,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
             ufsUri.toString(), bits.toString());
       } else if (mExternalMasterEnforcer == null) {
         // checks permission with default enforcer if master plugin is not available
-        List<Inode<?>> partialNodes = convertToMountPointInodeList(alluxioUri, mountPoint,
+        List<InodeView> partialNodes = convertToMountPointInodeList(alluxioUri, mountPoint,
             inodeList, PassThroughInode::new);
         List<InodeAttributes> partialAttrs = convertToMountPointInodeList(alluxioUri, mountPoint,
             attributes, PassThroughInode::new);
@@ -337,7 +338,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
       setMode((short) 0777);
     }
 
-    public PassThroughInode(String name, @Nullable Inode<?> baseNode) {
+    public PassThroughInode(String name, @Nullable InodeView baseNode) {
       this(name);
       if (baseNode != null) {
         setOwner(baseNode.getOwner());

@@ -107,21 +107,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
   /** Mount table manages the file system mount points. */
   private final MountTable mMountTable;
 
-<<<<<<< HEAD
-  /** Use UniqueFieldIndex directly for ID index rather than using IndexedSet. */
-  private final FieldIndex<Inode<?>, Long> mInodes = new UniqueFieldIndex<>(ID_INDEX);
-  /** A set of inode ids representing pinned inode files. */
-  private final Set<Long> mPinnedInodeFileIds = new ConcurrentHashSet<>(64, 0.90f, 64);
-  // ALLUXIO CS ADD
-  /** A set of inode ids whose replication max value is non-default. */
-  private final Set<Long> mReplicationLimitedFileIds = new ConcurrentHashSet<>(64, 0.90f, 64);
-  // ALLUXIO CS END
-||||||| merged common ancestors
-  /** Use UniqueFieldIndex directly for ID index rather than using IndexedSet. */
-  private final FieldIndex<Inode<?>, Long> mInodes = new UniqueFieldIndex<>(ID_INDEX);
-  /** A set of inode ids representing pinned inode files. */
-  private final Set<Long> mPinnedInodeFileIds = new ConcurrentHashSet<>(64, 0.90f, 64);
-=======
   private final TtlBucketList mTtlBuckets;
   /** Unmodifiable view of all inodes in the inode tree. */
   private final InodesView mInodes;
@@ -130,7 +115,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
    * through this class by calling mState.applyAndJournal(context, entry).
    */
   private final InodeTreePersistentState mState;
->>>>>>> OPENSOURCE/master
 
   /**
    * Inode id management. Inode ids are essentially block ids.
@@ -804,7 +788,21 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
 
         extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(newFile,
             currentInodeDirectory, name);
-
+        // ALLUXIO CS ADD
+        if (currentInodeDirectory.isPinned()) {
+          // Create a file inside of a pinned directory, if its min replication inferred from its
+          // CreateFileOptions is zero (default value), we bump it to one to reflect its state of
+          // being pinned; and adjust the max replication if it is smaller than the min
+          // replication.
+          if (newFile.getReplicationMin() == 0) {
+            newFile.setReplicationMin(1);
+            if (newFile.getReplicationMax() < newFile.getReplicationMin()) {
+              // adjust replication upper limit in case it is smaller than 1
+              newFile.setReplicationMax(alluxio.Constants.REPLICATION_MAX_INFINITY);
+            }
+          }
+        }
+        // ALLUXIO CS END
         // if the parent has a default ACL, copy that default ACL as the new file's access ACL.
         DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
         if (!dAcl.isEmpty()) {
@@ -812,47 +810,8 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
           newFile.setInternalAcl(acl);
         }
 
-<<<<<<< HEAD
-        if (lastInode instanceof InodeFile) {
-          if (currentInodeDirectory.isPinned()) {
-            // Update set of pinned file ids.
-            // ALLUXIO CS REPLACE
-            // mPinnedInodeFileIds.add(lastInode.getId());
-            // ALLUXIO CS WITH
-            // Create a file inside of a pinned directory, if its min replication inferred from its
-            // CreateFileOptions is zero (default value), we bump it to one to reflect its state of
-            // being pinned; and adjust the max replication if it is smaller than the min
-            // replication.
-            InodeFile inodeFile = (InodeFile) lastInode;
-            if (inodeFile.getReplicationMin() == 0) {
-              inodeFile.setReplicationMin(1);
-              if (inodeFile.getReplicationMax() < inodeFile.getReplicationMin()) {
-                // adjust replication upper limit in case it is smaller than 1
-                inodeFile.setReplicationMax(alluxio.Constants.REPLICATION_MAX_INFINITY);
-              }
-            }
-            // ALLUXIO CS END
-          }
-          // ALLUXIO CS ADD
-          if (((InodeFile) lastInode).getReplicationMin() > 0) {
-            mPinnedInodeFileIds.add(lastInode.getId());
-            lastInode.setPinned(true);
-          }
-          if (((InodeFile) lastInode).getReplicationMax()
-              != alluxio.Constants.REPLICATION_MAX_INFINITY) {
-            mReplicationLimitedFileIds.add(lastInode.getId());
-          }
-          // ALLUXIO CS END
-||||||| merged common ancestors
-        if (lastInode instanceof InodeFile) {
-          if (currentInodeDirectory.isPinned()) {
-            // Update set of pinned file ids.
-            mPinnedInodeFileIds.add(lastInode.getId());
-          }
-=======
         if (fileOptions.isCacheable()) {
           newFile.setCacheable(true);
->>>>>>> OPENSOURCE/master
         }
         newInode = newFile;
       } else {
@@ -1029,27 +988,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
       rpcContext.getBlockDeletionContext()
           .registerBlocksForDeletion(((InodeFileView) inode).getBlockIds());
     }
-<<<<<<< HEAD
-
-    parent.removeChild(inode);
-    parent.setLastModificationTimeMs(opTimeMs);
-
-    mInodes.remove(inode);
-    mPinnedInodeFileIds.remove(inode.getId());
-    // ALLUXIO CS ADD
-    mReplicationLimitedFileIds.remove(inode.getId());
-    // ALLUXIO CS END
-    inode.setDeleted(true);
-||||||| merged common ancestors
-
-    parent.removeChild(inode);
-    parent.setLastModificationTimeMs(opTimeMs);
-
-    mInodes.remove(inode);
-    mPinnedInodeFileIds.remove(inode.getId());
-    inode.setDeleted(true);
-=======
->>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -1062,54 +1000,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
    * @param opTimeMs the operation time
    * @throws FileDoesNotExistException if inode does not exist
    */
-<<<<<<< HEAD
-  public void setPinned(LockedInodePath inodePath, boolean pinned, long opTimeMs)
-      throws FileDoesNotExistException {
-    Inode<?> inode = inodePath.getInode();
-    inode.setPinned(pinned);
-    inode.setLastModificationTimeMs(opTimeMs);
-
-    if (inode.isFile()) {
-      InodeFile inodeFile = (InodeFile) inode;
-      if (inodeFile.isPinned()) {
-        mPinnedInodeFileIds.add(inodeFile.getId());
-        // ALLUXIO CS ADD
-        // when we pin a file with default min replication (zero), we bump the min replication
-        // to one in addition to setting pinned flag, and adjust the max replication if it is
-        // smaller than min replication.
-        if (inodeFile.getReplicationMin() == 0) {
-          inodeFile.setReplicationMin(1);
-          if (inodeFile.getReplicationMax() == 0) {
-            inodeFile.setReplicationMax(alluxio.Constants.REPLICATION_MAX_INFINITY);
-          }
-        }
-        // ALLUXIO CS END
-      } else {
-        mPinnedInodeFileIds.remove(inodeFile.getId());
-        // ALLUXIO CS ADD
-        // when we unpin a file, set the min replication to zero too.
-        inodeFile.setReplicationMin(0);
-        // ALLUXIO CS END
-      }
-    } else {
-      assert inode instanceof InodeDirectory;
-||||||| merged common ancestors
-  public void setPinned(LockedInodePath inodePath, boolean pinned, long opTimeMs)
-      throws FileDoesNotExistException {
-    Inode<?> inode = inodePath.getInode();
-    inode.setPinned(pinned);
-    inode.setLastModificationTimeMs(opTimeMs);
-
-    if (inode.isFile()) {
-      InodeFile inodeFile = (InodeFile) inode;
-      if (inodeFile.isPinned()) {
-        mPinnedInodeFileIds.add(inodeFile.getId());
-      } else {
-        mPinnedInodeFileIds.remove(inodeFile.getId());
-      }
-    } else {
-      assert inode instanceof InodeDirectory;
-=======
   public void setPinned(RpcContext rpcContext, LockedInodePath inodePath, boolean pinned,
       long opTimeMs) throws FileDoesNotExistException {
     InodeView inode = inodePath.getInode();
@@ -1122,7 +1012,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
 
     if (inode.isDirectory()) {
       assert inode instanceof InodeDirectoryView;
->>>>>>> OPENSOURCE/master
       // inode is a directory. Set the pinned state for all children.
       try {
         for (InodeView child : ((InodeDirectoryView) inode).getChildren()) {
@@ -1157,23 +1046,24 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
    * will be set recursively. Arguments replicationMax and replicationMin can be null if they are
    * not meant to be set.
    *
+   * @param rpcContext the rpc context
    * @param inodePath the {@link LockedInodePath} to set the pinned state for
    * @param replicationMax the max replication level to set for the inode (and possible descendants)
    * @param replicationMin the min replication level to set for the inode (and possible descendants)
    * @param opTimeMs the operation time
    * @throws FileDoesNotExistException if inode does not exist
    */
-  public void setReplication(LockedInodePath inodePath, Integer replicationMax,
+  public void setReplication(RpcContext rpcContext, LockedInodePath inodePath, Integer replicationMax,
       Integer replicationMin, long opTimeMs) throws FileDoesNotExistException {
     Preconditions.checkArgument(replicationMin != null || replicationMax != null,
         PreconditionMessage.INVALID_REPLICATION_MAX_MIN_VALUE_NULL);
     Preconditions.checkArgument(replicationMin == null || replicationMin >= 0,
         PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
 
-    Inode<?> inode = inodePath.getInode();
+    InodeView inode = inodePath.getInode();
 
     if (inode.isFile()) {
-      InodeFile inodeFile = (InodeFile) inode;
+      InodeFileView inodeFile = (InodeFileView) inode;
       int newMax = (replicationMax == null) ? inodeFile.getReplicationMax() : replicationMax;
       int newMin = (replicationMin == null) ? inodeFile.getReplicationMin() : replicationMin;
 
@@ -1181,26 +1071,23 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
           || newMax >= newMin,
           PreconditionMessage.INVALID_REPLICATION_MAX_SMALLER_THAN_MIN.toString(),
           replicationMax, replicationMax);
-      inodeFile.setReplicationMax(newMax);
-      inodeFile.setReplicationMin(newMin);
-      if (newMax == alluxio.Constants.REPLICATION_MAX_INFINITY) {
-        mReplicationLimitedFileIds.remove(inodeFile.getId());
-      } else {
-        mReplicationLimitedFileIds.add(inodeFile.getId());
-      }
-      if (newMin > 0) {
-        inodeFile.setPinned(true);
-        mPinnedInodeFileIds.add(inodeFile.getId());
-      } else {
-        inodeFile.setPinned(false);
-        mPinnedInodeFileIds.remove(inodeFile.getId());
-      }
+
+      mState.applyAndJournal(rpcContext, UpdateInodeFileEntry.newBuilder()
+          .setId(inode.getId())
+          .setReplicationMax(newMax)
+          .setReplicationMin(newMin)
+          .build());
+      mState.applyAndJournal(rpcContext, UpdateInodeEntry.newBuilder()
+          .setId(inode.getId())
+          .setPinned(newMin > 0)
+          .setLastModificationTimeMs(opTimeMs)
+          .build());
     } else {
       try {
-        for (Inode<?> child : ((InodeDirectory) inode).getChildren()) {
+        for (InodeView child : ((InodeDirectoryView) inode).getChildren()) {
           try (LockedInodePath tempInodePath =
                    inodePath.createTempPathForExistingChild(child, LockMode.WRITE)) {
-            setReplication(tempInodePath, replicationMax, replicationMin, opTimeMs);
+            setReplication(rpcContext, tempInodePath, replicationMax, replicationMin, opTimeMs);
           }
         }
       } catch (InvalidPathException e) {
@@ -1208,14 +1095,13 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
             inodePath.getUri().getPath());
       }
     }
-    inode.setLastModificationTimeMs(opTimeMs);
   }
 
   /**
    * @return the set of file ids whose replication max is not infinity
    */
   public Set<Long> getReplicationLimitedFileIds() {
-    return java.util.Collections.unmodifiableSet(mReplicationLimitedFileIds);
+    return java.util.Collections.unmodifiableSet(mState.getReplicationLimitedFileIds());
   }
 
   // ALLUXIO CS END
@@ -1273,86 +1159,7 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
    * Resets the inode tree state.
    */
   public void reset() {
-<<<<<<< HEAD
-    mRoot = null;
-    mInodes.clear();
-    // ALLUXIO CS ADD
-    mReplicationLimitedFileIds.clear();
-    // ALLUXIO CS END
-    mPinnedInodeFileIds.clear();
-  }
-
-  private void setRoot(InodeDirectory directory) {
-    mRoot = directory;
-    mRoot.setPersistenceState(PersistenceState.PERSISTED);
-    mCachedInode = mRoot;
-    mInodes.add(mRoot);
-  }
-
-  /**
-   * Adds a given inode into the inode tree, by adding the inode to its parent. Also updates the
-   * appropriate inode indexes.
-   *
-   * @param inode the inode to add to the inode tree
-   */
-  private void addInodeFromJournalInternal(Inode<?> inode) {
-    InodeDirectory parentDirectory = mCachedInode;
-    if (inode.getParentId() != mCachedInode.getId()) {
-      parentDirectory = (InodeDirectory) mInodes.getFirst(inode.getParentId());
-      mCachedInode = parentDirectory;
-    }
-    parentDirectory.addChild(inode);
-    mInodes.add(inode);
-    // Update indexes.
-    // ALLUXIO CS REPLACE
-    // if (inode.isFile() && inode.isPinned()) {
-    //   mPinnedInodeFileIds.add(inode.getId());
-    // }
-    // ALLUXIO CS WITH
-    if (inode.isFile()) {
-      InodeFile inodeFile = (InodeFile) inode;
-      if (inodeFile.isPinned()) {
-        mPinnedInodeFileIds.add(inodeFile.getId());
-      }
-      if (inodeFile.getReplicationMax() >= 0) {
-        mReplicationLimitedFileIds.add(inodeFile.getId());
-      }
-    }
-    // ALLUXIO CS END
-||||||| merged common ancestors
-    mRoot = null;
-    mInodes.clear();
-    mPinnedInodeFileIds.clear();
-  }
-
-  private void setRoot(InodeDirectory directory) {
-    mRoot = directory;
-    mRoot.setPersistenceState(PersistenceState.PERSISTED);
-    mCachedInode = mRoot;
-    mInodes.add(mRoot);
-  }
-
-  /**
-   * Adds a given inode into the inode tree, by adding the inode to its parent. Also updates the
-   * appropriate inode indexes.
-   *
-   * @param inode the inode to add to the inode tree
-   */
-  private void addInodeFromJournalInternal(Inode<?> inode) {
-    InodeDirectory parentDirectory = mCachedInode;
-    if (inode.getParentId() != mCachedInode.getId()) {
-      parentDirectory = (InodeDirectory) mInodes.getFirst(inode.getParentId());
-      mCachedInode = parentDirectory;
-    }
-    parentDirectory.addChild(inode);
-    mInodes.add(inode);
-    // Update indexes.
-    if (inode.isFile() && inode.isPinned()) {
-      mPinnedInodeFileIds.add(inode.getId());
-    }
-=======
     mState.reset();
->>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -1415,20 +1222,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
     throw new IOException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(dir.getName()));
   }
 
-<<<<<<< HEAD
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(mRoot, mInodes, mPinnedInodeFileIds, mContainerIdGenerator,
-        // ALLUXIO CS ADD
-        mReplicationLimitedFileIds,
-        // ALLUXIO CS END
-        mDirectoryIdGenerator, mCachedInode);
-||||||| merged common ancestors
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(mRoot, mInodes, mPinnedInodeFileIds, mContainerIdGenerator,
-        mDirectoryIdGenerator, mCachedInode);
-=======
   /**
    * Synchronously persists an {@link InodeDirectory} to the UFS.
    *
@@ -1453,7 +1246,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
       }
     });
     dir.setPersistenceState(PersistenceState.PERSISTED);
->>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -1488,28 +1280,7 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
         return Optional.of(status);
       }
     }
-<<<<<<< HEAD
-    InodeTree that = (InodeTree) o;
-    return Objects.equal(mRoot, that.mRoot)
-        && Objects.equal(mInodes, that.mInodes)
-        && Objects.equal(mPinnedInodeFileIds, that.mPinnedInodeFileIds)
-        // ALLUXIO CS ADD
-        && Objects.equal(mReplicationLimitedFileIds, that.mReplicationLimitedFileIds)
-        // ALLUXIO CS END
-        && Objects.equal(mContainerIdGenerator, that.mContainerIdGenerator)
-        && Objects.equal(mDirectoryIdGenerator, that.mDirectoryIdGenerator)
-        && Objects.equal(mCachedInode, that.mCachedInode);
-||||||| merged common ancestors
-    InodeTree that = (InodeTree) o;
-    return Objects.equal(mRoot, that.mRoot)
-        && Objects.equal(mInodes, that.mInodes)
-        && Objects.equal(mPinnedInodeFileIds, that.mPinnedInodeFileIds)
-        && Objects.equal(mContainerIdGenerator, that.mContainerIdGenerator)
-        && Objects.equal(mDirectoryIdGenerator, that.mDirectoryIdGenerator)
-        && Objects.equal(mCachedInode, that.mCachedInode);
-=======
     return Optional.empty();
->>>>>>> OPENSOURCE/master
   }
 
   /**

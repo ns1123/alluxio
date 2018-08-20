@@ -41,6 +41,7 @@
 /extensions/
 /journal/
 /lib/
+/license.json
 /logs/*.log*
 /logs/*.out*
 /underFSStorage/

@@ -16,15 +16,16 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_INODE_ATTRIBUTES
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
-import alluxio.proto.journal.Journal;
-import alluxio.security.authorization.AuthorizationPluginConstants;
 import alluxio.exception.InvalidPathException;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.master.file.AccessControlEnforcer;
 import alluxio.master.file.InodeAttributesProvider;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
+import alluxio.master.file.meta.InodeView;
+import alluxio.proto.journal.Journal;
 import alluxio.security.LoginUser;
+import alluxio.security.authorization.AuthorizationPluginConstants;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UnderFileSystemConfiguration;
@@ -151,7 +152,7 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
 
     @Override
     public void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
-        List<Inode<?>> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
+        List<InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
         throws alluxio.exception.AccessControlException {
       String fsOwner;
       try {
@@ -248,7 +249,7 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
           .filter(x -> x.toString().equals(access.SYMBOL)).findFirst().get();
       List<String> groups = Arrays.asList(callerUgi.getGroupNames());
       // only adds non-null element to inode list
-      List<Inode<?>> inodeList = Arrays.stream(inodes).filter(x -> x != null)
+      List<InodeView> inodeList = Arrays.stream(inodes).filter(x -> x != null)
           .map(x -> getAlluxioInode(x)).collect(Collectors.toList());
       List<InodeAttributes> attributes = Arrays.stream(inodeAttrs).filter(x -> x != null)
           .map(x -> getAlluxioInodeAttributes(x)).collect(Collectors.toList());
@@ -261,7 +262,7 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
       LOG.debug("Passed default permission check {}, action={}", path, access);
     }
 
-    private Inode<?> getAlluxioInode(INode inode) {
+    private InodeView getAlluxioInode(INode inode) {
       if (inode instanceof AlluxioHdfsINode) {
         // unwraps Alluxio Inode
         return ((AlluxioHdfsINode) inode).toAlluxioInode();

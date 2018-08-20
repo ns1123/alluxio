@@ -22,6 +22,16 @@ import "journal/lineage.proto";
 //
 // next available id: 36
 message JournalEntry {
+  // ALLUXIO CS ADD
+  // next available id: 1006
+  optional FinishJobEntry finish_job = 1002;
+  optional LicenseCheckEntry license_check = 1001;
+  optional PrivilegeUpdateEntry privilege_update = 1004;
+  optional StartJobEntry start_job = 1003;
+  // This journal entry is a list of other entries. when a journal entry
+  // contains other journal entries, all other optional fields must be unset.
+  repeated JournalEntry journal_entries = 1005;
+  // ALLUXIO CS END
   optional int64 sequence_number = 1;
   optional AddMountPointEntry add_mount_point = 2;
   optional AsyncPersistRequestEntry async_persist_request = 16;
@@ -55,22 +65,7 @@ message JournalEntry {
   optional SetAclEntry set_acl = 31;
   optional SetAttributeEntry set_attribute = 27;
   optional UpdateUfsModeEntry update_ufs_mode = 30;
-<<<<<<< HEAD
-  // ALLUXIO CS ADD
-  // next available id: 1006
-  optional FinishJobEntry finish_job = 1002;
-  optional LicenseCheckEntry license_check = 1001;
-  optional PrivilegeUpdateEntry privilege_update = 1004;
-  optional StartJobEntry start_job = 1003;
-  // This journal entry is a list of other entries. when a journal entry
-  // contains other journal entries, all other optional fields must be unset.
-  repeated JournalEntry journal_entries = 1005;
-  // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-
   optional UpdateInodeEntry update_inode = 32;
   optional UpdateInodeDirectoryEntry update_inode_directory = 33;
   optional UpdateInodeFileEntry update_inode_file = 34;
->>>>>>> OPENSOURCE/master
 }

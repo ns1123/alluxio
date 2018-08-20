@@ -12,6 +12,7 @@
 package org.apache.hadoop.hdfs.server.namenode;
 
 import alluxio.master.file.meta.Inode;
+import alluxio.master.file.meta.InodeView;
 
 import com.google.common.base.Preconditions;
 
@@ -29,7 +30,7 @@ public interface AlluxioHdfsINode {
   /**
    * @return the underlying Alluxio {@link Inode}
    */
-  Inode<?> toAlluxioInode();
+  InodeView toAlluxioInode();
 
   /**
    * Creates a HDFS {@link INode} wrapper of an Alluxio {@link Inode}.
@@ -38,7 +39,7 @@ public interface AlluxioHdfsINode {
    * @param path path of the inode
    * @return the HDFS {@link INode}
    */
-  static INode create(Inode<?> alluxioInode, String path) {
+  static INode create(InodeView alluxioInode, String path) {
     Preconditions.checkNotNull(alluxioInode, "alluxioInode");
     return alluxioInode.isDirectory() ? new AlluxioHdfsINodeDirectory(alluxioInode, path) :
         new AlluxioHdfsINodeFile(alluxioInode, path);

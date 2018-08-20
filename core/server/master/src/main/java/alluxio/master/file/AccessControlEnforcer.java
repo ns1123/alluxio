@@ -12,8 +12,8 @@
 package alluxio.master.file;
 
 import alluxio.exception.AccessControlException;
-import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
+import alluxio.master.file.meta.InodeView;
 import alluxio.security.authorization.Mode;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public interface AccessControlEnforcer {
    * @param checkIsOwner indicates whether to check the user is the owner of the path
    * @throws AccessControlException if permission checking fails
    */
-  void checkPermission(String user, List<String> groups, Mode.Bits bits,
-      String path, List<Inode<?>> inodeList, List<InodeAttributes> attributes,
-      boolean checkIsOwner) throws AccessControlException;
+  void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
+      List<InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
+      throws AccessControlException;
 }

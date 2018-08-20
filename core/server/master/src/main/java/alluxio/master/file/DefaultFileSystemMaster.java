@@ -54,6 +54,7 @@ import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeFileView;
 import alluxio.master.file.meta.InodePathPair;
 import alluxio.master.file.meta.InodeTree;
+import alluxio.master.file.meta.InodeTree.LockMode;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.LockedInodePathList;
@@ -161,9 +162,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
@@ -173,6 +176,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -478,145 +482,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   @Override
   public void processJournalEntry(JournalEntry entry) throws IOException {
-<<<<<<< HEAD
-    if (entry.hasInodeFile()) {
-      mInodeTree.addInodeFileFromJournal(entry.getInodeFile());
-      // Add the file to TTL buckets, the insert automatically rejects files w/ Constants.NO_TTL
-      InodeFileEntry inodeFileEntry = entry.getInodeFile();
-      if (inodeFileEntry.hasTtl()) {
-        mTtlBuckets.insert(InodeFile.fromJournalEntry(inodeFileEntry));
-      }
-      // ALLUXIO CS ADD
-      if (PersistenceState.valueOf(inodeFileEntry.getPersistenceState())
-          == PersistenceState.TO_BE_PERSISTED) {
-        // This file should be persisted. A snapshot of the filesystem state is created (now
-        // replaying) before the file is persisted.
-        long fileId = inodeFileEntry.getId();
-        if (inodeFileEntry.getPersistJobId() != Constants.PERSISTENCE_INVALID_JOB_ID
-            && !Constants.PERSISTENCE_INVALID_UFS_PATH.equals(inodeFileEntry.getTempUfsPath())) {
-          // A persist job of this file is scheduled
-          AlluxioURI uri;
-          try (LockedInodePath inodePath = mInodeTree
-              .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
-            uri = inodePath.getUri();
-          } catch (Exception e) {
-            throw new IOException(e);
-          }
-          addPersistJob(fileId, inodeFileEntry.getPersistJobId(), uri,
-              inodeFileEntry.getTempUfsPath());
-        } else {
-          // No persist job scheduled yet.
-          addFileIdToPersistRequests(fileId);
-        }
-      }
-      // ALLUXIO CS END
-    } else if (entry.hasInodeDirectory()) {
-      try {
-        // Add the directory to TTL buckets, the insert automatically rejects directory
-        // w/ Constants.NO_TTL
-        InodeDirectoryEntry inodeDirectoryEntry = entry.getInodeDirectory();
-        if (inodeDirectoryEntry.hasTtl()) {
-          mTtlBuckets.insert(InodeDirectory.fromJournalEntry(inodeDirectoryEntry));
-        }
-        mInodeTree.addInodeDirectoryFromJournal(entry.getInodeDirectory());
-      } catch (AccessControlException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasInodeLastModificationTime()) {
-      InodeLastModificationTimeEntry modTimeEntry = entry.getInodeLastModificationTime();
-      try (LockedInodePath inodePath = mInodeTree
-          .lockFullInodePath(modTimeEntry.getId(), InodeTree.LockMode.WRITE)) {
-        inodePath.getInode()
-            .setLastModificationTimeMs(modTimeEntry.getLastModificationTimeMs(), true);
-      } catch (FileDoesNotExistException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasPersistDirectory()) {
-      PersistDirectoryEntry typedEntry = entry.getPersistDirectory();
-      try (LockedInodePath inodePath = mInodeTree
-          .lockFullInodePath(typedEntry.getId(), InodeTree.LockMode.WRITE)) {
-        inodePath.getInode().setPersistenceState(PersistenceState.PERSISTED);
-      } catch (FileDoesNotExistException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasCompleteFile()) {
-      try {
-        completeFileFromEntry(entry.getCompleteFile());
-      } catch (InvalidPathException | InvalidFileSizeException | FileAlreadyCompletedException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasSetAttribute()) {
-      try {
-        setAttributeFromEntry(entry.getSetAttribute());
-      } catch (AccessControlException | FileDoesNotExistException | InvalidPathException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasDeleteFile()) {
-      deleteFromEntry(entry.getDeleteFile());
-    } else if (entry.hasRename()) {
-      renameFromEntry(entry.getRename());
-    } else if (entry.hasInodeDirectoryIdGenerator()) {
-      mDirectoryIdGenerator.initFromJournalEntry(entry.getInodeDirectoryIdGenerator());
-||||||| merged common ancestors
-    if (entry.hasInodeFile()) {
-      mInodeTree.addInodeFileFromJournal(entry.getInodeFile());
-      // Add the file to TTL buckets, the insert automatically rejects files w/ Constants.NO_TTL
-      InodeFileEntry inodeFileEntry = entry.getInodeFile();
-      if (inodeFileEntry.hasTtl()) {
-        mTtlBuckets.insert(InodeFile.fromJournalEntry(inodeFileEntry));
-      }
-    } else if (entry.hasInodeDirectory()) {
-      try {
-        // Add the directory to TTL buckets, the insert automatically rejects directory
-        // w/ Constants.NO_TTL
-        InodeDirectoryEntry inodeDirectoryEntry = entry.getInodeDirectory();
-        if (inodeDirectoryEntry.hasTtl()) {
-          mTtlBuckets.insert(InodeDirectory.fromJournalEntry(inodeDirectoryEntry));
-        }
-        mInodeTree.addInodeDirectoryFromJournal(entry.getInodeDirectory());
-      } catch (AccessControlException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasInodeLastModificationTime()) {
-      InodeLastModificationTimeEntry modTimeEntry = entry.getInodeLastModificationTime();
-      try (LockedInodePath inodePath = mInodeTree
-          .lockFullInodePath(modTimeEntry.getId(), InodeTree.LockMode.WRITE)) {
-        inodePath.getInode()
-            .setLastModificationTimeMs(modTimeEntry.getLastModificationTimeMs(), true);
-      } catch (FileDoesNotExistException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasPersistDirectory()) {
-      PersistDirectoryEntry typedEntry = entry.getPersistDirectory();
-      try (LockedInodePath inodePath = mInodeTree
-          .lockFullInodePath(typedEntry.getId(), InodeTree.LockMode.WRITE)) {
-        inodePath.getInode().setPersistenceState(PersistenceState.PERSISTED);
-      } catch (FileDoesNotExistException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasCompleteFile()) {
-      try {
-        completeFileFromEntry(entry.getCompleteFile());
-      } catch (InvalidPathException | InvalidFileSizeException | FileAlreadyCompletedException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasSetAttribute()) {
-      try {
-        setAttributeFromEntry(entry.getSetAttribute());
-      } catch (AccessControlException | FileDoesNotExistException | InvalidPathException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasDeleteFile()) {
-      deleteFromEntry(entry.getDeleteFile());
-    } else if (entry.hasRename()) {
-      renameFromEntry(entry.getRename());
-    } else if (entry.hasInodeDirectoryIdGenerator()) {
-      mDirectoryIdGenerator.initFromJournalEntry(entry.getInodeDirectoryIdGenerator());
-=======
     if (mDirectoryIdGenerator.replayJournalEntryFromJournal(entry)
         || mInodeTree.replayJournalEntryFromJournal(entry)) {
       return;
->>>>>>> OPENSOURCE/master
     } else if (entry.hasReinitializeFile() || entry.hasLineage() || entry.hasLineageIdGenerator()
         || entry.hasDeleteLineage()) {
       // lineage is no longer supported, fall through
@@ -705,6 +573,47 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
 
       // Startup Checks and Periodic Threads.
+      // ALLUXIO CS ADD
+      // Rebuild the list of persist jobs (mPersistJobs) and map of pending persist requests
+      // (mPersistRequests)
+      try (RpcContext rpcContext = createRpcContext();
+           LockedInodePath inodePath =
+               mInodeTree.lockInodePath(new AlluxioURI("/"), LockMode.WRITE)) {
+        // Walk the inode tree looking for files in the TO_BE_PERSISTED state.
+        Queue<InodeDirectoryView> dirsToProcess = new LinkedList<>();
+        dirsToProcess.add((InodeDirectoryView) inodePath.getInode());
+        while (!dirsToProcess.isEmpty()) {
+          InodeDirectoryView dir = dirsToProcess.poll();
+          for (InodeView inode : dir.getChildren()) {
+            if (inode.isDirectory()) {
+              dirsToProcess.add((InodeDirectory) inode);
+              continue;
+            }
+            InodeFileView inodeFile = (InodeFileView) inode;
+            if (!inodeFile.getPersistenceState().equals(PersistenceState.TO_BE_PERSISTED)) {
+              continue;
+            }
+            inodeFile.lockRead();
+            try {
+              if (inodeFile.getPersistJobId() != Constants.PERSISTENCE_INVALID_JOB_ID) {
+                addPersistJob(inodeFile.getId(), inodeFile.getPersistJobId(),
+                    mInodeTree.getPath(inodeFile), inodeFile.getTempUfsPath());
+              } else {
+                mPersistRequests.put(inodeFile.getId(), new alluxio.time.ExponentialTimer(
+                    Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
+                    Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
+                    Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
+                    Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
+              }
+            } finally {
+              inodeFile.unlockRead();
+            }
+          }
+        }
+      } catch (InvalidPathException | FileDoesNotExistException e) {
+        throw new IllegalStateException(e);
+      }
+      // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_BLOCK_INTEGRITY_CHECK_ENABLED)) {
         validateInodeBlocks(true);
       }
@@ -2347,13 +2256,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   /**
    * Propagates the persisted status to all parents of the given inode in the same mount partition.
    *
-   * @param rpcContext the rpc context
+   * @param journalContext the journal context
    * @param inodePath the inode to start the propagation at
    * @return list of inodes which were marked as persisted
    * @throws FileDoesNotExistException if a non-existent file is encountered
    */
-  private void propagatePersistedInternal(RpcContext rpcContext, LockedInodePath inodePath)
-      throws FileDoesNotExistException {
+  private void propagatePersistedInternal(Supplier<JournalContext> journalContext,
+      LockedInodePath inodePath) throws FileDoesNotExistException {
     InodeView inode = inodePath.getInode();
 
     List<InodeView> inodes = inodePath.getInodeList();
@@ -2374,7 +2283,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         // Stop if a persisted directory is encountered.
         break;
       }
-      mInodeTree.updateInode(rpcContext, UpdateInodeEntry.newBuilder()
+      mInodeTree.updateInode(journalContext, UpdateInodeEntry.newBuilder()
           .setId(ancestor.getId())
           .setPersistenceState(PersistenceState.PERSISTED.name())
           .build());
@@ -3278,99 +3187,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
       }
     }
-<<<<<<< HEAD
-    List<Inode<?>> persistedInodes = setAttributeInternal(inodePath, false, opTimeMs, options);
-    journalPersistedInodes(persistedInodes, rpcContext.getJournalContext());
-    journalSetAttribute(inodePath, opTimeMs, options, rpcContext.getJournalContext());
-  }
 
-  /**
-   * @param inodePath the file path to use
-   * @param opTimeMs the operation time (in milliseconds)
-   * @param options the method options
-   * @param journalContext the journal context
-   * @throws FileDoesNotExistException if path does not exist
-   */
-  private void journalSetAttribute(LockedInodePath inodePath, long opTimeMs,
-      SetAttributeOptions options, JournalContext journalContext) throws FileDoesNotExistException {
-    SetAttributeEntry.Builder builder =
-        SetAttributeEntry.newBuilder().setId(inodePath.getInode().getId()).setOpTimeMs(opTimeMs);
-    if (options.getPinned() != null) {
-      builder.setPinned(options.getPinned());
-    }
-    if (options.getTtl() != null) {
-      builder.setTtl(options.getTtl());
-      builder.setTtlAction(ProtobufUtils.toProtobuf(options.getTtlAction()));
-    }
-
-    // ALLUXIO CS ADD
-    if (options.getReplicationMax() != null) {
-      builder.setReplicationMax(options.getReplicationMax());
-    }
-    if (options.getReplicationMin() != null) {
-      builder.setReplicationMin(options.getReplicationMin());
-    }
-    // ALLUXIO CS END
-    if (options.getPersisted() != null) {
-      builder.setPersisted(options.getPersisted());
-    }
-    if (options.getOwner() != null) {
-      builder.setOwner(options.getOwner());
-    }
-    if (options.getGroup() != null) {
-      builder.setGroup(options.getGroup());
-    }
-    if (options.getMode() != Constants.INVALID_MODE) {
-      builder.setPermission(options.getMode());
-    }
-    if (!options.getUfsFingerprint().equals(Constants.INVALID_UFS_FINGERPRINT)) {
-      builder.setUfsFingerprint(options.getUfsFingerprint());
-    }
-    journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
-||||||| merged common ancestors
-    List<Inode<?>> persistedInodes = setAttributeInternal(inodePath, false, opTimeMs, options);
-    journalPersistedInodes(persistedInodes, rpcContext.getJournalContext());
-    journalSetAttribute(inodePath, opTimeMs, options, rpcContext.getJournalContext());
-  }
-
-  /**
-   * @param inodePath the file path to use
-   * @param opTimeMs the operation time (in milliseconds)
-   * @param options the method options
-   * @param journalContext the journal context
-   * @throws FileDoesNotExistException if path does not exist
-   */
-  private void journalSetAttribute(LockedInodePath inodePath, long opTimeMs,
-      SetAttributeOptions options, JournalContext journalContext) throws FileDoesNotExistException {
-    SetAttributeEntry.Builder builder =
-        SetAttributeEntry.newBuilder().setId(inodePath.getInode().getId()).setOpTimeMs(opTimeMs);
-    if (options.getPinned() != null) {
-      builder.setPinned(options.getPinned());
-    }
-    if (options.getTtl() != null) {
-      builder.setTtl(options.getTtl());
-      builder.setTtlAction(ProtobufUtils.toProtobuf(options.getTtlAction()));
-    }
-
-    if (options.getPersisted() != null) {
-      builder.setPersisted(options.getPersisted());
-    }
-    if (options.getOwner() != null) {
-      builder.setOwner(options.getOwner());
-    }
-    if (options.getGroup() != null) {
-      builder.setGroup(options.getGroup());
-    }
-    if (options.getMode() != Constants.INVALID_MODE) {
-      builder.setPermission(options.getMode());
-    }
-    if (!options.getUfsFingerprint().equals(Constants.INVALID_UFS_FINGERPRINT)) {
-      builder.setUfsFingerprint(options.getUfsFingerprint());
-    }
-    journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
-=======
     setAttributeSingleFile(rpcContext, inodePath, true, opTimeMs, options);
->>>>>>> OPENSOURCE/master
   }
 
   @Override
@@ -3387,6 +3205,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           .setId(inodePath.getInode().getId())
           .setPersistenceState(PersistenceState.TO_BE_PERSISTED.name())
           .build());
+      // ALLUXIO CS ADD
+      mPersistRequests.put(inodePath.getInode().getId(), new alluxio.time.ExponentialTimer(
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
+      // ALLUXIO CS END
     }
     // ALLUXIO CS REMOVE
     // // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
@@ -3395,96 +3220,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
 
   /**
-<<<<<<< HEAD
-   * Schedules a file for async persistence.
-   * <p>
-   * Writes to the journal.
-   *
-   * @param rpcContext the rpc context
-   * @param inodePath the {@link LockedInodePath} of the file for persistence
-   */
-  private void scheduleAsyncPersistenceAndJournal(RpcContext rpcContext, LockedInodePath inodePath)
-      throws AlluxioException {
-    long fileId = inodePath.getInode().getId();
-    scheduleAsyncPersistenceInternal(inodePath);
-    // write to journal
-    AsyncPersistRequestEntry asyncPersistRequestEntry =
-        AsyncPersistRequestEntry.newBuilder().setFileId(fileId).build();
-    rpcContext.journal(
-        JournalEntry.newBuilder().setAsyncPersistRequest(asyncPersistRequestEntry).build());
-  }
-
-  /**
-   * @param inodePath the {@link LockedInodePath} of the file to persist
-   */
-  private void scheduleAsyncPersistenceInternal(LockedInodePath inodePath) throws AlluxioException {
-    inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
-    // ALLUXIO CS ADD
-    addFileIdToPersistRequests(inodePath.getInode().getId());
-    // ALLUXIO CS END
-  }
-  // ALLUXIO CS ADD
-
-  /**
-   * @param fileId file ID to be persisted
-   */
-  private void addFileIdToPersistRequests(long fileId) {
-    mPersistRequests.put(fileId, new alluxio.time.ExponentialTimer(
-        Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
-        Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
-        Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
-        Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
-  }
-
-  /**
-   * @param fileId file ID
-   * @param jobId persist job ID
-   * @param uri Alluxio Uri of the file
-   * @param tempUfsPath temp UFS path
-   */
-  private void addPersistJob(long fileId, long jobId, AlluxioURI uri, String tempUfsPath) {
-    alluxio.time.ExponentialTimer timer = mPersistRequests.remove(fileId);
-    if (timer == null) {
-      timer = new alluxio.time.ExponentialTimer(
-          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
-          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
-          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
-          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS));
-    }
-    mPersistJobs.put(fileId, new PersistJob(jobId, fileId, uri, tempUfsPath, timer));
-  }
-  // ALLUXIO CS END
-
-  /**
-||||||| merged common ancestors
-   * Schedules a file for async persistence.
-   * <p>
-   * Writes to the journal.
-   *
-   * @param rpcContext the rpc context
-   * @param inodePath the {@link LockedInodePath} of the file for persistence
-   */
-  private void scheduleAsyncPersistenceAndJournal(RpcContext rpcContext, LockedInodePath inodePath)
-      throws AlluxioException {
-    long fileId = inodePath.getInode().getId();
-    scheduleAsyncPersistenceInternal(inodePath);
-    // write to journal
-    AsyncPersistRequestEntry asyncPersistRequestEntry =
-        AsyncPersistRequestEntry.newBuilder().setFileId(fileId).build();
-    rpcContext.journal(
-        JournalEntry.newBuilder().setAsyncPersistRequest(asyncPersistRequestEntry).build());
-  }
-
-  /**
-   * @param inodePath the {@link LockedInodePath} of the file to persist
-   */
-  private void scheduleAsyncPersistenceInternal(LockedInodePath inodePath) throws AlluxioException {
-    inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
-  }
-
-  /**
-=======
->>>>>>> OPENSOURCE/master
    * Syncs the Alluxio metadata with UFS.
    *
    * @param rpcContext the rpcContext
@@ -3776,29 +3511,15 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (options.getPinned() != null) {
       mInodeTree.setPinned(rpcContext, inodePath, options.getPinned(), opTimeMs);
     }
-<<<<<<< HEAD
+
+    UpdateInodeEntry.Builder entry = UpdateInodeEntry.newBuilder().setId(inode.getId());
     // ALLUXIO CS ADD
     if (options.getReplicationMax() != null || options.getReplicationMin() != null) {
       Integer replicationMax = options.getReplicationMax();
       Integer replicationMin = options.getReplicationMin();
-      mInodeTree.setReplication(inodePath, replicationMax, replicationMin, opTimeMs);
-      inode.setLastModificationTimeMs(opTimeMs);
-    }
-    if (options.getPersistJobId() != null || options.getTempUfsPath() != null) {
-      InodeFile file = (InodeFile) inode;
-      file.setPersistJobId(options.getPersistJobId());
-      file.setTempUfsPath(options.getTempUfsPath());
-      if (replayed && options.getPersistJobId() != -1 && !options.getTempUfsPath().isEmpty()) {
-        addPersistJob(file.getId(), options.getPersistJobId(), inodePath.getUri(),
-            options.getTempUfsPath());
-      }
-      inode.setLastModificationTimeMs(opTimeMs);
+      mInodeTree.setReplication(rpcContext, inodePath, replicationMax, replicationMin, opTimeMs);
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-    UpdateInodeEntry.Builder entry = UpdateInodeEntry.newBuilder().setId(inode.getId());
->>>>>>> OPENSOURCE/master
     if (options.getTtl() != null) {
       long ttl = options.getTtl();
       if (inode.getTtl() != ttl || inode.getTtlAction() != options.getTtlAction()) {
@@ -3890,10 +3611,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       entry.setGroup(options.getGroup());
     }
     if (modeChanged) {
-<<<<<<< HEAD
-      inode.setMode(options.getMode());
+      entry.setMode(options.getMode());
     }
-    return persistedInodes;
+    mInodeTree.updateInode(rpcContext, entry.build());
   }
   // ALLUXIO CS ADD
 
@@ -3921,109 +3641,30 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
   // ALLUXIO CS END
 
-  /**
-   * @param entry the entry to use
-   * @throws FileDoesNotExistException if the file does not exist
-   * @throws InvalidPathException if the file path corresponding to the file id is invalid
-   * @throws AccessControlException if failed to set permission
-   */
-  private void setAttributeFromEntry(SetAttributeEntry entry)
-      throws FileDoesNotExistException, InvalidPathException, AccessControlException {
-    SetAttributeOptions options = SetAttributeOptions.defaults();
-    if (entry.hasPinned()) {
-      options.setPinned(entry.getPinned());
-    }
-    if (entry.hasTtl()) {
-      options.setTtl(entry.getTtl());
-      options.setTtlAction(ProtobufUtils.fromProtobuf(entry.getTtlAction()));
-    }
-    if (entry.hasPersisted()) {
-      options.setPersisted(entry.getPersisted());
-    }
-    if (entry.hasOwner()) {
-      options.setOwner(entry.getOwner());
-    }
-    if (entry.hasGroup()) {
-      options.setGroup(entry.getGroup());
-    }
-    if (entry.hasPermission()) {
-      options.setMode((short) entry.getPermission());
-    }
-    // ALLUXIO CS ADD
-    if (entry.hasPersistJobId()) {
-      options.setPersistJobId(entry.getPersistJobId());
-    }
-    if (entry.hasReplicationMax()) {
-      options.setReplicationMax(entry.getReplicationMax());
-    }
-    if (entry.hasReplicationMin()) {
-      options.setReplicationMin(entry.getReplicationMin());
-    }
-    if (entry.hasTempUfsPath()) {
-      options.setTempUfsPath(entry.getTempUfsPath());
-    }
-    // ALLUXIO CS END
-    if (entry.hasUfsFingerprint()) {
-      options.setUfsFingerprint(entry.getUfsFingerprint());
-    }
-    try (LockedInodePath inodePath = mInodeTree
-        .lockFullInodePath(entry.getId(), InodeTree.LockMode.WRITE)) {
-      setAttributeInternal(inodePath, true, entry.getOpTimeMs(), options);
-      // Intentionally not journaling the persisted inodes from setAttributeInternal
-||||||| merged common ancestors
-      inode.setMode(options.getMode());
-    }
-    return persistedInodes;
-  }
-
-  /**
-   * @param entry the entry to use
-   * @throws FileDoesNotExistException if the file does not exist
-   * @throws InvalidPathException if the file path corresponding to the file id is invalid
-   * @throws AccessControlException if failed to set permission
-   */
-  private void setAttributeFromEntry(SetAttributeEntry entry)
-      throws FileDoesNotExistException, InvalidPathException, AccessControlException {
-    SetAttributeOptions options = SetAttributeOptions.defaults();
-    if (entry.hasPinned()) {
-      options.setPinned(entry.getPinned());
-    }
-    if (entry.hasTtl()) {
-      options.setTtl(entry.getTtl());
-      options.setTtlAction(ProtobufUtils.fromProtobuf(entry.getTtlAction()));
-    }
-    if (entry.hasPersisted()) {
-      options.setPersisted(entry.getPersisted());
-    }
-    if (entry.hasOwner()) {
-      options.setOwner(entry.getOwner());
-    }
-    if (entry.hasGroup()) {
-      options.setGroup(entry.getGroup());
-    }
-    if (entry.hasPermission()) {
-      options.setMode((short) entry.getPermission());
-    }
-    if (entry.hasUfsFingerprint()) {
-      options.setUfsFingerprint(entry.getUfsFingerprint());
-    }
-    try (LockedInodePath inodePath = mInodeTree
-        .lockFullInodePath(entry.getId(), InodeTree.LockMode.WRITE)) {
-      setAttributeInternal(inodePath, true, entry.getOpTimeMs(), options);
-      // Intentionally not journaling the persisted inodes from setAttributeInternal
-=======
-      entry.setMode(options.getMode());
->>>>>>> OPENSOURCE/master
-    }
-    mInodeTree.updateInode(rpcContext, entry.build());
-  }
-
   @Override
   public List<WorkerInfo> getWorkerInfoList() throws UnavailableException {
     return mBlockMaster.getWorkerInfoList();
   }
 
   // ALLUXIO CS ADD
+
+  /**
+   * @param fileId file ID
+   * @param jobId persist job ID
+   * @param uri Alluxio Uri of the file
+   * @param tempUfsPath temp UFS path
+   */
+  private void addPersistJob(long fileId, long jobId, AlluxioURI uri, String tempUfsPath) {
+    alluxio.time.ExponentialTimer timer = mPersistRequests.remove(fileId);
+    if (timer == null) {
+      timer = new alluxio.time.ExponentialTimer(
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
+          Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS));
+    }
+    mPersistJobs.put(fileId, new PersistJob(jobId, fileId, uri, tempUfsPath, timer));
+  }
 
   /**
    * Periodically schedules jobs to persist files and updates metadata accordingly.
@@ -4057,7 +3698,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       try (JournalContext journalContext = createJournalContext();
            LockedInodePath inodePath = mInodeTree
                .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
-        InodeFile inode = inodePath.getInodeFile();
+        InodeFileView inode = inodePath.getInodeFile();
         switch (inode.getPersistenceState()) {
           case LOST:
             // fall through
@@ -4068,16 +3709,15 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 inodePath.getUri(), fileId, inode.getPersistenceState());
             return;
           case TO_BE_PERSISTED:
-            inode.setPersistenceState(PersistenceState.NOT_PERSISTED);
-            inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
-            inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-
-            // Journal the action.
-            SetAttributeEntry.Builder builder =
-                SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(false)
-                    .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
-                    .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
+            mInodeTree.updateInode(journalContext, UpdateInodeEntry.newBuilder()
+                .setId(inode.getId())
+                .setPersistenceState(PersistenceState.NOT_PERSISTED.name())
+                .build());
+            mInodeTree.updateInodeFile(journalContext, UpdateInodeFileEntry.newBuilder()
+                .setId(inode.getId())
+                .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
+                .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH)
+                .build());
             break;
           default:
             throw new IllegalStateException(
@@ -4098,7 +3738,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       String tempUfsPath;
       try (LockedInodePath inodePath = mInodeTree
           .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
-        InodeFile inode = inodePath.getInodeFile();
+        InodeFileView inode = inodePath.getInodeFile();
         uri = inodePath.getUri();
         switch (inode.getPersistenceState()) {
           case LOST:
@@ -4146,13 +3786,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       try (JournalContext journalContext = createJournalContext();
            LockedInodePath inodePath = mInodeTree
                .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
-        InodeFile inode = inodePath.getInodeFile();
-        inode.setPersistJobId(jobId);
-        inode.setTempUfsPath(tempUfsPath);
-        SetAttributeEntry.Builder builder =
-            SetAttributeEntry.newBuilder().setId(inode.getId()).setPersistJobId(jobId)
-                .setTempUfsPath(tempUfsPath);
-        journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
+        InodeFileView inode = inodePath.getInodeFile();
+        mInodeTree.updateInodeFile(journalContext, UpdateInodeFileEntry.newBuilder()
+            .setId(inode.getId())
+            .setPersistJobId(jobId)
+            .setTempUfsPath(tempUfsPath)
+            .build());
       }
     }
 
@@ -4260,7 +3899,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       try (JournalContext journalContext = createJournalContext();
           LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
-        InodeFile inode = inodePath.getInodeFile();
+        InodeFileView inode = inodePath.getInodeFile();
         MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
         ufsClient = mUfsManager.get(resolution.getMountId());
         switch (inode.getPersistenceState()) {
@@ -4284,18 +3923,17 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               ufs.setMode(ufsPath, inode.getMode());
             }
 
-            inode.setPersistenceState(PersistenceState.PERSISTED);
-            inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
-            inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            journalPersistedInodes(propagatePersistedInternal(inodePath, false), journalContext);
+            mInodeTree.updateInodeFile(journalContext, UpdateInodeFileEntry.newBuilder()
+                .setId(inode.getId())
+                .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
+                .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH)
+                .build());
+            mInodeTree.updateInode(journalContext, UpdateInodeEntry.newBuilder()
+                .setId(inode.getId())
+                .setPersistenceState(PersistenceState.PERSISTED.name())
+                .build());
+            propagatePersistedInternal(journalContext, inodePath);
             Metrics.FILES_PERSISTED.inc();
-
-            // Journal the action.
-            SetAttributeEntry.Builder builder =
-                SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
-                    .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
-                    .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            journalContext.append(JournalEntry.newBuilder().setSetAttribute(builder).build());
 
             // Save state for possible cleanup
             blockIds.addAll(inode.getBlockIds());

@@ -22,8 +22,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
@@ -40,6 +40,7 @@ import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
 import alluxio.master.file.meta.InodeTree;
+import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.options.CreateDirectoryOptions;
@@ -250,7 +251,7 @@ public final class ExtensionInodeAttributesProviderTest {
         LockedInodePath inodePath = mTree
             .lockInodePath(new AlluxioURI(path), InodeTree.LockMode.WRITE)) {
       InodeTree.CreatePathResult result = mTree.createPath(RpcContext.NOOP, inodePath, option);
-      Inode<?> inode = result.getCreated().get(result.getCreated().size() - 1);
+      Inode<?> inode = (Inode<?>) result.getCreated().get(result.getCreated().size() - 1);
       inode.setOwner(option.getOwner());
       inode.setGroup(option.getGroup());
       inode.setMode(option.getMode().toShort());
@@ -262,7 +263,7 @@ public final class ExtensionInodeAttributesProviderTest {
     AuthenticatedClientUser.set(user.getUser());
     try (LockedInodePath inodePath = mTree
         .lockInodePath(new AlluxioURI(path), InodeTree.LockMode.READ)) {
-      List<Inode<?>> inodes = inodePath.getInodeList();
+      List<InodeView> inodes = inodePath.getInodeList();
       List<InodeAttributes> attributes = inodes.stream().map(x -> (InodeAttributes)
           new ExtendablePermissionChecker.DefaultInodeAttributes(x)).collect(Collectors.toList());
       mExternalEnforcer.checkPermission(user.getUser(), Collections.singletonList(user.getGroup()),
@@ -270,7 +271,7 @@ public final class ExtensionInodeAttributesProviderTest {
     }
   }
 
-  public static List<Inode<?>> matchInodeList(String path) {
+  public static List<InodeView> matchInodeList(String path) {
     return argThat(ListMatcher(path, x -> x.getName()));
   }
 
@@ -726,7 +727,7 @@ public final class ExtensionInodeAttributesProviderTest {
 
     @Override
     public void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
-        List<Inode<?>> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
+        List<InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
         throws AccessControlException {
       mEnforcer.checkPermission(user, groups, bits, path, inodeList, attributes, checkIsOwner);
     }
