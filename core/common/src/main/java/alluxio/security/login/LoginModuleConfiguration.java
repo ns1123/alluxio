@@ -129,6 +129,8 @@ public final class LoginModuleConfiguration extends Configuration {
       Map<String, String> keytabOptions = new HashMap<String, String>();
       keytabOptions.putAll(KERBEROS_OPTIONS);
       keytabOptions.put("useKeyTab", "true");
+      keytabOptions.put("useTicketCache", "false");
+      keytabOptions.put("renewTGT", "false");
       keytabOptions.put("storeKey", "true");
       keytabOptions.put("keyTab", mKeytab);
       keytabOptions.put("principal", mPrincipal);
