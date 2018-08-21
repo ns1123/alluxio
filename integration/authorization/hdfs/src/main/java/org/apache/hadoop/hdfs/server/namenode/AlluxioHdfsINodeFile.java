@@ -11,7 +11,7 @@
 
 package org.apache.hadoop.hdfs.server.namenode;
 
-import alluxio.master.file.meta.Inode;
+import alluxio.master.file.meta.InodeView;
 
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
@@ -20,14 +20,14 @@ import org.apache.hadoop.fs.permission.PermissionStatus;
  * A class extends HDFS {@link INodeFile} with Alluxio Inode information.
  */
 public class AlluxioHdfsINodeFile extends INodeFile implements AlluxioHdfsINode {
-  private final Inode mInode;
+  private final InodeView mInode;
   private final String mPath;
 
   /**
    * @param inode an Alluxio Inode
    * @param path a path corresponding to the Inode
    */
-  public AlluxioHdfsINodeFile(Inode<?> inode, String path) {
+  public AlluxioHdfsINodeFile(InodeView inode, String path) {
     super(inode.getId(), inode.getName().getBytes(),
         PermissionStatus.createImmutable(
             inode.getOwner(), inode.getGroup(), new FsPermission(inode.getMode())),
@@ -43,7 +43,7 @@ public class AlluxioHdfsINodeFile extends INodeFile implements AlluxioHdfsINode 
   }
 
   @Override
-  public Inode<?> toAlluxioInode() {
+  public InodeView toAlluxioInode() {
     return mInode;
   }
 }

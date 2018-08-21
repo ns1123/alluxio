@@ -52,6 +52,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -157,7 +158,8 @@ public final class ReplicationCheckerTest {
           mInodeTree.createPath(RpcContext.NOOP, inodePath, options);
       InodeFile inodeFile = (InodeFile) result.getCreated().get(0);
       inodeFile.setBlockSizeBytes(1);
-      inodeFile.complete(1);
+      inodeFile.setBlockIds(Arrays.asList(inodeFile.getNewBlockId()));
+      inodeFile.setCompleted(true);
       return ((InodeFile) result.getCreated().get(0)).getBlockIdByIndex(0);
     }
   }

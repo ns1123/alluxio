@@ -28,9 +28,7 @@
     <!-- ALLUXIO CS ADD -->
     <alluxio.native.library.path>${project.parent.parent.parent.basedir}/lib/native/</alluxio.native.library.path>
     <!-- ALLUXIO CS END -->
-    <license.header.path>${project.parent.parent.parent.basedir}/build/license/</license.header.path>
-    <checkstyle.path>${project.parent.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
-    <findbugs.path>${project.parent.parent.parent.basedir}/build/findbugs/</findbugs.path>
+    <build.path>${project.parent.parent.parent.basedir}/build</build.path>
     <failIfNoTests>false</failIfNoTests>
   </properties>
 

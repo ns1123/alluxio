@@ -257,8 +257,8 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public long getNewBlockIdForFile(AlluxioURI path)
-      throws FileDoesNotExistException, InvalidPathException, AccessControlException {
+  public long getNewBlockIdForFile(AlluxioURI path) throws FileDoesNotExistException,
+      InvalidPathException, AccessControlException, UnavailableException {
     return mFileSystemMaster.getNewBlockIdForFile(path);
   }
 

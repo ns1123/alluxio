@@ -26,10 +26,10 @@ import alluxio.master.MasterRegistry;
 import alluxio.master.MasterTestUtils;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterFactory;
-import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
 import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeTree;
+import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.options.CreateFileOptions;
@@ -237,7 +237,7 @@ public final class PermissionCheckerTest {
    * @param expectedInodes the expected inodes names
    * @param inodes the inodes for test
    */
-  private static void verifyInodesList(String[] expectedInodes, List<Inode<?>> inodes) {
+  private static void verifyInodesList(String[] expectedInodes, List<InodeView> inodes) {
     String[] inodesName = new String[inodes.size()];
     for (int i = 0; i < inodes.size(); i++) {
       inodesName[i] = inodes.get(i).getName();
@@ -432,7 +432,7 @@ public final class PermissionCheckerTest {
     try (LockedInodePath inodePath = sTree.lockInodePath(
         new AlluxioURI(TEST_DIR_FILE_URI), InodeTree.LockMode.READ)) {
       mPermissionChecker.checkPermission(Mode.Bits.READ, inodePath);
-      List<Inode<?>> inodes = inodePath.getInodeList();
+      List<InodeView> inodes = inodePath.getInodeList();
       org.mockito.Mockito.verify(ace).checkPermission(TEST_USER_1.getUser(),
           Lists.newArrayList(TEST_USER_1.getGroup()), Mode.Bits.READ, TEST_DIR_FILE_URI,
           inodes, inodes.stream()

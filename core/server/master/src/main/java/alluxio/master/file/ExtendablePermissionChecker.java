@@ -15,6 +15,7 @@ import alluxio.exception.AccessControlException;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeTree;
+import alluxio.master.file.meta.InodeView;
 import alluxio.proto.journal.Journal;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.security.authorization.Mode;
@@ -53,12 +54,12 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
 
   @Override
   public void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
-      List<Inode<?>> inodeList, List<InodeAttributes> attributes,
+      List<InodeView> inodeList, List<InodeAttributes> attributes,
       boolean checkIsOwner) throws AccessControlException {
     Preconditions.checkArgument(inodeList.size() == attributes.size(),
         "Overridden attributes count should be equal to the inode count");
     // combines inodes with overridden attributes
-    List<Inode<?>> newInodeList = IntStream.range(0, inodeList.size())
+    List<InodeView> newInodeList = IntStream.range(0, inodeList.size())
         .mapToObj(i -> getOverriddenInode(inodeList.get(i), attributes.get(i)))
         .collect(Collectors.toList());
     // calls the default permission checking method because the external AccessControlEnforcer
@@ -71,12 +72,12 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
   // AccessControlEnforcer cannot determine the permission.
   @Override
   protected void checkInodeList(String user, List<String> groups,
-      Mode.Bits bits, String path, List<Inode<?>> inodeList, boolean checkIsOwner)
+      Mode.Bits bits, String path, List<InodeView> inodeList, boolean checkIsOwner)
       throws AccessControlException {
     List<InodeAttributes> attributesList;
     List<String> pathComponents = new ArrayList<>();
     attributesList = new ArrayList<>();
-    for (Inode inode : inodeList) {
+    for (InodeView inode : inodeList) {
       pathComponents.add(inode.getName());
       // get the overridden attributes from the provider
       attributesList.add(mProvider.getAttributes(
@@ -86,14 +87,14 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
         user, groups, bits, path, inodeList, attributesList, checkIsOwner);
   }
 
-  private Inode<?> getOverriddenInode(Inode<?> inode, InodeAttributes attributes) {
+  private InodeView getOverriddenInode(InodeView inode, InodeAttributes attributes) {
     if (inode == getOriginalInode(attributes)) {
       return inode;
     }
     return new InodeWithOverridenAttributes(inode, attributes);
   }
 
-  private Inode<?> getOriginalInode(InodeAttributes attributes) {
+  private InodeView getOriginalInode(InodeAttributes attributes) {
     if (attributes != null && attributes instanceof DefaultInodeAttributes) {
       return ((DefaultInodeAttributes) attributes).getInode();
     }
@@ -104,13 +105,13 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
    * Default implementation of {@link InodeAttributes} with attribute values from an {@link Inode}.
    */
   public static class DefaultInodeAttributes implements InodeAttributes {
-    private final Inode<?> mInode;
+    private final InodeView mInode;
 
     /**
      * Default constructor.
      * @param inode an inode that provides all attribute values
      */
-    public DefaultInodeAttributes(Inode<?> inode) {
+    public DefaultInodeAttributes(InodeView inode) {
       mInode = Preconditions.checkNotNull(inode, "inode");
     }
 
@@ -158,16 +159,16 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
     /**
      * @return the source {@link Inode}
      */
-    public Inode<?> getInode() {
+    public InodeView getInode() {
       return mInode;
     }
   }
 
   private class InodeWithOverridenAttributes extends Inode<InodeWithOverridenAttributes> {
-    private final Inode mInode;
+    private final InodeView mInode;
     private final InodeAttributes mAttributes;
 
-    public InodeWithOverridenAttributes(Inode<?> inode,
+    public InodeWithOverridenAttributes(InodeView inode,
         InodeAttributes attributes) {
       super(inode.getId(), inode.isDirectory());
       mInode = inode;

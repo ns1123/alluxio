@@ -23,8 +23,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
@@ -34,6 +34,7 @@ import alluxio.master.file.AccessControlEnforcer;
 import alluxio.master.file.ExtensionInodeAttributesProviderTest;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
+import alluxio.master.file.meta.InodeView;
 import alluxio.security.LoginUser;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UnderFileSystemConfiguration;
@@ -116,7 +117,7 @@ public final class HdfsInodeAttributesProviderTest {
         .collect(Collectors.toList());
   }
 
-  private List<Inode<?>> createInodesForPath(String path, int length) throws Exception {
+  private List<InodeView> createInodesForPath(String path, int length) throws Exception {
     return createNodesForPath(path, length, name -> {
       Inode inode = mock(Inode.class);
       when(inode.getName()).thenReturn(name);
@@ -244,7 +245,7 @@ public final class HdfsInodeAttributesProviderTest {
     List<String> groups = Collections.singletonList("test_group");
     Mode.Bits bits = Mode.Bits.READ;
     String path = "/folder/file";
-    List<Inode<?>> inodes = createInodesForPath(path, 3);
+    List<InodeView> inodes = createInodesForPath(path, 3);
     List<InodeAttributes> attributes = createInodeAttributessForPath(path, 3);
     boolean doCheckOwner = false;
 
@@ -266,7 +267,7 @@ public final class HdfsInodeAttributesProviderTest {
     List<String> groups = Collections.singletonList("test_group");
     Mode.Bits bits = Mode.Bits.READ;
     String path = "/folder/file";
-    List<Inode<?>> inodes = createInodesForPath(path, 3);
+    List<InodeView> inodes = createInodesForPath(path, 3);
     List<InodeAttributes> attributes = createInodeAttributessForPath(path, 3);
     String fsOwner = LoginUser.getServerUser().getName();
     String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
@@ -289,7 +290,7 @@ public final class HdfsInodeAttributesProviderTest {
     List<String> groups = Collections.singletonList("test_group");
     Mode.Bits bits = Mode.Bits.READ;
     String path = "/folder/file";
-    List<Inode<?>> inodes = createInodesForPath(path, 3);
+    List<InodeView> inodes = createInodesForPath(path, 3);
     List<InodeAttributes> attributes = createInodeAttributessForPath(path, 3);
     boolean doCheckOwner = false;
     reset(mHadoopProvider);
@@ -312,7 +313,7 @@ public final class HdfsInodeAttributesProviderTest {
     List<String> groups = Collections.singletonList("test_group");
     Mode.Bits bits = Mode.Bits.READ;
     String path = "/folder/file";
-    List<Inode<?>> inodes = createInodesForPath(path, 3);
+    List<InodeView> inodes = createInodesForPath(path, 3);
     List<InodeAttributes> attributes = createInodeAttributessForPath(path, 3);
     boolean doCheckOwner = false;
     reset(mHadoopProvider);

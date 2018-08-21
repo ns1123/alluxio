@@ -144,9 +144,7 @@
     <apache.curator.version>2.1.0-incubating</apache.curator.version>
     <aws.amazonaws.version>1.11.215</aws.amazonaws.version>
     <build.path>build</build.path>
-    <checkstyle.path>build/checkstyle/</checkstyle.path>
     <cxf.version>2.7.0</cxf.version>
-    <findbugs.path>build/findbugs</findbugs.path>
     <glusterfs-hadoop.version>2.3.13</glusterfs-hadoop.version>
     <gmetric4j.version>1.0.7</gmetric4j.version>
     <hadoop.version>2.2.0</hadoop.version>
@@ -156,7 +154,6 @@
     <jetty.version>9.2.16.v20160414</jetty.version>
     <junit.version>4.12</junit.version>
     <libthrift.version>0.9.3</libthrift.version>
-    <license.header.path>build/license/</license.header.path>
     <log4j.version>1.2.17</log4j.version>
     <maven.version>3.3.9</maven.version>
     <metrics.version>3.1.2</metrics.version>
@@ -167,8 +164,11 @@
     <slf4j.version>1.7.2</slf4j.version>
     <surefire.forkCount>2</surefire.forkCount>
     <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
+    <surefire.excludesFile>slow-tests</surefire.excludesFile>
     <test.output.redirect>true</test.output.redirect>
     <!-- ALLUXIO CS ADD -->
+    <!-- The name of the license directory, may be overridden for cs-only projects -->
+    <license.dir>license</license.dir>
     <!-- The native library path used in tests related to JNI. -->
     <alluxio.native.library.path>lib/native/</alluxio.native.library.path>
     <!-- Host to report call home information to. -->
@@ -1043,6 +1043,7 @@
               <exclude>${surefire.exclude}</exclude>
             </excludes>
             <!-- ALLUXIO CS END -->
+            <excludesFile>${build.path}/surefire/${surefire.excludesFile}</excludesFile>
             <forkCount>${surefire.forkCount}</forkCount>
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
             <reuseForks>false</reuseForks>
@@ -1224,7 +1225,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
         <configuration>
-          <excludeFilterFile>${findbugs.path}/findbugs-exclude.xml</excludeFilterFile>
+          <excludeFilterFile>${build.path}/findbugs/findbugs-exclude.xml</excludeFilterFile>
           <!--
               Enables analysis which takes more memory but finds more bugs.
               If you run out of memory, changes the value of the effort element
@@ -1251,8 +1252,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <configLocation>${checkstyle.path}alluxio_checks.xml</configLocation>
-          <suppressionsLocation>${checkstyle.path}suppressions.xml</suppressionsLocation>
+          <configLocation>${build.path}/checkstyle/alluxio_checks.xml</configLocation>
+          <suppressionsLocation>${build.path}/checkstyle/suppressions.xml</suppressionsLocation>
           <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
           <!-- Ensure generated source files are not style-checked -->
           <sourceDirectories>
@@ -1282,7 +1283,11 @@
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
-          <header>${license.header.path}HEADER.txt</header>
+          <!-- ALLUXIO CS REPLACE -->
+          <!-- <header>${build.path}/license/HEADER.txt</header> -->
+          <!-- ALLUXIO CS WITH -->
+          <header>${build.path}/${license.dir}/HEADER.txt</header>
+          <!-- ALLUXIO CS END -->
           <failIfMissing>true</failIfMissing>
           <aggregate>false</aggregate>
           <excludes>
@@ -1412,6 +1417,13 @@
   </reporting>
 
   <profiles>
+    <profile>
+      <id>runAllTests</id>
+      <properties>
+        <surefire.excludesFile>no-excludes</surefire.excludesFile>
+      </properties>
+    </profile>
+
     <profile>
       <id>contractTest</id>
       <properties>
