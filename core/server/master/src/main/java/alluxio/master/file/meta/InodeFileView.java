@@ -86,7 +86,7 @@ public interface InodeFileView extends InodeView {
   boolean isCacheable();
 
   /**
-   * @return true if the file is cacheable, false otherwise
+   * @return true if the file is complete, false otherwise
    */
   boolean isCompleted();
 }
