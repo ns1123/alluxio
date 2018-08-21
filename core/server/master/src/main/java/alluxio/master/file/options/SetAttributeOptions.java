@@ -36,10 +36,8 @@ public final class SetAttributeOptions {
   private boolean mRecursive;
   private long mOperationTimeMs;
   // ALLUXIO CS ADD
-  private Long mPersistJobId;
   private Integer mReplicationMax;
   private Integer mReplicationMin;
-  private String mTempUfsPath;
   // ALLUXIO CS END
   private String mUfsFingerprint;
 
@@ -71,10 +69,8 @@ public final class SetAttributeOptions {
       mRecursive = options.isRecursive();
       mOperationTimeMs = System.currentTimeMillis();
       // ALLUXIO CS ADD
-      mPersistJobId = null;
       mReplicationMax = options.isSetReplicationMax() ? options.getReplicationMax() : null;
       mReplicationMin = options.isSetReplicationMin() ? options.getReplicationMin() : null;
-      mTempUfsPath = null;
       // ALLUXIO CS END
     }
   }
@@ -151,12 +147,6 @@ public final class SetAttributeOptions {
   }
 
   // ALLUXIO CS ADD
-  /**
-   * @return the id of the job persisting this file
-   */
-  public Long getPersistJobId() {
-    return mPersistJobId;
-  }
 
   /**
    * @return the maximum number of block replication
@@ -172,12 +162,6 @@ public final class SetAttributeOptions {
     return mReplicationMin;
   }
 
-  /**
-   * @return the temporary UFS path
-   */
-  public String getTempUfsPath() {
-    return mTempUfsPath;
-  }
   // ALLUXIO CS END
   /**
    * @return the recursive flag value
@@ -300,14 +284,6 @@ public final class SetAttributeOptions {
 
   // ALLUXIO CS ADD
   /**
-   * @param persistJobId the persist job id to use
-   * @return the updated options object
-   */
-  public SetAttributeOptions setPersistJobId(long persistJobId) {
-    mPersistJobId = persistJobId;
-    return this;
-  }
-  /**
    * @param replicationMax the maximum number of block replication
    * @return the updated options object
    */
@@ -322,15 +298,6 @@ public final class SetAttributeOptions {
    */
   public SetAttributeOptions setReplicationMin(int replicationMin) {
     mReplicationMin = replicationMin;
-    return this;
-  }
-
-  /**
-   * @param tempUfsPath the temporary UFS path to use
-   * @return the updated options object
-   */
-  public SetAttributeOptions setTempUfsPath(String tempUfsPath) {
-    mTempUfsPath = tempUfsPath;
     return this;
   }
   // ALLUXIO CS END
@@ -361,10 +328,8 @@ public final class SetAttributeOptions {
         && Objects.equal(mGroup, that.mGroup)
         && Objects.equal(mMode, that.mMode)
         // ALLUXIO CS ADD
-        && Objects.equal(mPersistJobId, that.mPersistJobId)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
-        && Objects.equal(mTempUfsPath, that.mTempUfsPath)
         // ALLUXIO CS END
         && Objects.equal(mRecursive, that.mRecursive)
         && mOperationTimeMs == that.mOperationTimeMs
@@ -378,10 +343,9 @@ public final class SetAttributeOptions {
     //     .hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode, mRecursive,
     //         mOperationTimeMs, mCommonOptions, mUfsFingerprint);
     // ALLUXIO CS WITH
-    return Objects
-        .hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode, mRecursive,
-            mOperationTimeMs, mPersistJobId, mReplicationMax, mReplicationMin, mTempUfsPath,
-            mCommonOptions, mUfsFingerprint);
+    return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
+        mRecursive, mOperationTimeMs, mReplicationMax, mReplicationMin, mCommonOptions,
+        mUfsFingerprint);
     // ALLUXIO CS END
   }
 
@@ -399,10 +363,8 @@ public final class SetAttributeOptions {
         .add("recursive", mRecursive)
         .add("operationTimeMs", mOperationTimeMs)
         // ALLUXIO CS ADD
-        .add("persistJobId", mPersistJobId)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
-        .add("tempUfsPath", mTempUfsPath)
         // ALLUXIO CS END
         .add("ufsFingerprint", mUfsFingerprint)
         .toString();
