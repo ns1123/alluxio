@@ -54,7 +54,6 @@ import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeFileView;
 import alluxio.master.file.meta.InodePathPair;
 import alluxio.master.file.meta.InodeTree;
-import alluxio.master.file.meta.InodeTree.LockMode;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.LockedInodePathList;
@@ -161,11 +160,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
@@ -540,9 +537,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       // ALLUXIO CS ADD
       // Rebuild the list of persist jobs (mPersistJobs) and map of pending persist requests
       // (mPersistRequests)
-      try (RpcContext rpcContext = createRpcContext();
-           LockedInodePath inodePath =
-               mInodeTree.lockInodePath(new AlluxioURI("/"), LockMode.WRITE)) {
+      try (LockedInodePath inodePath = mInodeTree.lockInodePath(new AlluxioURI("/"),
+          alluxio.master.file.meta.InodeTree.LockMode.WRITE)) {
         // Walk the inode tree looking for files in the TO_BE_PERSISTED state.
         java.util.Queue<InodeDirectoryView> dirsToProcess = new java.util.LinkedList<>();
         dirsToProcess.add((InodeDirectoryView) inodePath.getInode());
