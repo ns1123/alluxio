@@ -237,7 +237,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
 
     // Load HDFS site properties from the given file and overwrite the default HDFS conf,
     // the path of this file can be passed through --option
-    for (String path : conf.getValue(PropertyKey.UNDERFS_HDFS_CONFIGURATION).split(":")) {
+    for (String path : conf.get(PropertyKey.UNDERFS_HDFS_CONFIGURATION).split(":")) {
       hdfsConf.addResource(new Path(path));
     }
 
@@ -245,7 +245,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // discover available file system implementations. However this configuration setting is
     // required for earlier Hadoop versions plus it is still honoured as an override even in 2.x so
     // if present propagate it to the Hadoop configuration
-    String ufsHdfsImpl = conf.getValue(PropertyKey.UNDERFS_HDFS_IMPL);
+    String ufsHdfsImpl = conf.get(PropertyKey.UNDERFS_HDFS_IMPL);
     if (!StringUtils.isEmpty(ufsHdfsImpl)) {
       hdfsConf.set("fs.hdfs.impl", ufsHdfsImpl);
     }
@@ -256,7 +256,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
         System.getProperty("fs.hdfs.impl.disable.cache", "true"));
 
     // Set all parameters passed through --option
-    for (Map.Entry<String, String> entry : conf.getUserSpecifiedConf().entrySet()) {
+    for (Map.Entry<String, String> entry : conf.getMountSpecificConf().entrySet()) {
       hdfsConf.set(entry.getKey(), entry.getValue());
     }
     return hdfsConf;
@@ -350,7 +350,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       throws IOException {
     // If the user has hinted the underlying storage nodes are not co-located with Alluxio
     // workers, short circuit without querying the locations
-    if (Boolean.valueOf(mUfsConf.getValue(PropertyKey.UNDERFS_HDFS_REMOTE))) {
+    if (Boolean.valueOf(mUfsConf.get(PropertyKey.UNDERFS_HDFS_REMOTE))) {
       return null;
     }
     FileSystem hdfs = getFs();
@@ -485,6 +485,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // TODO(chaomin): make connectFromMaster private and deprecate it.
   // ALLUXIO CS END
   public void connectFromMaster(String host) throws IOException {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
     //     || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
@@ -498,6 +499,27 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // ALLUXIO CS WITH
     loginAsAlluxioServer();
     // ALLUXIO CS END
+||||||| merged common ancestors
+    if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
+        || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
+      return;
+    }
+    String masterKeytab = mUfsConf.getValue(PropertyKey.MASTER_KEYTAB_KEY_FILE);
+    String masterPrincipal = mUfsConf.getValue(PropertyKey.MASTER_PRINCIPAL);
+
+    login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
+        masterPrincipal, host);
+=======
+    if (!mUfsConf.isSet(PropertyKey.MASTER_KEYTAB_KEY_FILE)
+        || !mUfsConf.isSet(PropertyKey.MASTER_PRINCIPAL)) {
+      return;
+    }
+    String masterKeytab = mUfsConf.get(PropertyKey.MASTER_KEYTAB_KEY_FILE);
+    String masterPrincipal = mUfsConf.get(PropertyKey.MASTER_PRINCIPAL);
+
+    login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
+        masterPrincipal, host);
+>>>>>>> OPENSOURCE/master
   }
 
   @Override
@@ -505,6 +527,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // TODO(chaomin): make connectFromWorker private and deprecate it.
   // ALLUXIO CS END
   public void connectFromWorker(String host) throws IOException {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
     //     || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
@@ -523,8 +546,16 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
 
   private void loginAsAlluxioServer() throws IOException {
     if (!mIsHdfsKerberized) {
+||||||| merged common ancestors
+    if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
+        || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
+=======
+    if (!mUfsConf.isSet(PropertyKey.WORKER_KEYTAB_FILE)
+        || !mUfsConf.isSet(PropertyKey.WORKER_PRINCIPAL)) {
+>>>>>>> OPENSOURCE/master
       return;
     }
+<<<<<<< HEAD
     // TODO(yanqin): support multiple Kerberized HDFSs.
     String principal =
         mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL);
@@ -554,6 +585,13 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       }
     }
   }
+||||||| merged common ancestors
+    String workerKeytab = mUfsConf.getValue(PropertyKey.WORKER_KEYTAB_FILE);
+    String workerPrincipal = mUfsConf.getValue(PropertyKey.WORKER_PRINCIPAL);
+=======
+    String workerKeytab = mUfsConf.get(PropertyKey.WORKER_KEYTAB_FILE);
+    String workerPrincipal = mUfsConf.get(PropertyKey.WORKER_PRINCIPAL);
+>>>>>>> OPENSOURCE/master
 
   private void loginAsAlluxioClient() throws IOException {
     if (!mIsHdfsKerberized) {
@@ -706,7 +744,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       LOG.debug("Exception : ", e);
       LOG.warn("In order for Alluxio to modify ownership of local files, "
           + "Alluxio should be the local file system superuser.");
-      if (!Boolean.valueOf(mUfsConf.getValue(PropertyKey.UNDERFS_ALLOW_SET_OWNER_FAILURE))) {
+      if (!Boolean.valueOf(mUfsConf.get(PropertyKey.UNDERFS_ALLOW_SET_OWNER_FAILURE))) {
         throw e;
       } else {
         LOG.warn("Failure is ignored, which may cause permission inconsistency between "
