@@ -35,13 +35,13 @@ public class HdfsInodeAttributesProviderFactoryTest {
     HdfsInodeAttributesProviderFactory factory =
         new HdfsInodeAttributesProviderFactory();
     UnderFileSystemConfiguration conf = UnderFileSystemConfiguration.defaults()
-        .setUserSpecifiedConf(ImmutableMap.of(
+        .setMountSpecificConf(ImmutableMap.of(
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME.getName(),
             AuthorizationPluginConstants.AUTH_VERSION,
             DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,
             DummyHdfsProvider.class.getName()));
     UnderFileSystemConfiguration invalidConf = UnderFileSystemConfiguration.defaults()
-        .setUserSpecifiedConf(ImmutableMap.of(
+        .setMountSpecificConf(ImmutableMap.of(
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME.getName(),
             "invalid-1.0",
             DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,

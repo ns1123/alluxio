@@ -228,7 +228,7 @@ public final class HdfsInodeAttributesProviderTest {
   public void constructWithConfiguration() {
     UnderFileSystemConfiguration conf = UnderFileSystemConfiguration.defaults();
     String groupValue = "su";
-    conf.setUserSpecifiedConf(ImmutableMap.of(
+    conf.setMountSpecificConf(ImmutableMap.of(
         DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY, DummyHdfsProvider.class.getName(),
         DFS_PERMISSIONS_SUPERUSERGROUP_KEY, groupValue
     ));
@@ -243,7 +243,7 @@ public final class HdfsInodeAttributesProviderTest {
   public void constructWithServiceLoader() {
     UnderFileSystemConfiguration conf = UnderFileSystemConfiguration.defaults();
     String groupValue = "su";
-    conf.setUserSpecifiedConf(ImmutableMap.of(
+    conf.setMountSpecificConf(ImmutableMap.of(
         DFS_PERMISSIONS_SUPERUSERGROUP_KEY, groupValue
     ));
     HdfsInodeAttributesProvider provider = new HdfsInodeAttributesProvider(conf);

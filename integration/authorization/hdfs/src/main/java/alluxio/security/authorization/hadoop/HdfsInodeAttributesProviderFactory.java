@@ -42,7 +42,7 @@ public final class HdfsInodeAttributesProviderFactory implements InodeAttributes
     boolean isHdfs = Configuration.getList(PropertyKey.UNDERFS_HDFS_PREFIXES, ",").stream()
         .anyMatch(prefix -> path.startsWith(prefix));
     if (conf != null && AuthorizationPluginConstants.AUTH_VERSION.equalsIgnoreCase(
-        conf.getValue(PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME))
+        conf.get(PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME))
         && (isHdfs || path.equals(MountTable.ROOT))) {
       return true;
     }

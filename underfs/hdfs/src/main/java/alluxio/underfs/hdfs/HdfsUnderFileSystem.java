@@ -485,41 +485,19 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // TODO(chaomin): make connectFromMaster private and deprecate it.
   // ALLUXIO CS END
   public void connectFromMaster(String host) throws IOException {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
-    //     || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
+    // if (!mUfsConf.isSet(PropertyKey.MASTER_KEYTAB_KEY_FILE)
+    //     || !mUfsConf.isSet(PropertyKey.MASTER_PRINCIPAL)) {
     //   return;
     // }
-    // String masterKeytab = mUfsConf.getValue(PropertyKey.MASTER_KEYTAB_KEY_FILE);
-    // String masterPrincipal = mUfsConf.getValue(PropertyKey.MASTER_PRINCIPAL);
+    // String masterKeytab = mUfsConf.get(PropertyKey.MASTER_KEYTAB_KEY_FILE);
+    // String masterPrincipal = mUfsConf.get(PropertyKey.MASTER_PRINCIPAL);
     //
     // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
     //     masterPrincipal, host);
     // ALLUXIO CS WITH
     loginAsAlluxioServer();
     // ALLUXIO CS END
-||||||| merged common ancestors
-    if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
-        || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
-      return;
-    }
-    String masterKeytab = mUfsConf.getValue(PropertyKey.MASTER_KEYTAB_KEY_FILE);
-    String masterPrincipal = mUfsConf.getValue(PropertyKey.MASTER_PRINCIPAL);
-
-    login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
-        masterPrincipal, host);
-=======
-    if (!mUfsConf.isSet(PropertyKey.MASTER_KEYTAB_KEY_FILE)
-        || !mUfsConf.isSet(PropertyKey.MASTER_PRINCIPAL)) {
-      return;
-    }
-    String masterKeytab = mUfsConf.get(PropertyKey.MASTER_KEYTAB_KEY_FILE);
-    String masterPrincipal = mUfsConf.get(PropertyKey.MASTER_PRINCIPAL);
-
-    login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
-        masterPrincipal, host);
->>>>>>> OPENSOURCE/master
   }
 
   @Override
@@ -527,14 +505,13 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // TODO(chaomin): make connectFromWorker private and deprecate it.
   // ALLUXIO CS END
   public void connectFromWorker(String host) throws IOException {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
-    //     || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
+    // if (!mUfsConf.isSet(PropertyKey.WORKER_KEYTAB_FILE)
+    //     || !mUfsConf.isSet(PropertyKey.WORKER_PRINCIPAL)) {
     //   return;
     // }
-    // String workerKeytab = mUfsConf.getValue(PropertyKey.WORKER_KEYTAB_FILE);
-    // String workerPrincipal = mUfsConf.getValue(PropertyKey.WORKER_PRINCIPAL);
+    // String workerKeytab = mUfsConf.get(PropertyKey.WORKER_KEYTAB_FILE);
+    // String workerPrincipal = mUfsConf.get(PropertyKey.WORKER_PRINCIPAL);
     //
     // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
@@ -546,26 +523,18 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
 
   private void loginAsAlluxioServer() throws IOException {
     if (!mIsHdfsKerberized) {
-||||||| merged common ancestors
-    if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
-        || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
-=======
-    if (!mUfsConf.isSet(PropertyKey.WORKER_KEYTAB_FILE)
-        || !mUfsConf.isSet(PropertyKey.WORKER_PRINCIPAL)) {
->>>>>>> OPENSOURCE/master
       return;
     }
-<<<<<<< HEAD
     // TODO(yanqin): support multiple Kerberized HDFSs.
     String principal =
-        mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL);
+        mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL);
     String keytab;
     if (principal.isEmpty()) {
       // If not set, fall back to kerberos server principal.
-      principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-      keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+      principal = mUfsConf.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+      keytab = mUfsConf.get(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     } else {
-      keytab = mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE);
+      keytab = mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE);
     }
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
@@ -585,20 +554,13 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       }
     }
   }
-||||||| merged common ancestors
-    String workerKeytab = mUfsConf.getValue(PropertyKey.WORKER_KEYTAB_FILE);
-    String workerPrincipal = mUfsConf.getValue(PropertyKey.WORKER_PRINCIPAL);
-=======
-    String workerKeytab = mUfsConf.get(PropertyKey.WORKER_KEYTAB_FILE);
-    String workerPrincipal = mUfsConf.get(PropertyKey.WORKER_PRINCIPAL);
->>>>>>> OPENSOURCE/master
 
   private void loginAsAlluxioClient() throws IOException {
     if (!mIsHdfsKerberized) {
       return;
     }
-    String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-    String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+    String principal = mUfsConf.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab = mUfsConf.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
@@ -849,7 +811,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   private FileSystem getFs() throws IOException {
     // ALLUXIO CS ADD
     boolean isImpersonationEnabled =
-        Boolean.valueOf(mUfsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
+        Boolean.valueOf(mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
     String user = HDFS_USER;
     if (isImpersonationEnabled) {
       user = alluxio.util.SecurityUtils.getOwnerFromThriftClient();

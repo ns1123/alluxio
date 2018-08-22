@@ -32,20 +32,14 @@ public class UfsJournalConfTest {
   @Test
   public void emptyConfiguration() throws Exception {
     UnderFileSystemConfiguration conf = UfsJournal.getJournalUfsConf();
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // Assert.assertTrue(conf.getUserSpecifiedConf().isEmpty());
+    // Assert.assertTrue(conf.getMountSpecificConf().isEmpty());
     // ALLUXIO CS WITH
     // The impersonation configuration is added internally.
-    Assert.assertEquals(1, conf.getUserSpecifiedConf().size());
-    Assert.assertEquals("false", conf.getUserSpecifiedConf()
+    Assert.assertEquals(1, conf.getMountSpecificConf().size());
+    Assert.assertEquals("false", conf.getMountSpecificConf()
         .get(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName()));
     // ALLUXIO CS END
-||||||| merged common ancestors
-    Assert.assertTrue(conf.getUserSpecifiedConf().isEmpty());
-=======
-    Assert.assertTrue(conf.getMountSpecificConf().isEmpty());
->>>>>>> OPENSOURCE/master
   }
 
   @Test
@@ -56,22 +50,14 @@ public class UfsJournalConfTest {
     String value = "10000";
     Configuration.set(key, value);
     UnderFileSystemConfiguration conf = UfsJournal.getJournalUfsConf();
-<<<<<<< HEAD
-    Assert.assertEquals(value, conf.getValue(PropertyKey.UNDERFS_LISTING_LENGTH));
+    Assert.assertEquals(value, conf.get(PropertyKey.UNDERFS_LISTING_LENGTH));
     // ALLUXIO CS REPLACE
-    // Assert.assertEquals(1, conf.getUserSpecifiedConf().size());
+    // Assert.assertEquals(1, conf.getMountSpecificConf().size());
     // ALLUXIO CS WITH
     // The impersonation configuration is added internally.
-    Assert.assertEquals(2, conf.getUserSpecifiedConf().size());
-    Assert.assertEquals("false", conf.getUserSpecifiedConf()
+    Assert.assertEquals(2, conf.getMountSpecificConf().size());
+    Assert.assertEquals("false", conf.getMountSpecificConf()
         .get(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName()));
     // ALLUXIO CS END
-||||||| merged common ancestors
-    Assert.assertEquals(value, conf.getValue(PropertyKey.UNDERFS_LISTING_LENGTH));
-    Assert.assertEquals(1, conf.getUserSpecifiedConf().size());
-=======
-    Assert.assertEquals(value, conf.get(PropertyKey.UNDERFS_LISTING_LENGTH));
-    Assert.assertEquals(1, conf.getMountSpecificConf().size());
->>>>>>> OPENSOURCE/master
   }
 }

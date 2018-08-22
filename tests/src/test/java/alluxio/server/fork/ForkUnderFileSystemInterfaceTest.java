@@ -60,7 +60,7 @@ public class ForkUnderFileSystemInterfaceTest {
     properties.put("alluxio-fork.A.ufs", mUfsPathA);
     properties.put("alluxio-fork.B.ufs", mUfsPathB);
     mUnderFileSystem = UnderFileSystem.Factory.create("alluxio-fork://test",
-        UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(properties));
+        UnderFileSystemConfiguration.defaults().setMountSpecificConf(properties));
   }
 
   @Test
