@@ -83,7 +83,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     // In the first pass we identify all providers.
     Map<String, String> providerToUfs = new TreeMap<>();
     Map<String, Map<String, String>> ufsToOptions = new HashMap<>();
-    for (Map.Entry<String, String> entry : ufsConf.getUserSpecifiedConf().entrySet()) {
+    for (Map.Entry<String, String> entry : ufsConf.getMountSpecificConf().entrySet()) {
       Matcher matcher = UFS_PATTERN.matcher(entry.getKey());
       if (matcher.matches()) {
         providerToUfs.put(matcher.group(1), entry.getValue());
@@ -92,7 +92,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     }
 
     // In the second pass we collect options for each provider.
-    for (Map.Entry<String, String> entry : ufsConf.getUserSpecifiedConf().entrySet()) {
+    for (Map.Entry<String, String> entry : ufsConf.getMountSpecificConf().entrySet()) {
       Matcher matcher = OPTION_PATTERN.matcher(entry.getKey());
       if (matcher.matches()) {
         String ufs = providerToUfs.get(matcher.group(1));
@@ -102,7 +102,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     }
 
     // In the the third pass we report all unrecognized properties.
-    for (Map.Entry<String, String> entry : ufsConf.getUserSpecifiedConf().entrySet()) {
+    for (Map.Entry<String, String> entry : ufsConf.getMountSpecificConf().entrySet()) {
       Matcher optionMatcher = OPTION_PATTERN.matcher(entry.getKey());
       Matcher ufsMatcher = UFS_PATTERN.matcher(entry.getKey());
       if (!optionMatcher.matches() && !ufsMatcher.matches()) {
@@ -119,7 +119,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
       Map<String, String> options = ufsToOptions.get(ufs);
       LOG.debug("provider={} ufs={} options={}", provider, ufs, options);
       ufses.put(provider, new ImmutablePair<>(ufs, UnderFileSystem.Factory
-          .create(ufs, UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(options))));
+          .create(ufs, UnderFileSystemConfiguration.defaults().setMountSpecificConf(options))));
     }
 
     mUnderFileSystems = ImmutableMap.copyOf(ufses);
