@@ -788,6 +788,7 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
 
         extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(newFile,
             currentInodeDirectory, name);
+
         // ALLUXIO CS ADD
         if (currentInodeDirectory.isPinned()) {
           // Create a file inside of a pinned directory, if its min replication inferred from its

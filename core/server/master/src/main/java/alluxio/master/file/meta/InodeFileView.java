@@ -19,6 +19,7 @@ import java.util.List;
  * Read-only interface for an inode file.
  */
 public interface InodeFileView extends InodeView {
+
   // ALLUXIO CS ADD
   /**
    * @return the job id of the job persisting this file

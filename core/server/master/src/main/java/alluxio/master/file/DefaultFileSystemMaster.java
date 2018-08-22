@@ -580,7 +580,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
            LockedInodePath inodePath =
                mInodeTree.lockInodePath(new AlluxioURI("/"), LockMode.WRITE)) {
         // Walk the inode tree looking for files in the TO_BE_PERSISTED state.
-        Queue<InodeDirectoryView> dirsToProcess = new LinkedList<>();
+        java.util.Queue<InodeDirectoryView> dirsToProcess = new java.util.LinkedList<>();
         dirsToProcess.add((InodeDirectoryView) inodePath.getInode());
         while (!dirsToProcess.isEmpty()) {
           InodeDirectoryView dir = dirsToProcess.poll();
@@ -3187,7 +3187,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
       }
     }
-
     setAttributeSingleFile(rpcContext, inodePath, true, opTimeMs, options);
   }
 
@@ -3511,7 +3510,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (options.getPinned() != null) {
       mInodeTree.setPinned(rpcContext, inodePath, options.getPinned(), opTimeMs);
     }
-
     UpdateInodeEntry.Builder entry = UpdateInodeEntry.newBuilder().setId(inode.getId());
     // ALLUXIO CS ADD
     if (options.getReplicationMax() != null || options.getReplicationMin() != null) {
