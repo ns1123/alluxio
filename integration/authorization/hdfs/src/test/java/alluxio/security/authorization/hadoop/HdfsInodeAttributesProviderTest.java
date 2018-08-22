@@ -231,7 +231,21 @@ public final class HdfsInodeAttributesProviderTest {
     conf.setUserSpecifiedConf(ImmutableMap.of(
         DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY, DummyHdfsProvider.class.getName(),
         DFS_PERMISSIONS_SUPERUSERGROUP_KEY, groupValue
-        ));
+    ));
+    HdfsInodeAttributesProvider provider = new HdfsInodeAttributesProvider(conf);
+    assertNotNull(provider.getHdfsProvider());
+    assertTrue(provider.getHdfsProvider() instanceof DummyHdfsProvider);
+    assertEquals(groupValue, ((DummyHdfsProvider) provider.getHdfsProvider()).getConf()
+        .get(DFS_PERMISSIONS_SUPERUSERGROUP_KEY));
+  }
+
+  @Test
+  public void constructWithServiceLoader() {
+    UnderFileSystemConfiguration conf = UnderFileSystemConfiguration.defaults();
+    String groupValue = "su";
+    conf.setUserSpecifiedConf(ImmutableMap.of(
+        DFS_PERMISSIONS_SUPERUSERGROUP_KEY, groupValue
+    ));
     HdfsInodeAttributesProvider provider = new HdfsInodeAttributesProvider(conf);
     assertNotNull(provider.getHdfsProvider());
     assertTrue(provider.getHdfsProvider() instanceof DummyHdfsProvider);
@@ -282,6 +296,65 @@ public final class HdfsInodeAttributesProviderTest {
     mThrown.expectMessage("test");
     mThrown.expect(alluxio.exception.AccessControlException.class);
     mEnforcer.checkPermission(user, groups, bits, path, inodes, attributes, doCheckOwner);
+  }
+
+  @Test
+  public void checkDefaultPermissionTargetOnly() throws Exception {
+    String user = "test";
+    List<String> groups = Collections.singletonList("test_group");
+    String path = "/folder/file";
+    List<InodeView> inodes = createInodesForPath(path, 3);
+    String fsOwner = LoginUser.getServerUser().getName();
+    String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    FsAction access = FsAction.READ;
+    INodeAttributeProvider.AccessControlEnforcer fallbackEnforcer =
+        mProvider.new AlluxioHdfsAccessControlEnforcer(mDefaultEnforcer);
+    int ancestorIndex = inodes.size() - 2;
+    boolean doCheckOwner = false;
+    fallbackEnforcer.checkPermission(fsOwner, supergroup, UserGroupInformation.createUserForTesting(
+        user, groups.toArray(new String[0])), new INodeAttributes[0], new INode[0], new byte[0][],
+        Snapshot.CURRENT_STATE_ID, path, ancestorIndex, doCheckOwner,
+        FsAction.NONE, FsAction.NONE, access, FsAction.NONE, false);
+  }
+
+  @Test
+  public void checkDefaultNullPermissionTargetOnly() throws Exception {
+    String user = "test";
+    List<String> groups = Collections.singletonList("test_group");
+    String path = "/folder/file";
+    List<InodeView> inodes = createInodesForPath(path, 3);
+    String fsOwner = LoginUser.getServerUser().getName();
+    String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    FsAction access = FsAction.READ;
+    INodeAttributeProvider.AccessControlEnforcer fallbackEnforcer =
+        mProvider.new AlluxioHdfsAccessControlEnforcer(mDefaultEnforcer);
+    int ancestorIndex = inodes.size() - 2;
+    boolean doCheckOwner = false;
+    fallbackEnforcer.checkPermission(fsOwner, supergroup, UserGroupInformation.createUserForTesting(
+        user, groups.toArray(new String[0])), new INodeAttributes[0], new INode[0], new byte[0][],
+        Snapshot.CURRENT_STATE_ID, path, ancestorIndex, doCheckOwner,
+        null, null, access, null, false);
+  }
+
+  @Test
+  public void checkDefaultPermissionNonTarget() throws Exception {
+    String user = "test";
+    List<String> groups = Collections.singletonList("test_group");
+    String path = "/folder/file";
+    List<InodeView> inodes = createInodesForPath(path, 3);
+    String fsOwner = LoginUser.getServerUser().getName();
+    String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    FsAction access = FsAction.READ;
+    INodeAttributeProvider.AccessControlEnforcer fallbackEnforcer =
+        mProvider.new AlluxioHdfsAccessControlEnforcer(mDefaultEnforcer);
+    int ancestorIndex = inodes.size() - 2;
+    boolean doCheckOwner = false;
+    mThrown.expectMessage("Checking non-target node permission is not supported.");
+    mThrown.expect(org.apache.hadoop.security.AccessControlException.class);
+    fallbackEnforcer.checkPermission(fsOwner, supergroup, UserGroupInformation.createUserForTesting(
+        user, groups.toArray(new String[0])), new INodeAttributes[0], new INode[0], new byte[0][],
+        Snapshot.CURRENT_STATE_ID, path, ancestorIndex, doCheckOwner,
+        null, access, null, null, false);
   }
 
   @Test

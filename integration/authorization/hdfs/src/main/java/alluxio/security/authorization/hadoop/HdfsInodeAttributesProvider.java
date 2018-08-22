@@ -85,8 +85,8 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
       mHdfsProvider = ReflectionUtils.newInstance(klass, hadoopConf);
     } else {
       // falls back to using a ServiceLoader
-      LOG.info("Loading INodeAttributeProvider using ServiceLoader: {}, version {}",
-          klass.getName(), AuthorizationPluginConstants.AUTH_VERSION);
+      LOG.info("Loading INodeAttributeProvider using ServiceLoader: version {}",
+          AuthorizationPluginConstants.AUTH_VERSION);
       ServiceLoader<INodeAttributeProvider> providers =
           ServiceLoader.load(INodeAttributeProvider.class);
       if (!providers.iterator().hasNext()) {
@@ -209,7 +209,7 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
     }
   }
 
-  private class AlluxioHdfsAccessControlEnforcer
+  class AlluxioHdfsAccessControlEnforcer
       implements INodeAttributeProvider.AccessControlEnforcer {
     private final AccessControlEnforcer mAccessPermissionEnforcer;
 
@@ -241,7 +241,10 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
             .append(" ignoreEmptyDir=").append(ignoreEmptyDir)
             .append(")").toString());
       }
-      if (access == null || parentAccess != null || ancestorAccess != null || subAccess != null) {
+      if (!isPermissionChecked(access)
+          || isPermissionChecked(parentAccess)
+          || isPermissionChecked(ancestorAccess)
+          || isPermissionChecked(subAccess)) {
         // Plugins are not supposed to check a different inode with default enforcer.
         throw new AccessControlException("Checking non-target node permission is not supported.");
       }
@@ -260,6 +263,10 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
         throw new AccessControlException(e);
       }
       LOG.debug("Passed default permission check {}, action={}", path, access);
+    }
+
+    private boolean isPermissionChecked(FsAction access) {
+      return access != null && access != FsAction.NONE;
     }
 
     private InodeView getAlluxioInode(INode inode) {
