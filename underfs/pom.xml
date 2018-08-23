@@ -25,12 +25,11 @@
   <modules>
     <!-- ALLUXIO CS ADD -->
     <module>fork</module>
-    <!-- ALLUXIO CS END -->
-    <module>gcs</module>
-    <module>hdfs</module>
-    <!-- ALLUXIO CS ADD -->
     <module>jdbc</module>
     <!-- ALLUXIO CS END -->
+    <module>cos</module>
+    <module>gcs</module>
+    <module>hdfs</module>
     <module>local</module>
     <module>oss</module>
     <module>s3a</module>
