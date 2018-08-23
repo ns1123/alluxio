@@ -73,7 +73,11 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
   public HdfsInodeAttributesProvider(UnderFileSystemConfiguration conf) {
     org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
     if (conf != null) {
-      conf.toMap().forEach((x, y) -> hadoopConf.set(x, Objects.toString(y, ""), "alluxio"));
+      conf.toMap().forEach((x, y) -> {
+        if (y != null) {
+          hadoopConf.set(x, Objects.toString(y, ""), "alluxio");
+        }
+      });
     }
     Class<? extends INodeAttributeProvider> klass = hadoopConf.getClass(
         DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,
