@@ -695,6 +695,7 @@ public class InodeTree implements JournalEntryIterable {
               mDirectoryIdGenerator.getNewDirectoryId(rpcContext.getJournalContext()),
               currentInodeDirectory.getId(), name, directoryOptions);
 
+          InodeDirectory newDir = (InodeDirectory) lastInode;
           // Lock the created inode before subsequent operations, and add it to the lock group.
 
           extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(lastInode,
@@ -712,9 +713,21 @@ public class InodeTree implements JournalEntryIterable {
 
           if (directoryOptions.isPersisted()) {
             // Do not journal the persist entry, since a creation entry will be journaled instead.
-            // TODO(david): remove this call to syncPersistDirectory to improve performance
-            // of recursive ls.
-            syncPersistDirectory(RpcContext.NOOP, (InodeDirectory) lastInode);
+            if (options.isMetadataLoad()) {
+              // if we are creating the file as a result of loading metadata, the newDir is already
+              // persisted, and we got the permissions info from the ufs.
+              newDir.setOwner(options.getOwner())
+                  .setGroup(options.getGroup())
+                  .setMode(options.getMode().toShort());
+
+              Long lastModificationTime = options.getOperationTimeMs();
+              if (lastModificationTime != null) {
+                newDir.setLastModificationTimeMs(lastModificationTime, true);
+              }
+              newDir.setPersistenceState(PersistenceState.PERSISTED);
+            } else {
+              syncPersistDirectory(RpcContext.NOOP, newDir);
+            }
           }
         } else if (options instanceof CreateFileOptions) {
           CreateFileOptions fileOptions = (CreateFileOptions) options;
@@ -735,6 +748,7 @@ public class InodeTree implements JournalEntryIterable {
           if (fileOptions.isCacheable()) {
             ((InodeFile) lastInode).setCacheable(true);
           }
+
         }
         lastInode.setPinned(currentInodeDirectory.isPinned());
 
