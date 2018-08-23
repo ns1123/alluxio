@@ -59,8 +59,8 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
     try {
       // TODO(gene): validate that this works
       JDBCDriverRegistry
-          .load(mUfsConf.getUserSpecifiedConf().get(UnderFileSystemConstants.JDBC_DRIVER_CLASS));
-      JDBCUtils.configureProperties(mUri, mUfsConf.getUserSpecifiedConf());
+          .load(mUfsConf.getMountSpecificConf().get(UnderFileSystemConstants.JDBC_DRIVER_CLASS));
+      JDBCUtils.configureProperties(mUri, mUfsConf.getMountSpecificConf());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -103,7 +103,7 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
     // Assuming the 'path' is the string representation of the full URI.
 
     AlluxioURI uri = new AlluxioURI(path);
-    HashMap<String, String> properties = new HashMap<>(mUfsConf.getUserSpecifiedConf());
+    HashMap<String, String> properties = new HashMap<>(mUfsConf.getMountSpecificConf());
     properties.putAll(uri.getQueryMap());
 
     String table = properties.get(UnderFileSystemConstants.JDBC_TABLE);
@@ -220,7 +220,7 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   @Override
   public UfsStatus[] listStatus(String path) throws IOException {
     AlluxioURI uri = new AlluxioURI(path);
-    HashMap<String, String> properties = new HashMap<>(mUfsConf.getUserSpecifiedConf());
+    HashMap<String, String> properties = new HashMap<>(mUfsConf.getMountSpecificConf());
     properties.putAll(uri.getQueryMap());
 
     JDBCUtils.exists(path, properties.get(UnderFileSystemConstants.JDBC_USER),
@@ -247,7 +247,7 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   public InputStream open(String path, OpenOptions options) throws IOException {
     // Assuming the 'path' is the string representation of the full URI.
     AlluxioURI uri = new AlluxioURI(path);
-    HashMap<String, String> properties = new HashMap<>(mUfsConf.getUserSpecifiedConf());
+    HashMap<String, String> properties = new HashMap<>(mUfsConf.getMountSpecificConf());
     properties.putAll(uri.getQueryMap());
 
     String table = properties.get(UnderFileSystemConstants.JDBC_TABLE);
@@ -310,7 +310,7 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
 
   @Override
   public AlluxioURI resolveUri(AlluxioURI ufsBaseUri, String alluxioPath) {
-    HashMap<String, String> properties = new HashMap<>(mUfsConf.getUserSpecifiedConf());
+    HashMap<String, String> properties = new HashMap<>(mUfsConf.getMountSpecificConf());
     properties.putAll(ufsBaseUri.getQueryMap());
 
     String filename = alluxioPath;

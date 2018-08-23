@@ -121,7 +121,7 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   public String getProperty(String key) {
-    return mUfsConf.getUserSpecifiedConf().get(key);
+    return mUfsConf.getMountSpecificConf().get(key);
   }
 
   @Override

@@ -65,7 +65,7 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
             Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_PATHS);
         LOG.info("Initializing Alluxio master authorization plugin: " + pluginName);
         UnderFileSystemConfiguration ufsConf = UnderFileSystemConfiguration.defaults();
-        ufsConf.setUserSpecifiedConf(ImmutableMap.of(
+        ufsConf.setMountSpecificConf(ImmutableMap.of(
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME.getName(), pluginName,
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS.getName(), pluginPaths
         ));
@@ -99,7 +99,7 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
         if (pluginClassLoader instanceof ExtensionsClassLoader) {
           ExtensionsClassLoader extLoader = (ExtensionsClassLoader) pluginClassLoader;
           String pluginPaths =
-              ufsConf.getValue(PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS);
+              ufsConf.get(PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS);
           Arrays.stream(pluginPaths.split(":")).forEachOrdered(pluginPath -> {
             try {
               LOG.debug("Adding plugin path {}", pluginPath);
@@ -139,7 +139,7 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
   public <T extends UfsService> T createUfsService(String path,
       UnderFileSystemConfiguration ufsConf, Class<T> serviceType) {
     if (serviceType != InodeAttributesProvider.class
-        || ufsConf.getValue(PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME).isEmpty()) {
+        || ufsConf.get(PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME).isEmpty()) {
       return null;
     }
     return (T) create(path, ufsConf);

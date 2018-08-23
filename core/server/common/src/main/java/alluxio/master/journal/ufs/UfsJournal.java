@@ -120,7 +120,7 @@ public class UfsJournal implements Journal {
       ufsConf.put(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName(), "false");
     }
     // ALLUXIO CS END
-    return UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(ufsConf);
+    return UnderFileSystemConfiguration.defaults().setMountSpecificConf(ufsConf);
   }
 
   /**
