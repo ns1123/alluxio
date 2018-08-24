@@ -19,24 +19,10 @@ import alluxio.master.MasterProcess;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.StartupConsistencyCheck;
-<<<<<<< HEAD
-import alluxio.underfs.UnderFileSystem;
-||||||| parent of 9ffb58c08e... [ALLUXIO-3233] Use mount info for web ufs info (#7467)
-import alluxio.master.meta.MetaMaster;
-import alluxio.underfs.UnderFileSystem;
-=======
 import alluxio.master.file.meta.MountTable;
-import alluxio.master.meta.MetaMaster;
->>>>>>> 9ffb58c08e... [ALLUXIO-3233] Use mount info for web ufs info (#7467)
 import alluxio.util.CommonUtils;
 import alluxio.util.FormatUtils;
-<<<<<<< HEAD
-||||||| parent of 9ffb58c08e... [ALLUXIO-3233] Use mount info for web ufs info (#7467)
-import alluxio.wire.ConfigCheckReport;
-=======
-import alluxio.wire.ConfigCheckReport;
 import alluxio.wire.MountPointInfo;
->>>>>>> 9ffb58c08e... [ALLUXIO-3233] Use mount info for web ufs info (#7467)
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
