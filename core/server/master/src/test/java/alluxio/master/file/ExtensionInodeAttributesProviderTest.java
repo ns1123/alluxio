@@ -43,6 +43,7 @@ import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
+import alluxio.master.file.meta.options.MountInfo;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
@@ -193,7 +194,8 @@ public final class ExtensionInodeAttributesProviderTest {
     when(mUfsManager.get(anyLong())).thenReturn(ufsClient);
     mFactory =
         mock(AbstractInodeAttributesProviderFactory.class);
-    mMountTable = new MountTable(mUfsManager);
+    mMountTable = new MountTable(mUfsManager, new MountInfo(new AlluxioURI(MountTable.ROOT),
+        new AlluxioURI(ROOT_UFS_URI), IdUtils.ROOT_MOUNT_ID, MountOptions.defaults()));
     // setup an InodeTree
     mTree = new InodeTree(sBlockMaster, sDirectoryIdGenerator, mMountTable);
     mTree.initializeRoot(TEST_USER_ADMIN.getUser(), TEST_USER_ADMIN.getGroup(), TEST_NORMAL_MODE,
@@ -208,10 +210,8 @@ public final class ExtensionInodeAttributesProviderTest {
       throws Exception {
     long rootUfsMountId = IdUtils.ROOT_MOUNT_ID;
     long nestedUfsMountId = IdUtils.createMountId();
-    mMountTable.add(new AlluxioURI(MountTable.ROOT), new AlluxioURI(ROOT_UFS_URI), rootUfsMountId,
-        MountOptions.defaults());
-    mMountTable.add(new AlluxioURI(TEST_DIR_NESTED_MOUNT), new AlluxioURI(NESTED_UFS_URI),
-        nestedUfsMountId, MountOptions.defaults());
+    mMountTable.add(NoopJournalContext.INSTANCE, new AlluxioURI(TEST_DIR_NESTED_MOUNT),
+        new AlluxioURI(NESTED_UFS_URI), nestedUfsMountId, MountOptions.defaults());
     if (masterPlugin) {
       Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME, "test-plugin");
       mMasterProvider = mock(InodeAttributesProvider.class);
