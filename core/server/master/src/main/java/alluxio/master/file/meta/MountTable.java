@@ -318,7 +318,7 @@ public final class MountTable implements JournalEntryIterable, JournalEntryRepla
     try (LockResource r = new LockResource(mReadLock)) {
       String mountPoint = getMountPoint(uri);
       if (mountPoint != null) {
-        MountInfo info = mMountTable.get(mountPoint);
+        MountInfo info = mState.getMountTable().get(mountPoint);
         return mUfsManager.getUfsService(info.getMountId(), serviceType);
       }
     }

@@ -11,6 +11,8 @@
 
 package alluxio.master.file.replication;
 
+import static org.mockito.Mockito.mock;
+
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
@@ -28,6 +30,7 @@ import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
+import alluxio.master.file.meta.options.MountInfo;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
 import alluxio.master.journal.JournalSystem;
@@ -50,7 +53,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -123,8 +125,8 @@ public final class ReplicationCheckerTest {
     new MetricsMasterFactory().create(registry, context);
     mBlockMaster = new BlockMasterFactory().create(registry, context);
     InodeDirectoryIdGenerator directoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
-    UfsManager manager = Mockito.mock(UfsManager.class);
-    MountTable mountTable = new MountTable(manager);
+    UfsManager manager = mock(UfsManager.class);
+    MountTable mountTable = new MountTable(manager, mock(MountInfo.class));
     mInodeTree = new InodeTree(mBlockMaster, directoryIdGenerator, mountTable);
 
     journalSystem.start();
