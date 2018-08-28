@@ -20,7 +20,6 @@ public final class ZookeeperAuthority implements Authority {
   private static final long serialVersionUID = -3549197285125519688L;
 
   private final String mAuthority;
-
   private final String mZookeeperAddress;
 
   /**
