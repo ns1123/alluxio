@@ -19,14 +19,8 @@ import com.google.common.base.Objects;
 public final class ZookeeperAuthority implements Authority {
   private static final long serialVersionUID = -3549197285125519688L;
 
-  /** The original authority string which includes the Zookeeper authority keyword. */
   private final String mAuthority;
 
-  /**
-   * The Zookeeper addresses transform from the original authority string.
-   * Semicolons in authority are replaced by commas to match our
-   * internal property format.
-   */
   private final String mZookeeperAddress;
 
   /**
