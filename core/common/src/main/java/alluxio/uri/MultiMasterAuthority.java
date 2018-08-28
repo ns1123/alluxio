@@ -12,37 +12,38 @@
 package alluxio.uri;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /**
- * {@link ZookeeperAuthority} supports authority containing Zookeeper addresses.
+ * A multi-master authority implementation.
  */
-public final class ZookeeperAuthority implements Authority {
-  private static final long serialVersionUID = -3549197285125519688L;
+public class MultiMasterAuthority implements Authority {
+  private static final long serialVersionUID = 2580736424809131651L;
 
-  /** The original authority string which includes the Zookeeper authority keyword. */
+  /** The original authority string. */
   private final String mAuthority;
-
   /**
-   * The Zookeeper addresses transform from the original authority string.
+   * The master addresses transform from the original authority string.
    * Semicolons in authority are replaced by commas to match our
    * internal property format.
    */
-  private final String mZookeeperAddress;
+  private final String mMasterAddresses;
 
   /**
-   * @param authority the authority string of the uri
-   * @param zookeeperAddress the zookeeper address inside the uri
+   * @param authority the authority string of the URI
    */
-  public ZookeeperAuthority(String authority, String zookeeperAddress) {
+  public MultiMasterAuthority(String authority) {
+    Preconditions.checkArgument(authority != null && authority.length() != 0,
+        "authority should not be null or empty string");
     mAuthority = authority;
-    mZookeeperAddress = zookeeperAddress;
+    mMasterAddresses = authority.replaceAll(";", ",");
   }
 
   /**
-   * @return the Zookeeper address in this authority
+   * @return the Alluxio master addresses from the authority
    */
-  public String getZookeeperAddress() {
-    return mZookeeperAddress;
+  public String getMasterAddresses() {
+    return mMasterAddresses;
   }
 
   @Override
@@ -55,10 +56,10 @@ public final class ZookeeperAuthority implements Authority {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof ZookeeperAuthority)) {
+    if (!(o instanceof MultiMasterAuthority)) {
       return false;
     }
-    ZookeeperAuthority that = (ZookeeperAuthority) o;
+    MultiMasterAuthority that = (MultiMasterAuthority) o;
     return toString().equals(that.toString());
   }
 

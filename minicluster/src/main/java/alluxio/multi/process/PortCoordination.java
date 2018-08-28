@@ -48,6 +48,9 @@ public class PortCoordination {
   public static final List<ReservedPort> CONFIG_CHECKER_UNSET_VS_SET = allocate(2, 0);
   public static final List<ReservedPort> CONFIG_CHECKER_MULTI_MASTERS = allocate(2, 0);
 
+  // ALLUXIO CS ADD
+  public static final List<ReservedPort> MULTI_PROCESS_JOURNAL = allocate(3, 1);
+  // ALLUXIO CS END
   public static final List<ReservedPort> MULTI_PROCESS_SIMPLE_CLUSTER = allocate(1, 1);
   public static final List<ReservedPort> MULTI_PROCESS_ZOOKEEPER = allocate(3, 2);
 

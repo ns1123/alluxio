@@ -74,4 +74,40 @@ public class FileSystemUriIntegrationTest extends BaseIntegrationTest {
     fs.close();
     mCluster.notifySuccess();
   }
+  // ALLUXIO CS ADD
+
+  @Test
+  public void multiMasterUriTest() throws Exception {
+    mCluster = MultiProcessCluster.newBuilder(PortCoordination.MULTI_PROCESS_JOURNAL)
+        .setClusterName("MultiMastersUriFileSystemIntegrationTest")
+        .setNumMasters(3)
+        .setNumWorkers(1)
+        .setDeployMode(DeployMode.EMBEDDED_HA)
+        .build();
+    mCluster.start();
+    // Get master rpc addresses
+    String address = mCluster.getMasterAddresses().stream()
+        .map(a -> (a.getHostname() + ":" + a.getRpcPort()))
+        .collect(java.util.stream.Collectors.joining(","));
+
+    Configuration conf = new Configuration();
+    conf.set("fs.alluxio.impl", FileSystem.class.getName());
+
+    URI uri = URI.create("alluxio://" + address + "/tmp/path.txt");
+    org.apache.hadoop.fs.FileSystem fs = org.apache.hadoop.fs.FileSystem.get(uri, conf);
+
+    mCluster.waitForAllNodesRegistered(WAIT_TIMEOUT_MS);
+
+    Path file = new Path("/testFile-MultiMaster");
+    FsPermission permission = FsPermission.createImmutable((short) 0666);
+    FSDataOutputStream o = fs.create(file, permission, false /* ignored */, 10 /* ignored */,
+        (short) 1 /* ignored */, 512 /* ignored */, null /* ignored */);
+    o.writeBytes("Test Bytes");
+    o.close();
+    // with mark of delete-on-exit, the close method will try to delete it
+    fs.deleteOnExit(file);
+    fs.close();
+    mCluster.notifySuccess();
+  }
+  // ALLUXIO CS END
 }

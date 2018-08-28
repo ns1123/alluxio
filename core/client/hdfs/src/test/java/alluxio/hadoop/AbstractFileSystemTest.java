@@ -171,6 +171,27 @@ public class AbstractFileSystemTest {
     assertTrue(fs instanceof FileSystem);
   }
 
+  // ALLUXIO CS ADD
+  @Test
+  public void hadoopShouldLoadFileSystemWithMultiMasterUri() throws Exception {
+    URI uri = URI.create("alluxio://host1:19998,host2:19998,host3:19998/path");
+    org.apache.hadoop.fs.FileSystem fs = org.apache.hadoop.fs.FileSystem.get(uri, getConf());
+
+    assertFalse(alluxio.Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
+    assertEquals("host1:19998,host2:19998,host3:19998",
+        alluxio.Configuration.get(PropertyKey.MASTER_RPC_ADDRESSES));
+    assertTrue(fs instanceof FileSystem);
+
+    uri = URI.create("alluxio://host1:19998;host2:19998;host3:19998/path");
+    fs = org.apache.hadoop.fs.FileSystem.get(uri, getConf());
+
+    assertFalse(alluxio.Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
+    assertEquals("host1:19998,host2:19998,host3:19998",
+        alluxio.Configuration.get(PropertyKey.MASTER_RPC_ADDRESSES));
+    assertTrue(fs instanceof FileSystem);
+  }
+
+  // ALLUXIO CS END
   @Test
   public void useSameContextWithZookeeper() throws Exception {
     URI uri = URI.create(Constants.HEADER + "dummyHost:19998/");
@@ -293,6 +314,63 @@ public class AbstractFileSystemTest {
     verify(mMockFileSystemContext, times(2)).reset(alluxio.Configuration.global());
   }
 
+  // ALLUXIO CS ADD
+  @Test
+  public void resetContextUsingMultiMasterUris() throws Exception {
+    // Change to multi-master uri
+    URI uri = URI.create(Constants.HEADER + "host1:19998,host2:19998,host3:19998/tmp/path.txt");
+    org.apache.hadoop.fs.FileSystem.get(uri, getConf());
+
+    assertFalse(alluxio.Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
+    assertEquals("host1:19998,host2:19998,host3:19998",
+        alluxio.Configuration.get(PropertyKey.MASTER_RPC_ADDRESSES));
+
+    verify(mMockFileSystemContext).reset(alluxio.Configuration.global());
+  }
+
+  @Test
+  public void resetContextFromZookeeperToMultiMaster() throws Exception {
+    URI uri = URI.create(Constants.HEADER + "zk@zkHost:2181/tmp/path.txt");
+    org.apache.hadoop.fs.FileSystem fs = org.apache.hadoop.fs.FileSystem.get(uri, getConf());
+    assertTrue(alluxio.Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
+    assertEquals("zkHost:2181", alluxio.Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS));
+
+    uri = URI.create(Constants.HEADER + "host1:19998,host2:19998,host3:19998/tmp/path.txt");
+    org.apache.hadoop.fs.FileSystem.get(uri, getConf());
+
+    assertFalse(alluxio.Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
+    assertEquals(3,
+        alluxio.util.ConfigurationUtils.getMasterRpcAddresses(alluxio.Configuration.global()).size());
+    assertEquals("host1:19998,host2:19998,host3:19998",
+        alluxio.Configuration.get(PropertyKey.MASTER_RPC_ADDRESSES));
+
+    verify(mMockFileSystemContext, times(2)).reset(alluxio.Configuration.global());
+  }
+
+  @Test
+  public void resetContextFromMultiMasterToSingleMaster() throws Exception {
+    URI uri = URI.create(Constants.HEADER + "host1:19998,host2:19998,host3:19998/tmp/path.txt");
+    org.apache.hadoop.fs.FileSystem.get(uri, getConf());
+
+    assertFalse(alluxio.Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
+    assertEquals(3,
+        alluxio.util.ConfigurationUtils.getMasterRpcAddresses(alluxio.Configuration.global()).size());
+    assertEquals("host1:19998,host2:19998,host3:19998",
+        alluxio.Configuration.get(PropertyKey.MASTER_RPC_ADDRESSES));
+
+    uri = URI.create(Constants.HEADER + "host:19998/tmp/path.txt");
+    org.apache.hadoop.fs.FileSystem.get(uri, getConf());
+
+    assertFalse(alluxio.Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
+    assertEquals(PropertyKey.MASTER_JOURNAL_TYPE.getDefaultValue(),
+        alluxio.Configuration.get(PropertyKey.MASTER_JOURNAL_TYPE));
+    assertEquals(1,
+        alluxio.util.ConfigurationUtils.getMasterRpcAddresses(alluxio.Configuration.global()).size());
+
+    verify(mMockFileSystemContext, times(2)).reset(alluxio.Configuration.global());
+  }
+
+  // ALLUXIO CS END
   /**
    * Verifies that the initialize method is only called once even when there are many concurrent
    * initializers during the initialization phase.

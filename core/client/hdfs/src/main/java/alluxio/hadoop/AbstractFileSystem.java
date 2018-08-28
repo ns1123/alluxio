@@ -558,13 +558,16 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ADDRESS.getName(), null);
       // ALLUXIO CS ADD
       // Unset the embedded journal related configuration to support alluxio URI has the highest priority
-      alluxioConfProperties.put(PropertyKey.MASTER_JOURNAL_TYPE.getName(),
-          PropertyKey.MASTER_JOURNAL_TYPE.getDefaultValue());
       alluxioConfProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES.getName(),
           PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES.getDefaultValue());
       alluxioConfProperties.put(PropertyKey.MASTER_RPC_ADDRESSES.getName(), null);
-      alluxioConfProperties.put(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES.getName(), null);
-      alluxioConfProperties.put(PropertyKey.JOB_MASTER_RPC_ADDRESSES.getName(), null);
+    } else if (alluxioUri.getAuthority() instanceof alluxio.uri.MultiMasterAuthority) {
+      alluxio.uri.MultiMasterAuthority authority =
+          (alluxio.uri.MultiMasterAuthority) alluxioUri.getAuthority();
+      alluxioConfProperties.put(PropertyKey.MASTER_RPC_ADDRESSES.getName(), authority.getMasterAddresses());
+      // Unset the zookeeper configuration to support alluxio URI has the highest priority
+      alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ENABLED.getName(), false);
+      alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ADDRESS.getName(), null);
       // ALLUXIO CS END
     }
     return alluxioConfProperties;
