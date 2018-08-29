@@ -748,7 +748,6 @@ public class InodeTree implements JournalEntryIterable {
           if (fileOptions.isCacheable()) {
             ((InodeFile) lastInode).setCacheable(true);
           }
-
         }
         lastInode.setPinned(currentInodeDirectory.isPinned());
 
