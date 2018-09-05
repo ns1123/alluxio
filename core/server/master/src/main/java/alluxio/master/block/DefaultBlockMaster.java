@@ -802,9 +802,8 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
 
     // Generate a new worker id.
     long workerId = IdUtils.getRandomNonNegativeLong();
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
+    // while (!mTempWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
     //   workerId = IdUtils.getRandomNonNegativeLong();
     // }
     // ALLUXIO CS WITH
@@ -818,13 +817,6 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
       } else {
         throw new RuntimeException("Maximum number of workers has been reached.");
       }
-||||||| merged common ancestors
-    while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
-      workerId = IdUtils.getRandomNonNegativeLong();
-=======
-    while (!mTempWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
-      workerId = IdUtils.getRandomNonNegativeLong();
->>>>>>> OPENSOURCE/master
     }
     // ALLUXIO CS END
 
