@@ -187,6 +187,7 @@ public final class Constants {
   // Ufs fingerprint
   public static final String INVALID_UFS_FINGERPRINT = "";
 
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   // Replication
   public static final int REPLICATION_MAX_INFINITY = -1;
@@ -248,5 +249,11 @@ public final class Constants {
   public static final String NATIVE_ALLUXIO_LIB_NAME = "alluxio";
 
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  // Output stream flushed signal
+  public static final String FLUSHED_SIGNAL = "FLUSHED";
+
+>>>>>>> OPENSOURCE/master
   private Constants() {} // prevent instantiation
 }
