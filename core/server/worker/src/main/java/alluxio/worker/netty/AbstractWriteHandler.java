@@ -92,16 +92,12 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
   private static final ByteBuf EOF = Unpooled.buffer(0);
   private static final ByteBuf CANCEL = Unpooled.buffer(0);
   private static final ByteBuf ABORT = Unpooled.buffer(0);
-<<<<<<< HEAD
+  private static final ByteBuf FLUSH = Unpooled.buffer(0);
   // ALLUXIO CS ADD
   protected static final ByteBuf UFS_FALLBACK_INIT = Unpooled.buffer(0);
   @GuardedBy("mLock")
   protected long mUfsFallbackInitBytes = 0;
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-  private static final ByteBuf FLUSH = Unpooled.buffer(0);
->>>>>>> OPENSOURCE/master
 
   private ReentrantLock mLock = new ReentrantLock();
 
@@ -197,7 +193,8 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         buf = EOF;
       } else if (writeRequest.getCancel()) {
         buf = CANCEL;
-<<<<<<< HEAD
+      } else if (writeRequest.getFlush()) {
+        buf = FLUSH;
       // ALLUXIO CS ADD
       } else if (writeRequest.hasCreateUfsBlockOptions()
           && writeRequest.getOffset() == 0
@@ -208,11 +205,6 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         mUfsFallbackInitBytes = writeRequest.getCreateUfsBlockOptions().getBytesInBlockStore();
         mContext.setPosToQueue(mContext.getPosToQueue() + mUfsFallbackInitBytes);
       // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-      } else if (writeRequest.getFlush()) {
-        buf = FLUSH;
->>>>>>> OPENSOURCE/master
       } else {
         DataBuffer dataBuffer = msg.getPayloadDataBuffer();
         Preconditions.checkState(dataBuffer != null && dataBuffer.getLength() > 0);

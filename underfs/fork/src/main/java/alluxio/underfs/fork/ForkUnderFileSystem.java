@@ -131,6 +131,10 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public void cleanup() throws IOException {
+  }
+
+  @Override
   public void close() throws IOException {
     ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<String, UnderFileSystem>, IOException>() {

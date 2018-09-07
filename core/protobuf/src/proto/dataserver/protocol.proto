@@ -85,17 +85,13 @@ message WriteRequest {
 
   // This is only applicable for ufs writes.
   optional CreateUfsFileOptions create_ufs_file_options = 7;
-<<<<<<< HEAD
+
+  optional bool flush = 8;
   // ALLUXIO CS ADD
   optional alluxio.proto.security.Capability capability = 1000;
   // This is only applicable for ufs block writes.
   optional CreateUfsBlockOptions create_ufs_block_options = 1001;
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-
-  optional bool flush = 8;
->>>>>>> OPENSOURCE/master
 }
 
 // Options to create a UFS file.

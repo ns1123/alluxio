@@ -47,6 +47,9 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public void cleanup() throws IOException {}
+
+  @Override
   public void close() throws IOException {}
 
   @Override
