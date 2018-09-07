@@ -203,6 +203,8 @@ public final class UfsFallbackBlockWriteHandler
     protected void flushRequest(BlockWriteRequestContext context) throws Exception {
       if (context.isWritingToLocal()) {
         mBlockPacketWriter.flushRequest(context);
+      } else if (context.getOutputStream() != null) {
+        context.getOutputStream().flush();
       }
     }
 
