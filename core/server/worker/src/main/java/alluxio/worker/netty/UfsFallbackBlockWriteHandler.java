@@ -200,6 +200,15 @@ public final class UfsFallbackBlockWriteHandler
     }
 
     @Override
+    protected void flushRequest(BlockWriteRequestContext context) throws Exception {
+      if (context.isWritingToLocal()) {
+        mBlockPacketWriter.flushRequest(context);
+      } else if (context.getOutputStream() != null) {
+        context.getOutputStream().flush();
+      }
+    }
+
+    @Override
     protected void writeBuf(BlockWriteRequestContext context, Channel channel, ByteBuf buf,
         long pos) throws Exception {
       if (context.isWritingToLocal()) {
