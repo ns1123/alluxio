@@ -46,8 +46,7 @@ public interface Authority extends Comparable<Authority>, Serializable {
     } else {
       matcher = SINGLE_MASTER_AUTH.matcher(authority);
       if (matcher.matches()) {
-        return new SingleMasterAuthority(authority,
-            matcher.group(1), Integer.parseInt(matcher.group(2)));
+        return new SingleMasterAuthority(matcher.group(1), Integer.parseInt(matcher.group(2)));
       } else {
         // ALLUXIO CS ADD
         matcher = MULTI_MASTERS_AUTH.matcher(authority);
@@ -58,5 +57,10 @@ public interface Authority extends Comparable<Authority>, Serializable {
         return new UnknownAuthority(authority);
       }
     }
+  }
+
+  @Override
+  default int compareTo(Authority o) {
+    return toString().compareTo(o.toString());
   }
 }
