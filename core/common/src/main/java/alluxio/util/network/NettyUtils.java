@@ -50,6 +50,10 @@ public final class NettyUtils {
       getChannelType(PropertyKey.USER_NETWORK_NETTY_CHANNEL);
   public static final ChannelType WORKER_CHANNEL_TYPE =
       getChannelType(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL);
+  // ALLUXIO CS ADD
+  public static final ChannelType MASTER_CHANNEL_TYPE =
+      getChannelType(PropertyKey.MASTER_NETWORK_NETTY_CHANNEL);
+  // ALLUXIO CS END
 
   private NettyUtils() {}
 
