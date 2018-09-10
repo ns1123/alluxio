@@ -138,8 +138,7 @@ public final class NettySecureRpcServer {
 
   // TODO(chaomin): dedup the bootstrap creation logic with NettyDataServer
   private ServerBootstrap createBootstrap() {
-    final ServerBootstrap boot = createBootstrapOfType(
-        Configuration.getEnum(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL, ChannelType.class));
+    final ServerBootstrap boot = createBootstrapOfType(NettyUtils.WORKER_CHANNEL_TYPE);
 
     // use pooled buffers
     boot.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);

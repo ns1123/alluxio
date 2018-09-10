@@ -37,7 +37,8 @@ import java.net.InetSocketAddress;
 import javax.net.ssl.SSLException;
 
 /**
- * The secure Netty client via SSL. This is used for secret key exchange.
+ * The secure Netty client via SSL. This is used for secret key exchange. The master uses this
+ * client to communicate with workers.
  */
 public final class NettySecureRpcClient {
   /**  Share both the encoder and decoder with all the client pipelines. */
@@ -46,8 +47,7 @@ public final class NettySecureRpcClient {
   private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
       new KerberosSaslClientHandler();
 
-  private static final ChannelType CHANNEL_TYPE =
-      Configuration.getEnum(PropertyKey.USER_NETWORK_NETTY_CHANNEL, ChannelType.class);
+  private static final ChannelType CHANNEL_TYPE = NettyUtils.MASTER_CHANNEL_TYPE;
   private static final Class<? extends Channel> CLIENT_CHANNEL_CLASS = NettyUtils
       .getClientChannelClass(false);
 

@@ -1293,6 +1293,16 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
+  // ALLUXIO CS ADD
+  public static final PropertyKey MASTER_NETWORK_NETTY_CHANNEL =
+      new Builder(Name.MASTER_NETWORK_NETTY_CHANNEL)
+          .setDescription("Netty channel type: NIO or EPOLL. If EPOLL is not available, this will "
+              + "automatically fall back to NIO.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .setDefaultValue("EPOLL")
+          .build();
+  // ALLUXIO CS END
   public static final PropertyKey MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_REPAIR =
       new Builder(Name.MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_REPAIR)
           .setDefaultValue(false)
@@ -3850,6 +3860,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     // ALLUXIO CS END
     public static final String MASTER_LOG_CONFIG_REPORT_HEARTBEAT_INTERVAL =
         "alluxio.master.log.config.report.heartbeat.interval";
+    // ALLUXIO CS ADD
+    public static final String MASTER_NETWORK_NETTY_CHANNEL =
+        "alluxio.master.network.netty.channel";
+    // ALLUXIO CS END
     public static final String MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_REPAIR =
         "alluxio.master.periodic.block.integrity.check.repair";
     public static final String MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_INTERVAL =
