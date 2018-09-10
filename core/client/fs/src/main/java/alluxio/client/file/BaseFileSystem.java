@@ -509,7 +509,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public FileInStream openFile(AlluxioURI path, OpenFileOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
-<<<<<<< HEAD
+    checkUri(path);
     // ALLUXIO CS REPLACE
     // URIStatus status = getStatus(path);
     // ALLUXIO CS WITH
@@ -527,12 +527,6 @@ public class BaseFileSystem implements FileSystem {
       mFileSystemContext.releaseMasterClient(masterClient);
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-    URIStatus status = getStatus(path);
-=======
-    checkUri(path);
-    URIStatus status = getStatus(path);
->>>>>>> OPENSOURCE/master
     if (status.isFolder()) {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
