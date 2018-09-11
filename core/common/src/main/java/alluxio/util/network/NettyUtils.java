@@ -46,23 +46,11 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class NettyUtils {
   private static final Logger LOG = LoggerFactory.getLogger(NettyUtils.class);
 
-<<<<<<< HEAD
-  public static final ChannelType USER_CHANNEL_TYPE =
-      getChannelType(PropertyKey.USER_NETWORK_NETTY_CHANNEL);
-  public static final ChannelType WORKER_CHANNEL_TYPE =
-      getChannelType(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL);
-  // ALLUXIO CS ADD
-  public static final ChannelType MASTER_CHANNEL_TYPE =
-      getChannelType(PropertyKey.MASTER_NETWORK_NETTY_CHANNEL);
-  // ALLUXIO CS END
-||||||| merged common ancestors
-  public static final ChannelType USER_CHANNEL_TYPE =
-      getChannelType(PropertyKey.USER_NETWORK_NETTY_CHANNEL);
-  public static final ChannelType WORKER_CHANNEL_TYPE =
-      getChannelType(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL);
-=======
   public static final ChannelType USER_CHANNEL_TYPE;
   public static final ChannelType WORKER_CHANNEL_TYPE;
+  // ALLUXIO CS ADD
+  public static final ChannelType MASTER_CHANNEL_TYPE;
+  // ALLUXIO CS END
 
   static {
     boolean epollAvailable = Epoll.isAvailable();
@@ -85,12 +73,18 @@ public final class NettyUtils {
           Configuration.getEnum(PropertyKey.USER_NETWORK_NETTY_CHANNEL, ChannelType.class);
       WORKER_CHANNEL_TYPE =
           Configuration.getEnum(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL, ChannelType.class);
+      // ALLUXIO CS ADD
+      MASTER_CHANNEL_TYPE =
+          Configuration.getEnum(PropertyKey.MASTER_NETWORK_NETTY_CHANNEL, ChannelType.class);
+      // ALLUXIO CS END
     } else {
       USER_CHANNEL_TYPE = ChannelType.NIO;
       WORKER_CHANNEL_TYPE = ChannelType.NIO;
+      // ALLUXIO CS ADD
+      MASTER_CHANNEL_TYPE = ChannelType.NIO;
+      // ALLUXIO CS END
     }
   }
->>>>>>> OPENSOURCE/master
 
   private NettyUtils() {}
 
@@ -200,7 +194,6 @@ public final class NettyUtils {
       return workerNetAddress.getHost().equals(NetworkAddressUtils.getClientHostName());
     }
   }
-<<<<<<< HEAD
   // ALLUXIO CS ADD
 
   /**
@@ -229,59 +222,4 @@ public final class NettyUtils {
     }
   }
   // ALLUXIO CS END
-
-  /**
-   * Note: Packet streaming requires {@link io.netty.channel.epoll.EpollMode} to be set to
-   * LEVEL_TRIGGERED which is not supported in netty versions < 4.0.26.Final. Without shading netty
-   * in Alluxio, we cannot use epoll.
-   *
-   * @param key the property key for looking up the configured channel type
-   * @return the channel type to use
-   */
-  private static ChannelType getChannelType(PropertyKey key) {
-    ChannelType configured = Configuration.getEnum(key, ChannelType.class);
-    if (configured == ChannelType.EPOLL) {
-      if (!Epoll.isAvailable()) {
-        LOG.info("EPOLL is not available, will use NIO");
-        return ChannelType.NIO;
-      }
-      try {
-        EpollChannelOption.class.getField("EPOLL_MODE");
-      } catch (Throwable e) {
-        LOG.warn("EPOLL_MODE is not supported in netty with version < 4.0.26.Final, will use NIO");
-        return ChannelType.NIO;
-      }
-      LOG.info("EPOLL_MODE is available");
-    }
-    return configured;
-  }
-||||||| merged common ancestors
-
-  /**
-   * Note: Packet streaming requires {@link io.netty.channel.epoll.EpollMode} to be set to
-   * LEVEL_TRIGGERED which is not supported in netty versions < 4.0.26.Final. Without shading netty
-   * in Alluxio, we cannot use epoll.
-   *
-   * @param key the property key for looking up the configured channel type
-   * @return the channel type to use
-   */
-  private static ChannelType getChannelType(PropertyKey key) {
-    ChannelType configured = Configuration.getEnum(key, ChannelType.class);
-    if (configured == ChannelType.EPOLL) {
-      if (!Epoll.isAvailable()) {
-        LOG.info("EPOLL is not available, will use NIO");
-        return ChannelType.NIO;
-      }
-      try {
-        EpollChannelOption.class.getField("EPOLL_MODE");
-      } catch (Throwable e) {
-        LOG.warn("EPOLL_MODE is not supported in netty with version < 4.0.26.Final, will use NIO");
-        return ChannelType.NIO;
-      }
-      LOG.info("EPOLL_MODE is available");
-    }
-    return configured;
-  }
-=======
->>>>>>> OPENSOURCE/master
 }
