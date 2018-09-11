@@ -464,7 +464,7 @@ public final class InodeTreeTest {
   @Test
   public void getInodeByNonexistingPath() throws Exception {
     mThrown.expect(FileDoesNotExistException.class);
-    mThrown.expectMessage("Path /test does not exist");
+    mThrown.expectMessage("Path \"/test\" does not exist");
 
     assertFalse(mTree.inodePathExists(TEST_URI));
     getInodeByPath(mTree, TEST_URI);
@@ -476,7 +476,7 @@ public final class InodeTreeTest {
   @Test
   public void getInodeByNonexistingNestedPath() throws Exception {
     mThrown.expect(FileDoesNotExistException.class);
-    mThrown.expectMessage("Path /nested/test/file does not exist");
+    mThrown.expectMessage("Path \"/nested/test/file\" does not exist");
 
     createPath(mTree, NESTED_URI, sNestedDirectoryOptions);
     assertFalse(mTree.inodePathExists(NESTED_FILE_URI));
