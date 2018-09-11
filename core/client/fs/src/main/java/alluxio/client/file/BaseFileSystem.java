@@ -12,6 +12,9 @@
 package alluxio.client.file;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
+import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.annotation.PublicApi;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
@@ -42,6 +45,8 @@ import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.security.authorization.AclEntry;
+import alluxio.uri.Authority;
+import alluxio.uri.SingleMasterAuthority;
 import alluxio.wire.LoadMetadataType;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;
@@ -93,6 +98,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void createDirectory(AlluxioURI path, CreateDirectoryOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       masterClient.createDirectory(path, options);
@@ -119,6 +125,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public FileOutStream createFile(AlluxioURI path, CreateFileOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     URIStatus status;
     try {
@@ -188,6 +195,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void delete(AlluxioURI path, DeleteOptions options)
       throws DirectoryNotEmptyException, FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       masterClient.delete(path, options);
@@ -215,6 +223,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public boolean exists(AlluxioURI path, ExistsOptions options)
       throws InvalidPathException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       // TODO(calvin): Make this more efficient
@@ -244,6 +253,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void free(AlluxioURI path, FreeOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       masterClient.free(path, options);
@@ -268,6 +278,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public URIStatus getStatus(AlluxioURI path, GetStatusOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       // ALLUXIO CS REPLACE
@@ -314,6 +325,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public List<URIStatus> listStatus(AlluxioURI path, ListStatusOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     // TODO(calvin): Fix the exception handling in the master
     try {
@@ -434,6 +446,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void loadMetadata(AlluxioURI path, LoadMetadataOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       masterClient.loadMetadata(path, options);
@@ -458,6 +471,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath, MountOptions options)
       throws IOException, AlluxioException {
+    checkUri(alluxioPath);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       // TODO(calvin): Make this fail on the master side
@@ -495,6 +509,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public FileInStream openFile(AlluxioURI path, OpenFileOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(path);
     // ALLUXIO CS REPLACE
     // URIStatus status = getStatus(path);
     // ALLUXIO CS WITH
@@ -557,6 +572,8 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void rename(AlluxioURI src, AlluxioURI dst, RenameOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(src);
+    checkUri(dst);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       // TODO(calvin): Update this code on the master side.
@@ -582,6 +599,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries,
       SetAclOptions options) throws FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       masterClient.setAcl(path, action, entries, options);
@@ -606,6 +624,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void setAttribute(AlluxioURI path, SetAttributeOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       masterClient.setAttribute(path, options);
@@ -629,6 +648,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void unmount(AlluxioURI path, UnmountOptions options)
       throws IOException, AlluxioException {
+    checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       masterClient.unmount(path);
@@ -640,5 +660,44 @@ public class BaseFileSystem implements FileSystem {
     } finally {
       mFileSystemContext.releaseMasterClient(masterClient);
     }
+  }
+
+  /**
+   * Checks an {@link AlluxioURI} for scheme and authority information. Warn the user and throw an
+   * exception if necessary.
+   */
+  private static void checkUri(AlluxioURI uri) {
+    if (uri.hasScheme()) {
+      String warnMsg = "The URI scheme \"{}\" is ignored and not required in URIs passed to"
+          + " the Alluxio Filesystem client.";
+      if (uri.getScheme().equals(Constants.SCHEME)) {
+        LOG.warn(warnMsg, Constants.SCHEME);
+      } else if (uri.getScheme().equals(Constants.SCHEME_FT)) {
+        LOG.warn(warnMsg, Constants.SCHEME_FT);
+      } else {
+        throw new IllegalArgumentException(
+            String.format("Scheme %s:// in AlluxioURI is invalid. Schemes in filesystem"
+                + " operations are ignored. \"alluxio://\" or no scheme at all is valid.",
+                uri.getScheme()));
+      }
+    }
+
+    if (uri.hasAuthority()) {
+      LOG.warn("The URI authority (hostname and port) is ignored and not required in URIs passed "
+          + "to the Alluxio Filesystem client.");
+      /* Even if we choose to log the warning, check if the Configuration host matches what the
+       * user passes. If not, throw an exception letting the user know they don't match.
+       */
+      String host = Configuration.get(PropertyKey.MASTER_HOSTNAME);
+      int port = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
+      Authority trueAuthority = new SingleMasterAuthority(host, port);
+      if (!trueAuthority.equals(uri.getAuthority())) {
+        throw new IllegalArgumentException(String.format(
+            "The URI authority %s does not match the configured "
+            + "value of %s.", uri.getAuthority(), trueAuthority));
+      }
+    }
+
+    return;
   }
 }
