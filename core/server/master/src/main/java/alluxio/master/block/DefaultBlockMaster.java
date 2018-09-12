@@ -865,7 +865,9 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
             wireConfigList);
       }
     }
+
     registerWorkerInternal(workerId);
+
     // ALLUXIO CS ADD
     if (mCapabilityEnabled) {
       // Ordering is important, this requires the worker to be fully registered (ie. in mWorkers).
