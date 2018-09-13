@@ -600,7 +600,50 @@ public class InodeTree implements JournalEntryIterable {
         extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(dir,
             currentInodeDirectory, pathComponents[k]);
 
+<<<<<<< HEAD
         if (!currentInodeDirectory.addChild(dir)) {
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+        newDir.setPinned(currentInodeDirectory.isPinned());
+
+        // if the parent has default ACL, copy that default ACL as the new directory's default
+        // and access acl.
+        if (!options.isMetadataLoad()) {
+          DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
+          if (!dAcl.isEmpty()) {
+            Pair<AccessControlList, DefaultAccessControlList> pair = dAcl.generateChildDirACL();
+            newDir.setInternalAcl(pair.getFirst());
+            newDir.setDefaultACL(pair.getSecond());
+          }
+        }
+
+        if (mState.applyAndJournal(rpcContext, newDir)) {
+          // After creation and journaling, downgrade to a read lock.
+          extensibleInodePath.getLockList().downgradeLast();
+          dir = newDir;
+        } else {
+=======
+        newDir.setPinned(currentInodeDirectory.isPinned());
+
+        // if the parent has default ACL, copy that default ACL as the new directory's default
+        // and access acl, ANDed with the umask
+        // if it is part of a metadata load operation, we ignore the umask and simply inherit
+        // the default ACL as the directory's new default and access ACL
+        short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
+            : newDir.getMode();
+        DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
+        if (!dAcl.isEmpty()) {
+          Pair<AccessControlList, DefaultAccessControlList> pair =
+              dAcl.generateChildDirACL(mode);
+          newDir.setInternalAcl(pair.getFirst());
+          newDir.setDefaultACL(pair.getSecond());
+        }
+
+        if (mState.applyAndJournal(rpcContext, newDir)) {
+          // After creation and journaling, downgrade to a read lock.
+          extensibleInodePath.getLockList().downgradeLast();
+          dir = newDir;
+        } else {
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
           // The child directory inode already exists. Get the existing child inode.
           extensibleInodePath.getLockList().unlockLast();
 
@@ -701,6 +744,7 @@ public class InodeTree implements JournalEntryIterable {
           extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(lastInode,
               currentInodeDirectory, name);
 
+<<<<<<< HEAD
           // if the parent has default ACL, copy that default ACL as the new directory's default
           // and access acl.
           DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
@@ -710,6 +754,29 @@ public class InodeTree implements JournalEntryIterable {
             lastInodeDirectory.setInternalAcl(pair.getFirst());
             lastInodeDirectory.setDefaultACL(pair.getSecond());
           }
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+        // if the parent has default ACL, copy that default ACL as the new directory's default
+        // and access acl.
+        DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
+        if (!dAcl.isEmpty()) {
+          Pair<AccessControlList, DefaultAccessControlList> pair = dAcl.generateChildDirACL();
+          newDir.setInternalAcl(pair.getFirst());
+          newDir.setDefaultACL(pair.getSecond());
+        }
+=======
+        // if the parent has default ACL, take the default ACL ANDed with the umask as the new
+        // directory's default and access acl
+        // WHen it is a metadata load operation, do not take the umask into account
+        short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
+            : newDir.getMode();
+        DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
+        if (!dAcl.isEmpty()) {
+          Pair<AccessControlList, DefaultAccessControlList> pair =
+              dAcl.generateChildDirACL(mode);
+          newDir.setInternalAcl(pair.getFirst());
+          newDir.setDefaultACL(pair.getSecond());
+        }
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
 
           if (directoryOptions.isPersisted()) {
             // Do not journal the persist entry, since a creation entry will be journaled instead.
@@ -749,6 +816,7 @@ public class InodeTree implements JournalEntryIterable {
             ((InodeFile) lastInode).setCacheable(true);
           }
         }
+<<<<<<< HEAD
         lastInode.setPinned(currentInodeDirectory.isPinned());
 
         // Update state while holding the write lock.
@@ -762,6 +830,43 @@ public class InodeTree implements JournalEntryIterable {
           extensibleInodePath.getLockList().unlockLast();
           lastInode = null;
           continue;
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+        newInode = newDir;
+      } else if (options instanceof CreateFileOptions) {
+        CreateFileOptions fileOptions = (CreateFileOptions) options;
+        InodeFile newFile = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
+            currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
+        // Lock the created inode before subsequent operations, and add it to the lock group.
+
+        extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(newFile,
+            currentInodeDirectory, name);
+
+        // if the parent has a default ACL, copy that default ACL as the new file's access ACL.
+        DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
+        if (!dAcl.isEmpty()) {
+          AccessControlList acl = dAcl.generateChildFileACL();
+          newFile.setInternalAcl(acl);
+=======
+        newInode = newDir;
+      } else if (options instanceof CreateFileOptions) {
+        CreateFileOptions fileOptions = (CreateFileOptions) options;
+        InodeFile newFile = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
+            currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
+        // Lock the created inode before subsequent operations, and add it to the lock group.
+
+        extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(newFile,
+            currentInodeDirectory, name);
+
+        // if the parent has a default ACL, copy that default ACL ANDed with the umask as the new
+        // file's access ACL.
+        // If it is a metadata load operation, do not consider the umask.
+        DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
+        short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
+            : newFile.getMode();
+        if (!dAcl.isEmpty()) {
+          AccessControlList acl = dAcl.generateChildFileACL(mode);
+          newFile.setInternalAcl(acl);
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
         }
 
         if (lastInode instanceof InodeFile) {

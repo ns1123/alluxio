@@ -2889,7 +2889,16 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       ufsLength = ufsStatus.getContentLength();
 
       if (isAclEnabled()) {
-        acl = ufs.getAcl(ufsUri.toString());
+        Pair<AccessControlList, DefaultAccessControlList> aclPair
+            = ufs.getAclPair(ufsUri.toString());
+        if (aclPair != null) {
+          acl = aclPair.getFirst();
+          // DefaultACL should be null, because it is a file
+          if (aclPair.getSecond() != null) {
+            LOG.warn("File {} has default ACL in the UFS", inodePath.getUri());
+          }
+        }
+
       }
     }
 
@@ -2964,11 +2973,21 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         .setRecursive(options.isCreateAncestors()).setMetadataLoad(true).setAllowExists(true);
     MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
     UfsStatus ufsStatus = options.getUfsStatus();
-    if (ufsStatus == null) {
-      AlluxioURI ufsUri = resolution.getUri();
-      try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
-        UnderFileSystem ufs = ufsResource.get();
+
+    AlluxioURI ufsUri = resolution.getUri();
+    AccessControlList acl = null;
+    DefaultAccessControlList defaultAcl = null;
+
+    try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
+      UnderFileSystem ufs = ufsResource.get();
+      if (ufsStatus == null) {
         ufsStatus = ufs.getDirectoryStatus(ufsUri.toString());
+      }
+      Pair<AccessControlList, DefaultAccessControlList> aclPair =
+          ufs.getAclPair(ufsUri.toString());
+      if (aclPair != null) {
+        acl = aclPair.getFirst();
+        defaultAcl = aclPair.getSecond();
       }
     }
     String ufsOwner = ufsStatus.getOwner();
@@ -2981,6 +3000,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
     createDirectoryOptions = createDirectoryOptions.setOwner(ufsOwner).setGroup(ufsGroup)
             .setMode(mode).setUfsStatus(ufsStatus);
+    if (acl != null) {
+      createDirectoryOptions.setAcl(acl.getEntries());
+    }
+
+    if (defaultAcl != null) {
+      createDirectoryOptions.setDefaultAcl(defaultAcl.getEntries());
+    }
     if (lastModifiedTime != null) {
       createDirectoryOptions.setOperationTimeMs(lastModifiedTime);
     }
@@ -3023,8 +3049,17 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
     if (!inodeExists || loadDirectChildren) {
       try {
+<<<<<<< HEAD
         loadMetadataAndJournal(rpcContext, inodePath, options);
       } catch (Exception e) {
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+        loadMetadataInternal(rpcContext, inodePath, options);
+      } catch (Exception e) {
+=======
+        loadMetadataInternal(rpcContext, inodePath, options);
+      } catch (IOException | InvalidPathException | FileDoesNotExistException | BlockInfoException
+          | FileAlreadyCompletedException | InvalidFileSizeException | AccessControlException e) {
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
         // NOTE, this may be expected when client tries to get info (e.g. exists()) for a file
         // existing neither in Alluxio nor UFS.
         LOG.debug("Failed to load metadata for path from UFS: {}", inodePath.getUri());
@@ -3384,11 +3419,20 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             + "UFS: " + ufsUri + ". This has no effect on the underlying object.");
       } else {
         try {
-          ufs.setAcl(ufsUri, inode.getACL());
+          List<AclEntry> entries = new ArrayList<>(inode.getACL().getEntries());
           if (inode.isDirectory()) {
+<<<<<<< HEAD
             InodeDirectory inodeDirectory = (InodeDirectory) inode;
             ufs.setAcl(ufsUri, inodeDirectory.getDefaultACL());
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+            InodeDirectoryView inodeDirectory = (InodeDirectoryView) inode;
+            ufs.setAcl(ufsUri, inodeDirectory.getDefaultACL());
+=======
+            InodeDirectoryView inodeDirectory = (InodeDirectoryView) inode;
+            entries.addAll(inodeDirectory.getDefaultACL().getEntries());
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
           }
+          ufs.setAclEntries(ufsUri, entries);
         } catch (IOException e) {
           throw new AccessControlException("Could not setAcl for UFS file: " + ufsUri);
         }

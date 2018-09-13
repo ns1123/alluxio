@@ -11,7 +11,12 @@
 
 package alluxio.master.file.options;
 
+<<<<<<< HEAD
 import alluxio.Constants;
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+=======
+import alluxio.security.authorization.AclEntry;
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateDirectoryTOptions;
 import alluxio.underfs.UfsStatus;
@@ -20,8 +25,11 @@ import alluxio.wire.CommonOptions;
 import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Method options for creating a directory.
@@ -32,6 +40,13 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
   private long mTtl;
   private TtlAction mTtlAction;
   private UfsStatus mUfsStatus;
+<<<<<<< HEAD
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+
+=======
+  private List<AclEntry> mDefaultAcl;
+
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
   /**
    * @return the default {@link CreateDirectoryOptions}
    */
@@ -76,6 +91,7 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
     mTtlAction = TtlAction.DELETE;
     mMode.applyDirectoryUMask();
     mUfsStatus = null;
+    mDefaultAcl = Collections.emptyList();
   }
 
   /**
@@ -87,6 +103,7 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
   }
 
   /**
+<<<<<<< HEAD
    * @return the TTL (time to live) value; it identifies duration (in seconds) the created directory
    *         should be kept around before it is automatically deleted or free
    */
@@ -102,6 +119,26 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
   }
 
   /**
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+=======
+   * @return the default ACL in the form of a list of default ACL Entries
+   */
+  public List<AclEntry> getDefaultAcl() {
+    return mDefaultAcl;
+  }
+
+  /**
+   * Sets the default ACL in the option.
+   * @param defaultAcl a list of default ACL Entries
+   * @return the updated options object
+   */
+  public CreateDirectoryOptions setDefaultAcl(List<AclEntry> defaultAcl) {
+    mDefaultAcl = ImmutableList.copyOf(defaultAcl);
+    return getThis();
+  }
+
+  /**
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
    * @return the {@link UfsStatus}
    */
   public UfsStatus getUfsStatus() {
@@ -163,21 +200,45 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
       return false;
     }
     CreateDirectoryOptions that = (CreateDirectoryOptions) o;
+<<<<<<< HEAD
     return Objects.equal(mAllowExists, that.mAllowExists) && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction) && Objects.equal(mUfsStatus, that.mUfsStatus);
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+    return Objects.equal(mAllowExists, that.mAllowExists)
+        && Objects.equal(mUfsStatus, that.mUfsStatus);
+=======
+    return Objects.equal(mAllowExists, that.mAllowExists)
+        && Objects.equal(mUfsStatus, that.mUfsStatus)
+        && Objects.equal(mDefaultAcl, that.mDefaultAcl);
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
   }
 
   @Override
   public int hashCode() {
+<<<<<<< HEAD
     return super.hashCode() + Objects.hashCode(mAllowExists, mTtl, mTtlAction, mUfsStatus);
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+    return super.hashCode() + Objects.hashCode(mAllowExists, mUfsStatus);
+=======
+    return super.hashCode() + Objects.hashCode(mAllowExists, mUfsStatus, mDefaultAcl);
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
   }
 
   @Override
   public String toString() {
+<<<<<<< HEAD
     return toStringHelper()
         .add("allowExists", mAllowExists).add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
         .add("ufsStatus", mUfsStatus)
         .toString();
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+    return toStringHelper().add("allowExists", mAllowExists)
+        .add("ufsStatus", mUfsStatus).toString();
+=======
+    return toStringHelper().add("allowExists", mAllowExists)
+        .add("ufsStatus", mUfsStatus)
+        .add("defaultAcl", mDefaultAcl).toString();
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
   }
 }

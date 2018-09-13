@@ -236,13 +236,20 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
   }
 
   @Override
+<<<<<<< HEAD
   public DefaultAccessControlList getDefaultACL() {
     return mDefaultAcl;
   }
 
   @Override
   public void setDefaultACL(DefaultAccessControlList acl) {
+||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
+  public void setDefaultACL(DefaultAccessControlList acl) {
+=======
+  public InodeDirectory setDefaultACL(DefaultAccessControlList acl) {
+>>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
     mDefaultAcl = acl;
+    return getThis();
   }
   /**
    * Generates client file info for a folder.
@@ -342,6 +349,8 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
         .setGroup(options.getGroup())
         .setMode(options.getMode().toShort())
         .setAcl(options.getAcl())
+        // SetAcl call is also setting default AclEntries
+        .setAcl(options.getDefaultAcl())
         .setMountPoint(options.isMountPoint());
   }
 
