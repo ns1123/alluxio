@@ -313,8 +313,10 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
     }
 
     @Override
-    public void setDefaultACL(DefaultAccessControlList acl) throws UnsupportedOperationException {
+    public HdfsAlluxioInode setDefaultACL(DefaultAccessControlList acl)
+        throws UnsupportedOperationException {
       // TODO(feng): implement ACL support for plugin interface
+      return this;
     }
 
     @Override

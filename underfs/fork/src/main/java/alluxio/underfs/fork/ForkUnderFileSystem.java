@@ -14,6 +14,8 @@ package alluxio.underfs.fork;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.security.authorization.AccessControlList;
+import alluxio.security.authorization.AclEntry;
+import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.underfs.Fingerprint;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
@@ -303,20 +305,27 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
-  public AccessControlList getAcl(String path) throws IOException {
-    Collection<AccessControlList> result = new ConcurrentLinkedQueue<>();
+  public alluxio.collections.Pair<AccessControlList, DefaultAccessControlList> getAclPair(
+      String path) throws IOException {
+    Collection<alluxio.collections.Pair<AccessControlList, DefaultAccessControlList>> result
+        = new ConcurrentLinkedQueue<>();
     try {
       ForkUnderFileSystemUtils.invokeAll(mExecutorService,
-          new Function<Pair<Pair<String, UnderFileSystem>, Collection<AccessControlList>>,
+          new Function<Pair<Pair<String, UnderFileSystem>,
+              Collection<alluxio.collections.Pair<AccessControlList, DefaultAccessControlList>>>,
               IOException>() {
             @Nullable
             @Override
             public IOException apply(
-                Pair<Pair<String, UnderFileSystem>, Collection<AccessControlList>> arg) {
+                Pair<Pair<String, UnderFileSystem>,
+                    Collection<alluxio.collections.Pair<AccessControlList,
+                        DefaultAccessControlList>>> arg) {
               try {
                 Pair<String, UnderFileSystem> entry = arg.getKey();
-                Collection<AccessControlList> result = arg.getValue();
-                result.add(entry.getValue().getAcl(convert(entry.getKey(), path)));
+                Collection<alluxio.collections.Pair<AccessControlList,
+                    DefaultAccessControlList>> result
+                    = arg.getValue();
+                result.add(entry.getValue().getAclPair(convert(entry.getKey(), path)));
               } catch (IOException e) {
                 return e;
               }
@@ -328,9 +337,9 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     }
 
     // If one of the getAcl result is non-null, we return that
-    for (AccessControlList acl: result) {
-      if (acl != null) {
-        return acl;
+    for (alluxio.collections.Pair<AccessControlList, DefaultAccessControlList> aclPair: result) {
+      if (aclPair != null) {
+        return aclPair;
       }
     }
 
@@ -754,14 +763,14 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
-  public void setAcl(String path, AccessControlList acl) throws IOException {
+  public void setAclEntries(String path, List<AclEntry> aclEntries) throws IOException {
     ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
           public IOException apply(Pair<String, UnderFileSystem> arg) {
             try {
-              arg.getValue().setAcl(convert(arg.getKey(), path), acl);
+              arg.getValue().setAclEntries(convert(arg.getKey(), path), aclEntries);
             } catch (IOException e) {
               return e;
             }
