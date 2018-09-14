@@ -201,8 +201,10 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
     }
 
     @Override
-    public void setDefaultACL(DefaultAccessControlList acl) throws UnsupportedOperationException {
+    public InodeWithOverridenAttributes setDefaultACL(DefaultAccessControlList acl)
+        throws UnsupportedOperationException {
       // TODO(feng): implement ACL support for plugin interface
+      return this;
     }
 
     @Override

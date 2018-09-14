@@ -12,7 +12,10 @@
 package alluxio.underfs.mock;
 
 import alluxio.AlluxioURI;
+import alluxio.collections.Pair;
 import alluxio.security.authorization.AccessControlList;
+import alluxio.security.authorization.AclEntry;
+import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UfsStatus;
@@ -86,7 +89,8 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
-  public AccessControlList getAcl(String path) throws IOException {
+  public Pair<AccessControlList, DefaultAccessControlList> getAclPair(String path)
+      throws IOException {
     return null;
   }
 
@@ -205,7 +209,8 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
-  public void setAcl(String path, AccessControlList acl) throws IOException {}
+  public void setAclEntries(String path, List<AclEntry> aclEntries) throws IOException{
+  }
 
   @Override
   public void setMode(String path, short mode) throws IOException {}

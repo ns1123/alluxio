@@ -364,8 +364,10 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
     }
 
     @Override
-    public void setDefaultACL(DefaultAccessControlList acl) throws UnsupportedOperationException {
+    public PassThroughInode setDefaultACL(DefaultAccessControlList acl)
+        throws UnsupportedOperationException {
       // TODO(feng): implement ACL support for plugin interface
+      return this;
     }
 
     @Override
