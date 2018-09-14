@@ -808,7 +808,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
         extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(newFile,
             currentInodeDirectory, name);
 
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         if (currentInodeDirectory.isPinned()) {
           // Create a file inside of a pinned directory, if its min replication inferred from its
@@ -824,14 +823,9 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
           }
         }
         // ALLUXIO CS END
-        // if the parent has a default ACL, copy that default ACL as the new file's access ACL.
-||||||| merged common ancestors
-        // if the parent has a default ACL, copy that default ACL as the new file's access ACL.
-=======
         // if the parent has a default ACL, copy that default ACL ANDed with the umask as the new
         // file's access ACL.
         // If it is a metadata load operation, do not consider the umask.
->>>>>>> OPENSOURCE/master
         DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
         short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
             : newFile.getMode();
