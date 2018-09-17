@@ -64,7 +64,6 @@ import alluxio.underfs.local.LocalUnderFileSystemFactory;
 import alluxio.util.IdUtils;
 import alluxio.util.io.PathUtils;
 
-import com.google.common.base.Suppliers;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -189,8 +188,7 @@ public final class ExtensionInodeAttributesProviderTest {
   public void before() throws Exception {
     AuthenticatedClientUser.remove();
     mUfsManager = mock(UfsManager.class);
-    UfsManager.UfsClient ufsClient =
-        new UfsManager.UfsClient(Suppliers.ofInstance(mTestUfs), AlluxioURI.EMPTY_URI);
+    UfsManager.UfsClient ufsClient = new UfsManager.UfsClient(() -> mTestUfs, AlluxioURI.EMPTY_URI);
     when(mUfsManager.get(anyLong())).thenReturn(ufsClient);
     mFactory =
         mock(AbstractInodeAttributesProviderFactory.class);

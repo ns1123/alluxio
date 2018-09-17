@@ -29,7 +29,6 @@ import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.TieredBlockStore;
 import alluxio.worker.block.io.BlockWriter;
 
-import com.google.common.base.Suppliers;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.After;
@@ -84,8 +83,7 @@ public class UfsFallbackBlockWriteHandlerTest extends AbstractWriteHandlerTest {
         new AtomicReference<>(TEST_WORKER_ID));
     UnderFileSystem mockUfs = Mockito.mock(UnderFileSystem.class);
     UfsManager ufsManager = Mockito.mock(UfsManager.class);
-    UfsManager.UfsClient ufsClient =
-        new UfsManager.UfsClient(Suppliers.ofInstance(mockUfs), AlluxioURI.EMPTY_URI);
+    UfsManager.UfsClient ufsClient = new UfsManager.UfsClient(() -> mockUfs, AlluxioURI.EMPTY_URI);
     Mockito.when(ufsManager.get(Mockito.anyLong())).thenReturn(ufsClient);
     Mockito.when(mockUfs.create(Mockito.anyString(), Mockito.any(CreateOptions.class)))
         .thenReturn(mOutputStream)
