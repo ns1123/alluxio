@@ -98,7 +98,7 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
   @Override
   public Pair<AccessControlList, DefaultAccessControlList> getAclPair(String path)
       throws IOException {
-    return null;
+    return new Pair<>(null, null);
   }
 
   @Override
