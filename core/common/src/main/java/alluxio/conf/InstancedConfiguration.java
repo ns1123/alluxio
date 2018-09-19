@@ -337,17 +337,8 @@ public class InstancedConfiguration implements AlluxioConfiguration {
       String value = lookupRecursively(mProperties.get(PropertyKey.fromString(match)), seen);
       seen.remove(match);
       if (value == null) {
-<<<<<<< HEAD
-        // ALLUXIO CS REPLACE
-        // throw new RuntimeException("No value specified for configuration property " + match);
-        // ALLUXIO CS WITH
-        // TODO(binfan): enable validation again after ALLUXIO-3183
-        continue;
-        // ALLUXIO CS END
-=======
         throw new UnresolvablePropertyException(ExceptionMessage
             .UNDEFINED_CONFIGURATION_KEY.getMessage(match));
->>>>>>> os/master
       }
       LOG.debug("Replacing {} with {}", matcher.group(1), value);
       resolved = resolved.replaceFirst(REGEX_STRING, Matcher.quoteReplacement(value));
