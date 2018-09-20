@@ -787,10 +787,7 @@ final class AlluxioFuseFileSystem extends FuseStubFS {
         }
       }, WaitForOptions.defaults().setTimeoutMs(MAX_OPEN_WAITTIME_MS));
       return true;
-    } catch (InterruptedException ie) {
-      Thread.currentThread().interrupt();
-      return false;
-    } catch (TimeoutException te) {
+    } catch (RuntimeException e) {
       return false;
     }
   }
