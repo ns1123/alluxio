@@ -141,8 +141,8 @@ public final class PersistDefinition
       long bytesWritten;
       try (Closer closer = Closer.create()) {
         OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
-        // Disable decryption when reading from Alluxio in order to directly copy ciphertext to UFS.
         // ALLUXIO CS ADD
+        // Disable decryption when reading from Alluxio in order to directly copy ciphertext to UFS.
         options.setSkipTransformation(true);
         // ALLUXIO CS END
         FileInStream in = closer.register(fs.openFile(uri, options));

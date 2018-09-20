@@ -34,8 +34,8 @@ public final class HeartbeatContext {
       "Job Worker Command Handling";
   // ALLUXIO CS ADD
   public static final String MASTER_CALL_HOME = "Master Call Home";
-  public static final String MASTER_LICENSE_CHECK = "Master License Check";
   public static final String MASTER_DIAGNOSTIC = "Master Diagnostic";
+  public static final String MASTER_LICENSE_CHECK = "Master License Check";
   // ALLUXIO CS END
   public static final String MASTER_PERSISTENCE_CHECKER = "Master Persistence Checker";
   public static final String MASTER_PERSISTENCE_SCHEDULER = "Master Persistence Scheduler";

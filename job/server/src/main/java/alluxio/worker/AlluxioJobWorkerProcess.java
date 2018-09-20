@@ -234,11 +234,8 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
   }
 
   /**
-   // ALLUXIO CS REPLACE
-   * Helper method to create a {@link TThreadPoolServer} for handling incoming RPC requests.
-   // ALLUXIO CS WITH
-   * Helper method to create a {@link AuthenticatedThriftServer} for handling incoming RPC requests.
-   // ALLUXIO CS END
+   *
+   * Helper method to create a thrift server for handling incoming RPC requests.
    *
    * @return a thrift server
    */

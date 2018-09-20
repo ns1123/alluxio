@@ -218,13 +218,11 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
 
   @Override
   public int hashCode() {
-    // ALLUXIO CS REPLACE
-    // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
-    //      mReplicationMax, mReplicationMin, mCacheable);
-    // ALLUXIO CS WITH
     return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
-        mReplicationMax, mReplicationMin, mEncrypted, mCacheable);
+    // ALLUXIO CS ADD
+        mEncrypted,
     // ALLUXIO CS END
+        mReplicationMax, mReplicationMin, mCacheable);
   }
 
   @Override

@@ -3,6 +3,6 @@ KerberosSaslDataServerHandler.java
 KerberosSaslNettyServer.java
 NettySecureRpcServer.java
 SecretKeyServerHandler.java
-UfsFallbackBlockWriteHandler.java
 SecureRpcServerInitializer.java
+UfsFallbackBlockWriteHandler.java
 Utils.java

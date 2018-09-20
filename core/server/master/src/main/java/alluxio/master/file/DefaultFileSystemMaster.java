@@ -3330,6 +3330,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
     }
 
+    // TODO(zac) Clean up master and worker code since this is taken care of by job service now.
     // Worker should not persist any files. Instead, files are persisted through job service.
     List<PersistFile> filesToPersist = new ArrayList<>();
     FileSystemCommandOptions commandOptions = new FileSystemCommandOptions();

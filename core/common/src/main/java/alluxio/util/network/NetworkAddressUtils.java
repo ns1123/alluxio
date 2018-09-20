@@ -436,6 +436,7 @@ public final class NetworkAddressUtils {
     return getLocalHostName();
   }
 
+  // TODO(zac): Handle the JOB_WORKER case in this method.
   /**
    * Gets a local node name from configuration if it is available, falling back on localhost lookup.
    *

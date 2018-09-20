@@ -200,6 +200,7 @@ public final class Constants {
   public static final int JOB_DEFAULT_WORKER_DATA_PORT = JOB_DEFAULT_WORKER_PORT + 1;
   public static final int JOB_DEFAULT_WORKER_WEB_PORT = JOB_DEFAULT_WORKER_PORT + 2;
 
+  // Journal
   public static final String JOB_JOURNAL_NAME = "JobJournal";
 
   // Replication
@@ -223,8 +224,6 @@ public final class Constants {
   public static final String PRIVILEGE_MASTER_NAME = "PrivilegeMaster";
   public static final String PRIVILEGE_MASTER_CLIENT_SERVICE_NAME = "PrivilegeMasterClient";
   public static final long PRIVILEGE_MASTER_CLIENT_SERVICE_VERSION = 1;
-
-  // Journal
 
   // Kerberos
   public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";

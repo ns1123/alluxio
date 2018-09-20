@@ -741,14 +741,13 @@ public final class FileInfo implements Serializable {
   @Override
   public int hashCode() {
     return Objects.hashCode(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
-        mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
-        mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode, mReplicationMax,
-        mReplicationMin,
         // ALLUXIO CS ADD
         mCapability, mEncrypted,
         // ALLUXIO CS END
-        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage,
-        mUfsFingerprint, mAcl, mDefaultAcl);
+        mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
+        mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode, mReplicationMax,
+        mReplicationMin, mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction,
+        mInAlluxioPercentage, mUfsFingerprint, mAcl, mDefaultAcl);
   }
 
   @Override

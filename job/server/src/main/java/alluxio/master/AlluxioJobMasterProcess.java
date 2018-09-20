@@ -37,9 +37,7 @@ import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TThreadPoolServer.Args;
-// ALLUXIO CS REMOVE
-// import org.apache.thrift.server.TThreadPoolServer;
-// ALLUXIO CS END
+import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TTransportFactory;
@@ -55,6 +53,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * This class is responsible for initializing the different masters that are configured to run.
+ // ALLUXIO CS ADD
+ * {@link TThreadPoolServer} for use in CS+OS
+ // ALLUXIO CS END
  */
 @NotThreadSafe
 public class AlluxioJobMasterProcess implements JobMasterProcess {
