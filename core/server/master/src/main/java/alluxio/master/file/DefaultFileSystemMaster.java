@@ -2503,7 +2503,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             LOG.warn("File {} has default ACL in the UFS", inodePath.getUri());
           }
         }
-
       }
     }
 
@@ -3184,7 +3183,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               LOG.debug("Failed to load metadata for mount point: {}", mountPointUri, e);
             }
             mUfsSyncPathCache.notifySyncedPath(mountPoint);
-
           }
         }
       } catch (InvalidPathException e) {

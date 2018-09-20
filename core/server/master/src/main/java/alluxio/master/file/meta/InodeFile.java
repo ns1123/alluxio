@@ -459,7 +459,6 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
         .setAcl(options.getAcl())
         .setPersistenceState(options.isPersisted() ? PersistenceState.PERSISTED
             : PersistenceState.NOT_PERSISTED);
-
   }
 
   @Override
