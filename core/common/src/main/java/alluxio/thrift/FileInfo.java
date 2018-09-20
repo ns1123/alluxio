@@ -60,16 +60,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final org.apache.thrift.protocol.TField PERSISTENCE_STATE_FIELD_DESC = new org.apache.thrift.protocol.TField("persistenceState", org.apache.thrift.protocol.TType.STRING, (short)21);
   private static final org.apache.thrift.protocol.TField MOUNT_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("mountPoint", org.apache.thrift.protocol.TType.BOOL, (short)22);
   private static final org.apache.thrift.protocol.TField FILE_BLOCK_INFOS_FIELD_DESC = new org.apache.thrift.protocol.TField("fileBlockInfos", org.apache.thrift.protocol.TType.LIST, (short)23);
-  private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)24);
-  private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)25);
   private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1003);
   private static final org.apache.thrift.protocol.TField ENCRYPTED_FIELD_DESC = new org.apache.thrift.protocol.TField("encrypted", org.apache.thrift.protocol.TType.BOOL, (short)1004);
-  private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)26);
-  private static final org.apache.thrift.protocol.TField MOUNT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mountId", org.apache.thrift.protocol.TType.I64, (short)27);
-  private static final org.apache.thrift.protocol.TField IN_ALLUXIO_PERCENTAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("inAlluxioPercentage", org.apache.thrift.protocol.TType.I32, (short)28);
-  private static final org.apache.thrift.protocol.TField UFS_FINGERPRINT_FIELD_DESC = new org.apache.thrift.protocol.TField("ufsFingerprint", org.apache.thrift.protocol.TType.STRING, (short)29);
-  private static final org.apache.thrift.protocol.TField ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("acl", org.apache.thrift.protocol.TType.STRUCT, (short)30);
-  private static final org.apache.thrift.protocol.TField DEFAULT_ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("defaultAcl", org.apache.thrift.protocol.TType.STRUCT, (short)31);
+  private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)24);
+  private static final org.apache.thrift.protocol.TField MOUNT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mountId", org.apache.thrift.protocol.TType.I64, (short)25);
+  private static final org.apache.thrift.protocol.TField IN_ALLUXIO_PERCENTAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("inAlluxioPercentage", org.apache.thrift.protocol.TType.I32, (short)26);
+  private static final org.apache.thrift.protocol.TField UFS_FINGERPRINT_FIELD_DESC = new org.apache.thrift.protocol.TField("ufsFingerprint", org.apache.thrift.protocol.TType.STRING, (short)27);
+  private static final org.apache.thrift.protocol.TField ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("acl", org.apache.thrift.protocol.TType.STRUCT, (short)28);
+  private static final org.apache.thrift.protocol.TField DEFAULT_ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("defaultAcl", org.apache.thrift.protocol.TType.STRUCT, (short)29);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -99,8 +99,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private String persistenceState; // required
   private boolean mountPoint; // required
   private List<FileBlockInfo> fileBlockInfos; // required
-  private int replicationMax; // required
-  private int replicationMin; // required
   private alluxio.thrift.Capability capability; // optional
   private boolean encrypted; // required
   private alluxio.thrift.TTtlAction ttlAction; // required
@@ -109,6 +107,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private String ufsFingerprint; // required
   private TAcl acl; // required
   private TAcl defaultAcl; // required
+  private int replicationMax; // required
+  private int replicationMin; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -134,20 +134,20 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     PERSISTENCE_STATE((short)21, "persistenceState"),
     MOUNT_POINT((short)22, "mountPoint"),
     FILE_BLOCK_INFOS((short)23, "fileBlockInfos"),
-    REPLICATION_MAX((short)24, "replicationMax"),
-    REPLICATION_MIN((short)25, "replicationMin"),
     CAPABILITY((short)1003, "capability"),
     ENCRYPTED((short)1004, "encrypted"),
     /**
      * 
      * @see alluxio.thrift.TTtlAction
      */
-    TTL_ACTION((short)26, "ttlAction"),
-    MOUNT_ID((short)27, "mountId"),
-    IN_ALLUXIO_PERCENTAGE((short)28, "inAlluxioPercentage"),
-    UFS_FINGERPRINT((short)29, "ufsFingerprint"),
-    ACL((short)30, "acl"),
-    DEFAULT_ACL((short)31, "defaultAcl");
+    TTL_ACTION((short)24, "ttlAction"),
+    MOUNT_ID((short)25, "mountId"),
+    IN_ALLUXIO_PERCENTAGE((short)26, "inAlluxioPercentage"),
+    UFS_FINGERPRINT((short)27, "ufsFingerprint"),
+    ACL((short)28, "acl"),
+    DEFAULT_ACL((short)29, "defaultAcl"),
+    REPLICATION_MAX((short)1001, "replicationMax"),
+    REPLICATION_MIN((short)1002, "replicationMin");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -206,26 +206,26 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           return MOUNT_POINT;
         case 23: // FILE_BLOCK_INFOS
           return FILE_BLOCK_INFOS;
-        case 24: // REPLICATION_MAX
-          return REPLICATION_MAX;
-        case 25: // REPLICATION_MIN
-          return REPLICATION_MIN;
         case 1003: // CAPABILITY
           return CAPABILITY;
         case 1004: // ENCRYPTED
           return ENCRYPTED;
-        case 26: // TTL_ACTION
+        case 24: // TTL_ACTION
           return TTL_ACTION;
-        case 27: // MOUNT_ID
+        case 25: // MOUNT_ID
           return MOUNT_ID;
-        case 28: // IN_ALLUXIO_PERCENTAGE
+        case 26: // IN_ALLUXIO_PERCENTAGE
           return IN_ALLUXIO_PERCENTAGE;
-        case 29: // UFS_FINGERPRINT
+        case 27: // UFS_FINGERPRINT
           return UFS_FINGERPRINT;
-        case 30: // ACL
+        case 28: // ACL
           return ACL;
-        case 31: // DEFAULT_ACL
+        case 29: // DEFAULT_ACL
           return DEFAULT_ACL;
+        case 1001: // REPLICATION_MAX
+          return REPLICATION_MAX;
+        case 1002: // REPLICATION_MIN
+          return REPLICATION_MIN;
         default:
           return null;
       }
@@ -280,11 +280,11 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final int __TTL_ISSET_ID = 11;
   private static final int __MODE_ISSET_ID = 12;
   private static final int __MOUNTPOINT_ISSET_ID = 13;
-  private static final int __REPLICATIONMAX_ISSET_ID = 14;
-  private static final int __REPLICATIONMIN_ISSET_ID = 15;
-  private static final int __ENCRYPTED_ISSET_ID = 16;
-  private static final int __MOUNTID_ISSET_ID = 17;
-  private static final int __INALLUXIOPERCENTAGE_ISSET_ID = 18;
+  private static final int __ENCRYPTED_ISSET_ID = 14;
+  private static final int __MOUNTID_ISSET_ID = 15;
+  private static final int __INALLUXIOPERCENTAGE_ISSET_ID = 16;
+  private static final int __REPLICATIONMAX_ISSET_ID = 17;
+  private static final int __REPLICATIONMIN_ISSET_ID = 18;
   private int __isset_bitfield = 0;
   private static final _Fields optionals[] = {_Fields.CAPABILITY};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
@@ -336,10 +336,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     tmpMap.put(_Fields.FILE_BLOCK_INFOS, new org.apache.thrift.meta_data.FieldMetaData("fileBlockInfos", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, FileBlockInfo.class))));
-    tmpMap.put(_Fields.REPLICATION_MAX, new org.apache.thrift.meta_data.FieldMetaData("replicationMax", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.REPLICATION_MIN, new org.apache.thrift.meta_data.FieldMetaData("replicationMin", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
     tmpMap.put(_Fields.ENCRYPTED, new org.apache.thrift.meta_data.FieldMetaData("encrypted", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -356,6 +352,10 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAcl.class)));
     tmpMap.put(_Fields.DEFAULT_ACL, new org.apache.thrift.meta_data.FieldMetaData("defaultAcl", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAcl.class)));
+    tmpMap.put(_Fields.REPLICATION_MAX, new org.apache.thrift.meta_data.FieldMetaData("replicationMax", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.REPLICATION_MIN, new org.apache.thrift.meta_data.FieldMetaData("replicationMin", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(FileInfo.class, metaDataMap);
   }
@@ -386,15 +386,15 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     String persistenceState,
     boolean mountPoint,
     List<FileBlockInfo> fileBlockInfos,
-    int replicationMax,
-    int replicationMin,
     boolean encrypted,
     alluxio.thrift.TTtlAction ttlAction,
     long mountId,
     int inAlluxioPercentage,
     String ufsFingerprint,
     TAcl acl,
-    TAcl defaultAcl)
+    TAcl defaultAcl,
+    int replicationMax,
+    int replicationMin)
   {
     this();
     this.fileId = fileId;
@@ -433,10 +433,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     this.mountPoint = mountPoint;
     setMountPointIsSet(true);
     this.fileBlockInfos = fileBlockInfos;
-    this.replicationMax = replicationMax;
-    setReplicationMaxIsSet(true);
-    this.replicationMin = replicationMin;
-    setReplicationMinIsSet(true);
     this.encrypted = encrypted;
     setEncryptedIsSet(true);
     this.ttlAction = ttlAction;
@@ -447,6 +443,10 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     this.ufsFingerprint = ufsFingerprint;
     this.acl = acl;
     this.defaultAcl = defaultAcl;
+    this.replicationMax = replicationMax;
+    setReplicationMaxIsSet(true);
+    this.replicationMin = replicationMin;
+    setReplicationMinIsSet(true);
   }
 
   /**
@@ -497,8 +497,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       this.fileBlockInfos = __this__fileBlockInfos;
     }
-    this.replicationMax = other.replicationMax;
-    this.replicationMin = other.replicationMin;
     if (other.isSetCapability()) {
       this.capability = new alluxio.thrift.Capability(other.capability);
     }
@@ -517,6 +515,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     if (other.isSetDefaultAcl()) {
       this.defaultAcl = new TAcl(other.defaultAcl);
     }
+    this.replicationMax = other.replicationMax;
+    this.replicationMin = other.replicationMin;
   }
 
   public FileInfo deepCopy() {
@@ -561,10 +561,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     setMountPointIsSet(false);
     this.mountPoint = false;
     this.fileBlockInfos = null;
-    setReplicationMaxIsSet(false);
-    this.replicationMax = 0;
-    setReplicationMinIsSet(false);
-    this.replicationMin = 0;
     this.capability = null;
     setEncryptedIsSet(false);
     this.encrypted = false;
@@ -576,6 +572,10 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     this.ufsFingerprint = null;
     this.acl = null;
     this.defaultAcl = null;
+    setReplicationMaxIsSet(false);
+    this.replicationMax = 0;
+    setReplicationMinIsSet(false);
+    this.replicationMin = 0;
   }
 
   public long getFileId() {
@@ -1122,52 +1122,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     }
   }
 
-  public int getReplicationMax() {
-    return this.replicationMax;
-  }
-
-  public FileInfo setReplicationMax(int replicationMax) {
-    this.replicationMax = replicationMax;
-    setReplicationMaxIsSet(true);
-    return this;
-  }
-
-  public void unsetReplicationMax() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __REPLICATIONMAX_ISSET_ID);
-  }
-
-  /** Returns true if field replicationMax is set (has been assigned a value) and false otherwise */
-  public boolean isSetReplicationMax() {
-    return EncodingUtils.testBit(__isset_bitfield, __REPLICATIONMAX_ISSET_ID);
-  }
-
-  public void setReplicationMaxIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REPLICATIONMAX_ISSET_ID, value);
-  }
-
-  public int getReplicationMin() {
-    return this.replicationMin;
-  }
-
-  public FileInfo setReplicationMin(int replicationMin) {
-    this.replicationMin = replicationMin;
-    setReplicationMinIsSet(true);
-    return this;
-  }
-
-  public void unsetReplicationMin() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID);
-  }
-
-  /** Returns true if field replicationMin is set (has been assigned a value) and false otherwise */
-  public boolean isSetReplicationMin() {
-    return EncodingUtils.testBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID);
-  }
-
-  public void setReplicationMinIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID, value);
-  }
-
   public alluxio.thrift.Capability getCapability() {
     return this.capability;
   }
@@ -1365,6 +1319,52 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     }
   }
 
+  public int getReplicationMax() {
+    return this.replicationMax;
+  }
+
+  public FileInfo setReplicationMax(int replicationMax) {
+    this.replicationMax = replicationMax;
+    setReplicationMaxIsSet(true);
+    return this;
+  }
+
+  public void unsetReplicationMax() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __REPLICATIONMAX_ISSET_ID);
+  }
+
+  /** Returns true if field replicationMax is set (has been assigned a value) and false otherwise */
+  public boolean isSetReplicationMax() {
+    return EncodingUtils.testBit(__isset_bitfield, __REPLICATIONMAX_ISSET_ID);
+  }
+
+  public void setReplicationMaxIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REPLICATIONMAX_ISSET_ID, value);
+  }
+
+  public int getReplicationMin() {
+    return this.replicationMin;
+  }
+
+  public FileInfo setReplicationMin(int replicationMin) {
+    this.replicationMin = replicationMin;
+    setReplicationMinIsSet(true);
+    return this;
+  }
+
+  public void unsetReplicationMin() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID);
+  }
+
+  /** Returns true if field replicationMin is set (has been assigned a value) and false otherwise */
+  public boolean isSetReplicationMin() {
+    return EncodingUtils.testBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID);
+  }
+
+  public void setReplicationMinIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case FILE_ID:
@@ -1543,22 +1543,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       break;
 
-    case REPLICATION_MAX:
-      if (value == null) {
-        unsetReplicationMax();
-      } else {
-        setReplicationMax((Integer)value);
-      }
-      break;
-
-    case REPLICATION_MIN:
-      if (value == null) {
-        unsetReplicationMin();
-      } else {
-        setReplicationMin((Integer)value);
-      }
-      break;
-
     case CAPABILITY:
       if (value == null) {
         unsetCapability();
@@ -1620,6 +1604,22 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         unsetDefaultAcl();
       } else {
         setDefaultAcl((TAcl)value);
+      }
+      break;
+
+    case REPLICATION_MAX:
+      if (value == null) {
+        unsetReplicationMax();
+      } else {
+        setReplicationMax((Integer)value);
+      }
+      break;
+
+    case REPLICATION_MIN:
+      if (value == null) {
+        unsetReplicationMin();
+      } else {
+        setReplicationMin((Integer)value);
       }
       break;
 
@@ -1694,12 +1694,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     case FILE_BLOCK_INFOS:
       return getFileBlockInfos();
 
-    case REPLICATION_MAX:
-      return getReplicationMax();
-
-    case REPLICATION_MIN:
-      return getReplicationMin();
-
     case CAPABILITY:
       return getCapability();
 
@@ -1723,6 +1717,12 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
 
     case DEFAULT_ACL:
       return getDefaultAcl();
+
+    case REPLICATION_MAX:
+      return getReplicationMax();
+
+    case REPLICATION_MIN:
+      return getReplicationMin();
 
     }
     throw new IllegalStateException();
@@ -1779,10 +1779,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       return isSetMountPoint();
     case FILE_BLOCK_INFOS:
       return isSetFileBlockInfos();
-    case REPLICATION_MAX:
-      return isSetReplicationMax();
-    case REPLICATION_MIN:
-      return isSetReplicationMin();
     case CAPABILITY:
       return isSetCapability();
     case ENCRYPTED:
@@ -1799,6 +1795,10 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       return isSetAcl();
     case DEFAULT_ACL:
       return isSetDefaultAcl();
+    case REPLICATION_MAX:
+      return isSetReplicationMax();
+    case REPLICATION_MIN:
+      return isSetReplicationMin();
     }
     throw new IllegalStateException();
   }
@@ -2014,24 +2014,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return false;
     }
 
-    boolean this_present_replicationMax = true;
-    boolean that_present_replicationMax = true;
-    if (this_present_replicationMax || that_present_replicationMax) {
-      if (!(this_present_replicationMax && that_present_replicationMax))
-        return false;
-      if (this.replicationMax != that.replicationMax)
-        return false;
-    }
-
-    boolean this_present_replicationMin = true;
-    boolean that_present_replicationMin = true;
-    if (this_present_replicationMin || that_present_replicationMin) {
-      if (!(this_present_replicationMin && that_present_replicationMin))
-        return false;
-      if (this.replicationMin != that.replicationMin)
-        return false;
-    }
-
     boolean this_present_capability = true && this.isSetCapability();
     boolean that_present_capability = true && that.isSetCapability();
     if (this_present_capability || that_present_capability) {
@@ -2101,6 +2083,24 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (!(this_present_defaultAcl && that_present_defaultAcl))
         return false;
       if (!this.defaultAcl.equals(that.defaultAcl))
+        return false;
+    }
+
+    boolean this_present_replicationMax = true;
+    boolean that_present_replicationMax = true;
+    if (this_present_replicationMax || that_present_replicationMax) {
+      if (!(this_present_replicationMax && that_present_replicationMax))
+        return false;
+      if (this.replicationMax != that.replicationMax)
+        return false;
+    }
+
+    boolean this_present_replicationMin = true;
+    boolean that_present_replicationMin = true;
+    if (this_present_replicationMin || that_present_replicationMin) {
+      if (!(this_present_replicationMin && that_present_replicationMin))
+        return false;
+      if (this.replicationMin != that.replicationMin)
         return false;
     }
 
@@ -2221,16 +2221,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     if (present_fileBlockInfos)
       list.add(fileBlockInfos);
 
-    boolean present_replicationMax = true;
-    list.add(present_replicationMax);
-    if (present_replicationMax)
-      list.add(replicationMax);
-
-    boolean present_replicationMin = true;
-    list.add(present_replicationMin);
-    if (present_replicationMin)
-      list.add(replicationMin);
-
     boolean present_capability = true && (isSetCapability());
     list.add(present_capability);
     if (present_capability)
@@ -2270,6 +2260,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     list.add(present_defaultAcl);
     if (present_defaultAcl)
       list.add(defaultAcl);
+
+    boolean present_replicationMax = true;
+    list.add(present_replicationMax);
+    if (present_replicationMax)
+      list.add(replicationMax);
+
+    boolean present_replicationMin = true;
+    list.add(present_replicationMin);
+    if (present_replicationMin)
+      list.add(replicationMin);
 
     return list.hashCode();
   }
@@ -2502,26 +2502,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetReplicationMax()).compareTo(other.isSetReplicationMax());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetReplicationMax()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.replicationMax, other.replicationMax);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetReplicationMin()).compareTo(other.isSetReplicationMin());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetReplicationMin()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.replicationMin, other.replicationMin);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetCapability()).compareTo(other.isSetCapability());
     if (lastComparison != 0) {
       return lastComparison;
@@ -2598,6 +2578,26 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     }
     if (isSetDefaultAcl()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.defaultAcl, other.defaultAcl);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetReplicationMax()).compareTo(other.isSetReplicationMax());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetReplicationMax()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.replicationMax, other.replicationMax);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetReplicationMin()).compareTo(other.isSetReplicationMin());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetReplicationMin()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.replicationMin, other.replicationMin);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -2741,14 +2741,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       sb.append(this.fileBlockInfos);
     }
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("replicationMax:");
-    sb.append(this.replicationMax);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("replicationMin:");
-    sb.append(this.replicationMin);
-    first = false;
     if (isSetCapability()) {
       if (!first) sb.append(", ");
       sb.append("capability:");
@@ -2802,6 +2794,14 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     } else {
       sb.append(this.defaultAcl);
     }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("replicationMax:");
+    sb.append(this.replicationMax);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("replicationMin:");
+    sb.append(this.replicationMin);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -3054,22 +3054,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 24: // REPLICATION_MAX
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.replicationMax = iprot.readI32();
-              struct.setReplicationMaxIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 25: // REPLICATION_MIN
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.replicationMin = iprot.readI32();
-              struct.setReplicationMinIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
           case 1003: // CAPABILITY
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
               struct.capability = new alluxio.thrift.Capability();
@@ -3087,7 +3071,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 26: // TTL_ACTION
+          case 24: // TTL_ACTION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
               struct.setTtlActionIsSet(true);
@@ -3095,7 +3079,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 27: // MOUNT_ID
+          case 25: // MOUNT_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.mountId = iprot.readI64();
               struct.setMountIdIsSet(true);
@@ -3103,7 +3087,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 28: // IN_ALLUXIO_PERCENTAGE
+          case 26: // IN_ALLUXIO_PERCENTAGE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.inAlluxioPercentage = iprot.readI32();
               struct.setInAlluxioPercentageIsSet(true);
@@ -3111,7 +3095,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 29: // UFS_FINGERPRINT
+          case 27: // UFS_FINGERPRINT
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.ufsFingerprint = iprot.readString();
               struct.setUfsFingerprintIsSet(true);
@@ -3119,7 +3103,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 30: // ACL
+          case 28: // ACL
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
               struct.acl = new TAcl();
               struct.acl.read(iprot);
@@ -3128,11 +3112,27 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 31: // DEFAULT_ACL
+          case 29: // DEFAULT_ACL
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
               struct.defaultAcl = new TAcl();
               struct.defaultAcl.read(iprot);
               struct.setDefaultAclIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 1001: // REPLICATION_MAX
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.replicationMax = iprot.readI32();
+              struct.setReplicationMaxIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 1002: // REPLICATION_MIN
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.replicationMin = iprot.readI32();
+              struct.setReplicationMinIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -3248,12 +3248,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         }
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
-      oprot.writeI32(struct.replicationMax);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
-      oprot.writeI32(struct.replicationMin);
-      oprot.writeFieldEnd();
       if (struct.ttlAction != null) {
         oprot.writeFieldBegin(TTL_ACTION_FIELD_DESC);
         oprot.writeI32(struct.ttlAction.getValue());
@@ -3280,6 +3274,12 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.defaultAcl.write(oprot);
         oprot.writeFieldEnd();
       }
+      oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
+      oprot.writeI32(struct.replicationMax);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
+      oprot.writeI32(struct.replicationMin);
+      oprot.writeFieldEnd();
       if (struct.capability != null) {
         if (struct.isSetCapability()) {
           oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);
@@ -3374,34 +3374,34 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetFileBlockInfos()) {
         optionals.set(21);
       }
-      if (struct.isSetReplicationMax()) {
+      if (struct.isSetCapability()) {
         optionals.set(22);
       }
-      if (struct.isSetReplicationMin()) {
+      if (struct.isSetEncrypted()) {
         optionals.set(23);
       }
-      if (struct.isSetCapability()) {
+      if (struct.isSetTtlAction()) {
         optionals.set(24);
       }
-      if (struct.isSetEncrypted()) {
+      if (struct.isSetMountId()) {
         optionals.set(25);
       }
-      if (struct.isSetTtlAction()) {
+      if (struct.isSetInAlluxioPercentage()) {
         optionals.set(26);
       }
-      if (struct.isSetMountId()) {
+      if (struct.isSetUfsFingerprint()) {
         optionals.set(27);
       }
-      if (struct.isSetInAlluxioPercentage()) {
+      if (struct.isSetAcl()) {
         optionals.set(28);
       }
-      if (struct.isSetUfsFingerprint()) {
+      if (struct.isSetDefaultAcl()) {
         optionals.set(29);
       }
-      if (struct.isSetAcl()) {
+      if (struct.isSetReplicationMax()) {
         optionals.set(30);
       }
-      if (struct.isSetDefaultAcl()) {
+      if (struct.isSetReplicationMin()) {
         optionals.set(31);
       }
       oprot.writeBitSet(optionals, 32);
@@ -3483,12 +3483,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           }
         }
       }
-      if (struct.isSetReplicationMax()) {
-        oprot.writeI32(struct.replicationMax);
-      }
-      if (struct.isSetReplicationMin()) {
-        oprot.writeI32(struct.replicationMin);
-      }
       if (struct.isSetCapability()) {
         struct.capability.write(oprot);
       }
@@ -3512,6 +3506,12 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       if (struct.isSetDefaultAcl()) {
         struct.defaultAcl.write(oprot);
+      }
+      if (struct.isSetReplicationMax()) {
+        oprot.writeI32(struct.replicationMax);
+      }
+      if (struct.isSetReplicationMin()) {
+        oprot.writeI32(struct.replicationMin);
       }
     }
 
@@ -3627,47 +3627,47 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.setFileBlockInfosIsSet(true);
       }
       if (incoming.get(22)) {
-        struct.replicationMax = iprot.readI32();
-        struct.setReplicationMaxIsSet(true);
-      }
-      if (incoming.get(23)) {
-        struct.replicationMin = iprot.readI32();
-        struct.setReplicationMinIsSet(true);
-      }
-      if (incoming.get(24)) {
         struct.capability = new alluxio.thrift.Capability();
         struct.capability.read(iprot);
         struct.setCapabilityIsSet(true);
       }
-      if (incoming.get(25)) {
+      if (incoming.get(23)) {
         struct.encrypted = iprot.readBool();
         struct.setEncryptedIsSet(true);
       }
-      if (incoming.get(26)) {
+      if (incoming.get(24)) {
         struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
         struct.setTtlActionIsSet(true);
       }
-      if (incoming.get(27)) {
+      if (incoming.get(25)) {
         struct.mountId = iprot.readI64();
         struct.setMountIdIsSet(true);
       }
-      if (incoming.get(28)) {
+      if (incoming.get(26)) {
         struct.inAlluxioPercentage = iprot.readI32();
         struct.setInAlluxioPercentageIsSet(true);
       }
-      if (incoming.get(29)) {
+      if (incoming.get(27)) {
         struct.ufsFingerprint = iprot.readString();
         struct.setUfsFingerprintIsSet(true);
       }
-      if (incoming.get(30)) {
+      if (incoming.get(28)) {
         struct.acl = new TAcl();
         struct.acl.read(iprot);
         struct.setAclIsSet(true);
       }
-      if (incoming.get(31)) {
+      if (incoming.get(29)) {
         struct.defaultAcl = new TAcl();
         struct.defaultAcl.read(iprot);
         struct.setDefaultAclIsSet(true);
+      }
+      if (incoming.get(30)) {
+        struct.replicationMax = iprot.readI32();
+        struct.setReplicationMaxIsSet(true);
+      }
+      if (incoming.get(31)) {
+        struct.replicationMin = iprot.readI32();
+        struct.setReplicationMinIsSet(true);
       }
     }
   }

@@ -39,11 +39,17 @@ struct CreateFileTOptions {
   3: optional bool recursive
   4: optional i64 ttlNotUsed // deprecated from 1.8
   5: optional i16 mode
-  6: optional i32 replicationMax;
-  7: optional i32 replicationMin;
-  8: optional i32 replicationDurable;
-  9: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
-  10: optional FileSystemMasterCommonTOptions commonOptions
+  6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
+  7: optional FileSystemMasterCommonTOptions commonOptions
+  // ALLUXIO CS REPLACE
+  // 8: optional i32 replicationMax;
+  // 9: optional i32 replicationMin;
+  // 10: optional i32 replicationDurable;
+  // ALLUXIO CS WITH
+  1001: optional i32 replicationMax;
+  1002: optional i32 replicationMin;
+  1003: optional i32 replicationDurable;
+  // ALLUXIO CS END
 }
 struct CreateFileTResponse {}
 
@@ -166,18 +172,23 @@ struct FileInfo {
   21: string persistenceState
   22: bool mountPoint
   23: list<FileBlockInfo> fileBlockInfos
-  24: i32 replicationMax
-  25: i32 replicationMin
   // ALLUXIO CS ADD
   1003: optional common.Capability capability
   1004: bool encrypted
   // ALLUXIO CS END
-  26: common.TTtlAction ttlAction
-  27: i64 mountId
-  28: i32 inAlluxioPercentage
-  29: string ufsFingerprint
-  30: TAcl acl
-  31: TAcl defaultAcl
+  24: common.TTtlAction ttlAction
+  25: i64 mountId
+  26: i32 inAlluxioPercentage
+  27: string ufsFingerprint
+  28: TAcl acl
+  29: TAcl defaultAcl
+  // ALLUXIO CS REPLACE
+  // 30: i32 replicationMax
+  // 31: i32 replicationMin
+  // ALLUXIO CS WITH
+  1001: i32 replicationMax
+  1002: i32 replicationMin
+  // ALLUXIO CS END
 }
 
 struct MountTOptions {
@@ -248,10 +259,15 @@ struct SetAttributeTOptions {
   5: optional string group
   6: optional i16 mode
   7: optional bool recursive
-  8: optional i32 replicationMax;
-  9: optional i32 replicationMin;
-  10: optional common.TTtlAction ttlAction
-  11: optional FileSystemMasterCommonTOptions commonOptions
+  8: optional common.TTtlAction ttlAction
+  9: optional FileSystemMasterCommonTOptions commonOptions
+  // ALLUXIO CS REPLACE
+  // 10: optional i32 replicationMax;
+  // 11: optional i32 replicationMin;
+  // ALLUXIO CS WITH
+  1001: optional i32 replicationMax;
+  1002: optional i32 replicationMin;
+  // ALLUXIO CS END
 }
 struct SetAttributeTResponse {}
 
