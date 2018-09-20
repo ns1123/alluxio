@@ -45,5 +45,4 @@ public final class SpecificWorkerPolicyTest {
 
     Assert.assertEquals(address, policy.getWorkerForNextBlock(workerInfoList, Constants.GB));
   }
-
 }
