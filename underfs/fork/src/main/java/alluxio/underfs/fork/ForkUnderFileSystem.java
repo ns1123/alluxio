@@ -333,12 +333,12 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
           }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.values(), result));
     } catch (IOException e) {
-      return null;
+      return new alluxio.collections.Pair<>(null, null);
     }
 
     // If one of the getAcl result is non-null, we return that
     for (alluxio.collections.Pair<AccessControlList, DefaultAccessControlList> aclPair: result) {
-      if (aclPair != null) {
+      if (aclPair != null && aclPair.getFirst() != null) {
         return aclPair;
       }
     }
