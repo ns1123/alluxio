@@ -13261,13 +13261,13 @@ public final class Protocol {
   public interface RemoveBlockRequestOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // optional int64 block_id = 1001;
+    // optional int64 block_id = 1;
     /**
-     * <code>optional int64 block_id = 1001;</code>
+     * <code>optional int64 block_id = 1;</code>
      */
     boolean hasBlockId();
     /**
-     * <code>optional int64 block_id = 1001;</code>
+     * <code>optional int64 block_id = 1;</code>
      */
     long getBlockId();
   }
@@ -13275,7 +13275,7 @@ public final class Protocol {
    * Protobuf type {@code alluxio.proto.dataserver.RemoveBlockRequest}
    *
    * <pre>
-   * next available id: 1
+   * next available id: 2
    * </pre>
    */
   public static final class RemoveBlockRequest extends
@@ -13326,7 +13326,7 @@ public final class Protocol {
               }
               break;
             }
-            case 8008: {
+            case 8: {
               bitField0_ |= 0x00000001;
               blockId_ = input.readInt64();
               break;
@@ -13371,17 +13371,17 @@ public final class Protocol {
     }
 
     private int bitField0_;
-    // optional int64 block_id = 1001;
-    public static final int BLOCK_ID_FIELD_NUMBER = 1001;
+    // optional int64 block_id = 1;
+    public static final int BLOCK_ID_FIELD_NUMBER = 1;
     private long blockId_;
     /**
-     * <code>optional int64 block_id = 1001;</code>
+     * <code>optional int64 block_id = 1;</code>
      */
     public boolean hasBlockId() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional int64 block_id = 1001;</code>
+     * <code>optional int64 block_id = 1;</code>
      */
     public long getBlockId() {
       return blockId_;
@@ -13403,7 +13403,7 @@ public final class Protocol {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt64(1001, blockId_);
+        output.writeInt64(1, blockId_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -13416,7 +13416,7 @@ public final class Protocol {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(1001, blockId_);
+          .computeInt64Size(1, blockId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -13500,7 +13500,7 @@ public final class Protocol {
      * Protobuf type {@code alluxio.proto.dataserver.RemoveBlockRequest}
      *
      * <pre>
-     * next available id: 1
+     * next available id: 2
      * </pre>
      */
     public static final class Builder extends
@@ -13618,22 +13618,22 @@ public final class Protocol {
       }
       private int bitField0_;
 
-      // optional int64 block_id = 1001;
+      // optional int64 block_id = 1;
       private long blockId_ ;
       /**
-       * <code>optional int64 block_id = 1001;</code>
+       * <code>optional int64 block_id = 1;</code>
        */
       public boolean hasBlockId() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional int64 block_id = 1001;</code>
+       * <code>optional int64 block_id = 1;</code>
        */
       public long getBlockId() {
         return blockId_;
       }
       /**
-       * <code>optional int64 block_id = 1001;</code>
+       * <code>optional int64 block_id = 1;</code>
        */
       public Builder setBlockId(long value) {
         bitField0_ |= 0x00000001;
@@ -13642,7 +13642,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional int64 block_id = 1001;</code>
+       * <code>optional int64 block_id = 1;</code>
        */
       public Builder clearBlockId() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -13812,10 +13812,10 @@ public final class Protocol {
       "ocalBlockCreateResponse\022\014\n\004path\030\001 \001(\t\"v\n" +
       "\031LocalBlockCompleteRequest\022\020\n\010block_id\030\001" +
       " \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapability\030\351\007 \001(" +
-      "\0132\".alluxio.proto.security.Capability\"\'\n" +
-      "\022RemoveBlockRequest\022\021\n\010block_id\030\351\007 \001(\003*G" +
-      "\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_" +
-      "FILE\020\001\022\027\n\022UFS_FALLBACK_BLOCK\020\350\007"
+      "\0132\".alluxio.proto.security.Capability\"&\n" +
+      "\022RemoveBlockRequest\022\020\n\010block_id\030\001 \001(\003*G\n" +
+      "\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_F" +
+      "ILE\020\001\022\027\n\022UFS_FALLBACK_BLOCK\020\350\007"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

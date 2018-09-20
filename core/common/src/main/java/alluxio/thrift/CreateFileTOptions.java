@@ -43,11 +43,11 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
   private static final org.apache.thrift.protocol.TField RECURSIVE_FIELD_DESC = new org.apache.thrift.protocol.TField("recursive", org.apache.thrift.protocol.TType.BOOL, (short)3);
   private static final org.apache.thrift.protocol.TField TTL_NOT_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlNotUsed", org.apache.thrift.protocol.TType.I64, (short)4);
   private static final org.apache.thrift.protocol.TField MODE_FIELD_DESC = new org.apache.thrift.protocol.TField("mode", org.apache.thrift.protocol.TType.I16, (short)5);
-  private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
-  private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
-  private static final org.apache.thrift.protocol.TField REPLICATION_DURABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationDurable", org.apache.thrift.protocol.TType.I32, (short)1003);
-  private static final org.apache.thrift.protocol.TField TTL_ACTION_NOT_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlActionNotUsed", org.apache.thrift.protocol.TType.I32, (short)6);
-  private static final org.apache.thrift.protocol.TField COMMON_OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("commonOptions", org.apache.thrift.protocol.TType.STRUCT, (short)7);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)6);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)7);
+  private static final org.apache.thrift.protocol.TField REPLICATION_DURABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationDurable", org.apache.thrift.protocol.TType.I32, (short)8);
+  private static final org.apache.thrift.protocol.TField TTL_ACTION_NOT_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlActionNotUsed", org.apache.thrift.protocol.TType.I32, (short)9);
+  private static final org.apache.thrift.protocol.TField COMMON_OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("commonOptions", org.apache.thrift.protocol.TType.STRUCT, (short)10);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -73,15 +73,15 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     RECURSIVE((short)3, "recursive"),
     TTL_NOT_USED((short)4, "ttlNotUsed"),
     MODE((short)5, "mode"),
-    REPLICATION_MAX((short)1001, "replicationMax"),
-    REPLICATION_MIN((short)1002, "replicationMin"),
-    REPLICATION_DURABLE((short)1003, "replicationDurable"),
+    REPLICATION_MAX((short)6, "replicationMax"),
+    REPLICATION_MIN((short)7, "replicationMin"),
+    REPLICATION_DURABLE((short)8, "replicationDurable"),
     /**
      * 
      * @see alluxio.thrift.TTtlAction
      */
-    TTL_ACTION_NOT_USED((short)6, "ttlActionNotUsed"),
-    COMMON_OPTIONS((short)7, "commonOptions");
+    TTL_ACTION_NOT_USED((short)9, "ttlActionNotUsed"),
+    COMMON_OPTIONS((short)10, "commonOptions");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -106,15 +106,15 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
           return TTL_NOT_USED;
         case 5: // MODE
           return MODE;
-        case 1001: // REPLICATION_MAX
+        case 6: // REPLICATION_MAX
           return REPLICATION_MAX;
-        case 1002: // REPLICATION_MIN
+        case 7: // REPLICATION_MIN
           return REPLICATION_MIN;
-        case 1003: // REPLICATION_DURABLE
+        case 8: // REPLICATION_DURABLE
           return REPLICATION_DURABLE;
-        case 6: // TTL_ACTION_NOT_USED
+        case 9: // TTL_ACTION_NOT_USED
           return TTL_ACTION_NOT_USED;
-        case 7: // COMMON_OPTIONS
+        case 10: // COMMON_OPTIONS
           return COMMON_OPTIONS;
         default:
           return null;
@@ -1081,7 +1081,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 1001: // REPLICATION_MAX
+          case 6: // REPLICATION_MAX
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.replicationMax = iprot.readI32();
               struct.setReplicationMaxIsSet(true);
@@ -1089,7 +1089,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 1002: // REPLICATION_MIN
+          case 7: // REPLICATION_MIN
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.replicationMin = iprot.readI32();
               struct.setReplicationMinIsSet(true);
@@ -1097,7 +1097,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 1003: // REPLICATION_DURABLE
+          case 8: // REPLICATION_DURABLE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.replicationDurable = iprot.readI32();
               struct.setReplicationDurableIsSet(true);
@@ -1105,7 +1105,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // TTL_ACTION_NOT_USED
+          case 9: // TTL_ACTION_NOT_USED
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.ttlActionNotUsed = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
               struct.setTtlActionNotUsedIsSet(true);
@@ -1113,7 +1113,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 7: // COMMON_OPTIONS
+          case 10: // COMMON_OPTIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
               struct.commonOptions = new FileSystemMasterCommonTOptions();
               struct.commonOptions.read(iprot);
@@ -1162,20 +1162,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         oprot.writeI16(struct.mode);
         oprot.writeFieldEnd();
       }
-      if (struct.ttlActionNotUsed != null) {
-        if (struct.isSetTtlActionNotUsed()) {
-          oprot.writeFieldBegin(TTL_ACTION_NOT_USED_FIELD_DESC);
-          oprot.writeI32(struct.ttlActionNotUsed.getValue());
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.commonOptions != null) {
-        if (struct.isSetCommonOptions()) {
-          oprot.writeFieldBegin(COMMON_OPTIONS_FIELD_DESC);
-          struct.commonOptions.write(oprot);
-          oprot.writeFieldEnd();
-        }
-      }
       if (struct.isSetReplicationMax()) {
         oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
         oprot.writeI32(struct.replicationMax);
@@ -1190,6 +1176,20 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         oprot.writeFieldBegin(REPLICATION_DURABLE_FIELD_DESC);
         oprot.writeI32(struct.replicationDurable);
         oprot.writeFieldEnd();
+      }
+      if (struct.ttlActionNotUsed != null) {
+        if (struct.isSetTtlActionNotUsed()) {
+          oprot.writeFieldBegin(TTL_ACTION_NOT_USED_FIELD_DESC);
+          oprot.writeI32(struct.ttlActionNotUsed.getValue());
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.commonOptions != null) {
+        if (struct.isSetCommonOptions()) {
+          oprot.writeFieldBegin(COMMON_OPTIONS_FIELD_DESC);
+          struct.commonOptions.write(oprot);
+          oprot.writeFieldEnd();
+        }
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();

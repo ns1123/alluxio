@@ -60,16 +60,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final org.apache.thrift.protocol.TField PERSISTENCE_STATE_FIELD_DESC = new org.apache.thrift.protocol.TField("persistenceState", org.apache.thrift.protocol.TType.STRING, (short)21);
   private static final org.apache.thrift.protocol.TField MOUNT_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("mountPoint", org.apache.thrift.protocol.TType.BOOL, (short)22);
   private static final org.apache.thrift.protocol.TField FILE_BLOCK_INFOS_FIELD_DESC = new org.apache.thrift.protocol.TField("fileBlockInfos", org.apache.thrift.protocol.TType.LIST, (short)23);
-  private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
-  private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)24);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)25);
   private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1003);
   private static final org.apache.thrift.protocol.TField ENCRYPTED_FIELD_DESC = new org.apache.thrift.protocol.TField("encrypted", org.apache.thrift.protocol.TType.BOOL, (short)1004);
-  private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)24);
-  private static final org.apache.thrift.protocol.TField MOUNT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mountId", org.apache.thrift.protocol.TType.I64, (short)25);
-  private static final org.apache.thrift.protocol.TField IN_ALLUXIO_PERCENTAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("inAlluxioPercentage", org.apache.thrift.protocol.TType.I32, (short)26);
-  private static final org.apache.thrift.protocol.TField UFS_FINGERPRINT_FIELD_DESC = new org.apache.thrift.protocol.TField("ufsFingerprint", org.apache.thrift.protocol.TType.STRING, (short)27);
-  private static final org.apache.thrift.protocol.TField ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("acl", org.apache.thrift.protocol.TType.STRUCT, (short)28);
-  private static final org.apache.thrift.protocol.TField DEFAULT_ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("defaultAcl", org.apache.thrift.protocol.TType.STRUCT, (short)29);
+  private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)26);
+  private static final org.apache.thrift.protocol.TField MOUNT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mountId", org.apache.thrift.protocol.TType.I64, (short)27);
+  private static final org.apache.thrift.protocol.TField IN_ALLUXIO_PERCENTAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("inAlluxioPercentage", org.apache.thrift.protocol.TType.I32, (short)28);
+  private static final org.apache.thrift.protocol.TField UFS_FINGERPRINT_FIELD_DESC = new org.apache.thrift.protocol.TField("ufsFingerprint", org.apache.thrift.protocol.TType.STRING, (short)29);
+  private static final org.apache.thrift.protocol.TField ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("acl", org.apache.thrift.protocol.TType.STRUCT, (short)30);
+  private static final org.apache.thrift.protocol.TField DEFAULT_ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("defaultAcl", org.apache.thrift.protocol.TType.STRUCT, (short)31);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -134,20 +134,20 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     PERSISTENCE_STATE((short)21, "persistenceState"),
     MOUNT_POINT((short)22, "mountPoint"),
     FILE_BLOCK_INFOS((short)23, "fileBlockInfos"),
-    REPLICATION_MAX((short)1001, "replicationMax"),
-    REPLICATION_MIN((short)1002, "replicationMin"),
+    REPLICATION_MAX((short)24, "replicationMax"),
+    REPLICATION_MIN((short)25, "replicationMin"),
     CAPABILITY((short)1003, "capability"),
     ENCRYPTED((short)1004, "encrypted"),
     /**
      * 
      * @see alluxio.thrift.TTtlAction
      */
-    TTL_ACTION((short)24, "ttlAction"),
-    MOUNT_ID((short)25, "mountId"),
-    IN_ALLUXIO_PERCENTAGE((short)26, "inAlluxioPercentage"),
-    UFS_FINGERPRINT((short)27, "ufsFingerprint"),
-    ACL((short)28, "acl"),
-    DEFAULT_ACL((short)29, "defaultAcl");
+    TTL_ACTION((short)26, "ttlAction"),
+    MOUNT_ID((short)27, "mountId"),
+    IN_ALLUXIO_PERCENTAGE((short)28, "inAlluxioPercentage"),
+    UFS_FINGERPRINT((short)29, "ufsFingerprint"),
+    ACL((short)30, "acl"),
+    DEFAULT_ACL((short)31, "defaultAcl");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -206,25 +206,25 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           return MOUNT_POINT;
         case 23: // FILE_BLOCK_INFOS
           return FILE_BLOCK_INFOS;
-        case 1001: // REPLICATION_MAX
+        case 24: // REPLICATION_MAX
           return REPLICATION_MAX;
-        case 1002: // REPLICATION_MIN
+        case 25: // REPLICATION_MIN
           return REPLICATION_MIN;
         case 1003: // CAPABILITY
           return CAPABILITY;
         case 1004: // ENCRYPTED
           return ENCRYPTED;
-        case 24: // TTL_ACTION
+        case 26: // TTL_ACTION
           return TTL_ACTION;
-        case 25: // MOUNT_ID
+        case 27: // MOUNT_ID
           return MOUNT_ID;
-        case 26: // IN_ALLUXIO_PERCENTAGE
+        case 28: // IN_ALLUXIO_PERCENTAGE
           return IN_ALLUXIO_PERCENTAGE;
-        case 27: // UFS_FINGERPRINT
+        case 29: // UFS_FINGERPRINT
           return UFS_FINGERPRINT;
-        case 28: // ACL
+        case 30: // ACL
           return ACL;
-        case 29: // DEFAULT_ACL
+        case 31: // DEFAULT_ACL
           return DEFAULT_ACL;
         default:
           return null;
@@ -3054,7 +3054,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 1001: // REPLICATION_MAX
+          case 24: // REPLICATION_MAX
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.replicationMax = iprot.readI32();
               struct.setReplicationMaxIsSet(true);
@@ -3062,7 +3062,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 1002: // REPLICATION_MIN
+          case 25: // REPLICATION_MIN
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.replicationMin = iprot.readI32();
               struct.setReplicationMinIsSet(true);
@@ -3087,7 +3087,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 24: // TTL_ACTION
+          case 26: // TTL_ACTION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
               struct.setTtlActionIsSet(true);
@@ -3095,7 +3095,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 25: // MOUNT_ID
+          case 27: // MOUNT_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.mountId = iprot.readI64();
               struct.setMountIdIsSet(true);
@@ -3103,7 +3103,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 26: // IN_ALLUXIO_PERCENTAGE
+          case 28: // IN_ALLUXIO_PERCENTAGE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.inAlluxioPercentage = iprot.readI32();
               struct.setInAlluxioPercentageIsSet(true);
@@ -3111,7 +3111,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 27: // UFS_FINGERPRINT
+          case 29: // UFS_FINGERPRINT
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.ufsFingerprint = iprot.readString();
               struct.setUfsFingerprintIsSet(true);
@@ -3119,7 +3119,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 28: // ACL
+          case 30: // ACL
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
               struct.acl = new TAcl();
               struct.acl.read(iprot);
@@ -3128,7 +3128,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 29: // DEFAULT_ACL
+          case 31: // DEFAULT_ACL
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
               struct.defaultAcl = new TAcl();
               struct.defaultAcl.read(iprot);
@@ -3248,6 +3248,12 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         }
         oprot.writeFieldEnd();
       }
+      oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
+      oprot.writeI32(struct.replicationMax);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
+      oprot.writeI32(struct.replicationMin);
+      oprot.writeFieldEnd();
       if (struct.ttlAction != null) {
         oprot.writeFieldBegin(TTL_ACTION_FIELD_DESC);
         oprot.writeI32(struct.ttlAction.getValue());
@@ -3274,12 +3280,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.defaultAcl.write(oprot);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
-      oprot.writeI32(struct.replicationMax);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
-      oprot.writeI32(struct.replicationMin);
-      oprot.writeFieldEnd();
       if (struct.capability != null) {
         if (struct.isSetCapability()) {
           oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);

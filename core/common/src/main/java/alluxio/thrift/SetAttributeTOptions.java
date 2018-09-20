@@ -45,10 +45,10 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
   private static final org.apache.thrift.protocol.TField GROUP_FIELD_DESC = new org.apache.thrift.protocol.TField("group", org.apache.thrift.protocol.TType.STRING, (short)5);
   private static final org.apache.thrift.protocol.TField MODE_FIELD_DESC = new org.apache.thrift.protocol.TField("mode", org.apache.thrift.protocol.TType.I16, (short)6);
   private static final org.apache.thrift.protocol.TField RECURSIVE_FIELD_DESC = new org.apache.thrift.protocol.TField("recursive", org.apache.thrift.protocol.TType.BOOL, (short)7);
-  private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
-  private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
-  private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)8);
-  private static final org.apache.thrift.protocol.TField COMMON_OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("commonOptions", org.apache.thrift.protocol.TType.STRUCT, (short)9);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)8);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)9);
+  private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)10);
+  private static final org.apache.thrift.protocol.TField COMMON_OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("commonOptions", org.apache.thrift.protocol.TType.STRUCT, (short)11);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -77,14 +77,14 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
     GROUP((short)5, "group"),
     MODE((short)6, "mode"),
     RECURSIVE((short)7, "recursive"),
-    REPLICATION_MAX((short)1001, "replicationMax"),
-    REPLICATION_MIN((short)1002, "replicationMin"),
+    REPLICATION_MAX((short)8, "replicationMax"),
+    REPLICATION_MIN((short)9, "replicationMin"),
     /**
      * 
      * @see alluxio.thrift.TTtlAction
      */
-    TTL_ACTION((short)8, "ttlAction"),
-    COMMON_OPTIONS((short)9, "commonOptions");
+    TTL_ACTION((short)10, "ttlAction"),
+    COMMON_OPTIONS((short)11, "commonOptions");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -113,13 +113,13 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
           return MODE;
         case 7: // RECURSIVE
           return RECURSIVE;
-        case 1001: // REPLICATION_MAX
+        case 8: // REPLICATION_MAX
           return REPLICATION_MAX;
-        case 1002: // REPLICATION_MIN
+        case 9: // REPLICATION_MIN
           return REPLICATION_MIN;
-        case 8: // TTL_ACTION
+        case 10: // TTL_ACTION
           return TTL_ACTION;
-        case 9: // COMMON_OPTIONS
+        case 11: // COMMON_OPTIONS
           return COMMON_OPTIONS;
         default:
           return null;
@@ -1184,7 +1184,7 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 1001: // REPLICATION_MAX
+          case 8: // REPLICATION_MAX
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.replicationMax = iprot.readI32();
               struct.setReplicationMaxIsSet(true);
@@ -1192,7 +1192,7 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 1002: // REPLICATION_MIN
+          case 9: // REPLICATION_MIN
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.replicationMin = iprot.readI32();
               struct.setReplicationMinIsSet(true);
@@ -1200,7 +1200,7 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 8: // TTL_ACTION
+          case 10: // TTL_ACTION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
               struct.setTtlActionIsSet(true);
@@ -1208,7 +1208,7 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 9: // COMMON_OPTIONS
+          case 11: // COMMON_OPTIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
               struct.commonOptions = new FileSystemMasterCommonTOptions();
               struct.commonOptions.read(iprot);
@@ -1271,6 +1271,16 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
         oprot.writeBool(struct.recursive);
         oprot.writeFieldEnd();
       }
+      if (struct.isSetReplicationMax()) {
+        oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
+        oprot.writeI32(struct.replicationMax);
+        oprot.writeFieldEnd();
+      }
+      if (struct.isSetReplicationMin()) {
+        oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
+        oprot.writeI32(struct.replicationMin);
+        oprot.writeFieldEnd();
+      }
       if (struct.ttlAction != null) {
         if (struct.isSetTtlAction()) {
           oprot.writeFieldBegin(TTL_ACTION_FIELD_DESC);
@@ -1284,16 +1294,6 @@ public class SetAttributeTOptions implements org.apache.thrift.TBase<SetAttribut
           struct.commonOptions.write(oprot);
           oprot.writeFieldEnd();
         }
-      }
-      if (struct.isSetReplicationMax()) {
-        oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
-        oprot.writeI32(struct.replicationMax);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetReplicationMin()) {
-        oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
-        oprot.writeI32(struct.replicationMin);
-        oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
