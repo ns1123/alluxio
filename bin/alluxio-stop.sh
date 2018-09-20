@@ -17,21 +17,6 @@ if [[ "$-" == *x* ]]; then
 fi
 BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 
-# ALLUXIO CS REPLACE
-# USAGE="Usage: alluxio-stop.sh [-h] [component]
-# Where component is one of:
-#   all               \tStop all masters, proxies, and workers.
-#   local             \tStop all processes locally.
-#   master            \tStop local primary master.
-#   secondary_master  \tStop local secondary master.
-#   masters           \tStop masters on master nodes.
-#   proxy             \tStop local proxy.
-#   proxies           \tStop proxies on master and worker nodes.
-#   worker            \tStop local worker.
-#   workers           \tStop workers on worker nodes.
-#
-# -h  display this help."
-# ALLUXIO CS WITH
 USAGE="Usage: alluxio-stop.sh [-h] [component]
 Where component is one of:
   all               \tStop all masters, proxies, and workers.
@@ -49,9 +34,7 @@ Where component is one of:
   workers           \tStop workers on worker nodes.
 
 -h  display this help."
-# ALLUXIO CS END
 
-# ALLUXIO CS ADD
 stop_job_master() {
   ${LAUNCHER} "${BIN}/alluxio" "killAll" "alluxio.master.AlluxioJobMaster"
 }
@@ -68,7 +51,6 @@ stop_job_workers() {
   ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-stop.sh" "job_worker"
 }
 
-# ALLUXIO CS END
 stop_master() {
   if [[ ${ALLUXIO_MASTER_SECONDARY} == "true" ]]; then
     ${LAUNCHER} "${BIN}/alluxio" "killAll" "alluxio.master.AlluxioSecondaryMaster"
@@ -108,28 +90,21 @@ WHAT=${1:--h}
 case "${WHAT}" in
   all)
     stop_proxies
-    # ALLUXIO CS ADD
     stop_job_workers
-    # ALLUXIO CS END
     stop_workers
-    # ALLUXIO CS ADD
     stop_job_masters
-    # ALLUXIO CS END
     stop_masters
     ;;
   local)
     stop_proxy
-    # ALLUXIO CS ADD
     stop_job_worker
     stop_job_master
-    # ALLUXIO CS END
     stop_worker
     ALLUXIO_MASTER_SECONDARY=true
     stop_master
     ALLUXIO_MASTER_SECONDARY=false
     stop_master
     ;;
-# ALLUXIO CS ADD
   job_master)
     stop_job_master
     ;;
@@ -142,7 +117,6 @@ case "${WHAT}" in
   job_workers)
     stop_job_workers
     ;;
-# ALLUXIO CS END
   master)
     stop_master
     ;;

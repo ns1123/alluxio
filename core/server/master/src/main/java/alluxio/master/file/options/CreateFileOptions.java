@@ -28,10 +28,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions> {
   private long mBlockSizeBytes;
-  // ALLUXIO CS ADD
   private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
+  // ALLUXIO CS ADD
   private boolean mEncrypted;
   // ALLUXIO CS END
   private boolean mCacheable;
@@ -58,10 +58,10 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       mBlockSizeBytes = options.getBlockSizeBytes();
       mPersisted = options.isPersisted();
       mRecursive = options.isRecursive();
-      // ALLUXIO CS ADD
       mReplicationDurable = options.getReplicationDurable();
       mReplicationMax = options.getReplicationMax();
       mReplicationMin = options.getReplicationMin();
+      // ALLUXIO CS ADD
       mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
       // ALLUXIO CS END
       if (SecurityUtils.isAuthenticationEnabled()) {
@@ -79,10 +79,10 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   private CreateFileOptions() {
     super();
     mBlockSizeBytes = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
-    // ALLUXIO CS ADD
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    // ALLUXIO CS ADD
     mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
     // ALLUXIO CS END
     mMode.applyFileUMask();
@@ -96,7 +96,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     return mBlockSizeBytes;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @return the number of block replication for durable write
    */
@@ -118,6 +117,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     return mReplicationMin;
   }
 
+  // ALLUXIO CS ADD
   /**
    * @return true if the file is encrypted, false otherwise
    */
@@ -142,7 +142,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     return this;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @param replicationDurable the number of block replication for durable write
    * @return the updated options object
@@ -170,6 +169,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     return this;
   }
 
+  // ALLUXIO CS ADD
   /**
    * @param encrypted the encrypted flag value to use
    * @return the updated options object
@@ -207,10 +207,10 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     }
     CreateFileOptions that = (CreateFileOptions) o;
     return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
-        // ALLUXIO CS ADD
         && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
+        // ALLUXIO CS ADD
         && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
         && Objects.equal(mCacheable, that.mCacheable);
@@ -219,7 +219,8 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   @Override
   public int hashCode() {
     // ALLUXIO CS REPLACE
-    // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mCacheable);
+    // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
+    //      mReplicationMax, mReplicationMin, mCacheable);
     // ALLUXIO CS WITH
     return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
         mReplicationMax, mReplicationMin, mEncrypted, mCacheable);
@@ -229,10 +230,10 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   @Override
   public String toString() {
     return toStringHelper().add("blockSizeBytes", mBlockSizeBytes)
-        // ALLUXIO CS ADD
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
+        // ALLUXIO CS ADD
         .add("encrypted", mEncrypted)
         // ALLUXIO CS END
         .add("cacheable", mCacheable).toString();

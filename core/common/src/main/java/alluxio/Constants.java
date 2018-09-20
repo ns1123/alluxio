@@ -85,9 +85,7 @@ public final class Constants {
   public static final long BLOCK_MASTER_WORKER_SERVICE_VERSION = 2;
   public static final long BLOCK_WORKER_CLIENT_SERVICE_VERSION = 2;
   public static final long FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION = 2;
-  // ALLUXIO CS ADD
   public static final long FILE_SYSTEM_MASTER_JOB_SERVICE_VERSION = 2;
-  // ALLUXIO CS END
   public static final long FILE_SYSTEM_MASTER_WORKER_SERVICE_VERSION = 2;
   public static final long FILE_SYSTEM_WORKER_CLIENT_SERVICE_VERSION = 2;
   public static final long META_MASTER_CLIENT_SERVICE_VERSION = 2;
@@ -109,9 +107,7 @@ public final class Constants {
   public static final String BLOCK_MASTER_CLIENT_SERVICE_NAME = "BlockMasterClient";
   public static final String BLOCK_MASTER_WORKER_SERVICE_NAME = "BlockMasterWorker";
   public static final String FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME = "FileSystemMasterClient";
-  // ALLUXIO CS ADD
   public static final String FILE_SYSTEM_MASTER_JOB_SERVICE_NAME = "FileSystemMasterJob";
-  // ALLUXIO CS END
   public static final String FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME = "FileSystemMasterWorker";
   // TODO(binfan): set META_MASTER_CLIENT_SERVICE_NAME to "MetaMasterClient" after 2.0.
   // Its value is "MetaMaster" for backwards compatibility so 1.7 clients can talk to 1.8 MetaMaster
@@ -190,14 +186,6 @@ public final class Constants {
   // Output stream flushed signal
   public static final String FLUSHED_SIGNAL = "FLUSHED";
 
-  // ALLUXIO CS ADD
-  // Replication
-  public static final int REPLICATION_MAX_INFINITY = -1;
-
-  // Persistence
-  public static final int PERSISTENCE_INVALID_JOB_ID = -1;
-  public static final String PERSISTENCE_INVALID_UFS_PATH = "";
-
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";
   public static final long JOB_MASTER_WORKER_SERVICE_VERSION = 1;
@@ -212,6 +200,16 @@ public final class Constants {
   public static final int JOB_DEFAULT_WORKER_DATA_PORT = JOB_DEFAULT_WORKER_PORT + 1;
   public static final int JOB_DEFAULT_WORKER_WEB_PORT = JOB_DEFAULT_WORKER_PORT + 2;
 
+  public static final String JOB_JOURNAL_NAME = "JobJournal";
+
+  // Replication
+  public static final int REPLICATION_MAX_INFINITY = -1;
+
+  // Persistence
+  public static final int PERSISTENCE_INVALID_JOB_ID = -1;
+  public static final String PERSISTENCE_INVALID_UFS_PATH = "";
+
+  // ALLUXIO CS ADD
   // Call home
   public static final String CALL_HOME_MASTER_NAME = "CallHomeMaster";
 
@@ -227,7 +225,6 @@ public final class Constants {
   public static final long PRIVILEGE_MASTER_CLIENT_SERVICE_VERSION = 1;
 
   // Journal
-  public static final String JOB_JOURNAL_NAME = "JobJournal";
 
   // Kerberos
   public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";

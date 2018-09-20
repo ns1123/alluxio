@@ -29,17 +29,17 @@ public final class HeartbeatContext {
   public static final Class<? extends HeartbeatTimer> SLEEPING_TIMER_CLASS = SleepingTimer.class;
 
   // Names of different heartbeat executors.
-  // ALLUXIO CS ADD
   public static final String JOB_MASTER_LOST_WORKER_DETECTION = "Job Master Lost Worker Detection";
   public static final String JOB_WORKER_COMMAND_HANDLING =
       "Job Worker Command Handling";
+  // ALLUXIO CS ADD
   public static final String MASTER_CALL_HOME = "Master Call Home";
-  public static final String MASTER_DIAGNOSTIC = "Master Diagnostic";
   public static final String MASTER_LICENSE_CHECK = "Master License Check";
+  public static final String MASTER_DIAGNOSTIC = "Master Diagnostic";
+  // ALLUXIO CS END
   public static final String MASTER_PERSISTENCE_CHECKER = "Master Persistence Checker";
   public static final String MASTER_PERSISTENCE_SCHEDULER = "Master Persistence Scheduler";
   public static final String MASTER_REPLICATION_CHECK = "Master Replication Check";
-  // ALLUXIO CS END
   public static final String MASTER_BLOCK_INTEGRITY_CHECK = "Master Block Integrity Check";
   public static final String MASTER_CLUSTER_METRICS_UPDATER = "Master Cluster Metrics Updater";
   public static final String MASTER_CHECKPOINT_SCHEDULING = "Master Checkpoint Scheduling";
@@ -62,15 +62,15 @@ public final class HeartbeatContext {
   static {
     sTimerClasses = new HashMap<>();
     // ALLUXIO CS ADD
-    sTimerClasses.put(JOB_MASTER_LOST_WORKER_DETECTION, SLEEPING_TIMER_CLASS);
-    sTimerClasses.put(JOB_WORKER_COMMAND_HANDLING, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_CALL_HOME, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_DIAGNOSTIC, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_LICENSE_CHECK, SLEEPING_TIMER_CLASS);
+    // ALLUXIO CS END
     sTimerClasses.put(MASTER_PERSISTENCE_CHECKER, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_PERSISTENCE_SCHEDULER, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_REPLICATION_CHECK, SLEEPING_TIMER_CLASS);
-    // ALLUXIO CS END
+    sTimerClasses.put(JOB_MASTER_LOST_WORKER_DETECTION, SLEEPING_TIMER_CLASS);
+    sTimerClasses.put(JOB_WORKER_COMMAND_HANDLING, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_BLOCK_INTEGRITY_CHECK, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_CLUSTER_METRICS_UPDATER, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_CHECKPOINT_SCHEDULING, SLEEPING_TIMER_CLASS);

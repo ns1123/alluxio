@@ -41,10 +41,8 @@ public final class SetAttributeOptions {
   private String mGroup;
   private Mode mMode;
   private boolean mRecursive;
-  // ALLUXIO CS ADD
   private Integer mReplicationMax;
   private Integer mReplicationMin;
-  // ALLUXIO CS END
 
   /**
    * @return the default {@link SetAttributeOptions}
@@ -63,10 +61,8 @@ public final class SetAttributeOptions {
     mGroup = null;
     mMode = null;
     mRecursive = false;
-    // ALLUXIO CS ADD
     mReplicationMax = null;
     mReplicationMin = null;
-    // ALLUXIO CS END
   }
 
   /**
@@ -137,7 +133,6 @@ public final class SetAttributeOptions {
     return mRecursive;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @return the maximum number of block replication
    */
@@ -152,7 +147,6 @@ public final class SetAttributeOptions {
     return mReplicationMin;
   }
 
-  // ALLUXIO CS END
   /**
    * @param options the common options
    * @return the updated options object
@@ -251,7 +245,6 @@ public final class SetAttributeOptions {
     return this;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @param replicationMax the maximum number of block replication
    * @return the updated options object
@@ -275,7 +268,6 @@ public final class SetAttributeOptions {
     return this;
   }
 
-  // ALLUXIO CS END
   /**
    * @return Thrift representation of the options
    */
@@ -301,14 +293,12 @@ public final class SetAttributeOptions {
     if (mMode != null) {
       options.setMode(mMode.toShort());
     }
-    // ALLUXIO CS ADD
     if (mReplicationMax != null) {
       options.setReplicationMax(mReplicationMax);
     }
     if (mReplicationMin != null) {
       options.setReplicationMin(mReplicationMin);
     }
-    // ALLUXIO CS END
     options.setRecursive(mRecursive);
     options.setCommonOptions(mCommonOptions.toThrift());
     return options;
@@ -331,20 +321,15 @@ public final class SetAttributeOptions {
         && Objects.equal(mOwner, that.mOwner)
         && Objects.equal(mGroup, that.mGroup)
         && Objects.equal(mMode, that.mMode)
-        // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
-        // ALLUXIO CS END
         && Objects.equal(mRecursive, that.mRecursive);
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner,
-        // ALLUXIO CS ADD
-        mReplicationMax, mReplicationMin,
-        // ALLUXIO CS END
-        mGroup, mMode, mRecursive, mCommonOptions);
+        mReplicationMax, mReplicationMin, mGroup, mMode, mRecursive, mCommonOptions);
   }
 
   @Override
@@ -359,10 +344,8 @@ public final class SetAttributeOptions {
         .add("group", mGroup)
         .add("mode", mMode)
         .add("recursive", mRecursive)
-        // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
-        // ALLUXIO CS END
         .toString();
   }
 }

@@ -53,7 +53,6 @@ public final class MasterContext {
     mPort = port;
   }
 
-  // ALLUXIO CS ADD
   /**
    * Create a master context to be used for job masters.
    *
@@ -68,7 +67,6 @@ public final class MasterContext {
     mPort = -1;
   }
 
-  // ALLUXIO CS END
   /**
    * @return the journal system to use for tracking master operations
    */

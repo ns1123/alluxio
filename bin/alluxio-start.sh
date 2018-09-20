@@ -19,39 +19,6 @@ BIN=$(cd "$( dirname "$( readlink "$0" || echo "$0" )" )"; pwd)
 
 #start up alluxio
 
-# ALLUXIO CS REPLACE
-# USAGE="Usage: alluxio-start.sh [-hNwm] [-i backup] ACTION [MOPT] [-f]
-# Where ACTION is one of:
-#   all [MOPT]         \tStart all masters, proxies, and workers.
-#   local [MOPT]       \tStart all processes locally.
-#   master             \tStart the local master on this node.
-#   secondary_master   \tStart the local secondary master on this node.
-#   masters            \tStart masters on master nodes.
-#   proxy              \tStart the proxy on this node.
-#   proxies            \tStart proxies on master and worker nodes.
-#   safe               \tScript will run continuously and start the master if it's not running.
-#   worker [MOPT]      \tStart a worker on this node.
-#   workers [MOPT]     \tStart workers on worker nodes.
-#   restart_worker     \tRestart a failed worker on this node.
-#   restart_workers    \tRestart any failed workers on worker nodes.
-#
-# MOPT (Mount Option) is one of:
-#   Mount    \tMount the configured RamFS if it is not already mounted.
-#   SudoMount\tMount the configured RamFS using sudo if it is not already mounted.
-#   NoMount  \tDo not mount the configured RamFS.
-#            \tNotice: to avoid sudo requirement but using tmpFS in Linux,
-#              set ALLUXIO_RAM_FOLDER=/dev/shm on each worker and use NoMount.
-#   NoMount is assumed if MOPT is not specified.
-#
-# -f         format Journal, UnderFS Data and Workers Folder on master.
-# -h         display this help.
-# -i backup  a journal backup to restore the master from. The backup should be
-#            a URI path within the root under filesystem, e.g.
-#            hdfs://mycluster/alluxio_backups/alluxio-journal-YYYY-MM-DD-timestamp.gz.
-# -m         launch monitor process to ensure the target processes come up.
-# -N         do not try to kill previous running processes before starting new ones.
-# -w         wait for processes to end before returning."
-# ALLUXIO CS WITH
 USAGE="Usage: alluxio-start.sh [-hNwm] [-i backup] ACTION [MOPT] [-f]
 Where ACTION is one of:
   all [MOPT]         \tStart all masters, proxies, and workers.
@@ -91,7 +58,6 @@ MOPT (Mount Option) is one of:
 Supported environment variables:
 
 ALLUXIO_JOB_WORKER_COUNT - identifies how many job workers to start per node (default = 1)"
-# ALLUXIO CS END
 
 ensure_dirs() {
   if [[ ! -d "${ALLUXIO_LOGS_DIR}" ]]; then
@@ -202,7 +168,6 @@ stop() {
   ${BIN}/alluxio-stop.sh $1
 }
 
-# ALLUXIO CS ADD
 start_job_master() {
   if [[ "$1" == "-f" ]]; then
     ${LAUNCHER} "${BIN}/alluxio" format
@@ -247,7 +212,6 @@ start_job_workers() {
   ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" "job_worker"
 }
 
-# ALLUXIO CS END
 start_logserver() {
     if [[ ! -d "${ALLUXIO_LOGSERVER_LOGS_DIR}" ]]; then
         echo "ALLUXIO_LOGSERVER_LOGS_DIR: ${ALLUXIO_LOGSERVER_LOGS_DIR}"
@@ -543,14 +507,10 @@ main() {
   case "${ACTION}" in
     all)
       start_masters "${FORMAT}"
-      # ALLUXIO CS ADD
       start_job_masters
-      # ALLUXIO CS END
       sleep 2
       start_workers "${MOPT}"
-      # ALLUXIO CS ADD
       start_job_workers
-      # ALLUXIO CS END
       start_proxies
       ;;
     local)
@@ -567,17 +527,12 @@ main() {
       fi
       # ALLUXIO CS END
       ALLUXIO_MASTER_SECONDARY=false
-      # ALLUXIO CS ADD
       start_job_master
-      # ALLUXIO CS END
       sleep 2
       start_worker "${MOPT}"
-      # ALLUXIO CS ADD
       start_job_worker
-      # ALLUXIO CS END
       start_proxy
       ;;
-# ALLUXIO CS ADD
     job_master)
       start_job_master
       ;;
@@ -590,7 +545,6 @@ main() {
     job_workers)
       start_job_workers
       ;;
-# ALLUXIO CS END
     master)
       start_master "${FORMAT}"
       ;;

@@ -1064,7 +1064,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
     setPinned(rpcContext, inodePath, pinned, System.currentTimeMillis());
   }
 
-  // ALLUXIO CS ADD
   /**
    * Sets the min and/or max replication level of an inode. If the inode is a directory, the state
    * will be set recursively. Arguments replicationMax and replicationMin can be null if they are
@@ -1077,8 +1076,9 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
    * @param opTimeMs the operation time
    * @throws FileDoesNotExistException if inode does not exist
    */
-  public void setReplication(RpcContext rpcContext, LockedInodePath inodePath, Integer replicationMax,
-      Integer replicationMin, long opTimeMs) throws FileDoesNotExistException {
+  public void setReplication(RpcContext rpcContext, LockedInodePath inodePath,
+      Integer replicationMax, Integer replicationMin, long opTimeMs)
+      throws FileDoesNotExistException {
     Preconditions.checkArgument(replicationMin != null || replicationMax != null,
         PreconditionMessage.INVALID_REPLICATION_MAX_MIN_VALUE_NULL);
     Preconditions.checkArgument(replicationMin == null || replicationMin >= 0,
@@ -1128,7 +1128,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
     return java.util.Collections.unmodifiableSet(mState.getReplicationLimitedFileIds());
   }
 
-  // ALLUXIO CS END
   /**
    * @return the set of file ids which are pinned
    */
