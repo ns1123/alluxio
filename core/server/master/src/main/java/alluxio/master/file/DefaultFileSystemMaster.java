@@ -3049,17 +3049,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
     if (!inodeExists || loadDirectChildren) {
       try {
-<<<<<<< HEAD
         loadMetadataAndJournal(rpcContext, inodePath, options);
-      } catch (Exception e) {
-||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
-        loadMetadataInternal(rpcContext, inodePath, options);
-      } catch (Exception e) {
-=======
-        loadMetadataInternal(rpcContext, inodePath, options);
       } catch (IOException | InvalidPathException | FileDoesNotExistException | BlockInfoException
           | FileAlreadyCompletedException | InvalidFileSizeException | AccessControlException e) {
->>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
         // NOTE, this may be expected when client tries to get info (e.g. exists()) for a file
         // existing neither in Alluxio nor UFS.
         LOG.debug("Failed to load metadata for path from UFS: {}", inodePath.getUri());
@@ -3421,16 +3413,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         try {
           List<AclEntry> entries = new ArrayList<>(inode.getACL().getEntries());
           if (inode.isDirectory()) {
-<<<<<<< HEAD
             InodeDirectory inodeDirectory = (InodeDirectory) inode;
-            ufs.setAcl(ufsUri, inodeDirectory.getDefaultACL());
-||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
-            InodeDirectoryView inodeDirectory = (InodeDirectoryView) inode;
-            ufs.setAcl(ufsUri, inodeDirectory.getDefaultACL());
-=======
-            InodeDirectoryView inodeDirectory = (InodeDirectoryView) inode;
             entries.addAll(inodeDirectory.getDefaultACL().getEntries());
->>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
           }
           ufs.setAclEntries(ufsUri, entries);
         } catch (IOException e) {

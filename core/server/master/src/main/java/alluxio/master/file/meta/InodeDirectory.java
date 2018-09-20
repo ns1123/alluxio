@@ -236,18 +236,12 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
   }
 
   @Override
-<<<<<<< HEAD
   public DefaultAccessControlList getDefaultACL() {
     return mDefaultAcl;
   }
 
   @Override
-  public void setDefaultACL(DefaultAccessControlList acl) {
-||||||| parent of c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
-  public void setDefaultACL(DefaultAccessControlList acl) {
-=======
   public InodeDirectory setDefaultACL(DefaultAccessControlList acl) {
->>>>>>> c8ec22a449... [ALLUXIO-3305] Fix loadMetadata bug related to ACL   (#7813)
     mDefaultAcl = acl;
     return getThis();
   }
