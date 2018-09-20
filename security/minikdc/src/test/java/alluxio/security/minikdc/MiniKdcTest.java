@@ -159,7 +159,6 @@ public final class MiniKdcTest extends KerberosSecurityTestcase {
       Assert.assertEquals(principal + "@" + kdc.getRealm(),
           subject.getPrincipals().iterator().next().getName());
       loginContext.logout();
-
     } finally {
       if (loginContext != null) {
         loginContext.logout();
