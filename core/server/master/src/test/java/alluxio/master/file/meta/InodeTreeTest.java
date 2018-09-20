@@ -309,7 +309,7 @@ public final class InodeTreeTest {
         .setGroup(TEST_GROUP).setMode(TEST_DIR_MODE).setRecursive(true);
     // create nested directory /nested/test
     InodeTree.CreatePathResult createResult = createPath(mTree, NESTED_URI, dirOptions);
-    List<InodeView> created = createResult.getCreated();
+    List<Inode<?>> created = createResult.getCreated();
     // 2 created directories
     assertEquals(2, created.size());
     assertEquals("nested", created.get(0).getName());
