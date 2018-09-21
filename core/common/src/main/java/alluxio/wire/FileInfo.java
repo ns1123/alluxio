@@ -632,13 +632,13 @@ public final class FileInfo implements Serializable {
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS REPLACE
-        // mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
-        // TtlAction.toThrift(mTtlAction), mMountId, mInAlluxioPercentage, mUfsFingerprint, tAcl,
-        // tDefaultAcl);
+        // mPersistenceState, mMountPoint, fileBlockInfos, TtlAction.toThrift(mTtlAction), mMountId,
+        // mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl, mReplicationMax,
+        // mReplicationMin);
         // ALLUXIO CS WITH
-        mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
-        mEncrypted, TtlAction.toThrift(mTtlAction), mMountId, mInAlluxioPercentage,
-        mUfsFingerprint, tAcl, tDefaultAcl);
+        mPersistenceState, mMountPoint, fileBlockInfos, mEncrypted, TtlAction.toThrift(mTtlAction),
+        mMountId, mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl, mReplicationMax,
+        mReplicationMin);
         // ALLUXIO CS END
     // ALLUXIO CS ADD
     if (mCapability != null) {
