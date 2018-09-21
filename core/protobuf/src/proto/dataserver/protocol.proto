@@ -205,11 +205,8 @@ message LocalBlockCompleteRequest {
   optional alluxio.proto.security.Capability capability = 1001;
   // ALLUXIO CS END
 }
-// ALLUXIO CS REPLACE
+
 // next available id: 2
-// ALLUXIO CS WITH
-// next available id: 1
-// ALLUXIO CS END
 message RemoveBlockRequest {
   // ALLUXIO CS REPLACE
   // optional int64 block_id = 1;

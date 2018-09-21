@@ -13287,11 +13287,7 @@ public final class Protocol {
    * Protobuf type {@code alluxio.proto.dataserver.RemoveBlockRequest}
    *
    * <pre>
-   * ALLUXIO CS REPLACE
    * next available id: 2
-   * ALLUXIO CS WITH
-   * next available id: 1
-   * ALLUXIO CS END
    * </pre>
    */
   public static final class RemoveBlockRequest extends
@@ -13528,11 +13524,7 @@ public final class Protocol {
      * Protobuf type {@code alluxio.proto.dataserver.RemoveBlockRequest}
      *
      * <pre>
-     * ALLUXIO CS REPLACE
      * next available id: 2
-     * ALLUXIO CS WITH
-     * next available id: 1
-     * ALLUXIO CS END
      * </pre>
      */
     public static final class Builder extends
