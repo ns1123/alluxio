@@ -195,9 +195,7 @@ public enum ExceptionMessage {
   INVALID_ARGS_NUM_INSUFFICIENT("Command {0} requires at least {1} arguments ({2} provided)"),
   INVALID_ARGS_NUM_TOO_MANY("Command {0} requires at most {1} arguments ({2} provided)"),
   INVALID_ARGS_SORT_FIELD("Invalid sort option `{0}` for --sort"),
-  // ALLUXIO CS ADD
   INVALID_ARG_TYPE("Arg {0} is not type {1}"),
-  // ALLUXIO CS END
 
   // extension shell
   INVALID_EXTENSION_NOT_JAR("File {0} does not have the extension JAR"),
@@ -274,11 +272,6 @@ public enum ExceptionMessage {
   KEY_VALUE_TOO_LARGE("Unable to put key-value pair: key {0} bytes, value {1} bytes"),
   KEY_ALREADY_EXISTS("The input key already exists in the key-value store"),
   INVALID_KEY_VALUE_STORE_URI("The URI {0} exists but is not a key-value store"),
-  // ALLUXIO CS ADD
-
-  // job manager
-  JOB_DEFINITION_DOES_NOT_EXIST("The job definition for config {0} does not exist"),
-  JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
 
   // move job
   MOVE_CANNOT_BE_TO_SUBDIRECTORY("Cannot move because {0} is a prefix of {1}"),
@@ -289,16 +282,17 @@ public enum ExceptionMessage {
       "{0} already exists. The overwrite flag cannot be used to overwrite directories"),
   MOVE_TO_FILE_AS_DIRECTORY("Cannot move to {0}. {1} is a file, not a directory"),
 
+  // job service
+  NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK(
+      "Cannot find a local block worker to replicate blockId {0,number,#}"),
+  // ALLUXIO CS ADD
+
   // JDBC UFS
   SQL_UNEXPECTED_COLUMN_COUNT("Expected {0} columns in SQL result, but received {1}."),
   SQL_UNEXPECTED_COLUMN_TYPE("For column {0}, expected column type {1}, but received {2}."),
   SQL_UNSUPPORTED_COLUMN_TYPE("Unsupported column type {0}, for column {1}."),
   SQL_UNSUPPORTED_PARTITION_COLUMN_TYPE("Unsupported partition column type {0}, for db type {1}."),
   SQL_NUM_PARTITIONS_TOO_LARGE("Range of partition column {0} does not support {1} partitions."),
-
-  // job service
-  NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK(
-      "Cannot find a local block worker to replicate blockId {0,number,#}"),
 
   // Raft journal
   FAILED_RAFT_BOOTSTRAP("Failed to bootstrap raft cluster with addresses {0}: {1}"),
@@ -307,8 +301,11 @@ public enum ExceptionMessage {
   // security
   CAPABILITY_EXPIRED("No capability content found. The capability might have expired"),
   PRIVILEGE_DENIED("User {0} does not have privilege {1}"),
-
   // ALLUXIO CS END
+
+  // job manager
+  JOB_DEFINITION_DOES_NOT_EXIST("The job definition for config {0} does not exist"),
+  JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
 
   // block worker
   FAILED_COMMIT_BLOCK_TO_MASTER("Failed to commit block with blockId {0,number,#} to master"),

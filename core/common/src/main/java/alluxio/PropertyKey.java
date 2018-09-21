@@ -3122,7 +3122,51 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setScope(Scope.NONE)
           .build();
 
+  //
+  // Master related CS properties
+  //
+  public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)
+          .setDefaultValue(1000)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS)
+          .setDefaultValue(Constants.SECOND_MS)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
+      new Builder(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS)
+          .setDefaultValue(0)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_MAX_INTERVAL_MS)
+          .setDefaultValue(Constants.HOUR_MS)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
+      new Builder(Name.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)
+          .setDefaultValue(Constants.DAY_MS)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)
+          .setDefaultValue(1000)
+          .build();
+  public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
+      new Builder(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS)
+          .setDefaultValue(60000)
+          .build();
+
+  //
+  // User related CS properties
+  //
+  public static final PropertyKey USER_FILE_REPLICATION_MAX =
+      new Builder(Name.USER_FILE_REPLICATION_MAX)
+          .setDefaultValue(-1 /* negative value means infinity */)
+          .build();
+  public static final PropertyKey USER_FILE_REPLICATION_MIN =
+      new Builder(Name.USER_FILE_REPLICATION_MIN).setDefaultValue(0).build();
+  public static final PropertyKey USER_FILE_REPLICATION_DURABLE =
+      new Builder(Name.USER_FILE_REPLICATION_DURABLE).setDefaultValue(1).build();
   // ALLUXIO CS ADD
+
   public static final PropertyKey LIB_DIR =
       new Builder(Name.LIB_DIR).setDefaultValue(String.format("${%s}/lib", Name.HOME)).build();
 
@@ -3169,30 +3213,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "the embedded journal")
           .setDefaultValue(String.format("localhost:${%s}", Name.MASTER_EMBEDDED_JOURNAL_PORT))
           .build();
-  public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
-      new Builder(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)
-          .setDefaultValue(1000)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
-      new Builder(Name.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS)
-          .setDefaultValue(Constants.SECOND_MS)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
-      new Builder(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS)
-          .setDefaultValue(0)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_MAX_INTERVAL_MS =
-      new Builder(Name.MASTER_PERSISTENCE_MAX_INTERVAL_MS)
-          .setDefaultValue(Constants.HOUR_MS)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
-      new Builder(Name.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)
-          .setDefaultValue(Constants.DAY_MS)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
-      new Builder(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)
-          .setDefaultValue(1000)
-          .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT =
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT)
           .setDescription(
@@ -3237,10 +3257,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "state persistence across cluster restarts.")
           .setDefaultValue("DISK")
           .build();
-  public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
-      new Builder(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS)
-          .setDefaultValue(60000)
-          .build();
   public static final PropertyKey MASTER_RPC_ADDRESSES =
       new Builder(Name.MASTER_RPC_ADDRESSES).setDescription(
           "A list of comma-separated host:port RPC addresses where the client should look for "
@@ -3279,14 +3295,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey USER_ENCRYPTION_CHUNK_SIZE_BYTES =
       new Builder(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES).setDefaultValue("64KB").setIsHidden(true)
           .build();
-  public static final PropertyKey USER_FILE_REPLICATION_MAX =
-      new Builder(Name.USER_FILE_REPLICATION_MAX)
-          .setDefaultValue(-1 /* negative value means infinity */)
-          .build();
-  public static final PropertyKey USER_FILE_REPLICATION_MIN =
-      new Builder(Name.USER_FILE_REPLICATION_MIN).setDefaultValue(0).build();
-  public static final PropertyKey USER_FILE_REPLICATION_DURABLE =
-      new Builder(Name.USER_FILE_REPLICATION_DURABLE).setDefaultValue(1).build();
   public static final PropertyKey USER_FILE_UFS_TIER_ENABLED =
       new Builder(Name.USER_FILE_UFS_TIER_ENABLED)
           .setDescription("When workers run out of available memory, whether the client can skip "
@@ -3460,26 +3468,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue(String.format("${%s}/lib/native", Name.HOME)).build();
 
   //
-  // Job service
+  // Job Service
   //
-  public static final PropertyKey JOB_MASTER_CLIENT_THREADS =
-      new Builder(Name.JOB_MASTER_CLIENT_THREADS).setDefaultValue(1024).build();
-  public static final PropertyKey JOB_MASTER_FINISHED_JOB_RETENTION_MS =
-      new Builder(Name.JOB_MASTER_FINISHED_JOB_RETENTION_MS).setDefaultValue(300000).build();
-  public static final PropertyKey JOB_MASTER_JOB_CAPACITY =
-      new Builder(Name.JOB_MASTER_JOB_CAPACITY).setDefaultValue(100000).build();
-  public static final PropertyKey JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
-      new Builder(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS).setDefaultValue(1000).build();
-  public static final PropertyKey JOB_MASTER_WORKER_TIMEOUT_MS =
-      new Builder(Name.JOB_MASTER_WORKER_TIMEOUT_MS).setDefaultValue(60000).build();
-  public static final PropertyKey JOB_MASTER_BIND_HOST =
-      new Builder(Name.JOB_MASTER_BIND_HOST).setDefaultValue("0.0.0.0").build();
-  public static final PropertyKey JOB_MASTER_HOSTNAME =
-      new Builder(Name.JOB_MASTER_HOSTNAME).setDefaultValue("${alluxio.master.hostname}").build();
-  public static final PropertyKey JOB_MASTER_LOST_WORKER_INTERVAL_MS =
-      new Builder(Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS).setDefaultValue(1000).build();
-  public static final PropertyKey JOB_MASTER_RPC_PORT =
-      new Builder(Name.JOB_MASTER_RPC_PORT).setDefaultValue(20001).build();
+  public static final PropertyKey JOB_WORKER_SECURE_RPC_PORT =
+      new Builder(Name.JOB_WORKER_SECURE_RPC_PORT).setDefaultValue(30004).build();
+
+  //
+  // Job Service Embedded Journal
+  //
   public static final PropertyKey JOB_MASTER_RPC_ADDRESSES =
       new Builder(Name.JOB_MASTER_RPC_ADDRESSES).build();
   public static final PropertyKey JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES =
@@ -3494,30 +3490,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription(
               "The port to use for embedded journal communication with other job masters.")
           .setDefaultValue(20003).build();
-  public static final PropertyKey JOB_MASTER_WEB_BIND_HOST =
-      new Builder(Name.JOB_MASTER_WEB_BIND_HOST).setDefaultValue("0.0.0.0").build();
-  public static final PropertyKey JOB_MASTER_WEB_HOSTNAME =
-      new Builder(Name.JOB_MASTER_WEB_HOSTNAME)
-          .setDefaultValue("${alluxio.job.master.hostname}")
-          .build();
-  public static final PropertyKey JOB_MASTER_WEB_PORT =
-      new Builder(Name.JOB_MASTER_WEB_PORT).setDefaultValue(20002).build();
-  public static final PropertyKey JOB_WORKER_BIND_HOST =
-      new Builder(Name.JOB_WORKER_BIND_HOST).setDefaultValue("0.0.0.0").build();
-  public static final PropertyKey JOB_WORKER_DATA_PORT =
-      new Builder(Name.JOB_WORKER_DATA_PORT).setDefaultValue(30002).build();
-  public static final PropertyKey JOB_WORKER_RPC_PORT =
-      new Builder(Name.JOB_WORKER_RPC_PORT).setDefaultValue(30001).build();
-  public static final PropertyKey JOB_WORKER_SECURE_RPC_PORT =
-      new Builder(Name.JOB_WORKER_SECURE_RPC_PORT).setDefaultValue(30004).build();
-  public static final PropertyKey JOB_WORKER_WEB_BIND_HOST =
-      new Builder(Name.JOB_WORKER_WEB_BIND_HOST).setDefaultValue("0.0.0.0").build();
-  public static final PropertyKey JOB_WORKER_WEB_PORT =
-      new Builder(Name.JOB_WORKER_WEB_PORT).setDefaultValue(30003).build();
-  public static final PropertyKey ZOOKEEPER_JOB_ELECTION_PATH =
-      new Builder(Name.ZOOKEEPER_JOB_ELECTION_PATH).setDefaultValue("/job_election").build();
-  public static final PropertyKey ZOOKEEPER_JOB_LEADER_PATH =
-      new Builder(Name.ZOOKEEPER_JOB_LEADER_PATH).setDefaultValue("/job_leader").build();
 
   //
   // License check
@@ -3559,8 +3531,53 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER,
         PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
   }
-
   // ALLUXIO CS END
+
+  //
+  // Job service
+  //
+  public static final PropertyKey JOB_MASTER_CLIENT_THREADS =
+      new Builder(Name.JOB_MASTER_CLIENT_THREADS).setDefaultValue(1024).build();
+  public static final PropertyKey JOB_MASTER_FINISHED_JOB_RETENTION_MS =
+      new Builder(Name.JOB_MASTER_FINISHED_JOB_RETENTION_MS).setDefaultValue(300000).build();
+  public static final PropertyKey JOB_MASTER_JOB_CAPACITY =
+      new Builder(Name.JOB_MASTER_JOB_CAPACITY).setDefaultValue(100000).build();
+  public static final PropertyKey JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      new Builder(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS).setDefaultValue(1000).build();
+  public static final PropertyKey JOB_MASTER_WORKER_TIMEOUT_MS =
+      new Builder(Name.JOB_MASTER_WORKER_TIMEOUT_MS).setDefaultValue(60000).build();
+  public static final PropertyKey JOB_MASTER_BIND_HOST =
+      new Builder(Name.JOB_MASTER_BIND_HOST).setDefaultValue("0.0.0.0").build();
+  public static final PropertyKey JOB_MASTER_HOSTNAME =
+      new Builder(Name.JOB_MASTER_HOSTNAME).setDefaultValue("${alluxio.master.hostname}").build();
+  public static final PropertyKey JOB_MASTER_LOST_WORKER_INTERVAL_MS =
+      new Builder(Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS).setDefaultValue(1000).build();
+  public static final PropertyKey JOB_MASTER_RPC_PORT =
+      new Builder(Name.JOB_MASTER_RPC_PORT).setDefaultValue(20001).build();
+  public static final PropertyKey JOB_MASTER_WEB_BIND_HOST =
+      new Builder(Name.JOB_MASTER_WEB_BIND_HOST).setDefaultValue("0.0.0.0").build();
+  public static final PropertyKey JOB_MASTER_WEB_HOSTNAME =
+      new Builder(Name.JOB_MASTER_WEB_HOSTNAME)
+          .setDefaultValue("${alluxio.job.master.hostname}")
+          .build();
+  public static final PropertyKey JOB_MASTER_WEB_PORT =
+      new Builder(Name.JOB_MASTER_WEB_PORT).setDefaultValue(20002).build();
+  public static final PropertyKey JOB_WORKER_BIND_HOST =
+      new Builder(Name.JOB_WORKER_BIND_HOST).setDefaultValue("0.0.0.0").build();
+  public static final PropertyKey JOB_WORKER_DATA_PORT =
+      new Builder(Name.JOB_WORKER_DATA_PORT).setDefaultValue(30002).build();
+  public static final PropertyKey JOB_WORKER_RPC_PORT =
+      new Builder(Name.JOB_WORKER_RPC_PORT).setDefaultValue(30001).build();
+  public static final PropertyKey JOB_WORKER_WEB_BIND_HOST =
+      new Builder(Name.JOB_WORKER_WEB_BIND_HOST).setDefaultValue("0.0.0.0").build();
+  public static final PropertyKey JOB_WORKER_WEB_PORT =
+      new Builder(Name.JOB_WORKER_WEB_PORT).setDefaultValue(30003).build();
+
+  public static final PropertyKey ZOOKEEPER_JOB_ELECTION_PATH =
+      new Builder(Name.ZOOKEEPER_JOB_ELECTION_PATH).setDefaultValue("/job_election").build();
+  public static final PropertyKey ZOOKEEPER_JOB_LEADER_PATH =
+      new Builder(Name.ZOOKEEPER_JOB_LEADER_PATH).setDefaultValue("/job_leader").build();
+
   //
   // JVM Monitor related properties
   //
@@ -3855,7 +3872,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.embedded.journal.storage.level";
     // ALLUXIO CS END
     public static final String MASTER_KEYTAB_KEY_FILE = "alluxio.master.keytab.file";
-    // ALLUXIO CS ADD
     public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
         "alluxio.master.persistence.checker.interval.ms";
     public static final String MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
@@ -3868,7 +3884,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.persistence.max.interval.ms";
     public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
         "alluxio.master.persistence.scheduler.interval.ms";
-    // ALLUXIO CS END
     public static final String MASTER_LOG_CONFIG_REPORT_HEARTBEAT_INTERVAL =
         "alluxio.master.log.config.report.heartbeat.interval";
     // ALLUXIO CS ADD
@@ -3880,10 +3895,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_PERIODIC_BLOCK_INTEGRITY_CHECK_INTERVAL =
         "alluxio.master.periodic.block.integrity.check.interval";
     public static final String MASTER_PRINCIPAL = "alluxio.master.principal";
-    // ALLUXIO CS ADD
     public static final String MASTER_REPLICATION_CHECK_INTERVAL_MS =
         "alluxio.master.replication.check.interval.ms";
-    // ALLUXIO CS END
     public static final String MASTER_RETRY = "alluxio.master.retry";
     public static final String MASTER_RPC_PORT = "alluxio.master.port";
     public static final String MASTER_SERVING_THREAD_TIMEOUT =
@@ -4122,11 +4135,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String USER_FILE_LOAD_TTL_ACTION =
         "alluxio.user.file.load.ttl.action";
     public static final String USER_FILE_READ_TYPE_DEFAULT = "alluxio.user.file.readtype.default";
-    // ALLUXIO CS ADD
     public static final String USER_FILE_REPLICATION_MAX = "alluxio.user.file.replication.max";
     public static final String USER_FILE_REPLICATION_MIN = "alluxio.user.file.replication.min";
     public static final String USER_FILE_REPLICATION_DURABLE =
         "alluxio.user.file.replication.durable";
+    // ALLUXIO CS ADD
     public static final String USER_FILE_UFS_TIER_ENABLED = "alluxio.user.file.ufs.tier.enabled";
     // ALLUXIO CS END
     public static final String USER_FILE_SEEK_BUFFER_SIZE_BYTES =
@@ -4240,8 +4253,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SECURITY_LOGIN_IMPERSONATION_USERNAME =
         "alluxio.security.login.impersonation.username";
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
-
     // ALLUXIO CS ADD
+
     public static final String SECURITY_AUTHORIZATION_PLUGIN_NAME =
         "alluxio.security.authorization.plugin.name";
     public static final String SECURITY_AUTHORIZATION_PLUGIN_PATHS =
@@ -4336,6 +4349,37 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String NATIVE_LIBRARY_PATH = "alluxio.native.library.path";
 
     //
+    // Job Service
+    //
+    public static final String JOB_WORKER_SECURE_RPC_PORT = "alluxio.job.worker.secure.rpc.port";
+
+    //
+    // Job Service Embedded Journal
+    //
+    public static final String JOB_MASTER_RPC_ADDRESSES = "alluxio.job.master.rpc.addresses";
+    public static final String JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES =
+        "alluxio.job.master.embedded.journal.addresses";
+    public static final String JOB_MASTER_EMBEDDED_JOURNAL_PORT =
+        "alluxio.job.master.embedded.journal.port";
+
+    //
+    // License check
+    //
+    public static final String LICENSE_FILE = "alluxio.license.file";
+
+    //
+    // Call home
+    //
+    public static final String CALL_HOME_ENABLED = "alluxio.call.home.enabled";
+
+    //
+    // Diagnostic logs
+    //
+    public static final String DIAGNOSTIC_LOG_INTERVAL_MS = "alluxio.master.diagnostic.log.interval.ms";
+    public static final String DIAGNOSTIC_LOG_LEVEL = "alluxio.master.diagnostic.log.level";
+    // ALLUXIO CS END
+
+    //
     // Job service
     //
     public static final String JOB_MASTER_CLIENT_THREADS =
@@ -4353,11 +4397,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String JOB_MASTER_LOST_WORKER_INTERVAL_MS =
         "alluxio.job.master.lost.worker.interval.ms";
     public static final String JOB_MASTER_RPC_PORT = "alluxio.job.master.rpc.port";
-    public static final String JOB_MASTER_RPC_ADDRESSES = "alluxio.job.master.rpc.addresses";
-    public static final String JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES =
-        "alluxio.job.master.embedded.journal.addresses";
-    public static final String JOB_MASTER_EMBEDDED_JOURNAL_PORT =
-        "alluxio.job.master.embedded.journal.port";
     public static final String JOB_MASTER_WEB_BIND_HOST = "alluxio.job.master.web.bind.host";
     public static final String JOB_MASTER_WEB_HOSTNAME = "alluxio.job.master.web.hostname";
     public static final String JOB_MASTER_WEB_PORT = "alluxio.job.master.web.port";
@@ -4365,30 +4404,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String JOB_WORKER_BIND_HOST = "alluxio.job.worker.bind.host";
     public static final String JOB_WORKER_DATA_PORT = "alluxio.job.worker.data.port";
     public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
-    public static final String JOB_WORKER_SECURE_RPC_PORT = "alluxio.job.worker.secure.rpc.port";
     public static final String JOB_WORKER_WEB_BIND_HOST = "alluxio.job.worker.web.bind.host";
     public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
 
     public static final String ZOOKEEPER_JOB_ELECTION_PATH = "alluxio.zookeeper.job.election.path";
     public static final String ZOOKEEPER_JOB_LEADER_PATH = "alluxio.zookeeper.job.leader.path";
 
-    //
-    // License check
-    //
-    public static final String LICENSE_FILE = "alluxio.license.file";
-
-    //
-    // Call home
-    //
-    public static final String CALL_HOME_ENABLED = "alluxio.call.home.enabled";
-
-    //
-    // Diagnostic logs
-    //
-    public static final String DIAGNOSTIC_LOG_INTERVAL_MS = "alluxio.master.diagnostic.log.interval.ms";
-    public static final String DIAGNOSTIC_LOG_LEVEL = "alluxio.master.diagnostic.log.level";
-
-    // ALLUXIO CS END
     //
     // JVM Monitor related properties
     //

@@ -61,5 +61,4 @@ public class LicenseSecret {
   public String toString() {
     return Objects.toStringHelper(this).add("token", mToken).toString();
   }
-
 }

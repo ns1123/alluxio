@@ -58,10 +58,8 @@ public final class MetricsSystem {
    * An enum of supported instance type.
    */
   public enum InstanceType {
-    // ALLUXIO CS ADD
     JOB_MASTER("JobMaster"),
     JOB_WORKER("JobWorker"),
-    // ALLUXIO CS END
     MASTER("Master"),
     WORKER("Worker"),
     CLUSTER("Cluster"),
@@ -209,12 +207,10 @@ public final class MetricsSystem {
         return getProxyMetricName(name);
       case WORKER:
         return getWorkerMetricName(name);
-      // ALLUXIO CS ADD
       case JOB_MASTER:
         return getJobMasterMetricName(name);
       case JOB_WORKER:
         return getJobWorkerMetricName(name);
-      // ALLUXIO CS END
       default:
         throw new IllegalStateException("Unknown process type");
     }
@@ -283,7 +279,6 @@ public final class MetricsSystem {
   public static String getClusterMetricName(String name) {
     return Joiner.on(".").join(CLUSTER, name);
   }
-  // ALLUXIO CS ADD
 
   /**
    * Builds metric registry names for the job master instance. The pattern is instance.metricName.
@@ -305,7 +300,6 @@ public final class MetricsSystem {
   public static String getJobWorkerMetricName(String name) {
     return getMetricNameWithUniqueId(InstanceType.JOB_WORKER, name);
   }
-  // ALLUXIO CS END
 
   /**
    * Builds unique metric registry names with unique ID (set to host name). The pattern is

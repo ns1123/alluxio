@@ -116,7 +116,8 @@ public final class StatCommand extends AbstractFileSystemCommand {
 
   @Override
   public String getDescription() {
-    return "Displays the status info for the specific job. Use -v flag to display the status of every task";
+    return "Displays the status info for the specific job. Use -v flag to display the status of "
+        + "every task";
   }
 
   @Override

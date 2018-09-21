@@ -47,7 +47,7 @@ public interface PrimarySelector {
       String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_LEADER_PATH);
       return new PrimarySelectorClient(zkAddress, zkElectionPath, zkLeaderPath);
     }
-    // ALLUXIO CS ADD
+
     /**
      * @return a job master primary selector based on zookeeper configuration
      */
@@ -57,7 +57,6 @@ public interface PrimarySelector {
       String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
       return new PrimarySelectorClient(zkAddress, zkElectionPath, zkLeaderPath);
     }
-    // ALLUXIO CS END
 
     private Factory() {} // Not intended for instantiation.
   }

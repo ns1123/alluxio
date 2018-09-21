@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * This software and all information contained herein is confidential and proprietary to Alluxio,
- * and is protected by copyright and other applicable laws in the United States and other
- * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
- * the express written permission of Alluxio.
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.job.move;
@@ -137,7 +139,8 @@ public final class MoveDefinitionSelectExecutorsTest {
     List<MoveCommand> moveCommandsWorker2 =
         Lists.newArrayList(new MoveCommand("/dir/src2", "/dst/src2"));
     ImmutableMap<WorkerInfo, List<MoveCommand>> expected =
-        ImmutableMap.of(JOB_WORKERS.get(0), moveCommandsWorker0, JOB_WORKERS.get(2), moveCommandsWorker2);
+        ImmutableMap.of(JOB_WORKERS.get(0), moveCommandsWorker0, JOB_WORKERS.get(2),
+            moveCommandsWorker2);
     Assert.assertEquals(expected, assignMoves("/dir", "/dst"));
   }
 
@@ -288,7 +291,8 @@ public final class MoveDefinitionSelectExecutorsTest {
     List<MoveCommand> moveCommandsWorker2 =
         Lists.newArrayList(new MoveCommand("/src/file1", "/dst/file1"));
     ImmutableMap<WorkerInfo, List<MoveCommand>> expected =
-        ImmutableMap.of(JOB_WORKERS.get(1), moveCommandsWorker1, JOB_WORKERS.get(2), moveCommandsWorker2);
+        ImmutableMap.of(JOB_WORKERS.get(1), moveCommandsWorker1, JOB_WORKERS.get(2),
+            moveCommandsWorker2);
     Assert.assertEquals(expected, assignMoves(new MoveConfig("/src", "/dst", "THROUGH", true)));
   }
 

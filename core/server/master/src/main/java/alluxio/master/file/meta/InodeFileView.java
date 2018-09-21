@@ -20,7 +20,6 @@ import java.util.List;
  */
 public interface InodeFileView extends InodeView {
 
-  // ALLUXIO CS ADD
   /**
    * @return the job id of the job persisting this file
    */
@@ -46,6 +45,7 @@ public interface InodeFileView extends InodeView {
    */
   String getTempUfsPath();
 
+  // ALLUXIO CS ADD
   /**
    * @return true if the file is encrypted, false otherwise
    */

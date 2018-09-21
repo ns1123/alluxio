@@ -185,7 +185,6 @@ public class URIStatus {
     return mInfo.getOwner();
   }
 
-  // ALLUXIO CS ADD
   /**
    * @return the maximum number of replicas of the entity referenced by this uri, mutable
    */
@@ -200,6 +199,7 @@ public class URIStatus {
     return mInfo.getReplicationMin();
   }
 
+  // ALLUXIO CS ADD
   /**
    * @return the capability
    */

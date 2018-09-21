@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * This software and all information contained herein is confidential and proprietary to Alluxio,
- * and is protected by copyright and other applicable laws in the United States and other
- * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
- * the express written permission of Alluxio.
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.worker;
@@ -13,11 +15,9 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.concurrent.Executors;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.network.thrift.ThriftUtils;
-import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.JobUfsManager;
 import alluxio.underfs.UfsManager;
@@ -63,7 +63,11 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
   private TransportProvider mTransportProvider;
 
   /** Thread pool for thrift. */
-  private AuthenticatedThriftServer mThriftServer;
+  // ALLUXIO CS REPLACE
+  // private TThreadPoolServer mThriftServer;
+  // ALLUXIO CS WITH
+  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
+  // ALLUXIO CS END
 
   /** Server socket for thrift. */
   private TServerSocket mThriftServerSocket;
@@ -99,7 +103,7 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
           NetworkAddressUtils.getBindAddress(ServiceType.JOB_WORKER_WEB), this);
 
       // Setup Thrift server
-      mTransportProvider = TransportProvider.Factory.create();
+      mTransportProvider = alluxio.security.authentication.TransportProvider.Factory.create();
       mThriftServerSocket = createThriftServerSocket();
       mRPCPort = ThriftUtils.getThriftPort(mThriftServerSocket);
       // Reset worker RPC port based on assigned port number
@@ -141,7 +145,9 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
   public boolean waitForReady(int timeoutMs) {
     try {
       CommonUtils.waitFor(this + " to start",
-          () -> mThriftServer.isServing() && mWebServer != null && mWebServer.getServer().isRunning(),
+          () -> mThriftServer.isServing()
+              && mWebServer != null
+              && mWebServer.getServer().isRunning(),
           WaitForOptions.defaults().setTimeoutMs(timeoutMs));
       return true;
     } catch (InterruptedException e) {
@@ -196,8 +202,10 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC))
         .setRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_RPC_PORT))
         .setDataPort(Configuration.getInt(PropertyKey.JOB_WORKER_DATA_PORT))
-        .setWebPort(Configuration.getInt(PropertyKey.JOB_WORKER_WEB_PORT))
-        .setSecureRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_SECURE_RPC_PORT));
+        // ALLUXIO CS ADD
+        .setSecureRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_SECURE_RPC_PORT))
+        // ALLUXIO CS END
+        .setWebPort(Configuration.getInt(PropertyKey.JOB_WORKER_WEB_PORT));
   }
 
   private void startWorkers() throws Exception {
@@ -226,11 +234,16 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
   }
 
   /**
-   * Helper method to create a {@link AuthenticatedThriftServer} for handling incoming RPC requests.
+   *
+   * Helper method to create a thrift server for handling incoming RPC requests.
    *
    * @return a thrift server
    */
-  private AuthenticatedThriftServer createThriftServer() {
+  // ALLUXIO CS REPLACE
+  // private TThreadPoolServer createThriftServer() {
+  // ALLUXIO CS WITH
+  private alluxio.security.authentication.AuthenticatedThriftServer createThriftServer() {
+  // ALLUXIO CS END
     int minWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MAX);
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
@@ -254,8 +267,14 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    args.executorService(Executors.createDefaultExecutorServiceWithSecurityOn(args));
-    return new AuthenticatedThriftServer(args);
+    // ALLUXIO CS REPLACE
+    // return new TThreadPoolServer(args);
+    // ALLUXIO CS WITH
+    args.executorService(alluxio.concurrent.Executors
+        .createDefaultExecutorServiceWithSecurityOn(args));
+
+    return new alluxio.security.authentication.AuthenticatedThriftServer(args);
+    // ALLUXIO CS END
   }
 
   /**

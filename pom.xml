@@ -205,8 +205,8 @@
     <module>keyvalue</module>
     <module>logserver</module>
     <module>minicluster</module>
-    <!-- ALLUXIO CS ADD -->
     <module>job</module>
+    <!-- ALLUXIO CS ADD -->
     <module>kms</module>
     <module>security</module>
     <!-- ALLUXIO CS END -->

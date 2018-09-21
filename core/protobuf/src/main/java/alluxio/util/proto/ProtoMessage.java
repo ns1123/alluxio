@@ -65,6 +65,7 @@ public final class ProtoMessage {
   public ProtoMessage(Protocol.SaslMessage saslMessage) {
     mMessage = saslMessage;
   }
+  // ALLUXIO CS END
 
   /**
    * @param removeBlockRequest the remove block request message
@@ -79,8 +80,6 @@ public final class ProtoMessage {
   public ProtoMessage(alluxio.proto.journal.Journal.JournalEntry entry) {
     mMessage = entry;
   }
-
-  // ALLUXIO CS END
 
   /**
    * @param response the response
@@ -205,8 +204,8 @@ public final class ProtoMessage {
   public boolean isResponse() {
     return mMessage instanceof Protocol.Response;
   }
-
   // ALLUXIO CS ADD
+
   /**
    * Gets the sasl message or throws runtime exception if mMessage is not of type
    * {@link Protocol.SaslMessage}.
@@ -242,6 +241,7 @@ public final class ProtoMessage {
   public boolean isSecretKey() {
     return mMessage instanceof alluxio.proto.security.Key.SecretKey;
   }
+  // ALLUXIO CS END
 
   /**
    * @return the remove block request
@@ -274,7 +274,6 @@ public final class ProtoMessage {
     return mMessage instanceof alluxio.proto.journal.Journal.JournalEntry;
   }
 
-  // ALLUXIO CS END
   /**
    * Gets the read response or throws runtime exception if mMessage is not of type
    * {@link Protocol.ReadResponse}.

@@ -50,11 +50,9 @@ public final class CreateFileOptions {
   private Mode mMode;
   private int mWriteTier;
   private WriteType mWriteType;
-  // ALLUXIO CS ADD
   private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
-  // ALLUXIO CS END
 
   /**
    * @return the default {@link CreateFileOptions}
@@ -112,7 +110,6 @@ public final class CreateFileOptions {
     return mLocationPolicy.getClass().getCanonicalName();
   }
 
-  // ALLUXIO CS ADD
   /**
    * @return the number of block replication for durable write
    */
@@ -134,7 +131,6 @@ public final class CreateFileOptions {
     return mReplicationMin;
   }
 
-  // ALLUXIO CS END
   /**
    * @return the TTL (time to live) value; it identifies duration (in milliseconds) the created file
    *         should be kept around before it is automatically deleted
@@ -240,7 +236,6 @@ public final class CreateFileOptions {
     return this;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @param replicationDurable the number of block replication for durable write
    * @return the updated options object
@@ -256,7 +251,8 @@ public final class CreateFileOptions {
    */
   public CreateFileOptions setReplicationMax(int replicationMax) {
     com.google.common.base.Preconditions
-        .checkArgument(replicationMax == alluxio.Constants.REPLICATION_MAX_INFINITY || replicationMax >= 0,
+        .checkArgument(
+            replicationMax == alluxio.Constants.REPLICATION_MAX_INFINITY || replicationMax >= 0,
             alluxio.exception.PreconditionMessage.INVALID_REPLICATION_MAX_VALUE);
     mReplicationMax = replicationMax;
     return this;
@@ -273,7 +269,6 @@ public final class CreateFileOptions {
     return this;
   }
 
-  // ALLUXIO CS END
   /**
    * @param ttl the TTL (time to live) value to use; it identifies duration (in milliseconds) the
    *        created file should be kept around before it is automatically deleted, no matter whether
@@ -327,11 +322,9 @@ public final class CreateFileOptions {
         .setBlockSizeBytes(mBlockSizeBytes)
         .setLocationPolicy(mLocationPolicy)
         .setMode(mMode)
-        // ALLUXIO CS ADD
         .setReplicationDurable(mReplicationDurable)
         .setReplicationMax(mReplicationMax)
         .setReplicationMin(mReplicationMin)
-        // ALLUXIO CS END
         .setWriteTier(mWriteTier)
         .setWriteType(mWriteType);
   }
@@ -349,11 +342,9 @@ public final class CreateFileOptions {
         && Objects.equal(mCommonOptions, that.mCommonOptions)
         && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
-        // ALLUXIO CS ADD
         && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
-        // ALLUXIO CS END
         && Objects.equal(mMode, that.mMode)
         && mWriteTier == that.mWriteTier
         && Objects.equal(mWriteType, that.mWriteType);
@@ -361,15 +352,9 @@ public final class CreateFileOptions {
 
   @Override
   public int hashCode() {
-    // ALLUXIO CS REPLACE
-    // return Objects
-    //     .hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mWriteTier,
-    //         mWriteType, mCommonOptions);
-    // ALLUXIO CS WITH
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode,
         mReplicationDurable, mReplicationMax, mReplicationMin, mWriteTier,
         mWriteType, mCommonOptions);
-    // ALLUXIO CS END
   }
 
   @Override
@@ -379,11 +364,9 @@ public final class CreateFileOptions {
         .add("recursive", mRecursive)
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("locationPolicy", mLocationPolicy)
-        // ALLUXIO CS ADD
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
-        // ALLUXIO CS END
         .add("mode", mMode)
         .add("writeTier", mWriteTier)
         .add("writeType", mWriteType)
@@ -398,11 +381,9 @@ public final class CreateFileOptions {
     options.setBlockSizeBytes(mBlockSizeBytes);
     options.setPersisted(mWriteType.isThrough());
     options.setRecursive(mRecursive);
-    // ALLUXIO CS ADD
     options.setReplicationDurable(mReplicationDurable);
     options.setReplicationMax(mReplicationMax);
     options.setReplicationMin(mReplicationMin);
-    // ALLUXIO CS END
     if (mMode != null) {
       options.setMode(mMode.toShort());
     }

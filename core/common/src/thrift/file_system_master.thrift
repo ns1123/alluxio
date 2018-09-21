@@ -39,13 +39,17 @@ struct CreateFileTOptions {
   3: optional bool recursive
   4: optional i64 ttlNotUsed // deprecated from 1.8
   5: optional i16 mode
-  // ALLUXIO CS ADD
+  6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
+  7: optional FileSystemMasterCommonTOptions commonOptions
+  // ALLUXIO CS REPLACE
+  // 8: optional i32 replicationMax;
+  // 9: optional i32 replicationMin;
+  // 10: optional i32 replicationDurable;
+  // ALLUXIO CS WITH
   1001: optional i32 replicationMax;
   1002: optional i32 replicationMin;
   1003: optional i32 replicationDurable;
   // ALLUXIO CS END
-  6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
-  7: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct CreateFileTResponse {}
 
@@ -169,8 +173,6 @@ struct FileInfo {
   22: bool mountPoint
   23: list<FileBlockInfo> fileBlockInfos
   // ALLUXIO CS ADD
-  1001: i32 replicationMax
-  1002: i32 replicationMin
   1003: optional common.Capability capability
   1004: bool encrypted
   // ALLUXIO CS END
@@ -180,6 +182,13 @@ struct FileInfo {
   27: string ufsFingerprint
   28: TAcl acl
   29: TAcl defaultAcl
+  // ALLUXIO CS REPLACE
+  // 30: i32 replicationMax
+  // 31: i32 replicationMin
+  // ALLUXIO CS WITH
+  1001: i32 replicationMax
+  1002: i32 replicationMin
+  // ALLUXIO CS END
 }
 
 struct MountTOptions {
@@ -250,12 +259,15 @@ struct SetAttributeTOptions {
   5: optional string group
   6: optional i16 mode
   7: optional bool recursive
-  // ALLUXIO CS ADD
+  8: optional common.TTtlAction ttlAction
+  9: optional FileSystemMasterCommonTOptions commonOptions
+  // ALLUXIO CS REPLACE
+  // 10: optional i32 replicationMax;
+  // 11: optional i32 replicationMin;
+  // ALLUXIO CS WITH
   1001: optional i32 replicationMax;
   1002: optional i32 replicationMin;
   // ALLUXIO CS END
-  8: optional common.TTtlAction ttlAction
-  9: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct SetAttributeTResponse {}
 
@@ -537,7 +549,7 @@ service FileSystemMasterWorkerService extends common.AlluxioService {
     )
     throws (1: exception.AlluxioTException e)
 }
-// ALLUXIO CS ADD
+
 /**
  * This interface contains file system master service endpoints for Alluxio job service.
  */
@@ -561,4 +573,3 @@ service FileSystemMasterJobService extends common.AlluxioService {
     )
     throws (1: exception.AlluxioTException e)
 }
-// ALLUXIO CS END

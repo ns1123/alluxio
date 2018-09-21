@@ -132,15 +132,8 @@ message UpdateInodeDirectoryEntry {
   optional AccessControlList defaultAcl = 4;
 }
 
-// next available id: 8
+// next available id: 12
 message UpdateInodeFileEntry {
-  // ALLUXIO CS ADD
-  // next available id: 1005
-  optional int64 persist_job_id = 1003;
-  optional int32 replication_max = 1001;
-  optional int32 replication_min = 1002;
-  optional string temp_ufs_path = 1004;
-  // ALLUXIO CS END
   optional int64 id = 1;
   optional int64 block_size_bytes = 2;
   optional int64 length = 3;
@@ -148,6 +141,19 @@ message UpdateInodeFileEntry {
   optional bool cacheable = 5;
   // Overwirte the blocks list
   repeated int64 set_blocks = 7;
+  // ALLUXIO CS REPLACE
+  // optional int32 replication_max = 8;
+  // optional int32 replication_min = 9;
+  // optional int64 persist_job_id = 10;
+  // optional string temp_ufs_path = 11;
+  // ALLUXIO CS WITH
+  // next available id: 1005
+  optional int32 replication_max = 1001;
+  optional int32 replication_min = 1002;
+  optional int64 persist_job_id = 1003;
+  optional string temp_ufs_path = 1004;
+  // ALLUXIO CS END
+
 }
 
 // next available id: 17
@@ -181,7 +187,7 @@ enum PTtlAction {
   FREE = 1;
 }
 
-// next available id: 20
+// next available id: 25
 message InodeFileEntry {
   optional int64 id = 1;
   optional int64 parent_id = 2;
@@ -201,16 +207,24 @@ message InodeFileEntry {
   optional int32 mode = 16;
   // ALLUXIO CS ADD
   // next available id: 1007
-  optional int64 persist_job_id = 1003;
-  optional int32 replication_durable = 1005;
-  optional int32 replication_max = 1001;
-  optional int32 replication_min = 1002;
-  optional string temp_ufs_path = 1004;
   optional bool encrypted = 1006;
   // ALLUXIO CS END
   optional PTtlAction ttlAction = 17 [default = DELETE];
   optional string ufs_fingerprint = 18;
   optional AccessControlList acl = 19;
+  // ALLUXIO CS REPLACE
+  // optional int32 replication_max = 20;
+  // optional int32 replication_min = 21;
+  // optional int64 persist_job_id = 22;
+  // optional string temp_ufs_path = 23;
+  // optional int32 replication_durable = 24;
+  // ALLUXIO CS WITH
+  optional int32 replication_max = 1001;
+  optional int32 replication_min = 1002;
+  optional int64 persist_job_id = 1003;
+  optional string temp_ufs_path = 1004;
+  optional int32 replication_durable = 1005;
+  // ALLUXIO CS END
 }
 
 // next available id: 3
@@ -267,7 +281,7 @@ message SetAclEntry {
   optional bool recursive = 5;
 }
 
-// next available id: 11
+// next available id: 15
 message SetAttributeEntry {
   optional int64 id = 1;
   optional int64 op_time_ms = 2;
@@ -278,14 +292,18 @@ message SetAttributeEntry {
   optional string group = 7;
   optional int32 permission = 8;
   optional PTtlAction ttlAction = 9 [default = DELETE];
-  // ALLUXIO CS ADD
-  // next available id: 1005
+  optional string ufs_fingerprint = 10;
+  // ALLUXIO CS REPLACE
+  // optional int64 persistJobId = 11;
+  // optional string tempUfsPath = 12;
+  // optional int32 replication_max = 13;
+  // optional int32 replication_min = 14;
+  // ALLUXIO CS WITH
   optional int32 replication_max = 1003;
   optional int32 replication_min = 1004;
   optional int64 persistJobId = 1001;
   optional string tempUfsPath = 1002;
   // ALLUXIO CS END
-  optional string ufs_fingerprint = 10;
 }
 
 enum UfsMode {

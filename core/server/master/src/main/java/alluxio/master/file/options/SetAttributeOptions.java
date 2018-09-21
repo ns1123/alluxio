@@ -35,10 +35,8 @@ public final class SetAttributeOptions {
   private Short mMode;
   private boolean mRecursive;
   private long mOperationTimeMs;
-  // ALLUXIO CS ADD
   private Integer mReplicationMax;
   private Integer mReplicationMin;
-  // ALLUXIO CS END
   private String mUfsFingerprint;
 
   /**
@@ -68,10 +66,8 @@ public final class SetAttributeOptions {
       mMode = options.isSetMode() ? options.getMode() : Constants.INVALID_MODE;
       mRecursive = options.isRecursive();
       mOperationTimeMs = System.currentTimeMillis();
-      // ALLUXIO CS ADD
       mReplicationMax = options.isSetReplicationMax() ? options.getReplicationMax() : null;
       mReplicationMin = options.isSetReplicationMin() ? options.getReplicationMin() : null;
-      // ALLUXIO CS END
     }
   }
 
@@ -146,8 +142,6 @@ public final class SetAttributeOptions {
     return mMode;
   }
 
-  // ALLUXIO CS ADD
-
   /**
    * @return the maximum number of block replication
    */
@@ -162,7 +156,6 @@ public final class SetAttributeOptions {
     return mReplicationMin;
   }
 
-  // ALLUXIO CS END
   /**
    * @return the recursive flag value
    */
@@ -282,7 +275,6 @@ public final class SetAttributeOptions {
     return this;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @param replicationMax the maximum number of block replication
    * @return the updated options object
@@ -300,7 +292,7 @@ public final class SetAttributeOptions {
     mReplicationMin = replicationMin;
     return this;
   }
-  // ALLUXIO CS END
+
   /**
    * @param ufsFingerprint the ufs fingerprint
    * @return the updated options object
@@ -327,10 +319,8 @@ public final class SetAttributeOptions {
         && Objects.equal(mOwner, that.mOwner)
         && Objects.equal(mGroup, that.mGroup)
         && Objects.equal(mMode, that.mMode)
-        // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
-        // ALLUXIO CS END
         && Objects.equal(mRecursive, that.mRecursive)
         && mOperationTimeMs == that.mOperationTimeMs
         && Objects.equal(mUfsFingerprint, that.mUfsFingerprint);
@@ -338,15 +328,9 @@ public final class SetAttributeOptions {
 
   @Override
   public int hashCode() {
-    // ALLUXIO CS REPLACE
-    // return Objects
-    //     .hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode, mRecursive,
-    //         mOperationTimeMs, mCommonOptions, mUfsFingerprint);
-    // ALLUXIO CS WITH
     return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
         mRecursive, mOperationTimeMs, mReplicationMax, mReplicationMin, mCommonOptions,
         mUfsFingerprint);
-    // ALLUXIO CS END
   }
 
   @Override
@@ -362,10 +346,8 @@ public final class SetAttributeOptions {
         .add("mode", mMode)
         .add("recursive", mRecursive)
         .add("operationTimeMs", mOperationTimeMs)
-        // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
-        // ALLUXIO CS END
         .add("ufsFingerprint", mUfsFingerprint)
         .toString();
   }

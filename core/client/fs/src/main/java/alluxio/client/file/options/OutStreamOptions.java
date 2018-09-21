@@ -48,10 +48,10 @@ public final class OutStreamOptions {
   private String mOwner;
   private String mGroup;
   private Mode mMode;
-  // ALLUXIO CS ADD
   private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
+  // ALLUXIO CS ADD
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   private boolean mEncrypted;
   private alluxio.proto.security.EncryptionProto.Meta mEncryptionMeta;
@@ -80,10 +80,10 @@ public final class OutStreamOptions {
     mGroup = SecurityUtils.getGroupFromLoginModule();
     mMode = Mode.defaults().applyFileUMask();
     mMountId = IdUtils.INVALID_MOUNT_ID;
-    // ALLUXIO CS ADD
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    // ALLUXIO CS ADD
     mEncrypted = false;
     mEncryptionMeta = null;
     // ALLUXIO CS END
@@ -153,7 +153,6 @@ public final class OutStreamOptions {
     return mMode;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @return the number of block replication for durable write
    */
@@ -175,6 +174,7 @@ public final class OutStreamOptions {
     return mReplicationMin;
   }
 
+  // ALLUXIO CS ADD
   /**
    * @return whether the file is encrypted or not
    */
@@ -325,7 +325,6 @@ public final class OutStreamOptions {
     return this;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @param replicationDurable the number of block replication for durable write
    * @return the updated options object
@@ -353,6 +352,7 @@ public final class OutStreamOptions {
     return this;
   }
 
+  // ALLUXIO CS ADD
   /**
    * @param encrypted the encrypted flag value to use
    * @return the updated object
@@ -415,10 +415,10 @@ public final class OutStreamOptions {
         && Objects.equal(mOwner, that.mOwner)
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
-        // ALLUXIO CS ADD
         && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
+        // ALLUXIO CS ADD
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         && Objects.equal(mEncrypted, that.mEncrypted)
         && Objects.equal(mEncryptionMeta, that.mEncryptionMeta)
@@ -439,10 +439,10 @@ public final class OutStreamOptions {
         mOwner,
         mTtl,
         mTtlAction,
-        // ALLUXIO CS ADD
         mReplicationDurable,
         mReplicationMax,
         mReplicationMin,
+        // ALLUXIO CS ADD
         mCapabilityFetcher,
         mEncrypted,
         mEncryptionMeta,
@@ -467,10 +467,10 @@ public final class OutStreamOptions {
         .add("ufsPath", mUfsPath)
         .add("writeTier", mWriteTier)
         .add("writeType", mWriteType)
-        // ALLUXIO CS ADD
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
+        // ALLUXIO CS ADD
         .add("capabilityFetcher", mCapabilityFetcher)
         .add("encrypted", mEncrypted)
         .add("encryptionMeta", mEncryptionMeta)
