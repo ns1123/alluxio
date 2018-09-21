@@ -13,6 +13,7 @@ package alluxio.network.netty;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.network.ChannelType;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCMessageDecoder;
 import alluxio.network.protocol.RPCMessageEncoder;
@@ -36,7 +37,8 @@ import java.net.InetSocketAddress;
 import javax.net.ssl.SSLException;
 
 /**
- * The secure Netty client via SSL. This is used for secret key exchange.
+ * The secure Netty client via SSL. This is used for secret key exchange. The master uses this
+ * client to communicate with workers.
  */
 public final class NettySecureRpcClient {
   /**  Share both the encoder and decoder with all the client pipelines. */
@@ -45,6 +47,7 @@ public final class NettySecureRpcClient {
   private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
       new KerberosSaslClientHandler();
 
+  private static final ChannelType CHANNEL_TYPE = NettyUtils.MASTER_CHANNEL_TYPE;
   private static final Class<? extends Channel> CLIENT_CHANNEL_CLASS = NettyUtils
       .getClientChannelClass(false);
 
@@ -53,10 +56,9 @@ public final class NettySecureRpcClient {
    * shutdown even when daemon threads are alive. If number of worker threads is 0, Netty creates
    * (#processors * 2) threads by default.
    */
-  private static final EventLoopGroup WORKER_GROUP =
-      NettyUtils.createEventLoop(NettyUtils.USER_CHANNEL_TYPE,
-          Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_WORKER_THREADS),
-          "netty-master-worker-%d", true);
+  private static final EventLoopGroup WORKER_GROUP = NettyUtils.createEventLoop(CHANNEL_TYPE,
+      Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_WORKER_THREADS), "netty-master-worker-%d",
+      true);
 
   /** The maximum number of milliseconds to wait for a response from the server. */
   public static final long TIMEOUT_MS =
