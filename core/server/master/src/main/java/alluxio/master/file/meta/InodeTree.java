@@ -617,14 +617,17 @@ public class InodeTree implements JournalEntryIterable {
             dir.setPinned(currentInodeDirectory.isPinned());
 
             // if the parent has default ACL, copy that default ACL as the new directory's default
-            // and access acl.
-            if (!options.isMetadataLoad()) {
-              DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
-              if (!dAcl.isEmpty()) {
-                Pair<AccessControlList, DefaultAccessControlList> pair = dAcl.generateChildDirACL();
-                dir.setInternalAcl(pair.getFirst());
-                dir.setDefaultACL(pair.getSecond());
-              }
+            // and access acl, ANDed with the umask
+            // if it is part of a metadata load operation, we ignore the umask and simply inherit
+            // the default ACL as the directory's new default and access ACL
+            short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
+                : dir.getMode();
+            DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
+            if (!dAcl.isEmpty()) {
+              Pair<AccessControlList, DefaultAccessControlList> pair =
+                  dAcl.generateChildDirACL(mode);
+              dir.setInternalAcl(pair.getFirst());
+              dir.setDefaultACL(pair.getSecond());
             }
             if (options.isPersisted()) {
               // Do not journal the persist entry, since a creation entry will be journaled instead.
@@ -701,14 +704,17 @@ public class InodeTree implements JournalEntryIterable {
           extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(lastInode,
               currentInodeDirectory, name);
 
-          // if the parent has default ACL, copy that default ACL as the new directory's default
-          // and access acl.
+          // if the parent has default ACL, take the default ACL ANDed with the umask as the new
+          // directory's default and access acl
+          // WHen it is a metadata load operation, do not take the umask into account
+          short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
+              : newDir.getMode();
           DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
           if (!dAcl.isEmpty()) {
-            Pair<AccessControlList, DefaultAccessControlList> pair = dAcl.generateChildDirACL();
-            InodeDirectory lastInodeDirectory = (InodeDirectory) lastInode;
-            lastInodeDirectory.setInternalAcl(pair.getFirst());
-            lastInodeDirectory.setDefaultACL(pair.getSecond());
+            Pair<AccessControlList, DefaultAccessControlList> pair =
+                dAcl.generateChildDirACL(mode);
+            newDir.setInternalAcl(pair.getFirst());
+            newDir.setDefaultACL(pair.getSecond());
           }
 
           if (directoryOptions.isPersisted()) {
@@ -738,13 +744,17 @@ public class InodeTree implements JournalEntryIterable {
           extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(lastInode,
               currentInodeDirectory, name);
 
-          // if the parent has a default ACL, copy that default ACL as the new file's access ACL.
+          InodeFile newFile = (InodeFile) lastInode;
+          // if the parent has a default ACL, copy that default ACL ANDed with the umask as the new
+          // file's access ACL.
+          // If it is a metadata load operation, do not consider the umask.
           DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
+          short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
+              : newFile.getMode();
           if (!dAcl.isEmpty()) {
-            AccessControlList acl = dAcl.generateChildFileACL();
-            lastInode.setInternalAcl(acl);
+            AccessControlList acl = dAcl.generateChildFileACL(mode);
+            newFile.setInternalAcl(acl);
           }
-
           if (fileOptions.isCacheable()) {
             ((InodeFile) lastInode).setCacheable(true);
           }

@@ -12,6 +12,7 @@
 package alluxio.master.file.options;
 
 import alluxio.Constants;
+import alluxio.security.authorization.AclEntry;
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateDirectoryTOptions;
 import alluxio.underfs.UfsStatus;
@@ -20,8 +21,11 @@ import alluxio.wire.CommonOptions;
 import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Method options for creating a directory.
@@ -32,6 +36,8 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
   private long mTtl;
   private TtlAction mTtlAction;
   private UfsStatus mUfsStatus;
+  private List<AclEntry> mDefaultAcl;
+
   /**
    * @return the default {@link CreateDirectoryOptions}
    */
@@ -76,6 +82,7 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
     mTtlAction = TtlAction.DELETE;
     mMode.applyDirectoryUMask();
     mUfsStatus = null;
+    mDefaultAcl = Collections.emptyList();
   }
 
   /**
@@ -99,6 +106,23 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
    */
   public TtlAction getTtlAction() {
     return mTtlAction;
+  }
+
+  /**
+   * @return the default ACL in the form of a list of default ACL Entries
+   */
+  public List<AclEntry> getDefaultAcl() {
+    return mDefaultAcl;
+  }
+
+  /**
+   * Sets the default ACL in the option.
+   * @param defaultAcl a list of default ACL Entries
+   * @return the updated options object
+   */
+  public CreateDirectoryOptions setDefaultAcl(List<AclEntry> defaultAcl) {
+    mDefaultAcl = ImmutableList.copyOf(defaultAcl);
+    return getThis();
   }
 
   /**
@@ -164,12 +188,13 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
     }
     CreateDirectoryOptions that = (CreateDirectoryOptions) o;
     return Objects.equal(mAllowExists, that.mAllowExists) && Objects.equal(mTtl, that.mTtl)
-        && Objects.equal(mTtlAction, that.mTtlAction) && Objects.equal(mUfsStatus, that.mUfsStatus);
+        && Objects.equal(mTtlAction, that.mTtlAction) && Objects.equal(mUfsStatus, that.mUfsStatus)
+        && Objects.equal(mDefaultAcl, that.mDefaultAcl);
   }
 
   @Override
   public int hashCode() {
-    return super.hashCode() + Objects.hashCode(mAllowExists, mTtl, mTtlAction, mUfsStatus);
+    return super.hashCode() + Objects.hashCode(mAllowExists, mTtl, mTtlAction, mUfsStatus, mDefaultAcl);
   }
 
   @Override
@@ -178,6 +203,7 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
         .add("allowExists", mAllowExists).add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
         .add("ufsStatus", mUfsStatus)
+        .add("defaultAcl", mDefaultAcl)
         .toString();
   }
 }

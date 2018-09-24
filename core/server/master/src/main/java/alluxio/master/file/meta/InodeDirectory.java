@@ -241,8 +241,9 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
   }
 
   @Override
-  public void setDefaultACL(DefaultAccessControlList acl) {
+  public InodeDirectory setDefaultACL(DefaultAccessControlList acl) {
     mDefaultAcl = acl;
+    return getThis();
   }
   /**
    * Generates client file info for a folder.
@@ -342,6 +343,8 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
         .setGroup(options.getGroup())
         .setMode(options.getMode().toShort())
         .setAcl(options.getAcl())
+        // SetAcl call is also setting default AclEntries
+        .setAcl(options.getDefaultAcl())
         .setMountPoint(options.isMountPoint());
   }
 
