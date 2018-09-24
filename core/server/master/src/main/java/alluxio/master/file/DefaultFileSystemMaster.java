@@ -2976,51 +2976,23 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(ufsPath.getPath()));
           }
         }
-        // Check that the alluxioPath we're creating doesn't shadow a path in the default UFS
-        String defaultUfsPath = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
-        UnderFileSystem defaultUfs = UnderFileSystem.Factory.createForRoot();
-        String shadowPath = PathUtils.concatPath(defaultUfsPath, alluxioPath.getPath());
-        if (defaultUfs.exists(shadowPath)) {
-          throw new IOException(
-              ExceptionMessage.MOUNT_PATH_SHADOWS_DEFAULT_UFS.getMessage(alluxioPath));
+
+        // Check that the alluxioPath we're creating doesn't shadow a path in the parent UFS
+        MountTable.Resolution resolution = mMountTable.resolve(alluxioPath);
+        try (CloseableResource<UnderFileSystem> ufsResource =
+                 resolution.acquireUfsResource()) {
+          String ufsResolvedPath = resolution.getUri().getPath();
+          if (ufsResource.get().exists(ufsResolvedPath)) {
+            throw new IOException(
+                ExceptionMessage.MOUNT_PATH_SHADOWS_PARENT_UFS.getMessage(alluxioPath,
+                    ufsResolvedPath));
+          }
         }
       }
-<<<<<<< HEAD
 
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-      // Check that the alluxioPath we're creating doesn't shadow a path in the default UFS
-      String defaultUfsPath = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
-      UnderFileSystem defaultUfs = UnderFileSystem.Factory.createForRoot();
-      String shadowPath = PathUtils.concatPath(defaultUfsPath, alluxioPath.getPath());
-      if (defaultUfs.exists(shadowPath)) {
-        throw new IOException(
-            ExceptionMessage.MOUNT_PATH_SHADOWS_DEFAULT_UFS.getMessage(alluxioPath));
-      }
-
-=======
-      // Check that the alluxioPath we're creating doesn't shadow a path in the parent UFS
-      MountTable.Resolution resolution = mMountTable.resolve(alluxioPath);
-      try (CloseableResource<UnderFileSystem> ufsResource =
-               resolution.acquireUfsResource()) {
-        String ufsResolvedPath = resolution.getUri().getPath();
-        if (ufsResource.get().exists(ufsResolvedPath)) {
-          throw new IOException(
-              ExceptionMessage.MOUNT_PATH_SHADOWS_PARENT_UFS.getMessage(alluxioPath,
-                  ufsResolvedPath));
-        }
-      }
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
       // Add the mount point. This will only succeed if we are not mounting a prefix of an existing
-<<<<<<< HEAD
-      // mount and no existing mount is a prefix of this mount.
-      mMountTable.add(alluxioPath, ufsPath, mountId, options);
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-      // mount and no existing mount is a prefix of this mount.
-      mMountTable.add(journalContext, alluxioPath, ufsPath, mountId, options);
-=======
       // mount.
-      mMountTable.add(journalContext, alluxioPath, ufsPath, mountId, options);
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
+      mMountTable.add(alluxioPath, ufsPath, mountId, options);
     } catch (Exception e) {
       mUfsManager.removeMount(mountId);
       throw e;

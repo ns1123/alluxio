@@ -42,6 +42,7 @@ public final class MountTableTest {
   private final MountOptions mDefaultOptions = MountOptions.defaults();
   private final UnderFileSystem mTestUfs =
       new LocalUnderFileSystemFactory().create("/", UnderFileSystemConfiguration.defaults());
+  private static final String ROOT_UFS = "s3a://bucket/";
 
   @Before
   public void before() throws Exception {
@@ -71,36 +72,10 @@ public final class MountTableTest {
     }
 
     try {
-<<<<<<< HEAD
-      mMountTable.add(new AlluxioURI("/mnt/bar/baz"), new AlluxioURI("/baz"), 4L, mDefaultOptions);
-    } catch (InvalidPathException e) {
-      // Exception expected
-      Assert.assertEquals(
-          ExceptionMessage.MOUNT_POINT_PREFIX_OF_ANOTHER.getMessage("/mnt/bar", "/mnt/bar/baz"),
-          e.getMessage());
-    }
-
-    try {
       mMountTable.add(new AlluxioURI("/test1"), new AlluxioURI("hdfs://localhost"), 4L,
           mDefaultOptions);
       mMountTable.add(new AlluxioURI("/test2"), new AlluxioURI("hdfs://localhost"), 4L,
           mDefaultOptions);
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-      addMount("/mnt/bar/baz", "/baz", 5);
-    } catch (InvalidPathException e) {
-      // Exception expected
-      Assert.assertEquals(
-          ExceptionMessage.MOUNT_POINT_PREFIX_OF_ANOTHER.getMessage("/mnt/bar", "/mnt/bar/baz"),
-          e.getMessage());
-    }
-
-    try {
-      addMount("/test1", "hdfs://localhost", 5);
-      addMount("/test2", "hdfs://localhost", 5);
-=======
-      addMount("/test1", "hdfs://localhost", 6);
-      addMount("/test2", "hdfs://localhost", 7);
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
       Assert.fail("mount fails");
     } catch (InvalidPathException e) {
       // Exception expected
@@ -123,13 +98,7 @@ public final class MountTableTest {
     Assert.assertEquals(2L, res4.getMountId());
     MountTable.Resolution res5 = mMountTable.resolve(new AlluxioURI("/mnt/bar/baz"));
     Assert.assertEquals(new AlluxioURI("/bar/baz"), res5.getUri());
-<<<<<<< HEAD
-    Assert.assertEquals(2L, res4.getMountId());
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-    Assert.assertEquals(3L, res4.getMountId());
-=======
-    Assert.assertEquals(3L, res5.getMountId());
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
+    Assert.assertEquals(2L, res5.getMountId());
     MountTable.Resolution res6 = mMountTable.resolve(new AlluxioURI("/foobar"));
     Assert.assertEquals(new AlluxioURI("/foobar"), res6.getUri());
     Assert.assertEquals(IdUtils.INVALID_MOUNT_ID, res6.getMountId());
@@ -180,11 +149,11 @@ public final class MountTableTest {
   @Test
   public void pathNestedMount() throws Exception {
     // Test add()
-    addMount("/mnt/foo", "/foo", 2);
-    addMount("/mnt/bar", "/bar", 3);
+    mMountTable.add(new AlluxioURI("/mnt/foo"), new AlluxioURI("/foo"), 2L, mDefaultOptions);
+    mMountTable.add(new AlluxioURI("/mnt/bar"), new AlluxioURI("/bar"), 3L, mDefaultOptions);
     // Testing nested mount
-    addMount("/mnt/bar/baz", "/baz", 4);
-    addMount("/mnt/bar/baz/bay", "/bay", 5);
+    mMountTable.add(new AlluxioURI("/mnt/bar/baz"), new AlluxioURI("/baz"), 4L, mDefaultOptions);
+    mMountTable.add(new AlluxioURI("/mnt/bar/baz/bay"), new AlluxioURI("/bay"), 5L, mDefaultOptions);
 
     // Test resolve()
     MountTable.Resolution res1 = mMountTable.resolve(new AlluxioURI("/mnt/foo"));
@@ -228,13 +197,13 @@ public final class MountTableTest {
     Assert.assertTrue(mMountTable.isMountPoint(new AlluxioURI("/mnt/bar/baz")));
 
     // Test delete()
-    Assert.assertFalse(deleteMount("/mnt/bar/baz"));
-    Assert.assertTrue(deleteMount("/mnt/bar/baz/bay"));
-    Assert.assertTrue(deleteMount("/mnt/bar/baz"));
-    Assert.assertTrue(deleteMount("/mnt/bar"));
-    Assert.assertTrue(deleteMount("/mnt/foo"));
-    Assert.assertFalse(deleteMount("/mnt/foo"));
-    Assert.assertFalse(deleteMount("/"));
+    Assert.assertFalse(mMountTable.delete(new AlluxioURI("/mnt/bar/baz")));
+    Assert.assertTrue(mMountTable.delete(new AlluxioURI("/mnt/bar/baz/bay")));
+    Assert.assertTrue(mMountTable.delete(new AlluxioURI("/mnt/bar/baz")));
+    Assert.assertTrue(mMountTable.delete(new AlluxioURI("/mnt/bar")));
+    Assert.assertTrue(mMountTable.delete(new AlluxioURI("/mnt/foo")));
+    Assert.assertFalse(mMountTable.delete(new AlluxioURI("/mnt/foo")));
+    Assert.assertFalse(mMountTable.delete(new AlluxioURI("/")));
   }
   /**
    * Tests the different methods of the {@link MountTable} class with a URI.
@@ -248,43 +217,18 @@ public final class MountTableTest {
         new AlluxioURI("file://localhost:5678/bar"), 2L, mDefaultOptions);
 
     try {
-<<<<<<< HEAD
       mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/foo"),
           new AlluxioURI("hdfs://localhost:5678/foo2"), 3L, mDefaultOptions);
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-      addMount("alluxio://localhost:1234/mnt/foo", "hdfs://localhost:5678/foo2", 4);
-=======
-      addMount("alluxio://localhost:1234/mnt/foo", "hdfs://localhost:5678/foo2", 4);
       Assert.fail("Mount point added when it already exists");
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
     } catch (FileAlreadyExistsException e) {
       // Exception expected
       Assert.assertEquals(ExceptionMessage.MOUNT_POINT_ALREADY_EXISTS.getMessage("/mnt/foo"),
           e.getMessage());
     }
+    mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/bar/baz"),
+        new AlluxioURI("hdfs://localhost:5678/baz"), 4L, mDefaultOptions);
 
-<<<<<<< HEAD
-    try {
-      mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/bar/baz"),
-          new AlluxioURI("hdfs://localhost:5678/baz"), 4L, mDefaultOptions);
-    } catch (InvalidPathException e) {
-      Assert.assertEquals(
-          ExceptionMessage.MOUNT_POINT_PREFIX_OF_ANOTHER.getMessage("/mnt/bar", "/mnt/bar/baz"),
-          e.getMessage());
-    }
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-    try {
-      addMount("alluxio://localhost:1234/mnt/bar/baz", "hdfs://localhost:5678/baz", 5);
-    } catch (InvalidPathException e) {
-      Assert.assertEquals(
-          ExceptionMessage.MOUNT_POINT_PREFIX_OF_ANOTHER.getMessage("/mnt/bar", "/mnt/bar/baz"),
-          e.getMessage());
-    }
-=======
-    addMount("alluxio://localhost:1234/mnt/bar/baz", "hdfs://localhost:5678/baz", 5);
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-
-    // Test resolve()
+     // Test resolve()
     Assert.assertEquals(new AlluxioURI("file://localhost:5678/foo"),
         mMountTable.resolve(new AlluxioURI("alluxio://localhost:1234/mnt/foo")).getUri());
     Assert.assertEquals(new AlluxioURI("file://localhost:5678/bar"),
@@ -321,24 +265,12 @@ public final class MountTableTest {
         mMountTable.isMountPoint(new AlluxioURI("alluxio://localhost:1234/mnt/bar/baz")));
 
     // Test delete()
-<<<<<<< HEAD
+    Assert.assertFalse(mMountTable.delete(new AlluxioURI("alluxio://localhost:1234/mnt/bar")));
+    Assert.assertTrue(mMountTable.delete(new AlluxioURI("alluxio://localhost:1234/mnt/bar/baz")));
     Assert.assertTrue(mMountTable.delete(new AlluxioURI("alluxio://localhost:1234/mnt/bar")));
     Assert.assertTrue(mMountTable.delete(new AlluxioURI("alluxio://localhost:1234/mnt/foo")));
     Assert.assertFalse(mMountTable.delete(new AlluxioURI("alluxio://localhost:1234/mnt/foo")));
     Assert.assertFalse(mMountTable.delete(new AlluxioURI("alluxio://localhost:1234/")));
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-    Assert.assertTrue(deleteMount("alluxio://localhost:1234/mnt/bar"));
-    Assert.assertTrue(deleteMount("alluxio://localhost:1234/mnt/foo"));
-    Assert.assertFalse(deleteMount("alluxio://localhost:1234/mnt/foo"));
-    Assert.assertFalse(deleteMount("alluxio://localhost:1234/"));
-=======
-    Assert.assertFalse(deleteMount("alluxio://localhost:1234/mnt/bar"));
-    Assert.assertTrue(deleteMount("alluxio://localhost:1234/mnt/bar/baz"));
-    Assert.assertTrue(deleteMount("alluxio://localhost:1234/mnt/bar"));
-    Assert.assertTrue(deleteMount("alluxio://localhost:1234/mnt/foo"));
-    Assert.assertFalse(deleteMount("alluxio://localhost:1234/mnt/foo"));
-    Assert.assertFalse(deleteMount("alluxio://localhost:1234/"));
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
   }
 
   /**

@@ -161,15 +161,7 @@ public final class MountTable implements JournalEntryIterable {
       }
       // Make sure that the ufs path we're trying to mount is not a prefix
       // or suffix of any existing mount path.
-<<<<<<< HEAD
       for (Map.Entry<String, MountInfo> entry : mMountTable.entrySet()) {
-        String mountedAlluxioPath = entry.getKey();
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-      for (Map.Entry<String, MountInfo> entry : mState.getMountTable().entrySet()) {
-        String mountedAlluxioPath = entry.getKey();
-=======
-      for (Map.Entry<String, MountInfo> entry : mState.getMountTable().entrySet()) {
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
         AlluxioURI mountedUfsUri = entry.getValue().getUfsUri();
         if ((ufsUri.getScheme() == null || ufsUri.getScheme().equals(mountedUfsUri.getScheme()))
             && (ufsUri.getAuthority() == null || ufsUri.getAuthority()
@@ -220,19 +212,9 @@ public final class MountTable implements JournalEntryIterable {
     }
 
     try (LockResource r = new LockResource(mWriteLock)) {
-<<<<<<< HEAD
       if (mMountTable.containsKey(path)) {
-        mUfsManager.removeMount(mMountTable.get(path).getMountId());
-        mMountTable.remove(path);
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-      if (mState.getMountTable().containsKey(path)) {
-        mUfsManager.removeMount(mState.getMountTable().get(path).getMountId());
-        mState.applyAndJournal(journalContext,
-            DeleteMountPointEntry.newBuilder().setAlluxioPath(path).build());
-=======
-      if (mState.getMountTable().containsKey(path)) {
         // check if the path contains another nested mount point
-        for (String mountPath : mState.getMountTable().keySet()) {
+        for (String mountPath : mMountTable.keySet()) {
           try {
             if (PathUtils.hasPrefix(mountPath, path) && (!path.equals(mountPath))) {
               LOG.warn("The path to unmount {} contains another nested mountpoint {}",
@@ -243,10 +225,8 @@ public final class MountTable implements JournalEntryIterable {
             LOG.warn("Invalid path {} encountered when checking for nested mount point", path);
           }
         }
-        mUfsManager.removeMount(mState.getMountTable().get(path).getMountId());
-        mState.applyAndJournal(journalContext,
-            DeleteMountPointEntry.newBuilder().setAlluxioPath(path).build());
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
+        mUfsManager.removeMount(mMountTable.get(path).getMountId());
+        mMountTable.remove(path);
         return true;
       }
       LOG.warn("Mount point {} does not exist.", path);
@@ -265,34 +245,16 @@ public final class MountTable implements JournalEntryIterable {
     String path = uri.getPath();
     String lastMount = ROOT;
     try (LockResource r = new LockResource(mReadLock)) {
-<<<<<<< HEAD
       for (Map.Entry<String, MountInfo> entry : mMountTable.entrySet()) {
-        String alluxioPath = entry.getKey();
-        if (!alluxioPath.equals(ROOT) && PathUtils.hasPrefix(path, alluxioPath)) {
-          return alluxioPath;
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-      for (Map.Entry<String, MountInfo> entry : mState.getMountTable().entrySet()) {
-        String alluxioPath = entry.getKey();
-        if (!alluxioPath.equals(ROOT) && PathUtils.hasPrefix(path, alluxioPath)) {
-          return alluxioPath;
-=======
-      for (Map.Entry<String, MountInfo> entry : mState.getMountTable().entrySet()) {
         String mount = entry.getKey();
         // we choose a new candidate path if the previous candidatepath is a prefix
         // of the current alluxioPath and the alluxioPath is a prefix of the path
         if (!mount.equals(ROOT) && PathUtils.hasPrefix(path, mount)
             && PathUtils.hasPrefix(mount, lastMount)) {
           lastMount = mount;
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
         }
       }
-<<<<<<< HEAD
-      return mMountTable.containsKey(ROOT) ? ROOT : null;
-||||||| parent of 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
-      return mState.getMountTable().containsKey(ROOT) ? ROOT : null;
-=======
       return lastMount;
->>>>>>> 4a97a08fed... [ALLUXIO-3310] Enable Nested Mountpoint (#7816)
     }
   }
 
