@@ -155,6 +155,7 @@ public class BaseFileSystem implements FileSystem {
     OutStreamOptions outStreamOptions = options.toOutStreamOptions();
     outStreamOptions.setUfsPath(status.getUfsPath());
     outStreamOptions.setMountId(status.getMountId());
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       outStreamOptions.setCapabilityFetcher(
@@ -171,6 +172,10 @@ public class BaseFileSystem implements FileSystem {
       mFileSystemContext.putEncryptionMeta(status.getFileId(), meta);
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    outStreamOptions.setAcl(status.getAcl());
+>>>>>>> OPENSOURCE/master
     try {
       // ALLUXIO CS ADD
       if (outStreamOptions.isEncrypted()) {

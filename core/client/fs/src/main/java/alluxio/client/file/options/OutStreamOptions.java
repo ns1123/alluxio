@@ -19,6 +19,7 @@ import alluxio.client.AlluxioStorageType;
 import alluxio.client.UnderStorageType;
 import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
+import alluxio.security.authorization.AccessControlList;
 import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
@@ -48,6 +49,7 @@ public final class OutStreamOptions {
   private String mOwner;
   private String mGroup;
   private Mode mMode;
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   private int mReplicationDurable;
   private int mReplicationMax;
@@ -56,6 +58,10 @@ public final class OutStreamOptions {
   private boolean mEncrypted;
   private alluxio.proto.security.EncryptionProto.Meta mEncryptionMeta;
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  private AccessControlList mAcl;
+>>>>>>> OPENSOURCE/master
   private String mUfsPath;
   private long mMountId;
 
@@ -87,6 +93,13 @@ public final class OutStreamOptions {
     mEncrypted = false;
     mEncryptionMeta = null;
     // ALLUXIO CS END
+  }
+
+  /**
+   * @return the acl
+   */
+  public AccessControlList getAcl() {
+    return mAcl;
   }
 
   /**
@@ -216,6 +229,17 @@ public final class OutStreamOptions {
    */
   public WriteType getWriteType() {
     return mWriteType;
+  }
+
+  /**
+   * Sets the acl of the file.
+   *
+   * @param acl the acl to use
+   * @return the updated options object
+   */
+  public OutStreamOptions setAcl(AccessControlList acl) {
+    mAcl = acl;
+    return this;
   }
 
   /**
@@ -407,7 +431,8 @@ public final class OutStreamOptions {
       return false;
     }
     OutStreamOptions that = (OutStreamOptions) o;
-    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
+    return Objects.equal(mAcl, that.mAcl)
+        && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         && Objects.equal(mGroup, that.mGroup)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
         && Objects.equal(mMode, that.mMode)
@@ -431,6 +456,7 @@ public final class OutStreamOptions {
   @Override
   public int hashCode() {
     return Objects.hashCode(
+        mAcl,
         mBlockSizeBytes,
         mGroup,
         mLocationPolicy,
@@ -456,6 +482,7 @@ public final class OutStreamOptions {
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
+        .add("acl", mAcl)
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("group", mGroup)
         .add("locationPolicy", mLocationPolicy)
