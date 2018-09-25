@@ -5582,6 +5582,20 @@ public final class Protocol {
      * <code>optional int64 mount_id = 5;</code>
      */
     long getMountId();
+
+    // optional .alluxio.proto.shared.AccessControlList acl = 6;
+    /**
+     * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+     */
+    boolean hasAcl();
+    /**
+     * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+     */
+    alluxio.proto.shared.Acl.AccessControlList getAcl();
+    /**
+     * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+     */
+    alluxio.proto.shared.Acl.AccessControlListOrBuilder getAclOrBuilder();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.CreateUfsFileOptions}
@@ -5662,6 +5676,19 @@ public final class Protocol {
             case 40: {
               bitField0_ |= 0x00000010;
               mountId_ = input.readInt64();
+              break;
+            }
+            case 50: {
+              alluxio.proto.shared.Acl.AccessControlList.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000020) == 0x00000020)) {
+                subBuilder = acl_.toBuilder();
+              }
+              acl_ = input.readMessage(alluxio.proto.shared.Acl.AccessControlList.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(acl_);
+                acl_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000020;
               break;
             }
           }
@@ -5865,12 +5892,35 @@ public final class Protocol {
       return mountId_;
     }
 
+    // optional .alluxio.proto.shared.AccessControlList acl = 6;
+    public static final int ACL_FIELD_NUMBER = 6;
+    private alluxio.proto.shared.Acl.AccessControlList acl_;
+    /**
+     * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+     */
+    public boolean hasAcl() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+     */
+    public alluxio.proto.shared.Acl.AccessControlList getAcl() {
+      return acl_;
+    }
+    /**
+     * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+     */
+    public alluxio.proto.shared.Acl.AccessControlListOrBuilder getAclOrBuilder() {
+      return acl_;
+    }
+
     private void initFields() {
       ufsPath_ = "";
       owner_ = "";
       group_ = "";
       mode_ = 0;
       mountId_ = 0L;
+      acl_ = alluxio.proto.shared.Acl.AccessControlList.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -5898,6 +5948,9 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeInt64(5, mountId_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeMessage(6, acl_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -5927,6 +5980,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(5, mountId_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(6, acl_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -6041,6 +6098,7 @@ public final class Protocol {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getAclFieldBuilder();
         }
       }
       private static Builder create() {
@@ -6059,6 +6117,12 @@ public final class Protocol {
         bitField0_ = (bitField0_ & ~0x00000008);
         mountId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000010);
+        if (aclBuilder_ == null) {
+          acl_ = alluxio.proto.shared.Acl.AccessControlList.getDefaultInstance();
+        } else {
+          aclBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -6107,6 +6171,14 @@ public final class Protocol {
           to_bitField0_ |= 0x00000010;
         }
         result.mountId_ = mountId_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        if (aclBuilder_ == null) {
+          result.acl_ = acl_;
+        } else {
+          result.acl_ = aclBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -6143,6 +6215,9 @@ public final class Protocol {
         }
         if (other.hasMountId()) {
           setMountId(other.getMountId());
+        }
+        if (other.hasAcl()) {
+          mergeAcl(other.getAcl());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -6457,6 +6532,123 @@ public final class Protocol {
         mountId_ = 0L;
         onChanged();
         return this;
+      }
+
+      // optional .alluxio.proto.shared.AccessControlList acl = 6;
+      private alluxio.proto.shared.Acl.AccessControlList acl_ = alluxio.proto.shared.Acl.AccessControlList.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.shared.Acl.AccessControlList, alluxio.proto.shared.Acl.AccessControlList.Builder, alluxio.proto.shared.Acl.AccessControlListOrBuilder> aclBuilder_;
+      /**
+       * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+       */
+      public boolean hasAcl() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+       */
+      public alluxio.proto.shared.Acl.AccessControlList getAcl() {
+        if (aclBuilder_ == null) {
+          return acl_;
+        } else {
+          return aclBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+       */
+      public Builder setAcl(alluxio.proto.shared.Acl.AccessControlList value) {
+        if (aclBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          acl_ = value;
+          onChanged();
+        } else {
+          aclBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+       */
+      public Builder setAcl(
+          alluxio.proto.shared.Acl.AccessControlList.Builder builderForValue) {
+        if (aclBuilder_ == null) {
+          acl_ = builderForValue.build();
+          onChanged();
+        } else {
+          aclBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+       */
+      public Builder mergeAcl(alluxio.proto.shared.Acl.AccessControlList value) {
+        if (aclBuilder_ == null) {
+          if (((bitField0_ & 0x00000020) == 0x00000020) &&
+              acl_ != alluxio.proto.shared.Acl.AccessControlList.getDefaultInstance()) {
+            acl_ =
+              alluxio.proto.shared.Acl.AccessControlList.newBuilder(acl_).mergeFrom(value).buildPartial();
+          } else {
+            acl_ = value;
+          }
+          onChanged();
+        } else {
+          aclBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+       */
+      public Builder clearAcl() {
+        if (aclBuilder_ == null) {
+          acl_ = alluxio.proto.shared.Acl.AccessControlList.getDefaultInstance();
+          onChanged();
+        } else {
+          aclBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000020);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+       */
+      public alluxio.proto.shared.Acl.AccessControlList.Builder getAclBuilder() {
+        bitField0_ |= 0x00000020;
+        onChanged();
+        return getAclFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+       */
+      public alluxio.proto.shared.Acl.AccessControlListOrBuilder getAclOrBuilder() {
+        if (aclBuilder_ != null) {
+          return aclBuilder_.getMessageOrBuilder();
+        } else {
+          return acl_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.shared.AccessControlList acl = 6;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.shared.Acl.AccessControlList, alluxio.proto.shared.Acl.AccessControlList.Builder, alluxio.proto.shared.Acl.AccessControlListOrBuilder> 
+          getAclFieldBuilder() {
+        if (aclBuilder_ == null) {
+          aclBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.shared.Acl.AccessControlList, alluxio.proto.shared.Acl.AccessControlList.Builder, alluxio.proto.shared.Acl.AccessControlListOrBuilder>(
+                  acl_,
+                  getParentForChildren(),
+                  isClean());
+          acl_ = null;
+        }
+        return aclBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.CreateUfsFileOptions)
@@ -13758,64 +13950,66 @@ public final class Protocol {
     java.lang.String[] descriptorData = {
       "\n\031dataserver/protocol.proto\022\030alluxio.pro" +
       "to.dataserver\032\027dataserver/status.proto\032\037" +
-      "security/capability_proto.proto\"\375\001\n\013Read" +
-      "Request\022\020\n\010block_id\030\001 \001(\003\022\016\n\006offset\030\002 \001(" +
-      "\003\022\016\n\006length\030\003 \001(\003\022\016\n\006cancel\030\004 \001(\010\022\017\n\007pro" +
-      "mote\030\007 \001(\010\022\023\n\013packet_size\030\005 \001(\003\022M\n\026open_" +
-      "ufs_block_options\030\006 \001(\0132-.alluxio.proto." +
-      "dataserver.OpenUfsBlockOptions\0227\n\ncapabi" +
-      "lity\030\350\007 \001(\0132\".alluxio.proto.security.Cap" +
-      "ability\"\256\001\n\021AsyncCacheRequest\022\020\n\010block_i",
-      "d\030\001 \001(\003\022\023\n\013source_host\030\002 \001(\t\022\023\n\013source_p" +
-      "ort\030\003 \001(\005\022M\n\026open_ufs_block_options\030\004 \001(" +
+      "security/capability_proto.proto\032\020shared/" +
+      "acl.proto\"\375\001\n\013ReadRequest\022\020\n\010block_id\030\001 " +
+      "\001(\003\022\016\n\006offset\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\016\n\006c" +
+      "ancel\030\004 \001(\010\022\017\n\007promote\030\007 \001(\010\022\023\n\013packet_s" +
+      "ize\030\005 \001(\003\022M\n\026open_ufs_block_options\030\006 \001(" +
       "\0132-.alluxio.proto.dataserver.OpenUfsBloc" +
-      "kOptions\022\016\n\006length\030\005 \001(\003\"\277\001\n\023OpenUfsBloc" +
-      "kOptions\022\020\n\010ufs_path\030\001 \001(\t\022\026\n\016offset_in_" +
-      "file\030\002 \001(\003\022\022\n\nblock_size\030\003 \001(\003\022\035\n\025maxUfs" +
-      "ReadConcurrency\030\004 \001(\005\022\017\n\007mountId\030\005 \001(\003\022\020" +
-      "\n\010no_cache\030\006 \001(\010\022\014\n\004user\030\007 \001(\t\022\032\n\021block_" +
-      "in_ufs_tier\030\350\007 \001(\010\"\367\002\n\014WriteRequest\0223\n\004t" +
-      "ype\030\001 \001(\0162%.alluxio.proto.dataserver.Req",
-      "uestType\022\n\n\002id\030\002 \001(\003\022\016\n\006offset\030\003 \001(\003\022\014\n\004" +
-      "tier\030\004 \001(\005\022\013\n\003eof\030\005 \001(\010\022\016\n\006cancel\030\006 \001(\010\022" +
-      "O\n\027create_ufs_file_options\030\007 \001(\0132..allux" +
-      "io.proto.dataserver.CreateUfsFileOptions" +
-      "\022\r\n\005flush\030\010 \001(\010\0227\n\ncapability\030\350\007 \001(\0132\".a" +
-      "lluxio.proto.security.Capability\022R\n\030crea" +
-      "te_ufs_block_options\030\351\007 \001(\0132/.alluxio.pr" +
-      "oto.dataserver.CreateUfsBlockOptions\"f\n\024" +
-      "CreateUfsFileOptions\022\020\n\010ufs_path\030\001 \001(\t\022\r" +
-      "\n\005owner\030\002 \001(\t\022\r\n\005group\030\003 \001(\t\022\014\n\004mode\030\004 \001",
-      "(\005\022\020\n\010mount_id\030\005 \001(\003\"Y\n\025CreateUfsBlockOp" +
-      "tions\022\034\n\024bytes_in_block_store\030\001 \001(\003\022\020\n\010m" +
-      "ount_id\030\002 \001(\003\022\020\n\010fallback\030\003 \001(\010\"J\n\010Respo" +
-      "nse\022-\n\006status\030\001 \001(\0162\035.alluxio.proto.stat" +
-      "us.PStatus\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMess" +
-      "age\022>\n\005state\030\001 \001(\0162/.alluxio.proto.datas" +
-      "erver.SaslMessage.SaslState\022\r\n\005token\030\002 \001" +
-      "(\014\"5\n\tSaslState\022\013\n\007SUCCESS\020\000\022\014\n\010INITIATE" +
-      "\020\001\022\r\n\tCHALLENGE\020\002\"i\n\014ReadResponse\0229\n\004typ" +
-      "e\030\001 \001(\0162+.alluxio.proto.dataserver.ReadR",
-      "esponse.Type\"\036\n\004Type\022\026\n\022UFS_READ_HEARTBE" +
-      "AT\020\001\"\013\n\tHeartbeat\"s\n\025LocalBlockOpenReque" +
-      "st\022\020\n\010block_id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\0227\n" +
-      "\ncapability\030\351\007 \001(\0132\".alluxio.proto.secur" +
-      "ity.Capability\"&\n\026LocalBlockOpenResponse" +
-      "\022\014\n\004path\030\001 \001(\t\"c\n\026LocalBlockCloseRequest" +
-      "\022\020\n\010block_id\030\001 \001(\003\0227\n\ncapability\030\351\007 \001(\0132" +
-      "\".alluxio.proto.security.Capability\"\305\001\n\027" +
-      "LocalBlockCreateRequest\022\020\n\010block_id\030\001 \001(" +
-      "\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020space_to_reserve\030\004 \001(",
-      "\003\022\032\n\022only_reserve_space\030\005 \001(\010\0227\n\ncapabil" +
-      "ity\030\351\007 \001(\0132\".alluxio.proto.security.Capa" +
-      "bility\022\033\n\022cleanup_on_failure\030\352\007 \001(\010\"(\n\030L" +
-      "ocalBlockCreateResponse\022\014\n\004path\030\001 \001(\t\"v\n" +
-      "\031LocalBlockCompleteRequest\022\020\n\010block_id\030\001" +
-      " \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapability\030\351\007 \001(" +
-      "\0132\".alluxio.proto.security.Capability\"\'\n" +
-      "\022RemoveBlockRequest\022\021\n\010block_id\030\351\007 \001(\003*G" +
-      "\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_" +
-      "FILE\020\001\022\027\n\022UFS_FALLBACK_BLOCK\020\350\007"
+      "kOptions\0227\n\ncapability\030\350\007 \001(\0132\".alluxio." +
+      "proto.security.Capability\"\256\001\n\021AsyncCache",
+      "Request\022\020\n\010block_id\030\001 \001(\003\022\023\n\013source_host" +
+      "\030\002 \001(\t\022\023\n\013source_port\030\003 \001(\005\022M\n\026open_ufs_" +
+      "block_options\030\004 \001(\0132-.alluxio.proto.data" +
+      "server.OpenUfsBlockOptions\022\016\n\006length\030\005 \001" +
+      "(\003\"\277\001\n\023OpenUfsBlockOptions\022\020\n\010ufs_path\030\001" +
+      " \001(\t\022\026\n\016offset_in_file\030\002 \001(\003\022\022\n\nblock_si" +
+      "ze\030\003 \001(\003\022\035\n\025maxUfsReadConcurrency\030\004 \001(\005\022" +
+      "\017\n\007mountId\030\005 \001(\003\022\020\n\010no_cache\030\006 \001(\010\022\014\n\004us" +
+      "er\030\007 \001(\t\022\032\n\021block_in_ufs_tier\030\350\007 \001(\010\"\367\002\n" +
+      "\014WriteRequest\0223\n\004type\030\001 \001(\0162%.alluxio.pr",
+      "oto.dataserver.RequestType\022\n\n\002id\030\002 \001(\003\022\016" +
+      "\n\006offset\030\003 \001(\003\022\014\n\004tier\030\004 \001(\005\022\013\n\003eof\030\005 \001(" +
+      "\010\022\016\n\006cancel\030\006 \001(\010\022O\n\027create_ufs_file_opt" +
+      "ions\030\007 \001(\0132..alluxio.proto.dataserver.Cr" +
+      "eateUfsFileOptions\022\r\n\005flush\030\010 \001(\010\0227\n\ncap" +
+      "ability\030\350\007 \001(\0132\".alluxio.proto.security." +
+      "Capability\022R\n\030create_ufs_block_options\030\351" +
+      "\007 \001(\0132/.alluxio.proto.dataserver.CreateU" +
+      "fsBlockOptions\"\234\001\n\024CreateUfsFileOptions\022" +
+      "\020\n\010ufs_path\030\001 \001(\t\022\r\n\005owner\030\002 \001(\t\022\r\n\005grou",
+      "p\030\003 \001(\t\022\014\n\004mode\030\004 \001(\005\022\020\n\010mount_id\030\005 \001(\003\022" +
+      "4\n\003acl\030\006 \001(\0132\'.alluxio.proto.shared.Acce" +
+      "ssControlList\"Y\n\025CreateUfsBlockOptions\022\034" +
+      "\n\024bytes_in_block_store\030\001 \001(\003\022\020\n\010mount_id" +
+      "\030\002 \001(\003\022\020\n\010fallback\030\003 \001(\010\"J\n\010Response\022-\n\006" +
+      "status\030\001 \001(\0162\035.alluxio.proto.status.PSta" +
+      "tus\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMessage\022>\n\005" +
+      "state\030\001 \001(\0162/.alluxio.proto.dataserver.S" +
+      "aslMessage.SaslState\022\r\n\005token\030\002 \001(\014\"5\n\tS" +
+      "aslState\022\013\n\007SUCCESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\tC",
+      "HALLENGE\020\002\"i\n\014ReadResponse\0229\n\004type\030\001 \001(\016" +
+      "2+.alluxio.proto.dataserver.ReadResponse" +
+      ".Type\"\036\n\004Type\022\026\n\022UFS_READ_HEARTBEAT\020\001\"\013\n" +
+      "\tHeartbeat\"s\n\025LocalBlockOpenRequest\022\020\n\010b" +
+      "lock_id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\0227\n\ncapabi" +
+      "lity\030\351\007 \001(\0132\".alluxio.proto.security.Cap" +
+      "ability\"&\n\026LocalBlockOpenResponse\022\014\n\004pat" +
+      "h\030\001 \001(\t\"c\n\026LocalBlockCloseRequest\022\020\n\010blo" +
+      "ck_id\030\001 \001(\003\0227\n\ncapability\030\351\007 \001(\0132\".allux" +
+      "io.proto.security.Capability\"\305\001\n\027LocalBl",
+      "ockCreateRequest\022\020\n\010block_id\030\001 \001(\003\022\014\n\004ti" +
+      "er\030\003 \001(\005\022\030\n\020space_to_reserve\030\004 \001(\003\022\032\n\022on" +
+      "ly_reserve_space\030\005 \001(\010\0227\n\ncapability\030\351\007 " +
+      "\001(\0132\".alluxio.proto.security.Capability\022" +
+      "\033\n\022cleanup_on_failure\030\352\007 \001(\010\"(\n\030LocalBlo" +
+      "ckCreateResponse\022\014\n\004path\030\001 \001(\t\"v\n\031LocalB" +
+      "lockCompleteRequest\022\020\n\010block_id\030\001 \001(\003\022\016\n" +
+      "\006cancel\030\002 \001(\010\0227\n\ncapability\030\351\007 \001(\0132\".all" +
+      "uxio.proto.security.Capability\"\'\n\022Remove" +
+      "BlockRequest\022\021\n\010block_id\030\351\007 \001(\003*G\n\013Reque",
+      "stType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022" +
+      "\027\n\022UFS_FALLBACK_BLOCK\020\350\007"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -13851,7 +14045,7 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_CreateUfsFileOptions_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_CreateUfsFileOptions_descriptor,
-              new java.lang.String[] { "UfsPath", "Owner", "Group", "Mode", "MountId", });
+              new java.lang.String[] { "UfsPath", "Owner", "Group", "Mode", "MountId", "Acl", });
           internal_static_alluxio_proto_dataserver_CreateUfsBlockOptions_descriptor =
             getDescriptor().getMessageTypes().get(5);
           internal_static_alluxio_proto_dataserver_CreateUfsBlockOptions_fieldAccessorTable = new
@@ -13932,6 +14126,7 @@ public final class Protocol {
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           alluxio.proto.status.Status.getDescriptor(),
           alluxio.proto.security.CapabilityProto.getDescriptor(),
+          alluxio.proto.shared.Acl.getDescriptor(),
         }, assigner);
   }
 

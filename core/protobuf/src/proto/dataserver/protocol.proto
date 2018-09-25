@@ -6,6 +6,7 @@ import "dataserver/status.proto";
 // ALLUXIO CS ADD
 import "security/capability_proto.proto";
 // ALLUXIO CS END
+import "shared/acl.proto";
 
 // The read/write request type. It can either be an Alluxio block operation or a UFS file operation.
 // next available id: 2
@@ -102,6 +103,7 @@ message CreateUfsFileOptions {
   optional string group = 3;
   optional int32 mode = 4;
   optional int64 mount_id = 5;
+  optional alluxio.proto.shared.AccessControlList acl = 6;
 }
 // ALLUXIO CS ADD
 
