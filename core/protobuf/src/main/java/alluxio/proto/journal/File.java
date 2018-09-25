@@ -12357,16 +12357,8 @@ public final class File {
               break;
             }
             case 154: {
-<<<<<<< HEAD
-              alluxio.proto.journal.File.AccessControlList.Builder subBuilder = null;
-              if (((bitField0_ & 0x00800000) == 0x00800000)) {
-||||||| merged common ancestors
-              alluxio.proto.journal.File.AccessControlList.Builder subBuilder = null;
-              if (((bitField0_ & 0x00020000) == 0x00020000)) {
-=======
               alluxio.proto.shared.Acl.AccessControlList.Builder subBuilder = null;
-              if (((bitField0_ & 0x00020000) == 0x00020000)) {
->>>>>>> OPENSOURCE/master
+              if (((bitField0_ & 0x00800000) == 0x00800000)) {
                 subBuilder = acl_.toBuilder();
               }
               acl_ = input.readMessage(alluxio.proto.shared.Acl.AccessControlList.PARSER, extensionRegistry);
@@ -14881,16 +14873,8 @@ public final class File {
        */
       public Builder mergeAcl(alluxio.proto.shared.Acl.AccessControlList value) {
         if (aclBuilder_ == null) {
-<<<<<<< HEAD
           if (((bitField0_ & 0x01000000) == 0x01000000) &&
-              acl_ != alluxio.proto.journal.File.AccessControlList.getDefaultInstance()) {
-||||||| merged common ancestors
-          if (((bitField0_ & 0x00040000) == 0x00040000) &&
-              acl_ != alluxio.proto.journal.File.AccessControlList.getDefaultInstance()) {
-=======
-          if (((bitField0_ & 0x00040000) == 0x00040000) &&
               acl_ != alluxio.proto.shared.Acl.AccessControlList.getDefaultInstance()) {
->>>>>>> OPENSOURCE/master
             acl_ =
               alluxio.proto.shared.Acl.AccessControlList.newBuilder(acl_).mergeFrom(value).buildPartial();
           } else {
@@ -14919,16 +14903,8 @@ public final class File {
       /**
        * <code>optional .alluxio.proto.shared.AccessControlList acl = 19;</code>
        */
-<<<<<<< HEAD
-      public alluxio.proto.journal.File.AccessControlList.Builder getAclBuilder() {
-        bitField0_ |= 0x01000000;
-||||||| merged common ancestors
-      public alluxio.proto.journal.File.AccessControlList.Builder getAclBuilder() {
-        bitField0_ |= 0x00040000;
-=======
       public alluxio.proto.shared.Acl.AccessControlList.Builder getAclBuilder() {
-        bitField0_ |= 0x00040000;
->>>>>>> OPENSOURCE/master
+        bitField0_ |= 0x01000000;
         onChanged();
         return getAclFieldBuilder().getBuilder();
       }
@@ -21638,227 +21614,6 @@ public final class File {
   static {
     java.lang.String[] descriptorData = {
       "\n\022journal/file.proto\022\025alluxio.proto.jour" +
-<<<<<<< HEAD
-      "nal\"-\n\017StringPairEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005v" +
-      "alue\030\002 \001(\t\"\254\001\n\022AddMountPointEntry\022\024\n\014all" +
-      "uxio_path\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022\020\n\010rea" +
-      "dOnly\030\003 \001(\010\022:\n\nproperties\030\004 \003(\0132&.alluxi" +
-      "o.proto.journal.StringPairEntry\022\016\n\006share" +
-      "d\030\005 \001(\010\022\020\n\010mount_id\030\006 \001(\003\"+\n\030AsyncPersis" +
-      "tRequestEntry\022\017\n\007file_id\030\001 \001(\003\"o\n\021Comple" +
-      "teFileEntry\022\021\n\tblock_ids\030\001 \003(\003\022\n\n\002id\030\002 \001" +
-      "(\003\022\016\n\006length\030\003 \001(\003\022\022\n\nop_time_ms\030\004 \001(\003\022\027",
-      "\n\017ufs_fingerprint\030\005 \001(\t\"Y\n\017DeleteFileEnt" +
-      "ry\022\n\n\002id\030\001 \001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\nop_" +
-      "time_ms\030\003 \001(\003\022\023\n\013alluxioOnly\030\004 \001(\010\"-\n\025De" +
-      "leteMountPointEntry\022\024\n\014alluxio_path\030\001 \001(" +
-      "\t\"?\n\nAclActions\0221\n\007actions\030\001 \003(\0162 .allux" +
-      "io.proto.journal.AclAction\"\224\001\n\010AclEntry\022" +
-      "1\n\004type\030\001 \001(\0162#.alluxio.proto.journal.Ac" +
-      "lEntryType\022\017\n\007subject\030\002 \001(\t\0221\n\007actions\030\003" +
-      " \003(\0162 .alluxio.proto.journal.AclAction\022\021" +
-      "\n\tisDefault\030\004 \001(\010\"S\n\017NamedAclActions\022\014\n\004",
-      "name\030\001 \001(\t\0222\n\007actions\030\002 \001(\0132!.alluxio.pr" +
-      "oto.journal.AclActions\"\314\002\n\021AccessControl" +
-      "List\022\022\n\nowningUser\030\001 \001(\t\022\023\n\013owningGroup\030" +
-      "\002 \001(\t\022;\n\013userActions\030\003 \003(\0132&.alluxio.pro" +
-      "to.journal.NamedAclActions\022<\n\014groupActio" +
-      "ns\030\004 \003(\0132&.alluxio.proto.journal.NamedAc" +
-      "lActions\0226\n\013maskActions\030\005 \001(\0132!.alluxio." +
-      "proto.journal.AclActions\0227\n\014otherActions" +
-      "\030\006 \001(\0132!.alluxio.proto.journal.AclAction" +
-      "s\022\021\n\tisDefault\030\007 \001(\010\022\017\n\007isEmpty\030\010 \001(\010\"\033\n",
-      "\rNewBlockEntry\022\n\n\002id\030\001 \001(\003\"\223\003\n\020UpdateIno" +
-      "deEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014" +
-      "\n\004name\030\003 \001(\t\022\031\n\021persistence_state\030\004 \001(\t\022" +
-      "\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001(" +
-      "\003\022!\n\031last_modification_time_ms\030\007 \001(\003\022#\n\033" +
-      "overwrite_modification_time\030\010 \001(\010\022\r\n\005own" +
-      "er\030\t \001(\t\022\r\n\005group\030\n \001(\t\022\014\n\004mode\030\013 \001(\005\022\013\n" +
-      "\003ttl\030\014 \001(\003\022<\n\tttlAction\030\r \001(\0162!.alluxio." +
-      "proto.journal.PTtlAction:\006DELETE\0225\n\003acl\030" +
-      "\016 \001(\0132(.alluxio.proto.journal.AccessCont",
-      "rolList\022\027\n\017ufs_fingerprint\030\017 \001(\t\"\232\001\n\031Upd" +
-      "ateInodeDirectoryEntry\022\n\n\002id\030\001 \001(\003\022\023\n\013mo" +
-      "unt_point\030\002 \001(\010\022\036\n\026direct_children_loade" +
-      "d\030\003 \001(\010\022<\n\ndefaultAcl\030\004 \001(\0132(.alluxio.pr" +
-      "oto.journal.AccessControlList\"\353\001\n\024Update" +
-      "InodeFileEntry\022\027\n\016persist_job_id\030\353\007 \001(\003\022" +
-      "\030\n\017replication_max\030\351\007 \001(\005\022\030\n\017replication" +
-      "_min\030\352\007 \001(\005\022\026\n\rtemp_ufs_path\030\354\007 \001(\t\022\n\n\002i" +
-      "d\030\001 \001(\003\022\030\n\020block_size_bytes\030\002 \001(\003\022\016\n\006len" +
-      "gth\030\003 \001(\003\022\021\n\tcompleted\030\004 \001(\010\022\021\n\tcacheabl",
-      "e\030\005 \001(\010\022\022\n\nset_blocks\030\007 \003(\003\"\313\003\n\023InodeDir" +
-      "ectoryEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001" +
-      "(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_state\030\004 " +
-      "\001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_ms\030" +
-      "\006 \001(\003\022!\n\031last_modification_time_ms\030\007 \001(\003" +
-      "\022\r\n\005owner\030\010 \001(\t\022\r\n\005group\030\t \001(\t\022\014\n\004mode\030\n" +
-      " \001(\005\022\023\n\013mount_point\030\013 \001(\010\022\036\n\026direct_chil" +
-      "dren_loaded\030\014 \001(\010\022\013\n\003ttl\030\r \001(\003\022<\n\tttlAct" +
-      "ion\030\016 \001(\0162!.alluxio.proto.journal.PTtlAc" +
-      "tion:\006DELETE\0225\n\003acl\030\017 \001(\0132(.alluxio.prot",
-      "o.journal.AccessControlList\022<\n\ndefaultAc" +
-      "l\030\020 \001(\0132(.alluxio.proto.journal.AccessCo" +
-      "ntrolList\"O\n\036InodeDirectoryIdGeneratorEn" +
-      "try\022\024\n\014container_id\030\001 \001(\003\022\027\n\017sequence_nu" +
-      "mber\030\002 \001(\003\"\343\004\n\016InodeFileEntry\022\n\n\002id\030\001 \001(" +
-      "\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021pe" +
-      "rsistence_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n" +
-      "\020creation_time_ms\030\006 \001(\003\022!\n\031last_modifica" +
-      "tion_time_ms\030\007 \001(\003\022\030\n\020block_size_bytes\030\010" +
-      " \001(\003\022\016\n\006length\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022",
-      "\021\n\tcacheable\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003tt" +
-      "l\030\r \001(\003\022\r\n\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n" +
-      "\004mode\030\020 \001(\005\022\027\n\016persist_job_id\030\353\007 \001(\003\022\034\n\023" +
-      "replication_durable\030\355\007 \001(\005\022\030\n\017replicatio" +
-      "n_max\030\351\007 \001(\005\022\030\n\017replication_min\030\352\007 \001(\005\022\026" +
-      "\n\rtemp_ufs_path\030\354\007 \001(\t\022\022\n\tencrypted\030\356\007 \001" +
-      "(\010\022<\n\tttlAction\030\021 \001(\0162!.alluxio.proto.jo" +
-      "urnal.PTtlAction:\006DELETE\022\027\n\017ufs_fingerpr" +
-      "int\030\022 \001(\t\0225\n\003acl\030\023 \001(\0132(.alluxio.proto.j" +
-      "ournal.AccessControlList\"O\n\036InodeLastMod",
-      "ificationTimeEntry\022\n\n\002id\030\001 \001(\003\022!\n\031last_m" +
-      "odification_time_ms\030\002 \001(\003\"#\n\025PersistDire" +
-      "ctoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020PersistFileEnt" +
-      "ry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003\022\022\n\nop_tim" +
-      "e_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFileEntry\022\014\n\004" +
-      "path\030\001 \001(\t\022\030\n\020block_size_bytes\030\002 \001(\003\022\013\n\003" +
-      "ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!.alluxio.p" +
-      "roto.journal.PTtlAction:\006DELETE\"h\n\013Renam" +
-      "eEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(\t\022\022\n\n" +
-      "op_time_ms\030\003 \001(\003\022\025\n\rnew_parent_id\030\004 \001(\003\022",
-      "\020\n\010new_name\030\005 \001(\t\"\247\001\n\013SetAclEntry\022\n\n\002id\030" +
-      "\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\0223\n\006action\030\003 \001(" +
-      "\0162#.alluxio.proto.journal.SetAclAction\0220" +
-      "\n\007entries\030\004 \003(\0132\037.alluxio.proto.journal." +
-      "AclEntry\022\021\n\trecursive\030\005 \001(\010\"\315\002\n\021SetAttri" +
-      "buteEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(" +
-      "\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersis" +
-      "ted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022" +
-      "\022\n\npermission\030\010 \001(\005\022<\n\tttlAction\030\t \001(\0162!" +
-      ".alluxio.proto.journal.PTtlAction:\006DELET",
-      "E\022\030\n\017replication_max\030\353\007 \001(\005\022\030\n\017replicati" +
-      "on_min\030\354\007 \001(\005\022\025\n\014persistJobId\030\351\007 \001(\003\022\024\n\013" +
-      "tempUfsPath\030\352\007 \001(\t\022\027\n\017ufs_fingerprint\030\n " +
-      "\001(\t\"b\n\022UpdateUfsModeEntry\022\017\n\007ufsPath\030\001 \001" +
-      "(\t\022;\n\007ufsMode\030\002 \001(\0162\036.alluxio.proto.jour" +
-      "nal.UfsMode:\nREAD_WRITE*-\n\tAclAction\022\010\n\004" +
-      "READ\020\000\022\t\n\005WRITE\020\001\022\013\n\007EXECUTE\020\002*a\n\014AclEnt" +
-      "ryType\022\t\n\005OWNER\020\000\022\016\n\nNAMED_USER\020\001\022\020\n\014OWN" +
-      "ING_GROUP\020\002\022\017\n\013NAMED_GROUP\020\003\022\010\n\004MASK\020\004\022\t" +
-      "\n\005OTHER\020\005*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004F",
-      "REE\020\001*W\n\014SetAclAction\022\013\n\007REPLACE\020\000\022\n\n\006MO" +
-      "DIFY\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016RE" +
-      "MOVE_DEFAULT\020\004*7\n\007UfsMode\022\r\n\tNO_ACCESS\020\000" +
-      "\022\r\n\tREAD_ONLY\020\001\022\016\n\nREAD_WRITE\020\002"
-||||||| merged common ancestors
-      "nal\"-\n\017StringPairEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005v" +
-      "alue\030\002 \001(\t\"\254\001\n\022AddMountPointEntry\022\024\n\014all" +
-      "uxio_path\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022\020\n\010rea" +
-      "dOnly\030\003 \001(\010\022:\n\nproperties\030\004 \003(\0132&.alluxi" +
-      "o.proto.journal.StringPairEntry\022\016\n\006share" +
-      "d\030\005 \001(\010\022\020\n\010mount_id\030\006 \001(\003\"+\n\030AsyncPersis" +
-      "tRequestEntry\022\017\n\007file_id\030\001 \001(\003\"o\n\021Comple" +
-      "teFileEntry\022\021\n\tblock_ids\030\001 \003(\003\022\n\n\002id\030\002 \001" +
-      "(\003\022\016\n\006length\030\003 \001(\003\022\022\n\nop_time_ms\030\004 \001(\003\022\027",
-      "\n\017ufs_fingerprint\030\005 \001(\t\"Y\n\017DeleteFileEnt" +
-      "ry\022\n\n\002id\030\001 \001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\nop_" +
-      "time_ms\030\003 \001(\003\022\023\n\013alluxioOnly\030\004 \001(\010\"-\n\025De" +
-      "leteMountPointEntry\022\024\n\014alluxio_path\030\001 \001(" +
-      "\t\"?\n\nAclActions\0221\n\007actions\030\001 \003(\0162 .allux" +
-      "io.proto.journal.AclAction\"\224\001\n\010AclEntry\022" +
-      "1\n\004type\030\001 \001(\0162#.alluxio.proto.journal.Ac" +
-      "lEntryType\022\017\n\007subject\030\002 \001(\t\0221\n\007actions\030\003" +
-      " \003(\0162 .alluxio.proto.journal.AclAction\022\021" +
-      "\n\tisDefault\030\004 \001(\010\"S\n\017NamedAclActions\022\014\n\004",
-      "name\030\001 \001(\t\0222\n\007actions\030\002 \001(\0132!.alluxio.pr" +
-      "oto.journal.AclActions\"\314\002\n\021AccessControl" +
-      "List\022\022\n\nowningUser\030\001 \001(\t\022\023\n\013owningGroup\030" +
-      "\002 \001(\t\022;\n\013userActions\030\003 \003(\0132&.alluxio.pro" +
-      "to.journal.NamedAclActions\022<\n\014groupActio" +
-      "ns\030\004 \003(\0132&.alluxio.proto.journal.NamedAc" +
-      "lActions\0226\n\013maskActions\030\005 \001(\0132!.alluxio." +
-      "proto.journal.AclActions\0227\n\014otherActions" +
-      "\030\006 \001(\0132!.alluxio.proto.journal.AclAction" +
-      "s\022\021\n\tisDefault\030\007 \001(\010\022\017\n\007isEmpty\030\010 \001(\010\"\033\n",
-      "\rNewBlockEntry\022\n\n\002id\030\001 \001(\003\"\223\003\n\020UpdateIno" +
-      "deEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014" +
-      "\n\004name\030\003 \001(\t\022\031\n\021persistence_state\030\004 \001(\t\022" +
-      "\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001(" +
-      "\003\022!\n\031last_modification_time_ms\030\007 \001(\003\022#\n\033" +
-      "overwrite_modification_time\030\010 \001(\010\022\r\n\005own" +
-      "er\030\t \001(\t\022\r\n\005group\030\n \001(\t\022\014\n\004mode\030\013 \001(\005\022\013\n" +
-      "\003ttl\030\014 \001(\003\022<\n\tttlAction\030\r \001(\0162!.alluxio." +
-      "proto.journal.PTtlAction:\006DELETE\0225\n\003acl\030" +
-      "\016 \001(\0132(.alluxio.proto.journal.AccessCont",
-      "rolList\022\027\n\017ufs_fingerprint\030\017 \001(\t\"\232\001\n\031Upd" +
-      "ateInodeDirectoryEntry\022\n\n\002id\030\001 \001(\003\022\023\n\013mo" +
-      "unt_point\030\002 \001(\010\022\036\n\026direct_children_loade" +
-      "d\030\003 \001(\010\022<\n\ndefaultAcl\030\004 \001(\0132(.alluxio.pr" +
-      "oto.journal.AccessControlList\"\206\001\n\024Update" +
-      "InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\030\n\020block_size" +
-      "_bytes\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\021\n\tcomplete" +
-      "d\030\004 \001(\010\022\021\n\tcacheable\030\005 \001(\010\022\022\n\nset_blocks" +
-      "\030\007 \003(\003\"\313\003\n\023InodeDirectoryEntry\022\n\n\002id\030\001 \001" +
-      "(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021p",
-      "ersistence_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030" +
-      "\n\020creation_time_ms\030\006 \001(\003\022!\n\031last_modific" +
-      "ation_time_ms\030\007 \001(\003\022\r\n\005owner\030\010 \001(\t\022\r\n\005gr" +
-      "oup\030\t \001(\t\022\014\n\004mode\030\n \001(\005\022\023\n\013mount_point\030\013" +
-      " \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\022\013\n\003" +
-      "ttl\030\r \001(\003\022<\n\tttlAction\030\016 \001(\0162!.alluxio.p" +
-      "roto.journal.PTtlAction:\006DELETE\0225\n\003acl\030\017" +
-      " \001(\0132(.alluxio.proto.journal.AccessContr" +
-      "olList\022<\n\ndefaultAcl\030\020 \001(\0132(.alluxio.pro" +
-      "to.journal.AccessControlList\"O\n\036InodeDir",
-      "ectoryIdGeneratorEntry\022\024\n\014container_id\030\001" +
-      " \001(\003\022\027\n\017sequence_number\030\002 \001(\003\"\314\003\n\016InodeF" +
-      "ileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022" +
-      "\014\n\004name\030\003 \001(\t\022\031\n\021persistence_state\030\004 \001(\t" +
-      "\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001" +
-      "(\003\022!\n\031last_modification_time_ms\030\007 \001(\003\022\030\n" +
-      "\020block_size_bytes\030\010 \001(\003\022\016\n\006length\030\t \001(\003\022" +
-      "\021\n\tcompleted\030\n \001(\010\022\021\n\tcacheable\030\013 \001(\010\022\016\n" +
-      "\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n\005owner\030\016 \001(" +
-      "\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(\005\022<\n\tttlAct",
-      "ion\030\021 \001(\0162!.alluxio.proto.journal.PTtlAc" +
-      "tion:\006DELETE\022\027\n\017ufs_fingerprint\030\022 \001(\t\0225\n" +
-      "\003acl\030\023 \001(\0132(.alluxio.proto.journal.Acces" +
-      "sControlList\"O\n\036InodeLastModificationTim" +
-      "eEntry\022\n\n\002id\030\001 \001(\003\022!\n\031last_modification_" +
-      "time_ms\030\002 \001(\003\"#\n\025PersistDirectoryEntry\022\n" +
-      "\n\002id\030\001 \001(\003\"B\n\020PersistFileEntry\022\n\n\002id\030\001 \001" +
-      "(\003\022\016\n\006length\030\002 \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212" +
-      "\001\n\025ReinitializeFileEntry\022\014\n\004path\030\001 \001(\t\022\030" +
-      "\n\020block_size_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n",
-      "\tttlAction\030\004 \001(\0162!.alluxio.proto.journal" +
-      ".PTtlAction:\006DELETE\"h\n\013RenameEntry\022\n\n\002id" +
-      "\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003" +
-      " \001(\003\022\025\n\rnew_parent_id\030\004 \001(\003\022\020\n\010new_name\030" +
-      "\005 \001(\t\"\247\001\n\013SetAclEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_" +
-      "time_ms\030\002 \001(\003\0223\n\006action\030\003 \001(\0162#.alluxio." +
-      "proto.journal.SetAclAction\0220\n\007entries\030\004 " +
-      "\003(\0132\037.alluxio.proto.journal.AclEntry\022\021\n\t" +
-      "recursive\030\005 \001(\010\"\354\001\n\021SetAttributeEntry\022\n\n" +
-      "\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\022\016\n\006pinned\030",
-      "\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersisted\030\005 \001(\010\022\r\n" +
-      "\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022\n\npermissio" +
-      "n\030\010 \001(\005\022<\n\tttlAction\030\t \001(\0162!.alluxio.pro" +
-      "to.journal.PTtlAction:\006DELETE\022\027\n\017ufs_fin" +
-      "gerprint\030\n \001(\t\"b\n\022UpdateUfsModeEntry\022\017\n\007" +
-      "ufsPath\030\001 \001(\t\022;\n\007ufsMode\030\002 \001(\0162\036.alluxio" +
-      ".proto.journal.UfsMode:\nREAD_WRITE*-\n\tAc" +
-      "lAction\022\010\n\004READ\020\000\022\t\n\005WRITE\020\001\022\013\n\007EXECUTE\020" +
-      "\002*a\n\014AclEntryType\022\t\n\005OWNER\020\000\022\016\n\nNAMED_US" +
-      "ER\020\001\022\020\n\014OWNING_GROUP\020\002\022\017\n\013NAMED_GROUP\020\003\022",
-      "\010\n\004MASK\020\004\022\t\n\005OTHER\020\005*\"\n\nPTtlAction\022\n\n\006DE" +
-      "LETE\020\000\022\010\n\004FREE\020\001*W\n\014SetAclAction\022\013\n\007REPL" +
-      "ACE\020\000\022\n\n\006MODIFY\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREMOVE_" +
-      "ALL\020\003\022\022\n\016REMOVE_DEFAULT\020\004*7\n\007UfsMode\022\r\n\t" +
-      "NO_ACCESS\020\000\022\r\n\tREAD_ONLY\020\001\022\016\n\nREAD_WRITE" +
-      "\020\002"
-=======
       "nal\032\020shared/acl.proto\"-\n\017StringPairEntry" +
       "\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\254\001\n\022AddMoun" +
       "tPointEntry\022\024\n\014alluxio_path\030\001 \001(\t\022\020\n\010ufs" +
@@ -21887,64 +21642,72 @@ public final class File {
       "try\022\n\n\002id\030\001 \001(\003\022\023\n\013mount_point\030\002 \001(\010\022\036\n\026" +
       "direct_children_loaded\030\003 \001(\010\022;\n\ndefaultA" +
       "cl\030\004 \001(\0132\'.alluxio.proto.shared.AccessCo" +
-      "ntrolList\"\206\001\n\024UpdateInodeFileEntry\022\n\n\002id",
-      "\030\001 \001(\003\022\030\n\020block_size_bytes\030\002 \001(\003\022\016\n\006leng" +
-      "th\030\003 \001(\003\022\021\n\tcompleted\030\004 \001(\010\022\021\n\tcacheable" +
-      "\030\005 \001(\010\022\022\n\nset_blocks\030\007 \003(\003\"\311\003\n\023InodeDire" +
-      "ctoryEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(" +
-      "\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_state\030\004 \001" +
-      "(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_ms\030\006" +
-      " \001(\003\022!\n\031last_modification_time_ms\030\007 \001(\003\022" +
-      "\r\n\005owner\030\010 \001(\t\022\r\n\005group\030\t \001(\t\022\014\n\004mode\030\n " +
-      "\001(\005\022\023\n\013mount_point\030\013 \001(\010\022\036\n\026direct_child" +
-      "ren_loaded\030\014 \001(\010\022\013\n\003ttl\030\r \001(\003\022<\n\tttlActi",
-      "on\030\016 \001(\0162!.alluxio.proto.journal.PTtlAct" +
-      "ion:\006DELETE\0224\n\003acl\030\017 \001(\0132\'.alluxio.proto" +
-      ".shared.AccessControlList\022;\n\ndefaultAcl\030" +
-      "\020 \001(\0132\'.alluxio.proto.shared.AccessContr" +
-      "olList\"O\n\036InodeDirectoryIdGeneratorEntry" +
-      "\022\024\n\014container_id\030\001 \001(\003\022\027\n\017sequence_numbe" +
-      "r\030\002 \001(\003\"\313\003\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021" +
-      "\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persi" +
-      "stence_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020cr" +
-      "eation_time_ms\030\006 \001(\003\022!\n\031last_modificatio",
-      "n_time_ms\030\007 \001(\003\022\030\n\020block_size_bytes\030\010 \001(" +
-      "\003\022\016\n\006length\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\t" +
-      "cacheable\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r" +
-      " \001(\003\022\r\n\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mo" +
-      "de\030\020 \001(\005\022<\n\tttlAction\030\021 \001(\0162!.alluxio.pr" +
-      "oto.journal.PTtlAction:\006DELETE\022\027\n\017ufs_fi" +
-      "ngerprint\030\022 \001(\t\0224\n\003acl\030\023 \001(\0132\'.alluxio.p" +
-      "roto.shared.AccessControlList\"O\n\036InodeLa" +
-      "stModificationTimeEntry\022\n\n\002id\030\001 \001(\003\022!\n\031l" +
-      "ast_modification_time_ms\030\002 \001(\003\"#\n\025Persis",
-      "tDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020PersistFi" +
-      "leEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003\022\022\n\no" +
-      "p_time_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFileEntr" +
-      "y\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_bytes\030\002 \001(" +
-      "\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!.allu" +
-      "xio.proto.journal.PTtlAction:\006DELETE\"h\n\013" +
-      "RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(" +
-      "\t\022\022\n\nop_time_ms\030\003 \001(\003\022\025\n\rnew_parent_id\030\004" +
-      " \001(\003\022\020\n\010new_name\030\005 \001(\t\"\246\001\n\013SetAclEntry\022\n" +
-      "\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\0223\n\006action",
-      "\030\003 \001(\0162#.alluxio.proto.journal.SetAclAct" +
-      "ion\022/\n\007entries\030\004 \003(\0132\036.alluxio.proto.sha" +
-      "red.AclEntry\022\021\n\trecursive\030\005 \001(\010\"\354\001\n\021SetA" +
-      "ttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030" +
-      "\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpe" +
-      "rsisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 " +
-      "\001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlAction\030\t \001" +
-      "(\0162!.alluxio.proto.journal.PTtlAction:\006D" +
-      "ELETE\022\027\n\017ufs_fingerprint\030\n \001(\t\"b\n\022Update" +
-      "UfsModeEntry\022\017\n\007ufsPath\030\001 \001(\t\022;\n\007ufsMode",
-      "\030\002 \001(\0162\036.alluxio.proto.journal.UfsMode:\n" +
-      "READ_WRITE*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004" +
-      "FREE\020\001*W\n\014SetAclAction\022\013\n\007REPLACE\020\000\022\n\n\006M" +
-      "ODIFY\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016R" +
-      "EMOVE_DEFAULT\020\004*7\n\007UfsMode\022\r\n\tNO_ACCESS\020" +
-      "\000\022\r\n\tREAD_ONLY\020\001\022\016\n\nREAD_WRITE\020\002"
->>>>>>> OPENSOURCE/master
+      "ntrolList\"\353\001\n\024UpdateInodeFileEntry\022\027\n\016pe",
+      "rsist_job_id\030\353\007 \001(\003\022\030\n\017replication_max\030\351" +
+      "\007 \001(\005\022\030\n\017replication_min\030\352\007 \001(\005\022\026\n\rtemp_" +
+      "ufs_path\030\354\007 \001(\t\022\n\n\002id\030\001 \001(\003\022\030\n\020block_siz" +
+      "e_bytes\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\021\n\tcomplet" +
+      "ed\030\004 \001(\010\022\021\n\tcacheable\030\005 \001(\010\022\022\n\nset_block" +
+      "s\030\007 \003(\003\"\311\003\n\023InodeDirectoryEntry\022\n\n\002id\030\001 " +
+      "\001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021" +
+      "persistence_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022" +
+      "\030\n\020creation_time_ms\030\006 \001(\003\022!\n\031last_modifi" +
+      "cation_time_ms\030\007 \001(\003\022\r\n\005owner\030\010 \001(\t\022\r\n\005g",
+      "roup\030\t \001(\t\022\014\n\004mode\030\n \001(\005\022\023\n\013mount_point\030" +
+      "\013 \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\022\013\n" +
+      "\003ttl\030\r \001(\003\022<\n\tttlAction\030\016 \001(\0162!.alluxio." +
+      "proto.journal.PTtlAction:\006DELETE\0224\n\003acl\030" +
+      "\017 \001(\0132\'.alluxio.proto.shared.AccessContr" +
+      "olList\022;\n\ndefaultAcl\030\020 \001(\0132\'.alluxio.pro" +
+      "to.shared.AccessControlList\"O\n\036InodeDire" +
+      "ctoryIdGeneratorEntry\022\024\n\014container_id\030\001 " +
+      "\001(\003\022\027\n\017sequence_number\030\002 \001(\003\"\342\004\n\016InodeFi" +
+      "leEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014",
+      "\n\004name\030\003 \001(\t\022\031\n\021persistence_state\030\004 \001(\t\022" +
+      "\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001(" +
+      "\003\022!\n\031last_modification_time_ms\030\007 \001(\003\022\030\n\020" +
+      "block_size_bytes\030\010 \001(\003\022\016\n\006length\030\t \001(\003\022\021" +
+      "\n\tcompleted\030\n \001(\010\022\021\n\tcacheable\030\013 \001(\010\022\016\n\006" +
+      "blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n\005owner\030\016 \001(\t" +
+      "\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(\005\022\027\n\016persist" +
+      "_job_id\030\353\007 \001(\003\022\034\n\023replication_durable\030\355\007" +
+      " \001(\005\022\030\n\017replication_max\030\351\007 \001(\005\022\030\n\017replic" +
+      "ation_min\030\352\007 \001(\005\022\026\n\rtemp_ufs_path\030\354\007 \001(\t",
+      "\022\022\n\tencrypted\030\356\007 \001(\010\022<\n\tttlAction\030\021 \001(\0162" +
+      "!.alluxio.proto.journal.PTtlAction:\006DELE" +
+      "TE\022\027\n\017ufs_fingerprint\030\022 \001(\t\0224\n\003acl\030\023 \001(\013" +
+      "2\'.alluxio.proto.shared.AccessControlLis" +
+      "t\"O\n\036InodeLastModificationTimeEntry\022\n\n\002i" +
+      "d\030\001 \001(\003\022!\n\031last_modification_time_ms\030\002 \001" +
+      "(\003\"#\n\025PersistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"" +
+      "B\n\020PersistFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006lengt" +
+      "h\030\002 \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025Reinitia" +
+      "lizeFileEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_siz",
+      "e_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030" +
+      "\004 \001(\0162!.alluxio.proto.journal.PTtlAction" +
+      ":\006DELETE\"h\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010d" +
+      "st_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\022\025\n\rnew" +
+      "_parent_id\030\004 \001(\003\022\020\n\010new_name\030\005 \001(\t\"\246\001\n\013S" +
+      "etAclEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001" +
+      "(\003\0223\n\006action\030\003 \001(\0162#.alluxio.proto.journ" +
+      "al.SetAclAction\022/\n\007entries\030\004 \003(\0132\036.allux" +
+      "io.proto.shared.AclEntry\022\021\n\trecursive\030\005 " +
+      "\001(\010\"\315\002\n\021SetAttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n",
+      "\nop_time_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl" +
+      "\030\004 \001(\003\022\021\n\tpersisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t" +
+      "\022\r\n\005group\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tt" +
+      "tlAction\030\t \001(\0162!.alluxio.proto.journal.P" +
+      "TtlAction:\006DELETE\022\030\n\017replication_max\030\353\007 " +
+      "\001(\005\022\030\n\017replication_min\030\354\007 \001(\005\022\025\n\014persist" +
+      "JobId\030\351\007 \001(\003\022\024\n\013tempUfsPath\030\352\007 \001(\t\022\027\n\017uf" +
+      "s_fingerprint\030\n \001(\t\"b\n\022UpdateUfsModeEntr" +
+      "y\022\017\n\007ufsPath\030\001 \001(\t\022;\n\007ufsMode\030\002 \001(\0162\036.al" +
+      "luxio.proto.journal.UfsMode:\nREAD_WRITE*",
+      "\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001*W\n\014S" +
+      "etAclAction\022\013\n\007REPLACE\020\000\022\n\n\006MODIFY\020\001\022\n\n\006" +
+      "REMOVE\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016REMOVE_DEFAU" +
+      "LT\020\004*7\n\007UfsMode\022\r\n\tNO_ACCESS\020\000\022\r\n\tREAD_O" +
+      "NLY\020\001\022\016\n\nREAD_WRITE\020\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
