@@ -703,6 +703,7 @@ public class InodeTree implements JournalEntryIterable {
 
           extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(lastInode,
               currentInodeDirectory, name);
+<<<<<<< HEAD
 
           // if the parent has default ACL, take the default ACL ANDed with the umask as the new
           // directory's default and access acl
@@ -717,8 +718,13 @@ public class InodeTree implements JournalEntryIterable {
             newDir.setDefaultACL(pair.getSecond());
           }
 
+||||||| merged common ancestors
+=======
+          InodeDirectory newDir = (InodeDirectory) lastInode;
+>>>>>>> OPENSOURCE/branch-1.8
           if (directoryOptions.isPersisted()) {
             // Do not journal the persist entry, since a creation entry will be journaled instead.
+<<<<<<< HEAD
             if (options.isMetadataLoad()) {
               // if we are creating the file as a result of loading metadata, the newDir is already
               // persisted, and we got the permissions info from the ufs.
@@ -734,6 +740,27 @@ public class InodeTree implements JournalEntryIterable {
             } else {
               syncPersistDirectory(RpcContext.NOOP, newDir);
             }
+||||||| merged common ancestors
+            // TODO(david): remove this call to syncPersistDirectory to improve performance
+            // of recursive ls.
+            syncPersistDirectory(RpcContext.NOOP, (InodeDirectory) lastInode);
+=======
+            if (options.isMetadataLoad()) {
+              // if we are creating the file as a result of loading metadata, the newDir is already
+              // persisted, and we got the permissions info from the ufs.
+              newDir.setOwner(options.getOwner())
+                  .setGroup(options.getGroup())
+                  .setMode(options.getMode().toShort());
+
+              Long lastModificationTime = options.getOperationTimeMs();
+              if (lastModificationTime != null) {
+                newDir.setLastModificationTimeMs(lastModificationTime, true);
+              }
+              newDir.setPersistenceState(PersistenceState.PERSISTED);
+            } else {
+              syncPersistDirectory(RpcContext.NOOP, (InodeDirectory) lastInode);
+            }
+>>>>>>> OPENSOURCE/branch-1.8
           }
         } else if (options instanceof CreateFileOptions) {
           CreateFileOptions fileOptions = (CreateFileOptions) options;

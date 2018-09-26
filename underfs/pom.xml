@@ -23,9 +23,14 @@
   <description>Parent POM for different implementations of Alluxio under file system</description>
 
   <modules>
+<<<<<<< HEAD
     <!-- ALLUXIO CS ADD -->
     <module>fork</module>
     <!-- ALLUXIO CS END -->
+||||||| merged common ancestors
+=======
+    <module>cos</module>
+>>>>>>> OPENSOURCE/branch-1.8
     <module>gcs</module>
     <module>hdfs</module>
     <!-- ALLUXIO CS ADD -->
