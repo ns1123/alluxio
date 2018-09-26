@@ -717,7 +717,7 @@ public class InodeTree implements JournalEntryIterable {
             newDir.setDefaultACL(pair.getSecond());
           }
 
-         if (directoryOptions.isPersisted()) {
+          if (directoryOptions.isPersisted()) {
             // Do not journal the persist entry, since a creation entry will be journaled instead.
             if (options.isMetadataLoad()) {
               // if we are creating the file as a result of loading metadata, the newDir is already
