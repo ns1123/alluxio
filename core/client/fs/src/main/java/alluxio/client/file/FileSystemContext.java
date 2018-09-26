@@ -38,12 +38,8 @@ import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.codahale.metrics.Gauge;
-<<<<<<< HEAD
 import com.google.common.base.Objects;
-||||||| merged common ancestors
-=======
 import com.google.common.annotations.VisibleForTesting;
->>>>>>> OPENSOURCE/branch-1.8
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
