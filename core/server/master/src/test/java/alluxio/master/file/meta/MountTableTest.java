@@ -42,7 +42,6 @@ public final class MountTableTest {
   private final MountOptions mDefaultOptions = MountOptions.defaults();
   private final UnderFileSystem mTestUfs =
       new LocalUnderFileSystemFactory().create("/", UnderFileSystemConfiguration.defaults());
-  private static final String ROOT_UFS = "s3a://bucket/";
 
   @Before
   public void before() throws Exception {
@@ -172,11 +171,11 @@ public final class MountTableTest {
     Assert.assertEquals(new AlluxioURI("/baz"), res5.getUri());
     Assert.assertEquals(4L, res5.getMountId());
     MountTable.Resolution res6 = mMountTable.resolve(new AlluxioURI("/foobar"));
-    Assert.assertEquals(new AlluxioURI(ROOT_UFS).join("foobar"), res6.getUri());
-    Assert.assertEquals(IdUtils.ROOT_MOUNT_ID, res6.getMountId());
+    Assert.assertEquals(new AlluxioURI("/foobar"), res6.getUri());
+    Assert.assertEquals(IdUtils.INVALID_MOUNT_ID, res6.getMountId());
     MountTable.Resolution res7 = mMountTable.resolve(new AlluxioURI("/"));
-    Assert.assertEquals(new AlluxioURI("s3a://bucket/"), res7.getUri());
-    Assert.assertEquals(IdUtils.ROOT_MOUNT_ID, res7.getMountId());
+    Assert.assertEquals(new AlluxioURI("/"), res7.getUri());
+    Assert.assertEquals(IdUtils.INVALID_MOUNT_ID, res7.getMountId());
 
     // Test getMountPoint()
     Assert.assertEquals("/mnt/foo", mMountTable.getMountPoint(new AlluxioURI("/mnt/foo")));
@@ -184,11 +183,11 @@ public final class MountTableTest {
     Assert.assertEquals("/mnt/bar", mMountTable.getMountPoint(new AlluxioURI("/mnt/bar")));
     Assert.assertEquals("/mnt/bar", mMountTable.getMountPoint(new AlluxioURI("/mnt/bar/y")));
     Assert.assertEquals("/mnt/bar/baz", mMountTable.getMountPoint(new AlluxioURI("/mnt/bar/baz")));
-    Assert.assertEquals("/", mMountTable.getMountPoint(new AlluxioURI("/mnt")));
-    Assert.assertEquals("/", mMountTable.getMountPoint(new AlluxioURI("/")));
+    Assert.assertNull(mMountTable.getMountPoint(new AlluxioURI("/mnt")));
+    Assert.assertNull(mMountTable.getMountPoint(new AlluxioURI("/")));
 
     // Test isMountPoint()
-    Assert.assertTrue(mMountTable.isMountPoint(new AlluxioURI("/")));
+    Assert.assertFalse(mMountTable.isMountPoint(new AlluxioURI("/")));
     Assert.assertTrue(mMountTable.isMountPoint(new AlluxioURI("/mnt/foo")));
     Assert.assertFalse(mMountTable.isMountPoint(new AlluxioURI("/mnt/foo/bar")));
     Assert.assertFalse(mMountTable.isMountPoint(new AlluxioURI("/mnt")));

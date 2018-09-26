@@ -254,7 +254,7 @@ public final class MountTable implements JournalEntryIterable {
           lastMount = mount;
         }
       }
-      return lastMount;
+      return mMountTable.containsKey(lastMount) ? lastMount : null;
     }
   }
 
