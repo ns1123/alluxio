@@ -189,6 +189,9 @@ public final class Constants {
   // Ufs fingerprint
   public static final String INVALID_UFS_FINGERPRINT = "";
 
+  // Output stream flushed signal
+  public static final String FLUSHED_SIGNAL = "FLUSHED";
+
   // ALLUXIO CS ADD
   // Replication
   public static final int REPLICATION_MAX_INFINITY = -1;
