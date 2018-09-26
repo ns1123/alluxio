@@ -72,6 +72,10 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   }
 
   @Override
+  public void cleanup() throws IOException {
+  }
+
+  @Override
   public void close() throws IOException {
   }
 

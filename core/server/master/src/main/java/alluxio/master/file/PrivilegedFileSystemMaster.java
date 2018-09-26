@@ -205,6 +205,11 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
+  public void cleanupUfs() {
+    mFileSystemMaster.cleanupUfs();
+  }
+
+  @Override
   public StartupConsistencyCheck getStartupConsistencyCheck() {
     return mFileSystemMaster.getStartupConsistencyCheck();
   }
