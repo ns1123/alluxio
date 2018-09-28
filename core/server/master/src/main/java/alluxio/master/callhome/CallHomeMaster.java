@@ -82,7 +82,7 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
    */
   public CallHomeMaster(MasterRegistry registry, MasterContext masterContext) {
     super(masterContext, new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.CALL_HOME_MASTER_NAME, 2));
+        .cachedThreadPool(Constants.CALL_HOME_MASTER_NAME));
     registry.add(CallHomeMaster.class, this);
   }
 
