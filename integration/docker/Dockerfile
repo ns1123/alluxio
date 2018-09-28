@@ -15,7 +15,7 @@ FROM openjdk:8-jdk-alpine
 # ALLUXIO CS REPLACE
 # ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.7.0/alluxio-1.7.0-bin.tar.gz
 # ALLUXIO CS WITH
-ARG ALLUXIO_TARBALL=alluxio-enterprise-1.7.0.tar.gz
+ARG ALLUXIO_TARBALL=alluxio-enterprise-1.7.1-H.tar.gz
 # ALLUXIO CS END
 
 RUN apk add --update bash && \
