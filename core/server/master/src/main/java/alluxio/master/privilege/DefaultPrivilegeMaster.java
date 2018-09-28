@@ -66,7 +66,7 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
    */
   DefaultPrivilegeMaster(MasterContext masterContext) {
     super(masterContext, new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPool(Constants.PRIVILEGE_MASTER_NAME, 1));
+        .cachedThreadPool(Constants.PRIVILEGE_MASTER_NAME));
     mGroupPrivilegesLock = new ReentrantLock();
     mGroupPrivileges = new ConcurrentHashMap<>();
     mSupergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);

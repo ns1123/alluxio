@@ -356,13 +356,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    * @param masterContext the context for Alluxio master
    */
   DefaultFileSystemMaster(BlockMaster blockMaster, MasterContext masterContext) {
-    // ALLUXIO CS REPLACE
-    // this(blockMaster, masterContext,
-    //     ExecutorServiceFactories.cachedThreadPool(Constants.FILE_SYSTEM_MASTER_NAME));
-    // ALLUXIO CS WITH
     this(blockMaster, masterContext,
         ExecutorServiceFactories.cachedThreadPool(Constants.FILE_SYSTEM_MASTER_NAME));
-    // ALLUXIO CS END
   }
 
   /**

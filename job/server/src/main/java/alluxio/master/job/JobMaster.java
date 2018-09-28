@@ -110,7 +110,7 @@ public final class JobMaster extends AbstractNonJournaledMaster {
    */
   public JobMaster(MasterContext masterContext, UfsManager ufsManager) {
     super(masterContext, new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPool(Constants.JOB_MASTER_NAME, 2));
+        .cachedThreadPool(Constants.JOB_MASTER_NAME));
     mJobIdGenerator = new JobIdGenerator();
     mCommandManager = new CommandManager();
     mIdToJobCoordinator = Maps.newHashMap();
