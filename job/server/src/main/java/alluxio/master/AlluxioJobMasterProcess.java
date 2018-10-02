@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * This software and all information contained herein is confidential and proprietary to Alluxio,
- * and is protected by copyright and other applicable laws in the United States and other
- * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
- * the express written permission of Alluxio.
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master;
@@ -13,14 +15,12 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientServiceHandler;
 import alluxio.master.journal.JournalSystem;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.network.thrift.ThriftUtils;
-import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.JobMasterClientService;
 import alluxio.underfs.JobUfsManager;
@@ -37,6 +37,7 @@ import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TThreadPoolServer.Args;
+import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TTransportFactory;
@@ -52,6 +53,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * This class is responsible for initializing the different masters that are configured to run.
+ // ALLUXIO CS ADD
+ * {@link TThreadPoolServer} for use in CS+OS
+ // ALLUXIO CS END
  */
 @NotThreadSafe
 public class AlluxioJobMasterProcess implements JobMasterProcess {
@@ -82,7 +86,11 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   protected JobMaster mJobMaster;
 
   /** The RPC server. */
-  private AuthenticatedThriftServer mMasterServiceServer = null;
+  // ALLUXIO CS REPLACE
+  // private TThreadPoolServer mMasterServiceServer = null;
+  // ALLUXIO CS WITH
+  private alluxio.security.authentication.AuthenticatedThriftServer mMasterServiceServer = null;
+  // ALLUXIO CS END
 
   /** is true if the master is serving the RPC server. */
   private boolean mIsServing = false;
@@ -310,8 +318,13 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    args.executorService(Executors.createDefaultExecutorServiceWithSecurityOn(args));
-    mMasterServiceServer = new AuthenticatedThriftServer(args);
+    // ALLUXIO CS REPLACE
+    // mMasterServiceServer = new TThreadPoolServer(args);
+    // ALLUXIO CS WITH
+    args.executorService(alluxio.concurrent.Executors
+        .createDefaultExecutorServiceWithSecurityOn(args));
+    mMasterServiceServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
+    // ALLUXIO CS END
 
     // start thrift rpc server
     mIsServing = true;

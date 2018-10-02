@@ -180,6 +180,10 @@ public class NetworkAddressUtilsTest {
       case JOB_MASTER_RAFT:
         Configuration.set(PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_PORT, "20000");
         break;
+      case MASTER_RAFT:
+        Configuration.set(PropertyKey.MASTER_EMBEDDED_JOURNAL_PORT, "20000");
+        break;
+      // ALLUXIO CS END
       case JOB_MASTER_RPC:
         Configuration.set(PropertyKey.JOB_MASTER_RPC_PORT, "20000");
         break;
@@ -192,10 +196,6 @@ public class NetworkAddressUtilsTest {
       case JOB_WORKER_WEB:
         Configuration.set(PropertyKey.JOB_WORKER_WEB_PORT, "20000");
         break;
-      case MASTER_RAFT:
-        Configuration.set(PropertyKey.MASTER_EMBEDDED_JOURNAL_PORT, "20000");
-        break;
-      // ALLUXIO CS END
       case MASTER_RPC:
         Configuration.set(PropertyKey.MASTER_RPC_PORT, "20000");
         break;

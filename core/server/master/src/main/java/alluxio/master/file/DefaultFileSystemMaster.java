@@ -45,7 +45,6 @@ import alluxio.master.audit.AsyncUserAccessAuditLogWriter;
 import alluxio.master.audit.AuditContext;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.InodeDirectory;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
@@ -178,19 +177,15 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * The master that handles all file system metadata management.
- // ALLUXIO CS ADD
- * Link to AsyncPersistHandler so that it isn't an unused import: {@link AsyncPersistHandler}.
- // ALLUXIO CS END
  */
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
 public final class DefaultFileSystemMaster extends AbstractMaster implements FileSystemMaster {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultFileSystemMaster.class);
   private static final Set<Class<? extends Server>> DEPS = ImmutableSet.of(BlockMaster.class);
 
-  // ALLUXIO CS ADD
   /** The number of threads to use in the {@link #mPersistCheckerPool}. */
   private static final int PERSIST_CHECKER_POOL_THREADS = 128;
-  // ALLUXIO CS END
+
   /**
    * Locking in DefaultFileSystemMaster
    *
@@ -309,10 +304,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   /** List of paths to always keep in memory. */
   private final PrefixList mWhitelist;
 
-  // ALLUXIO CS REPLACE
-  // /** The handler for async persistence. */
-  // private final AsyncPersistHandler mAsyncPersistHandler;
-  // ALLUXIO CS WITH
   /** A pool of job master clients. */
   private final alluxio.client.job.JobMasterClientPool mJobMasterClientPool;
 
@@ -321,7 +312,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   /** Map from file IDs to persist jobs. */
   private final Map<Long, PersistJob> mPersistJobs;
-  // ALLUXIO CS END
 
   /** The manager of all ufs. */
   private final MasterUfsManager mUfsManager;
@@ -334,9 +324,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   /** This caches paths which have been synced with UFS. */
   private final UfsSyncPathCache mUfsSyncPathCache;
-  // ALLUXIO CS ADD
+
   /** Thread pool which asynchronously handles the completion of persist jobs. */
   private java.util.concurrent.ThreadPoolExecutor mPersistCheckerPool;
+  // ALLUXIO CS ADD
 
   /** The provider for authorization with external plugins. */
   private InodeAttributesProvider mAuthProvider = null;
@@ -382,7 +373,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mWhitelist = new PrefixList(Configuration.getList(PropertyKey.MASTER_WHITELIST, ","));
 
     // ALLUXIO CS REPLACE
-    // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
     // mPermissionChecker = new DefaultPermissionChecker(mInodeTree);
     // ALLUXIO CS WITH
     if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_PLUGINS_ENABLED)) {
@@ -394,10 +384,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     } else {
       mPermissionChecker = new DefaultPermissionChecker(mInodeTree);
     }
+    // ALLUXIO CS END
     mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
     mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
-    // ALLUXIO CS END
     mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
     mUfsBlockLocationCache = UfsBlockLocationCache.Factory.create(mMountTable);
     mUfsSyncPathCache = new UfsSyncPathCache();
@@ -426,11 +416,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
         new FileSystemMasterClientServiceProcessor(
             new FileSystemMasterClientServiceHandler(this)));
-    // ALLUXIO CS ADD
     services.put(Constants.FILE_SYSTEM_MASTER_JOB_SERVICE_NAME,
         new alluxio.thrift.FileSystemMasterJobService.Processor<>(
             new FileSystemMasterJobServiceHandler(this)));
-    // ALLUXIO CS END
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));
@@ -518,7 +506,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         mUfsManager.addMount(mountInfo.getMountId(), new AlluxioURI(key), ufsConf);
       }
       // Startup Checks and Periodic Threads.
-      // ALLUXIO CS ADD
       // Rebuild the list of persist jobs (mPersistJobs) and map of pending persist requests
       // (mPersistRequests)
       try (LockedInodePath inodePath = mInodeTree.lockInodePath(new AlluxioURI("/"),
@@ -557,7 +544,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       } catch (InvalidPathException | FileDoesNotExistException e) {
         throw new IllegalStateException(e);
       }
-      // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_BLOCK_INTEGRITY_CHECK_ENABLED)) {
         validateInodeBlocks(true);
       }
@@ -581,6 +567,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       if (mAuthProvider != null) {
         mAuthProvider.start();
       }
+      // ALLUXIO CS END
       getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster,
@@ -600,7 +587,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECKER,
               new PersistenceChecker(),
               (int) Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
-      // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(() -> startupCheckConsistency(
             ExecutorServiceFactories
@@ -1589,7 +1575,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
         }
         if (failureReason == null) {
-          // ALLUXIO CS ADD
           if (inodeToDelete.isFile()) {
             long fileId = inodeToDelete.getId();
             // Remove the file from the set of files to persist.
@@ -1600,7 +1585,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
             }
           }
-          // ALLUXIO CS END
           revisedInodesToDelete.add(new Pair<>(alluxioUriToDelete, inodePairToDelete.getSecond()));
         } else {
           unsafeInodes.add(inodeToDelete.getId());
@@ -3071,29 +3055,19 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @Override
   public void scheduleAsyncPersistence(AlluxioURI path)
       throws AlluxioException, UnavailableException {
-    // ALLUXIO CS REPLACE
-    // checkUfsMode(path, OperationType.WRITE);
-    // ALLUXIO CS WITH
-    // NOTE: In CS we retry an async persist request until ufs permits the operation
-    // ALLUXIO CS END
+    // We retry an async persist request until ufs permits the operation
     try (RpcContext rpcContext = createRpcContext();
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
       mInodeTree.updateInode(rpcContext, UpdateInodeEntry.newBuilder()
           .setId(inodePath.getInode().getId())
           .setPersistenceState(PersistenceState.TO_BE_PERSISTED.name())
           .build());
-      // ALLUXIO CS ADD
       mPersistRequests.put(inodePath.getInode().getId(), new alluxio.time.ExponentialTimer(
           Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS),
           Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS),
           Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS),
           Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)));
-      // ALLUXIO CS END
     }
-    // ALLUXIO CS REMOVE
-    // // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
-    // mAsyncPersistHandler.scheduleAsyncPersistence(path);
-    // ALLUXIO CS END
   }
 
   /**
@@ -3356,16 +3330,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
     }
 
-    // get the files for the given worker to persist
-    // ALLUXIO CS REPLACE
-    // List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
-    // if (!filesToPersist.isEmpty()) {
-    //   LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
-    // }
-    // ALLUXIO CS WITH
+    // TODO(zac) Clean up master and worker code since this is taken care of by job service now.
     // Worker should not persist any files. Instead, files are persisted through job service.
     List<PersistFile> filesToPersist = new ArrayList<>();
-    // ALLUXIO CS END
     FileSystemCommandOptions commandOptions = new FileSystemCommandOptions();
     commandOptions.setPersistOptions(new PersistCommandOptions(filesToPersist));
     return new FileSystemCommand(CommandType.Persist, commandOptions);
@@ -3385,13 +3352,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       mInodeTree.setPinned(rpcContext, inodePath, options.getPinned(), opTimeMs);
     }
     UpdateInodeEntry.Builder entry = UpdateInodeEntry.newBuilder().setId(inode.getId());
-    // ALLUXIO CS ADD
     if (options.getReplicationMax() != null || options.getReplicationMin() != null) {
       Integer replicationMax = options.getReplicationMax();
       Integer replicationMin = options.getReplicationMin();
       mInodeTree.setReplication(rpcContext, inodePath, replicationMax, replicationMin, opTimeMs);
     }
-    // ALLUXIO CS END
     if (options.getTtl() != null) {
       long ttl = options.getTtl();
       if (inode.getTtl() != ttl || inode.getTtlAction() != options.getTtlAction()) {
@@ -3517,8 +3482,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   public List<WorkerInfo> getWorkerInfoList() throws UnavailableException {
     return mBlockMaster.getWorkerInfoList();
   }
-
-  // ALLUXIO CS ADD
 
   /**
    * @param fileId file ID
@@ -3952,7 +3915,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
     }
   }
-  // ALLUXIO CS END
+
   @Override
   public void updateUfsMode(AlluxioURI ufsPath, UnderFileSystem.UfsMode ufsMode)
       throws InvalidPathException, UnavailableException,

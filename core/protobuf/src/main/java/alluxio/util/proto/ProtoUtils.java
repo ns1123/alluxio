@@ -35,7 +35,6 @@ public final class ProtoUtils {
   public static int readRawVarint32(int firstByte, InputStream input) throws IOException {
     return CodedInputStream.readRawVarint32(firstByte, input);
   }
-  // ALLUXIO CS ADD
 
   /**
    * A wrapper of
@@ -63,6 +62,7 @@ public final class ProtoUtils {
       alluxio.proto.journal.Job.StartJobEntry.Builder builder, byte[] bytes) {
     return builder.setSerializedJobConfig(com.google.protobuf.ByteString.copyFrom(bytes));
   }
+  // ALLUXIO CS ADD
 
   /**
    * A wrapper of {@link alluxio.proto.security.Key.SecretKey.Builder#setSecretKey} to take byte[]

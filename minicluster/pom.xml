@@ -86,13 +86,11 @@
       <artifactId>alluxio-core-server-worker</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-server</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-local</artifactId>
@@ -112,13 +110,11 @@
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
-    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-server</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
-    <!-- ALLUXIO CS END -->
   </dependencies>
 </project>

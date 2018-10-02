@@ -193,7 +193,7 @@ public final class ConfigurationUtils {
     }
     return null;
   }
-  // ALLUXIO CS ADD
+
   /**
    * @return whether the configuration describes how to find the job master host, either through
    *         explicit configuration or through zookeeper
@@ -201,10 +201,13 @@ public final class ConfigurationUtils {
   public static boolean jobMasterHostConfigured() {
     boolean usingZk = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
         && Configuration.containsKey(PropertyKey.ZOOKEEPER_ADDRESS);
+    // ALLUXIO CS REPLACE
+    // return Configuration.isSet(PropertyKey.JOB_MASTER_HOSTNAME) || usingZk;
+    // ALLUXIO CS WITH
     return Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME) || usingZk
         || getJobMasterRpcAddresses(Configuration.global()).size() > 1;
+    // ALLUXIO CS END
   }
-  // ALLUXIO CS END
 
   /**
    * @return whether the configuration describes how to find the master host, either through

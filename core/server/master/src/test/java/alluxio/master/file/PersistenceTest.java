@@ -42,7 +42,6 @@ import alluxio.master.file.options.RenameOptions;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalTestUtils;
 import alluxio.master.metrics.MetricsMasterFactory;
-import alluxio.master.privilege.PrivilegeMasterFactory;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
@@ -495,7 +494,8 @@ public final class PersistenceTest {
     Assert.assertEquals(fileInfo.getFileId(), job.getFileId());
     Assert.assertEquals(jobId, job.getId());
     Assert.assertTrue(job.getTempUfsPath().contains(testFile.getPath()));
-    Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), fileInfo.getPersistenceState());
+    Assert.assertEquals(
+        PersistenceState.TO_BE_PERSISTED.toString(), fileInfo.getPersistenceState());
   }
 
   private void checkPersistenceRequested(AlluxioURI testFile) throws Exception {
@@ -504,19 +504,28 @@ public final class PersistenceTest {
     Assert.assertEquals(1, persistRequests.size());
     Assert.assertEquals(0, getPersistJobs().size());
     Assert.assertTrue(persistRequests.containsKey(fileInfo.getFileId()));
-    Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), fileInfo.getPersistenceState());
+    Assert.assertEquals(
+        PersistenceState.TO_BE_PERSISTED.toString(), fileInfo.getPersistenceState());
   }
 
   private Map<Long, ExponentialTimer> getPersistRequests() {
+    // ALLUXIO CS REPLACE
+    // return Whitebox.getInternalState(mFileSystemMaster, "mPersistRequests");
+    // ALLUXIO CS WITH
     FileSystemMaster nestedFileSystemMaster =
         Whitebox.getInternalState(mFileSystemMaster, "mFileSystemMaster");
     return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistRequests");
+    // ALLUXIO CS END
   }
 
   private Map<Long, PersistJob> getPersistJobs() {
+    // ALLUXIO CS REPLACE
+    // return Whitebox.getInternalState(mFileSystemMaster, "mPersistJobs");
+    // ALLUXIO CS WITH
     FileSystemMaster nestedFileSystemMaster =
         Whitebox.getInternalState(mFileSystemMaster, "mFileSystemMaster");
     return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistJobs");
+    // ALLUXIO CS END
   }
 
   private void startServices() throws Exception {
@@ -525,7 +534,9 @@ public final class PersistenceTest {
         JournalTestUtils.createJournalSystem(mJournalFolder.getAbsolutePath());
     MasterContext context = MasterTestUtils.testMasterContext(journalSystem);
     new MetricsMasterFactory().create(mRegistry, context);
-    new PrivilegeMasterFactory().create(mRegistry, context);
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, context);
+    // ALLUXIO CS END
     new BlockMasterFactory().create(mRegistry, context);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, context);
     journalSystem.start();

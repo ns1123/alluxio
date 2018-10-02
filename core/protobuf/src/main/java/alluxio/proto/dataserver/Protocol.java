@@ -13456,10 +13456,22 @@ public final class Protocol {
     // optional int64 block_id = 1001;
     /**
      * <code>optional int64 block_id = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS REPLACE
+     * optional int64 block_id = 1;
+     * ALLUXIO CS WITH
+     * </pre>
      */
     boolean hasBlockId();
     /**
      * <code>optional int64 block_id = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS REPLACE
+     * optional int64 block_id = 1;
+     * ALLUXIO CS WITH
+     * </pre>
      */
     long getBlockId();
   }
@@ -13467,7 +13479,7 @@ public final class Protocol {
    * Protobuf type {@code alluxio.proto.dataserver.RemoveBlockRequest}
    *
    * <pre>
-   * next available id: 1
+   * next available id: 2
    * </pre>
    */
   public static final class RemoveBlockRequest extends
@@ -13568,12 +13580,24 @@ public final class Protocol {
     private long blockId_;
     /**
      * <code>optional int64 block_id = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS REPLACE
+     * optional int64 block_id = 1;
+     * ALLUXIO CS WITH
+     * </pre>
      */
     public boolean hasBlockId() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
      * <code>optional int64 block_id = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS REPLACE
+     * optional int64 block_id = 1;
+     * ALLUXIO CS WITH
+     * </pre>
      */
     public long getBlockId() {
       return blockId_;
@@ -13692,7 +13716,7 @@ public final class Protocol {
      * Protobuf type {@code alluxio.proto.dataserver.RemoveBlockRequest}
      *
      * <pre>
-     * next available id: 1
+     * next available id: 2
      * </pre>
      */
     public static final class Builder extends
@@ -13814,18 +13838,36 @@ public final class Protocol {
       private long blockId_ ;
       /**
        * <code>optional int64 block_id = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS REPLACE
+       * optional int64 block_id = 1;
+       * ALLUXIO CS WITH
+       * </pre>
        */
       public boolean hasBlockId() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
        * <code>optional int64 block_id = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS REPLACE
+       * optional int64 block_id = 1;
+       * ALLUXIO CS WITH
+       * </pre>
        */
       public long getBlockId() {
         return blockId_;
       }
       /**
        * <code>optional int64 block_id = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS REPLACE
+       * optional int64 block_id = 1;
+       * ALLUXIO CS WITH
+       * </pre>
        */
       public Builder setBlockId(long value) {
         bitField0_ |= 0x00000001;
@@ -13835,6 +13877,12 @@ public final class Protocol {
       }
       /**
        * <code>optional int64 block_id = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS REPLACE
+       * optional int64 block_id = 1;
+       * ALLUXIO CS WITH
+       * </pre>
        */
       public Builder clearBlockId() {
         bitField0_ = (bitField0_ & ~0x00000001);

@@ -95,7 +95,6 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     return mLength - pos - (mCurrentPacket != null ? mCurrentPacket.readableBytes() : 0);
   }
 
-  // ALLUXIO CS ADD
   /**
    * Creates a new remote block output stream.
    *
@@ -137,7 +136,6 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     mClosed = false;
   }
 
-  // ALLUXIO CS END
   @Override
   public void write(int b) throws IOException {
     Preconditions.checkState(remaining() > 0, PreconditionMessage.ERR_END_OF_BLOCK);
@@ -165,7 +163,6 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     }
     updateCurrentPacket(false);
   }
-  // ALLUXIO CS ADD
 
   /**
    * Writes the data in the specified byte buf to this output stream.
@@ -198,7 +195,6 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     }
     updateCurrentPacket(false);
   }
-  // ALLUXIO CS END
 
   @Override
   public void flush() throws IOException {

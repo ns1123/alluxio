@@ -121,13 +121,11 @@
       <artifactId>alluxio-core-server-common</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-client</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ALLUXIO CS END -->
 
     <!-- External test dependencies -->
     <dependency>

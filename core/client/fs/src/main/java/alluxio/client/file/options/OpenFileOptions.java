@@ -136,13 +136,13 @@ public final class OpenFileOptions {
     return mUfsReadLocationPolicy.getClass().getCanonicalName();
   }
   // ALLUXIO CS ADD
+
   /**
    * @return whether to skip data transformation or not
    */
   public boolean isSkipTransformation() {
     return mSkipTransformation;
   }
-
   // ALLUXIO CS END
 
   /**
@@ -241,6 +241,7 @@ public final class OpenFileOptions {
     return this;
   }
   // ALLUXIO CS ADD
+
   /**
    * @param skipTransformation the skip transformation flag to set
    * @return the updated options object
@@ -249,7 +250,6 @@ public final class OpenFileOptions {
     mSkipTransformation = skipTransformation;
     return this;
   }
-
   // ALLUXIO CS END
 
   /**

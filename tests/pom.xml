@@ -161,7 +161,6 @@
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
-    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-client</artifactId>
@@ -181,7 +180,6 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-server-proxy</artifactId>

@@ -84,7 +84,6 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
    */
   private final Set<Long> mPinnedInodeFileIds = new ConcurrentHashSet<>(64, 0.90f, 64);
 
-  // ALLUXIO CS ADD
   /** A set of inode ids whose replication max value is non-default. */
   private final Set<Long> mReplicationLimitedFileIds = new ConcurrentHashSet<>(64, 0.90f, 64);
 
@@ -95,7 +94,6 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
     return Collections.unmodifiableSet(mReplicationLimitedFileIds);
   }
 
-  // ALLUXIO CS END
   /**
    * TTL bucket list. The list is owned by InodeTree, and is only shared with
    * InodeTreePersistentState so that the list can be updated whenever inode tree state changes.
@@ -346,9 +344,7 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
     parent.setLastModificationTimeMs(entry.getOpTimeMs());
     inode.setDeleted(true);
     mPinnedInodeFileIds.remove(id);
-    // ALLUXIO CS ADD
     mReplicationLimitedFileIds.remove(id);
-    // ALLUXIO CS END
 
     // The recursive option is only used by old versions.
     if (inode.isDirectory() && entry.getRecursive()) {
@@ -427,7 +423,6 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
     }
     if (entry.hasPinned() && inode.isFile()) {
       if (entry.getPinned()) {
-        // ALLUXIO CS ADD
         InodeFile file = (InodeFile) inode;
         // when we pin a file with default min replication (zero), we bump the min replication
         // to one in addition to setting pinned flag, and adjust the max replication if it is
@@ -438,13 +433,10 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
             file.setReplicationMax(alluxio.Constants.REPLICATION_MAX_INFINITY);
           }
         }
-        // ALLUXIO CS END
         mPinnedInodeFileIds.add(entry.getId());
       } else {
-        // ALLUXIO CS ADD
         // when we unpin a file, set the min replication to zero too.
         ((InodeFile) inode).setReplicationMin(0);
-        // ALLUXIO CS END
         mPinnedInodeFileIds.remove(entry.getId());
       }
     }
@@ -463,7 +455,6 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
     Inode<?> inode = mInodes.getFirst(entry.getId());
     Preconditions.checkState(inode.isFile(),
         "Encountered non-file id in update file entry %s", entry);
-    // ALLUXIO CS ADD
     if (entry.hasReplicationMax()) {
       if (entry.getReplicationMax() == alluxio.Constants.REPLICATION_MAX_INFINITY) {
         mReplicationLimitedFileIds.remove(inode.getId());
@@ -471,7 +462,6 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
         mReplicationLimitedFileIds.add(inode.getId());
       }
     }
-    // ALLUXIO CS END
     InodeFile file = (InodeFile) inode;
 
     file.updateFromEntry(entry);
@@ -580,7 +570,6 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
       mInodes.remove(inode);
       return false;
     }
-    // ALLUXIO CS ADD
     if (inode.isFile()) {
       InodeFile file = (InodeFile) inode;
       if (file.getReplicationMin() > 0) {
@@ -591,7 +580,6 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
         mReplicationLimitedFileIds.add(file.getId());
       }
     }
-    // ALLUXIO CS END
     // Update indexes.
     if (inode.isFile() && inode.isPinned()) {
       mPinnedInodeFileIds.add(inode.getId());
@@ -651,9 +639,7 @@ public class InodeTreePersistentState implements JournalEntryReplayable {
   public void reset() {
     mRoot = null;
     mInodes.clear();
-    // ALLUXIO CS ADD
     mReplicationLimitedFileIds.clear();
-    // ALLUXIO CS END
     mPinnedInodeFileIds.clear();
   }
 }

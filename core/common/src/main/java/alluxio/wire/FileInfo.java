@@ -60,9 +60,9 @@ public final class FileInfo implements Serializable {
   private boolean mMountPoint;
   private ArrayList<FileBlockInfo> mFileBlockInfos = new ArrayList<>();
   private long mMountId;
-  // ALLUXIO CS ADD
   private int mReplicationMax;
   private int mReplicationMin;
+  // ALLUXIO CS ADD
   private alluxio.security.capability.Capability mCapability;
   private boolean mEncrypted;
   // ALLUXIO CS END
@@ -245,7 +245,6 @@ public final class FileInfo implements Serializable {
     return mFileBlockInfos;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @return the maximum number of block replication
    */
@@ -260,6 +259,7 @@ public final class FileInfo implements Serializable {
     return mReplicationMin;
   }
 
+  // ALLUXIO CS ADD
   /**
    * @return the capability
    */
@@ -542,7 +542,6 @@ public final class FileInfo implements Serializable {
     return this;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @param replicationMax the maximum number of block replication
    * @return the file descriptor
@@ -561,6 +560,7 @@ public final class FileInfo implements Serializable {
     return this;
   }
 
+  // ALLUXIO CS ADD
   /**
    * @param capability the capability
    * @return the updated {@link FileInfo}
@@ -633,11 +633,12 @@ public final class FileInfo implements Serializable {
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS REPLACE
         // mPersistenceState, mMountPoint, fileBlockInfos, TtlAction.toThrift(mTtlAction), mMountId,
-        // mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl);
+        // mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl, mReplicationMax,
+        // mReplicationMin);
         // ALLUXIO CS WITH
-        mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
-        mEncrypted, TtlAction.toThrift(mTtlAction), mMountId, mInAlluxioPercentage,
-        mUfsFingerprint, tAcl, tDefaultAcl);
+        mPersistenceState, mMountPoint, fileBlockInfos, mEncrypted, TtlAction.toThrift(mTtlAction),
+        mMountId, mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl, mReplicationMax,
+        mReplicationMin);
         // ALLUXIO CS END
     // ALLUXIO CS ADD
     if (mCapability != null) {
@@ -666,9 +667,9 @@ public final class FileInfo implements Serializable {
     }
     // ALLUXIO CS END
     return new FileInfo()
-        // ALLUXIO CS ADD
         .setReplicationMin(info.getReplicationMin())
         .setReplicationMax(info.getReplicationMax())
+        // ALLUXIO CS ADD
         .setCapability(capability)
         .setEncrypted(info.isEncrypted())
         // ALLUXIO CS END
@@ -725,8 +726,8 @@ public final class FileInfo implements Serializable {
         && mLastModificationTimeMs == that.mLastModificationTimeMs && mTtl == that.mTtl
         && mOwner.equals(that.mOwner) && mGroup.equals(that.mGroup) && mMode == that.mMode
         && mPersistenceState.equals(that.mPersistenceState) && mMountPoint == that.mMountPoint
-        // ALLUXIO CS ADD
         && mReplicationMax == that.mReplicationMax && mReplicationMin == that.mReplicationMin
+        // ALLUXIO CS ADD
         && Objects.equal(mCapability, that.mCapability)
         && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
@@ -740,13 +741,13 @@ public final class FileInfo implements Serializable {
   @Override
   public int hashCode() {
     return Objects.hashCode(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
-        mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
-        mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS ADD
-        mReplicationMax, mReplicationMin, mCapability, mEncrypted,
+        mCapability, mEncrypted,
         // ALLUXIO CS END
-        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage,
-        mUfsFingerprint, mAcl, mDefaultAcl);
+        mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
+        mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode, mReplicationMax,
+        mReplicationMin, mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction,
+        mInAlluxioPercentage, mUfsFingerprint, mAcl, mDefaultAcl);
   }
 
   @Override
@@ -759,8 +760,8 @@ public final class FileInfo implements Serializable {
         .add("lastModificationTimesMs", mLastModificationTimeMs).add("ttl", mTtl)
         .add("ttlAction", mTtlAction).add("owner", mOwner).add("group", mGroup).add("mode", mMode)
         .add("persistenceState", mPersistenceState).add("mountPoint", mMountPoint)
-        // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax).add("replicationMin", mReplicationMin)
+        // ALLUXIO CS ADD
         .add("capability", mCapability).add("encrypted", mEncrypted)
         // ALLUXIO CS END
         .add("fileBlockInfos", mFileBlockInfos)

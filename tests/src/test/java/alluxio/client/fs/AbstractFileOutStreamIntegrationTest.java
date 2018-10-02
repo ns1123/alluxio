@@ -20,6 +20,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.OpenFileOptions;
+import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.underfs.UnderFileSystem;
@@ -39,9 +40,7 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
   protected static final int MAX_LEN = 255;
   protected static final int DELTA = 32;
   protected static final int BUFFER_BYTES = 100;
-  // ALLUXIO CS ADD
-  protected alluxio.master.LocalAlluxioJobCluster mLocalAlluxioJobCluster;
-  // ALLUXIO CS END
+  protected LocalAlluxioJobCluster mLocalAlluxioJobCluster;
   protected static final int BLOCK_SIZE_BYTES = 1000;
 
   @Rule
@@ -52,26 +51,20 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
 
   @Before
   public void before() throws Exception {
-    // ALLUXIO CS ADD
     mLocalAlluxioJobCluster = new alluxio.master.LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
-    // ALLUXIO CS END
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }
 
-  // ALLUXIO CS ADD
   @org.junit.After
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
   }
 
-  // ALLUXIO CS END
   protected LocalAlluxioClusterResource buildLocalAlluxioClusterResource() {
     return new LocalAlluxioClusterResource.Builder()
         .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
-        // ALLUXIO CS ADD
         .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
-        // ALLUXIO CS END
         .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
         .build();
   }

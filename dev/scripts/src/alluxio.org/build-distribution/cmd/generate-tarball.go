@@ -198,9 +198,9 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 		// ALLUXIO CS ADD
 		fmt.Sprintf("lib/alluxio-underfs-fork-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-jdbc-%v.jar", version),
-		"integration/docker/bin/alluxio-job-master.sh",
-		"integration/docker/bin/alluxio-job-worker.sh",
 		// ALLUXIO CS END
+		"integration/docker/bin/alluxio-job-worker.sh",
+		"integration/docker/bin/alluxio-job-master.sh",
 		"bin/alluxio",
 		"bin/alluxio-masters.sh",
 		"bin/alluxio-monitor.sh",

@@ -77,6 +77,13 @@ public final class NetworkAddressUtils {
         PropertyKey.JOB_MASTER_BIND_HOST, PropertyKey.JOB_MASTER_EMBEDDED_JOURNAL_PORT),
 
     /**
+     * Master Raft service (Netty).
+     */
+    MASTER_RAFT("Alluxio Master Raft service", PropertyKey.MASTER_HOSTNAME,
+        PropertyKey.MASTER_BIND_HOST, PropertyKey.MASTER_EMBEDDED_JOURNAL_PORT),
+    // ALLUXIO CS END
+
+    /**
      * Job master RPC service (Thrift).
      */
     JOB_MASTER_RPC("Alluxio Job Manager Master RPC service", PropertyKey.JOB_MASTER_HOSTNAME,
@@ -100,13 +107,6 @@ public final class NetworkAddressUtils {
     JOB_WORKER_WEB("Alluxio Job Manager Worker Web service", PropertyKey.WORKER_WEB_HOSTNAME,
         PropertyKey.JOB_WORKER_WEB_BIND_HOST, PropertyKey.JOB_WORKER_WEB_PORT),
 
-    /**
-     * Master Raft service (Netty).
-     */
-    MASTER_RAFT("Alluxio Master Raft service", PropertyKey.MASTER_HOSTNAME,
-        PropertyKey.MASTER_BIND_HOST, PropertyKey.MASTER_EMBEDDED_JOURNAL_PORT),
-
-    // ALLUXIO CS END
     /**
      * Master RPC service (Thrift).
      */
@@ -436,6 +436,7 @@ public final class NetworkAddressUtils {
     return getLocalHostName();
   }
 
+  // TODO(zac): Handle the JOB_WORKER case in this method.
   /**
    * Gets a local node name from configuration if it is available, falling back on localhost lookup.
    *
@@ -443,13 +444,11 @@ public final class NetworkAddressUtils {
    */
   public static String getLocalNodeName() {
     switch (CommonUtils.PROCESS_TYPE.get()) {
-      // ALLUXIO CS ADD
       case JOB_MASTER:
         if (Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME)) {
           return Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME);
         }
         break;
-      // ALLUXIO CS END
       case CLIENT:
         if (Configuration.isSet(PropertyKey.USER_HOSTNAME)) {
           return Configuration.get(PropertyKey.USER_HOSTNAME);

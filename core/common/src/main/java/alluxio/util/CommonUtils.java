@@ -539,10 +539,8 @@ public final class CommonUtils {
 
   /** Alluxio process types. */
   public enum ProcessType {
-    // ALLUXIO CS ADD
     JOB_MASTER,
     JOB_WORKER,
-    // ALLUXIO CS END
     CLIENT,
     MASTER,
     PROXY,

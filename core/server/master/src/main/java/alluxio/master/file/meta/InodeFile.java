@@ -42,12 +42,12 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
   private boolean mCacheable;
   private boolean mCompleted;
   private long mLength;
-  // ALLUXIO CS ADD
   private long mPersistJobId;
   private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
   private String mTempUfsPath;
+  // ALLUXIO CS ADD
   private boolean mEncrypted;
   // ALLUXIO CS END
 
@@ -64,12 +64,12 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
     mCacheable = false;
     mCompleted = false;
     mLength = 0;
-    // ALLUXIO CS ADD
     mPersistJobId = Constants.PERSISTENCE_INVALID_JOB_ID;
     mReplicationDurable = 0;
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
     mTempUfsPath = Constants.PERSISTENCE_INVALID_UFS_PATH;
+    // ALLUXIO CS ADD
     mEncrypted = false;
     // ALLUXIO CS END
   }
@@ -104,9 +104,9 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
     ret.setMode(getMode());
     ret.setPersistenceState(getPersistenceState().toString());
     ret.setMountPoint(false);
-    // ALLUXIO CS ADD
     ret.setReplicationMax(getReplicationMax());
     ret.setReplicationMin(getReplicationMin());
+    // ALLUXIO CS ADD
     ret.setEncrypted(isEncrypted());
     // ALLUXIO CS END
     ret.setUfsFingerprint(getUfsFingerprint());
@@ -164,7 +164,6 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
     return mBlocks.get(blockIndex);
   }
 
-  // ALLUXIO CS ADD
   @Override
   public long getPersistJobId() {
     return mPersistJobId;
@@ -190,6 +189,7 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
     return mTempUfsPath;
   }
 
+  // ALLUXIO CS ADD
   @Override
   public boolean isEncrypted() {
     return mEncrypted;
@@ -264,7 +264,6 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
     return getThis();
   }
 
-  // ALLUXIO CS ADD
   /**
    * @param persistJobId the id of the job persisting this file
    * @return the updated object
@@ -310,6 +309,7 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
     return getThis();
   }
 
+  // ALLUXIO CS ADD
   /**
    * @param encrypted the encrypted flag value to use
    * @return the updated object
@@ -326,7 +326,6 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
    * @param entry the entry
    */
   public void updateFromEntry(UpdateInodeFileEntry entry) {
-    // ALLUXIO CS ADD
     if (entry.hasPersistJobId()) {
       setPersistJobId(entry.getPersistJobId());
     }
@@ -339,7 +338,6 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
     if (entry.hasTempUfsPath()) {
       setTempUfsPath(entry.getTempUfsPath());
     }
-    // ALLUXIO CS END
     if (entry.hasBlockSizeBytes()) {
       setBlockSizeBytes(entry.getBlockSizeBytes());
     }
@@ -365,12 +363,12 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("cacheable", mCacheable)
         .add("completed", mCompleted)
-        // ALLUXIO CS ADD
         .add("persistJobId", mPersistJobId)
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("tempUfsPath", mTempUfsPath)
+        // ALLUXIO CS ADD
         .add("encrypted", mEncrypted)
         // ALLUXIO CS END
         .add("length", mLength).toString();
@@ -396,12 +394,12 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
         .setParentId(entry.getParentId())
         .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
         .setPinned(entry.getPinned())
-        // ALLUXIO CS ADD
         .setPersistJobId(entry.getPersistJobId())
         .setReplicationDurable(entry.getReplicationDurable())
         .setReplicationMax(entry.getReplicationMax())
         .setReplicationMin(entry.getReplicationMin())
         .setTempUfsPath(entry.getTempUfsPath())
+        // ALLUXIO CS ADD
         .setEncrypted(entry.getEncrypted())
         // ALLUXIO CS END
         .setTtl(entry.getTtl())
@@ -434,19 +432,17 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
    */
   public static InodeFile create(long blockContainerId, long parentId, String name,
       long creationTimeMs, CreateFileOptions options) {
-    // ALLUXIO CS ADD
     Preconditions.checkArgument(
         options.getReplicationMax() == Constants.REPLICATION_MAX_INFINITY
         || options.getReplicationMax() >= options.getReplicationMin());
-    // ALLUXIO CS END
     return new InodeFile(blockContainerId)
         .setBlockSizeBytes(options.getBlockSizeBytes())
         .setCreationTimeMs(creationTimeMs)
         .setName(name)
-        // ALLUXIO CS ADD
         .setReplicationDurable(options.getReplicationDurable())
         .setReplicationMax(options.getReplicationMax())
         .setReplicationMin(options.getReplicationMin())
+        // ALLUXIO CS ADD
         .setEncrypted(options.isEncrypted())
         // ALLUXIO CS END
         .setTtl(options.getTtl())
@@ -476,12 +472,12 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
         .setParentId(getParentId())
         .setPersistenceState(getPersistenceState().name())
         .setPinned(isPinned())
-        // ALLUXIO CS ADD
         .setReplicationDurable(getReplicationDurable())
         .setReplicationMax(getReplicationMax())
         .setReplicationMin(getReplicationMin())
         .setPersistJobId(getPersistJobId())
         .setTempUfsPath(getTempUfsPath())
+        // ALLUXIO CS ADD
         .setEncrypted(isEncrypted())
         // ALLUXIO CS END
         .setTtl(getTtl())
