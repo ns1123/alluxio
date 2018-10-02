@@ -49,6 +49,7 @@ public final class OutStreamOptions {
   private String mOwner;
   private String mGroup;
   private Mode mMode;
+  private AccessControlList mAcl;
   private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
@@ -57,7 +58,6 @@ public final class OutStreamOptions {
   private boolean mEncrypted;
   private alluxio.proto.security.EncryptionProto.Meta mEncryptionMeta;
   // ALLUXIO CS END
-  private AccessControlList mAcl;
   private String mUfsPath;
   private long mMountId;
 
