@@ -92,7 +92,7 @@ public class LicenseMaster extends AbstractMaster {
    */
   public LicenseMaster(MasterRegistry registry, MasterContext masterContext) {
     super(masterContext, new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
+        .cachedThreadPool(Constants.LICENSE_MASTER_NAME));
     mBlockMaster = registry.get(BlockMaster.class);
     mLicenseCheck = new LicenseCheck();
     mLicense = new License();

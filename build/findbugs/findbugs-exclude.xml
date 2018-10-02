@@ -10,6 +10,7 @@
       <Package name="alluxio.proto.security.*"/>
       <!-- ALLUXIO CS END -->
       <Package name="alluxio.proto.dataserver.*"/>
+      <Package name="alluxio.proto.shared.*"/>
     </Or>
   </Match>
 

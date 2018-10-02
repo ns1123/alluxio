@@ -75,7 +75,7 @@ public final class DiagnosticMaster extends AbstractNonJournaledMaster {
    */
   public DiagnosticMaster(MasterRegistry registry, MasterContext masterContext) {
     super(masterContext, new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.DIAGNOSTIC_MASTER_NAME, 2));
+        .cachedThreadPool(Constants.DIAGNOSTIC_MASTER_NAME));
     registry.add(DiagnosticMaster.class, this);
     mIntervalMs = Configuration.getMs(PropertyKey.DIAGNOSTIC_LOG_INTERVAL_MS);
   }
