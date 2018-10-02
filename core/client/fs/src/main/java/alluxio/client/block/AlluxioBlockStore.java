@@ -298,14 +298,6 @@ public final class AlluxioBlockStore {
     WorkerNetAddress address;
     FileWriteLocationPolicy locationPolicy = Preconditions.checkNotNull(options.getLocationPolicy(),
         PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
-    // ALLUXIO CS REPLACE
-    // address = locationPolicy.getWorkerForNextBlock(getEligibleWorkers(), blockSize);
-    // if (address == null) {
-    //   throw new UnavailableException(
-    //       ExceptionMessage.NO_SPACE_FOR_BLOCK_ON_WORKER.getMessage(blockSize));
-    // }
-    // return getOutStream(blockId, blockSize, address, options);
-    // ALLUXIO CS WITH
     java.util.Set<BlockWorkerInfo> blockWorkers;
     blockWorkers = com.google.common.collect.Sets.newHashSet(getEligibleWorkers());
     // The number of initial copies depends on the write type: if ASYNC_THROUGH, it is the property
@@ -352,7 +344,6 @@ public final class AlluxioBlockStore {
     }
     return BlockOutStream
         .createReplicatedBlockOutStream(mContext, blockId, blockSize, workerAddressList, options);
-    // ALLUXIO CS END
   }
 
   /**
