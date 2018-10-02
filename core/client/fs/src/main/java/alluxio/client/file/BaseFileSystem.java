@@ -171,6 +171,7 @@ public class BaseFileSystem implements FileSystem {
       mFileSystemContext.putEncryptionMeta(status.getFileId(), meta);
     }
     // ALLUXIO CS END
+    outStreamOptions.setAcl(status.getAcl());
     try {
       // ALLUXIO CS ADD
       if (outStreamOptions.isEncrypted()) {
