@@ -1325,6 +1325,34 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("The period for the block integrity check, disabled if <= 0.")
           .setScope(Scope.MASTER)
           .build();
+  public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)
+          .setDefaultValue(1000)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS)
+          .setDefaultValue(Constants.SECOND_MS)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
+      new Builder(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS)
+          .setDefaultValue(0)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_MAX_INTERVAL_MS)
+          .setDefaultValue(Constants.HOUR_MS)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
+      new Builder(Name.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)
+          .setDefaultValue(Constants.DAY_MS)
+          .build();
+  public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
+      new Builder(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)
+          .setDefaultValue(1000)
+          .build();
+  public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
+      new Builder(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS)
+          .setDefaultValue(60000)
+          .build();
   public static final PropertyKey MASTER_PRINCIPAL = new Builder(Name.MASTER_PRINCIPAL)
       .setDescription("Kerberos principal for Alluxio master.")
       .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
@@ -2342,6 +2370,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
           .build();
+  public static final PropertyKey USER_FILE_REPLICATION_MAX =
+      new Builder(Name.USER_FILE_REPLICATION_MAX)
+          .setDefaultValue(-1 /* negative value means infinity */)
+          .build();
+  public static final PropertyKey USER_FILE_REPLICATION_MIN =
+      new Builder(Name.USER_FILE_REPLICATION_MIN).setDefaultValue(0).build();
+  public static final PropertyKey USER_FILE_REPLICATION_DURABLE =
+      new Builder(Name.USER_FILE_REPLICATION_DURABLE).setDefaultValue(1).build();
   /**
    * @deprecated It will be removed in 2.0.0.
    */
@@ -3121,50 +3157,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.NONE)
           .build();
-
-  //
-  // Master related CS properties
-  //
-  public static final PropertyKey MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
-      new Builder(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)
-          .setDefaultValue(1000)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
-      new Builder(Name.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS)
-          .setDefaultValue(Constants.SECOND_MS)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
-      new Builder(Name.MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS)
-          .setDefaultValue(0)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_MAX_INTERVAL_MS =
-      new Builder(Name.MASTER_PERSISTENCE_MAX_INTERVAL_MS)
-          .setDefaultValue(Constants.HOUR_MS)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS =
-      new Builder(Name.MASTER_PERSISTENCE_MAX_TOTAL_WAIT_TIME_MS)
-          .setDefaultValue(Constants.DAY_MS)
-          .build();
-  public static final PropertyKey MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
-      new Builder(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)
-          .setDefaultValue(1000)
-          .build();
-  public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
-      new Builder(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS)
-          .setDefaultValue(60000)
-          .build();
-
-  //
-  // User related CS properties
-  //
-  public static final PropertyKey USER_FILE_REPLICATION_MAX =
-      new Builder(Name.USER_FILE_REPLICATION_MAX)
-          .setDefaultValue(-1 /* negative value means infinity */)
-          .build();
-  public static final PropertyKey USER_FILE_REPLICATION_MIN =
-      new Builder(Name.USER_FILE_REPLICATION_MIN).setDefaultValue(0).build();
-  public static final PropertyKey USER_FILE_REPLICATION_DURABLE =
-      new Builder(Name.USER_FILE_REPLICATION_DURABLE).setDefaultValue(1).build();
   // ALLUXIO CS ADD
 
   public static final PropertyKey LIB_DIR =
