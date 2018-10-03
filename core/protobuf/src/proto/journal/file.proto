@@ -166,7 +166,6 @@ message InodeFileEntry {
   optional PTtlAction ttlAction = 17 [default = DELETE];
   optional string ufs_fingerprint = 18;
   optional alluxio.proto.shared.AccessControlList acl = 19;
-
   // ALLUXIO CS REPLACE
   // optional int32 replication_max = 20;
   // optional int32 replication_min = 21;
