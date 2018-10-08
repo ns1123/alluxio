@@ -3179,7 +3179,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
       new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME)
           .setDescription("Name of the authorization plugin for the under filesystem.")
-          .setDefaultValue("")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
@@ -3187,7 +3186,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS)
           .setDescription("Classpaths for the under filesystem authorization plugin, separated by "
               + "colons.")
-          .setDefaultValue("")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
@@ -3295,27 +3293,23 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   // Security related CS properties
   //
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_URL =
-      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_URL).setDefaultValue("").build();
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_URL).build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL =
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL).setDefaultValue("false").build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE =
-      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE).setDefaultValue("").build();
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE).build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD =
-      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD)
-          .setDefaultValue("")
-          .build();
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD).build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE =
-      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE)
-          .setDefaultValue("")
-          .build();
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE).build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BIND_USER =
-      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_USER).setDefaultValue("").build();
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_USER).build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD =
-      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD).setDefaultValue("").build();
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD).build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE =
-      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE).setDefaultValue("").build();
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE).build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_BASE =
-      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BASE).setDefaultValue("").build();
+      new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_BASE).build();
   public static final PropertyKey SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER =
       new Builder(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER)
           .setDefaultValue("(&(objectClass=user)(sAMAccountName={0}))")
@@ -3335,27 +3329,27 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue(Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL)
           .build();
   public static final PropertyKey SECURITY_KERBEROS_LOGIN_PRINCIPAL =
-      new Builder(Name.SECURITY_KERBEROS_LOGIN_PRINCIPAL).setDefaultValue("").build();
+      new Builder(Name.SECURITY_KERBEROS_LOGIN_PRINCIPAL).build();
   public static final PropertyKey SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
-      new Builder(Name.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE).setDefaultValue("").build();
+      new Builder(Name.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE).build();
   public static final PropertyKey SECURITY_KERBEROS_SERVER_PRINCIPAL =
-      new Builder(Name.SECURITY_KERBEROS_SERVER_PRINCIPAL).setDefaultValue("").build();
+      new Builder(Name.SECURITY_KERBEROS_SERVER_PRINCIPAL).build();
   public static final PropertyKey SECURITY_KERBEROS_SERVER_KEYTAB_FILE =
-      new Builder(Name.SECURITY_KERBEROS_SERVER_KEYTAB_FILE).setDefaultValue("").build();
+      new Builder(Name.SECURITY_KERBEROS_SERVER_KEYTAB_FILE).build();
   public static final PropertyKey SECURITY_KERBEROS_SERVICE_NAME =
-      new Builder(Name.SECURITY_KERBEROS_SERVICE_NAME).setDefaultValue("").build();
+      new Builder(Name.SECURITY_KERBEROS_SERVICE_NAME).build();
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_PRINCIPAL =
-      new Builder(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL).setDefaultValue("").build();
+      new Builder(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL).build();
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
-      new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
+      new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).build();
   public static final PropertyKey SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED =
       new Builder(Name.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED).setDefaultValue(true).build();
   public static final PropertyKey SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL =
-      new Builder(Name.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL).setDefaultValue("").build();
+      new Builder(Name.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL).build();
   public static final PropertyKey SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE =
-      new Builder(Name.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
+      new Builder(Name.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE).build();
   public static final PropertyKey SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
-      new Builder(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME).setDefaultValue("").build();
+      new Builder(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME).build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
       new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED).setDefaultValue(false).build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
@@ -3368,14 +3362,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey SECURITY_AUTHORIZATION_PLUGIN_NAME =
       new Builder(Name.SECURITY_AUTHORIZATION_PLUGIN_NAME)
-          .setDefaultValue("")
           .setDescription("Plugin for master authorization.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
   public static final PropertyKey SECURITY_AUTHORIZATION_PLUGIN_PATHS =
       new Builder(Name.SECURITY_AUTHORIZATION_PLUGIN_PATHS)
-          .setDefaultValue("")
           .setDescription("Classpath for master authorization plugin, separated by colons.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
