@@ -69,7 +69,7 @@ public class NetworkAddressUtilsTest {
         masterAddress);
 
     // bind host only
-    Configuration.set(service.getHostNameKey(), "");
+    Configuration.unset(service.getHostNameKey());
     Configuration.set(service.getBindHostKey(), "bind.host");
     masterAddress = NetworkAddressUtils.getConnectAddress(service);
     assertEquals(new InetSocketAddress("bind.host", service.getDefaultPort()), masterAddress);
@@ -108,7 +108,7 @@ public class NetworkAddressUtilsTest {
     assertEquals(new InetSocketAddress("connect.host", 10000), masterAddress);
 
     // empty connect host and bind host with port
-    Configuration.set(service.getHostNameKey(), "");
+    Configuration.unset(service.getHostNameKey());
     masterAddress = NetworkAddressUtils.getConnectAddress(service);
     assertEquals(new InetSocketAddress("bind.host", 10000), masterAddress);
 
@@ -233,7 +233,7 @@ public class NetworkAddressUtilsTest {
     assertEquals(new InetSocketAddress("bind.host", 20000), workerAddress);
 
     // empty connect host and bind host with port
-    Configuration.set(service.getHostNameKey(), "");
+    Configuration.unset(service.getHostNameKey());
     workerAddress = NetworkAddressUtils.getBindAddress(service);
     assertEquals(new InetSocketAddress("bind.host", 20000), workerAddress);
 
@@ -244,7 +244,7 @@ public class NetworkAddressUtilsTest {
         workerAddress);
 
     // empty connect host and empty bind host with port
-    Configuration.set(service.getBindHostKey(), "");
+    Configuration.unset(service.getBindHostKey());
     workerAddress = NetworkAddressUtils.getBindAddress(service);
     assertEquals(new InetSocketAddress(localHostName, 20000), workerAddress);
   }
