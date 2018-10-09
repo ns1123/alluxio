@@ -57,7 +57,7 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
    * @return the provider
    */
   public InodeAttributesProvider createMasterProvider() {
-    if (!Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME).isEmpty()) {
+    if (Configuration.isSet(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME)) {
       try {
         String pluginName =
             Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME);

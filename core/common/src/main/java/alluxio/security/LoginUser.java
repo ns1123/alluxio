@@ -143,10 +143,14 @@ public final class LoginUser {
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
-          Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
-              Configuration.get(principalKey));
-          Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
-              Configuration.get(keytabKey));
+          if (Configuration.isSet(principalKey)) {
+            Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
+                Configuration.get(principalKey));
+          }
+          if (Configuration.isSet(keytabKey)) {
+            Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
+                Configuration.get(keytabKey));
+          }
           sLoginUser = login();
         }
       }
@@ -170,8 +174,11 @@ public final class LoginUser {
       // ALLUXIO CS ADD
       if (authType.equals(AuthType.KERBEROS)) {
         // Get Kerberos principal and keytab file from conf.
-        String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
-        String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+        String principal =
+            Configuration.isSet(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL)
+                ? Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL) : "";
+        String keytab = Configuration.isSet(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)
+            ? Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE) : "";
         LOG.debug("Login principal: {} keytab: {}", principal, keytab);
 
         if (!principal.isEmpty()) {

@@ -144,7 +144,7 @@ public final class LdapGroupsMapping implements GroupMappingService {
     // Set LDAP server URL.
     env.put(Context.PROVIDER_URL, Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_URL));
     // Set SSL configurations.
-    if (Configuration.containsKey(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL)
+    if (Configuration.isSet(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL)
         && Configuration.getBoolean(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL)) {
       env.put(Context.SECURITY_PROTOCOL, SSL);
       System.setProperty(SSL_KEYSTORE_KEY,
@@ -174,12 +174,16 @@ public final class LdapGroupsMapping implements GroupMappingService {
   String getPassword(PropertyKey passwordKey, PropertyKey passwordFileKey)
       throws IOException {
     // Get the password if it is directly configured.
-    String password = Configuration.get(passwordKey);
-    if (!password.isEmpty()) {
+    if (Configuration.isSet(passwordKey)) {
+      String password = Configuration.get(passwordKey);
       return password;
     }
-    // Read from the file containing the password.
-    String passwordFile = Configuration.get(passwordFileKey);
+
+    String passwordFile = "";
+    if (Configuration.isSet(passwordFileKey)) {
+      // Read from the file containing the password.
+      passwordFile = Configuration.get(passwordFileKey);
+    }
     if (passwordFile.isEmpty()) {
       return "";
     }

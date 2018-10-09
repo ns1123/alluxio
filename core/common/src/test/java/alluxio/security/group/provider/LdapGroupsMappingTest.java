@@ -69,6 +69,7 @@ public final class LdapGroupsMappingTest {
 
   @Before
   public void before() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BASE, "DC=test,DC=com");
     // TODO(cc): This should be called automatically by the junit framework before the @Before
     // method, but it's not called, investigate why.
     mTestFolder.create();
@@ -166,8 +167,8 @@ public final class LdapGroupsMappingTest {
     Assert.assertEquals(expectedPassword, password);
 
     // Tests the case where no password or password file is set.
-    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD, "");
-    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE, "");
+    Configuration.unset(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD);
+    Configuration.unset(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE);
     password = mapping.getPassword(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD,
         PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE);
     Assert.assertEquals("", password);
