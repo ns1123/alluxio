@@ -259,6 +259,28 @@ public class BaseFileSystem implements FileSystem {
     }
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws IOException, AlluxioException {
+    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    try {
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token =
+          masterClient.getDelegationToken(renewer);
+      LOG.debug("Got delegation token {}, renewer: {}", token, renewer);
+      return token;
+    } catch (UnavailableException e) {
+      throw e;
+    } catch (AlluxioStatusException e) {
+      throw e.toAlluxioException();
+    } finally {
+      mFileSystemContext.releaseMasterClient(masterClient);
+    }
+  }
+
+  // ALLUXIO CS END
   @Override
   public URIStatus getStatus(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {

@@ -70,8 +70,14 @@ public class MasterTestUtils {
     long startTimeMs = System.currentTimeMillis();
     int port = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
+    // ALLUXIO CS REPLACE
+    // MasterContext masterContext = new MasterContext(journalSystem, safeModeManager,
+    //     mock(BackupManager.class), startTimeMs, port);
+    // ALLUXIO CS WITH
     MasterContext masterContext = new MasterContext(journalSystem, safeModeManager,
-        mock(BackupManager.class), startTimeMs, port);
+        mock(BackupManager.class),
+        mock(alluxio.security.authentication.DelegationTokenManager.class), startTimeMs, port);
+    // ALLUXIO CS END
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, masterContext);
     // ALLUXIO CS END

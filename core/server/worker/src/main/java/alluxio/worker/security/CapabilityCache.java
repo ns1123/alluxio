@@ -18,7 +18,7 @@ import alluxio.exception.InvalidCapabilityException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.security.CapabilityProto;
 import alluxio.security.authorization.Mode;
-import alluxio.security.capability.CapabilityKey;
+import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
 import alluxio.util.ThreadFactoryUtils;
 
@@ -58,9 +58,9 @@ public final class CapabilityCache implements Closeable {
 
   private ReentrantLock mCapabilityKeyLock = new ReentrantLock();
   @GuardedBy("mCapabilityKeyLock")
-  private CapabilityKey mOldCapabilityKey;
+  private MasterKey mOldCapabilityKey;
   @GuardedBy("mCapabilityKeyLock")
-  private CapabilityKey mCapabilityKey;
+  private MasterKey mCapabilityKey;
 
   /**
    * The options to create a {@link CapabilityCache}.
@@ -68,7 +68,7 @@ public final class CapabilityCache implements Closeable {
   public static final class Options {
     public long mGCIntervalMs = Constants.MINUTE_MS;
     public ScheduledExecutorService mExecutorService;
-    public CapabilityKey mCapabilityKey;
+    public MasterKey mCapabilityKey;
 
     /**
      * @return the default instance
@@ -99,7 +99,7 @@ public final class CapabilityCache implements Closeable {
      * @param key the capability key
      * @return the updated options object
      */
-    public Options setCapabilityKey(CapabilityKey key) {
+    public Options setCapabilityKey(MasterKey key) {
       mCapabilityKey = key;
       return this;
     }
@@ -146,14 +146,14 @@ public final class CapabilityCache implements Closeable {
   /**
    * @return the capability key
    */
-  public CapabilityKey getCapabilityKey() {
+  public MasterKey getCapabilityKey() {
     return mCapabilityKey;
   }
 
   /**
    * @param key the capability key
    */
-  public void setCapabilityKey(CapabilityKey key) {
+  public void setCapabilityKey(MasterKey key) {
     mCapabilityKeyLock.lock();
     try {
       mOldCapabilityKey = mCapabilityKey;
@@ -176,7 +176,7 @@ public final class CapabilityCache implements Closeable {
     }
     alluxio.security.capability.Capability cap =
         new alluxio.security.capability.Capability(capability);
-    CapabilityKey key;
+    MasterKey key;
     mCapabilityKeyLock.lock();
     try {
       if (cap.getKeyId() == mCapabilityKey.getKeyId()) {

@@ -29,7 +29,34 @@ public final class MasterContext {
   private final ReadWriteLock mStateLock;
   private final long mStartTimeMs;
   private final int mPort;
+  // ALLUXIO CS ADD
+  private final alluxio.security.authentication.DelegationTokenManager mDelegationTokenManager;
+  // ALLUXIO CS END
 
+  // ALLUXIO CS REPLACE
+  //  /**
+  //   * Creates a new master context.
+  //   *
+  //   * The stateLock is used to allow us to pause master state changes so that we can take backups of
+  //   * master state. All state modifications should hold the read lock so that holding the write lock
+  //   * allows a thread to pause state modifications.
+  //   *
+  //   * @param journalSystem the journal system to use for tracking master operations
+  //   * @param safeModeManager the manager for master safe mode
+  //   * @param backupManager the backup manager for performing backups
+  //   * @param startTimeMs the master process start time in milliseconds
+  //   * @param port the rpc port
+  //   */
+  //  public MasterContext(JournalSystem journalSystem, SafeModeManager safeModeManager,
+  //      BackupManager backupManager, long startTimeMs, int port) {
+  //    mJournalSystem = Preconditions.checkNotNull(journalSystem, "journalSystem");
+  //    mSafeModeManager = Preconditions.checkNotNull(safeModeManager, "safeModeManager");
+  //    mBackupManager = Preconditions.checkNotNull(backupManager, "backupManager");
+  //    mStateLock = new ReentrantReadWriteLock();
+  //    mStartTimeMs = startTimeMs;
+  //    mPort = port;
+  //  }
+  // ALLUXIO CS WITH
   /**
    * Creates a new master context.
    *
@@ -40,18 +67,24 @@ public final class MasterContext {
    * @param journalSystem the journal system to use for tracking master operations
    * @param safeModeManager the manager for master safe mode
    * @param backupManager the backup manager for performing backups
+   * @param delegationTokenManager the manager for managing delegation token
    * @param startTimeMs the master process start time in milliseconds
    * @param port the rpc port
    */
   public MasterContext(JournalSystem journalSystem, SafeModeManager safeModeManager,
-      BackupManager backupManager, long startTimeMs, int port) {
+      BackupManager backupManager,
+      alluxio.security.authentication.DelegationTokenManager delegationTokenManager,
+      long startTimeMs, int port) {
     mJournalSystem = Preconditions.checkNotNull(journalSystem, "journalSystem");
     mSafeModeManager = Preconditions.checkNotNull(safeModeManager, "safeModeManager");
     mBackupManager = Preconditions.checkNotNull(backupManager, "backupManager");
+    mDelegationTokenManager = Preconditions.checkNotNull(delegationTokenManager,
+        "delegationTokenManager");
     mStateLock = new ReentrantReadWriteLock();
     mStartTimeMs = startTimeMs;
     mPort = port;
   }
+  // ALLUXIO CS END
 
   // ALLUXIO CS ADD
   /**
@@ -63,6 +96,7 @@ public final class MasterContext {
     mJournalSystem = Preconditions.checkNotNull(journalSystem, "journalSystem");
     mSafeModeManager = null;
     mBackupManager = null;
+    mDelegationTokenManager = null;
     mStateLock = new ReentrantReadWriteLock();
     mStartTimeMs = -1;
     mPort = -1;
@@ -89,6 +123,15 @@ public final class MasterContext {
   public BackupManager getBackupManager() {
     return mBackupManager;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the manager for delegation tokens
+   */
+  public alluxio.security.authentication.DelegationTokenManager getDelegationTokenManager() {
+    return mDelegationTokenManager;
+  }
+  // ALLUXIO CS END
 
   /**
    * @return the lock which must be held to modify master state

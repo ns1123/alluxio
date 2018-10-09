@@ -404,6 +404,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   /** The provider for authorization with external plugins. */
   private InodeAttributesProvider mAuthProvider = null;
+
+  /** The manager for delegation tokens. **/
+  private alluxio.security.authentication.DelegationTokenManager mDelegationTokenManager = null;
+
   // ALLUXIO CS END
   /**
    * The service that checks for blocks which no longer correspond to existing inodes.
@@ -471,6 +475,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
     mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
+    mDelegationTokenManager = masterContext.getDelegationTokenManager();
     // ALLUXIO CS END
     mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
     mUfsBlockLocationCache = UfsBlockLocationCache.Factory.create(mMountTable);
@@ -4223,7 +4228,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               .setFileId(fileInfo.getFileId()).build();
       fileInfo.setCapability(
           new alluxio.security.capability.Capability(
-              mBlockMaster.getCapabilityKeyManager().getCapabilityKey(), content));
+              mBlockMaster.getCapabilityKeyManager().getMasterKey(), content));
     }
   }
   // ALLUXIO CS END
@@ -4286,6 +4291,21 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
 
   // ALLUXIO CS ADD
+
+  @Override
+  public
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws AccessControlException {
+    String owner = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+    String realUser = alluxio.security.authentication.AuthenticatedClientUser.getConnectionUser();
+    alluxio.security.authentication.DelegationTokenIdentifier dtId =
+        new alluxio.security.authentication.DelegationTokenIdentifier(owner, renewer, realUser);
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token
+        = mDelegationTokenManager.getDelegationToken(dtId);
+    // TODO(feng): journal new token
+    return token;
+  }
 
   /**
    * Periodically schedules jobs to persist files and updates metadata accordingly.

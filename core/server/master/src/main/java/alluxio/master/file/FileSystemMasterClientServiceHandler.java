@@ -182,6 +182,21 @@ public final class FileSystemMasterClientServiceHandler implements
         "path=%s, options=%s", path, options);
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public alluxio.thrift.GetDelegationTokenTResponse getDelegationToken(String renewer)
+      throws AlluxioTException, org.apache.thrift.TException {
+    return RpcUtils.call(LOG,
+        (RpcCallableThrowsIOException<alluxio.thrift.GetDelegationTokenTResponse>) () -> {
+          alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+              token = mFileSystemMaster.getDelegationToken(renewer);
+        return new alluxio.thrift.GetDelegationTokenTResponse(
+              new alluxio.thrift.DelegationToken(token.getId().toThrift(),
+                  java.nio.ByteBuffer.wrap(token.getPassword())));
+        }, "GetDelegationToken", true, "renewer=%s", renewer);
+  }
+
+  // ALLUXIO CS END
   @Override
   public GetStatusTResponse getStatus(final String path, final GetStatusTOptions options)
       throws AlluxioTException {

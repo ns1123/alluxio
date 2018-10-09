@@ -13,6 +13,7 @@ package alluxio.security.capability;
 
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.proto.security.CapabilityProto;
+import alluxio.security.MasterKey;
 import alluxio.util.proto.ProtoUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,7 +30,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * including permission, is only stored in Master. The capability is a token granted by the Master,
  * and presented from the Alluxio client to the workers for block access.
  *
- * Note: The {@link CapabilityKey} should never be included in {@link Capability}.
+ * Note: The {@link MasterKey} should never be included in {@link Capability}.
  */
 @NotThreadSafe
 public final class Capability {
@@ -43,13 +44,14 @@ public final class Capability {
   private CapabilityProto.Content mContentDecoded = null;
 
   /**
-   * Creates an instance of {@link Capability} from a {@link CapabilityKey} and a
+   * Creates an instance of {@link Capability} from a {@link MasterKey} and a
    * {@link CapabilityProto.Content}.
    *
    * @param key the capability key
    * @param content the capability content
    */
-  public Capability(CapabilityKey key, CapabilityProto.Content content) {
+  public Capability(MasterKey key, CapabilityProto.Content content) {
+    // TODO(feng): refactor Capability to unify with Token
     mContentDecoded = content;
     mKeyId = key.getKeyId();
     mContent = ProtoUtils.encode(content);
@@ -141,7 +143,7 @@ public final class Capability {
    * @param oldKey the old capability key
    * @throws InvalidCapabilityException if the capability can not be verified with either key
    */
-  public void verifyAuthenticator(CapabilityKey curKey, CapabilityKey oldKey)
+  public void verifyAuthenticator(MasterKey curKey, MasterKey oldKey)
       throws InvalidCapabilityException {
     if (curKey.getKeyId() != mKeyId) {
       verifyAuthenticator(oldKey);
@@ -156,7 +158,7 @@ public final class Capability {
    * @param key the provided capability key
    * @throws InvalidCapabilityException if the capability can not be verified
    */
-  public void verifyAuthenticator(CapabilityKey key) throws InvalidCapabilityException {
+  public void verifyAuthenticator(MasterKey key) throws InvalidCapabilityException {
     byte[] expectedAuthenticator = key.calculateHMAC(mContent);
     if (!Arrays.equals(expectedAuthenticator, mAuthenticator)) {
       // SECURITY: the expectedAuthenticator should never be printed in logs.

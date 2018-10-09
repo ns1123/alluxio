@@ -537,4 +537,15 @@ public interface FileSystemMaster extends Master {
    * @return a list of {@link WorkerInfo} objects representing the workers in Alluxio
    */
   List<WorkerInfo> getWorkerInfoList() throws UnavailableException;
+  // ALLUXIO CS ADD
+
+  /**
+   * Get the delegation token for the request user.
+   * @param renewer the user name that is allowed to renwer the token
+   * @return the delegation token
+   */
+  alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws AccessControlException;
+  // ALLUXIO CS END
 }

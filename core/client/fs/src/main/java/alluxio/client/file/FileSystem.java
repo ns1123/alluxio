@@ -197,6 +197,18 @@ public interface FileSystem {
   void free(AlluxioURI path, FreeOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException;
 
+  // ALLUXIO CS ADD
+  /**
+   * Gets the delegation token for the request user.
+   *
+   * @param renewer the name of the user who is allowed to renew this token
+   * @return the delegation token
+   */
+  alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws IOException, AlluxioException;
+
+  // ALLUXIO CS END
   /**
    * Convenience method for {@link #getStatus(AlluxioURI, GetStatusOptions)} with default options.
    *

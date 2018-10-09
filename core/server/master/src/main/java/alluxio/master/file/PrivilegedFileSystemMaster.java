@@ -406,6 +406,16 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
     return mFileSystemMaster.getWorkerInfoList();
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws AccessControlException {
+    return mFileSystemMaster.getDelegationToken(renewer);
+  }
+
+  // ALLUXIO CS END
   @Override
   public void updateUfsMode(AlluxioURI ufsPath, UfsMode ufsMode) throws InvalidPathException,
       InvalidArgumentException, UnavailableException, AccessControlException {

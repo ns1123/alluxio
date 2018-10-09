@@ -192,7 +192,7 @@ public final class LoginUser {
         if (Boolean.getBoolean("sun.security.jgss.native")) {
           jgssLogin(subject);
         } else if (principal.isEmpty() && sExternalLoginProvider != null
-            && sExternalLoginProvider.hasKerberosCrendentials()) {
+            && sExternalLoginProvider.hasKerberosCredentials()) {
           LOG.debug("Using external login provider");
           // Try external login if a Kerberos principal is not provided in configuration.
           subject = sExternalLoginProvider.login();
@@ -340,7 +340,7 @@ public final class LoginUser {
       return;
     }
     if (com.google.common.base.Strings.isNullOrEmpty(sPrincipal)
-        && sExternalLoginProvider != null && sExternalLoginProvider.hasKerberosCrendentials()) {
+        && sExternalLoginProvider != null && sExternalLoginProvider.hasKerberosCredentials()) {
       try {
         sExternalLoginProvider.relogin();
       } catch (LoginException e) {
@@ -374,6 +374,21 @@ public final class LoginUser {
       String msg = String.format("Failed to login for %s: %s",
           sLoginUser.getName(), e.getMessage());
       throw new UnauthenticatedException(msg, e);
+    }
+  }
+
+  /**
+   * Resets logged in user.
+   */
+  public static void reset() {
+    if (sLoginContext != null) {
+      try {
+        sLoginContext.logout();
+        sLoginContext = null;
+      } catch (LoginException e) {
+        LOG.warn("Failed to log out for {}: {}", sLoginUser.getName(), e.getMessage());
+      }
+      sLoginUser = null;
     }
   }
   // ALLUXIO CS END

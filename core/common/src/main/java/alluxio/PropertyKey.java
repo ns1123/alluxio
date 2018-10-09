@@ -3389,6 +3389,27 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
   public static final PropertyKey SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
       new Builder(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS =
+      new Builder(Name.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS)
+          .setDefaultValue("1d")
+          .setDescription("Lifetime of a delegation token secret key.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS =
+      new Builder(Name.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS)
+          .setDefaultValue("7d")
+          .setDescription("Maximum lifetime of a delegation token.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS =
+      new Builder(Name.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS)
+          .setDefaultValue("1d")
+          .setDescription("Time before which a delegation token must be renewed.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
       new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED).setDefaultValue(false).build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
@@ -4280,6 +4301,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
 
     // ALLUXIO CS ADD
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS =
+        "alluxio.security.authentication.delegation.token.key.lifetime.ms";
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS =
+        "alluxio.security.authentication.delegation.token.lifetime.ms";
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS =
+        "alluxio.security.authentication.delegation.token.renew.interval.ms";
     public static final String SECURITY_AUTHORIZATION_PLUGIN_NAME =
         "alluxio.security.authorization.plugin.name";
     public static final String SECURITY_AUTHORIZATION_PLUGIN_PATHS =

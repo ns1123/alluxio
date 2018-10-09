@@ -13,6 +13,7 @@ package alluxio.security.capability;
 
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.proto.security.CapabilityProto;
+import alluxio.security.MasterKey;
 import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 import alluxio.util.FormatUtils;
@@ -28,9 +29,9 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 /**
- * Tests for {@link CapabilityKey}.
+ * Tests for {@link MasterKey}.
  */
-public final class CapabilityKeyTest {
+public final class MasterKeyTest {
   private final long mKeyId = 1L;
   private final long mFileId = 2L;
   private final String mEncodingKey = "mykey";
@@ -42,16 +43,16 @@ public final class CapabilityKeyTest {
       .setAccessMode(Mode.Bits.READ.ordinal())
       .setExpirationTimeMs(CommonUtils.getCurrentMs() + 10 * 1000).build();
 
-  private CapabilityKey mKey;
+  private MasterKey mKey;
 
   @Before
   public void before() throws Exception {
-    mKey = new CapabilityKey(1L, CommonUtils.getCurrentMs() + 10 * 1000, "mykey".getBytes());
+    mKey = new MasterKey(1L, CommonUtils.getCurrentMs() + 10 * 1000, "mykey".getBytes());
   }
 
   @Test
   public void defaults() {
-    CapabilityKey key = new CapabilityKey();
+    MasterKey key = new MasterKey();
     Assert.assertEquals(0L, key.getKeyId());
     Assert.assertEquals(0L, key.getExpirationTimeMs());
     Assert.assertNull(key.getEncodedKey());
@@ -68,7 +69,7 @@ public final class CapabilityKeyTest {
     long expiration = random.nextLong();
     byte[] encodedKey = "test_key".getBytes();
 
-    CapabilityKey key = new CapabilityKey(keyid, expiration, encodedKey);
+    MasterKey key = new MasterKey(keyid, expiration, encodedKey);
 
     Assert.assertEquals(keyid, key.getKeyId());
     Assert.assertEquals(expiration, key.getExpirationTimeMs());
@@ -78,7 +79,7 @@ public final class CapabilityKeyTest {
 
   @Test
   public void setNullKey() throws Exception {
-    CapabilityKey key = new CapabilityKey(1L, 2L, null);
+    MasterKey key = new MasterKey(1L, 2L, null);
     Assert.assertNull(key.getEncodedKey());
     try {
       key.calculateHMAC("payload".getBytes());
@@ -97,7 +98,7 @@ public final class CapabilityKeyTest {
     keyGen.init(128);
     SecretKey secretKey = keyGen.generateKey();
 
-    CapabilityKey key = new CapabilityKey(keyid, expiration, secretKey.getEncoded());
+    MasterKey key = new MasterKey(keyid, expiration, secretKey.getEncoded());
 
     Assert.assertEquals(keyid, key.getKeyId());
     Assert.assertEquals(expiration, key.getExpirationTimeMs());
@@ -108,7 +109,7 @@ public final class CapabilityKeyTest {
   @Test
   public void setEmptyKey() throws Exception  {
     try {
-      CapabilityKey key = new CapabilityKey(1L, 10000L, "".getBytes());
+      MasterKey key = new MasterKey(1L, 10000L, "".getBytes());
       Assert.fail("Should get IllegalArgumentException with an empty key.");
     } catch (IllegalArgumentException e) {
       // expected
@@ -129,7 +130,7 @@ public final class CapabilityKeyTest {
   @Test
   public void generateAndVerifyCapability() throws Exception {
     Capability capability = new Capability(mKey, mContent);
-    mKey.verifyAuthenticator(capability);
+    capability.verifyAuthenticator(mKey);
   }
 
   @Test
@@ -139,7 +140,7 @@ public final class CapabilityKeyTest {
         .setContent(mContent.toBuilder().setUser("wronguser").build().toByteArray());
     Capability capability = new Capability(capabilityThrift);
     try {
-      mKey.verifyAuthenticator(capability);
+      capability.verifyAuthenticator(mKey);
       Assert.fail("Changed content should fail to authenticate.");
     } catch (InvalidCapabilityException e) {
       // expected
@@ -149,10 +150,10 @@ public final class CapabilityKeyTest {
   @Test
   public void verifyAuthenticatorTestWithNewerKeyId() throws Exception {
     Capability capability = new Capability(mKey, mContent);
-    CapabilityKey newerKey = new CapabilityKey(
+    MasterKey newerKey = new MasterKey(
         mKeyId + 1, CommonUtils.getCurrentMs() + 100 * 1000, mEncodingKey.getBytes());
     try {
-      newerKey.verifyAuthenticator(capability);
+      capability.verifyAuthenticator(newerKey);
     } catch (InvalidCapabilityException e) {
       Assert.fail(
           "Verify authenticator with a mismatching key id should not fail if the keys are the "
@@ -162,11 +163,11 @@ public final class CapabilityKeyTest {
 
   @Test
   public void verifyAuthenticatorTestWithWrongSecretKey() throws Exception {
-    CapabilityKey wrongKey = new CapabilityKey(
+    MasterKey wrongKey = new MasterKey(
         mKeyId, CommonUtils.getCurrentMs() + 100 * 1000, "gussedKey".getBytes());
     Capability capability = new Capability(mKey, mContent);
     try {
-      wrongKey.verifyAuthenticator(capability);
+      capability.verifyAuthenticator(wrongKey);
       Assert.fail("Verify authenticator generated with a wrong secret key should fail.");
     } catch (InvalidCapabilityException e) {
       // expected.

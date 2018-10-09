@@ -577,6 +577,17 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     return newDetails.equals(FileSystemContext.get().getMasterInquireClient().getConnectDetails());
   }
 
+  private String buildTokenService(URI uri) {
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
+        || alluxio.util.ConfigurationUtils.getMasterRpcAddresses(Configuration.global()).size() > 1) {
+      // builds token service name for logic alluxio service uri (HA)
+      return uri.toString();
+    }
+
+    // builds token service name for single master address.
+    return org.apache.hadoop.security.SecurityUtil.buildTokenService(uri).toString();
+  }
+
   /**
    * Sets the file system and context. Contexts with the same subject are shared among file systems
    * to reduce resource usage such as the metrics heartbeat.
@@ -587,6 +598,22 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       LOG.debug("Using Hadoop subject: {}", subject);
       mContext = FileSystemContext.get(subject);
       mFileSystem = FileSystem.Factory.get(mContext);
+      // ALLUXIO CS ADD
+      try {
+        UserGroupInformation user = UserGroupInformation.getCurrentUser();
+        if (!user.getTokens().isEmpty()) {
+          String tokenService = buildTokenService(mUri);
+          List<String> masters = mContext.getMasterInquireClient().getMasterRpcAddresses().stream()
+              .map(addr ->
+                  HostAndPort.fromParts(addr.getAddress().getHostAddress(), addr.getPort()).toString())
+              .collect(toList());
+          LOG.debug("Checking Alluxio delegation token for {} on service {}", subject, tokenService);
+          HadoopKerberosLoginProvider.populateAlluxioTokens(user, subject, tokenService, masters);
+        }
+      } catch (IOException e) {
+        LOG.warn("unable to populate Alluxio tokens.", e);
+      }
+      // ALLUXIO CS END
     } else {
       LOG.debug("No Hadoop subject. Using FileSystem Context without subject.");
       mContext = FileSystemContext.get();
@@ -773,6 +800,39 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public org.apache.hadoop.security.token.Token<?>[] addDelegationTokens(
+      final String renewer, org.apache.hadoop.security.Credentials credentials) throws IOException {
+    LOG.debug("addDelegationTokens(renewer={})", renewer);
+    return super.addDelegationTokens(renewer, credentials);
+  }
+
+  @Override
+  public org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws IOException {
+    LOG.debug("getDelegationToken(renewer={})", renewer);
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+        token = null;
+    try {
+      token = mFileSystem.getDelegationToken(renewer);
+    } catch (AlluxioException e) {
+      LOG.warn("Error getting delegation token: {}", e);
+      return null;
+    }
+    LOG.debug("getDelegationToken, got Alluxio token {}", token.toString());
+    // converts Alluxio token to HDFS token
+    AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId());
+    org.apache.hadoop.io.Text tokenService = new org.apache.hadoop.io.Text(buildTokenService(mUri));
+    org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> hadoopToken =
+        new org.apache.hadoop.security.token.Token<>(id.getBytes(), token.getPassword(),
+            id.getKind(), tokenService);
+    LOG.debug("getDelegationToken, return {}", hadoopToken.toString());
+    return hadoopToken;
+  }
+
+  // ALLUXIO CS END
   /**
    * Convenience method which ensures the given path exists, wrapping any {@link AlluxioException}
    * in {@link IOException}.

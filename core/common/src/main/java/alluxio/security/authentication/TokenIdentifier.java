@@ -11,27 +11,12 @@
 
 package alluxio.security.authentication;
 
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-
 /**
- * Interface to provide Kerberos login function.
+ * Contains public information of a token.
  */
-public interface KerberosLoginProvider {
+public interface TokenIdentifier {
   /**
-   * Login using Kerberos authentication.
-   *
-   * @return a {@link Subject} with login information
+   * @return byte array contains serialized information of the token
    */
-  Subject login() throws LoginException;
-
-  /**
-   * Relogin to avoid ticket expiration.
-   */
-  void relogin() throws LoginException;
-
-  /**
-   * @return whether Kerberos credentials are available
-   */
-  boolean hasKerberosCredentials();
+  byte[] getBytes();
 }

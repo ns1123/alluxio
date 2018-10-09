@@ -142,6 +142,21 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
         options.toThrift()).getFileInfo())), "GetStatus");
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws AlluxioStatusException {
+    return retryRPC(() -> {
+      alluxio.thrift.GetDelegationTokenTResponse response = mClient.getDelegationToken(renewer);
+      return new alluxio.security.authentication.Token<>(
+          alluxio.security.authentication.DelegationTokenIdentifier.fromThrift(
+          response.getToken().getIdentifier()), response.getToken().getPassword());
+    }, "GetDelegationToken");
+  }
+
+  // ALLUXIO CS END
   @Override
   public synchronized long getNewBlockIdForFile(final AlluxioURI path)
       throws AlluxioStatusException {

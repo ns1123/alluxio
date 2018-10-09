@@ -19,7 +19,7 @@ import alluxio.network.netty.NettyRPC;
 import alluxio.network.netty.NettyRPCContext;
 import alluxio.network.netty.NettySecureRpcClient;
 import alluxio.proto.security.Key;
-import alluxio.security.capability.CapabilityKey;
+import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
 import alluxio.util.proto.ProtoMessage;
 import alluxio.util.proto.ProtoUtils;
@@ -48,7 +48,7 @@ public final class NettySecureRpcServerTest {
   private NettySecureRpcServer mNettySecureRpcServer;
   private BlockWorker mBlockWorker;
 
-  private CapabilityKey mKey;
+  private MasterKey mKey;
   private CapabilityCache mCapabilityCache;
 
   @Rule
@@ -57,7 +57,7 @@ public final class NettySecureRpcServerTest {
 
   @Before
   public void before() throws Exception {
-    mKey = new CapabilityKey(0L, CommonUtils.getCurrentMs() + Constants.DAY_MS,
+    mKey = new MasterKey(0L, CommonUtils.getCurrentMs() + Constants.DAY_MS,
         "1111111111111111111111111111111111111111111111111111".getBytes());
     mCapabilityCache = new CapabilityCache(
         CapabilityCache.Options.defaults().setCapabilityKey(mKey));
