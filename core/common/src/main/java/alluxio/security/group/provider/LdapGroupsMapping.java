@@ -176,9 +176,7 @@ public final class LdapGroupsMapping implements GroupMappingService {
     // Get the password if it is directly configured.
     if (Configuration.isSet(passwordKey)) {
       String password = Configuration.get(passwordKey);
-      if (!password.isEmpty()) {
-        return password;
-      }
+      return password;
     }
 
     String passwordFile = "";
