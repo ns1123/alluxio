@@ -15,19 +15,13 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
-import alluxio.exception.AccessControlException;
-import alluxio.exception.InvalidCapabilityException;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.metrics.Metric;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.WorkerMetrics;
-import alluxio.netty.NettyAttributes;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
-import alluxio.proto.security.CapabilityProto;
-import alluxio.security.authentication.AuthenticatedClientUser;
-import alluxio.security.authorization.Mode;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
@@ -38,7 +32,6 @@ import alluxio.worker.block.meta.TempBlockMeta;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.channel.FileRegion;
 import org.slf4j.Logger;
@@ -86,13 +79,17 @@ public final class UfsFallbackBlockWriteHandler
     mBlockWriteHandler = new BlockWriteHandler(executorService, blockWorker);
   }
 
+  // ALLUXIO CS ADD
   @Override
-  protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
-      CapabilityProto.Capability capability, Mode.Bits accessMode)
-      throws InvalidCapabilityException, AccessControlException {
+  protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
     Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
   }
 
+  // ALLUXIO CS END
   @Override
   protected boolean acceptMessage(Object object) {
     if (!super.acceptMessage(object)) {
@@ -105,7 +102,7 @@ public final class UfsFallbackBlockWriteHandler
   @Override
   protected PacketWriter createPacketWriter(BlockWriteRequestContext context, Channel channel) {
     if (context.isWritingToLocal()) {
-      // not fallback yet, starting with the block packet writer
+      //// not fallback yet, starting with the block packet writer
       return new UfsFallbackBlockPacketWriter(context, channel, mUfsManager,
           mBlockWriteHandler.createPacketWriter(context, channel));
     } else {
@@ -257,11 +254,13 @@ public final class UfsFallbackBlockWriteHandler
         throws Exception {
       BlockWriteRequest request = context.getRequest();
       Protocol.CreateUfsBlockOptions createUfsBlockOptions = request.getCreateUfsBlockOptions();
+      // ALLUXIO CS ADD
       // Before interacting with the UFS manager, make sure the user is set.
-      String user = channel.attr(NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+      String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
       if (user != null) {
-        AuthenticatedClientUser.set(user);
+        alluxio.security.authentication.AuthenticatedClientUser.set(user);
       }
+      // ALLUXIO CS END
       UfsManager.UfsClient ufsClient = mUfsManager.get(createUfsBlockOptions.getMountId());
       alluxio.resource.CloseableResource<UnderFileSystem> ufsResource =
           ufsClient.acquireUfsResource();
@@ -279,12 +278,14 @@ public final class UfsFallbackBlockWriteHandler
           WorkerMetrics.TAG_UFS, ufsString);
       String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
           WorkerMetrics.TAG_UFS, ufsString);
+      // ALLUXIO CS ADD
       if (user != null) {
         counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
             WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
         meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
             WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
       }
+      // ALLUXIO CS END
       context.setCounter(MetricsSystem.counter(counterName));
       context.setMeter(MetricsSystem.meter(meterName));
     }

@@ -97,7 +97,8 @@ public class UfsFallbackFileOutStreamIntegrationTest extends AbstractFileOutStre
       CommonUtils.sleepMs(1);
       // check the file is completed but not persisted
       URIStatus status = mFileSystem.getStatus(filePath);
-      Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), status.getPersistenceState());
+      Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
+          status.getPersistenceState());
       Assert.assertTrue(status.isCompleted());
 
       IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, filePath);
@@ -110,7 +111,11 @@ public class UfsFallbackFileOutStreamIntegrationTest extends AbstractFileOutStre
     }
   }
 
+  // ALLUXIO CS REPLACE
+  // @Ignore("Files may be lost due to evicting and committing before file is complete.")
+  // ALLUXIO CS WITH
   @Ignore("https://tachyonnexus.atlassian.net/browse/AE-232")
+  // ALLUXIO CS END
   @Test
   public void nettyWrite() throws Exception {
     try (Closeable c = new ConfigurationRule(new HashMap<PropertyKey, String>() {
@@ -127,7 +132,8 @@ public class UfsFallbackFileOutStreamIntegrationTest extends AbstractFileOutStre
       CommonUtils.sleepMs(1);
       // check the file is completed but not persisted
       URIStatus status = mFileSystem.getStatus(filePath);
-      Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), status.getPersistenceState());
+      Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
+          status.getPersistenceState());
       Assert.assertTrue(status.isCompleted());
 
       IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, filePath);

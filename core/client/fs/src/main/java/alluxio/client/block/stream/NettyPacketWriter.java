@@ -179,7 +179,6 @@ public final class NettyPacketWriter implements PacketWriter {
               .build();
       builder.setCreateUfsFileOptions(ufsFileOptions);
     }
-    // ALLUXIO CS ADD
     // two cases to use UFS_FALLBACK_BLOCK endpoint:
     // (1) this writer is created by the fallback of a short-circuit writer, or
     boolean alreadyFallback = type == Protocol.RequestType.UFS_FALLBACK_BLOCK;
@@ -195,6 +194,7 @@ public final class NettyPacketWriter implements PacketWriter {
           .setFallback(alreadyFallback).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
     }
+    // ALLUXIO CS ADD
     if (options.getCapabilityFetcher() != null) {
       builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
     }
@@ -252,7 +252,6 @@ public final class NettyPacketWriter implements PacketWriter {
         .addListener(new WriteListener(offset + len));
   }
 
-  // ALLUXIO CS ADD
   /**
    * Notifies the server UFS fallback endpoint to start writing a new block by resuming the given
    * number of bytes from block store.
@@ -273,7 +272,6 @@ public final class NettyPacketWriter implements PacketWriter {
         .addListener(new WriteListener(pos, true));
   }
 
-  // ALLUXIO CS END
   @Override
   public void cancel() {
     if (mClosed) {
@@ -519,23 +517,19 @@ public final class NettyPacketWriter implements PacketWriter {
    */
   private final class WriteListener implements ChannelFutureListener {
     private final long mPosToWriteUncommitted;
-    // ALLUXIO CS ADD
     private final boolean mIsUfsInit;
 
     WriteListener(long posToWriteUncommitted, boolean isUfsInit) {
       mPosToWriteUncommitted = posToWriteUncommitted;
       mIsUfsInit = isUfsInit;
     }
-    // ALLUXIO CS END
 
     /**
      * @param posToWriteUncommitted the pos to commit (i.e. update mPosToWrite)
      */
     WriteListener(long posToWriteUncommitted) {
       mPosToWriteUncommitted = posToWriteUncommitted;
-      // ALLUXIO CS ADD
       mIsUfsInit = false;
-      // ALLUXIO CS END
     }
 
     @Override
@@ -544,14 +538,10 @@ public final class NettyPacketWriter implements PacketWriter {
         future.channel().close();
       }
       try (LockResource lr = new LockResource(mLock)) {
-        // ALLUXIO CS REPLACE
-        // Preconditions.checkState(mPosToWriteUncommitted - mPosToWrite <= mPacketSize,
-        //     "Some packet is not acked.");
-        // ALLUXIO CS WITH
         Preconditions.checkState(
             mIsUfsInit || mPosToWriteUncommitted - mPosToWrite <= mPacketSize,
             "Some packet is not acked.");
-        // ALLUXIO CS END
+        Preconditions.checkState(mPosToWriteUncommitted <= mLength);
         Preconditions.checkState(mPosToWriteUncommitted <= mLength);
         mPosToWrite = mPosToWriteUncommitted;
 

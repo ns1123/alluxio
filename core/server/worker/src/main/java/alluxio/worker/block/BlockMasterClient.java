@@ -94,7 +94,6 @@ public final class BlockMasterClient extends AbstractMasterClient {
     });
   }
 
-  // ALLUXIO CS ADD
   /**
    * Commits a block in Ufs.
    *
@@ -112,7 +111,6 @@ public final class BlockMasterClient extends AbstractMasterClient {
     });
   }
 
-  // ALLUXIO CS END
   /**
    * Returns a worker id for a workers net address.
    *

@@ -222,7 +222,6 @@ public final class AlluxioBlockStoreTest {
     BlockOutStream stream2 = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
     assertEquals(worker2, stream2.getAddress());
   }
-  // ALLUXIO CS ADD
 
   @Test
   public void getOutStreamWithReplicated() throws Exception {
@@ -242,7 +241,6 @@ public final class AlluxioBlockStoreTest {
 
     assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
   }
-  // ALLUXIO CS END
 
   @Test
   public void getInStreamUfs() throws Exception {

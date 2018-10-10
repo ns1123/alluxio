@@ -30,7 +30,9 @@ public final class Protocol {
      * <code>UFS_FALLBACK_BLOCK = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * UFS_FALLBACK_BLOCK = 2;
+     * ALLUXIO CS WITH
      * </pre>
      */
     UFS_FALLBACK_BLOCK(2, 1000),
@@ -48,7 +50,9 @@ public final class Protocol {
      * <code>UFS_FALLBACK_BLOCK = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * UFS_FALLBACK_BLOCK = 2;
+     * ALLUXIO CS WITH
      * </pre>
      */
     public static final int UFS_FALLBACK_BLOCK_VALUE = 1000;
@@ -2611,8 +2615,10 @@ public final class Protocol {
      * <code>optional bool block_in_ufs_tier = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
      * If set to true, the block is possibly stored as a UFS block.
+     * ALLUXIO CS REPLACE
+     * optional bool block_in_ufs_tier = 8;
+     * ALLUXIO CS WITH
      * </pre>
      */
     boolean hasBlockInUfsTier();
@@ -2620,8 +2626,10 @@ public final class Protocol {
      * <code>optional bool block_in_ufs_tier = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
      * If set to true, the block is possibly stored as a UFS block.
+     * ALLUXIO CS REPLACE
+     * optional bool block_in_ufs_tier = 8;
+     * ALLUXIO CS WITH
      * </pre>
      */
     boolean getBlockInUfsTier();
@@ -2971,8 +2979,10 @@ public final class Protocol {
      * <code>optional bool block_in_ufs_tier = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
      * If set to true, the block is possibly stored as a UFS block.
+     * ALLUXIO CS REPLACE
+     * optional bool block_in_ufs_tier = 8;
+     * ALLUXIO CS WITH
      * </pre>
      */
     public boolean hasBlockInUfsTier() {
@@ -2982,8 +2992,10 @@ public final class Protocol {
      * <code>optional bool block_in_ufs_tier = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
      * If set to true, the block is possibly stored as a UFS block.
+     * ALLUXIO CS REPLACE
+     * optional bool block_in_ufs_tier = 8;
+     * ALLUXIO CS WITH
      * </pre>
      */
     public boolean getBlockInUfsTier() {
@@ -3736,8 +3748,10 @@ public final class Protocol {
        * <code>optional bool block_in_ufs_tier = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
        * If set to true, the block is possibly stored as a UFS block.
+       * ALLUXIO CS REPLACE
+       * optional bool block_in_ufs_tier = 8;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public boolean hasBlockInUfsTier() {
@@ -3747,8 +3761,10 @@ public final class Protocol {
        * <code>optional bool block_in_ufs_tier = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
        * If set to true, the block is possibly stored as a UFS block.
+       * ALLUXIO CS REPLACE
+       * optional bool block_in_ufs_tier = 8;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public boolean getBlockInUfsTier() {
@@ -3758,8 +3774,10 @@ public final class Protocol {
        * <code>optional bool block_in_ufs_tier = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
        * If set to true, the block is possibly stored as a UFS block.
+       * ALLUXIO CS REPLACE
+       * optional bool block_in_ufs_tier = 8;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder setBlockInUfsTier(boolean value) {
@@ -3772,8 +3790,10 @@ public final class Protocol {
        * <code>optional bool block_in_ufs_tier = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
        * If set to true, the block is possibly stored as a UFS block.
+       * ALLUXIO CS REPLACE
+       * optional bool block_in_ufs_tier = 8;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder clearBlockInUfsTier() {
@@ -3914,7 +3934,10 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * // This is only applicable for ufs block writes.
+     * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+     * ALLUXIO CS WITH
      * </pre>
      */
     boolean hasCapability();
@@ -3922,7 +3945,10 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * // This is only applicable for ufs block writes.
+     * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+     * ALLUXIO CS WITH
      * </pre>
      */
     alluxio.proto.security.CapabilityProto.Capability getCapability();
@@ -3930,7 +3956,10 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * // This is only applicable for ufs block writes.
+     * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+     * ALLUXIO CS WITH
      * </pre>
      */
     alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
@@ -3940,7 +3969,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * ALLUXIO CS END
      * </pre>
      */
     boolean hasCreateUfsBlockOptions();
@@ -3948,7 +3977,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * ALLUXIO CS END
      * </pre>
      */
     alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions();
@@ -3956,7 +3985,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * ALLUXIO CS END
      * </pre>
      */
     alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder();
@@ -4306,7 +4335,10 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * // This is only applicable for ufs block writes.
+     * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+     * ALLUXIO CS WITH
      * </pre>
      */
     public boolean hasCapability() {
@@ -4316,7 +4348,10 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * // This is only applicable for ufs block writes.
+     * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+     * ALLUXIO CS WITH
      * </pre>
      */
     public alluxio.proto.security.CapabilityProto.Capability getCapability() {
@@ -4326,7 +4361,10 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * // This is only applicable for ufs block writes.
+     * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+     * ALLUXIO CS WITH
      * </pre>
      */
     public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
@@ -4340,7 +4378,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * ALLUXIO CS END
      * </pre>
      */
     public boolean hasCreateUfsBlockOptions() {
@@ -4350,7 +4388,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * ALLUXIO CS END
      * </pre>
      */
     public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions() {
@@ -4360,7 +4398,7 @@ public final class Protocol {
      * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
      *
      * <pre>
-     * This is only applicable for ufs block writes.
+     * ALLUXIO CS END
      * </pre>
      */
     public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder() {
@@ -5206,7 +5244,10 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * // This is only applicable for ufs block writes.
+       * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public boolean hasCapability() {
@@ -5216,7 +5257,10 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * // This is only applicable for ufs block writes.
+       * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public alluxio.proto.security.CapabilityProto.Capability getCapability() {
@@ -5230,7 +5274,10 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * // This is only applicable for ufs block writes.
+       * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder setCapability(alluxio.proto.security.CapabilityProto.Capability value) {
@@ -5250,7 +5297,10 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * // This is only applicable for ufs block writes.
+       * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder setCapability(
@@ -5268,7 +5318,10 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * // This is only applicable for ufs block writes.
+       * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
@@ -5291,7 +5344,10 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * // This is only applicable for ufs block writes.
+       * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder clearCapability() {
@@ -5308,7 +5364,10 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * // This is only applicable for ufs block writes.
+       * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
@@ -5320,7 +5379,10 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * // This is only applicable for ufs block writes.
+       * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
@@ -5334,7 +5396,10 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * // This is only applicable for ufs block writes.
+       * optional CreateUfsBlockOptions create_ufs_block_options = 9;
+       * ALLUXIO CS WITH
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
@@ -5359,7 +5424,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * ALLUXIO CS END
        * </pre>
        */
       public boolean hasCreateUfsBlockOptions() {
@@ -5369,7 +5434,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * ALLUXIO CS END
        * </pre>
        */
       public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions() {
@@ -5383,7 +5448,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * ALLUXIO CS END
        * </pre>
        */
       public Builder setCreateUfsBlockOptions(alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions value) {
@@ -5403,7 +5468,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * ALLUXIO CS END
        * </pre>
        */
       public Builder setCreateUfsBlockOptions(
@@ -5421,7 +5486,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * ALLUXIO CS END
        * </pre>
        */
       public Builder mergeCreateUfsBlockOptions(alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions value) {
@@ -5444,7 +5509,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * ALLUXIO CS END
        * </pre>
        */
       public Builder clearCreateUfsBlockOptions() {
@@ -5461,7 +5526,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * ALLUXIO CS END
        * </pre>
        */
       public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder getCreateUfsBlockOptionsBuilder() {
@@ -5473,7 +5538,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * ALLUXIO CS END
        * </pre>
        */
       public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder() {
@@ -5487,7 +5552,7 @@ public final class Protocol {
        * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
        *
        * <pre>
-       * This is only applicable for ufs block writes.
+       * ALLUXIO CS END
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
@@ -11246,7 +11311,9 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * optional bool cleanup_on_failure = 6;
+     * ALLUXIO CS WITH
      * </pre>
      */
     boolean hasCapability();
@@ -11254,7 +11321,9 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * optional bool cleanup_on_failure = 6;
+     * ALLUXIO CS WITH
      * </pre>
      */
     alluxio.proto.security.CapabilityProto.Capability getCapability();
@@ -11262,7 +11331,9 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * optional bool cleanup_on_failure = 6;
+     * ALLUXIO CS WITH
      * </pre>
      */
     alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
@@ -11497,7 +11568,9 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * optional bool cleanup_on_failure = 6;
+     * ALLUXIO CS WITH
      * </pre>
      */
     public boolean hasCapability() {
@@ -11507,7 +11580,9 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * optional bool cleanup_on_failure = 6;
+     * ALLUXIO CS WITH
      * </pre>
      */
     public alluxio.proto.security.CapabilityProto.Capability getCapability() {
@@ -11517,7 +11592,9 @@ public final class Protocol {
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
-     * ALLUXIO CS ADD
+     * ALLUXIO CS REPLACE
+     * optional bool cleanup_on_failure = 6;
+     * ALLUXIO CS WITH
      * </pre>
      */
     public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
@@ -12029,7 +12106,9 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * optional bool cleanup_on_failure = 6;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public boolean hasCapability() {
@@ -12039,7 +12118,9 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * optional bool cleanup_on_failure = 6;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public alluxio.proto.security.CapabilityProto.Capability getCapability() {
@@ -12053,7 +12134,9 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * optional bool cleanup_on_failure = 6;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder setCapability(alluxio.proto.security.CapabilityProto.Capability value) {
@@ -12073,7 +12156,9 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * optional bool cleanup_on_failure = 6;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder setCapability(
@@ -12091,7 +12176,9 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * optional bool cleanup_on_failure = 6;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
@@ -12114,7 +12201,9 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * optional bool cleanup_on_failure = 6;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public Builder clearCapability() {
@@ -12131,7 +12220,9 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * optional bool cleanup_on_failure = 6;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
@@ -12143,7 +12234,9 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * optional bool cleanup_on_failure = 6;
+       * ALLUXIO CS WITH
        * </pre>
        */
       public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
@@ -12157,7 +12250,9 @@ public final class Protocol {
        * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
-       * ALLUXIO CS ADD
+       * ALLUXIO CS REPLACE
+       * optional bool cleanup_on_failure = 6;
+       * ALLUXIO CS WITH
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<

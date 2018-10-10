@@ -24,12 +24,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class BlockWriteRequestContext extends WriteRequestContext<BlockWriteRequest> {
   private BlockWriter mBlockWriter;
   private long mBytesReserved;
-  // ALLUXIO CS ADD
   private boolean mIsWritingToLocal = true;
   private alluxio.resource.CloseableResource<alluxio.underfs.UnderFileSystem> mUfsResource;
   private java.io.OutputStream mOutputStream;
   private String mUfsPath;
-  // ALLUXIO CS END
 
   BlockWriteRequestContext(Protocol.WriteRequest request, long bytesReserved) {
     super(new BlockWriteRequest(request));
@@ -64,7 +62,6 @@ public final class BlockWriteRequestContext extends WriteRequestContext<BlockWri
   public void setBytesReserved(long bytesReserved) {
     mBytesReserved = bytesReserved;
   }
-  // ALLUXIO CS ADD
 
   /**
    * @return is the current request writing to UFS
@@ -124,5 +121,4 @@ public final class BlockWriteRequestContext extends WriteRequestContext<BlockWri
   public void setUfsPath(String ufsPath) {
     mUfsPath = ufsPath;
   }
-  // ALLUXIO CS END
 }

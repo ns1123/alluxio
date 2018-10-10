@@ -92,12 +92,6 @@ public final class LocalFilePacketWriter implements PacketWriter {
           context.releaseNettyChannel(address, channel);
         }
       });
-
-      // ALLUXIO CS REPLACE
-      // ProtoMessage createRequest = new ProtoMessage(
-      //     Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId)
-      //         .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES).build());
-      // ALLUXIO CS WITH
       Protocol.LocalBlockCreateRequest.Builder builder =
           Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId)
               .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES);
@@ -105,11 +99,12 @@ public final class LocalFilePacketWriter implements PacketWriter {
           && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
         builder.setCleanupOnFailure(false);
       }
+      // ALLUXIO CS ADD
       if (options.getCapabilityFetcher() != null) {
         builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
       }
-      ProtoMessage createRequest = new ProtoMessage(builder.build());
       // ALLUXIO CS END
+      ProtoMessage createRequest = new ProtoMessage(builder.build());
       NettyRPCContext nettyRPCContext =
           NettyRPCContext.defaults().setChannel(channel).setTimeout(WRITE_TIMEOUT_MS);
       ProtoMessage message = NettyRPC.call(nettyRPCContext, createRequest);

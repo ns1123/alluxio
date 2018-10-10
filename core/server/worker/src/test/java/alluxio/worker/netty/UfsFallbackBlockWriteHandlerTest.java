@@ -63,7 +63,8 @@ public class UfsFallbackBlockWriteHandlerTest extends AbstractWriteHandlerTest {
       new ConfigurationRule(new HashMap<PropertyKey, String>() {
         {
           put(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS,
-              AlluxioTestDirectory.createTemporaryDirectory("UfsFallbackBlockWriteHandlerTest-RootUfs")
+              AlluxioTestDirectory.createTemporaryDirectory(
+                  "UfsFallbackBlockWriteHandlerTest-RootUfs")
                   .getAbsolutePath());
           put(PropertyKey.WORKER_TIERED_STORE_LEVEL0_DIRS_PATH, AlluxioTestDirectory
               .createTemporaryDirectory("UfsFallbackBlockWriteHandlerTest-WorkerDataFolder")
@@ -90,7 +91,8 @@ public class UfsFallbackBlockWriteHandlerTest extends AbstractWriteHandlerTest {
         .thenReturn(new FileOutputStream(mFile, true));
 
     mChannel = new EmbeddedChannel(
-        new UfsFallbackBlockWriteHandler(NettyExecutors.FILE_WRITER_EXECUTOR, mBlockWorker, ufsManager));
+        new UfsFallbackBlockWriteHandler(NettyExecutors.FILE_WRITER_EXECUTOR,
+            mBlockWorker, ufsManager));
 
     // create a partial block in block store first
     mBlockStore.createBlock(TEST_SESSION_ID, TEST_BLOCK_ID,

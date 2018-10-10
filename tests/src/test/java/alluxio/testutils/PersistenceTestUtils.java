@@ -78,8 +78,12 @@ public final class PersistenceTestUtils {
    * @param resource the local cluster resource to pause the service for
    */
   public static void pauseScheduler(LocalAlluxioClusterResource resource) {
+    // ALLUXIO CS REPLACE
+    // FileSystemMaster nestedMaster = getFileSystemMaster(resource);
+    // ALLUXIO CS WITH
     FileSystemMaster master = getFileSystemMaster(resource);
     FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+    // ALLUXIO CS END
     Map<Long, ExponentialTimer> persistRequests =
         Whitebox.getInternalState(nestedMaster, "mPersistRequests");
     Whitebox
@@ -92,8 +96,12 @@ public final class PersistenceTestUtils {
    * @param resource the local cluster resource to resume the service for
    */
   public static void resumeScheduler(LocalAlluxioClusterResource resource) {
+    // ALLUXIO CS REPLACE
+    // FileSystemMaster nestedMaster = getFileSystemMaster(resource);
+    // ALLUXIO CS WITH
     FileSystemMaster master = getFileSystemMaster(resource);
     FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+    // ALLUXIO CS END
     BlackHoleMap<Long, ExponentialTimer> persistRequests =
         Whitebox.getInternalState(nestedMaster, "mPersistRequests");
     Whitebox.setInternalState(nestedMaster, "mPersistRequests", persistRequests.getInnerMap());
@@ -105,8 +113,12 @@ public final class PersistenceTestUtils {
    * @param resource the local cluster resource to pause the service for
    */
   public static void pauseChecker(LocalAlluxioClusterResource resource) {
+    // ALLUXIO CS REPLACE
+    // FileSystemMaster nestedMaster = getFileSystemMaster(resource);
+    // ALLUXIO CS WITH
     FileSystemMaster master = getFileSystemMaster(resource);
     FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+    // ALLUXIO CS END
     Map<Long, PersistJob> persistJobs =
         Whitebox.getInternalState(nestedMaster, "mPersistJobs");
     Whitebox.setInternalState(nestedMaster, "mPersistJobs", new BlackHoleMap<>(persistJobs));
@@ -118,8 +130,12 @@ public final class PersistenceTestUtils {
    * @param resource the local cluster resource to resume the service for
    */
   public static void resumeChecker(LocalAlluxioClusterResource resource) {
+    // ALLUXIO CS REPLACE
+    // FileSystemMaster nestedMaster = getFileSystemMaster(resource);
+    // ALLUXIO CS WITH
     FileSystemMaster master = getFileSystemMaster(resource);
     FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+    // ALLUXIO CS END
     BlackHoleMap<Long, PersistJob> persistJobs =
         Whitebox.getInternalState(nestedMaster, "mPersistJobs");
     Whitebox.setInternalState(nestedMaster, "mPersistJobs", persistJobs.getInnerMap());
@@ -135,7 +151,11 @@ public final class PersistenceTestUtils {
       throws Exception {
     final FileSystemMaster master = getFileSystemMaster(resource);
     CommonUtils.waitFor(String.format("Persisted job scheduled for fileId %d", fileId), () -> {
+      // ALLUXIO CS REPLACE
+      // FileSystemMaster nestedMaster = master;
+      // ALLUXIO CS WITH
       FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+      // ALLUXIO CS END
       Map<Long, ?> requests = Whitebox.getInternalState(nestedMaster, "mPersistRequests");
       return !requests.containsKey(fileId);
     });
@@ -152,7 +172,11 @@ public final class PersistenceTestUtils {
       throws Exception {
     final FileSystemMaster master = getFileSystemMaster(resource);
     CommonUtils.waitFor(String.format("Persisted job complete for fileId %d", fileId), () -> {
+      // ALLUXIO CS REPLACE
+      // FileSystemMaster nestedMaster = master;
+      // ALLUXIO CS WITH
       FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+      // ALLUXIO CS END
       Map<Long, ?> jobs = Whitebox.getInternalState(nestedMaster, "mPersistJobs");
       return !jobs.containsKey(fileId);
     });
