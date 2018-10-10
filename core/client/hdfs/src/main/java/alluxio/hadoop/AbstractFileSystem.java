@@ -331,7 +331,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     return ret;
   }
 
-  // ALLUXIO CS ADD
   @Override
   public short getDefaultReplication() {
     return (short) Math.max(1, CreateFileOptions.defaults().getReplicationMin());
@@ -352,7 +351,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
   }
 
-  // ALLUXIO CS END
   /**
    * {@inheritDoc}
    *
@@ -383,11 +381,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   }
 
   private int getReplica(URIStatus status) {
-    // ALLUXIO CS REPLACE
-    // return BLOCK_REPLICATION_CONSTANT;
-    // ALLUXIO CS WITH
     return status.getReplicationMin();
-    // ALLUXIO CS END
   }
 
   /**

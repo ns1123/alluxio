@@ -193,7 +193,11 @@ public class UfsFallbackLocalFilePacketWriterTest {
     assertEquals(expected.get().getChecksum(), actualLocal.get().getChecksum());
   }
 
+  // ALLUXIO CS REPLACE
+  // @Ignore("Flaky test")
+  // ALLUXIO CS WITH
   @Ignore("https://tachyonnexus.atlassian.net/browse/AE-469")
+  // ALLUXIO CS END
   @Test(timeout = 1000 * 60)
   public void fallbackOnFirstPacket() throws Exception {
     Future<WriteSummary> expected;
@@ -213,7 +217,11 @@ public class UfsFallbackLocalFilePacketWriterTest {
     assertEquals(expected.get().getChecksum(), actualUfs.get().getChecksum());
   }
 
+  // ALLUXIO CS REPLACE
+  // @Ignore("Flaky test")
+  // ALLUXIO CS WITH
   @Ignore("https://tachyonnexus.atlassian.net/browse/AE-469")
+  // ALLUXIO CS END
   @Test(timeout = 1000 * 60)
   public void fallbackOnSecondPacket() throws Exception {
     Future<WriteSummary> expected;

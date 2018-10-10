@@ -120,8 +120,8 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
 
   // ALLUXIO CS ADD
   private final alluxio.worker.security.CapabilityCache mCapabilityCache;
-  private final UfsManager mUfsManager;
   // ALLUXIO CS END
+  private final UfsManager mUfsManager;
   /**
    * Constructs a default block worker.
    *
@@ -162,8 +162,8 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
         new alluxio.worker.security.CapabilityCache(
             alluxio.worker.security.CapabilityCache.Options.defaults()
                 .setCapabilityKey(new alluxio.security.capability.CapabilityKey()));
-    mUfsManager = ufsManager;
     // ALLUXIO CS END
+    mUfsManager = ufsManager;
     mUnderFileSystemBlockStore = new UnderFileSystemBlockStore(mBlockStore, ufsManager);
 
     Metrics.registerGauges(this);
@@ -337,8 +337,6 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
     }
   }
 
-  // ALLUXIO CS ADD
-
   @Override
   public void commitBlockInUfs(long blockId, long length) throws IOException {
     BlockMasterClient blockMasterClient = mBlockMasterClientPool.acquire();
@@ -351,7 +349,6 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
     }
   }
 
-  // ALLUXIO CS END
   @Override
   public String createBlock(long sessionId, long blockId, String tierAlias, long initialBytes)
       throws BlockAlreadyExistsException, WorkerOutOfSpaceException, IOException {
@@ -537,7 +534,6 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
   @Override
   public boolean openUfsBlock(long sessionId, long blockId, Protocol.OpenUfsBlockOptions options)
       throws BlockAlreadyExistsException {
-    // ALLUXIO CS ADD
     if (!options.hasUfsPath() && options.hasBlockInUfsTier() && options.getBlockInUfsTier()) {
       // This is a fallback UFS block read. Reset the UFS block path according to the UfsBlock flag.
       UfsManager.UfsClient ufsClient;
@@ -552,7 +548,6 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
       options = options.toBuilder().setUfsPath(
           alluxio.worker.BlockUtils.getUfsBlockPath(ufsClient, blockId)).build();
     }
-    // ALLUXIO CS END
     return mUnderFileSystemBlockStore.acquireAccess(sessionId, blockId, options);
   }
 

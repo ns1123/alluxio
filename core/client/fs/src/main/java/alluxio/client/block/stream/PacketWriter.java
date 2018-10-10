@@ -58,7 +58,6 @@ public interface PacketWriter extends Closeable, Cancelable {
       if (CommonUtils.isLocalHost(address) && Configuration
           .getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED) && !NettyUtils
           .isDomainSocketSupported(address)) {
-        // ALLUXIO CS ADD
         if (options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH
             && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
           LOG.info("Creating UFS-fallback short circuit output stream for block {} @ {}", blockId,
@@ -66,7 +65,6 @@ public interface PacketWriter extends Closeable, Cancelable {
           return UfsFallbackLocalFilePacketWriter.create(
               context, address, blockId, blockSize, options);
         }
-        // ALLUXIO CS END
         LOG.debug("Creating short circuit output stream for block {} @ {}", blockId, address);
         return LocalFilePacketWriter.create(context, address, blockId, options);
       } else {

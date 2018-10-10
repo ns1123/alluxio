@@ -89,11 +89,9 @@ public final class InStreamOptions {
   public Protocol.OpenUfsBlockOptions getOpenUfsBlockOptions(long blockId) {
     Preconditions.checkArgument(mStatus.getBlockIds().contains(blockId), "blockId");
     boolean readFromUfs = mStatus.isPersisted();
-    // ALLUXIO CS ADD
     // In case it is possible to fallback to read UFS blocks, also fill in the options.
     boolean storedAsUfsBlock = mStatus.getPersistenceState().equals("TO_BE_PERSISTED");
     readFromUfs = readFromUfs || storedAsUfsBlock;
-    // ALLUXIO CS END
     if (!readFromUfs) {
       return Protocol.OpenUfsBlockOptions.getDefaultInstance();
     }
@@ -104,7 +102,6 @@ public final class InStreamOptions {
             .setOffsetInFile(blockStart).setBlockSize(info.getLength())
             .setMaxUfsReadConcurrency(mOptions.getMaxUfsReadConcurrency())
             .setNoCache(!mOptions.getReadType().isCache()).setMountId(mStatus.getMountId()).build();
-    // ALLUXIO CS ADD
     if (storedAsUfsBlock) {
       // On client-side, we do not have enough mount information to fill in the UFS file path.
       // Instead, we unset the ufsPath field and fill in a flag ufsBlock to indicate the UFS file
@@ -113,7 +110,6 @@ public final class InStreamOptions {
       openUfsBlockOptions = openUfsBlockOptions.toBuilder().clearUfsPath().setBlockInUfsTier(true)
             .setOffsetInFile(0).build();
     }
-    // ALLUXIO CS END
     return openUfsBlockOptions;
   }
   // ALLUXIO CS ADD

@@ -102,13 +102,11 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     // UFS Handlers
     pipeline.addLast("ufsFileWriteHandler", new UfsFileWriteHandler(
         NettyExecutors.FILE_WRITER_EXECUTOR, mWorkerProcess.getUfsManager()));
-    // ALLUXIO CS ADD
 
     // Endpoint for UFS-fallback block write
     pipeline.addLast("ufsFallbackBlockWriteHandler", new UfsFallbackBlockWriteHandler(
         NettyExecutors.FILE_WRITER_EXECUTOR, mWorkerProcess.getWorker(BlockWorker.class),
         mWorkerProcess.getUfsManager()));
-    // ALLUXIO CS END
 
     // RPC handler.
     pipeline.addLast("dataServerRPCHandler", new RPCHandler(NettyExecutors.RPC_EXECUTOR,

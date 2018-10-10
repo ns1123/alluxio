@@ -86,7 +86,6 @@ public interface BlockWorker extends Worker, SessionCleanable {
       throws BlockAlreadyExistsException, BlockDoesNotExistException, InvalidWorkerStateException,
       IOException, WorkerOutOfSpaceException;
 
-  // ALLUXIO CS ADD
   /**
    * Commits a block in UFS.
    *
@@ -95,7 +94,6 @@ public interface BlockWorker extends Worker, SessionCleanable {
    */
   void commitBlockInUfs(long blockId, long length) throws IOException;
 
-  // ALLUXIO CS END
   /**
    * Creates a block in Alluxio managed space. The block will be temporary until it is committed.
    * Throws an {@link IllegalArgumentException} if the location does not belong to tiered storage.

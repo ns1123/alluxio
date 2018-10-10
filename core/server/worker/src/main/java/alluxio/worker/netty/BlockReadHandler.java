@@ -150,13 +150,9 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
       RetryPolicy retryPolicy = new TimeoutRetry(UFS_BLOCK_OPEN_TIMEOUT_MS, retryInterval);
       while (retryPolicy.attempt()) {
         long lockId;
-        // ALLUXIO CS REPLACE
-        // if (request.isPersisted()) {
-        // ALLUXIO CS WITH
         if (request.isPersisted() || (request.getOpenUfsBlockOptions() != null && request
             .getOpenUfsBlockOptions().hasBlockInUfsTier() && request.getOpenUfsBlockOptions()
             .getBlockInUfsTier())) {
-        // ALLUXIO CS END
           lockId = mWorker.lockBlockNoException(request.getSessionId(), request.getId());
         } else {
           lockId = mWorker.lockBlock(request.getSessionId(), request.getId());
