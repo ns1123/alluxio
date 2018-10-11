@@ -327,48 +327,15 @@ public class FileInStream extends InputStream implements BoundedStream, Position
     }
   }
 
-<<<<<<< HEAD
-      // Send an async cache request to a worker based on read type and passive cache options.
-      boolean cache = mOptions.getOptions().getReadType().isCache();
-      // ALLUXIO CS ADD
-      boolean overReplicated = mStatus.getReplicationMax() > 0
-          && mStatus.getFileBlockInfos().get((int) (getPos() / mBlockSize))
-          .getBlockInfo().getLocations().size() >= mStatus.getReplicationMax();
-      cache = cache && !overReplicated;
-      // ALLUXIO CS END
-      boolean passiveCache = Configuration.getBoolean(PropertyKey.USER_FILE_PASSIVE_CACHE_ENABLED);
-      long channelTimeout = Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
-      if (cache) {
-        WorkerNetAddress worker;
-        if (passiveCache && mContext.hasLocalWorker()) { // send request to local worker
-          worker = mContext.getLocalWorker();
-        } else { // send request to data source
-          worker = dataSource;
-        }
-||||||| parent of 21a3a87747... [ALLUXIO-3338] Address client side scalability issues (#7922)
-      // Send an async cache request to a worker based on read type and passive cache options.
-      boolean cache = mOptions.getOptions().getReadType().isCache();
-      boolean overReplicated = mStatus.getReplicationMax() > 0
-          && mStatus.getFileBlockInfos().get((int) (getPos() / mBlockSize))
-          .getBlockInfo().getLocations().size() >= mStatus.getReplicationMax();
-      cache = cache && !overReplicated;
-      boolean passiveCache = Configuration.getBoolean(PropertyKey.USER_FILE_PASSIVE_CACHE_ENABLED);
-      long channelTimeout = Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
-      if (cache) {
-        WorkerNetAddress worker;
-        if (passiveCache && mContext.hasLocalWorker()) { // send request to local worker
-          worker = mContext.getLocalWorker();
-        } else { // send request to data source
-          worker = dataSource;
-        }
-=======
   // Send an async cache request to a worker based on read type and passive cache options.
   private void triggerAsyncCaching(BlockInStream stream) throws IOException {
     boolean cache = mOptions.getOptions().getReadType().isCache();
+    // ALLUXIO CS ADD
     boolean overReplicated = mStatus.getReplicationMax() > 0
         && mStatus.getFileBlockInfos().get((int) (getPos() / mBlockSize))
         .getBlockInfo().getLocations().size() >= mStatus.getReplicationMax();
     cache = cache && !overReplicated;
+    // ALLUXIO CS END
     boolean passiveCache = Configuration.getBoolean(PropertyKey.USER_FILE_PASSIVE_CACHE_ENABLED);
     long channelTimeout = Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
     // Get relevant information from the stream.
@@ -390,7 +357,6 @@ public class FileInStream extends InputStream implements BoundedStream, Position
                 .setSourceHost(dataSource.getHost()).setSourcePort(dataSource.getDataPort())
                 .build();
         Channel channel = mContext.acquireNettyChannel(worker);
->>>>>>> 21a3a87747... [ALLUXIO-3338] Address client side scalability issues (#7922)
         try {
           NettyRPCContext rpcContext =
               NettyRPCContext.defaults().setChannel(channel).setTimeout(channelTimeout);
