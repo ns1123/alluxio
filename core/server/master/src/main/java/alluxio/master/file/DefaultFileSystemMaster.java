@@ -3773,12 +3773,17 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           // statusCache stores uri to ufsstatus mapping that is used to construct fingerprint
           Map<AlluxioURI, UfsStatus> statusCache = new HashMap<>();
           listOptions.setRecursive(syncDescendantType == DescendantType.ALL);
-          UfsStatus[] children = ufs.listStatus(ufsUri.toString(), listOptions);
-          if (children != null) {
-            for (UfsStatus childStatus : children) {
-              statusCache.put(inodePath.getUri().joinUnsafe(childStatus.getName()),
-                  childStatus);
+          try {
+            UfsStatus[] children = ufs.listStatus(ufsUri.toString(), listOptions);
+            if (children != null) {
+              for (UfsStatus childStatus : children) {
+                statusCache.put(inodePath.getUri().joinUnsafe(childStatus.getName()),
+                    childStatus);
+              }
             }
+          } catch (Exception e) {
+            LOG.debug("ListStatus failed as an preparation step for syncMetadata {}",
+                inodePath.getUri(), e);
           }
           SyncResult result =
               syncInodeMetadata(rpcContext, inodePath, syncDescendantType, statusCache);
