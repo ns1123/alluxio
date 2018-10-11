@@ -93,14 +93,8 @@ public final class UfsSyncUtils {
    * @param ufsFingerprint the ufs fingerprint to check for the sync
    * @return true of the inode is synced with the ufs status
    */
-<<<<<<< HEAD
-  public static boolean inodeUfsIsContentSynced(Inode inode, Fingerprint ufsFingerprint) {
-||||||| parent of a258913cf8... [SMALLFIX] optimizations for ufs sync to get fingerprint through getStatus bulk api (#7924)
-  public static boolean inodeUfsIsContentSynced(InodeView inode, Fingerprint ufsFingerprint) {
-=======
-  public static boolean inodeUfsIsContentSynced(InodeView inode, Fingerprint inodeFingerprint,
+  public static boolean inodeUfsIsContentSynced(Inode inode, Fingerprint inodeFingerprint,
       Fingerprint ufsFingerprint) {
->>>>>>> a258913cf8... [SMALLFIX] optimizations for ufs sync to get fingerprint through getStatus bulk api (#7924)
     boolean isSyncedUnpersisted =
         !inode.isPersisted() && !ufsFingerprint.isValid();
     boolean isSyncedPersisted;
@@ -120,16 +114,8 @@ public final class UfsSyncUtils {
    * @param ufsFingerprint the ufs fingerprint to check for the sync
    * @return true of the inode is synced with the ufs status
    */
-<<<<<<< HEAD
-  public static boolean inodeUfsIsMetadataSynced(Inode inode, Fingerprint ufsFingerprint) {
-    Fingerprint inodeFingerprint = Fingerprint.parse(inode.getUfsFingerprint());
-||||||| parent of a258913cf8... [SMALLFIX] optimizations for ufs sync to get fingerprint through getStatus bulk api (#7924)
-  public static boolean inodeUfsIsMetadataSynced(InodeView inode, Fingerprint ufsFingerprint) {
-    Fingerprint inodeFingerprint = Fingerprint.parse(inode.getUfsFingerprint());
-=======
-  public static boolean inodeUfsIsMetadataSynced(InodeView inode, Fingerprint inodeFingerprint,
+  public static boolean inodeUfsIsMetadataSynced(Inode inode, Fingerprint inodeFingerprint,
       Fingerprint ufsFingerprint) {
->>>>>>> a258913cf8... [SMALLFIX] optimizations for ufs sync to get fingerprint through getStatus bulk api (#7924)
     return inodeFingerprint.isValid() && inodeFingerprint.matchMetadata(ufsFingerprint);
   }
 
