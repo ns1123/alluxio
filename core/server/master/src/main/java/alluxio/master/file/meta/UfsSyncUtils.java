@@ -35,8 +35,9 @@ public final class UfsSyncUtils {
    */
   public static SyncPlan computeSyncPlan(Inode inode, Fingerprint ufsFingerprint,
       boolean containsMountPoint) {
-    boolean isContentSynced = inodeUfsIsContentSynced(inode, ufsFingerprint);
-    boolean isMetadataSynced = inodeUfsIsMetadataSynced(inode, ufsFingerprint);
+    Fingerprint inodeFingerprint =  Fingerprint.parse(inode.getUfsFingerprint());
+    boolean isContentSynced = inodeUfsIsContentSynced(inode, inodeFingerprint, ufsFingerprint);
+    boolean isMetadataSynced = inodeUfsIsMetadataSynced(inode, inodeFingerprint, ufsFingerprint);
     boolean ufsExists = ufsFingerprint.isValid();
     boolean ufsIsDir = ufsFingerprint != null
         && Fingerprint.Type.DIRECTORY.name().equals(ufsFingerprint.getTag(Fingerprint.Tag.TYPE));
@@ -88,15 +89,22 @@ public final class UfsSyncUtils {
    * check, so for directory inodes, this does not consider the children inodes.
    *
    * @param inode the inode to check for sync
+   * @param inodeFingerprint the inode's parsed fingerprint
    * @param ufsFingerprint the ufs fingerprint to check for the sync
    * @return true of the inode is synced with the ufs status
    */
+<<<<<<< HEAD
   public static boolean inodeUfsIsContentSynced(Inode inode, Fingerprint ufsFingerprint) {
+||||||| parent of a258913cf8... [SMALLFIX] optimizations for ufs sync to get fingerprint through getStatus bulk api (#7924)
+  public static boolean inodeUfsIsContentSynced(InodeView inode, Fingerprint ufsFingerprint) {
+=======
+  public static boolean inodeUfsIsContentSynced(InodeView inode, Fingerprint inodeFingerprint,
+      Fingerprint ufsFingerprint) {
+>>>>>>> a258913cf8... [SMALLFIX] optimizations for ufs sync to get fingerprint through getStatus bulk api (#7924)
     boolean isSyncedUnpersisted =
         !inode.isPersisted() && !ufsFingerprint.isValid();
     boolean isSyncedPersisted;
 
-    Fingerprint inodeFingerprint =  Fingerprint.parse(inode.getUfsFingerprint());
     isSyncedPersisted = inode.isPersisted()
         && inodeFingerprint.matchContent(ufsFingerprint)
         && inodeFingerprint.isValid();
@@ -108,11 +116,20 @@ public final class UfsSyncUtils {
    * Returns true if the given inode's metadata matches the ufs fingerprint.
    *
    * @param inode the inode to check for sync
+   * @param inodeFingerprint the inode's parsed fingerprint
    * @param ufsFingerprint the ufs fingerprint to check for the sync
    * @return true of the inode is synced with the ufs status
    */
+<<<<<<< HEAD
   public static boolean inodeUfsIsMetadataSynced(Inode inode, Fingerprint ufsFingerprint) {
     Fingerprint inodeFingerprint = Fingerprint.parse(inode.getUfsFingerprint());
+||||||| parent of a258913cf8... [SMALLFIX] optimizations for ufs sync to get fingerprint through getStatus bulk api (#7924)
+  public static boolean inodeUfsIsMetadataSynced(InodeView inode, Fingerprint ufsFingerprint) {
+    Fingerprint inodeFingerprint = Fingerprint.parse(inode.getUfsFingerprint());
+=======
+  public static boolean inodeUfsIsMetadataSynced(InodeView inode, Fingerprint inodeFingerprint,
+      Fingerprint ufsFingerprint) {
+>>>>>>> a258913cf8... [SMALLFIX] optimizations for ufs sync to get fingerprint through getStatus bulk api (#7924)
     return inodeFingerprint.isValid() && inodeFingerprint.matchMetadata(ufsFingerprint);
   }
 
