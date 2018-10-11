@@ -122,26 +122,18 @@ public final class AlluxioBlockStore {
   /**
    * @return the info of all block workers eligible for reads and writes
    */
-<<<<<<< HEAD
-  public List<BlockWorkerInfo> getEligibleWorkers() throws IOException {
-    // ALLUXIO CS REPLACE
-    // return getAllWorkers();
-    // ALLUXIO CS WITH
-    return getAllWorkers().stream()
-        // Filter out workers in different strict tiers.
-        .filter(w -> w.getNetAddress().getTieredIdentity().strictTiersMatch(mTieredIdentity))
-        .collect(toList());
-    // ALLUXIO CS END
-||||||| merged common ancestors
-  public List<BlockWorkerInfo> getEligibleWorkers() throws IOException {
-    return getAllWorkers();
-=======
   public synchronized List<BlockWorkerInfo> getEligibleWorkers() throws IOException {
     if (mWorkerInfoList == null || mWorkerRefreshPolicy.attempt()) {
-      mWorkerInfoList = getAllWorkers();
+      // ALLUXIO CS REPLACE
+      // mWorkerInfoList = getAllWorkers();
+      // ALLUXIO CS WITH
+      mWorkerInfoList = getAllWorkers().stream()
+          // Filter out workers in different strict tiers.
+          .filter(w -> w.getNetAddress().getTieredIdentity().strictTiersMatch(mTieredIdentity))
+          .collect(toList());
+      // ALLUXIO CS END
     }
     return mWorkerInfoList;
->>>>>>> OPENSOURCE/master
   }
 
   /**
