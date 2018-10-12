@@ -3777,7 +3777,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             UfsStatus[] children = ufs.listStatus(ufsUri.toString(), listOptions);
             if (children != null) {
               for (UfsStatus childStatus : children) {
-                statusCache.put(inodePath.getUri().joinUnsafe(childStatus.getName()),
+                statusCache.put(inodePath.getUri().join(childStatus.getName()),
                     childStatus);
               }
             }
