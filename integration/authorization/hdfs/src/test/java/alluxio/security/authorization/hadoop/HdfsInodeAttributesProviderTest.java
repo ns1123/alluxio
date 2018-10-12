@@ -302,7 +302,7 @@ public final class HdfsInodeAttributesProviderTest {
     String user = "test";
     List<String> groups = Collections.singletonList("test_group");
     String path = "/folder/file";
-    List<InodeView> inodes = createInodesForPath(path, 3);
+    List<Inode<?>> inodes = createInodesForPath(path, 3);
     String fsOwner = LoginUser.getServerUser().getName();
     String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.READ;
@@ -321,7 +321,7 @@ public final class HdfsInodeAttributesProviderTest {
     String user = "test";
     List<String> groups = Collections.singletonList("test_group");
     String path = "/folder/file";
-    List<InodeView> inodes = createInodesForPath(path, 3);
+    List<Inode<?>> inodes = createInodesForPath(path, 3);
     String fsOwner = LoginUser.getServerUser().getName();
     String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.READ;
@@ -340,7 +340,7 @@ public final class HdfsInodeAttributesProviderTest {
     String user = "test";
     List<String> groups = Collections.singletonList("test_group");
     String path = "/folder/file";
-    List<InodeView> inodes = createInodesForPath(path, 3);
+    List<Inode<?>> inodes = createInodesForPath(path, 3);
     String fsOwner = LoginUser.getServerUser().getName();
     String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.READ;

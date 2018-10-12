@@ -264,17 +264,11 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
       LOG.debug("Passed default permission check {}, action={}", path, access);
     }
 
-<<<<<<< HEAD
-    private Inode<?> getAlluxioInode(INode inode) {
-||||||| parent of e409d36... [SMALLFIX] ranger plugin fixes (#1400)
-    private InodeView getAlluxioInode(INode inode) {
-=======
     private boolean isPermissionChecked(FsAction access) {
       return access != null && access != FsAction.NONE;
     }
 
-    private InodeView getAlluxioInode(INode inode) {
->>>>>>> e409d36... [SMALLFIX] ranger plugin fixes (#1400)
+    private Inode<?> getAlluxioInode(INode inode) {
       if (inode instanceof AlluxioHdfsINode) {
         // unwraps Alluxio Inode
         return ((AlluxioHdfsINode) inode).toAlluxioInode();
