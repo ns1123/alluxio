@@ -151,6 +151,25 @@ public final class CapabilityCache implements Closeable {
   }
 
   /**
+   * @return map of active mastey keys
+   */
+  public java.util.List<MasterKey> getActiveCapabilityKeys() {
+    java.util.List<MasterKey> activeKeys = new java.util.ArrayList<>(2);
+    mCapabilityKeyLock.lock();
+    try {
+      if (mCapabilityKey != null) {
+        activeKeys.add(mCapabilityKey);
+      }
+      if (mOldCapabilityKey != null) {
+        activeKeys.add(mOldCapabilityKey);
+      }
+    } finally {
+      mCapabilityKeyLock.unlock();
+    }
+    return activeKeys;
+  }
+
+  /**
    * @param key the capability key
    */
   public void setCapabilityKey(MasterKey key) {

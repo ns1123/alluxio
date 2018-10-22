@@ -33,6 +33,7 @@ public final class CapabilityTest {
   private final CapabilityProto.Content mReadContent = CapabilityProto.Content.newBuilder()
       .setUser(mUsername)
       .setFileId(mFileId)
+      .setKeyId(mKeyId)
       .setAccessMode(Mode.Bits.READ.ordinal())
       .setExpirationTimeMs(CommonUtils.getCurrentMs() + 10 * 1000).build();
 

@@ -356,12 +356,21 @@ public class FileInStream extends InputStream implements BoundedStream, Position
                 .setOpenUfsBlockOptions(mOptions.getOpenUfsBlockOptions(blockId))
                 .setSourceHost(dataSource.getHost()).setSourcePort(dataSource.getDataPort())
                 .build();
-        Channel channel = mContext.acquireNettyChannel(worker);
+        // ALLUXIO CS REPLACE
+        // Channel channel = mContext.acquireNettyChannel(worker);
+        // ALLUXIO CS WITH
+        Channel channel;
+        if (mOptions.getCapabilityFetcher() != null) {
+          channel = mContext.acquireNettyChannel(worker,
+              mOptions.getCapabilityFetcher().getCapability().toProto());
+        } else {
+          channel = mContext.acquireNettyChannel(worker);
+        }
+        // ALLUXIO CS END
         try {
           NettyRPCContext rpcContext =
               NettyRPCContext.defaults().setChannel(channel).setTimeout(channelTimeout);
           NettyRPC.fireAndForget(rpcContext, new ProtoMessage(request));
-          mLastBlockIdCached = blockId;
         } finally {
           mContext.releaseNettyChannel(worker, channel);
         }

@@ -1,3 +1,5 @@
+CapabilityAuthenticationSaslClientHandler.java
+DigestSaslNettyClient.java
 KerberosSaslClientHandler.java
 KerberosSaslNettyClient.java
 NettySecretKeyWriter.java

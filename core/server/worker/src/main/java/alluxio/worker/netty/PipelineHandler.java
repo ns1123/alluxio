@@ -74,10 +74,10 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     pipeline.addLast("idleReadHandler", new IdleReadHandler());
     pipeline.addLast("heartbeatHandler", new HeartbeatHandler());
     // ALLUXIO CS ADD
-
     if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      pipeline.addLast(new KerberosSaslDataServerHandler());
+      BlockWorker blockWorker = mWorkerProcess.getWorker(BlockWorker.class);
+      pipeline.addLast(new SaslDataServerHandlerProxy(blockWorker.getCapabilityCache()));
     }
     if (Utils.isCapabilityEnabled()) {
       pipeline.addLast(new ConnectionCountHandler(mWorkerProcess.getWorker(BlockWorker.class)));

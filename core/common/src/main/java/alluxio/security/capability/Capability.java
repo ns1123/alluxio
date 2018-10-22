@@ -54,7 +54,11 @@ public final class Capability {
     // TODO(feng): refactor Capability to unify with Token
     mContentDecoded = content;
     mKeyId = key.getKeyId();
-    mContent = ProtoUtils.encode(content);
+    // Augment given content with the key Id
+    // PS: No need to augment decoded content as it's used only to initialize this class
+    CapabilityProto.Content augmentedContent =
+        CapabilityProto.Content.newBuilder(content).setKeyId(mKeyId).build();
+    mContent = ProtoUtils.encode(augmentedContent);
     mAuthenticator = key.calculateHMAC(mContent);
   }
 
@@ -74,7 +78,17 @@ public final class Capability {
 
     mKeyId = capability.getKeyId();
     mAuthenticator = ProtoUtils.getAuthenticator(capability);
-    mContent = ProtoUtils.getContent(capability);
+    // Augment given content with the key Id
+    try {
+      CapabilityProto.Content augmentedContent =
+          CapabilityProto.Content.newBuilder().mergeFrom(ProtoUtils.getContent(capability))
+              .setKeyId(mKeyId).build();
+      mContent = ProtoUtils.encode(augmentedContent);
+    } catch (Exception exc) {
+      throw new InvalidCapabilityException("Content buffer is not valid :"
+              + capability.toString()
+              + "Exception :" + exc.getMessage());
+    }
   }
 
   /**
@@ -92,7 +106,18 @@ public final class Capability {
 
     mKeyId = capability.getKeyId();
     mAuthenticator = capability.getAuthenticator();
-    mContent = capability.getContent();
+    // Augment given thrift content with the key Id.
+    try {
+      CapabilityProto.Content augmentedContent =
+              CapabilityProto.Content.newBuilder().mergeFrom(capability.getContent())
+                      .setKeyId(mKeyId).build();
+      mContent = ProtoUtils.encode(augmentedContent);
+    } catch (Exception exc) {
+      throw new InvalidCapabilityException(
+          "Thrift capability content buffer is not valid : "
+              + Arrays.toString(capability.getContent())
+              + " Exception: " + exc.getMessage());
+    }
   }
 
   /**

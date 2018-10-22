@@ -14,7 +14,9 @@ package alluxio.security.util;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.netty.NettyAttributes;
+import alluxio.proto.security.CapabilityProto;
 import alluxio.security.Credentials;
+import alluxio.security.MasterKey;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authentication.DelegationTokenIdentifier;
@@ -22,11 +24,14 @@ import alluxio.security.authentication.DelegationTokenManager;
 import alluxio.security.authentication.ImpersonationAuthenticator;
 import alluxio.security.authentication.Token;
 import alluxio.util.CommonUtils;
+import alluxio.util.proto.ProtoUtils;
+
+import io.netty.channel.Channel;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import io.netty.channel.Channel;
+
 import org.apache.commons.codec.binary.Base64;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -40,9 +45,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -433,6 +439,63 @@ public final class KerberosUtils {
   }
 
   /**
+   * Digest sasl callback for the netty servers.
+   */
+  public static class NettyDigestServerCallbackHandler
+      extends SaslDigestServerCallbackHandler {
+    private Channel mChannel;
+    private List<MasterKey> mActiveMasterKeys;
+
+    /**
+     * @param channel the channel
+     * @param activeMasterKeys list of active master keys that are used for signing capabilities
+     */
+    public NettyDigestServerCallbackHandler(Channel channel, List<MasterKey> activeMasterKeys) {
+      mChannel = channel;
+      mActiveMasterKeys = activeMasterKeys;
+    }
+
+    @Override
+    protected void authorize(AuthorizeCallback ac) throws IOException {
+      ac.setAuthorized(true);
+      // Extract from authorized user, which is a capability content, the username
+      // and save it in the channel for next handlers.
+      byte[] contentProto = Base64.decodeBase64(ac.getAuthorizedID());
+      CapabilityProto.Content contentDec = ProtoUtils.decode(contentProto);
+      String capabilityUser = contentDec.getUser();
+      mChannel.attr(NettyAttributes.CHANNEL_KERBEROS_USER_KEY).set(capabilityUser);
+    }
+
+    @Override
+    protected char[] getPassword(String name) {
+      try {
+        // Extract keyId from the user word that is being authenticated
+        byte[] contentProto = Base64.decodeBase64(name);
+        CapabilityProto.Content contentDec = ProtoUtils.decode(contentProto);
+        long keyId = contentDec.getKeyId();
+        MasterKey clientMasterKey = null;
+        for (MasterKey serverKey : mActiveMasterKeys) {
+          if (serverKey.getKeyId() == keyId) {
+            LOG.debug("Found a master key for received client content with Id:{}", keyId);
+            clientMasterKey = serverKey;
+            break;
+          }
+        }
+        Preconditions.checkNotNull(clientMasterKey,
+                "Failed to find master key:{} among active server keys.", keyId);
+
+        byte[] authenticator = clientMasterKey.calculateHMAC(contentProto);
+        String strAuthenticatorEnc =
+                new String(Base64.encodeBase64(authenticator, false), Charsets.UTF_8);
+        return strAuthenticatorEnc.toCharArray();
+      } catch (Exception e) {
+        LOG.error("Cannot obtain password", e);
+        return new char[0];
+      }
+    }
+  }
+
+  /**
    * The delegation token sasl callback for the thrift servers.
    */
   public static class ThriftDelegationTokenServerCallbackHandler
@@ -498,6 +561,16 @@ public final class KerberosUtils {
     public SaslDigestClientCallbackHandler(Token<?> token) {
       mUserName = buildUserName(token);
       mUserPassword = buildPassword(token);
+    }
+
+    /**
+     * @param userName username
+     * @param userPassword password
+     */
+    public SaslDigestClientCallbackHandler(final String userName, final String userPassword) {
+      // TODO(ggezer) Send a token from caller side to avoid extra _ctor.
+      mUserName = userName;
+      mUserPassword = userPassword.toCharArray();
     }
 
     private static String buildUserName(Token<?> token) {

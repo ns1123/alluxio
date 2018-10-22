@@ -125,7 +125,15 @@ public final class NettyPacketReader implements PacketReader {
     mPosToRead = readRequest.getOffset();
     mReadRequest = readRequest;
 
-    mChannel = mContext.acquireNettyChannel(address);
+    // ALLUXIO CS REPLACE
+    // mChannel = mContext.acquireNettyChannel(address);
+    // ALLUXIO CS WITH
+    if (readRequest.hasCapability()) {
+      mChannel = mContext.acquireNettyChannel(address, readRequest.getCapability());
+    } else {
+      mChannel = mContext.acquireNettyChannel(address);
+    }
+    // ALLUXIO CS END
     mChannel.pipeline().addLast(new PacketReadHandler());
     mChannel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(mReadRequest)))
         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);

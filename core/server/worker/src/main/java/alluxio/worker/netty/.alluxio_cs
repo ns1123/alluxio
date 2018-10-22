@@ -1,8 +1,11 @@
+CapabilityAuthenticationSaslDataServerHandler.java
 ConnectionCountHandler.java
+DigestSaslNettyServer.java
 KerberosSaslDataServerHandler.java
 KerberosSaslNettyServer.java
 NettySecureRpcServer.java
 RPCHandler.java
+SaslDataServerHandlerProxy.java
 SecretKeyServerHandler.java
 SecureRpcServerInitializer.java
 UfsFallbackBlockWriteHandler.java
