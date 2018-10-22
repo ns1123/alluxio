@@ -15,6 +15,7 @@ import alluxio.security.MasterKey;
 import alluxio.security.capability.SecretManager;
 import alluxio.util.CommonUtils;
 import alluxio.util.ThreadFactoryUtils;
+import alluxio.util.ThreadUtils;
 
 import com.google.common.base.Throwables;
 import org.slf4j.Logger;
@@ -67,7 +68,7 @@ public abstract class MasterKeyManager implements Closeable {
       mKeyRotationFuture.cancel(true);
     }
     if (mExecutor != null) {
-      mExecutor.shutdownNow();
+      ThreadUtils.shutdownAndAwaitTermination(mExecutor);
     }
   }
 
@@ -88,12 +89,8 @@ public abstract class MasterKeyManager implements Closeable {
   /**
    * Starts the thread to rotate master key periodically.
    */
-  protected void startThreadPool() {
-    try {
-      mMasterKey = generateMasterKey();
-    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-      Throwables.propagate(e);
-    }
+  public void startThreadPool() {
+    updateMasterKey();
     // TODO(chaomin): consider increase the number of threads for faster Alluxio start up
     // Some race conditions are avoided based on the assumption of single-thread pool here.
     mExecutor = new ScheduledThreadPoolExecutor(
@@ -104,6 +101,23 @@ public abstract class MasterKeyManager implements Closeable {
   }
 
   /**
+   * @return whether the update thread is running
+   */
+  public boolean isRunning() {
+    return mExecutor != null && !mExecutor.isTerminated();
+  }
+
+  /**
+   * Resets the state of the manager.
+   * User should call startThreadPool() before using the manager after reset.
+   */
+  public void reset() {
+    close();
+    mMasterKey = null;
+    mMasterKeyId = 0L;
+  }
+
+  /**
    * Generates a new master key.
    */
   protected MasterKey generateMasterKey() throws InvalidKeyException, NoSuchAlgorithmException {
@@ -111,6 +125,14 @@ public abstract class MasterKeyManager implements Closeable {
         ++mMasterKeyId,
         CommonUtils.getCurrentMs() + mKeyLifetimeMs,
         mSecretManager.generateSecret().getEncoded());
+  }
+
+  protected void updateMasterKey() {
+    try {
+      mMasterKey = generateMasterKey();
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+      Throwables.propagate(e);
+    }
   }
 
   /**

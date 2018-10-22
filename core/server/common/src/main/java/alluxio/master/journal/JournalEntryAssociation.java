@@ -70,6 +70,11 @@ public final class JournalEntryAssociation {
         || entry.hasStartJob()) {
       return Constants.JOB_MASTER_NAME;
     }
+    if (entry.hasGetDelegationToken()
+        || entry.hasRemoveDelegationToken()
+        || entry.hasUpdateMasterKey()) {
+      return Constants.FILE_SYSTEM_MASTER_NAME;
+    }
     // ALLUXIO CS END
     throw new IllegalStateException("Unrecognized journal entry: " + entry);
   }

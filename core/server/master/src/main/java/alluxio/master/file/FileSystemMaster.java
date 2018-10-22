@@ -546,6 +546,6 @@ public interface FileSystemMaster extends Master {
    */
   alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
       getDelegationToken(String renewer)
-      throws AccessControlException;
+      throws AccessControlException, UnavailableException;
   // ALLUXIO CS END
 }

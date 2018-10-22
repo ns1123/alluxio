@@ -411,7 +411,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   public
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
       getDelegationToken(String renewer)
-      throws AccessControlException {
+      throws AccessControlException, UnavailableException {
     return mFileSystemMaster.getDelegationToken(renewer);
   }
 

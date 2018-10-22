@@ -13,9 +13,11 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.collections.ConcurrentHashSet;
 import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,11 +39,13 @@ public class DelegationTokenManager extends MasterKeyManager {
   private final long mMaxLifetime;
   /** The amount of time before which a delegation token must be renewed. */
   private final long mRenewInterval;
-  /** Valid master keys. */
+  /** Valid master keys. Should only be updated by master or manager thread non-concurrently. */
   private final Map<Long, MasterKey> mMasterKeys = new ConcurrentHashMap<>();
   /** Valid delegation tokens. */
   private Map<DelegationTokenIdentifier, TokenInfo> mTokens = new ConcurrentHashMap<>();
-  /** Sequence number for creating delegation tokens. */
+  /** Listeners for manager triggered events. **/
+  private final Set<EventListener> mEventListeners = new ConcurrentHashSet<>();
+  /** Sequence number for creating delegation tokens. Should only be updated synchronously. */
   private long mTokenSequenceNumber = 0L;
 
   /**
@@ -54,8 +59,6 @@ public class DelegationTokenManager extends MasterKeyManager {
     super(keyUpdateIntervalMs + maxLifetimeMs, keyUpdateIntervalMs);
     mMaxLifetime = maxLifetimeMs;
     mRenewInterval = renewIntervalMs;
-    // TODO(feng): load valid keys from journal before starting the thread pool
-    startThreadPool();
   }
 
   /**
@@ -74,14 +77,18 @@ public class DelegationTokenManager extends MasterKeyManager {
    * @return the token
    */
   public Token<DelegationTokenIdentifier> getDelegationToken(DelegationTokenIdentifier id) {
+    Preconditions.checkNotNull(id, "id");
+    Preconditions.checkState(isRunning());
+    MasterKey key = Preconditions.checkNotNull(mMasterKey, "mMasterKey");
     id.setIssueDate(CommonUtils.getCurrentMs());
     id.setMaxDate(id.getIssueDate() + mMaxLifetime);
-    id.setMasterKeyId(mMasterKey.getKeyId());
+    id.setMasterKeyId(key.getKeyId());
+    // sequence number is unique given getNextTokenSequenceNumber() is synchronous
     id.setSequenceNumber(getNextTokenSequenceNumber());
-    Token<DelegationTokenIdentifier> token = new Token<>(id, mMasterKey);
+    Token<DelegationTokenIdentifier> token = new Token<>(id, key);
+    // no locking is required because token id is unique
     mTokens.put(token.getId(),
         new TokenInfo(token, CommonUtils.getCurrentMs() + mRenewInterval));
-    // TODO(feng): journal token updates.
     return token;
   }
 
@@ -92,6 +99,7 @@ public class DelegationTokenManager extends MasterKeyManager {
    * @return the password of the token if exists; otherwise null
    */
   public byte[] retrievePassword(DelegationTokenIdentifier id) {
+    Preconditions.checkNotNull(id, "id");
     TokenInfo token = mTokens.get(id);
     if (token != null && token.getRenewDate() > CommonUtils.getCurrentMs()) {
       return token.getPassword();
@@ -99,14 +107,89 @@ public class DelegationTokenManager extends MasterKeyManager {
     return null;
   }
 
+  /**
+   * Gets the renew time of a delegation token.
+   *
+   * @param id identifier of the token
+   * @return the renew time
+   */
+  public long getDelegationTokenRenewTime(DelegationTokenIdentifier id) {
+    Preconditions.checkNotNull(id, "id");
+    if (!mTokens.containsKey(id))  {
+      throw new IllegalArgumentException(
+          String.format("Delegation token identifier not found: %s", id.toString()));
+    }
+    return mTokens.get(id).getRenewDate();
+  }
+
+  /**
+   * Adds a delegation token. Should only be used before thread pool is started.
+   *
+   * @param id id of the delegation token
+   * @param renewTime the renew time of the token
+   */
+  public void addDelegationToken(DelegationTokenIdentifier id, long renewTime) {
+    Preconditions.checkNotNull(id, "id");
+    Preconditions.checkState(!isRunning());
+    // no locking required since no RPC or manager threads are running.
+    if (id.getSequenceNumber() > mTokenSequenceNumber) {
+      mTokenSequenceNumber = id.getSequenceNumber();
+    }
+    MasterKey masterKey = mMasterKeys.get(id.getMasterKeyId());
+    if (masterKey == null) {
+      throw new IllegalStateException(String.format("unable to find master key %d", masterKey.getKeyId()));
+    }
+    Token<DelegationTokenIdentifier> token = new Token<>(id, masterKey);
+    mTokens.put(id, new TokenInfo(token, renewTime));
+  }
+
+  /**
+   * Removes a delegation token. Should only be used before thread pool is started.
+   *
+   * @param id identifier of the token
+   */
+  public void removeDelegationToken(DelegationTokenIdentifier id) {
+    Preconditions.checkNotNull(id, "id");
+    Preconditions.checkState(!isRunning());
+    // no locking required since no RPC or manager threads are running.
+    if (!mTokens.containsKey(id)) {
+      LOG.warn("Failed to remove delegation token {}. The token does not exist.", id);
+    }
+    mTokens.remove(id);
+  }
+
+  /**
+   * Adds a master key. Should only be used before thread pool is started.
+   *
+   * @param key the master key
+   */
+  public void addMasterKey(MasterKey key) {
+    Preconditions.checkNotNull(key, "key");
+    Preconditions.checkState(!isRunning());
+    // no locking required since no RPC or manager threads are running.
+    if (mMasterKeys.containsKey(key.getKeyId()))  {
+      throw new IllegalArgumentException(String.format("master key %d already exists", key.getKeyId()));
+    }
+    mMasterKeys.put(key.getKeyId(), key);
+    if (key.getKeyId() > mMasterKeyId) {
+      mMasterKeyId = key.getKeyId();
+    }
+  }
+
+  MasterKey getMasterKey(long keyId) {
+    return mMasterKeys.get(keyId);
+  }
+
   // TODO(feng): Add delegation token renew/cancel logic
 
-  private void swapMasterKeys() {
+  @Override
+  protected void updateMasterKey() {
     try {
-      mMasterKey = generateMasterKey();
-      mMasterKeys.put(mMasterKey.getKeyId(), mMasterKey);
-      LOG.debug("Master key {} is created.", mMasterKey.getKeyId());
-      // TODO(feng): journal master key updates.
+      MasterKey key = generateMasterKey();
+      mMasterKeys.put(key.getKeyId(), key);
+      LOG.debug("Master key {} is created.", key.getKeyId());
+      mEventListeners.forEach(listener -> listener.onMasterKeyUpdated(key));
+      mMasterKey = key;
     } catch (NoSuchAlgorithmException | InvalidKeyException e) {
       Throwables.propagate(e);
     }
@@ -114,7 +197,7 @@ public class DelegationTokenManager extends MasterKeyManager {
 
   @Override
   protected void maybeRotateAndDistributeKey() {
-    swapMasterKeys();
+    updateMasterKey();
     removeExpiredKeys();
     removeExpiredTokens();
   }
@@ -125,7 +208,6 @@ public class DelegationTokenManager extends MasterKeyManager {
       if (CommonUtils.getCurrentMs() > entry.getValue().getExpirationTimeMs()) {
         LOG.debug("Master key {} is expired and removed.", entry.getKey());
         it.remove();
-        // TODO(feng): journal master key updates.
       }
     }
   }
@@ -137,13 +219,53 @@ public class DelegationTokenManager extends MasterKeyManager {
       if (CommonUtils.getCurrentMs() > entry.getValue().getRenewDate()) {
         LOG.debug("Token {} is expired and removed.", entry.getKey().getSequenceNumber());
         it.remove();
-        // TODO(feng): journal delegation token updates.
+        mEventListeners.forEach(listener -> listener.onDelegationTokenRemoved(entry.getKey()));
       }
     }
   }
 
   private synchronized long getNextTokenSequenceNumber() {
     return ++mTokenSequenceNumber;
+  }
+
+  /**
+   * Registers a event listener.
+   *
+   * @param listener listener to register
+   */
+  public void registerEventListener(EventListener listener) {
+    mEventListeners.add(listener);
+  }
+
+  @Override
+  public void reset() {
+    // This should only be called after all RPC threads are stopped.
+    super.reset();
+    mMasterKeys.clear();
+    mTokens.clear();
+    mTokenSequenceNumber = 0L;
+    LOG.debug("Delegation token manager is reset.");
+  }
+
+  /**
+   * A listener for {@link DelegationTokenManager} events.
+   */
+  public interface EventListener {
+    /**
+     * Callback method triggered when a master key is updated.
+     * Handler should avoid throwing exceptions unless fatal.
+     *
+     * @param key the new master key
+     */
+    void onMasterKeyUpdated(MasterKey key);
+
+    /**
+     * Callback method triggered when a delegation token is removed.
+     * Handler should avoid throwing exceptions unless fatal.
+     *
+     * @param id identifier of the token
+     */
+    void onDelegationTokenRemoved(DelegationTokenIdentifier id);
   }
 
   /**

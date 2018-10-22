@@ -11,6 +11,7 @@
 
 package alluxio.security.authentication;
 
+import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
 
 import org.junit.Assert;
@@ -30,6 +31,7 @@ public class DelegationTokenManagerTest {
   public void getDelegationToken() {
     try (DelegationTokenManager manager = new DelegationTokenManager(
         KEY_UPDATE_INTERVAL_MS, TOKEN_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
       DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
       Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
       Assert.assertEquals(id, token.getId());
@@ -37,9 +39,69 @@ public class DelegationTokenManagerTest {
   }
 
   @Test
+  public void addDelegationToken() {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      long issueDate = CommonUtils.getCurrentMs();
+      long seqNumber = 123L;
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier(
+          "user", "renewer", "proxy", issueDate, issueDate + 30000L,
+          seqNumber, manager.getMasterKey().getKeyId());
+      Token<DelegationTokenIdentifier> token = new Token<>(id, manager.getMasterKey());
+      long renewTime = CommonUtils.getCurrentMs() + 300000L;
+      manager.close();
+      manager.addDelegationToken(id, renewTime);
+      manager.startThreadPool();
+
+      byte[] password = manager.retrievePassword(id);
+      Assert.assertArrayEquals(token.getPassword(), password);
+      DelegationTokenIdentifier id2 = new DelegationTokenIdentifier(
+          "user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token2 = manager.getDelegationToken(id2);
+      Assert.assertTrue(token2.getId().getSequenceNumber() > seqNumber);
+    }
+  }
+
+  @Test
+  public void removeDelegationToken() {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      byte[] password = manager.retrievePassword(id);
+      Assert.assertNotNull(password);
+      manager.close();
+      manager.removeDelegationToken(token.getId());
+      manager.startThreadPool();
+
+      password = manager.retrievePassword(id);
+      Assert.assertNull(password);
+    }
+  }
+
+  @Test
+  public void addMasterKey() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      long keyId = 123L;
+      MasterKey key = new MasterKey(keyId, CommonUtils.getCurrentMs(), null);
+      manager.addMasterKey(key);
+
+      Assert.assertEquals(key, manager.getMasterKey(keyId));
+
+      manager.startThreadPool();
+      Assert.assertTrue(manager.getMasterKey().getKeyId() > keyId);
+    }
+  }
+
+  @Test
   public void retrievePasswordSuccess() {
     try (DelegationTokenManager manager = new DelegationTokenManager(
         KEY_UPDATE_INTERVAL_MS, TOKEN_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
       DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
       Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
       byte[] password = manager.retrievePassword(id);
@@ -51,6 +113,7 @@ public class DelegationTokenManagerTest {
   public void retrievePasswordNotExist() {
     try (DelegationTokenManager manager = new DelegationTokenManager(
         KEY_UPDATE_INTERVAL_MS, TOKEN_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
       DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
       byte[] password = manager.retrievePassword(id);
       Assert.assertNull(password);
@@ -61,6 +124,7 @@ public class DelegationTokenManagerTest {
   public void retrievePasswordExpired() {
     try (DelegationTokenManager manager = new DelegationTokenManager(
         KEY_UPDATE_INTERVAL_MS, TOKEN_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
       DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy",
           0L, 1L, 2L, 3L);
       Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
@@ -76,6 +140,7 @@ public class DelegationTokenManagerTest {
   public void keyRotation() {
     try (DelegationTokenManager manager = new DelegationTokenManager(
         KEY_UPDATE_INTERVAL_MS, TOKEN_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
       long curKeyId = manager.getMasterKey().getKeyId();
       byte[] oldSecretKey = manager.getMasterKey().getEncodedKey();
       CommonUtils.sleepMs(KEY_UPDATE_INTERVAL_MS + 50L);

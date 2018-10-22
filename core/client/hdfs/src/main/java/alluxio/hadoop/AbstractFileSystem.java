@@ -597,7 +597,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     if (subject != null) {
       LOG.debug("Using Hadoop subject: {}", subject);
       mContext = FileSystemContext.get(subject);
-      mFileSystem = FileSystem.Factory.get(mContext);
       // ALLUXIO CS ADD
       try {
         UserGroupInformation user = UserGroupInformation.getCurrentUser();
@@ -608,12 +607,16 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
                   HostAndPort.fromParts(addr.getAddress().getHostAddress(), addr.getPort()).toString())
               .collect(toList());
           LOG.debug("Checking Alluxio delegation token for {} on service {}", subject, tokenService);
-          HadoopKerberosLoginProvider.populateAlluxioTokens(user, subject, tokenService, masters);
+          if (HadoopKerberosLoginProvider.populateAlluxioTokens(user, subject, tokenService, masters)) {
+            // update context after subject is populated with token
+            mContext = FileSystemContext.get(subject);
+          }
         }
       } catch (IOException e) {
         LOG.warn("unable to populate Alluxio tokens.", e);
       }
       // ALLUXIO CS END
+      mFileSystem = FileSystem.Factory.get(mContext);
     } else {
       LOG.debug("No Hadoop subject. Using FileSystem Context without subject.");
       mContext = FileSystemContext.get();

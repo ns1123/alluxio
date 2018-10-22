@@ -51,11 +51,14 @@ message JournalEntry {
   optional SetAttributeEntry set_attribute = 27;
   optional UpdateUfsModeEntry update_ufs_mode = 30;
   // ALLUXIO CS ADD
-  // next available id: 1006
+  // next available id: 1009
   optional FinishJobEntry finish_job = 1002;
+  optional GetDelegationTokenEntry get_delegation_token = 1006;
   optional LicenseCheckEntry license_check = 1001;
   optional PrivilegeUpdateEntry privilege_update = 1004;
+  optional RemoveDelegationTokenEntry remove_delegation_token = 1008;
   optional StartJobEntry start_job = 1003;
+  optional UpdateMasterKeyEntry update_master_key = 1007;
   // This journal entry is a list of other entries. when a journal entry
   // contains other journal entries, all other optional fields must be unset.
   repeated JournalEntry journal_entries = 1005;
