@@ -68,6 +68,7 @@ public class JournalEntryAssociationTest {
       JournalEntry.newBuilder().setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setPrivilegeUpdate(alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setRemoveDelegationToken(alluxio.proto.journal.File.RemoveDelegationTokenEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setRenewDelegationToken(alluxio.proto.journal.File.RenewDelegationTokenEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setUpdateMasterKey(alluxio.proto.journal.File.UpdateMasterKeyEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setStartJob(alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance()).build(),
       // ALLUXIO CS END

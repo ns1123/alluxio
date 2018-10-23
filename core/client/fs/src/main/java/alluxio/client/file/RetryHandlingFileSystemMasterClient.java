@@ -156,6 +156,25 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
     }, "GetDelegationToken");
   }
 
+  @Override
+  public long renewDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws AlluxioStatusException {
+    return retryRPC(() -> mClient.renewDelegationToken(
+        new alluxio.thrift.DelegationToken(
+            token.getId().toThrift(),
+            java.nio.ByteBuffer.wrap(token.getPassword()))).getExpirationTimeMs(), "RenewDelegationToken");
+  }
+
+  @Override
+  public void cancelDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws AlluxioStatusException {
+    retryRPC(() -> mClient.cancelDelegationToken(new alluxio.thrift.DelegationToken(
+        token.getId().toThrift(),
+        java.nio.ByteBuffer.wrap(token.getPassword()))), "CancelDelegationToken");
+  }
+
   // ALLUXIO CS END
   @Override
   public synchronized long getNewBlockIdForFile(final AlluxioURI path)

@@ -547,5 +547,24 @@ public interface FileSystemMaster extends Master {
   alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
       getDelegationToken(String renewer)
       throws AccessControlException, UnavailableException;
+
+  /**
+   * Renews the given delegation token.
+   *
+   * @param token the delegation token to renew
+   * @return the new expiration epoch time
+   */
+  long renewDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws AccessControlException, UnavailableException;
+
+  /**
+   * Cancels the given delegation token.
+   *
+   * @param token the delegation token to cancel
+   */
+  void cancelDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws AccessControlException, UnavailableException;
   // ALLUXIO CS END
 }

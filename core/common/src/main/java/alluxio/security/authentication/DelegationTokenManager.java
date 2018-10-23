@@ -14,16 +14,21 @@ package alluxio.security.authentication;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.collections.ConcurrentHashSet;
+import alluxio.exception.AccessControlException;
 import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -144,16 +149,107 @@ public class DelegationTokenManager extends MasterKeyManager {
   }
 
   /**
-   * Removes a delegation token. Should only be used before thread pool is started.
+   * Updates the manager to remove a delegation token. Should only be used before thread pool is started.
    *
    * @param id identifier of the token
    */
-  public void removeDelegationToken(DelegationTokenIdentifier id) {
+  public void updateDelegationTokenRemoval(DelegationTokenIdentifier id) {
     Preconditions.checkNotNull(id, "id");
     Preconditions.checkState(!isRunning());
     // no locking required since no RPC or manager threads are running.
     if (!mTokens.containsKey(id)) {
       LOG.warn("Failed to remove delegation token {}. The token does not exist.", id);
+    }
+    mTokens.remove(id);
+  }
+
+  /**
+   * Updates a delegation token with new expiration time. Should only be used before thread pool is started.
+   *
+   * @param id identifier of the token
+   * @param expirationTime new expiration time
+   */
+  public void updateDelegationTokenRenewal(DelegationTokenIdentifier id, long expirationTime) {
+    Preconditions.checkNotNull(id, "id");
+    Preconditions.checkState(!isRunning());
+    // no locking required since no RPC or manager threads are running.
+    if (!mTokens.containsKey(id)) {
+      throw new IllegalStateException(String.format(
+          "Failed to renew delegation token %s. The token does not exist.", id.toString()));
+    }
+    MasterKey masterKey = mMasterKeys.get(id.getMasterKeyId());
+    if (masterKey == null) {
+      throw new IllegalStateException(String.format("unable to find master key %d", masterKey.getKeyId()));
+    }
+
+    mTokens.put(id, new TokenInfo(new Token<>(id, masterKey), expirationTime));
+  }
+
+  /**
+   * Renews a delegation token.
+   *
+   * @param token the token to renew
+   * @param renewer the user who is trying to renew the delegation token
+   * @return the new expiration epoch time
+   */
+  public synchronized long renewDelegationToken(Token<DelegationTokenIdentifier> token, String renewer)
+      throws AccessControlException {
+    Preconditions.checkNotNull(token, "token");
+    Preconditions.checkNotNull(renewer, "renewer");
+    DelegationTokenIdentifier id = token.getId();
+    if (Strings.isNullOrEmpty(id.getRenewer())) {
+      throw new AccessControlException(String.format(
+          "token %s cannot be renewed because it does not have a user name set in the renewer field.",
+          id.toString()));
+    }
+    if (!Objects.equal(id.getRenewer(), renewer)) {
+      throw new AccessControlException(String.format(
+          "user %s cannot renew a token with mismatched renewer %s", renewer, id.getRenewer()));
+    }
+    TokenInfo t = mTokens.get(id);
+    if (t == null) {
+      throw new IllegalArgumentException(
+          String.format("failed to renew an unknown token %s", id.toString()));
+    }
+    if (CommonUtils.getCurrentMs() > id.getMaxDate()) {
+      throw new IllegalArgumentException(
+          String.format("failed to renew an expired token %s", id.toString()));
+    }
+    if (!Arrays.equals(t.getPassword(), token.getPassword())) {
+      throw new AccessControlException(
+          String.format("failed to renew token %s with invalid password", id.toString()));
+    }
+    long newExpirationTime = Math.min(
+        token.getId().getMaxDate(),
+        CommonUtils.getCurrentMs() + mRenewInterval);
+    mTokens.put(id, new TokenInfo(token, newExpirationTime));
+    return newExpirationTime;
+  }
+
+  /**
+   * Cancels a delegation token.
+   *
+   * @param token the token to cancel
+   * @param canceller the user who is trying to cancel the delegation token
+   */
+  public synchronized void cancelDelegationToken(Token<DelegationTokenIdentifier> token, String canceller)
+      throws AccessControlException {
+    Preconditions.checkNotNull(token, "token");
+    Preconditions.checkNotNull(canceller, "canceller");
+    DelegationTokenIdentifier id = token.getId();
+    TokenInfo t = mTokens.get(id);
+    if (t == null) {
+      throw new IllegalArgumentException(
+          String.format("failed to cancel an unknown token %s", id.toString()));
+    }
+    if (!Objects.equal(id.getOwner(), canceller)
+        && (Strings.isNullOrEmpty(id.getRenewer()) || !Objects.equal(id.getRenewer(), canceller))) {
+      throw new AccessControlException(String.format("user %s is not authorized to cancel the token %s.",
+          canceller, id.toString()));
+    }
+    if (!Arrays.equals(t.getPassword(), token.getPassword())) {
+      throw new AccessControlException(
+          String.format("failed to cancel token %s with invalid password", id.toString()));
     }
     mTokens.remove(id);
   }
@@ -179,8 +275,6 @@ public class DelegationTokenManager extends MasterKeyManager {
   MasterKey getMasterKey(long keyId) {
     return mMasterKeys.get(keyId);
   }
-
-  // TODO(feng): Add delegation token renew/cancel logic
 
   @Override
   protected void updateMasterKey() {
@@ -213,15 +307,20 @@ public class DelegationTokenManager extends MasterKeyManager {
   }
 
   private void removeExpiredTokens() {
-    for (Iterator<Map.Entry<DelegationTokenIdentifier, TokenInfo>> it =
-         mTokens.entrySet().iterator(); it.hasNext(); ) {
-      Map.Entry<DelegationTokenIdentifier, TokenInfo> entry = it.next();
-      if (CommonUtils.getCurrentMs() > entry.getValue().getRenewDate()) {
-        LOG.debug("Token {} is expired and removed.", entry.getKey().getSequenceNumber());
-        it.remove();
-        mEventListeners.forEach(listener -> listener.onDelegationTokenRemoved(entry.getKey()));
+    Set<DelegationTokenIdentifier> expiredIds = new HashSet<DelegationTokenIdentifier>();
+    synchronized (this) {
+      for (Iterator<Map.Entry<DelegationTokenIdentifier, TokenInfo>> it =
+           mTokens.entrySet().iterator(); it.hasNext(); ) {
+        Map.Entry<DelegationTokenIdentifier, TokenInfo> entry = it.next();
+        if (CommonUtils.getCurrentMs() > entry.getValue().getRenewDate()) {
+          LOG.debug("Token {} is expired and removed.", entry.getKey().getSequenceNumber());
+          it.remove();
+          expiredIds.add(entry.getKey());
+        }
       }
     }
+    // avoid synchronize on expensive event handlers
+    expiredIds.forEach(id -> mEventListeners.forEach(listener -> listener.onDelegationTokenRemoved(id)));
   }
 
   private synchronized long getNextTokenSequenceNumber() {

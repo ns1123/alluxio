@@ -835,6 +835,38 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     return hadoopToken;
   }
 
+  private alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      extractAlluxioToken(org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> token)
+      throws IOException {
+    alluxio.security.authentication.DelegationTokenIdentifier id =
+        token.decodeIdentifier().getAlluxioIdentifier();
+    return new alluxio.security.authentication.Token<>(id, token.getPassword());
+  }
+
+  long renewDelegationToken(
+      org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> token)
+      throws IOException {
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+        alluxioToken = extractAlluxioToken(token);
+    try {
+      return mFileSystem.renewDelegationToken(alluxioToken);
+    } catch (AlluxioException e) {
+      throw alluxio.exception.status.AlluxioStatusException.fromAlluxioException(e);
+    }
+  }
+
+  void cancelDelegationToken(
+      org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> token)
+      throws IOException {
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+        alluxioToken = extractAlluxioToken(token);
+    try {
+      mFileSystem.cancelDelegationToken(alluxioToken);
+    } catch (AlluxioException e) {
+      throw alluxio.exception.status.AlluxioStatusException.fromAlluxioException(e);
+    }
+  }
+
   // ALLUXIO CS END
   /**
    * Convenience method which ensures the given path exists, wrapping any {@link AlluxioException}

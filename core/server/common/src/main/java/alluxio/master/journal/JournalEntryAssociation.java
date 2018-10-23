@@ -72,6 +72,7 @@ public final class JournalEntryAssociation {
     }
     if (entry.hasGetDelegationToken()
         || entry.hasRemoveDelegationToken()
+        || entry.hasRenewDelegationToken()
         || entry.hasUpdateMasterKey()) {
       return Constants.FILE_SYSTEM_MASTER_NAME;
     }

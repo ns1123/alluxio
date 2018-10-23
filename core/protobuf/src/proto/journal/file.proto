@@ -266,6 +266,12 @@ message RemoveDelegationTokenEntry {
   optional alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
 }
 
+// next available id: 3
+message RenewDelegationTokenEntry {
+  optional alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+  optional int64 expiration_time_ms = 2;
+}
+
 // next available id: 2
 message UpdateMasterKeyEntry {
   optional MasterKey master_key = 1;

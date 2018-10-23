@@ -44,7 +44,7 @@ public class DelegationTokenIdentifier implements org.apache.thrift.TBase<Delega
   private static final org.apache.thrift.protocol.TField ISSUE_DATE_FIELD_DESC = new org.apache.thrift.protocol.TField("issueDate", org.apache.thrift.protocol.TType.I64, (short)5);
   private static final org.apache.thrift.protocol.TField MAX_DATE_FIELD_DESC = new org.apache.thrift.protocol.TField("maxDate", org.apache.thrift.protocol.TType.I64, (short)6);
   private static final org.apache.thrift.protocol.TField SEQUENCE_NUMBER_FIELD_DESC = new org.apache.thrift.protocol.TField("sequenceNumber", org.apache.thrift.protocol.TType.I64, (short)7);
-  private static final org.apache.thrift.protocol.TField MASTER_KEY_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mMasterKeyId", org.apache.thrift.protocol.TType.I64, (short)8);
+  private static final org.apache.thrift.protocol.TField MASTER_KEY_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("masterKeyId", org.apache.thrift.protocol.TType.I64, (short)8);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -68,7 +68,7 @@ public class DelegationTokenIdentifier implements org.apache.thrift.TBase<Delega
     ISSUE_DATE((short)5, "issueDate"),
     MAX_DATE((short)6, "maxDate"),
     SEQUENCE_NUMBER((short)7, "sequenceNumber"),
-    MASTER_KEY_ID((short)8, "mMasterKeyId");
+    MASTER_KEY_ID((short)8, "masterKeyId");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -157,7 +157,7 @@ public class DelegationTokenIdentifier implements org.apache.thrift.TBase<Delega
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.SEQUENCE_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("sequenceNumber", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.MASTER_KEY_ID, new org.apache.thrift.meta_data.FieldMetaData("mMasterKeyId", org.apache.thrift.TFieldRequirementType.DEFAULT,
+    tmpMap.put(_Fields.MASTER_KEY_ID, new org.apache.thrift.meta_data.FieldMetaData("masterKeyId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(DelegationTokenIdentifier.class, metaDataMap);
@@ -383,7 +383,7 @@ public class DelegationTokenIdentifier implements org.apache.thrift.TBase<Delega
     __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __MASTERKEYID_ISSET_ID);
   }
 
-  /** Returns true if field mMasterKeyId is set (has been assigned a value) and false otherwise */
+  /** Returns true if field masterKeyId is set (has been assigned a value) and false otherwise */
   public boolean isSetMasterKeyId() {
     return EncodingUtils.testBit(__isset_bitfield, __MASTERKEYID_ISSET_ID);
   }
@@ -760,7 +760,7 @@ public class DelegationTokenIdentifier implements org.apache.thrift.TBase<Delega
     sb.append(this.sequenceNumber);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("mMasterKeyId:");
+    sb.append("masterKeyId:");
     sb.append(this.masterKeyId);
     first = false;
     sb.append(")");

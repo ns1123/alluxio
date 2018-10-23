@@ -11,11 +11,14 @@
 
 package alluxio.security.authentication;
 
+import alluxio.exception.AccessControlException;
 import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 
@@ -26,6 +29,10 @@ public class DelegationTokenManagerTest {
   private static final long KEY_UPDATE_INTERVAL_MS = 100L;
   private static final long TOKEN_RENEW_TIME_MS = 100L;
   private static final long TOKEN_MAX_LIFETIME_MS = 200L;
+  private static final long TOKEN_LONG_MAX_LIFETIME_MS = 10000L;
+
+  @Rule
+  public ExpectedException mExpectedException = ExpectedException.none();
 
   @Test
   public void getDelegationToken() {
@@ -35,6 +42,183 @@ public class DelegationTokenManagerTest {
       DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
       Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
       Assert.assertEquals(id, token.getId());
+    }
+  }
+
+  @Test
+  public void renewDelegationToken() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      Thread.sleep(10L);
+      long expectedLifeTime = CommonUtils.getCurrentMs() + TOKEN_RENEW_TIME_MS;
+      long newExpireTime = manager.renewDelegationToken(token, "renewer");
+
+      Assert.assertTrue(newExpireTime >= expectedLifeTime);
+    }
+  }
+
+  @Test
+  public void renewDelegationTokenNotExceedMaxLifeTime() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_LONG_MAX_LIFETIME_MS * 2)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      Thread.sleep(10L);
+      long newExpireTime = manager.renewDelegationToken(token, "renewer");
+
+      Assert.assertEquals(token.getId().getMaxDate(), newExpireTime);
+    }
+  }
+
+  @Test
+  public void renewDelegationTokenMaxDateExceeded() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      manager.getDelegationTokenRenewTime(token.getId());
+      Assert.assertEquals(id, token.getId());
+      Thread.sleep(TOKEN_MAX_LIFETIME_MS + 50L);
+
+      mExpectedException.expect(IllegalArgumentException.class);
+      manager.renewDelegationToken(token, "renewer");
+
+      Assert.fail("Renew a token with max life time exceeded should fail.");
+    }
+  }
+
+  @Test
+  public void renewDelegationTokenWrongPassword() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      Token<DelegationTokenIdentifier> badToken = new Token<>(token.getId(), "badpwd".getBytes());
+      mExpectedException.expect(AccessControlException.class);
+      manager.renewDelegationToken(badToken, "renewer");
+
+      Assert.fail("Renew a token with wrong password should fail.");
+    }
+  }
+
+  @Test
+  public void renewDelegationTokenInvalidRenewer() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      mExpectedException.expect(AccessControlException.class);
+      manager.renewDelegationToken(token, "invalid");
+
+      Assert.fail("Renew a token with invalid renewer should fail.");
+    }
+  }
+
+  @Test
+  public void renewDelegationTokenNullRenewer() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      mExpectedException.expect(NullPointerException.class);
+      manager.renewDelegationToken(token, null);
+
+      Assert.fail("Renew a token with null renewer should fail.");
+    }
+  }
+
+  @Test
+  public void cancelDelegationToken() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      byte[] password = manager.retrievePassword(token.getId());
+      Assert.assertNotNull(password);
+
+      manager.cancelDelegationToken(token, "user");
+
+      password = manager.retrievePassword(token.getId());
+      Assert.assertNull(password);
+    }
+  }
+
+  @Test
+  public void cancelDelegationTokenWithRenewer() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      byte[] password = manager.retrievePassword(token.getId());
+      Assert.assertNotNull(password);
+
+      manager.cancelDelegationToken(token, "renewer");
+
+      password = manager.retrievePassword(token.getId());
+      Assert.assertNull(password);
+    }
+  }
+
+  @Test
+  public void cancelDelegationTokenWrongPassword() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      Token<DelegationTokenIdentifier> badToken = new Token<>(token.getId(), "badpwd".getBytes());
+      mExpectedException.expect(AccessControlException.class);
+      manager.cancelDelegationToken(badToken, "user");
+
+      Assert.fail("Renew a token with wrong password should fail.");
+    }
+  }
+
+  @Test
+  public void cancelDelegationTokenWrongUser() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      mExpectedException.expect(AccessControlException.class);
+      manager.cancelDelegationToken(token, "invalid");
+
+      Assert.fail("Renew a token with wrong user should fail.");
+    }
+  }
+
+  @Test
+  public void cancelDelegationTokenNullUser() throws Exception {
+    try (DelegationTokenManager manager = new DelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS)) {
+      manager.startThreadPool();
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(id, token.getId());
+      mExpectedException.expect(NullPointerException.class);
+      manager.cancelDelegationToken(token, null);
+
+      Assert.fail("Renew a token with null user should fail.");
     }
   }
 
@@ -73,7 +257,7 @@ public class DelegationTokenManagerTest {
       byte[] password = manager.retrievePassword(id);
       Assert.assertNotNull(password);
       manager.close();
-      manager.removeDelegationToken(token.getId());
+      manager.updateDelegationTokenRemoval(token.getId());
       manager.startThreadPool();
 
       password = manager.retrievePassword(id);

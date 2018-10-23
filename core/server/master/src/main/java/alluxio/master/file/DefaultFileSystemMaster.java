@@ -642,6 +642,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
     } else if (entry.hasRemoveDelegationToken()) {
       removeDelegationTokenFromEntry(entry.getRemoveDelegationToken());
+    } else if (entry.hasRenewDelegationToken()) {
+      renewDelegationTokenFromEntry(entry.getRenewDelegationToken());
     // ALLUXIO CS END
     } else {
       throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
@@ -4319,18 +4321,56 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws AccessControlException, UnavailableException {
     String owner = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
     String realUser = alluxio.security.authentication.AuthenticatedClientUser.getConnectionUser();
-    alluxio.security.authentication.DelegationTokenIdentifier dtId =
-        new alluxio.security.authentication.DelegationTokenIdentifier(owner, renewer, realUser);
     try (JournalContext context = createJournalContext()) {
-      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token
-          = mDelegationTokenManager.getDelegationToken(dtId);
-      long renewTime = mDelegationTokenManager.getDelegationTokenRenewTime(dtId);
-      context.append(JournalEntry.newBuilder().setGetDelegationToken(
-          File.GetDelegationTokenEntry.newBuilder()
-              .setTokenId(token.getId().toProto())
-              .setRenewTime(renewTime))
-          .build());
-      return token;
+      synchronized (mDelegationTokenManager) {
+        alluxio.security.authentication.DelegationTokenIdentifier dtId =
+            new alluxio.security.authentication.DelegationTokenIdentifier(owner, renewer, realUser);
+        alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token
+            = mDelegationTokenManager.getDelegationToken(dtId);
+        long renewTime = mDelegationTokenManager.getDelegationTokenRenewTime(dtId);
+        context.append(JournalEntry.newBuilder().setGetDelegationToken(
+            File.GetDelegationTokenEntry.newBuilder()
+                .setTokenId(token.getId().toProto())
+                .setRenewTime(renewTime))
+            .build());
+        return token;
+      }
+    }
+  }
+
+  @Override
+  public long renewDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+          token)
+      throws AccessControlException, UnavailableException {
+    String renewer = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+    try (JournalContext context = createJournalContext()) {
+      synchronized (mDelegationTokenManager) {
+        long expirationTimeMs = mDelegationTokenManager.renewDelegationToken(token, renewer);
+        context.append(JournalEntry.newBuilder().setRenewDelegationToken(
+            File.RenewDelegationTokenEntry.newBuilder()
+                .setTokenId(token.getId().toProto())
+                .setExpirationTimeMs(expirationTimeMs))
+            .build());
+        return expirationTimeMs;
+      }
+    }
+  }
+
+  @Override
+  public void cancelDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+          token)
+      throws AccessControlException, UnavailableException {
+    String canceller = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+    try (JournalContext context = createJournalContext()) {
+      synchronized (mDelegationTokenManager) {
+        mDelegationTokenManager.cancelDelegationToken(token, canceller);
+        context.append(JournalEntry.newBuilder().setRemoveDelegationToken(
+            File.RemoveDelegationTokenEntry.newBuilder()
+                .setTokenId(token.getId().toProto()))
+            .build());
+      }
     }
   }
 
@@ -4349,8 +4389,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
 
   private void removeDelegationTokenFromEntry(File.RemoveDelegationTokenEntry entry) throws IOException {
-    mDelegationTokenManager.removeDelegationToken(
+    mDelegationTokenManager.updateDelegationTokenRemoval(
         alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()));
+  }
+
+  private void renewDelegationTokenFromEntry(File.RenewDelegationTokenEntry entry) throws IOException {
+    mDelegationTokenManager.updateDelegationTokenRenewal(
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()),
+        entry.getExpirationTimeMs());
   }
 
   private class DelegationTokenManagerEventListener

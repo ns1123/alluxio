@@ -103,6 +103,12 @@ struct GetDelegationTokenTResponse {
   1: DelegationToken token
 }
 
+struct RenewDelegationTokenTResponse {
+  1: i64 expirationTimeMs
+}
+
+struct CancelDelegationTokenTResponse {}
+
 // ALLUXIO CS END
 struct ListStatusTOptions {
   // This is deprecated since 1.1.1 and will be removed in 2.0. Use loadMetadataType.
@@ -384,6 +390,22 @@ service FileSystemMasterClientService extends common.AlluxioService {
    */
   GetDelegationTokenTResponse getDelegationToken(
     /** the rewnewer */ 1: string renwer,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  /**
+   * Renews the delegation token.
+   */
+  RenewDelegationTokenTResponse renewDelegationToken(
+    /** the token */ 1: DelegationToken token,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  /**
+   * Cancels the delegation token.
+   */
+  CancelDelegationTokenTResponse cancelDelegationToken(
+    /** the token */ 1: DelegationToken token,
     )
     throws (1: exception.AlluxioTException e)
 
