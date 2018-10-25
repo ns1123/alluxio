@@ -545,17 +545,25 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     LineageContext.INSTANCE.reset();
     FileSystemContext.get().reset(Configuration.global());
 
-    // ALLUXIO CS ADD
-    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
-
-    // ALLUXIO CS END
     // Try to connect to master, if it fails, the provided uri is invalid.
-    FileSystemMasterClient client = FileSystemContext.get().acquireMasterClient();
+    // ALLUXIO CS REPLACE
+    // FileSystemMasterClient client = FileSystemContext.get().acquireMasterClient();
+    // ALLUXIO CS WITH
+    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+    // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
+    // to authenticate with master.
+    updateFileSystemAndContext();
+    FileSystemMasterClient client = mContext.acquireMasterClient();
+    // ALLUXIO CS END
     try {
       client.connect();
       // Connected, initialize.
     } finally {
-      FileSystemContext.get().releaseMasterClient(client);
+      // ALLUXIO CS REPLACE
+      // FileSystemContext.get().releaseMasterClient(client);
+      // ALLUXIO CS WITH
+      mContext.releaseMasterClient(client);
+      // ALLUXIO CS END
     }
   }
 

@@ -74,6 +74,9 @@ public class HadoopKerberosLoginProvider implements KerberosLoginProvider {
     if (subject.getPrincipals(User.class).isEmpty()) {
       subject.getPrincipals().add(new User(ugi.getShortUserName()));
     }
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("UGI tokens: {}", Arrays.toString(ugi.getTokens().toArray()));
+    }
     if (!hasAlluxioDelegationTokens(ugi)) {
       KerberosTicket tgt = KerberosUtils.extractOriginalTGTFromSubject(subject);
       if (tgt == null) {

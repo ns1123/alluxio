@@ -40,6 +40,14 @@ public class SaslDataServerHandlerProxy extends SimpleChannelInboundHandler<RPCP
     mCapabilityCache = capabilityCache;
   }
 
+  /**
+   * Initializes the {@link KerberosSaslDataServerHandler} when the handler is registered.
+   */
+  @Override
+  public void channelRegistered(ChannelHandlerContext ctx) {
+    // Prevents default implementation from forwarding the register event until authenticated.
+  }
+
   @Override
   public void channelRead0(final ChannelHandlerContext ctx, final RPCProtoMessage msg)
       throws Exception {

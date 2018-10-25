@@ -12,6 +12,7 @@
 package alluxio.security.authentication;
 
 import alluxio.proto.security.DelegationTokenProto;
+import alluxio.security.util.KerberosName;
 
 import com.google.common.base.Objects;
 
@@ -32,19 +33,25 @@ public class DelegationTokenIdentifier implements TokenIdentifier {
   /**
    * Constructs a {@link DelegationTokenIdentifier} with user information.
    * @param owner owner of the token
-   * @param renewer user who can renew the token
+   * @param renewer Kerberos principal of user who can renew the token. If null is given, the token
+   *                will not be renewable.
    * @param realUser user who actually connected to the service
    */
   public DelegationTokenIdentifier(String owner, String renewer, String realUser) {
     mOwner = owner;
-    mRenewer = renewer;
+    try {
+      mRenewer = renewer == null ? null : new KerberosName(renewer).getShortName();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     mRealUser = realUser;
   }
 
   /**
    * Constructs a {@link DelegationTokenIdentifier}.
    * @param owner owner of the token
-   * @param renewer user who can renew the token
+   * @param renewer Kerberos principal of user who can renew the token. If null is given, the token
+   *                will not be renewable.
    * @param realUser user who actually connected to the service
    * @param issueDate epoch time when the token is issued
    * @param maxDate epoch time when the token can be renewed until
