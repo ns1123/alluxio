@@ -134,6 +134,9 @@ public class BaseFileSystem implements FileSystem {
       // Do not sync before this getStatus, since the UFS file is expected to not exist.
       status = masterClient.getStatus(path,
           GetStatusOptions.defaults().setLoadMetadataType(LoadMetadataType.Never)
+              // ALLUXIO CS ADD
+              .setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE)
+              // ALLUXIO CS END
               .setCommonOptions(CommonOptions.defaults().setSyncIntervalMs(-1)));
       LOG.debug("Created file {}, options: {}", path.getPath(), options);
     } catch (AlreadyExistsException e) {

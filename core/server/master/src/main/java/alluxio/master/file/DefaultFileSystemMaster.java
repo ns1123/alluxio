@@ -979,7 +979,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       // return getFileInfoInternal(inodePath);
       // ALLUXIO CS WITH
       FileInfo fileInfo = getFileInfoInternal(inodePath);
-      populateCapability(fileInfo, inodePath);
+      populateCapability(fileInfo, inodePath, Mode.Bits.READ);
       return fileInfo;
       // ALLUXIO CS END
     }
@@ -1019,7 +1019,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
       FileInfo fileInfo = getFileInfoInternal(inodePath);
       // ALLUXIO CS ADD
-      populateCapability(fileInfo, inodePath);
+      populateCapability(fileInfo, inodePath, options.getAccessMode());
       // ALLUXIO CS END
       auditContext.setSrcInode(inodePath.getInode()).setSucceeded(true);
       return fileInfo;
@@ -1206,7 +1206,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (fileInfo.isEncrypted() && !fileInfo.isFolder()) {
       // Capability should be attached in listStatus for encrypted files, so that
       // Alluxio client can read the footer to get encryption layout and metadata.
-      populateCapability(fileInfo, currInodePath);
+      populateCapability(fileInfo, currInodePath, Mode.Bits.READ);
     }
     statusList.add(fileInfo);
     // ALLUXIO CS END
@@ -4237,12 +4237,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    * @param inodePath the inode path of the file
    * @throws AccessControlException if permission denied
    */
-  private void populateCapability(FileInfo fileInfo, LockedInodePath inodePath)
+  private void populateCapability(FileInfo fileInfo, LockedInodePath inodePath, Mode.Bits requestedMode)
       throws AccessControlException {
     if (mBlockMaster.getCapabilityEnabled()) {
       alluxio.proto.security.CapabilityProto.Content content =
           alluxio.proto.security.CapabilityProto.Content.newBuilder()
-              .setAccessMode(mPermissionChecker.getPermission(inodePath).ordinal())
+              .setAccessMode(mPermissionChecker.getPermission(inodePath, requestedMode).ordinal())
               .setUser(alluxio.security.authentication.AuthenticatedClientUser.getClientUser())
               .setExpirationTimeMs(
                   alluxio.util.CommonUtils.getCurrentMs() + mBlockMaster.getCapabilityLifeTimeMs())

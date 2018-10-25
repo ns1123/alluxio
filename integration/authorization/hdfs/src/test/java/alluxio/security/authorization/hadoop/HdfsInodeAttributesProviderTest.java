@@ -433,4 +433,49 @@ public final class HdfsInodeAttributesProviderTest {
     assertEquals(newAttr.getLastModificationTimeMs(), mockAttr.getModificationTime());
     assertEquals(newAttr.isDirectory(), mockAttr.isDirectory());
   }
+
+  @Test
+  public void checkOwnerPermissionSuccess() throws Exception {
+    String user = "test";
+    List<String> groups = Collections.singletonList("test_group");
+    Mode.Bits bits = null;
+    String path = "/folder/file";
+    List<Inode<?>> inodes = createInodesForPath(path, 3);
+    List<InodeAttributes> attributes = createInodeAttributessForPath(path, 3);
+    boolean doCheckOwner = true;
+
+    mEnforcer.checkPermission(user, groups, bits, path, inodes, attributes, doCheckOwner);
+
+    String fsOwner = LoginUser.getServerUser().getName();
+    String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    FsAction access = null;
+    int ancestorIndex = inodes.size() - 2;
+    verify(mHadoopEnforcer).checkPermission(eq(fsOwner), eq(supergroup), matchUgi(user, groups),
+        matchHdfsAttributes(path), matchHdfsInodes(path), matchPathComponents(path),
+        eq(Snapshot.CURRENT_STATE_ID), eq(path), eq(ancestorIndex), eq(doCheckOwner),
+        eq(null), eq(null), eq(access), eq(null), eq(false));
+  }
+
+  @Test
+  public void checkPermissionOwnerPassThroughSuccess() throws Exception {
+    String user = "test";
+    List<String> groups = Collections.singletonList("test_group");
+    Mode.Bits bits = null;
+    String path = "/folder/file";
+    List<Inode<?>> inodes = createInodesForPath(path, 3);
+    List<InodeAttributes> attributes = createInodeAttributessForPath(path, 3);
+    boolean doCheckOwner = false;
+    reset(mHadoopProvider);
+    doAnswer(invocation ->
+        new PassthroughAccessControlEnforcer(
+            (INodeAttributeProvider.AccessControlEnforcer) invocation.getArguments()[0]))
+        .when(mHadoopProvider).getExternalAccessControlEnforcer(any());
+    mEnforcer = mProvider.getExternalAccessControlEnforcer(mDefaultEnforcer);
+
+    mEnforcer.checkPermission(user, groups, bits, path, inodes, attributes, doCheckOwner);
+
+    verify(mDefaultEnforcer).checkPermission(eq(user), eq(groups), eq(bits), eq(path),
+        ExtensionInodeAttributesProviderTest.matchInodeList(path),
+        ExtensionInodeAttributesProviderTest.matchAttributesList(path), eq(doCheckOwner));
+  }
 }

@@ -122,6 +122,25 @@ public class DefaultPermissionChecker implements PermissionChecker {
     }
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public Mode.Bits getPermission(LockedInodePath inodePath, Mode.Bits requestedMode) {
+    // default implementation of permission checker does not need special handling for non POSIX
+    // external permission checks.
+    return getPermission(inodePath);
+  }
+
+  protected boolean isSuperUser() {
+    try {
+      String user = AuthenticatedClientUser.getClientUser();
+      List<String> groups = getGroups(user);
+      return isPrivilegedUser(user, groups);
+    } catch (AccessControlException e) {
+      return false;
+    }
+  }
+
+  // ALLUXIO CS END
   @Override
   public void checkSetAttributePermission(LockedInodePath inodePath, boolean superuserRequired,
       boolean ownerRequired) throws AccessControlException, InvalidPathException {

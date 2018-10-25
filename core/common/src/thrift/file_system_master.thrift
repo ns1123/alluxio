@@ -78,6 +78,9 @@ struct GetNewBlockIdForFileTResponse {
 struct GetStatusTOptions {
   1: optional LoadMetadataTType loadMetadataType
   2: optional FileSystemMasterCommonTOptions commonOptions
+  // ALLUXIO CS ADD
+  3: optional i16 accessMode
+  // ALLUXIO CS END
 }
 struct GetStatusTResponse {
   1: FileInfo fileInfo

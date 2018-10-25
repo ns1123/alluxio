@@ -155,4 +155,18 @@ public class AclActionsTest {
     actions.merge(execute);
     Assert.assertEquals(Mode.Bits.ALL, actions.toModeBits());
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Tests {@link AclAction#toModeBits()}.
+   */
+  @Test
+  public void AclActionToModeBits() {
+    Assert.assertEquals(Mode.Bits.READ, AclAction.READ.toModeBits());
+
+    Assert.assertEquals(Mode.Bits.WRITE, AclAction.WRITE.toModeBits());
+
+    Assert.assertEquals(Mode.Bits.EXECUTE, AclAction.EXECUTE.toModeBits());
+  }
+  // ALLUXIO CS END
 }

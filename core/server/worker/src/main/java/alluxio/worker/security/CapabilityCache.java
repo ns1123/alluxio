@@ -17,6 +17,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.security.CapabilityProto;
+import alluxio.security.authorization.AclAction;
 import alluxio.security.authorization.Mode;
 import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
@@ -38,6 +39,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiFunction;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -241,19 +243,19 @@ public final class CapabilityCache implements Closeable {
     Cache cache = mUserCache.get(user);
     Preconditions.checkNotNull(cache, PreconditionMessage.ERR_USER_NOT_SET.toString(), user);
 
-    Cache.Content content = cache.mContents.get(fileId);
-    if (content == null) {
-      throw new InvalidCapabilityException(ExceptionMessage.CAPABILITY_EXPIRED.getMessage());
-    }
     // TODO(chaomin): for now we relax the write permission check to make passive caching work
     // with read-only permission. This is acceptable because Alluxio is write-once for now.
     // Once Alluxio supports append or random-write, we should re-enforce this permission and
     // find a way to tell whether the write is caching due to read, or actual file content write.
     Mode.Bits relaxedAccessRequested = accessRequested.and(Mode.Bits.WRITE.not());
-    if (!content.mAccessMode.imply(relaxedAccessRequested)) {
+    Mode.Bits allowedMode = getAllowedMode(user, fileId);
+    if (allowedMode == null) {
+      throw new InvalidCapabilityException(ExceptionMessage.CAPABILITY_EXPIRED.getMessage());
+    }
+    if (!allowedMode.imply(relaxedAccessRequested)) {
       throw new AccessControlException(String.format(
           "Permission denied. %s is not allowed to access fileId (%d) with access mode %s "
-              + "(allowed mode: %s).", user, fileId, relaxedAccessRequested, content.mAccessMode));
+              + "(allowed mode: %s).", user, fileId, relaxedAccessRequested, allowedMode));
     }
   }
 
@@ -326,7 +328,41 @@ public final class CapabilityCache implements Closeable {
     Cache cache = mUserCache.get(content.getUser());
     Preconditions
         .checkNotNull(cache, PreconditionMessage.ERR_USER_NOT_SET.toString(), content.toString());
-    cache.mContents.put(content.getFileId(), new Cache.Content(content));
+    for (short action = 1; action < 8; action <<= 1) {
+      if ((content.getAccessMode() & action) != 0) {
+        Cache.CacheKey id = new Cache.CacheKey(content.getFileId(), Mode.Bits.fromShort(action));
+        long newExpirationTime = content.getExpirationTimeMs();
+        cache.mContents.compute(id,
+            (BiFunction<? super Cache.CacheKey, ? super Long, ? extends Long>) (key, value) ->
+            (value == null ? newExpirationTime : Math.max(value, newExpirationTime)));
+      }
+    }
+  }
+
+  /**
+   * Retrieves allowed permission mode from all valid tokens for this file in the cache.
+   * @param user the user that requests access
+   * @param fileId the ID of the file that the permission mode is for
+   * @return the permission mode of the file
+   */
+  private Mode.Bits getAllowedMode(String user, long fileId) {
+    Cache cache = mUserCache.get(user);
+    Preconditions.checkNotNull(cache, PreconditionMessage.ERR_USER_NOT_SET.toString(), user);
+    long currentTimeMs = CommonUtils.getCurrentMs();
+    Mode.Bits allowedMode = Mode.Bits.NONE;
+    boolean hasCapability = false;
+    for (AclAction action : Mode.Bits.ALL.toAclActionSet()) {
+      Mode.Bits mode = action.toModeBits();
+      Long expirationTimeMs = cache.mContents.get(new Cache.CacheKey(fileId, mode));
+      if (expirationTimeMs == null) {
+        continue;
+      }
+      hasCapability = true;
+      if (currentTimeMs < expirationTimeMs) {
+        allowedMode = allowedMode.or(mode);
+      }
+    }
+    return hasCapability ? allowedMode : null;
   }
 
   /**
@@ -342,23 +378,27 @@ public final class CapabilityCache implements Closeable {
    * The cache data structure per user.
    */
   private static final class Cache {
-    /**
-     * The cached capability content converted from {@link CapabilityProto.Content}.
-     */
-    private static final class Content {
-      /** The access mode. */
-      public Mode.Bits mAccessMode;
-      /** The expire timestamp in milliseconds. */
-      public long mExpireTimestampMs;
 
-      /**
-       * Creates an instance of {@link Content}.
-       *
-       * @param content the capability content in {@link CapabilityProto.Content}
-       */
-      public Content(CapabilityProto.Content content) {
-        mAccessMode = Mode.Bits.fromShort((short) content.getAccessMode());
-        mExpireTimestampMs = content.getExpirationTimeMs();
+    /**
+     * A composite key of (fileId, bit) for caching capability per access mode per file.
+     */
+    private static final class CacheKey {
+      /** The unique file id. */
+      private final long mFileId;
+      /** The access mode. */
+      private final Mode.Bits mAccessMode;
+
+      private CacheKey(long fileId, Mode.Bits accessMode) {
+        mFileId = fileId;
+        mAccessMode = accessMode;
+      }
+
+      public Mode.Bits getAccessMode() {
+        return mAccessMode;
+      }
+
+      public long getFileId() {
+        return mFileId;
       }
 
       @Override
@@ -366,22 +406,24 @@ public final class CapabilityCache implements Closeable {
         if (this == o) {
           return true;
         }
-        if (!(o instanceof Content)) {
+        if (!(o instanceof CacheKey)) {
           return false;
         }
-        Content other = (Content) o;
-        return Objects.equal(mAccessMode, other.mAccessMode) && Objects
-            .equal(mExpireTimestampMs, other.mExpireTimestampMs);
+        CacheKey that = (CacheKey) o;
+        return Objects.equal(mFileId, that.mFileId)
+            && Objects.equal(mAccessMode, that.mAccessMode);
       }
 
       @Override
       public int hashCode() {
-        return Objects.hashCode(mAccessMode, mExpireTimestampMs);
+        return Objects.hashCode(mFileId, mAccessMode);
       }
     }
 
-    /** The cached capability contents. */
-    public ConcurrentHashMapV8<Long, Content> mContents;
+    /** The cached capability contents.
+     *  The key {@link CacheKey} contains (fileId, mode) pair of the capability.
+     *  The value is the epoch time of the capability expiration time. */
+    public ConcurrentHashMapV8<CacheKey, Long> mContents;
 
     public ReentrantLock mCountLock = new ReentrantLock();
     @GuardedBy("mCountLock")
@@ -399,12 +441,12 @@ public final class CapabilityCache implements Closeable {
      * Garbage collects the expired cache entries.
      */
     public void gc() {
-      Set<Map.Entry<Long, Content>> entrySet = mContents.entrySet();
-      Iterator<Map.Entry<Long, Content>> iterator =  entrySet.iterator();
+      Set<Map.Entry<CacheKey, Long>> entrySet = mContents.entrySet();
+      Iterator<Map.Entry<CacheKey, Long>> iterator =  entrySet.iterator();
       long currentTimeMs = CommonUtils.getCurrentMs();
       while (iterator.hasNext()) {
-        Map.Entry<Long, Content> entry = iterator.next();
-        if (currentTimeMs > entry.getValue().mExpireTimestampMs) {
+        Map.Entry<CacheKey, Long> entry = iterator.next();
+        if (currentTimeMs > entry.getValue()) {
           mContents.remove(entry.getKey(), entry.getValue());
         }
       }

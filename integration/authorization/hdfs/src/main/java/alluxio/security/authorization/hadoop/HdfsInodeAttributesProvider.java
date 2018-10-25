@@ -190,12 +190,12 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
       // Unlike HDFS, we don't check multiple access in a single checkPermission call.
       FsAction ancestorAccess = null;
       FsAction parentAccess = null;
-      FsAction access = FsAction.getFsAction(bits.toString());
+      FsAction access = FsAction.getFsAction(bits == null ? null : bits.toString());
       FsAction subAccess = null;
       boolean ignoreEmptyDir = false;
       if (LOG.isDebugEnabled()) {
         LOG.debug("Check HDFS plugin permission user={} groups={} path={} mode={}", user,
-            Arrays.toString(groups.toArray()), path, bits.toString());
+            Arrays.toString(groups.toArray()), path, bits);
       }
       try {
         mHdfsAccessControlEnforcer.checkPermission(fsOwner, superGroup,
@@ -240,14 +240,13 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
             .append(" ignoreEmptyDir=").append(ignoreEmptyDir)
             .append(")").toString());
       }
-      if (!isPermissionChecked(access)
-          || isPermissionChecked(parentAccess)
+      if (isPermissionChecked(parentAccess)
           || isPermissionChecked(ancestorAccess)
           || isPermissionChecked(subAccess)) {
         // Plugins are not supposed to check a different inode with default enforcer.
         throw new AccessControlException("Checking non-target node permission is not supported.");
       }
-      Mode.Bits bits = Arrays.stream(Mode.Bits.values())
+      Mode.Bits bits = access == null ? null : Arrays.stream(Mode.Bits.values())
           .filter(x -> x.toString().equals(access.SYMBOL)).findFirst().get();
       List<String> groups = Arrays.asList(callerUgi.getGroupNames());
       // only adds non-null element to inode list
