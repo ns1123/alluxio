@@ -2658,7 +2658,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_METRICS_COLLECTION_ENABLED =
       new Builder(Name.USER_METRICS_COLLECTION_ENABLED)
-          .setDefaultValue(true)
+          // ALLUXIO CS REPLACE
+          // .setDefaultValue(true)
+          // ALLUXIO CS WITH
+          // TODO(adit): Disable until https://tachyonnexus.atlassian.net/browse/AE-554 is resolved
+          .setDefaultValue(false)
+          // ALLUXIO CS END
           .setDescription("Enable collecting the client-side metrics and hearbeat them to master")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
