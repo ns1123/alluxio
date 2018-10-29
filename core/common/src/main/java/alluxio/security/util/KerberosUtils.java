@@ -266,8 +266,9 @@ public final class KerberosUtils {
    * @param user the client user who is making the request
    * @param connectionUser the actual user who is authenticating on behalf of the request user. Can
    *                       be null if the client user is authenticated using own credentials.
+   * @param authMethod the authentication method used by the client
    */
-  private static void updateThriftRpcUsers(String user, String connectionUser) {
+  private static void updateThriftRpcUsers(String user, String connectionUser, String authMethod) {
     try {
       User oldUser = AuthenticatedClientUser.get();
       Preconditions
@@ -278,6 +279,7 @@ public final class KerberosUtils {
       throw Throwables.propagate(e);
     }
 
+    AuthenticatedClientUser.setAuthMethod(authMethod);
     AuthenticatedClientUser.set(user);
     if (connectionUser != null) {
       AuthenticatedClientUser.setConnectionUser(connectionUser);
@@ -370,7 +372,7 @@ public final class KerberosUtils {
     protected void done(String user, String connectionUser) {
       // After verification succeeds, a user with this authorizationId will be set to a
       // Threadlocal.
-      updateThriftRpcUsers(user, connectionUser);
+      updateThriftRpcUsers(user, connectionUser, GSSAPI_MECHANISM_NAME);
       mCallback.run();
     }
   }
@@ -522,7 +524,7 @@ public final class KerberosUtils {
       String authenticationId = id.getRealUser();
       ac.setAuthorized(true);
       ac.setAuthorizedID(authorizationId);
-      updateThriftRpcUsers(authorizationId, authenticationId);
+      updateThriftRpcUsers(authorizationId, authenticationId, DIGEST_MECHANISM_NAME);
       mCallback.run();
     }
 

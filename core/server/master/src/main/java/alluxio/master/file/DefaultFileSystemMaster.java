@@ -4319,6 +4319,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
       getDelegationToken(String renewer)
       throws AccessControlException, UnavailableException {
+    String authMethod = alluxio.security.authentication.AuthenticatedClientUser.getAuthMethod();
+    if (!java.util.Objects.equals(alluxio.security.util.KerberosUtils.GSSAPI_MECHANISM_NAME, authMethod)) {
+      throw new AccessControlException(String.format("Permission denied for authentication method %s."
+          + " Delegation token can only be acquired with Kerberos authentication.", authMethod));
+    }
     String owner = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
     String realUser = alluxio.security.authentication.AuthenticatedClientUser.getConnectionUser();
     try (JournalContext context = createJournalContext()) {
@@ -4343,6 +4348,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
           token)
       throws AccessControlException, UnavailableException {
+    String authMethod = alluxio.security.authentication.AuthenticatedClientUser.getAuthMethod();
+    if (!java.util.Objects.equals(alluxio.security.util.KerberosUtils.GSSAPI_MECHANISM_NAME, authMethod)) {
+      throw new AccessControlException(String.format("Permission denied for authentication method %s."
+          + " Delegation token can only be renewed with Kerberos authentication.", authMethod));
+    }
     String renewer = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
     try (JournalContext context = createJournalContext()) {
       synchronized (mDelegationTokenManager) {

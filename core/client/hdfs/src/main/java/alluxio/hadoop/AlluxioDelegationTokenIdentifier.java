@@ -48,6 +48,13 @@ public class AlluxioDelegationTokenIdentifier extends AbstractDelegationTokenIde
         new Text(alluxioTokenId.getRenewer()),
         new Text(alluxioTokenId.getRealUser()));
     mAlluxioTokenId = alluxioTokenId;
+    setMaxDate(mAlluxioTokenId.getMaxDate());
+    setIssueDate(mAlluxioTokenId.getIssueDate());
+    // Token ids and key ids are int in Hadoop API. Converting them from long will lose some
+    // information. Those ids are not meant to be used by Hadoop client, even if user uses it
+    // somehow, it will take 68 years to overflow if one token is generated per second.
+    setMasterKeyId((int) mAlluxioTokenId.getMasterKeyId());
+    setSequenceNumber((int) mAlluxioTokenId.getSequenceNumber());
   }
 
   /**
