@@ -18,7 +18,7 @@
   <parent>
     <artifactId>alluxio-integration-authorization</artifactId>
     <groupId>org.alluxio</groupId>
-    <version>1.8.1-SNAPSHOT</version>
+    <version>1.8.1-RC3</version>
   </parent>
   <name>Alluxio Integration - Authorization - HDFS</name>
   <artifactId>alluxio-integration-authorization-hdfs</artifactId>
