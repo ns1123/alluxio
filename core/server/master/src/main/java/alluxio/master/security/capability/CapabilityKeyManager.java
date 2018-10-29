@@ -19,11 +19,9 @@ import alluxio.master.block.BlockMaster;
 import alluxio.network.netty.NettySecretKeyWriter;
 import alluxio.retry.RetryPolicy;
 import alluxio.retry.TimeoutRetry;
-import alluxio.security.capability.CapabilityKey;
-import alluxio.security.capability.SecretManager;
-import alluxio.util.CommonUtils;
+import alluxio.security.MasterKey;
+import alluxio.security.authentication.MasterKeyManager;
 import alluxio.util.IdUtils;
-import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.WorkerInfo;
 
@@ -31,7 +29,6 @@ import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -39,37 +36,24 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.concurrent.GuardedBy;
 
 /**
- * The class that manages capability key on Alluxio master. It is used to generate and rotate
- * capability keys on Alluxio master.
+ * The class that manages master key for generating capability on Alluxio master.
  */
-public class CapabilityKeyManager implements Closeable {
+public class CapabilityKeyManager extends MasterKeyManager {
   private static final Logger LOG = LoggerFactory.getLogger(CapabilityKeyManager.class);
 
   private static final long KEY_DISTRIBUTION_RETRY_INTERVAL_MS = 100L;
 
-  /** The current capability key. */
-  private volatile CapabilityKey mCapabilityKey;
   /** The new capability key being sent to workers, for key rotation. */
   // TODO(chaomin): if the single-thread executor assumption is changed, should add locking for it.
-  private CapabilityKey mNewKey;
-  /** The optional capability key lifetime in millisecond, only used on master side. */
-  private final long mKeyLifetimeMs;
-  /** The secret manager for generating capability keys. */
-  private final SecretManager mSecretManager;
+  private MasterKey mNewKey;
   /** The block worker contains the list of active worker. */
   private final BlockMaster mBlockMaster;
-
-  private ScheduledExecutorService mExecutor;
-  private ScheduledFuture mKeyRotationFuture;
 
   public ReentrantLock mCountLock = new ReentrantLock();
   @GuardedBy("mCountLock")
@@ -82,53 +66,10 @@ public class CapabilityKeyManager implements Closeable {
    * @param blockMaster the block master
    */
   public CapabilityKeyManager(long keyLifetimeMs, BlockMaster blockMaster) {
-    mSecretManager = new SecretManager();
+    super(keyLifetimeMs, keyLifetimeMs * 3L / 4L);
     mBlockMaster = blockMaster;
-
-    mKeyLifetimeMs = keyLifetimeMs;
-    try {
-      mCapabilityKey = new CapabilityKey(
-          IdUtils.getRandomNonNegativeLong() % Integer.MAX_VALUE + 1L,
-          CommonUtils.getCurrentMs() + mKeyLifetimeMs,
-          mSecretManager.generateSecret().getEncoded());
-    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-      Throwables.propagate(e);
-    }
-
-    // TODO(chaomin): consider increase the number of threads for faster Alluxio start up
-    // Some race conditions are avoided based on the assumption of single-thread pool here.
-    mExecutor = new ScheduledThreadPoolExecutor(
-        1, ThreadFactoryUtils.build("CapabilityKeyManager-%d", true));
-    // Rotate the capability key at the 75% point of the capability key lifetime, so that
-    // there is a grace period when the old key and the new key are both valid.
-    long keyUpdateIntervalMs = mKeyLifetimeMs * 3L / 4L;
-    mKeyRotationFuture =
-        mExecutor.scheduleAtFixedRate(new Runnable() {
-          @Override
-          public void run() {
-            maybeRotateAndDistributeKey();
-          }
-        }, keyUpdateIntervalMs, keyUpdateIntervalMs, TimeUnit.MILLISECONDS);
-  }
-
-  @Override
-  public void close() {
-    mKeyRotationFuture.cancel(true);
-    mExecutor.shutdownNow();
-  }
-
-  /**
-   * @return the current {@link CapabilityKey}
-   */
-  public CapabilityKey getCapabilityKey() {
-    return mCapabilityKey;
-  }
-
-  /**
-   * @return the key lifetime in milliseconds
-   */
-  public long getKeyLifetimeMs() {
-    return mKeyLifetimeMs;
+    mMasterKeyId = IdUtils.getRandomNonNegativeLong() % Integer.MAX_VALUE + 1L;
+    startThreadPool();
   }
 
   /**
@@ -136,10 +77,7 @@ public class CapabilityKeyManager implements Closeable {
    */
   private void prepareNewKey() {
     try {
-      mNewKey = new CapabilityKey(
-          mCapabilityKey.getKeyId() + 1L,
-          CommonUtils.getCurrentMs() + mKeyLifetimeMs,
-          mSecretManager.generateSecret().getEncoded());
+      mNewKey = generateMasterKey();
     } catch (NoSuchAlgorithmException | InvalidKeyException e) {
       Throwables.propagate(e);
     }
@@ -200,7 +138,7 @@ public class CapabilityKeyManager implements Closeable {
 
     // mNewKey is null when there is no key rotation ongoing, thus send the current key.
     // Otherwise the new key is being prepared, always send the new key.
-    CapabilityKey key = mNewKey == null ? mCapabilityKey : mNewKey;
+    MasterKey key = mNewKey == null ? mMasterKey : mNewKey;
     try {
       LOG.debug("Sending key with id {} to worker {}", key.getKeyId(), worker.getAddress());
       NettySecretKeyWriter
@@ -235,7 +173,7 @@ public class CapabilityKeyManager implements Closeable {
     mCountLock.lock();
     mActiveKeyUpdateCount--;
     if (mActiveKeyUpdateCount == 0 && mNewKey != null) {
-      mCapabilityKey = mNewKey;
+      mMasterKey = mNewKey;
       mNewKey = null;
     }
     mCountLock.unlock();
@@ -244,7 +182,8 @@ public class CapabilityKeyManager implements Closeable {
   /**
    * Prepares a new key and distributes it to all workers when there's no pending active update.
    */
-  private void maybeRotateAndDistributeKey() {
+  @Override
+  protected void maybeRotateAndDistributeKey() {
     mCountLock.lock();
     boolean hasPendingUpdate = mActiveKeyUpdateCount > 0;
     mCountLock.unlock();
@@ -270,7 +209,7 @@ public class CapabilityKeyManager implements Closeable {
     if (workerInfoList.isEmpty() && mNewKey != null) {
       mCountLock.lock();
       if (mActiveKeyUpdateCount == 0) {
-        mCapabilityKey = mNewKey;
+        mMasterKey = mNewKey;
         mNewKey = null;
       }
       mCountLock.unlock();

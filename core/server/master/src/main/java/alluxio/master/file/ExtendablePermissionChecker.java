@@ -15,7 +15,9 @@ import alluxio.exception.AccessControlException;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeTree;
+import alluxio.master.file.meta.LockedInodePath;
 import alluxio.proto.journal.Journal;
+import alluxio.security.authorization.AclAction;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.security.authorization.Mode;
 
@@ -84,6 +86,27 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
     }
     mAccessControlEnforcer.checkPermission(
         user, groups, bits, path, inodeList, attributesList, checkIsOwner);
+  }
+
+  @Override
+  public Mode.Bits getPermission(LockedInodePath inodePath, Mode.Bits requestedMode) {
+    if (isSuperUser()) {
+      return Mode.Bits.ALL;
+    }
+    if (requestedMode == null) {
+      return Mode.Bits.NONE;
+    }
+    Mode.Bits grantedMode = Mode.Bits.NONE;
+    for (AclAction action : requestedMode.toAclActionSet()) {
+      try {
+        Mode.Bits mode = action.toModeBits();
+        checkPermission(action.toModeBits(), inodePath);
+        grantedMode = grantedMode.or(mode);
+      } catch (AccessControlException e) {
+        // this is expected if user is not granted target access by the permission checker
+      }
+    }
+    return grantedMode;
   }
 
   private Inode<?> getOverriddenInode(Inode<?> inode, InodeAttributes attributes) {

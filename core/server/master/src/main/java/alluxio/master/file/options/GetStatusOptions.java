@@ -26,6 +26,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class GetStatusOptions {
   private CommonOptions mCommonOptions;
   private LoadMetadataType mLoadMetadataType;
+  // ALLUXIO CS ADD
+  private alluxio.security.authorization.Mode.Bits mAccessMode;
+  // ALLUXIO CS END
 
   /**
    * @return the default {@link GetStatusOptions}
@@ -38,6 +41,9 @@ public final class GetStatusOptions {
     super();
     mCommonOptions = CommonOptions.defaults();
     mLoadMetadataType = LoadMetadataType.Once;
+    // ALLUXIO CS ADD
+    mAccessMode = alluxio.security.authorization.Mode.Bits.READ;
+    // ALLUXIO CS END
   }
 
   /**
@@ -54,6 +60,11 @@ public final class GetStatusOptions {
       if (options.isSetLoadMetadataType()) {
         mLoadMetadataType = LoadMetadataType.fromThrift(options.getLoadMetadataType());
       }
+      // ALLUXIO CS ADD
+      if (options.isSetAccessMode()) {
+        mAccessMode = alluxio.security.authorization.Mode.Bits.fromShort(options.getAccessMode());
+      }
+      // ALLUXIO CS END
     }
   }
 
@@ -91,6 +102,32 @@ public final class GetStatusOptions {
     return this;
   }
 
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the access mode
+   */
+  public alluxio.security.authorization.Mode.Bits getAccessMode() {
+    return mAccessMode;
+  }
+
+  /**
+   * @param accessMode the access mode
+   * @return the updated options
+   */
+  public GetStatusOptions setAccessMode(alluxio.security.authorization.Mode.Bits accessMode) {
+    // Currently only single READ or single WRITE access mode request is valid.
+    // EXECUTE access mode or READ_WRITE access mode does not make sense from capability perspective.
+    // We should revisit capability workflow if we want to support more modes.
+    com.google.common.base.Preconditions.checkArgument(
+        accessMode == alluxio.security.authorization.Mode.Bits.READ
+            || accessMode == alluxio.security.authorization.Mode.Bits.WRITE,
+        "only READ and WRITE access modes are supported");
+    mAccessMode = accessMode;
+    return this;
+  }
+
+  // ALLUXIO CS END
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -101,12 +138,19 @@ public final class GetStatusOptions {
     }
     GetStatusOptions that = (GetStatusOptions) o;
     return Objects.equal(mLoadMetadataType, that.mLoadMetadataType)
+        // ALLUXIO CS ADD
+        && Objects.equal(mAccessMode, that.mAccessMode)
+        // ALLUXIO CS END
         && Objects.equal(mCommonOptions, that.mCommonOptions);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mLoadMetadataType, mCommonOptions);
+    // ALLUXIO CS REPLACE
+    // return Objects.hashCode(mLoadMetadataType, mCommonOptions);
+    // ALLUXIO CS WITH
+    return Objects.hashCode(mLoadMetadataType, mCommonOptions, mAccessMode);
+    // ALLUXIO CS END
   }
 
   @Override
@@ -114,6 +158,9 @@ public final class GetStatusOptions {
     return Objects.toStringHelper(this)
         .add("commonOptions", mCommonOptions)
         .add("loadMetadataType", mLoadMetadataType.toString())
+        // ALLUXIO CS ADD
+        .add("accessMode", mAccessMode.toString())
+        // ALLUXIO CS END
         .toString();
   }
 }

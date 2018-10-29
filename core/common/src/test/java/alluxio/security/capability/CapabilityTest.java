@@ -13,6 +13,7 @@ package alluxio.security.capability;
 
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.proto.security.CapabilityProto;
+import alluxio.security.MasterKey;
 import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 
@@ -32,6 +33,7 @@ public final class CapabilityTest {
   private final CapabilityProto.Content mReadContent = CapabilityProto.Content.newBuilder()
       .setUser(mUsername)
       .setFileId(mFileId)
+      .setKeyId(mKeyId)
       .setAccessMode(Mode.Bits.READ.ordinal())
       .setExpirationTimeMs(CommonUtils.getCurrentMs() + 10 * 1000).build();
 
@@ -41,11 +43,11 @@ public final class CapabilityTest {
       .setAccessMode(Mode.Bits.WRITE.ordinal())
       .setExpirationTimeMs(CommonUtils.getCurrentMs() + 10 * 1000).build();
 
-  private CapabilityKey mKey;
+  private MasterKey mKey;
 
   @Before
   public void before() throws Exception {
-    mKey = new CapabilityKey(
+    mKey = new MasterKey(
         mKeyId, CommonUtils.getCurrentMs() + 100 * 1000, mEncodingKey.getBytes());
   }
 
@@ -96,7 +98,7 @@ public final class CapabilityTest {
   @Test
   public void verifyAuthenticatorTestWithNewerKeyId() throws Exception {
     Capability capability = new Capability(mKey, mReadContent);
-    CapabilityKey newerKey = new CapabilityKey(
+    MasterKey newerKey = new MasterKey(
         mKeyId + 1, CommonUtils.getCurrentMs() + 100 * 1000, mEncodingKey.getBytes());
     try {
       capability.verifyAuthenticator(newerKey);
@@ -109,7 +111,7 @@ public final class CapabilityTest {
 
   @Test
   public void verifyAuthenticatorTestWithWrongSecretKey() throws Exception {
-    CapabilityKey wrongKey = new CapabilityKey(
+    MasterKey wrongKey = new MasterKey(
         mKeyId, CommonUtils.getCurrentMs() + 100 * 1000, "gussedKey".getBytes());
     Capability capability = new Capability(mKey, mReadContent);
     try {
@@ -123,7 +125,7 @@ public final class CapabilityTest {
   @Test
   public void verifyAuthenticatorWithNewerAndCurKeysTest() throws Exception {
     Capability capability = new Capability(mKey, mReadContent);
-    CapabilityKey newerKey = new CapabilityKey(
+    MasterKey newerKey = new MasterKey(
         mKeyId + 1, CommonUtils.getCurrentMs() + 100 * 1000, "gussedKey".getBytes());
     capability.verifyAuthenticator(newerKey, mKey);
   }
@@ -131,7 +133,7 @@ public final class CapabilityTest {
   @Test
   public void verifyAuthenticatorWithOlderAndCurKeysTest() throws Exception {
     Capability capability = new Capability(mKey, mWriteContent);
-    CapabilityKey olderKey = new CapabilityKey(
+    MasterKey olderKey = new MasterKey(
         mKeyId - 1, CommonUtils.getCurrentMs() + 100 * 1000, "guessedKey".getBytes());
     capability.verifyAuthenticator(mKey, olderKey);
   }

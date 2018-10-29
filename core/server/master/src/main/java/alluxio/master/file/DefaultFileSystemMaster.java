@@ -132,6 +132,7 @@ import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.util.executor.ExecutorServiceFactory;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
+import alluxio.util.proto.ProtoUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.CommonOptions;
@@ -404,6 +405,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   /** The provider for authorization with external plugins. */
   private InodeAttributesProvider mAuthProvider = null;
+
+  /** The manager for delegation tokens. **/
+  private alluxio.security.authentication.DelegationTokenManager mDelegationTokenManager = null;
+
   // ALLUXIO CS END
   /**
    * The service that checks for blocks which no longer correspond to existing inodes.
@@ -471,6 +476,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
     mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
+    mDelegationTokenManager = masterContext.getDelegationTokenManager();
+    mDelegationTokenManager.registerEventListener(new DelegationTokenManagerEventListener());
     // ALLUXIO CS END
     mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
     mUfsBlockLocationCache = UfsBlockLocationCache.Factory.create(mMountTable);
@@ -624,6 +631,20 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       } catch (AlluxioException e) {
         throw new RuntimeException(e);
       }
+    // ALLUXIO CS ADD
+    } else if (entry.hasGetDelegationToken()) {
+      addDelegationTokenFromEntry(entry.getGetDelegationToken());
+    } else if (entry.hasUpdateMasterKey()) {
+      try {
+        addMasterKeyFromEntry(entry.getUpdateMasterKey());
+      } catch (java.security.InvalidKeyException | java.security.NoSuchAlgorithmException e) {
+        throw new RuntimeException(e);
+      }
+    } else if (entry.hasRemoveDelegationToken()) {
+      removeDelegationTokenFromEntry(entry.getRemoveDelegationToken());
+    } else if (entry.hasRenewDelegationToken()) {
+      renewDelegationTokenFromEntry(entry.getRenewDelegationToken());
+    // ALLUXIO CS END
     } else {
       throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
     }
@@ -653,6 +674,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         throw new IllegalStateException(e);
       }
     }
+    // ALLUXIO CS ADD
+    mDelegationTokenManager.reset();
+    // ALLUXIO CS END
   }
 
   @Override
@@ -738,6 +762,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECKER,
               new PersistenceChecker(),
               (int) Configuration.getMs(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
+      mDelegationTokenManager.startThreadPool();
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(() -> startupCheckConsistency(
@@ -766,6 +791,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (mAuthProvider != null) {
       mAuthProvider.stop();
     }
+    mDelegationTokenManager.close();
     // ALLUXIO CS END
     super.stop();
   }
@@ -953,7 +979,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       // return getFileInfoInternal(inodePath);
       // ALLUXIO CS WITH
       FileInfo fileInfo = getFileInfoInternal(inodePath);
-      populateCapability(fileInfo, inodePath);
+      populateCapability(fileInfo, inodePath, Mode.Bits.READ);
       return fileInfo;
       // ALLUXIO CS END
     }
@@ -993,7 +1019,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
       FileInfo fileInfo = getFileInfoInternal(inodePath);
       // ALLUXIO CS ADD
-      populateCapability(fileInfo, inodePath);
+      populateCapability(fileInfo, inodePath, options.getAccessMode());
       // ALLUXIO CS END
       auditContext.setSrcInode(inodePath.getInode()).setSucceeded(true);
       return fileInfo;
@@ -1180,7 +1206,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (fileInfo.isEncrypted() && !fileInfo.isFolder()) {
       // Capability should be attached in listStatus for encrypted files, so that
       // Alluxio client can read the footer to get encryption layout and metadata.
-      populateCapability(fileInfo, currInodePath);
+      populateCapability(fileInfo, currInodePath, Mode.Bits.READ);
     }
     statusList.add(fileInfo);
     // ALLUXIO CS END
@@ -4210,19 +4236,19 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    * @param inodePath the inode path of the file
    * @throws AccessControlException if permission denied
    */
-  private void populateCapability(FileInfo fileInfo, LockedInodePath inodePath)
+  private void populateCapability(FileInfo fileInfo, LockedInodePath inodePath, Mode.Bits requestedMode)
       throws AccessControlException {
     if (mBlockMaster.getCapabilityEnabled()) {
       alluxio.proto.security.CapabilityProto.Content content =
           alluxio.proto.security.CapabilityProto.Content.newBuilder()
-              .setAccessMode(mPermissionChecker.getPermission(inodePath).ordinal())
+              .setAccessMode(mPermissionChecker.getPermission(inodePath, requestedMode).ordinal())
               .setUser(alluxio.security.authentication.AuthenticatedClientUser.getClientUser())
               .setExpirationTimeMs(
                   alluxio.util.CommonUtils.getCurrentMs() + mBlockMaster.getCapabilityLifeTimeMs())
               .setFileId(fileInfo.getFileId()).build();
       fileInfo.setCapability(
           new alluxio.security.capability.Capability(
-              mBlockMaster.getCapabilityKeyManager().getCapabilityKey(), content));
+              mBlockMaster.getCapabilityKeyManager().getMasterKey(), content));
     }
   }
   // ALLUXIO CS END
@@ -4285,6 +4311,132 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
 
   // ALLUXIO CS ADD
+  // TODO(feng): move delegation token functions to a new master class
+
+  @Override
+  public
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws AccessControlException, UnavailableException {
+    String authMethod = alluxio.security.authentication.AuthenticatedClientUser.getAuthMethod();
+    if (!java.util.Objects.equals(alluxio.security.util.KerberosUtils.GSSAPI_MECHANISM_NAME, authMethod)) {
+      throw new AccessControlException(String.format("Permission denied for authentication method %s."
+          + " Delegation token can only be acquired with Kerberos authentication.", authMethod));
+    }
+    String owner = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+    String realUser = alluxio.security.authentication.AuthenticatedClientUser.getConnectionUser();
+    try (JournalContext context = createJournalContext()) {
+      synchronized (mDelegationTokenManager) {
+        alluxio.security.authentication.DelegationTokenIdentifier dtId =
+            new alluxio.security.authentication.DelegationTokenIdentifier(owner, renewer, realUser);
+        alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token
+            = mDelegationTokenManager.getDelegationToken(dtId);
+        long renewTime = mDelegationTokenManager.getDelegationTokenRenewTime(dtId);
+        context.append(JournalEntry.newBuilder().setGetDelegationToken(
+            File.GetDelegationTokenEntry.newBuilder()
+                .setTokenId(token.getId().toProto())
+                .setRenewTime(renewTime))
+            .build());
+        return token;
+      }
+    }
+  }
+
+  @Override
+  public long renewDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+          token)
+      throws AccessControlException, UnavailableException {
+    String authMethod = alluxio.security.authentication.AuthenticatedClientUser.getAuthMethod();
+    if (!java.util.Objects.equals(alluxio.security.util.KerberosUtils.GSSAPI_MECHANISM_NAME, authMethod)) {
+      throw new AccessControlException(String.format("Permission denied for authentication method %s."
+          + " Delegation token can only be renewed with Kerberos authentication.", authMethod));
+    }
+    String renewer = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+    try (JournalContext context = createJournalContext()) {
+      synchronized (mDelegationTokenManager) {
+        long expirationTimeMs = mDelegationTokenManager.renewDelegationToken(token, renewer);
+        context.append(JournalEntry.newBuilder().setRenewDelegationToken(
+            File.RenewDelegationTokenEntry.newBuilder()
+                .setTokenId(token.getId().toProto())
+                .setExpirationTimeMs(expirationTimeMs))
+            .build());
+        return expirationTimeMs;
+      }
+    }
+  }
+
+  @Override
+  public void cancelDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+          token)
+      throws AccessControlException, UnavailableException {
+    String canceller = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+    try (JournalContext context = createJournalContext()) {
+      synchronized (mDelegationTokenManager) {
+        mDelegationTokenManager.cancelDelegationToken(token, canceller);
+        context.append(JournalEntry.newBuilder().setRemoveDelegationToken(
+            File.RemoveDelegationTokenEntry.newBuilder()
+                .setTokenId(token.getId().toProto()))
+            .build());
+      }
+    }
+  }
+
+  private void addDelegationTokenFromEntry(File.GetDelegationTokenEntry entry) throws IOException {
+    mDelegationTokenManager.addDelegationToken(
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()),
+        entry.getRenewTime());
+  }
+
+  private void addMasterKeyFromEntry(File.UpdateMasterKeyEntry entry)
+      throws java.security.InvalidKeyException, java.security.NoSuchAlgorithmException {
+    File.MasterKey key = entry.getMasterKey();
+    mDelegationTokenManager.addMasterKey(
+        new alluxio.security.MasterKey(key.getKeyId(), key.getExpirationTimeMs(),
+            key.getEncodedKey().toByteArray()));
+  }
+
+  private void removeDelegationTokenFromEntry(File.RemoveDelegationTokenEntry entry) throws IOException {
+    mDelegationTokenManager.updateDelegationTokenRemoval(
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()));
+  }
+
+  private void renewDelegationTokenFromEntry(File.RenewDelegationTokenEntry entry) throws IOException {
+    mDelegationTokenManager.updateDelegationTokenRenewal(
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()),
+        entry.getExpirationTimeMs());
+  }
+
+  private class DelegationTokenManagerEventListener
+      implements alluxio.security.authentication.DelegationTokenManager.EventListener {
+    @Override
+    public void onMasterKeyUpdated(alluxio.security.MasterKey key) {
+      try (JournalContext context = createJournalContext()) {
+        context.append(JournalEntry.newBuilder().setUpdateMasterKey(
+            File.UpdateMasterKeyEntry.newBuilder()
+                .setMasterKey(File.MasterKey.newBuilder()
+                    .setKeyId(key.getKeyId())
+                    .setExpirationTimeMs(key.getExpirationTimeMs())
+                    .setEncodedKey(ProtoUtils.copyFrom(key.getEncodedKey()))))
+            .build());
+      } catch (UnavailableException e) {
+        LOG.error("Failed to journal master key update", e);
+      }
+    }
+
+    @Override
+    public void onDelegationTokenRemoved(alluxio.security.authentication.DelegationTokenIdentifier id) {
+      try (JournalContext context = createJournalContext()) {
+        context.append(JournalEntry.newBuilder().setRemoveDelegationToken(
+            File.RemoveDelegationTokenEntry.newBuilder()
+                .setTokenId(id.toProto()))
+            .build());
+      } catch (UnavailableException e) {
+        LOG.error("Failed to journal delegation token removal", e);
+      }
+    }
+  }
 
   /**
    * Periodically schedules jobs to persist files and updates metadata accordingly.

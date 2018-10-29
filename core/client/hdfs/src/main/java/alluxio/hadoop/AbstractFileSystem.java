@@ -545,17 +545,25 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     LineageContext.INSTANCE.reset();
     FileSystemContext.get().reset(Configuration.global());
 
-    // ALLUXIO CS ADD
-    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
-
-    // ALLUXIO CS END
     // Try to connect to master, if it fails, the provided uri is invalid.
-    FileSystemMasterClient client = FileSystemContext.get().acquireMasterClient();
+    // ALLUXIO CS REPLACE
+    // FileSystemMasterClient client = FileSystemContext.get().acquireMasterClient();
+    // ALLUXIO CS WITH
+    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+    // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
+    // to authenticate with master.
+    updateFileSystemAndContext();
+    FileSystemMasterClient client = mContext.acquireMasterClient();
+    // ALLUXIO CS END
     try {
       client.connect();
       // Connected, initialize.
     } finally {
-      FileSystemContext.get().releaseMasterClient(client);
+      // ALLUXIO CS REPLACE
+      // FileSystemContext.get().releaseMasterClient(client);
+      // ALLUXIO CS WITH
+      mContext.releaseMasterClient(client);
+      // ALLUXIO CS END
     }
   }
 
@@ -577,6 +585,17 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     return newDetails.equals(FileSystemContext.get().getMasterInquireClient().getConnectDetails());
   }
 
+  private String buildTokenService(URI uri) {
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
+        || alluxio.util.ConfigurationUtils.getMasterRpcAddresses(Configuration.global()).size() > 1) {
+      // builds token service name for logic alluxio service uri (HA)
+      return uri.toString();
+    }
+
+    // builds token service name for single master address.
+    return org.apache.hadoop.security.SecurityUtil.buildTokenService(uri).toString();
+  }
+
   /**
    * Sets the file system and context. Contexts with the same subject are shared among file systems
    * to reduce resource usage such as the metrics heartbeat.
@@ -586,6 +605,25 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     if (subject != null) {
       LOG.debug("Using Hadoop subject: {}", subject);
       mContext = FileSystemContext.get(subject);
+      // ALLUXIO CS ADD
+      try {
+        UserGroupInformation user = UserGroupInformation.getCurrentUser();
+        if (!user.getTokens().isEmpty()) {
+          String tokenService = buildTokenService(mUri);
+          List<String> masters = mContext.getMasterInquireClient().getMasterRpcAddresses().stream()
+              .map(addr ->
+                  HostAndPort.fromParts(addr.getAddress().getHostAddress(), addr.getPort()).toString())
+              .collect(toList());
+          LOG.debug("Checking Alluxio delegation token for {} on service {}", subject, tokenService);
+          if (HadoopKerberosLoginProvider.populateAlluxioTokens(user, subject, tokenService, masters)) {
+            // update context after subject is populated with token
+            mContext = FileSystemContext.get(subject);
+          }
+        }
+      } catch (IOException e) {
+        LOG.warn("unable to populate Alluxio tokens.", e);
+      }
+      // ALLUXIO CS END
       mFileSystem = FileSystem.Factory.get(mContext);
     } else {
       LOG.debug("No Hadoop subject. Using FileSystem Context without subject.");
@@ -773,6 +811,71 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public org.apache.hadoop.security.token.Token<?>[] addDelegationTokens(
+      final String renewer, org.apache.hadoop.security.Credentials credentials) throws IOException {
+    LOG.debug("addDelegationTokens(renewer={})", renewer);
+    return super.addDelegationTokens(renewer, credentials);
+  }
+
+  @Override
+  public org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws IOException {
+    LOG.debug("getDelegationToken(renewer={})", renewer);
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+        token = null;
+    try {
+      token = mFileSystem.getDelegationToken(renewer);
+    } catch (AlluxioException e) {
+      LOG.warn("Error getting delegation token: {}", e);
+      return null;
+    }
+    LOG.debug("getDelegationToken, got Alluxio token {}", token.toString());
+    // converts Alluxio token to HDFS token
+    AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId());
+    org.apache.hadoop.io.Text tokenService = new org.apache.hadoop.io.Text(buildTokenService(mUri));
+    org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> hadoopToken =
+        new org.apache.hadoop.security.token.Token<>(id.getBytes(), token.getPassword(),
+            id.getKind(), tokenService);
+    LOG.debug("getDelegationToken, return {}", hadoopToken.toString());
+    return hadoopToken;
+  }
+
+  private alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      extractAlluxioToken(org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> token)
+      throws IOException {
+    alluxio.security.authentication.DelegationTokenIdentifier id =
+        token.decodeIdentifier().getAlluxioIdentifier();
+    return new alluxio.security.authentication.Token<>(id, token.getPassword());
+  }
+
+  long renewDelegationToken(
+      org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> token)
+      throws IOException {
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+        alluxioToken = extractAlluxioToken(token);
+    try {
+      return mFileSystem.renewDelegationToken(alluxioToken);
+    } catch (AlluxioException e) {
+      throw alluxio.exception.status.AlluxioStatusException.fromAlluxioException(e);
+    }
+  }
+
+  void cancelDelegationToken(
+      org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> token)
+      throws IOException {
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+        alluxioToken = extractAlluxioToken(token);
+    try {
+      mFileSystem.cancelDelegationToken(alluxioToken);
+    } catch (AlluxioException e) {
+      throw alluxio.exception.status.AlluxioStatusException.fromAlluxioException(e);
+    }
+  }
+
+  // ALLUXIO CS END
   /**
    * Convenience method which ensures the given path exists, wrapping any {@link AlluxioException}
    * in {@link IOException}.

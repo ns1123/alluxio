@@ -16,7 +16,7 @@ import alluxio.exception.InvalidCapabilityException;
 import alluxio.proto.security.CapabilityProto;
 import alluxio.security.authorization.Mode;
 import alluxio.security.capability.Capability;
-import alluxio.security.capability.CapabilityKey;
+import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
 import alluxio.util.proto.ProtoUtils;
 
@@ -49,12 +49,12 @@ public final class CapabilityCacheTest {
       .setAccessMode(Mode.Bits.READ.ordinal())
       .setExpirationTimeMs(CommonUtils.getCurrentMs() + 1000 * 1000).build();
 
-  private CapabilityKey mKey;
+  private MasterKey mKey;
   private CapabilityCache mCache;
 
   @Before
   public void before() throws Exception {
-    mKey = new CapabilityKey(mKeyId, CommonUtils.getCurrentMs() + 100 * 1000,
+    mKey = new MasterKey(mKeyId, CommonUtils.getCurrentMs() + 100 * 1000,
         mEncodingKey.getBytes());
     mCache = new CapabilityCache(CapabilityCache.Options.defaults().setCapabilityKey(mKey));
   }

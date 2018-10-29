@@ -91,6 +91,24 @@ public final class CapabilityProto {
      */
     com.google.protobuf.ByteString
         getUserBytes();
+
+    // optional int64 key_id = 5;
+    /**
+     * <code>optional int64 key_id = 5;</code>
+     *
+     * <pre>
+     * The key id.
+     * </pre>
+     */
+    boolean hasKeyId();
+    /**
+     * <code>optional int64 key_id = 5;</code>
+     *
+     * <pre>
+     * The key id.
+     * </pre>
+     */
+    long getKeyId();
   }
   /**
    * Protobuf type {@code alluxio.proto.security.Content}
@@ -166,6 +184,11 @@ public final class CapabilityProto {
             case 34: {
               bitField0_ |= 0x00000008;
               user_ = input.readBytes();
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000010;
+              keyId_ = input.readInt64();
               break;
             }
           }
@@ -335,11 +358,36 @@ public final class CapabilityProto {
       }
     }
 
+    // optional int64 key_id = 5;
+    public static final int KEY_ID_FIELD_NUMBER = 5;
+    private long keyId_;
+    /**
+     * <code>optional int64 key_id = 5;</code>
+     *
+     * <pre>
+     * The key id.
+     * </pre>
+     */
+    public boolean hasKeyId() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional int64 key_id = 5;</code>
+     *
+     * <pre>
+     * The key id.
+     * </pre>
+     */
+    public long getKeyId() {
+      return keyId_;
+    }
+
     private void initFields() {
       expirationTimeMs_ = 0L;
       fileId_ = 0L;
       accessMode_ = 0;
       user_ = "";
+      keyId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -365,6 +413,9 @@ public final class CapabilityProto {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeBytes(4, getUserBytes());
       }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt64(5, keyId_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -389,6 +440,10 @@ public final class CapabilityProto {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(4, getUserBytes());
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(5, keyId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -519,6 +574,8 @@ public final class CapabilityProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         user_ = "";
         bitField0_ = (bitField0_ & ~0x00000008);
+        keyId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -563,6 +620,10 @@ public final class CapabilityProto {
           to_bitField0_ |= 0x00000008;
         }
         result.user_ = user_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.keyId_ = keyId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -592,6 +653,9 @@ public final class CapabilityProto {
           bitField0_ |= 0x00000008;
           user_ = other.user_;
           onChanged();
+        }
+        if (other.hasKeyId()) {
+          setKeyId(other.getKeyId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -861,6 +925,55 @@ public final class CapabilityProto {
   }
   bitField0_ |= 0x00000008;
         user_ = value;
+        onChanged();
+        return this;
+      }
+
+      // optional int64 key_id = 5;
+      private long keyId_ ;
+      /**
+       * <code>optional int64 key_id = 5;</code>
+       *
+       * <pre>
+       * The key id.
+       * </pre>
+       */
+      public boolean hasKeyId() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional int64 key_id = 5;</code>
+       *
+       * <pre>
+       * The key id.
+       * </pre>
+       */
+      public long getKeyId() {
+        return keyId_;
+      }
+      /**
+       * <code>optional int64 key_id = 5;</code>
+       *
+       * <pre>
+       * The key id.
+       * </pre>
+       */
+      public Builder setKeyId(long value) {
+        bitField0_ |= 0x00000010;
+        keyId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 key_id = 5;</code>
+       *
+       * <pre>
+       * The key id.
+       * </pre>
+       */
+      public Builder clearKeyId() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        keyId_ = 0L;
         onChanged();
         return this;
       }
@@ -1556,11 +1669,11 @@ public final class CapabilityProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\037security/capability_proto.proto\022\026allux" +
-      "io.proto.security\"Y\n\007Content\022\032\n\022expirati" +
+      "io.proto.security\"i\n\007Content\022\032\n\022expirati" +
       "on_time_ms\030\001 \001(\003\022\017\n\007file_id\030\002 \001(\003\022\023\n\013acc" +
-      "ess_mode\030\003 \001(\005\022\014\n\004user\030\004 \001(\t\"D\n\nCapabili" +
-      "ty\022\017\n\007content\030\001 \001(\014\022\025\n\rauthenticator\030\002 \001" +
-      "(\014\022\016\n\006key_id\030\003 \001(\003"
+      "ess_mode\030\003 \001(\005\022\014\n\004user\030\004 \001(\t\022\016\n\006key_id\030\005" +
+      " \001(\003\"D\n\nCapability\022\017\n\007content\030\001 \001(\014\022\025\n\ra" +
+      "uthenticator\030\002 \001(\014\022\016\n\006key_id\030\003 \001(\003"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -1572,7 +1685,7 @@ public final class CapabilityProto {
           internal_static_alluxio_proto_security_Content_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_security_Content_descriptor,
-              new java.lang.String[] { "ExpirationTimeMs", "FileId", "AccessMode", "User", });
+              new java.lang.String[] { "ExpirationTimeMs", "FileId", "AccessMode", "User", "KeyId", });
           internal_static_alluxio_proto_security_Capability_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_alluxio_proto_security_Capability_fieldAccessorTable = new

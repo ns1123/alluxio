@@ -78,11 +78,41 @@ struct GetNewBlockIdForFileTResponse {
 struct GetStatusTOptions {
   1: optional LoadMetadataTType loadMetadataType
   2: optional FileSystemMasterCommonTOptions commonOptions
+  // ALLUXIO CS ADD
+  3: optional i16 accessMode
+  // ALLUXIO CS END
 }
 struct GetStatusTResponse {
   1: FileInfo fileInfo
 }
 
+// ALLUXIO CS ADD
+struct DelegationTokenIdentifier {
+  2: string owner
+  3: string renewer
+  4: string realUser
+  5: i64 issueDate
+  6: i64 maxDate
+  7: i64 sequenceNumber
+  8: i64 masterKeyId
+}
+
+struct DelegationToken {
+  1: DelegationTokenIdentifier identifier
+  2: binary password
+}
+
+struct GetDelegationTokenTResponse {
+  1: DelegationToken token
+}
+
+struct RenewDelegationTokenTResponse {
+  1: i64 expirationTimeMs
+}
+
+struct CancelDelegationTokenTResponse {}
+
+// ALLUXIO CS END
 struct ListStatusTOptions {
   // This is deprecated since 1.1.1 and will be removed in 2.0. Use loadMetadataType.
   1: optional bool loadDirectChildren
@@ -357,6 +387,32 @@ service FileSystemMasterClientService extends common.AlluxioService {
     )
     throws (1: exception.AlluxioTException e)
 
+  // ALLUXIO CS ADD
+  /**
+   * Returns the delegation token for the client user.
+   */
+  GetDelegationTokenTResponse getDelegationToken(
+    /** the rewnewer */ 1: string renwer,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  /**
+   * Renews the delegation token.
+   */
+  RenewDelegationTokenTResponse renewDelegationToken(
+    /** the token */ 1: DelegationToken token,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  /**
+   * Cancels the delegation token.
+   */
+  CancelDelegationTokenTResponse cancelDelegationToken(
+    /** the token */ 1: DelegationToken token,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  // ALLUXIO CS END
   /**
    * Returns the status of the file or directory.
    */

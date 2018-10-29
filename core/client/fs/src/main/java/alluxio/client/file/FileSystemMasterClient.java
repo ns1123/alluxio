@@ -124,6 +124,36 @@ public interface FileSystemMasterClient extends Client {
    */
   URIStatus getStatus(AlluxioURI path, GetStatusOptions options) throws AlluxioStatusException;
 
+  // ALLUXIO CS ADD
+  /**
+   * Gets a delegation token for current user.
+   *
+   * @param renewer renewer of the token
+   * @return the delegation token
+   */
+  alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer) throws AlluxioStatusException;
+
+  /**
+   * Renews a delegation token.
+   *
+   * @param token the token to renew
+   * @return new expiration epoch time
+   */
+  long renewDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws AlluxioStatusException;
+
+  /**
+   * Cancels a delegation token.
+   *
+   * @param token the token to cancel
+   */
+  void cancelDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws AlluxioStatusException;
+
+  // ALLUXIO CS END
   /**
    * @param path the file path
    * @return the next blockId for the file

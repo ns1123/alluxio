@@ -114,4 +114,23 @@ public interface TransportProvider {
    */
   TTransportFactory getServerTransportFactory(Runnable runnable, String serverName)
       throws SaslException;
+  // ALLUXIO CS ADD
+
+  /**
+   * For server side, this method returns a {@link TTransportFactory} based on the auth type. It is
+   * used as one argument to build a Thrift {@link org.apache.thrift.server.TServer}. If the auth
+   * type is not supported or recognized, an {@link UnsupportedOperationException} is thrown.
+   * The default implementation does not use the delegation token manager. If a transport provider
+   * wants to use it, it will need to override this function.
+   *
+   * @param serverName the name for this server
+   * @param tokenManager the delegation token manager
+   * @return a corresponding TTransportFactory
+   * @throws SaslException if building a TransportFactory fails
+   */
+  default TTransportFactory getServerTransportFactory(String serverName,
+      DelegationTokenManager tokenManager) throws SaslException {
+    return getServerTransportFactory(serverName);
+  }
+  // ALLUXIO CS END
 }

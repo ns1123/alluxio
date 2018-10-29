@@ -85,7 +85,17 @@ public final class LocalFilePacketWriter implements PacketWriter {
     // ALLUXIO CS END
     Closer closer = Closer.create();
     try {
-      final Channel channel = context.acquireNettyChannel(address);
+      // ALLUXIO CS REPLACE
+      // final Channel channel = context.acquireNettyChannel(address);
+      // ALLUXIO CS WITH
+      final Channel channel;
+      if (options.getCapabilityFetcher() != null) {
+        channel = context.acquireNettyChannel(address,
+                options.getCapabilityFetcher().getCapability().toProto());
+      } else {
+        channel = context.acquireNettyChannel(address);
+      }
+      // ALLUXIO CS END
       closer.register(new Closeable() {
         @Override
         public void close() throws IOException {

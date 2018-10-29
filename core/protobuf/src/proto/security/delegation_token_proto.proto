@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package alluxio.proto.security;
+
+// The delegation token identifier has the information fields representing a token used for
+// authenticating a user.
+message DelegationTokenIdentifier {
+    // The user name of the onwer.
+    optional string owner = 1;
+    // The user name of the renewer.
+    optional string renewer = 2;
+    // The user name of the real connected user.
+    optional string realUser = 3;
+    // The issue date of the token.
+    optional int64 issueDate = 4;
+    // The expiration date of the token.
+    optional int64 maxDate = 5;
+    // The sequence number.
+    optional int64 sequenceNumber = 6;
+    // The id of the master key.
+    optional int64 masterKeyId = 7;
+}

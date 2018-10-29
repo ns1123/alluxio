@@ -64,8 +64,12 @@ public class JournalEntryAssociationTest {
   private static List<JournalEntry> ENTRIES = Arrays.asList(
       // ALLUXIO CS ADD
       JournalEntry.newBuilder().setFinishJob(alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setGetDelegationToken(alluxio.proto.journal.File.GetDelegationTokenEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setPrivilegeUpdate(alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setRemoveDelegationToken(alluxio.proto.journal.File.RemoveDelegationTokenEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setRenewDelegationToken(alluxio.proto.journal.File.RenewDelegationTokenEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setUpdateMasterKey(alluxio.proto.journal.File.UpdateMasterKeyEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setStartJob(alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance()).build(),
       // ALLUXIO CS END
       JournalEntry.newBuilder().setAddMountPoint(AddMountPointEntry.getDefaultInstance()).build(),

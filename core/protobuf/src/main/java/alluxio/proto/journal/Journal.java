@@ -405,7 +405,7 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1006
+     * next available id: 1010
      * </pre>
      */
     boolean hasFinishJob();
@@ -414,7 +414,7 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1006
+     * next available id: 1010
      * </pre>
      */
     alluxio.proto.journal.Job.FinishJobEntry getFinishJob();
@@ -423,10 +423,24 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1006
+     * next available id: 1010
      * </pre>
      */
     alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder();
+
+    // optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;
+    /**
+     * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+     */
+    boolean hasGetDelegationToken();
+    /**
+     * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+     */
+    alluxio.proto.journal.File.GetDelegationTokenEntry getGetDelegationToken();
+    /**
+     * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+     */
+    alluxio.proto.journal.File.GetDelegationTokenEntryOrBuilder getGetDelegationTokenOrBuilder();
 
     // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
     /**
@@ -456,6 +470,34 @@ public final class Journal {
      */
     alluxio.proto.journal.Privilege.PrivilegeUpdateEntryOrBuilder getPrivilegeUpdateOrBuilder();
 
+    // optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;
+    /**
+     * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+     */
+    boolean hasRemoveDelegationToken();
+    /**
+     * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+     */
+    alluxio.proto.journal.File.RemoveDelegationTokenEntry getRemoveDelegationToken();
+    /**
+     * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+     */
+    alluxio.proto.journal.File.RemoveDelegationTokenEntryOrBuilder getRemoveDelegationTokenOrBuilder();
+
+    // optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;
+    /**
+     * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+     */
+    boolean hasRenewDelegationToken();
+    /**
+     * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+     */
+    alluxio.proto.journal.File.RenewDelegationTokenEntry getRenewDelegationToken();
+    /**
+     * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+     */
+    alluxio.proto.journal.File.RenewDelegationTokenEntryOrBuilder getRenewDelegationTokenOrBuilder();
+
     // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
     /**
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
@@ -469,6 +511,20 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
      */
     alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder();
+
+    // optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+     */
+    boolean hasUpdateMasterKey();
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+     */
+    alluxio.proto.journal.File.UpdateMasterKeyEntry getUpdateMasterKey();
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+     */
+    alluxio.proto.journal.File.UpdateMasterKeyEntryOrBuilder getUpdateMasterKeyOrBuilder();
 
     // repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;
     /**
@@ -941,7 +997,7 @@ public final class Journal {
             }
             case 8010: {
               alluxio.proto.journal.License.LicenseCheckEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x20000000) == 0x20000000)) {
+              if (((bitField0_ & 0x40000000) == 0x40000000)) {
                 subBuilder = licenseCheck_.toBuilder();
               }
               licenseCheck_ = input.readMessage(alluxio.proto.journal.License.LicenseCheckEntry.PARSER, extensionRegistry);
@@ -949,7 +1005,7 @@ public final class Journal {
                 subBuilder.mergeFrom(licenseCheck_);
                 licenseCheck_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x20000000;
+              bitField0_ |= 0x40000000;
               break;
             }
             case 8018: {
@@ -967,7 +1023,7 @@ public final class Journal {
             }
             case 8026: {
               alluxio.proto.journal.Job.StartJobEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x80000000) == 0x80000000)) {
+              if (((bitField1_ & 0x00000004) == 0x00000004)) {
                 subBuilder = startJob_.toBuilder();
               }
               startJob_ = input.readMessage(alluxio.proto.journal.Job.StartJobEntry.PARSER, extensionRegistry);
@@ -975,12 +1031,12 @@ public final class Journal {
                 subBuilder.mergeFrom(startJob_);
                 startJob_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x80000000;
+              bitField1_ |= 0x00000004;
               break;
             }
             case 8034: {
               alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x40000000) == 0x40000000)) {
+              if (((bitField0_ & 0x80000000) == 0x80000000)) {
                 subBuilder = privilegeUpdate_.toBuilder();
               }
               privilegeUpdate_ = input.readMessage(alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.PARSER, extensionRegistry);
@@ -988,15 +1044,67 @@ public final class Journal {
                 subBuilder.mergeFrom(privilegeUpdate_);
                 privilegeUpdate_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x40000000;
+              bitField0_ |= 0x80000000;
               break;
             }
             case 8042: {
-              if (!((mutable_bitField1_ & 0x00000001) == 0x00000001)) {
+              if (!((mutable_bitField1_ & 0x00000010) == 0x00000010)) {
                 journalEntries_ = new java.util.ArrayList<alluxio.proto.journal.Journal.JournalEntry>();
-                mutable_bitField1_ |= 0x00000001;
+                mutable_bitField1_ |= 0x00000010;
               }
               journalEntries_.add(input.readMessage(alluxio.proto.journal.Journal.JournalEntry.PARSER, extensionRegistry));
+              break;
+            }
+            case 8050: {
+              alluxio.proto.journal.File.GetDelegationTokenEntry.Builder subBuilder = null;
+              if (((bitField0_ & 0x20000000) == 0x20000000)) {
+                subBuilder = getDelegationToken_.toBuilder();
+              }
+              getDelegationToken_ = input.readMessage(alluxio.proto.journal.File.GetDelegationTokenEntry.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(getDelegationToken_);
+                getDelegationToken_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x20000000;
+              break;
+            }
+            case 8058: {
+              alluxio.proto.journal.File.UpdateMasterKeyEntry.Builder subBuilder = null;
+              if (((bitField1_ & 0x00000008) == 0x00000008)) {
+                subBuilder = updateMasterKey_.toBuilder();
+              }
+              updateMasterKey_ = input.readMessage(alluxio.proto.journal.File.UpdateMasterKeyEntry.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(updateMasterKey_);
+                updateMasterKey_ = subBuilder.buildPartial();
+              }
+              bitField1_ |= 0x00000008;
+              break;
+            }
+            case 8066: {
+              alluxio.proto.journal.File.RemoveDelegationTokenEntry.Builder subBuilder = null;
+              if (((bitField1_ & 0x00000001) == 0x00000001)) {
+                subBuilder = removeDelegationToken_.toBuilder();
+              }
+              removeDelegationToken_ = input.readMessage(alluxio.proto.journal.File.RemoveDelegationTokenEntry.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(removeDelegationToken_);
+                removeDelegationToken_ = subBuilder.buildPartial();
+              }
+              bitField1_ |= 0x00000001;
+              break;
+            }
+            case 8074: {
+              alluxio.proto.journal.File.RenewDelegationTokenEntry.Builder subBuilder = null;
+              if (((bitField1_ & 0x00000002) == 0x00000002)) {
+                subBuilder = renewDelegationToken_.toBuilder();
+              }
+              renewDelegationToken_ = input.readMessage(alluxio.proto.journal.File.RenewDelegationTokenEntry.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(renewDelegationToken_);
+                renewDelegationToken_ = subBuilder.buildPartial();
+              }
+              bitField1_ |= 0x00000002;
               break;
             }
           }
@@ -1007,7 +1115,7 @@ public final class Journal {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField1_ & 0x00000001) == 0x00000001)) {
+        if (((mutable_bitField1_ & 0x00000010) == 0x00000010)) {
           journalEntries_ = java.util.Collections.unmodifiableList(journalEntries_);
         }
         this.unknownFields = unknownFields.build();
@@ -1042,6 +1150,7 @@ public final class Journal {
     }
 
     private int bitField0_;
+    private int bitField1_;
     // optional int64 sequence_number = 1;
     public static final int SEQUENCE_NUMBER_FIELD_NUMBER = 1;
     private long sequenceNumber_;
@@ -1660,7 +1769,7 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1006
+     * next available id: 1010
      * </pre>
      */
     public boolean hasFinishJob() {
@@ -1671,7 +1780,7 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1006
+     * next available id: 1010
      * </pre>
      */
     public alluxio.proto.journal.Job.FinishJobEntry getFinishJob() {
@@ -1682,11 +1791,33 @@ public final class Journal {
      *
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1006
+     * next available id: 1010
      * </pre>
      */
     public alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder() {
       return finishJob_;
+    }
+
+    // optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;
+    public static final int GET_DELEGATION_TOKEN_FIELD_NUMBER = 1006;
+    private alluxio.proto.journal.File.GetDelegationTokenEntry getDelegationToken_;
+    /**
+     * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+     */
+    public boolean hasGetDelegationToken() {
+      return ((bitField0_ & 0x20000000) == 0x20000000);
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+     */
+    public alluxio.proto.journal.File.GetDelegationTokenEntry getGetDelegationToken() {
+      return getDelegationToken_;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+     */
+    public alluxio.proto.journal.File.GetDelegationTokenEntryOrBuilder getGetDelegationTokenOrBuilder() {
+      return getDelegationToken_;
     }
 
     // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
@@ -1696,7 +1827,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
      */
     public boolean hasLicenseCheck() {
-      return ((bitField0_ & 0x20000000) == 0x20000000);
+      return ((bitField0_ & 0x40000000) == 0x40000000);
     }
     /**
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
@@ -1718,7 +1849,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;</code>
      */
     public boolean hasPrivilegeUpdate() {
-      return ((bitField0_ & 0x40000000) == 0x40000000);
+      return ((bitField0_ & 0x80000000) == 0x80000000);
     }
     /**
      * <code>optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;</code>
@@ -1733,6 +1864,50 @@ public final class Journal {
       return privilegeUpdate_;
     }
 
+    // optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;
+    public static final int REMOVE_DELEGATION_TOKEN_FIELD_NUMBER = 1008;
+    private alluxio.proto.journal.File.RemoveDelegationTokenEntry removeDelegationToken_;
+    /**
+     * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+     */
+    public boolean hasRemoveDelegationToken() {
+      return ((bitField1_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+     */
+    public alluxio.proto.journal.File.RemoveDelegationTokenEntry getRemoveDelegationToken() {
+      return removeDelegationToken_;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+     */
+    public alluxio.proto.journal.File.RemoveDelegationTokenEntryOrBuilder getRemoveDelegationTokenOrBuilder() {
+      return removeDelegationToken_;
+    }
+
+    // optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;
+    public static final int RENEW_DELEGATION_TOKEN_FIELD_NUMBER = 1009;
+    private alluxio.proto.journal.File.RenewDelegationTokenEntry renewDelegationToken_;
+    /**
+     * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+     */
+    public boolean hasRenewDelegationToken() {
+      return ((bitField1_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+     */
+    public alluxio.proto.journal.File.RenewDelegationTokenEntry getRenewDelegationToken() {
+      return renewDelegationToken_;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+     */
+    public alluxio.proto.journal.File.RenewDelegationTokenEntryOrBuilder getRenewDelegationTokenOrBuilder() {
+      return renewDelegationToken_;
+    }
+
     // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
     public static final int START_JOB_FIELD_NUMBER = 1003;
     private alluxio.proto.journal.Job.StartJobEntry startJob_;
@@ -1740,7 +1915,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
      */
     public boolean hasStartJob() {
-      return ((bitField0_ & 0x80000000) == 0x80000000);
+      return ((bitField1_ & 0x00000004) == 0x00000004);
     }
     /**
      * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
@@ -1753,6 +1928,28 @@ public final class Journal {
      */
     public alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder() {
       return startJob_;
+    }
+
+    // optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;
+    public static final int UPDATE_MASTER_KEY_FIELD_NUMBER = 1007;
+    private alluxio.proto.journal.File.UpdateMasterKeyEntry updateMasterKey_;
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+     */
+    public boolean hasUpdateMasterKey() {
+      return ((bitField1_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+     */
+    public alluxio.proto.journal.File.UpdateMasterKeyEntry getUpdateMasterKey() {
+      return updateMasterKey_;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+     */
+    public alluxio.proto.journal.File.UpdateMasterKeyEntryOrBuilder getUpdateMasterKeyOrBuilder() {
+      return updateMasterKey_;
     }
 
     // repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;
@@ -1846,9 +2043,13 @@ public final class Journal {
       setAttribute_ = alluxio.proto.journal.File.SetAttributeEntry.getDefaultInstance();
       updateUfsMode_ = alluxio.proto.journal.File.UpdateUfsModeEntry.getDefaultInstance();
       finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
+      getDelegationToken_ = alluxio.proto.journal.File.GetDelegationTokenEntry.getDefaultInstance();
       licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
       privilegeUpdate_ = alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.getDefaultInstance();
+      removeDelegationToken_ = alluxio.proto.journal.File.RemoveDelegationTokenEntry.getDefaultInstance();
+      renewDelegationToken_ = alluxio.proto.journal.File.RenewDelegationTokenEntry.getDefaultInstance();
       startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
+      updateMasterKey_ = alluxio.proto.journal.File.UpdateMasterKeyEntry.getDefaultInstance();
       journalEntries_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
@@ -1947,20 +2148,32 @@ public final class Journal {
       if (((bitField0_ & 0x02000000) == 0x02000000)) {
         output.writeMessage(31, setAcl_);
       }
-      if (((bitField0_ & 0x20000000) == 0x20000000)) {
+      if (((bitField0_ & 0x40000000) == 0x40000000)) {
         output.writeMessage(1001, licenseCheck_);
       }
       if (((bitField0_ & 0x10000000) == 0x10000000)) {
         output.writeMessage(1002, finishJob_);
       }
-      if (((bitField0_ & 0x80000000) == 0x80000000)) {
+      if (((bitField1_ & 0x00000004) == 0x00000004)) {
         output.writeMessage(1003, startJob_);
       }
-      if (((bitField0_ & 0x40000000) == 0x40000000)) {
+      if (((bitField0_ & 0x80000000) == 0x80000000)) {
         output.writeMessage(1004, privilegeUpdate_);
       }
       for (int i = 0; i < journalEntries_.size(); i++) {
         output.writeMessage(1005, journalEntries_.get(i));
+      }
+      if (((bitField0_ & 0x20000000) == 0x20000000)) {
+        output.writeMessage(1006, getDelegationToken_);
+      }
+      if (((bitField1_ & 0x00000008) == 0x00000008)) {
+        output.writeMessage(1007, updateMasterKey_);
+      }
+      if (((bitField1_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1008, removeDelegationToken_);
+      }
+      if (((bitField1_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(1009, renewDelegationToken_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2083,7 +2296,7 @@ public final class Journal {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(31, setAcl_);
       }
-      if (((bitField0_ & 0x20000000) == 0x20000000)) {
+      if (((bitField0_ & 0x40000000) == 0x40000000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1001, licenseCheck_);
       }
@@ -2091,17 +2304,33 @@ public final class Journal {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1002, finishJob_);
       }
-      if (((bitField0_ & 0x80000000) == 0x80000000)) {
+      if (((bitField1_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1003, startJob_);
       }
-      if (((bitField0_ & 0x40000000) == 0x40000000)) {
+      if (((bitField0_ & 0x80000000) == 0x80000000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1004, privilegeUpdate_);
       }
       for (int i = 0; i < journalEntries_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1005, journalEntries_.get(i));
+      }
+      if (((bitField0_ & 0x20000000) == 0x20000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1006, getDelegationToken_);
+      }
+      if (((bitField1_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1007, updateMasterKey_);
+      }
+      if (((bitField1_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1008, removeDelegationToken_);
+      }
+      if (((bitField1_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1009, renewDelegationToken_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2250,9 +2479,13 @@ public final class Journal {
           getSetAttributeFieldBuilder();
           getUpdateUfsModeFieldBuilder();
           getFinishJobFieldBuilder();
+          getGetDelegationTokenFieldBuilder();
           getLicenseCheckFieldBuilder();
           getPrivilegeUpdateFieldBuilder();
+          getRemoveDelegationTokenFieldBuilder();
+          getRenewDelegationTokenFieldBuilder();
           getStartJobFieldBuilder();
+          getUpdateMasterKeyFieldBuilder();
           getJournalEntriesFieldBuilder();
         }
       }
@@ -2432,27 +2665,51 @@ public final class Journal {
           finishJobBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x10000000);
+        if (getDelegationTokenBuilder_ == null) {
+          getDelegationToken_ = alluxio.proto.journal.File.GetDelegationTokenEntry.getDefaultInstance();
+        } else {
+          getDelegationTokenBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x20000000);
         if (licenseCheckBuilder_ == null) {
           licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
         } else {
           licenseCheckBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x20000000);
+        bitField0_ = (bitField0_ & ~0x40000000);
         if (privilegeUpdateBuilder_ == null) {
           privilegeUpdate_ = alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.getDefaultInstance();
         } else {
           privilegeUpdateBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x40000000);
+        bitField0_ = (bitField0_ & ~0x80000000);
+        if (removeDelegationTokenBuilder_ == null) {
+          removeDelegationToken_ = alluxio.proto.journal.File.RemoveDelegationTokenEntry.getDefaultInstance();
+        } else {
+          removeDelegationTokenBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000001);
+        if (renewDelegationTokenBuilder_ == null) {
+          renewDelegationToken_ = alluxio.proto.journal.File.RenewDelegationTokenEntry.getDefaultInstance();
+        } else {
+          renewDelegationTokenBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000002);
         if (startJobBuilder_ == null) {
           startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
         } else {
           startJobBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x80000000);
+        bitField1_ = (bitField1_ & ~0x00000004);
+        if (updateMasterKeyBuilder_ == null) {
+          updateMasterKey_ = alluxio.proto.journal.File.UpdateMasterKeyEntry.getDefaultInstance();
+        } else {
+          updateMasterKeyBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000008);
         if (journalEntriesBuilder_ == null) {
           journalEntries_ = java.util.Collections.emptyList();
-          bitField1_ = (bitField1_ & ~0x00000001);
+          bitField1_ = (bitField1_ & ~0x00000010);
         } else {
           journalEntriesBuilder_.clear();
         }
@@ -2485,6 +2742,7 @@ public final class Journal {
         int from_bitField0_ = bitField0_;
         int from_bitField1_ = bitField1_;
         int to_bitField0_ = 0;
+        int to_bitField1_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
@@ -2716,37 +2974,70 @@ public final class Journal {
         if (((from_bitField0_ & 0x20000000) == 0x20000000)) {
           to_bitField0_ |= 0x20000000;
         }
+        if (getDelegationTokenBuilder_ == null) {
+          result.getDelegationToken_ = getDelegationToken_;
+        } else {
+          result.getDelegationToken_ = getDelegationTokenBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x40000000) == 0x40000000)) {
+          to_bitField0_ |= 0x40000000;
+        }
         if (licenseCheckBuilder_ == null) {
           result.licenseCheck_ = licenseCheck_;
         } else {
           result.licenseCheck_ = licenseCheckBuilder_.build();
         }
-        if (((from_bitField0_ & 0x40000000) == 0x40000000)) {
-          to_bitField0_ |= 0x40000000;
+        if (((from_bitField0_ & 0x80000000) == 0x80000000)) {
+          to_bitField0_ |= 0x80000000;
         }
         if (privilegeUpdateBuilder_ == null) {
           result.privilegeUpdate_ = privilegeUpdate_;
         } else {
           result.privilegeUpdate_ = privilegeUpdateBuilder_.build();
         }
-        if (((from_bitField0_ & 0x80000000) == 0x80000000)) {
-          to_bitField0_ |= 0x80000000;
+        if (((from_bitField1_ & 0x00000001) == 0x00000001)) {
+          to_bitField1_ |= 0x00000001;
+        }
+        if (removeDelegationTokenBuilder_ == null) {
+          result.removeDelegationToken_ = removeDelegationToken_;
+        } else {
+          result.removeDelegationToken_ = removeDelegationTokenBuilder_.build();
+        }
+        if (((from_bitField1_ & 0x00000002) == 0x00000002)) {
+          to_bitField1_ |= 0x00000002;
+        }
+        if (renewDelegationTokenBuilder_ == null) {
+          result.renewDelegationToken_ = renewDelegationToken_;
+        } else {
+          result.renewDelegationToken_ = renewDelegationTokenBuilder_.build();
+        }
+        if (((from_bitField1_ & 0x00000004) == 0x00000004)) {
+          to_bitField1_ |= 0x00000004;
         }
         if (startJobBuilder_ == null) {
           result.startJob_ = startJob_;
         } else {
           result.startJob_ = startJobBuilder_.build();
         }
+        if (((from_bitField1_ & 0x00000008) == 0x00000008)) {
+          to_bitField1_ |= 0x00000008;
+        }
+        if (updateMasterKeyBuilder_ == null) {
+          result.updateMasterKey_ = updateMasterKey_;
+        } else {
+          result.updateMasterKey_ = updateMasterKeyBuilder_.build();
+        }
         if (journalEntriesBuilder_ == null) {
-          if (((bitField1_ & 0x00000001) == 0x00000001)) {
+          if (((bitField1_ & 0x00000010) == 0x00000010)) {
             journalEntries_ = java.util.Collections.unmodifiableList(journalEntries_);
-            bitField1_ = (bitField1_ & ~0x00000001);
+            bitField1_ = (bitField1_ & ~0x00000010);
           }
           result.journalEntries_ = journalEntries_;
         } else {
           result.journalEntries_ = journalEntriesBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
+        result.bitField1_ = to_bitField1_;
         onBuilt();
         return result;
       }
@@ -2849,20 +3140,32 @@ public final class Journal {
         if (other.hasFinishJob()) {
           mergeFinishJob(other.getFinishJob());
         }
+        if (other.hasGetDelegationToken()) {
+          mergeGetDelegationToken(other.getGetDelegationToken());
+        }
         if (other.hasLicenseCheck()) {
           mergeLicenseCheck(other.getLicenseCheck());
         }
         if (other.hasPrivilegeUpdate()) {
           mergePrivilegeUpdate(other.getPrivilegeUpdate());
         }
+        if (other.hasRemoveDelegationToken()) {
+          mergeRemoveDelegationToken(other.getRemoveDelegationToken());
+        }
+        if (other.hasRenewDelegationToken()) {
+          mergeRenewDelegationToken(other.getRenewDelegationToken());
+        }
         if (other.hasStartJob()) {
           mergeStartJob(other.getStartJob());
+        }
+        if (other.hasUpdateMasterKey()) {
+          mergeUpdateMasterKey(other.getUpdateMasterKey());
         }
         if (journalEntriesBuilder_ == null) {
           if (!other.journalEntries_.isEmpty()) {
             if (journalEntries_.isEmpty()) {
               journalEntries_ = other.journalEntries_;
-              bitField1_ = (bitField1_ & ~0x00000001);
+              bitField1_ = (bitField1_ & ~0x00000010);
             } else {
               ensureJournalEntriesIsMutable();
               journalEntries_.addAll(other.journalEntries_);
@@ -2875,7 +3178,7 @@ public final class Journal {
               journalEntriesBuilder_.dispose();
               journalEntriesBuilder_ = null;
               journalEntries_ = other.journalEntries_;
-              bitField1_ = (bitField1_ & ~0x00000001);
+              bitField1_ = (bitField1_ & ~0x00000010);
               journalEntriesBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getJournalEntriesFieldBuilder() : null;
@@ -6113,7 +6416,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1006
+       * next available id: 1010
        * </pre>
        */
       public boolean hasFinishJob() {
@@ -6124,7 +6427,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1006
+       * next available id: 1010
        * </pre>
        */
       public alluxio.proto.journal.Job.FinishJobEntry getFinishJob() {
@@ -6139,7 +6442,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1006
+       * next available id: 1010
        * </pre>
        */
       public Builder setFinishJob(alluxio.proto.journal.Job.FinishJobEntry value) {
@@ -6160,7 +6463,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1006
+       * next available id: 1010
        * </pre>
        */
       public Builder setFinishJob(
@@ -6179,7 +6482,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1006
+       * next available id: 1010
        * </pre>
        */
       public Builder mergeFinishJob(alluxio.proto.journal.Job.FinishJobEntry value) {
@@ -6203,7 +6506,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1006
+       * next available id: 1010
        * </pre>
        */
       public Builder clearFinishJob() {
@@ -6221,7 +6524,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1006
+       * next available id: 1010
        * </pre>
        */
       public alluxio.proto.journal.Job.FinishJobEntry.Builder getFinishJobBuilder() {
@@ -6234,7 +6537,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1006
+       * next available id: 1010
        * </pre>
        */
       public alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder() {
@@ -6249,7 +6552,7 @@ public final class Journal {
        *
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1006
+       * next available id: 1010
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
@@ -6266,6 +6569,123 @@ public final class Journal {
         return finishJobBuilder_;
       }
 
+      // optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;
+      private alluxio.proto.journal.File.GetDelegationTokenEntry getDelegationToken_ = alluxio.proto.journal.File.GetDelegationTokenEntry.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.GetDelegationTokenEntry, alluxio.proto.journal.File.GetDelegationTokenEntry.Builder, alluxio.proto.journal.File.GetDelegationTokenEntryOrBuilder> getDelegationTokenBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+       */
+      public boolean hasGetDelegationToken() {
+        return ((bitField0_ & 0x20000000) == 0x20000000);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+       */
+      public alluxio.proto.journal.File.GetDelegationTokenEntry getGetDelegationToken() {
+        if (getDelegationTokenBuilder_ == null) {
+          return getDelegationToken_;
+        } else {
+          return getDelegationTokenBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+       */
+      public Builder setGetDelegationToken(alluxio.proto.journal.File.GetDelegationTokenEntry value) {
+        if (getDelegationTokenBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          getDelegationToken_ = value;
+          onChanged();
+        } else {
+          getDelegationTokenBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x20000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+       */
+      public Builder setGetDelegationToken(
+          alluxio.proto.journal.File.GetDelegationTokenEntry.Builder builderForValue) {
+        if (getDelegationTokenBuilder_ == null) {
+          getDelegationToken_ = builderForValue.build();
+          onChanged();
+        } else {
+          getDelegationTokenBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x20000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+       */
+      public Builder mergeGetDelegationToken(alluxio.proto.journal.File.GetDelegationTokenEntry value) {
+        if (getDelegationTokenBuilder_ == null) {
+          if (((bitField0_ & 0x20000000) == 0x20000000) &&
+              getDelegationToken_ != alluxio.proto.journal.File.GetDelegationTokenEntry.getDefaultInstance()) {
+            getDelegationToken_ =
+              alluxio.proto.journal.File.GetDelegationTokenEntry.newBuilder(getDelegationToken_).mergeFrom(value).buildPartial();
+          } else {
+            getDelegationToken_ = value;
+          }
+          onChanged();
+        } else {
+          getDelegationTokenBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x20000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+       */
+      public Builder clearGetDelegationToken() {
+        if (getDelegationTokenBuilder_ == null) {
+          getDelegationToken_ = alluxio.proto.journal.File.GetDelegationTokenEntry.getDefaultInstance();
+          onChanged();
+        } else {
+          getDelegationTokenBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x20000000);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+       */
+      public alluxio.proto.journal.File.GetDelegationTokenEntry.Builder getGetDelegationTokenBuilder() {
+        bitField0_ |= 0x20000000;
+        onChanged();
+        return getGetDelegationTokenFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+       */
+      public alluxio.proto.journal.File.GetDelegationTokenEntryOrBuilder getGetDelegationTokenOrBuilder() {
+        if (getDelegationTokenBuilder_ != null) {
+          return getDelegationTokenBuilder_.getMessageOrBuilder();
+        } else {
+          return getDelegationToken_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.GetDelegationTokenEntry get_delegation_token = 1006;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.GetDelegationTokenEntry, alluxio.proto.journal.File.GetDelegationTokenEntry.Builder, alluxio.proto.journal.File.GetDelegationTokenEntryOrBuilder> 
+          getGetDelegationTokenFieldBuilder() {
+        if (getDelegationTokenBuilder_ == null) {
+          getDelegationTokenBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.File.GetDelegationTokenEntry, alluxio.proto.journal.File.GetDelegationTokenEntry.Builder, alluxio.proto.journal.File.GetDelegationTokenEntryOrBuilder>(
+                  getDelegationToken_,
+                  getParentForChildren(),
+                  isClean());
+          getDelegationToken_ = null;
+        }
+        return getDelegationTokenBuilder_;
+      }
+
       // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
       private alluxio.proto.journal.License.LicenseCheckEntry licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
@@ -6274,7 +6694,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
        */
       public boolean hasLicenseCheck() {
-        return ((bitField0_ & 0x20000000) == 0x20000000);
+        return ((bitField0_ & 0x40000000) == 0x40000000);
       }
       /**
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
@@ -6299,7 +6719,7 @@ public final class Journal {
         } else {
           licenseCheckBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x20000000;
+        bitField0_ |= 0x40000000;
         return this;
       }
       /**
@@ -6313,7 +6733,7 @@ public final class Journal {
         } else {
           licenseCheckBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x20000000;
+        bitField0_ |= 0x40000000;
         return this;
       }
       /**
@@ -6321,7 +6741,7 @@ public final class Journal {
        */
       public Builder mergeLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry value) {
         if (licenseCheckBuilder_ == null) {
-          if (((bitField0_ & 0x20000000) == 0x20000000) &&
+          if (((bitField0_ & 0x40000000) == 0x40000000) &&
               licenseCheck_ != alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance()) {
             licenseCheck_ =
               alluxio.proto.journal.License.LicenseCheckEntry.newBuilder(licenseCheck_).mergeFrom(value).buildPartial();
@@ -6332,7 +6752,7 @@ public final class Journal {
         } else {
           licenseCheckBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x20000000;
+        bitField0_ |= 0x40000000;
         return this;
       }
       /**
@@ -6345,14 +6765,14 @@ public final class Journal {
         } else {
           licenseCheckBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x20000000);
+        bitField0_ = (bitField0_ & ~0x40000000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
        */
       public alluxio.proto.journal.License.LicenseCheckEntry.Builder getLicenseCheckBuilder() {
-        bitField0_ |= 0x20000000;
+        bitField0_ |= 0x40000000;
         onChanged();
         return getLicenseCheckFieldBuilder().getBuilder();
       }
@@ -6391,7 +6811,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;</code>
        */
       public boolean hasPrivilegeUpdate() {
-        return ((bitField0_ & 0x40000000) == 0x40000000);
+        return ((bitField0_ & 0x80000000) == 0x80000000);
       }
       /**
        * <code>optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;</code>
@@ -6416,7 +6836,7 @@ public final class Journal {
         } else {
           privilegeUpdateBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x40000000;
+        bitField0_ |= 0x80000000;
         return this;
       }
       /**
@@ -6430,7 +6850,7 @@ public final class Journal {
         } else {
           privilegeUpdateBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x40000000;
+        bitField0_ |= 0x80000000;
         return this;
       }
       /**
@@ -6438,7 +6858,7 @@ public final class Journal {
        */
       public Builder mergePrivilegeUpdate(alluxio.proto.journal.Privilege.PrivilegeUpdateEntry value) {
         if (privilegeUpdateBuilder_ == null) {
-          if (((bitField0_ & 0x40000000) == 0x40000000) &&
+          if (((bitField0_ & 0x80000000) == 0x80000000) &&
               privilegeUpdate_ != alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.getDefaultInstance()) {
             privilegeUpdate_ =
               alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.newBuilder(privilegeUpdate_).mergeFrom(value).buildPartial();
@@ -6449,7 +6869,7 @@ public final class Journal {
         } else {
           privilegeUpdateBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x40000000;
+        bitField0_ |= 0x80000000;
         return this;
       }
       /**
@@ -6462,14 +6882,14 @@ public final class Journal {
         } else {
           privilegeUpdateBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x40000000);
+        bitField0_ = (bitField0_ & ~0x80000000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.PrivilegeUpdateEntry privilege_update = 1004;</code>
        */
       public alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.Builder getPrivilegeUpdateBuilder() {
-        bitField0_ |= 0x40000000;
+        bitField0_ |= 0x80000000;
         onChanged();
         return getPrivilegeUpdateFieldBuilder().getBuilder();
       }
@@ -6500,6 +6920,240 @@ public final class Journal {
         return privilegeUpdateBuilder_;
       }
 
+      // optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;
+      private alluxio.proto.journal.File.RemoveDelegationTokenEntry removeDelegationToken_ = alluxio.proto.journal.File.RemoveDelegationTokenEntry.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.RemoveDelegationTokenEntry, alluxio.proto.journal.File.RemoveDelegationTokenEntry.Builder, alluxio.proto.journal.File.RemoveDelegationTokenEntryOrBuilder> removeDelegationTokenBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+       */
+      public boolean hasRemoveDelegationToken() {
+        return ((bitField1_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+       */
+      public alluxio.proto.journal.File.RemoveDelegationTokenEntry getRemoveDelegationToken() {
+        if (removeDelegationTokenBuilder_ == null) {
+          return removeDelegationToken_;
+        } else {
+          return removeDelegationTokenBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+       */
+      public Builder setRemoveDelegationToken(alluxio.proto.journal.File.RemoveDelegationTokenEntry value) {
+        if (removeDelegationTokenBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          removeDelegationToken_ = value;
+          onChanged();
+        } else {
+          removeDelegationTokenBuilder_.setMessage(value);
+        }
+        bitField1_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+       */
+      public Builder setRemoveDelegationToken(
+          alluxio.proto.journal.File.RemoveDelegationTokenEntry.Builder builderForValue) {
+        if (removeDelegationTokenBuilder_ == null) {
+          removeDelegationToken_ = builderForValue.build();
+          onChanged();
+        } else {
+          removeDelegationTokenBuilder_.setMessage(builderForValue.build());
+        }
+        bitField1_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+       */
+      public Builder mergeRemoveDelegationToken(alluxio.proto.journal.File.RemoveDelegationTokenEntry value) {
+        if (removeDelegationTokenBuilder_ == null) {
+          if (((bitField1_ & 0x00000001) == 0x00000001) &&
+              removeDelegationToken_ != alluxio.proto.journal.File.RemoveDelegationTokenEntry.getDefaultInstance()) {
+            removeDelegationToken_ =
+              alluxio.proto.journal.File.RemoveDelegationTokenEntry.newBuilder(removeDelegationToken_).mergeFrom(value).buildPartial();
+          } else {
+            removeDelegationToken_ = value;
+          }
+          onChanged();
+        } else {
+          removeDelegationTokenBuilder_.mergeFrom(value);
+        }
+        bitField1_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+       */
+      public Builder clearRemoveDelegationToken() {
+        if (removeDelegationTokenBuilder_ == null) {
+          removeDelegationToken_ = alluxio.proto.journal.File.RemoveDelegationTokenEntry.getDefaultInstance();
+          onChanged();
+        } else {
+          removeDelegationTokenBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+       */
+      public alluxio.proto.journal.File.RemoveDelegationTokenEntry.Builder getRemoveDelegationTokenBuilder() {
+        bitField1_ |= 0x00000001;
+        onChanged();
+        return getRemoveDelegationTokenFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+       */
+      public alluxio.proto.journal.File.RemoveDelegationTokenEntryOrBuilder getRemoveDelegationTokenOrBuilder() {
+        if (removeDelegationTokenBuilder_ != null) {
+          return removeDelegationTokenBuilder_.getMessageOrBuilder();
+        } else {
+          return removeDelegationToken_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RemoveDelegationTokenEntry remove_delegation_token = 1008;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.RemoveDelegationTokenEntry, alluxio.proto.journal.File.RemoveDelegationTokenEntry.Builder, alluxio.proto.journal.File.RemoveDelegationTokenEntryOrBuilder> 
+          getRemoveDelegationTokenFieldBuilder() {
+        if (removeDelegationTokenBuilder_ == null) {
+          removeDelegationTokenBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.File.RemoveDelegationTokenEntry, alluxio.proto.journal.File.RemoveDelegationTokenEntry.Builder, alluxio.proto.journal.File.RemoveDelegationTokenEntryOrBuilder>(
+                  removeDelegationToken_,
+                  getParentForChildren(),
+                  isClean());
+          removeDelegationToken_ = null;
+        }
+        return removeDelegationTokenBuilder_;
+      }
+
+      // optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;
+      private alluxio.proto.journal.File.RenewDelegationTokenEntry renewDelegationToken_ = alluxio.proto.journal.File.RenewDelegationTokenEntry.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.RenewDelegationTokenEntry, alluxio.proto.journal.File.RenewDelegationTokenEntry.Builder, alluxio.proto.journal.File.RenewDelegationTokenEntryOrBuilder> renewDelegationTokenBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+       */
+      public boolean hasRenewDelegationToken() {
+        return ((bitField1_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+       */
+      public alluxio.proto.journal.File.RenewDelegationTokenEntry getRenewDelegationToken() {
+        if (renewDelegationTokenBuilder_ == null) {
+          return renewDelegationToken_;
+        } else {
+          return renewDelegationTokenBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+       */
+      public Builder setRenewDelegationToken(alluxio.proto.journal.File.RenewDelegationTokenEntry value) {
+        if (renewDelegationTokenBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          renewDelegationToken_ = value;
+          onChanged();
+        } else {
+          renewDelegationTokenBuilder_.setMessage(value);
+        }
+        bitField1_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+       */
+      public Builder setRenewDelegationToken(
+          alluxio.proto.journal.File.RenewDelegationTokenEntry.Builder builderForValue) {
+        if (renewDelegationTokenBuilder_ == null) {
+          renewDelegationToken_ = builderForValue.build();
+          onChanged();
+        } else {
+          renewDelegationTokenBuilder_.setMessage(builderForValue.build());
+        }
+        bitField1_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+       */
+      public Builder mergeRenewDelegationToken(alluxio.proto.journal.File.RenewDelegationTokenEntry value) {
+        if (renewDelegationTokenBuilder_ == null) {
+          if (((bitField1_ & 0x00000002) == 0x00000002) &&
+              renewDelegationToken_ != alluxio.proto.journal.File.RenewDelegationTokenEntry.getDefaultInstance()) {
+            renewDelegationToken_ =
+              alluxio.proto.journal.File.RenewDelegationTokenEntry.newBuilder(renewDelegationToken_).mergeFrom(value).buildPartial();
+          } else {
+            renewDelegationToken_ = value;
+          }
+          onChanged();
+        } else {
+          renewDelegationTokenBuilder_.mergeFrom(value);
+        }
+        bitField1_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+       */
+      public Builder clearRenewDelegationToken() {
+        if (renewDelegationTokenBuilder_ == null) {
+          renewDelegationToken_ = alluxio.proto.journal.File.RenewDelegationTokenEntry.getDefaultInstance();
+          onChanged();
+        } else {
+          renewDelegationTokenBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+       */
+      public alluxio.proto.journal.File.RenewDelegationTokenEntry.Builder getRenewDelegationTokenBuilder() {
+        bitField1_ |= 0x00000002;
+        onChanged();
+        return getRenewDelegationTokenFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+       */
+      public alluxio.proto.journal.File.RenewDelegationTokenEntryOrBuilder getRenewDelegationTokenOrBuilder() {
+        if (renewDelegationTokenBuilder_ != null) {
+          return renewDelegationTokenBuilder_.getMessageOrBuilder();
+        } else {
+          return renewDelegationToken_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.RenewDelegationTokenEntry renew_delegation_token = 1009;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.RenewDelegationTokenEntry, alluxio.proto.journal.File.RenewDelegationTokenEntry.Builder, alluxio.proto.journal.File.RenewDelegationTokenEntryOrBuilder> 
+          getRenewDelegationTokenFieldBuilder() {
+        if (renewDelegationTokenBuilder_ == null) {
+          renewDelegationTokenBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.File.RenewDelegationTokenEntry, alluxio.proto.journal.File.RenewDelegationTokenEntry.Builder, alluxio.proto.journal.File.RenewDelegationTokenEntryOrBuilder>(
+                  renewDelegationToken_,
+                  getParentForChildren(),
+                  isClean());
+          renewDelegationToken_ = null;
+        }
+        return renewDelegationTokenBuilder_;
+      }
+
       // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
       private alluxio.proto.journal.Job.StartJobEntry startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
@@ -6508,7 +7162,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
        */
       public boolean hasStartJob() {
-        return ((bitField0_ & 0x80000000) == 0x80000000);
+        return ((bitField1_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
@@ -6533,7 +7187,7 @@ public final class Journal {
         } else {
           startJobBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x80000000;
+        bitField1_ |= 0x00000004;
         return this;
       }
       /**
@@ -6547,7 +7201,7 @@ public final class Journal {
         } else {
           startJobBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x80000000;
+        bitField1_ |= 0x00000004;
         return this;
       }
       /**
@@ -6555,7 +7209,7 @@ public final class Journal {
        */
       public Builder mergeStartJob(alluxio.proto.journal.Job.StartJobEntry value) {
         if (startJobBuilder_ == null) {
-          if (((bitField0_ & 0x80000000) == 0x80000000) &&
+          if (((bitField1_ & 0x00000004) == 0x00000004) &&
               startJob_ != alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance()) {
             startJob_ =
               alluxio.proto.journal.Job.StartJobEntry.newBuilder(startJob_).mergeFrom(value).buildPartial();
@@ -6566,7 +7220,7 @@ public final class Journal {
         } else {
           startJobBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x80000000;
+        bitField1_ |= 0x00000004;
         return this;
       }
       /**
@@ -6579,14 +7233,14 @@ public final class Journal {
         } else {
           startJobBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x80000000);
+        bitField1_ = (bitField1_ & ~0x00000004);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
        */
       public alluxio.proto.journal.Job.StartJobEntry.Builder getStartJobBuilder() {
-        bitField0_ |= 0x80000000;
+        bitField1_ |= 0x00000004;
         onChanged();
         return getStartJobFieldBuilder().getBuilder();
       }
@@ -6617,13 +7271,130 @@ public final class Journal {
         return startJobBuilder_;
       }
 
+      // optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;
+      private alluxio.proto.journal.File.UpdateMasterKeyEntry updateMasterKey_ = alluxio.proto.journal.File.UpdateMasterKeyEntry.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.UpdateMasterKeyEntry, alluxio.proto.journal.File.UpdateMasterKeyEntry.Builder, alluxio.proto.journal.File.UpdateMasterKeyEntryOrBuilder> updateMasterKeyBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+       */
+      public boolean hasUpdateMasterKey() {
+        return ((bitField1_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+       */
+      public alluxio.proto.journal.File.UpdateMasterKeyEntry getUpdateMasterKey() {
+        if (updateMasterKeyBuilder_ == null) {
+          return updateMasterKey_;
+        } else {
+          return updateMasterKeyBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+       */
+      public Builder setUpdateMasterKey(alluxio.proto.journal.File.UpdateMasterKeyEntry value) {
+        if (updateMasterKeyBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          updateMasterKey_ = value;
+          onChanged();
+        } else {
+          updateMasterKeyBuilder_.setMessage(value);
+        }
+        bitField1_ |= 0x00000008;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+       */
+      public Builder setUpdateMasterKey(
+          alluxio.proto.journal.File.UpdateMasterKeyEntry.Builder builderForValue) {
+        if (updateMasterKeyBuilder_ == null) {
+          updateMasterKey_ = builderForValue.build();
+          onChanged();
+        } else {
+          updateMasterKeyBuilder_.setMessage(builderForValue.build());
+        }
+        bitField1_ |= 0x00000008;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+       */
+      public Builder mergeUpdateMasterKey(alluxio.proto.journal.File.UpdateMasterKeyEntry value) {
+        if (updateMasterKeyBuilder_ == null) {
+          if (((bitField1_ & 0x00000008) == 0x00000008) &&
+              updateMasterKey_ != alluxio.proto.journal.File.UpdateMasterKeyEntry.getDefaultInstance()) {
+            updateMasterKey_ =
+              alluxio.proto.journal.File.UpdateMasterKeyEntry.newBuilder(updateMasterKey_).mergeFrom(value).buildPartial();
+          } else {
+            updateMasterKey_ = value;
+          }
+          onChanged();
+        } else {
+          updateMasterKeyBuilder_.mergeFrom(value);
+        }
+        bitField1_ |= 0x00000008;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+       */
+      public Builder clearUpdateMasterKey() {
+        if (updateMasterKeyBuilder_ == null) {
+          updateMasterKey_ = alluxio.proto.journal.File.UpdateMasterKeyEntry.getDefaultInstance();
+          onChanged();
+        } else {
+          updateMasterKeyBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000008);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+       */
+      public alluxio.proto.journal.File.UpdateMasterKeyEntry.Builder getUpdateMasterKeyBuilder() {
+        bitField1_ |= 0x00000008;
+        onChanged();
+        return getUpdateMasterKeyFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+       */
+      public alluxio.proto.journal.File.UpdateMasterKeyEntryOrBuilder getUpdateMasterKeyOrBuilder() {
+        if (updateMasterKeyBuilder_ != null) {
+          return updateMasterKeyBuilder_.getMessageOrBuilder();
+        } else {
+          return updateMasterKey_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.UpdateMasterKeyEntry update_master_key = 1007;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.UpdateMasterKeyEntry, alluxio.proto.journal.File.UpdateMasterKeyEntry.Builder, alluxio.proto.journal.File.UpdateMasterKeyEntryOrBuilder> 
+          getUpdateMasterKeyFieldBuilder() {
+        if (updateMasterKeyBuilder_ == null) {
+          updateMasterKeyBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.File.UpdateMasterKeyEntry, alluxio.proto.journal.File.UpdateMasterKeyEntry.Builder, alluxio.proto.journal.File.UpdateMasterKeyEntryOrBuilder>(
+                  updateMasterKey_,
+                  getParentForChildren(),
+                  isClean());
+          updateMasterKey_ = null;
+        }
+        return updateMasterKeyBuilder_;
+      }
+
       // repeated .alluxio.proto.journal.JournalEntry journal_entries = 1005;
       private java.util.List<alluxio.proto.journal.Journal.JournalEntry> journalEntries_ =
         java.util.Collections.emptyList();
       private void ensureJournalEntriesIsMutable() {
-        if (!((bitField1_ & 0x00000001) == 0x00000001)) {
+        if (!((bitField1_ & 0x00000010) == 0x00000010)) {
           journalEntries_ = new java.util.ArrayList<alluxio.proto.journal.Journal.JournalEntry>(journalEntries_);
-          bitField1_ |= 0x00000001;
+          bitField1_ |= 0x00000010;
          }
       }
 
@@ -6827,7 +7598,7 @@ public final class Journal {
       public Builder clearJournalEntries() {
         if (journalEntriesBuilder_ == null) {
           journalEntries_ = java.util.Collections.emptyList();
-          bitField1_ = (bitField1_ & ~0x00000001);
+          bitField1_ = (bitField1_ & ~0x00000010);
           onChanged();
         } else {
           journalEntriesBuilder_.clear();
@@ -6939,7 +7710,7 @@ public final class Journal {
           journalEntriesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               alluxio.proto.journal.Journal.JournalEntry, alluxio.proto.journal.Journal.JournalEntry.Builder, alluxio.proto.journal.Journal.JournalEntryOrBuilder>(
                   journalEntries_,
-                  ((bitField1_ & 0x00000001) == 0x00000001),
+                  ((bitField1_ & 0x00000010) == 0x00000010),
                   getParentForChildren(),
                   isClean());
           journalEntries_ = null;
@@ -6977,7 +7748,7 @@ public final class Journal {
       "e.proto\032\027journal/key_value.proto\032\021journa" +
       "l/job.proto\032\025journal/license.proto\032\027jour" +
       "nal/privilege.proto\032\025journal/lineage.pro" +
-      "to\"\242\021\n\014JournalEntry\022\027\n\017sequence_number\030\001" +
+      "to\"\342\023\n\014JournalEntry\022\027\n\017sequence_number\030\001" +
       " \001(\003\022B\n\017add_mount_point\030\002 \001(\0132).alluxio." +
       "proto.journal.AddMountPointEntry\022N\n\025asyn" +
       "c_persist_request\030\020 \001(\0132/.alluxio.proto." +
@@ -7025,13 +7796,21 @@ public final class Journal {
       "to.journal.SetAttributeEntry\022B\n\017update_u" +
       "fs_mode\030\036 \001(\0132).alluxio.proto.journal.Up" +
       "dateUfsModeEntry\022:\n\nfinish_job\030\352\007 \001(\0132%." +
-      "alluxio.proto.journal.FinishJobEntry\022@\n\r" +
-      "license_check\030\351\007 \001(\0132(.alluxio.proto.jou" +
-      "rnal.LicenseCheckEntry\022F\n\020privilege_upda" +
-      "te\030\354\007 \001(\0132+.alluxio.proto.journal.Privil" +
-      "egeUpdateEntry\0228\n\tstart_job\030\353\007 \001(\0132$.all" +
-      "uxio.proto.journal.StartJobEntry\022=\n\017jour" +
-      "nal_entries\030\355\007 \003(\0132#.alluxio.proto.journ",
+      "alluxio.proto.journal.FinishJobEntry\022M\n\024" +
+      "get_delegation_token\030\356\007 \001(\0132..alluxio.pr" +
+      "oto.journal.GetDelegationTokenEntry\022@\n\rl" +
+      "icense_check\030\351\007 \001(\0132(.alluxio.proto.jour" +
+      "nal.LicenseCheckEntry\022F\n\020privilege_updat" +
+      "e\030\354\007 \001(\0132+.alluxio.proto.journal.Privile" +
+      "geUpdateEntry\022S\n\027remove_delegation_token",
+      "\030\360\007 \001(\01321.alluxio.proto.journal.RemoveDe" +
+      "legationTokenEntry\022Q\n\026renew_delegation_t" +
+      "oken\030\361\007 \001(\01320.alluxio.proto.journal.Rene" +
+      "wDelegationTokenEntry\0228\n\tstart_job\030\353\007 \001(" +
+      "\0132$.alluxio.proto.journal.StartJobEntry\022" +
+      "G\n\021update_master_key\030\357\007 \001(\0132+.alluxio.pr" +
+      "oto.journal.UpdateMasterKeyEntry\022=\n\017jour" +
+      "nal_entries\030\355\007 \003(\0132#.alluxio.proto.journ" +
       "al.JournalEntryB\027\n\025alluxio.proto.journal"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
@@ -7044,7 +7823,7 @@ public final class Journal {
           internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-              new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAcl", "SetAttribute", "UpdateUfsMode", "FinishJob", "LicenseCheck", "PrivilegeUpdate", "StartJob", "JournalEntries", });
+              new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAcl", "SetAttribute", "UpdateUfsMode", "FinishJob", "GetDelegationToken", "LicenseCheck", "PrivilegeUpdate", "RemoveDelegationToken", "RenewDelegationToken", "StartJob", "UpdateMasterKey", "JournalEntries", });
           return null;
         }
       };

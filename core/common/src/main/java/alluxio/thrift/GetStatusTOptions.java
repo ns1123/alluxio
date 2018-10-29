@@ -40,6 +40,7 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
 
   private static final org.apache.thrift.protocol.TField LOAD_METADATA_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("loadMetadataType", org.apache.thrift.protocol.TType.I32, (short)1);
   private static final org.apache.thrift.protocol.TField COMMON_OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("commonOptions", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+  private static final org.apache.thrift.protocol.TField ACCESS_MODE_FIELD_DESC = new org.apache.thrift.protocol.TField("accessMode", org.apache.thrift.protocol.TType.I16, (short)3);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -49,6 +50,7 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
 
   private LoadMetadataTType loadMetadataType; // optional
   private FileSystemMasterCommonTOptions commonOptions; // optional
+  private short accessMode; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -57,7 +59,8 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
      * @see LoadMetadataTType
      */
     LOAD_METADATA_TYPE((short)1, "loadMetadataType"),
-    COMMON_OPTIONS((short)2, "commonOptions");
+    COMMON_OPTIONS((short)2, "commonOptions"),
+    ACCESS_MODE((short)3, "accessMode");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -76,6 +79,8 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
           return LOAD_METADATA_TYPE;
         case 2: // COMMON_OPTIONS
           return COMMON_OPTIONS;
+        case 3: // ACCESS_MODE
+          return ACCESS_MODE;
         default:
           return null;
       }
@@ -116,7 +121,9 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
   }
 
   // isset id assignments
-  private static final _Fields optionals[] = {_Fields.LOAD_METADATA_TYPE,_Fields.COMMON_OPTIONS};
+  private static final int __ACCESSMODE_ISSET_ID = 0;
+  private byte __isset_bitfield = 0;
+  private static final _Fields optionals[] = {_Fields.LOAD_METADATA_TYPE,_Fields.COMMON_OPTIONS,_Fields.ACCESS_MODE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -124,6 +131,8 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, LoadMetadataTType.class)));
     tmpMap.put(_Fields.COMMON_OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("commonOptions", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, FileSystemMasterCommonTOptions.class)));
+    tmpMap.put(_Fields.ACCESS_MODE, new org.apache.thrift.meta_data.FieldMetaData("accessMode", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(GetStatusTOptions.class, metaDataMap);
   }
@@ -135,12 +144,14 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
    * Performs a deep copy on <i>other</i>.
    */
   public GetStatusTOptions(GetStatusTOptions other) {
+    __isset_bitfield = other.__isset_bitfield;
     if (other.isSetLoadMetadataType()) {
       this.loadMetadataType = other.loadMetadataType;
     }
     if (other.isSetCommonOptions()) {
       this.commonOptions = new FileSystemMasterCommonTOptions(other.commonOptions);
     }
+    this.accessMode = other.accessMode;
   }
 
   public GetStatusTOptions deepCopy() {
@@ -151,6 +162,8 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
   public void clear() {
     this.loadMetadataType = null;
     this.commonOptions = null;
+    setAccessModeIsSet(false);
+    this.accessMode = 0;
   }
 
   /**
@@ -209,6 +222,29 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
     }
   }
 
+  public short getAccessMode() {
+    return this.accessMode;
+  }
+
+  public GetStatusTOptions setAccessMode(short accessMode) {
+    this.accessMode = accessMode;
+    setAccessModeIsSet(true);
+    return this;
+  }
+
+  public void unsetAccessMode() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ACCESSMODE_ISSET_ID);
+  }
+
+  /** Returns true if field accessMode is set (has been assigned a value) and false otherwise */
+  public boolean isSetAccessMode() {
+    return EncodingUtils.testBit(__isset_bitfield, __ACCESSMODE_ISSET_ID);
+  }
+
+  public void setAccessModeIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ACCESSMODE_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case LOAD_METADATA_TYPE:
@@ -227,6 +263,14 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
       }
       break;
 
+    case ACCESS_MODE:
+      if (value == null) {
+        unsetAccessMode();
+      } else {
+        setAccessMode((Short)value);
+      }
+      break;
+
     }
   }
 
@@ -237,6 +281,9 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
 
     case COMMON_OPTIONS:
       return getCommonOptions();
+
+    case ACCESS_MODE:
+      return getAccessMode();
 
     }
     throw new IllegalStateException();
@@ -253,6 +300,8 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
       return isSetLoadMetadataType();
     case COMMON_OPTIONS:
       return isSetCommonOptions();
+    case ACCESS_MODE:
+      return isSetAccessMode();
     }
     throw new IllegalStateException();
   }
@@ -288,6 +337,15 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
         return false;
     }
 
+    boolean this_present_accessMode = true && this.isSetAccessMode();
+    boolean that_present_accessMode = true && that.isSetAccessMode();
+    if (this_present_accessMode || that_present_accessMode) {
+      if (!(this_present_accessMode && that_present_accessMode))
+        return false;
+      if (this.accessMode != that.accessMode)
+        return false;
+    }
+
     return true;
   }
 
@@ -304,6 +362,11 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
     list.add(present_commonOptions);
     if (present_commonOptions)
       list.add(commonOptions);
+
+    boolean present_accessMode = true && (isSetAccessMode());
+    list.add(present_accessMode);
+    if (present_accessMode)
+      list.add(accessMode);
 
     return list.hashCode();
   }
@@ -332,6 +395,16 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
     }
     if (isSetCommonOptions()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.commonOptions, other.commonOptions);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetAccessMode()).compareTo(other.isSetAccessMode());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAccessMode()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.accessMode, other.accessMode);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -375,6 +448,12 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
       }
       first = false;
     }
+    if (isSetAccessMode()) {
+      if (!first) sb.append(", ");
+      sb.append("accessMode:");
+      sb.append(this.accessMode);
+      first = false;
+    }
     sb.append(")");
     return sb.toString();
   }
@@ -397,6 +476,8 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
 
   private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
     try {
+      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+      __isset_bitfield = 0;
       read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
     } catch (org.apache.thrift.TException te) {
       throw new java.io.IOException(te);
@@ -438,6 +519,14 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 3: // ACCESS_MODE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
+              struct.accessMode = iprot.readI16();
+              struct.setAccessModeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -467,6 +556,11 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
           oprot.writeFieldEnd();
         }
       }
+      if (struct.isSetAccessMode()) {
+        oprot.writeFieldBegin(ACCESS_MODE_FIELD_DESC);
+        oprot.writeI16(struct.accessMode);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -491,19 +585,25 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
       if (struct.isSetCommonOptions()) {
         optionals.set(1);
       }
-      oprot.writeBitSet(optionals, 2);
+      if (struct.isSetAccessMode()) {
+        optionals.set(2);
+      }
+      oprot.writeBitSet(optionals, 3);
       if (struct.isSetLoadMetadataType()) {
         oprot.writeI32(struct.loadMetadataType.getValue());
       }
       if (struct.isSetCommonOptions()) {
         struct.commonOptions.write(oprot);
       }
+      if (struct.isSetAccessMode()) {
+        oprot.writeI16(struct.accessMode);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, GetStatusTOptions struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(2);
+      BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
         struct.loadMetadataType = alluxio.thrift.LoadMetadataTType.findByValue(iprot.readI32());
         struct.setLoadMetadataTypeIsSet(true);
@@ -512,6 +612,10 @@ public class GetStatusTOptions implements org.apache.thrift.TBase<GetStatusTOpti
         struct.commonOptions = new FileSystemMasterCommonTOptions();
         struct.commonOptions.read(iprot);
         struct.setCommonOptionsIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.accessMode = iprot.readI16();
+        struct.setAccessModeIsSet(true);
       }
     }
   }

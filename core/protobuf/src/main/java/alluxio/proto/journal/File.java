@@ -20658,6 +20658,2797 @@ public final class File {
     // @@protoc_insertion_point(class_scope:alluxio.proto.journal.UpdateUfsModeEntry)
   }
 
+  public interface GetDelegationTokenEntryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    boolean hasTokenId();
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getTokenId();
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getTokenIdOrBuilder();
+
+    // optional int64 renew_time = 2;
+    /**
+     * <code>optional int64 renew_time = 2;</code>
+     */
+    boolean hasRenewTime();
+    /**
+     * <code>optional int64 renew_time = 2;</code>
+     */
+    long getRenewTime();
+  }
+  /**
+   * Protobuf type {@code alluxio.proto.journal.GetDelegationTokenEntry}
+   *
+   * <pre>
+   * next available id: 3
+   * </pre>
+   */
+  public static final class GetDelegationTokenEntry extends
+      com.google.protobuf.GeneratedMessage
+      implements GetDelegationTokenEntryOrBuilder {
+    // Use GetDelegationTokenEntry.newBuilder() to construct.
+    private GetDelegationTokenEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private GetDelegationTokenEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final GetDelegationTokenEntry defaultInstance;
+    public static GetDelegationTokenEntry getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public GetDelegationTokenEntry getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private GetDelegationTokenEntry(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = tokenId_.toBuilder();
+              }
+              tokenId_ = input.readMessage(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(tokenId_);
+                tokenId_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+            case 16: {
+              bitField0_ |= 0x00000002;
+              renewTime_ = input.readInt64();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_GetDelegationTokenEntry_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_GetDelegationTokenEntry_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.journal.File.GetDelegationTokenEntry.class, alluxio.proto.journal.File.GetDelegationTokenEntry.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<GetDelegationTokenEntry> PARSER =
+        new com.google.protobuf.AbstractParser<GetDelegationTokenEntry>() {
+      public GetDelegationTokenEntry parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new GetDelegationTokenEntry(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<GetDelegationTokenEntry> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+    public static final int TOKEN_ID_FIELD_NUMBER = 1;
+    private alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier tokenId_;
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    public boolean hasTokenId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getTokenId() {
+      return tokenId_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getTokenIdOrBuilder() {
+      return tokenId_;
+    }
+
+    // optional int64 renew_time = 2;
+    public static final int RENEW_TIME_FIELD_NUMBER = 2;
+    private long renewTime_;
+    /**
+     * <code>optional int64 renew_time = 2;</code>
+     */
+    public boolean hasRenewTime() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional int64 renew_time = 2;</code>
+     */
+    public long getRenewTime() {
+      return renewTime_;
+    }
+
+    private void initFields() {
+      tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+      renewTime_ = 0L;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, tokenId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt64(2, renewTime_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, tokenId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(2, renewTime_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.GetDelegationTokenEntry parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(alluxio.proto.journal.File.GetDelegationTokenEntry prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code alluxio.proto.journal.GetDelegationTokenEntry}
+     *
+     * <pre>
+     * next available id: 3
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.journal.File.GetDelegationTokenEntryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_GetDelegationTokenEntry_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_GetDelegationTokenEntry_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.journal.File.GetDelegationTokenEntry.class, alluxio.proto.journal.File.GetDelegationTokenEntry.Builder.class);
+      }
+
+      // Construct using alluxio.proto.journal.File.GetDelegationTokenEntry.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getTokenIdFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (tokenIdBuilder_ == null) {
+          tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+        } else {
+          tokenIdBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        renewTime_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_GetDelegationTokenEntry_descriptor;
+      }
+
+      public alluxio.proto.journal.File.GetDelegationTokenEntry getDefaultInstanceForType() {
+        return alluxio.proto.journal.File.GetDelegationTokenEntry.getDefaultInstance();
+      }
+
+      public alluxio.proto.journal.File.GetDelegationTokenEntry build() {
+        alluxio.proto.journal.File.GetDelegationTokenEntry result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.journal.File.GetDelegationTokenEntry buildPartial() {
+        alluxio.proto.journal.File.GetDelegationTokenEntry result = new alluxio.proto.journal.File.GetDelegationTokenEntry(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (tokenIdBuilder_ == null) {
+          result.tokenId_ = tokenId_;
+        } else {
+          result.tokenId_ = tokenIdBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.renewTime_ = renewTime_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.journal.File.GetDelegationTokenEntry) {
+          return mergeFrom((alluxio.proto.journal.File.GetDelegationTokenEntry)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.journal.File.GetDelegationTokenEntry other) {
+        if (other == alluxio.proto.journal.File.GetDelegationTokenEntry.getDefaultInstance()) return this;
+        if (other.hasTokenId()) {
+          mergeTokenId(other.getTokenId());
+        }
+        if (other.hasRenewTime()) {
+          setRenewTime(other.getRenewTime());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.journal.File.GetDelegationTokenEntry parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.journal.File.GetDelegationTokenEntry) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+      private alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder> tokenIdBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public boolean hasTokenId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getTokenId() {
+        if (tokenIdBuilder_ == null) {
+          return tokenId_;
+        } else {
+          return tokenIdBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder setTokenId(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier value) {
+        if (tokenIdBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          tokenId_ = value;
+          onChanged();
+        } else {
+          tokenIdBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder setTokenId(
+          alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder builderForValue) {
+        if (tokenIdBuilder_ == null) {
+          tokenId_ = builderForValue.build();
+          onChanged();
+        } else {
+          tokenIdBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder mergeTokenId(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier value) {
+        if (tokenIdBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              tokenId_ != alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance()) {
+            tokenId_ =
+              alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.newBuilder(tokenId_).mergeFrom(value).buildPartial();
+          } else {
+            tokenId_ = value;
+          }
+          onChanged();
+        } else {
+          tokenIdBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder clearTokenId() {
+        if (tokenIdBuilder_ == null) {
+          tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+          onChanged();
+        } else {
+          tokenIdBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder getTokenIdBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getTokenIdFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getTokenIdOrBuilder() {
+        if (tokenIdBuilder_ != null) {
+          return tokenIdBuilder_.getMessageOrBuilder();
+        } else {
+          return tokenId_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder> 
+          getTokenIdFieldBuilder() {
+        if (tokenIdBuilder_ == null) {
+          tokenIdBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder>(
+                  tokenId_,
+                  getParentForChildren(),
+                  isClean());
+          tokenId_ = null;
+        }
+        return tokenIdBuilder_;
+      }
+
+      // optional int64 renew_time = 2;
+      private long renewTime_ ;
+      /**
+       * <code>optional int64 renew_time = 2;</code>
+       */
+      public boolean hasRenewTime() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional int64 renew_time = 2;</code>
+       */
+      public long getRenewTime() {
+        return renewTime_;
+      }
+      /**
+       * <code>optional int64 renew_time = 2;</code>
+       */
+      public Builder setRenewTime(long value) {
+        bitField0_ |= 0x00000002;
+        renewTime_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 renew_time = 2;</code>
+       */
+      public Builder clearRenewTime() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        renewTime_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.journal.GetDelegationTokenEntry)
+    }
+
+    static {
+      defaultInstance = new GetDelegationTokenEntry(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.journal.GetDelegationTokenEntry)
+  }
+
+  public interface MasterKeyOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional int64 key_id = 1;
+    /**
+     * <code>optional int64 key_id = 1;</code>
+     */
+    boolean hasKeyId();
+    /**
+     * <code>optional int64 key_id = 1;</code>
+     */
+    long getKeyId();
+
+    // optional int64 expiration_time_ms = 2;
+    /**
+     * <code>optional int64 expiration_time_ms = 2;</code>
+     */
+    boolean hasExpirationTimeMs();
+    /**
+     * <code>optional int64 expiration_time_ms = 2;</code>
+     */
+    long getExpirationTimeMs();
+
+    // optional bytes encoded_key = 3;
+    /**
+     * <code>optional bytes encoded_key = 3;</code>
+     */
+    boolean hasEncodedKey();
+    /**
+     * <code>optional bytes encoded_key = 3;</code>
+     */
+    com.google.protobuf.ByteString getEncodedKey();
+  }
+  /**
+   * Protobuf type {@code alluxio.proto.journal.MasterKey}
+   *
+   * <pre>
+   * next available id: 4
+   * </pre>
+   */
+  public static final class MasterKey extends
+      com.google.protobuf.GeneratedMessage
+      implements MasterKeyOrBuilder {
+    // Use MasterKey.newBuilder() to construct.
+    private MasterKey(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private MasterKey(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final MasterKey defaultInstance;
+    public static MasterKey getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public MasterKey getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private MasterKey(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              keyId_ = input.readInt64();
+              break;
+            }
+            case 16: {
+              bitField0_ |= 0x00000002;
+              expirationTimeMs_ = input.readInt64();
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              encodedKey_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_MasterKey_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_MasterKey_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.journal.File.MasterKey.class, alluxio.proto.journal.File.MasterKey.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<MasterKey> PARSER =
+        new com.google.protobuf.AbstractParser<MasterKey>() {
+      public MasterKey parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new MasterKey(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MasterKey> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional int64 key_id = 1;
+    public static final int KEY_ID_FIELD_NUMBER = 1;
+    private long keyId_;
+    /**
+     * <code>optional int64 key_id = 1;</code>
+     */
+    public boolean hasKeyId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional int64 key_id = 1;</code>
+     */
+    public long getKeyId() {
+      return keyId_;
+    }
+
+    // optional int64 expiration_time_ms = 2;
+    public static final int EXPIRATION_TIME_MS_FIELD_NUMBER = 2;
+    private long expirationTimeMs_;
+    /**
+     * <code>optional int64 expiration_time_ms = 2;</code>
+     */
+    public boolean hasExpirationTimeMs() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional int64 expiration_time_ms = 2;</code>
+     */
+    public long getExpirationTimeMs() {
+      return expirationTimeMs_;
+    }
+
+    // optional bytes encoded_key = 3;
+    public static final int ENCODED_KEY_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString encodedKey_;
+    /**
+     * <code>optional bytes encoded_key = 3;</code>
+     */
+    public boolean hasEncodedKey() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional bytes encoded_key = 3;</code>
+     */
+    public com.google.protobuf.ByteString getEncodedKey() {
+      return encodedKey_;
+    }
+
+    private void initFields() {
+      keyId_ = 0L;
+      expirationTimeMs_ = 0L;
+      encodedKey_ = com.google.protobuf.ByteString.EMPTY;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt64(1, keyId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt64(2, expirationTimeMs_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, encodedKey_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(1, keyId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(2, expirationTimeMs_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, encodedKey_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static alluxio.proto.journal.File.MasterKey parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.MasterKey parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.MasterKey parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.MasterKey parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.MasterKey parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.MasterKey parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.MasterKey parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static alluxio.proto.journal.File.MasterKey parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.MasterKey parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.MasterKey parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(alluxio.proto.journal.File.MasterKey prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code alluxio.proto.journal.MasterKey}
+     *
+     * <pre>
+     * next available id: 4
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.journal.File.MasterKeyOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_MasterKey_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_MasterKey_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.journal.File.MasterKey.class, alluxio.proto.journal.File.MasterKey.Builder.class);
+      }
+
+      // Construct using alluxio.proto.journal.File.MasterKey.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        keyId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        expirationTimeMs_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        encodedKey_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_MasterKey_descriptor;
+      }
+
+      public alluxio.proto.journal.File.MasterKey getDefaultInstanceForType() {
+        return alluxio.proto.journal.File.MasterKey.getDefaultInstance();
+      }
+
+      public alluxio.proto.journal.File.MasterKey build() {
+        alluxio.proto.journal.File.MasterKey result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.journal.File.MasterKey buildPartial() {
+        alluxio.proto.journal.File.MasterKey result = new alluxio.proto.journal.File.MasterKey(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.keyId_ = keyId_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.expirationTimeMs_ = expirationTimeMs_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.encodedKey_ = encodedKey_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.journal.File.MasterKey) {
+          return mergeFrom((alluxio.proto.journal.File.MasterKey)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.journal.File.MasterKey other) {
+        if (other == alluxio.proto.journal.File.MasterKey.getDefaultInstance()) return this;
+        if (other.hasKeyId()) {
+          setKeyId(other.getKeyId());
+        }
+        if (other.hasExpirationTimeMs()) {
+          setExpirationTimeMs(other.getExpirationTimeMs());
+        }
+        if (other.hasEncodedKey()) {
+          setEncodedKey(other.getEncodedKey());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.journal.File.MasterKey parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.journal.File.MasterKey) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional int64 key_id = 1;
+      private long keyId_ ;
+      /**
+       * <code>optional int64 key_id = 1;</code>
+       */
+      public boolean hasKeyId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional int64 key_id = 1;</code>
+       */
+      public long getKeyId() {
+        return keyId_;
+      }
+      /**
+       * <code>optional int64 key_id = 1;</code>
+       */
+      public Builder setKeyId(long value) {
+        bitField0_ |= 0x00000001;
+        keyId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 key_id = 1;</code>
+       */
+      public Builder clearKeyId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        keyId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // optional int64 expiration_time_ms = 2;
+      private long expirationTimeMs_ ;
+      /**
+       * <code>optional int64 expiration_time_ms = 2;</code>
+       */
+      public boolean hasExpirationTimeMs() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional int64 expiration_time_ms = 2;</code>
+       */
+      public long getExpirationTimeMs() {
+        return expirationTimeMs_;
+      }
+      /**
+       * <code>optional int64 expiration_time_ms = 2;</code>
+       */
+      public Builder setExpirationTimeMs(long value) {
+        bitField0_ |= 0x00000002;
+        expirationTimeMs_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 expiration_time_ms = 2;</code>
+       */
+      public Builder clearExpirationTimeMs() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        expirationTimeMs_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // optional bytes encoded_key = 3;
+      private com.google.protobuf.ByteString encodedKey_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes encoded_key = 3;</code>
+       */
+      public boolean hasEncodedKey() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bytes encoded_key = 3;</code>
+       */
+      public com.google.protobuf.ByteString getEncodedKey() {
+        return encodedKey_;
+      }
+      /**
+       * <code>optional bytes encoded_key = 3;</code>
+       */
+      public Builder setEncodedKey(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        encodedKey_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes encoded_key = 3;</code>
+       */
+      public Builder clearEncodedKey() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        encodedKey_ = getDefaultInstance().getEncodedKey();
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.journal.MasterKey)
+    }
+
+    static {
+      defaultInstance = new MasterKey(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.journal.MasterKey)
+  }
+
+  public interface RemoveDelegationTokenEntryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    boolean hasTokenId();
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getTokenId();
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getTokenIdOrBuilder();
+  }
+  /**
+   * Protobuf type {@code alluxio.proto.journal.RemoveDelegationTokenEntry}
+   *
+   * <pre>
+   * next available id: 2
+   * </pre>
+   */
+  public static final class RemoveDelegationTokenEntry extends
+      com.google.protobuf.GeneratedMessage
+      implements RemoveDelegationTokenEntryOrBuilder {
+    // Use RemoveDelegationTokenEntry.newBuilder() to construct.
+    private RemoveDelegationTokenEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private RemoveDelegationTokenEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final RemoveDelegationTokenEntry defaultInstance;
+    public static RemoveDelegationTokenEntry getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public RemoveDelegationTokenEntry getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private RemoveDelegationTokenEntry(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = tokenId_.toBuilder();
+              }
+              tokenId_ = input.readMessage(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(tokenId_);
+                tokenId_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.journal.File.RemoveDelegationTokenEntry.class, alluxio.proto.journal.File.RemoveDelegationTokenEntry.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<RemoveDelegationTokenEntry> PARSER =
+        new com.google.protobuf.AbstractParser<RemoveDelegationTokenEntry>() {
+      public RemoveDelegationTokenEntry parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new RemoveDelegationTokenEntry(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<RemoveDelegationTokenEntry> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+    public static final int TOKEN_ID_FIELD_NUMBER = 1;
+    private alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier tokenId_;
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    public boolean hasTokenId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getTokenId() {
+      return tokenId_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getTokenIdOrBuilder() {
+      return tokenId_;
+    }
+
+    private void initFields() {
+      tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, tokenId_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, tokenId_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.RemoveDelegationTokenEntry parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(alluxio.proto.journal.File.RemoveDelegationTokenEntry prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code alluxio.proto.journal.RemoveDelegationTokenEntry}
+     *
+     * <pre>
+     * next available id: 2
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.journal.File.RemoveDelegationTokenEntryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.journal.File.RemoveDelegationTokenEntry.class, alluxio.proto.journal.File.RemoveDelegationTokenEntry.Builder.class);
+      }
+
+      // Construct using alluxio.proto.journal.File.RemoveDelegationTokenEntry.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getTokenIdFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (tokenIdBuilder_ == null) {
+          tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+        } else {
+          tokenIdBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_descriptor;
+      }
+
+      public alluxio.proto.journal.File.RemoveDelegationTokenEntry getDefaultInstanceForType() {
+        return alluxio.proto.journal.File.RemoveDelegationTokenEntry.getDefaultInstance();
+      }
+
+      public alluxio.proto.journal.File.RemoveDelegationTokenEntry build() {
+        alluxio.proto.journal.File.RemoveDelegationTokenEntry result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.journal.File.RemoveDelegationTokenEntry buildPartial() {
+        alluxio.proto.journal.File.RemoveDelegationTokenEntry result = new alluxio.proto.journal.File.RemoveDelegationTokenEntry(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (tokenIdBuilder_ == null) {
+          result.tokenId_ = tokenId_;
+        } else {
+          result.tokenId_ = tokenIdBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.journal.File.RemoveDelegationTokenEntry) {
+          return mergeFrom((alluxio.proto.journal.File.RemoveDelegationTokenEntry)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.journal.File.RemoveDelegationTokenEntry other) {
+        if (other == alluxio.proto.journal.File.RemoveDelegationTokenEntry.getDefaultInstance()) return this;
+        if (other.hasTokenId()) {
+          mergeTokenId(other.getTokenId());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.journal.File.RemoveDelegationTokenEntry parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.journal.File.RemoveDelegationTokenEntry) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+      private alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder> tokenIdBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public boolean hasTokenId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getTokenId() {
+        if (tokenIdBuilder_ == null) {
+          return tokenId_;
+        } else {
+          return tokenIdBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder setTokenId(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier value) {
+        if (tokenIdBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          tokenId_ = value;
+          onChanged();
+        } else {
+          tokenIdBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder setTokenId(
+          alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder builderForValue) {
+        if (tokenIdBuilder_ == null) {
+          tokenId_ = builderForValue.build();
+          onChanged();
+        } else {
+          tokenIdBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder mergeTokenId(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier value) {
+        if (tokenIdBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              tokenId_ != alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance()) {
+            tokenId_ =
+              alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.newBuilder(tokenId_).mergeFrom(value).buildPartial();
+          } else {
+            tokenId_ = value;
+          }
+          onChanged();
+        } else {
+          tokenIdBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder clearTokenId() {
+        if (tokenIdBuilder_ == null) {
+          tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+          onChanged();
+        } else {
+          tokenIdBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder getTokenIdBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getTokenIdFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getTokenIdOrBuilder() {
+        if (tokenIdBuilder_ != null) {
+          return tokenIdBuilder_.getMessageOrBuilder();
+        } else {
+          return tokenId_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder> 
+          getTokenIdFieldBuilder() {
+        if (tokenIdBuilder_ == null) {
+          tokenIdBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder>(
+                  tokenId_,
+                  getParentForChildren(),
+                  isClean());
+          tokenId_ = null;
+        }
+        return tokenIdBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.journal.RemoveDelegationTokenEntry)
+    }
+
+    static {
+      defaultInstance = new RemoveDelegationTokenEntry(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.journal.RemoveDelegationTokenEntry)
+  }
+
+  public interface RenewDelegationTokenEntryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    boolean hasTokenId();
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getTokenId();
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getTokenIdOrBuilder();
+
+    // optional int64 expiration_time_ms = 2;
+    /**
+     * <code>optional int64 expiration_time_ms = 2;</code>
+     */
+    boolean hasExpirationTimeMs();
+    /**
+     * <code>optional int64 expiration_time_ms = 2;</code>
+     */
+    long getExpirationTimeMs();
+  }
+  /**
+   * Protobuf type {@code alluxio.proto.journal.RenewDelegationTokenEntry}
+   *
+   * <pre>
+   * next available id: 3
+   * </pre>
+   */
+  public static final class RenewDelegationTokenEntry extends
+      com.google.protobuf.GeneratedMessage
+      implements RenewDelegationTokenEntryOrBuilder {
+    // Use RenewDelegationTokenEntry.newBuilder() to construct.
+    private RenewDelegationTokenEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private RenewDelegationTokenEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final RenewDelegationTokenEntry defaultInstance;
+    public static RenewDelegationTokenEntry getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public RenewDelegationTokenEntry getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private RenewDelegationTokenEntry(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = tokenId_.toBuilder();
+              }
+              tokenId_ = input.readMessage(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(tokenId_);
+                tokenId_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+            case 16: {
+              bitField0_ |= 0x00000002;
+              expirationTimeMs_ = input.readInt64();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.journal.File.RenewDelegationTokenEntry.class, alluxio.proto.journal.File.RenewDelegationTokenEntry.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<RenewDelegationTokenEntry> PARSER =
+        new com.google.protobuf.AbstractParser<RenewDelegationTokenEntry>() {
+      public RenewDelegationTokenEntry parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new RenewDelegationTokenEntry(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<RenewDelegationTokenEntry> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+    public static final int TOKEN_ID_FIELD_NUMBER = 1;
+    private alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier tokenId_;
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    public boolean hasTokenId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getTokenId() {
+      return tokenId_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+     */
+    public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getTokenIdOrBuilder() {
+      return tokenId_;
+    }
+
+    // optional int64 expiration_time_ms = 2;
+    public static final int EXPIRATION_TIME_MS_FIELD_NUMBER = 2;
+    private long expirationTimeMs_;
+    /**
+     * <code>optional int64 expiration_time_ms = 2;</code>
+     */
+    public boolean hasExpirationTimeMs() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional int64 expiration_time_ms = 2;</code>
+     */
+    public long getExpirationTimeMs() {
+      return expirationTimeMs_;
+    }
+
+    private void initFields() {
+      tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+      expirationTimeMs_ = 0L;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, tokenId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt64(2, expirationTimeMs_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, tokenId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(2, expirationTimeMs_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.RenewDelegationTokenEntry parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(alluxio.proto.journal.File.RenewDelegationTokenEntry prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code alluxio.proto.journal.RenewDelegationTokenEntry}
+     *
+     * <pre>
+     * next available id: 3
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.journal.File.RenewDelegationTokenEntryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.journal.File.RenewDelegationTokenEntry.class, alluxio.proto.journal.File.RenewDelegationTokenEntry.Builder.class);
+      }
+
+      // Construct using alluxio.proto.journal.File.RenewDelegationTokenEntry.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getTokenIdFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (tokenIdBuilder_ == null) {
+          tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+        } else {
+          tokenIdBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        expirationTimeMs_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_descriptor;
+      }
+
+      public alluxio.proto.journal.File.RenewDelegationTokenEntry getDefaultInstanceForType() {
+        return alluxio.proto.journal.File.RenewDelegationTokenEntry.getDefaultInstance();
+      }
+
+      public alluxio.proto.journal.File.RenewDelegationTokenEntry build() {
+        alluxio.proto.journal.File.RenewDelegationTokenEntry result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.journal.File.RenewDelegationTokenEntry buildPartial() {
+        alluxio.proto.journal.File.RenewDelegationTokenEntry result = new alluxio.proto.journal.File.RenewDelegationTokenEntry(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (tokenIdBuilder_ == null) {
+          result.tokenId_ = tokenId_;
+        } else {
+          result.tokenId_ = tokenIdBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.expirationTimeMs_ = expirationTimeMs_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.journal.File.RenewDelegationTokenEntry) {
+          return mergeFrom((alluxio.proto.journal.File.RenewDelegationTokenEntry)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.journal.File.RenewDelegationTokenEntry other) {
+        if (other == alluxio.proto.journal.File.RenewDelegationTokenEntry.getDefaultInstance()) return this;
+        if (other.hasTokenId()) {
+          mergeTokenId(other.getTokenId());
+        }
+        if (other.hasExpirationTimeMs()) {
+          setExpirationTimeMs(other.getExpirationTimeMs());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.journal.File.RenewDelegationTokenEntry parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.journal.File.RenewDelegationTokenEntry) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;
+      private alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder> tokenIdBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public boolean hasTokenId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getTokenId() {
+        if (tokenIdBuilder_ == null) {
+          return tokenId_;
+        } else {
+          return tokenIdBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder setTokenId(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier value) {
+        if (tokenIdBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          tokenId_ = value;
+          onChanged();
+        } else {
+          tokenIdBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder setTokenId(
+          alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder builderForValue) {
+        if (tokenIdBuilder_ == null) {
+          tokenId_ = builderForValue.build();
+          onChanged();
+        } else {
+          tokenIdBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder mergeTokenId(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier value) {
+        if (tokenIdBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              tokenId_ != alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance()) {
+            tokenId_ =
+              alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.newBuilder(tokenId_).mergeFrom(value).buildPartial();
+          } else {
+            tokenId_ = value;
+          }
+          onChanged();
+        } else {
+          tokenIdBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public Builder clearTokenId() {
+        if (tokenIdBuilder_ == null) {
+          tokenId_ = alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance();
+          onChanged();
+        } else {
+          tokenIdBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder getTokenIdBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getTokenIdFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getTokenIdOrBuilder() {
+        if (tokenIdBuilder_ != null) {
+          return tokenIdBuilder_.getMessageOrBuilder();
+        } else {
+          return tokenId_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.DelegationTokenIdentifier token_id = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder> 
+          getTokenIdFieldBuilder() {
+        if (tokenIdBuilder_ == null) {
+          tokenIdBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder>(
+                  tokenId_,
+                  getParentForChildren(),
+                  isClean());
+          tokenId_ = null;
+        }
+        return tokenIdBuilder_;
+      }
+
+      // optional int64 expiration_time_ms = 2;
+      private long expirationTimeMs_ ;
+      /**
+       * <code>optional int64 expiration_time_ms = 2;</code>
+       */
+      public boolean hasExpirationTimeMs() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional int64 expiration_time_ms = 2;</code>
+       */
+      public long getExpirationTimeMs() {
+        return expirationTimeMs_;
+      }
+      /**
+       * <code>optional int64 expiration_time_ms = 2;</code>
+       */
+      public Builder setExpirationTimeMs(long value) {
+        bitField0_ |= 0x00000002;
+        expirationTimeMs_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 expiration_time_ms = 2;</code>
+       */
+      public Builder clearExpirationTimeMs() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        expirationTimeMs_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.journal.RenewDelegationTokenEntry)
+    }
+
+    static {
+      defaultInstance = new RenewDelegationTokenEntry(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.journal.RenewDelegationTokenEntry)
+  }
+
+  public interface UpdateMasterKeyEntryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional .alluxio.proto.journal.MasterKey master_key = 1;
+    /**
+     * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+     */
+    boolean hasMasterKey();
+    /**
+     * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+     */
+    alluxio.proto.journal.File.MasterKey getMasterKey();
+    /**
+     * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+     */
+    alluxio.proto.journal.File.MasterKeyOrBuilder getMasterKeyOrBuilder();
+  }
+  /**
+   * Protobuf type {@code alluxio.proto.journal.UpdateMasterKeyEntry}
+   *
+   * <pre>
+   * next available id: 2
+   * </pre>
+   */
+  public static final class UpdateMasterKeyEntry extends
+      com.google.protobuf.GeneratedMessage
+      implements UpdateMasterKeyEntryOrBuilder {
+    // Use UpdateMasterKeyEntry.newBuilder() to construct.
+    private UpdateMasterKeyEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private UpdateMasterKeyEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final UpdateMasterKeyEntry defaultInstance;
+    public static UpdateMasterKeyEntry getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public UpdateMasterKeyEntry getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private UpdateMasterKeyEntry(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              alluxio.proto.journal.File.MasterKey.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = masterKey_.toBuilder();
+              }
+              masterKey_ = input.readMessage(alluxio.proto.journal.File.MasterKey.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(masterKey_);
+                masterKey_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.journal.File.UpdateMasterKeyEntry.class, alluxio.proto.journal.File.UpdateMasterKeyEntry.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<UpdateMasterKeyEntry> PARSER =
+        new com.google.protobuf.AbstractParser<UpdateMasterKeyEntry>() {
+      public UpdateMasterKeyEntry parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new UpdateMasterKeyEntry(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<UpdateMasterKeyEntry> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional .alluxio.proto.journal.MasterKey master_key = 1;
+    public static final int MASTER_KEY_FIELD_NUMBER = 1;
+    private alluxio.proto.journal.File.MasterKey masterKey_;
+    /**
+     * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+     */
+    public boolean hasMasterKey() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+     */
+    public alluxio.proto.journal.File.MasterKey getMasterKey() {
+      return masterKey_;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+     */
+    public alluxio.proto.journal.File.MasterKeyOrBuilder getMasterKeyOrBuilder() {
+      return masterKey_;
+    }
+
+    private void initFields() {
+      masterKey_ = alluxio.proto.journal.File.MasterKey.getDefaultInstance();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, masterKey_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, masterKey_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.journal.File.UpdateMasterKeyEntry parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(alluxio.proto.journal.File.UpdateMasterKeyEntry prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code alluxio.proto.journal.UpdateMasterKeyEntry}
+     *
+     * <pre>
+     * next available id: 2
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.journal.File.UpdateMasterKeyEntryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.journal.File.UpdateMasterKeyEntry.class, alluxio.proto.journal.File.UpdateMasterKeyEntry.Builder.class);
+      }
+
+      // Construct using alluxio.proto.journal.File.UpdateMasterKeyEntry.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getMasterKeyFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (masterKeyBuilder_ == null) {
+          masterKey_ = alluxio.proto.journal.File.MasterKey.getDefaultInstance();
+        } else {
+          masterKeyBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.journal.File.internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_descriptor;
+      }
+
+      public alluxio.proto.journal.File.UpdateMasterKeyEntry getDefaultInstanceForType() {
+        return alluxio.proto.journal.File.UpdateMasterKeyEntry.getDefaultInstance();
+      }
+
+      public alluxio.proto.journal.File.UpdateMasterKeyEntry build() {
+        alluxio.proto.journal.File.UpdateMasterKeyEntry result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.journal.File.UpdateMasterKeyEntry buildPartial() {
+        alluxio.proto.journal.File.UpdateMasterKeyEntry result = new alluxio.proto.journal.File.UpdateMasterKeyEntry(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (masterKeyBuilder_ == null) {
+          result.masterKey_ = masterKey_;
+        } else {
+          result.masterKey_ = masterKeyBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.journal.File.UpdateMasterKeyEntry) {
+          return mergeFrom((alluxio.proto.journal.File.UpdateMasterKeyEntry)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.journal.File.UpdateMasterKeyEntry other) {
+        if (other == alluxio.proto.journal.File.UpdateMasterKeyEntry.getDefaultInstance()) return this;
+        if (other.hasMasterKey()) {
+          mergeMasterKey(other.getMasterKey());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.journal.File.UpdateMasterKeyEntry parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.journal.File.UpdateMasterKeyEntry) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional .alluxio.proto.journal.MasterKey master_key = 1;
+      private alluxio.proto.journal.File.MasterKey masterKey_ = alluxio.proto.journal.File.MasterKey.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.MasterKey, alluxio.proto.journal.File.MasterKey.Builder, alluxio.proto.journal.File.MasterKeyOrBuilder> masterKeyBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+       */
+      public boolean hasMasterKey() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+       */
+      public alluxio.proto.journal.File.MasterKey getMasterKey() {
+        if (masterKeyBuilder_ == null) {
+          return masterKey_;
+        } else {
+          return masterKeyBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+       */
+      public Builder setMasterKey(alluxio.proto.journal.File.MasterKey value) {
+        if (masterKeyBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          masterKey_ = value;
+          onChanged();
+        } else {
+          masterKeyBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+       */
+      public Builder setMasterKey(
+          alluxio.proto.journal.File.MasterKey.Builder builderForValue) {
+        if (masterKeyBuilder_ == null) {
+          masterKey_ = builderForValue.build();
+          onChanged();
+        } else {
+          masterKeyBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+       */
+      public Builder mergeMasterKey(alluxio.proto.journal.File.MasterKey value) {
+        if (masterKeyBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              masterKey_ != alluxio.proto.journal.File.MasterKey.getDefaultInstance()) {
+            masterKey_ =
+              alluxio.proto.journal.File.MasterKey.newBuilder(masterKey_).mergeFrom(value).buildPartial();
+          } else {
+            masterKey_ = value;
+          }
+          onChanged();
+        } else {
+          masterKeyBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+       */
+      public Builder clearMasterKey() {
+        if (masterKeyBuilder_ == null) {
+          masterKey_ = alluxio.proto.journal.File.MasterKey.getDefaultInstance();
+          onChanged();
+        } else {
+          masterKeyBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+       */
+      public alluxio.proto.journal.File.MasterKey.Builder getMasterKeyBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getMasterKeyFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+       */
+      public alluxio.proto.journal.File.MasterKeyOrBuilder getMasterKeyOrBuilder() {
+        if (masterKeyBuilder_ != null) {
+          return masterKeyBuilder_.getMessageOrBuilder();
+        } else {
+          return masterKey_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.MasterKey master_key = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.File.MasterKey, alluxio.proto.journal.File.MasterKey.Builder, alluxio.proto.journal.File.MasterKeyOrBuilder> 
+          getMasterKeyFieldBuilder() {
+        if (masterKeyBuilder_ == null) {
+          masterKeyBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.File.MasterKey, alluxio.proto.journal.File.MasterKey.Builder, alluxio.proto.journal.File.MasterKeyOrBuilder>(
+                  masterKey_,
+                  getParentForChildren(),
+                  isClean());
+          masterKey_ = null;
+        }
+        return masterKeyBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.journal.UpdateMasterKeyEntry)
+    }
+
+    static {
+      defaultInstance = new UpdateMasterKeyEntry(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.journal.UpdateMasterKeyEntry)
+  }
+
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_journal_StringPairEntry_descriptor;
   private static
@@ -20763,6 +23554,31 @@ public final class File {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_journal_UpdateUfsModeEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_proto_journal_GetDelegationTokenEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_alluxio_proto_journal_GetDelegationTokenEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_proto_journal_MasterKey_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_alluxio_proto_journal_MasterKey_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -20773,97 +23589,111 @@ public final class File {
   static {
     java.lang.String[] descriptorData = {
       "\n\022journal/file.proto\022\025alluxio.proto.jour" +
-      "nal\"-\n\017StringPairEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005v" +
-      "alue\030\002 \001(\t\"\254\001\n\022AddMountPointEntry\022\024\n\014all" +
-      "uxio_path\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022\020\n\010rea" +
-      "dOnly\030\003 \001(\010\022:\n\nproperties\030\004 \003(\0132&.alluxi" +
-      "o.proto.journal.StringPairEntry\022\016\n\006share" +
-      "d\030\005 \001(\010\022\020\n\010mount_id\030\006 \001(\003\"+\n\030AsyncPersis" +
-      "tRequestEntry\022\017\n\007file_id\030\001 \001(\003\"o\n\021Comple" +
-      "teFileEntry\022\021\n\tblock_ids\030\001 \003(\003\022\n\n\002id\030\002 \001" +
-      "(\003\022\016\n\006length\030\003 \001(\003\022\022\n\nop_time_ms\030\004 \001(\003\022\027",
-      "\n\017ufs_fingerprint\030\005 \001(\t\"Y\n\017DeleteFileEnt" +
-      "ry\022\n\n\002id\030\001 \001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\nop_" +
-      "time_ms\030\003 \001(\003\022\023\n\013alluxioOnly\030\004 \001(\010\"-\n\025De" +
-      "leteMountPointEntry\022\024\n\014alluxio_path\030\001 \001(" +
-      "\t\"?\n\nAclActions\0221\n\007actions\030\001 \003(\0162 .allux" +
-      "io.proto.journal.AclAction\"\224\001\n\010AclEntry\022" +
-      "1\n\004type\030\001 \001(\0162#.alluxio.proto.journal.Ac" +
-      "lEntryType\022\017\n\007subject\030\002 \001(\t\0221\n\007actions\030\003" +
-      " \003(\0162 .alluxio.proto.journal.AclAction\022\021" +
-      "\n\tisDefault\030\004 \001(\010\"S\n\017NamedAclActions\022\014\n\004",
-      "name\030\001 \001(\t\0222\n\007actions\030\002 \001(\0132!.alluxio.pr" +
-      "oto.journal.AclActions\"\314\002\n\021AccessControl" +
-      "List\022\022\n\nowningUser\030\001 \001(\t\022\023\n\013owningGroup\030" +
-      "\002 \001(\t\022;\n\013userActions\030\003 \003(\0132&.alluxio.pro" +
-      "to.journal.NamedAclActions\022<\n\014groupActio" +
-      "ns\030\004 \003(\0132&.alluxio.proto.journal.NamedAc" +
-      "lActions\0226\n\013maskActions\030\005 \001(\0132!.alluxio." +
-      "proto.journal.AclActions\0227\n\014otherActions" +
-      "\030\006 \001(\0132!.alluxio.proto.journal.AclAction" +
-      "s\022\021\n\tisDefault\030\007 \001(\010\022\017\n\007isEmpty\030\010 \001(\010\"\313\003",
-      "\n\023InodeDirectoryEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tpar" +
-      "ent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistenc" +
-      "e_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creatio" +
-      "n_time_ms\030\006 \001(\003\022!\n\031last_modification_tim" +
-      "e_ms\030\007 \001(\003\022\r\n\005owner\030\010 \001(\t\022\r\n\005group\030\t \001(\t" +
-      "\022\014\n\004mode\030\n \001(\005\022\023\n\013mount_point\030\013 \001(\010\022\036\n\026d" +
-      "irect_children_loaded\030\014 \001(\010\022\013\n\003ttl\030\r \001(\003" +
-      "\022<\n\tttlAction\030\016 \001(\0162!.alluxio.proto.jour" +
-      "nal.PTtlAction:\006DELETE\0225\n\003acl\030\017 \001(\0132(.al" +
-      "luxio.proto.journal.AccessControlList\022<\n",
-      "\ndefaultAcl\030\020 \001(\0132(.alluxio.proto.journa" +
-      "l.AccessControlList\"O\n\036InodeDirectoryIdG" +
-      "eneratorEntry\022\024\n\014container_id\030\001 \001(\003\022\027\n\017s" +
-      "equence_number\030\002 \001(\003\"\343\004\n\016InodeFileEntry\022" +
-      "\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003" +
-      " \001(\t\022\031\n\021persistence_state\030\004 \001(\t\022\016\n\006pinne" +
-      "d\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001(\003\022!\n\031las" +
-      "t_modification_time_ms\030\007 \001(\003\022\030\n\020block_si" +
-      "ze_bytes\030\010 \001(\003\022\016\n\006length\030\t \001(\003\022\021\n\tcomple" +
-      "ted\030\n \001(\010\022\021\n\tcacheable\030\013 \001(\010\022\016\n\006blocks\030\014",
-      " \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n\005owner\030\016 \001(\t\022\r\n\005grou" +
-      "p\030\017 \001(\t\022\014\n\004mode\030\020 \001(\005\022\027\n\016persist_job_id\030" +
-      "\353\007 \001(\003\022\034\n\023replication_durable\030\355\007 \001(\005\022\030\n\017" +
-      "replication_max\030\351\007 \001(\005\022\030\n\017replication_mi" +
-      "n\030\352\007 \001(\005\022\026\n\rtemp_ufs_path\030\354\007 \001(\t\022\022\n\tencr" +
-      "ypted\030\356\007 \001(\010\022<\n\tttlAction\030\021 \001(\0162!.alluxi" +
-      "o.proto.journal.PTtlAction:\006DELETE\022\027\n\017uf" +
-      "s_fingerprint\030\022 \001(\t\0225\n\003acl\030\023 \001(\0132(.allux" +
-      "io.proto.journal.AccessControlList\"O\n\036In" +
-      "odeLastModificationTimeEntry\022\n\n\002id\030\001 \001(\003",
-      "\022!\n\031last_modification_time_ms\030\002 \001(\003\"#\n\025P" +
-      "ersistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020Pers" +
-      "istFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003" +
-      "\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFil" +
-      "eEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_bytes" +
-      "\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!" +
-      ".alluxio.proto.journal.PTtlAction:\006DELET" +
-      "E\"?\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path" +
-      "\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\247\001\n\013SetAclEnt" +
-      "ry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\0223\n\006ac",
-      "tion\030\003 \001(\0162#.alluxio.proto.journal.SetAc" +
-      "lAction\0220\n\007entries\030\004 \003(\0132\037.alluxio.proto" +
-      ".journal.AclEntry\022\021\n\trecursive\030\005 \001(\010\"\315\002\n" +
-      "\021SetAttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_tim" +
-      "e_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022" +
-      "\021\n\tpersisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005gro" +
-      "up\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlActio" +
-      "n\030\t \001(\0162!.alluxio.proto.journal.PTtlActi" +
-      "on:\006DELETE\022\030\n\017replication_max\030\353\007 \001(\005\022\030\n\017" +
-      "replication_min\030\354\007 \001(\005\022\025\n\014persistJobId\030\351",
-      "\007 \001(\003\022\024\n\013tempUfsPath\030\352\007 \001(\t\022\027\n\017ufs_finge" +
-      "rprint\030\n \001(\t\"b\n\022UpdateUfsModeEntry\022\017\n\007uf" +
-      "sPath\030\001 \001(\t\022;\n\007ufsMode\030\002 \001(\0162\036.alluxio.p" +
-      "roto.journal.UfsMode:\nREAD_WRITE*-\n\tAclA" +
-      "ction\022\010\n\004READ\020\000\022\t\n\005WRITE\020\001\022\013\n\007EXECUTE\020\002*" +
-      "a\n\014AclEntryType\022\t\n\005OWNER\020\000\022\016\n\nNAMED_USER" +
-      "\020\001\022\020\n\014OWNING_GROUP\020\002\022\017\n\013NAMED_GROUP\020\003\022\010\n" +
-      "\004MASK\020\004\022\t\n\005OTHER\020\005*\"\n\nPTtlAction\022\n\n\006DELE" +
-      "TE\020\000\022\010\n\004FREE\020\001*W\n\014SetAclAction\022\013\n\007REPLAC" +
-      "E\020\000\022\n\n\006MODIFY\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREMOVE_AL",
-      "L\020\003\022\022\n\016REMOVE_DEFAULT\020\004*7\n\007UfsMode\022\r\n\tNO" +
-      "_ACCESS\020\000\022\r\n\tREAD_ONLY\020\001\022\016\n\nREAD_WRITE\020\002"
+      "nal\032%security/delegation_token_proto.pro" +
+      "to\"-\n\017StringPairEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005va" +
+      "lue\030\002 \001(\t\"\254\001\n\022AddMountPointEntry\022\024\n\014allu" +
+      "xio_path\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022\020\n\010read" +
+      "Only\030\003 \001(\010\022:\n\nproperties\030\004 \003(\0132&.alluxio" +
+      ".proto.journal.StringPairEntry\022\016\n\006shared" +
+      "\030\005 \001(\010\022\020\n\010mount_id\030\006 \001(\003\"+\n\030AsyncPersist" +
+      "RequestEntry\022\017\n\007file_id\030\001 \001(\003\"o\n\021Complet" +
+      "eFileEntry\022\021\n\tblock_ids\030\001 \003(\003\022\n\n\002id\030\002 \001(",
+      "\003\022\016\n\006length\030\003 \001(\003\022\022\n\nop_time_ms\030\004 \001(\003\022\027\n" +
+      "\017ufs_fingerprint\030\005 \001(\t\"Y\n\017DeleteFileEntr" +
+      "y\022\n\n\002id\030\001 \001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\nop_t" +
+      "ime_ms\030\003 \001(\003\022\023\n\013alluxioOnly\030\004 \001(\010\"-\n\025Del" +
+      "eteMountPointEntry\022\024\n\014alluxio_path\030\001 \001(\t" +
+      "\"?\n\nAclActions\0221\n\007actions\030\001 \003(\0162 .alluxi" +
+      "o.proto.journal.AclAction\"\224\001\n\010AclEntry\0221" +
+      "\n\004type\030\001 \001(\0162#.alluxio.proto.journal.Acl" +
+      "EntryType\022\017\n\007subject\030\002 \001(\t\0221\n\007actions\030\003 " +
+      "\003(\0162 .alluxio.proto.journal.AclAction\022\021\n",
+      "\tisDefault\030\004 \001(\010\"S\n\017NamedAclActions\022\014\n\004n" +
+      "ame\030\001 \001(\t\0222\n\007actions\030\002 \001(\0132!.alluxio.pro" +
+      "to.journal.AclActions\"\314\002\n\021AccessControlL" +
+      "ist\022\022\n\nowningUser\030\001 \001(\t\022\023\n\013owningGroup\030\002" +
+      " \001(\t\022;\n\013userActions\030\003 \003(\0132&.alluxio.prot" +
+      "o.journal.NamedAclActions\022<\n\014groupAction" +
+      "s\030\004 \003(\0132&.alluxio.proto.journal.NamedAcl" +
+      "Actions\0226\n\013maskActions\030\005 \001(\0132!.alluxio.p" +
+      "roto.journal.AclActions\0227\n\014otherActions\030" +
+      "\006 \001(\0132!.alluxio.proto.journal.AclActions",
+      "\022\021\n\tisDefault\030\007 \001(\010\022\017\n\007isEmpty\030\010 \001(\010\"\313\003\n" +
+      "\023InodeDirectoryEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tpare" +
+      "nt_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence" +
+      "_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation" +
+      "_time_ms\030\006 \001(\003\022!\n\031last_modification_time" +
+      "_ms\030\007 \001(\003\022\r\n\005owner\030\010 \001(\t\022\r\n\005group\030\t \001(\t\022" +
+      "\014\n\004mode\030\n \001(\005\022\023\n\013mount_point\030\013 \001(\010\022\036\n\026di" +
+      "rect_children_loaded\030\014 \001(\010\022\013\n\003ttl\030\r \001(\003\022" +
+      "<\n\tttlAction\030\016 \001(\0162!.alluxio.proto.journ" +
+      "al.PTtlAction:\006DELETE\0225\n\003acl\030\017 \001(\0132(.all",
+      "uxio.proto.journal.AccessControlList\022<\n\n" +
+      "defaultAcl\030\020 \001(\0132(.alluxio.proto.journal" +
+      ".AccessControlList\"O\n\036InodeDirectoryIdGe" +
+      "neratorEntry\022\024\n\014container_id\030\001 \001(\003\022\027\n\017se" +
+      "quence_number\030\002 \001(\003\"\343\004\n\016InodeFileEntry\022\n" +
+      "\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 " +
+      "\001(\t\022\031\n\021persistence_state\030\004 \001(\t\022\016\n\006pinned" +
+      "\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001(\003\022!\n\031last" +
+      "_modification_time_ms\030\007 \001(\003\022\030\n\020block_siz" +
+      "e_bytes\030\010 \001(\003\022\016\n\006length\030\t \001(\003\022\021\n\tcomplet",
+      "ed\030\n \001(\010\022\021\n\tcacheable\030\013 \001(\010\022\016\n\006blocks\030\014 " +
+      "\003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n\005owner\030\016 \001(\t\022\r\n\005group" +
+      "\030\017 \001(\t\022\014\n\004mode\030\020 \001(\005\022\027\n\016persist_job_id\030\353" +
+      "\007 \001(\003\022\034\n\023replication_durable\030\355\007 \001(\005\022\030\n\017r" +
+      "eplication_max\030\351\007 \001(\005\022\030\n\017replication_min" +
+      "\030\352\007 \001(\005\022\026\n\rtemp_ufs_path\030\354\007 \001(\t\022\022\n\tencry" +
+      "pted\030\356\007 \001(\010\022<\n\tttlAction\030\021 \001(\0162!.alluxio" +
+      ".proto.journal.PTtlAction:\006DELETE\022\027\n\017ufs" +
+      "_fingerprint\030\022 \001(\t\0225\n\003acl\030\023 \001(\0132(.alluxi" +
+      "o.proto.journal.AccessControlList\"O\n\036Ino",
+      "deLastModificationTimeEntry\022\n\n\002id\030\001 \001(\003\022" +
+      "!\n\031last_modification_time_ms\030\002 \001(\003\"#\n\025Pe" +
+      "rsistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020Persi" +
+      "stFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003\022" +
+      "\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFile" +
+      "Entry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_bytes\030" +
+      "\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!." +
+      "alluxio.proto.journal.PTtlAction:\006DELETE" +
+      "\"?\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030" +
+      "\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\247\001\n\013SetAclEntr",
+      "y\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\0223\n\006act" +
+      "ion\030\003 \001(\0162#.alluxio.proto.journal.SetAcl" +
+      "Action\0220\n\007entries\030\004 \003(\0132\037.alluxio.proto." +
+      "journal.AclEntry\022\021\n\trecursive\030\005 \001(\010\"\315\002\n\021" +
+      "SetAttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time" +
+      "_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021" +
+      "\n\tpersisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005grou" +
+      "p\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlAction" +
+      "\030\t \001(\0162!.alluxio.proto.journal.PTtlActio" +
+      "n:\006DELETE\022\030\n\017replication_max\030\353\007 \001(\005\022\030\n\017r",
+      "eplication_min\030\354\007 \001(\005\022\025\n\014persistJobId\030\351\007" +
+      " \001(\003\022\024\n\013tempUfsPath\030\352\007 \001(\t\022\027\n\017ufs_finger" +
+      "print\030\n \001(\t\"b\n\022UpdateUfsModeEntry\022\017\n\007ufs" +
+      "Path\030\001 \001(\t\022;\n\007ufsMode\030\002 \001(\0162\036.alluxio.pr" +
+      "oto.journal.UfsMode:\nREAD_WRITE\"r\n\027GetDe" +
+      "legationTokenEntry\022C\n\010token_id\030\001 \001(\01321.a" +
+      "lluxio.proto.security.DelegationTokenIde" +
+      "ntifier\022\022\n\nrenew_time\030\002 \001(\003\"L\n\tMasterKey" +
+      "\022\016\n\006key_id\030\001 \001(\003\022\032\n\022expiration_time_ms\030\002" +
+      " \001(\003\022\023\n\013encoded_key\030\003 \001(\014\"a\n\032RemoveDeleg",
+      "ationTokenEntry\022C\n\010token_id\030\001 \001(\01321.allu" +
+      "xio.proto.security.DelegationTokenIdenti" +
+      "fier\"|\n\031RenewDelegationTokenEntry\022C\n\010tok" +
+      "en_id\030\001 \001(\01321.alluxio.proto.security.Del" +
+      "egationTokenIdentifier\022\032\n\022expiration_tim" +
+      "e_ms\030\002 \001(\003\"L\n\024UpdateMasterKeyEntry\0224\n\nma" +
+      "ster_key\030\001 \001(\0132 .alluxio.proto.journal.M" +
+      "asterKey*-\n\tAclAction\022\010\n\004READ\020\000\022\t\n\005WRITE" +
+      "\020\001\022\013\n\007EXECUTE\020\002*a\n\014AclEntryType\022\t\n\005OWNER" +
+      "\020\000\022\016\n\nNAMED_USER\020\001\022\020\n\014OWNING_GROUP\020\002\022\017\n\013",
+      "NAMED_GROUP\020\003\022\010\n\004MASK\020\004\022\t\n\005OTHER\020\005*\"\n\nPT" +
+      "tlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001*W\n\014SetAcl" +
+      "Action\022\013\n\007REPLACE\020\000\022\n\n\006MODIFY\020\001\022\n\n\006REMOV" +
+      "E\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016REMOVE_DEFAULT\020\004*" +
+      "7\n\007UfsMode\022\r\n\tNO_ACCESS\020\000\022\r\n\tREAD_ONLY\020\001" +
+      "\022\016\n\nREAD_WRITE\020\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -20996,12 +23826,43 @@ public final class File {
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_journal_UpdateUfsModeEntry_descriptor,
               new java.lang.String[] { "UfsPath", "UfsMode", });
+          internal_static_alluxio_proto_journal_GetDelegationTokenEntry_descriptor =
+            getDescriptor().getMessageTypes().get(21);
+          internal_static_alluxio_proto_journal_GetDelegationTokenEntry_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_journal_GetDelegationTokenEntry_descriptor,
+              new java.lang.String[] { "TokenId", "RenewTime", });
+          internal_static_alluxio_proto_journal_MasterKey_descriptor =
+            getDescriptor().getMessageTypes().get(22);
+          internal_static_alluxio_proto_journal_MasterKey_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_journal_MasterKey_descriptor,
+              new java.lang.String[] { "KeyId", "ExpirationTimeMs", "EncodedKey", });
+          internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_descriptor =
+            getDescriptor().getMessageTypes().get(23);
+          internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_journal_RemoveDelegationTokenEntry_descriptor,
+              new java.lang.String[] { "TokenId", });
+          internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_descriptor =
+            getDescriptor().getMessageTypes().get(24);
+          internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_journal_RenewDelegationTokenEntry_descriptor,
+              new java.lang.String[] { "TokenId", "ExpirationTimeMs", });
+          internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_descriptor =
+            getDescriptor().getMessageTypes().get(25);
+          internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_journal_UpdateMasterKeyEntry_descriptor,
+              new java.lang.String[] { "MasterKey", });
           return null;
         }
       };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
+          alluxio.proto.security.DelegationTokenProto.getDescriptor(),
         }, assigner);
   }
 

@@ -14,6 +14,7 @@ package alluxio.security;
 import java.security.Principal;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.security.auth.login.LoginException;
 
 /**
  * This class represents a user in Alluxio. It implements {@link java.security.Principal} in the
@@ -58,12 +59,22 @@ public final class User implements Principal {
         mName = alluxio.security.util.KerberosUtils.getKerberosServiceName();
         return;
       }
-      alluxio.security.util.KerberosName kerberosName =
-          alluxio.security.util.KerberosUtils.extractKerberosNameFromSubject(subject);
-      com.google.common.base.Preconditions.checkNotNull(kerberosName);
-      mName = kerberosName.getShortName();
+      // Obtains name from Kerberos principal in the subject if available.
+      if (!subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class).isEmpty()) {
+        alluxio.security.util.KerberosName kerberosName =
+            alluxio.security.util.KerberosUtils.extractKerberosNameFromSubject(subject);
+        com.google.common.base.Preconditions.checkNotNull(kerberosName);
+        mName = kerberosName.getShortName();
+        return;
+      }
+      // Obtains name from Alluxio user in the subject if available.
+      // This is available when delegation token is used.
+      mName = subject.getPrincipals(User.class).stream().findFirst().map(User::getName).orElse(null);
     } else {
       mName = null;
+    }
+    if (mName == null) {
+      throw new LoginException(String.format("Unable to retrieve user name from subject: %s.", subject));
     }
   }
   // ALLUXIO CS END
