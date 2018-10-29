@@ -11,6 +11,8 @@
 
 package alluxio.master.callhome;
 
+import static java.util.stream.Collectors.toList;
+
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
@@ -23,6 +25,8 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.wire.TieredIdentity;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
+
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.IOException;
 import java.net.NetworkInterface;
@@ -62,10 +66,15 @@ public final class CallHomeUtils {
     info.setFaultTolerant(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
     info.setWorkerCount(blockMaster.getWorkerCount());
     List<WorkerInfo> workerInfos = blockMaster.getWorkerInfoList();
-    info.setWorkerInfos(workerInfos.toArray(new WorkerInfo[workerInfos.size()]));
+    // Make a copy
+    info.setWorkerInfos(workerInfos.stream().map(workerInfo -> SerializationUtils.clone(workerInfo))
+        .collect(toList()).toArray(new WorkerInfo[workerInfos.size()]));
     info.setLostWorkerCount(blockMaster.getLostWorkerCount());
-    List<WorkerInfo> lostWorkerInfos = blockMaster.getWorkerInfoList();
-    info.setWorkerInfos(lostWorkerInfos.toArray(new WorkerInfo[lostWorkerInfos.size()]));
+    List<WorkerInfo> lostWorkerInfos = blockMaster.getLostWorkersInfoList();
+    // Make a copy
+    info.setLostWorkerInfos(
+        lostWorkerInfos.stream().map(lostWorkerInfo -> SerializationUtils.clone(lostWorkerInfo))
+            .collect(toList()).toArray(new WorkerInfo[lostWorkerInfos.size()]));
     info.setStartTime(masterProcess.getStartTimeMs());
     info.setUptime(masterProcess.getUptimeMs());
     info.setClusterVersion(RuntimeConstants.VERSION);
