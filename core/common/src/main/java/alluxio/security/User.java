@@ -60,7 +60,8 @@ public final class User implements Principal {
         return;
       }
       // Obtains name from Kerberos principal in the subject if available.
-      if (!subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class).isEmpty()) {
+      if (!subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class).isEmpty()
+          || Boolean.getBoolean("sun.security.jgss.native")) {
         alluxio.security.util.KerberosName kerberosName =
             alluxio.security.util.KerberosUtils.extractKerberosNameFromSubject(subject);
         com.google.common.base.Preconditions.checkNotNull(kerberosName);
