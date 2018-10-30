@@ -264,7 +264,6 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
       freeSpace = FormatUtils.getSizeFromBytes(freeBytes);
     }
     request.setAttribute("diskFreeCapacity", freeSpace);
-
     // ALLUXIO CS ADD
     if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
       alluxio.master.license.LicenseMaster licenseMaster =
