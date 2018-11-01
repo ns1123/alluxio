@@ -48,7 +48,7 @@ public abstract class MasterKeyManager implements Closeable {
   protected long mMasterKeyId = 0L;
 
   protected ScheduledExecutorService mExecutor;
-  private ScheduledFuture mKeyRotationFuture;
+  protected ScheduledFuture mKeyRotationFuture;
 
   /**
    * Creates a new {@link MasterKeyManager}.

@@ -333,4 +333,40 @@ public class DelegationTokenManagerTest {
       Assert.assertFalse(Arrays.equals(oldSecretKey, newSecretKey));
     }
   }
+
+  class TestDelegationTokenManager extends DelegationTokenManager {
+    public TestDelegationTokenManager(long keyUpdateIntervalMs, long maxLifetimeMs, long renewIntervalMs) {
+      super(keyUpdateIntervalMs, maxLifetimeMs, renewIntervalMs);
+    }
+
+    public void stopRotation() {
+      mKeyRotationFuture.cancel(true);
+    }
+
+    public void rotate() {
+      super.maybeRotateAndDistributeKey();
+    }
+  }
+
+  @Test
+  public void masterKeyExpiration() {
+    try (TestDelegationTokenManager manager = new TestDelegationTokenManager(
+        KEY_UPDATE_INTERVAL_MS, TOKEN_LONG_MAX_LIFETIME_MS, TOKEN_RENEW_TIME_MS) {
+    }) {
+      manager.startThreadPool();
+      manager.stopRotation();
+      long curKeyId = manager.getMasterKey().getKeyId();
+      CommonUtils.sleepMs(KEY_UPDATE_INTERVAL_MS + 50L);
+      DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy");
+      // retrieves a delegation token after the key rotation interval passed but before the actual rotation
+      Token<DelegationTokenIdentifier> token = manager.getDelegationToken(id);
+      Assert.assertEquals(curKeyId, token.getId().getMasterKeyId());
+      CommonUtils.sleepMs(50L);
+      // simulates a late rotation
+      manager.rotate();
+      // verifies that the key expiration time is updated to be later than the token expiration time
+      Assert.assertTrue(
+          manager.getMasterKeys().get(curKeyId).getExpirationTimeMs() >= token.getId().getMaxDate());
+    }
+  }
 }

@@ -247,6 +247,9 @@ public final class KerberosUtils {
   public static Token<DelegationTokenIdentifier> getDelegationToken(Subject subject,
       String addr) {
     LOG.debug("getting delegation tokens for subject {}", subject);
+    if (subject == null) {
+      return null;
+    }
     synchronized (subject) {
       Set<Credentials> allCredentials = subject.getPrivateCredentials(Credentials.class);
       if (allCredentials.isEmpty()) {

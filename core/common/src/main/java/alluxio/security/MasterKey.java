@@ -35,7 +35,7 @@ public final class MasterKey {
   /** Key id for versioning. */
   private final long mKeyId;
   /** Key expiration time in millisecond. */
-  private final long mExpirationTimeMs;
+  private long mExpirationTimeMs;
   /** The encoded secret key in bytes. */
   private final byte[] mEncodedKey;
 
@@ -158,5 +158,13 @@ public final class MasterKey {
       Throwables.propagate(e);
     }
     return null;
+  }
+
+  /**
+   * Sets the expiration time.
+   * @param expirationTimeMs the expiration epoch time
+   */
+  public void setExpirationTimeMs(long expirationTimeMs) {
+    mExpirationTimeMs = expirationTimeMs;
   }
 }

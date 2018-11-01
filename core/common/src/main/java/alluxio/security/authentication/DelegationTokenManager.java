@@ -85,8 +85,9 @@ public class DelegationTokenManager extends MasterKeyManager {
   public Token<DelegationTokenIdentifier> getDelegationToken(DelegationTokenIdentifier id) {
     Preconditions.checkNotNull(id, "id");
     Preconditions.checkState(isRunning());
+    long issueDate = CommonUtils.getCurrentMs();
     MasterKey key = Preconditions.checkNotNull(mMasterKey, "mMasterKey");
-    id.setIssueDate(CommonUtils.getCurrentMs());
+    id.setIssueDate(issueDate);
     id.setMaxDate(id.getIssueDate() + mMaxLifetime);
     id.setMasterKeyId(key.getKeyId());
     // sequence number is unique given getNextTokenSequenceNumber() is synchronous
@@ -143,7 +144,8 @@ public class DelegationTokenManager extends MasterKeyManager {
     }
     MasterKey masterKey = mMasterKeys.get(id.getMasterKeyId());
     if (masterKey == null) {
-      throw new IllegalStateException(String.format("unable to find master key %d", masterKey.getKeyId()));
+      LOG.warn("Cannot find master key for adding token {}.", id);
+      return;
     }
     Token<DelegationTokenIdentifier> token = new Token<>(id, masterKey);
     mTokens.put(id, new TokenInfo(token, renewTime));
@@ -284,7 +286,15 @@ public class DelegationTokenManager extends MasterKeyManager {
       mMasterKeys.put(key.getKeyId(), key);
       LOG.debug("Master key {} is created.", key.getKeyId());
       mEventListeners.forEach(listener -> listener.onMasterKeyUpdated(key));
+      MasterKey retiringKey = mMasterKey;
       mMasterKey = key;
+      if (retiringKey != null) {
+        // Updates the expiration time of retiring key now that the key is no longer active.
+        // This makes sure that no tokens created with the key outlive the key.
+        retiringKey.setExpirationTimeMs(CommonUtils.getCurrentMs() + mMaxLifetime);
+        // re-add the retiring key in case it is already removed.
+        mMasterKeys.put(retiringKey.getKeyId(), retiringKey);
+      }
     } catch (NoSuchAlgorithmException | InvalidKeyException e) {
       Throwables.propagate(e);
     }
