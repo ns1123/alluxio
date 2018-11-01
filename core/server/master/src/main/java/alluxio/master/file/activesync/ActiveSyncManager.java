@@ -104,10 +104,12 @@ public class ActiveSyncManager implements JournalEntryIterable {
     for (long mountId: mFilterMap.keySet()) {
       launchPollingThread(mountId, executorService);
     }
-    executorService.submit(
-        () -> mSyncPathList.parallelStream().forEach(
-            syncPoint -> mFileSystemMaster.batchSyncMetadata(syncPoint, null))
-    );
+    if (Configuration.getBoolean(PropertyKey.MASTER_ACTIVE_UFS_SYNC_INITIAL_SYNC)) {
+      executorService.submit(
+          () -> mSyncPathList.parallelStream().forEach(
+              syncPoint -> mFileSystemMaster.batchSyncMetadata(syncPoint, null))
+      );
+    }
   }
 
   private void launchPollingThread(long mountId, ExecutorService executorService) {
@@ -136,14 +138,16 @@ public class ActiveSyncManager implements JournalEntryIterable {
       long mountId = resolution.getMountId();
       launchPollingThread(mountId, executorService);
       // Initial sync
-      mFileSystemMaster.batchSyncMetadata(syncPoint, null);
+      if (Configuration.getBoolean(PropertyKey.MASTER_ACTIVE_UFS_SYNC_INITIAL_SYNC)) {
+        mFileSystemMaster.batchSyncMetadata(syncPoint, null);
+      }
       return true;
     }
     return false;
   }
 
   private boolean startSyncInternal(AlluxioURI syncPoint) throws InvalidPathException {
-    LOG.info("adding syncPoint {}", syncPoint.getPath());
+    LOG.debug("adding syncPoint {}", syncPoint.getPath());
     if (!isActivelySynced(syncPoint)) {
       MountTable.Resolution resolution = mMountTable.resolve(syncPoint);
       long mountId = resolution.getMountId();
@@ -187,12 +191,9 @@ public class ActiveSyncManager implements JournalEntryIterable {
    * @return true if stop sync successfull
    */
   public boolean stopSync(AlluxioURI syncPoint) throws InvalidPathException {
-    LOG.info("stop syncPoint {}", syncPoint.getPath());
-    for (AlluxioURI uri : mSyncPathList) {
-      LOG.info("existing syncpath {}", uri.getPath());
-    }
+    LOG.debug("stop syncPoint {}", syncPoint.getPath());
     if (!mSyncPathList.contains(syncPoint)) {
-      LOG.info("syncPoint not found {}", syncPoint.getPath());
+      LOG.debug("syncPoint not found {}", syncPoint.getPath());
       return false;
     }
     MountTable.Resolution resolution = mMountTable.resolve(syncPoint);
