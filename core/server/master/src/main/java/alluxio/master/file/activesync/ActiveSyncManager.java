@@ -104,10 +104,12 @@ public class ActiveSyncManager implements JournalEntryIterable {
     for (long mountId: mFilterMap.keySet()) {
       launchPollingThread(mountId, executorService);
     }
-    executorService.submit(
-        () -> mSyncPathList.parallelStream().forEach(
-            syncPoint -> mFileSystemMaster.batchSyncMetadata(syncPoint, null))
-    );
+    if (Configuration.getBoolean(PropertyKey.MASTER_ACTIVE_UFS_SYNC_INITIAL_SYNC)) {
+      executorService.submit(
+          () -> mSyncPathList.parallelStream().forEach(
+              syncPoint -> mFileSystemMaster.batchSyncMetadata(syncPoint, null))
+      );
+    }
   }
 
   private void launchPollingThread(long mountId, ExecutorService executorService) {
@@ -136,7 +138,9 @@ public class ActiveSyncManager implements JournalEntryIterable {
       long mountId = resolution.getMountId();
       launchPollingThread(mountId, executorService);
       // Initial sync
-      mFileSystemMaster.batchSyncMetadata(syncPoint, null);
+      if (Configuration.getBoolean(PropertyKey.MASTER_ACTIVE_UFS_SYNC_INITIAL_SYNC)) {
+        mFileSystemMaster.batchSyncMetadata(syncPoint, null);
+      }
       return true;
     }
     return false;
