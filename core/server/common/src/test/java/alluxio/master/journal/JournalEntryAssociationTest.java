@@ -18,6 +18,7 @@ import alluxio.proto.journal.Block.BlockContainerIdGeneratorEntry;
 import alluxio.proto.journal.Block.BlockInfoEntry;
 import alluxio.proto.journal.Block.DeleteBlockEntry;
 import alluxio.proto.journal.File.AddMountPointEntry;
+import alluxio.proto.journal.File.AddSyncPointEntry;
 import alluxio.proto.journal.File.AsyncPersistRequestEntry;
 import alluxio.proto.journal.File.CompleteFileEntry;
 import alluxio.proto.journal.File.DeleteFileEntry;
@@ -28,6 +29,7 @@ import alluxio.proto.journal.File.InodeFileEntry;
 import alluxio.proto.journal.File.InodeLastModificationTimeEntry;
 import alluxio.proto.journal.File.PersistDirectoryEntry;
 import alluxio.proto.journal.File.ReinitializeFileEntry;
+import alluxio.proto.journal.File.RemoveSyncPointEntry;
 import alluxio.proto.journal.File.RenameEntry;
 import alluxio.proto.journal.File.SetAclEntry;
 import alluxio.proto.journal.File.SetAttributeEntry;
@@ -73,6 +75,7 @@ public class JournalEntryAssociationTest {
       JournalEntry.newBuilder().setStartJob(alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance()).build(),
       // ALLUXIO CS END
       JournalEntry.newBuilder().setAddMountPoint(AddMountPointEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setAddSyncPoint(AddSyncPointEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setAsyncPersistRequest(AsyncPersistRequestEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setBlockContainerIdGenerator(BlockContainerIdGeneratorEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setBlockInfo(BlockInfoEntry.getDefaultInstance()).build(),
@@ -94,6 +97,7 @@ public class JournalEntryAssociationTest {
       JournalEntry.newBuilder().setMergeStore(MergeStoreEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setPersistDirectory(PersistDirectoryEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setReinitializeFile(ReinitializeFileEntry.getDefaultInstance()).build(),
+      JournalEntry.newBuilder().setRemoveSyncPoint(RemoveSyncPointEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setRename(RenameEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setRenameStore(RenameStoreEntry.getDefaultInstance()).build(),
       JournalEntry.newBuilder().setSetAcl(SetAclEntry.getDefaultInstance()).build(),

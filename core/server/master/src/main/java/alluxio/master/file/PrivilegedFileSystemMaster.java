@@ -68,6 +68,7 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.thrift.TProcessor;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -437,6 +438,28 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   // ALLUXIO CS END
+  @Override
+  public List<String> getSyncPathList() throws UnavailableException, AccessControlException {
+    return mFileSystemMaster.getSyncPathList();
+  }
+
+  @Override
+  public void startSync(AlluxioURI alluxioURI) throws UnavailableException, InvalidPathException,
+      AccessControlException {
+    mFileSystemMaster.startSync(alluxioURI);
+  }
+
+  @Override
+  public void stopSync(AlluxioURI alluxioURI) throws UnavailableException, InvalidPathException,
+      AccessControlException {
+    mFileSystemMaster.stopSync(alluxioURI);
+  }
+
+  @Override
+  public boolean batchSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles) {
+    return mFileSystemMaster.batchSyncMetadata(path, changedFiles);
+  }
+
   @Override
   public void updateUfsMode(AlluxioURI ufsPath, UfsMode ufsMode) throws InvalidPathException,
       InvalidArgumentException, UnavailableException, AccessControlException {

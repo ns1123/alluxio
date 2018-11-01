@@ -13,6 +13,7 @@ package alluxio.underfs.fork;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
+import alluxio.SyncInfo;
 import alluxio.security.authorization.AccessControlList;
 import alluxio.security.authorization.AclEntry;
 import alluxio.security.authorization.DefaultAccessControlList;
@@ -53,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -854,6 +856,41 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     for (Pair<String, UnderFileSystem> entry : mUnderFileSystems.values()) {
       result.set(result.get() && entry.getValue().supportsFlush());
     }
+    return result.get();
+  }
+
+  @Override
+  public boolean supportsActiveSync() {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    for (Pair<String, UnderFileSystem> entry : mUnderFileSystems.values()) {
+      result.set(result.get() && entry.getValue().supportsActiveSync());
+    }
+    return result.get();
+  }
+
+  @Override
+  public SyncInfo getActiveSyncInfo(List<AlluxioURI> syncPointList) throws IOException {
+    AtomicReference<SyncInfo> result = new AtomicReference<>();
+    ForkUnderFileSystemUtils.invokeOne(
+        new Function<Pair<Pair<String, UnderFileSystem>,
+            AtomicReference<SyncInfo>>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              Pair<Pair<String, UnderFileSystem>, AtomicReference<SyncInfo>>
+                  arg) {
+              try {
+                Pair<String, UnderFileSystem> entry = arg.getKey();
+                AtomicReference<SyncInfo> result = arg.getValue();
+                result.set(entry.getValue().getActiveSyncInfo(syncPointList.stream()
+                    .map(path -> new AlluxioURI(convert(entry.getKey(), path.getPath())))
+                    .collect(Collectors.toList())));
+              } catch (IOException e) {
+                return e;
+              }
+              return null;
+          }
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.values(), result));
     return result.get();
   }
 
