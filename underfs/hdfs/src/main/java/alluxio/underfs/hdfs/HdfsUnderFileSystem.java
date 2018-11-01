@@ -50,7 +50,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.hdfs.client.HdfsAdmin;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
@@ -105,8 +104,6 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // ALLUXIO CS ADD
   private final boolean mIsHdfsKerberized;
   // ALLUXIO CS END
-
-  private HdfsAdmin mHdfsAdmin;
 
   private HdfsActiveSyncProvider mHdfsActiveSyncer;
 
@@ -232,9 +229,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     HdfsActiveSyncProvider hdfsActiveSyncProvider = new NoopHdfsActiveSyncProvider();
 
     try {
-      Constructor c = Class.forName(HDFS_ACTIVESYNC_PROVIDER_CLASS).getConstructor(HdfsAdmin.class);
-      mHdfsAdmin = new HdfsAdmin(URI.create(ufsUri.toString()), hdfsConf);
-      Object o = c.newInstance(mHdfsAdmin);
+      Constructor c = Class.forName(HDFS_ACTIVESYNC_PROVIDER_CLASS)
+          .getConstructor(URI.class, Configuration.class);
+      Object o = c.newInstance(URI.create(ufsUri.toString()), hdfsConf);
       if (o instanceof HdfsActiveSyncProvider) {
         hdfsActiveSyncProvider = (HdfsActiveSyncProvider) o;
       } else {
