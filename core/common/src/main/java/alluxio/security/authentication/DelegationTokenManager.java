@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -347,6 +348,24 @@ public class DelegationTokenManager extends MasterKeyManager {
   }
 
   /**
+   * Gets the map of delegation tokens.
+   *
+   * @return map of delegation token information
+   */
+  public Map<DelegationTokenIdentifier, TokenInfo> getTokens() {
+    return ImmutableMap.copyOf(mTokens);
+  }
+
+  /**
+   * Gets the map of master keys.
+   *
+   * @return map of master keys
+   */
+  public Map<Long, MasterKey> getMasterKeys() {
+    return ImmutableMap.copyOf(mMasterKeys);
+  }
+
+  /**
    * A listener for {@link DelegationTokenManager} events.
    */
   public interface EventListener {
@@ -370,10 +389,15 @@ public class DelegationTokenManager extends MasterKeyManager {
   /**
    * Private information of a token.
    */
-  private class TokenInfo {
+  public class TokenInfo {
     private final byte[] mPassword;
     private final long mRenewDate;
 
+    /**
+     * Creates a new token info.
+     * @param token the delegation token
+     * @param renewDate the epoch time to renew the token
+     */
     public TokenInfo(Token<DelegationTokenIdentifier> token, long renewDate) {
       mPassword = token.getPassword();
       mRenewDate = renewDate;

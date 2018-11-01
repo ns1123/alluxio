@@ -411,6 +411,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   /** The manager for delegation tokens. **/
   private alluxio.security.authentication.DelegationTokenManager mDelegationTokenManager = null;
+  private final DelegationTokenManagerEventListener mDelegationTokenEventListener;
 
   // ALLUXIO CS END
   /**
@@ -481,7 +482,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     mDelegationTokenManager = masterContext.getDelegationTokenManager();
-    mDelegationTokenManager.registerEventListener(new DelegationTokenManagerEventListener());
+    mDelegationTokenEventListener = new DelegationTokenManagerEventListener();
+    mDelegationTokenManager.registerEventListener(mDelegationTokenEventListener);
     // ALLUXIO CS END
     mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
     mUfsBlockLocationCache = UfsBlockLocationCache.Factory.create(mMountTable);
@@ -703,6 +705,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         // The mount table should be written to the checkpoint after the inodes are written, so that
         // when replaying the checkpoint, the inodes exist before mount entries. Replaying a mount
         // entry traverses the inode tree.
+        // ALLUXIO CS ADD
+        mDelegationTokenEventListener.getJournalEntryIterator(),
+        // ALLUXIO CS END
         mMountTable.getJournalEntryIterator(),
         mUfsManager.getJournalEntryIterator(),
         mSyncManager.getJournalEntryIterator()
@@ -4593,7 +4598,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
 
   private class DelegationTokenManagerEventListener
-      implements alluxio.security.authentication.DelegationTokenManager.EventListener {
+      implements alluxio.security.authentication.DelegationTokenManager.EventListener,
+      alluxio.master.journal.JournalEntryIterable {
     @Override
     public void onMasterKeyUpdated(alluxio.security.MasterKey key) {
       try (JournalContext context = createJournalContext()) {
@@ -4619,6 +4625,40 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       } catch (UnavailableException e) {
         LOG.error("Failed to journal delegation token removal", e);
       }
+    }
+
+    @Override
+    public Iterator<JournalEntry> getJournalEntryIterator() {
+      return Iterators.concat(
+          getJournalEntryIteratorFor(mDelegationTokenManager.getMasterKeys().entrySet().iterator(),
+              entry -> JournalEntry.newBuilder()
+                  .setUpdateMasterKey(File.UpdateMasterKeyEntry.newBuilder()
+                    .setMasterKey(File.MasterKey.newBuilder()
+                        .setKeyId(entry.getValue().getKeyId())
+                        .setExpirationTimeMs(entry.getValue().getExpirationTimeMs())
+                        .setEncodedKey(ProtoUtils.copyFrom(entry.getValue().getEncodedKey()))))
+              .build()),
+          getJournalEntryIteratorFor(mDelegationTokenManager.getTokens().entrySet().iterator(),
+              entry -> JournalEntry.newBuilder()
+                  .setGetDelegationToken(File.GetDelegationTokenEntry.newBuilder()
+                      .setTokenId(entry.getKey().toProto())
+                      .setRenewTime(entry.getValue().getRenewDate()))
+                  .build()));
+    }
+
+    public <T> Iterator<JournalEntry> getJournalEntryIteratorFor(Iterator<T> iterator,
+        java.util.function.Function<T, JournalEntry> entryFunc) {
+      return new Iterator<JournalEntry>() {
+        @Override
+        public boolean hasNext() {
+          return iterator.hasNext();
+        }
+
+        @Override
+        public JournalEntry next() {
+          return entryFunc.apply(iterator.next());
+        }
+      };
     }
   }
 
