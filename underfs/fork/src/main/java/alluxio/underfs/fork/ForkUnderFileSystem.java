@@ -54,7 +54,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -869,7 +868,25 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
-  public SyncInfo getActiveSyncInfo(List<AlluxioURI> syncPointList) throws IOException {
+  public boolean startActiveSyncPolling(long txId) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    for (Pair<String, UnderFileSystem> entry : mUnderFileSystems.values()) {
+      result.set(result.get() && entry.getValue().startActiveSyncPolling(txId));
+    }
+    return result.get();
+  }
+
+  @Override
+  public boolean stopActiveSyncPolling() throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    for (Pair<String, UnderFileSystem> entry : mUnderFileSystems.values()) {
+      result.set(result.get() && entry.getValue().stopActiveSyncPolling());
+    }
+    return result.get();
+  }
+
+  @Override
+  public SyncInfo getActiveSyncInfo() throws IOException {
     AtomicReference<SyncInfo> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
         new Function<Pair<Pair<String, UnderFileSystem>,
@@ -882,9 +899,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
               try {
                 Pair<String, UnderFileSystem> entry = arg.getKey();
                 AtomicReference<SyncInfo> result = arg.getValue();
-                result.set(entry.getValue().getActiveSyncInfo(syncPointList.stream()
-                    .map(path -> new AlluxioURI(convert(entry.getKey(), path.getPath())))
-                    .collect(Collectors.toList())));
+                result.set(entry.getValue().getActiveSyncInfo());
               } catch (IOException e) {
                 return e;
               }
@@ -892,6 +907,40 @@ public class ForkUnderFileSystem implements UnderFileSystem {
           }
         }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.values(), result));
     return result.get();
+  }
+
+  @Override
+  public void startSync(AlluxioURI uri) throws IOException {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+        new Function<Pair<String, UnderFileSystem>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Pair<String, UnderFileSystem> arg) {
+            try {
+              arg.getValue().startSync(uri);
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.values());
+  }
+
+  @Override
+  public void stopSync(AlluxioURI uri) throws IOException {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+        new Function<Pair<String, UnderFileSystem>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Pair<String, UnderFileSystem> arg) {
+            try {
+              arg.getValue().stopSync(uri);
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.values());
   }
 
   private String convert(String base, String path) {

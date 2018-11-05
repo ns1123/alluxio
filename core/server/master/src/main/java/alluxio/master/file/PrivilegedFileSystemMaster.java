@@ -444,20 +444,25 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void startSync(AlluxioURI alluxioURI) throws UnavailableException, InvalidPathException,
+  public void startSync(AlluxioURI alluxioURI) throws IOException, InvalidPathException,
       AccessControlException {
     mFileSystemMaster.startSync(alluxioURI);
   }
 
   @Override
-  public void stopSync(AlluxioURI alluxioURI) throws UnavailableException, InvalidPathException,
+  public void stopSync(AlluxioURI alluxioURI) throws IOException, InvalidPathException,
       AccessControlException {
     mFileSystemMaster.stopSync(alluxioURI);
   }
 
   @Override
-  public boolean batchSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles) {
-    return mFileSystemMaster.batchSyncMetadata(path, changedFiles);
+  public boolean activeSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles) {
+    return mFileSystemMaster.activeSyncMetadata(path, changedFiles);
+  }
+
+  @Override
+  public boolean recordActiveSyncTxid(long txId, long mountId) {
+    return mFileSystemMaster.recordActiveSyncTxid(txId, mountId);
   }
 
   @Override

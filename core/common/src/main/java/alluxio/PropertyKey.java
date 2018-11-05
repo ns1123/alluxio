@@ -1447,6 +1447,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
+  public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_BATCH_INTERVAL =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_BATCH_INTERVAL)
+          .setAlias(new String[]{"alluxio.master.activesync.batchinterval.ms"})
+          .setDefaultValue("1sec")
+          .setDescription("Time interval to batch incoming events for active syncing UFS")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
   public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_MAX_AGE =
       new Builder(Name.MASTER_ACTIVE_UFS_SYNC_MAX_AGE)
           .setDefaultValue("10")
@@ -4009,6 +4017,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.tieredstore.global.levels";
     public static final String MASTER_TTL_CHECKER_INTERVAL_MS =
         "alluxio.master.ttl.checker.interval";
+    public static final String MASTER_ACTIVE_UFS_SYNC_BATCH_INTERVAL =
+        "alluxio.master.activesync.batchinterval";
     public static final String MASTER_ACTIVE_UFS_SYNC_INTERVAL =
         "alluxio.master.activesync.interval";
     public static final String MASTER_ACTIVE_UFS_SYNC_MAX_ACTIVITY =
