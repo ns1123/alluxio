@@ -149,7 +149,7 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
     Credentials creds = new Credentials();
     boolean isConnected = true;
     try {
-      URI uri = new URI(Constants.HEADER + NetworkAddressUtils.getLocalHostName());
+      URI uri = new URI(Constants.HEADER + "alluxio_service/");
       alluxio.client.file.FileSystem fs = mMultiMasterLocalAlluxioCluster.getClient();
       org.apache.hadoop.fs.FileSystem hdfs = new alluxio.hadoop.FileSystem(fs);
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();

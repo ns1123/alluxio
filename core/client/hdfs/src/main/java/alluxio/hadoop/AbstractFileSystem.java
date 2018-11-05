@@ -813,6 +813,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
 
   // ALLUXIO CS ADD
   @Override
+  public String getCanonicalServiceName() {
+    return buildTokenService(getUri());
+  }
+
+  @Override
   public org.apache.hadoop.security.token.Token<?>[] addDelegationTokens(
       final String renewer, org.apache.hadoop.security.Credentials credentials) throws IOException {
     LOG.debug("addDelegationTokens(renewer={})", renewer);

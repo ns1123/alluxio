@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 /**
  * Renewer for Alluxio delegation tokens.
@@ -82,6 +83,7 @@ public class AlluxioDelegationTokenRenewer extends TokenRenewer {
     String serviceName = token.getService().toString();
     String authority = serviceName;
     if (serviceName.startsWith(Constants.HEADER) || serviceName.startsWith(Constants.HEADER_FT)) {
+      HadoopConfigurationUtils.mergeHadoopConfiguration(conf, alluxio.Configuration.global());
       if (!ConfigurationUtils.masterHostConfigured()) {
         // The token is for Alluxio in HA mode but we don't have enough information to determine
         // master address.
@@ -97,7 +99,9 @@ public class AlluxioDelegationTokenRenewer extends TokenRenewer {
     }
     try {
       FileSystem fs = new FileSystem();
-      fs.initialize(new URI(Constants.SCHEME, authority, null, null, null), conf);
+      // If no authority is given (e.g. "alluxio:///"), add a trailing slash so URI parsing does not
+      // panic on incomplete URI like "alluxio://".
+      fs.initialize(new URI(Constants.HEADER + Objects.toString(authority, "/")), conf);
       return fs;
     } catch (URISyntaxException e) {
       throw new IOException(String.format("Invalid service authority from delegation token %s",

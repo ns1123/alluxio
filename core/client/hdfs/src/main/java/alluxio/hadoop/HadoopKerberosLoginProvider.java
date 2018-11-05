@@ -54,14 +54,18 @@ public class HadoopKerberosLoginProvider implements KerberosLoginProvider {
     Subject subject = null;
     UserGroupInformation ugi = null;
     try {
-      ugi = UserGroupInformation.getLoginUser();
-      if (hasKerberosCredentials()) {
-        subject = ugi.doAs(
-            (PrivilegedExceptionAction<Subject>) () -> {
-              AccessControlContext context =
-                  AccessController.getContext();
-              return Subject.getSubject(context);
-            });
+      // Checks current user for delegation tokens. Delegation tokens are always stored in current user.
+      ugi = UserGroupInformation.getCurrentUser();
+      if (hasAlluxioDelegationTokens(ugi)) {
+        subject = getSubjectFromUGI(ugi);
+      }
+      if (subject == null) {
+        // Checks login user for Kerberos credentials. If Hadoop is authenticated using Kerberos,
+        // the credentials are stored in login user.
+        ugi = UserGroupInformation.getLoginUser();
+        if (ugi.hasKerberosCredentials()) {
+          subject = getSubjectFromUGI(ugi);
+        }
       }
     } catch (Exception e) {
       LOG.error("Exception occurred while login with Hadoop user: ", e);
@@ -101,13 +105,37 @@ public class HadoopKerberosLoginProvider implements KerberosLoginProvider {
   @Override
   public boolean hasKerberosCredentials() {
     try {
-      UserGroupInformation ugi = UserGroupInformation.getLoginUser();
-      boolean hasTokens = hasAlluxioDelegationTokens(ugi);
-      return ugi.hasKerberosCredentials() || hasTokens;
+      UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
+      boolean hasTokens = hasAlluxioDelegationTokens(currentUser);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("checking Kerberos credentials - current user: {}", currentUser.toString());
+        LOG.debug("current user tokens: {}", Arrays.toString(currentUser.getTokens().toArray()));
+        LOG.debug("current user has Alluxio tokens: {}", hasTokens);
+      }
+      if (hasTokens) {
+        // avoids additional login if we already have delegation tokens to login
+        return true;
+      }
+      UserGroupInformation loginUser = UserGroupInformation.getLoginUser();
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("checking Kerberos credentials - login user: {}", loginUser.toString());
+        LOG.debug("login user UGI tokens: {}", Arrays.toString(loginUser.getTokens().toArray()));
+        LOG.debug("login user has Kerberos Credentials: {}", loginUser.hasKerberosCredentials());
+      }
+      return loginUser.hasKerberosCredentials();
     } catch (IOException e) {
       LOG.debug("could not log in using UserGroupInformation {}", e.getMessage());
       return false;
     }
+  }
+
+  private Subject getSubjectFromUGI(UserGroupInformation ugi) throws IOException, InterruptedException {
+    return ugi.doAs(
+        (PrivilegedExceptionAction<Subject>) () -> {
+          AccessControlContext context =
+              AccessController.getContext();
+          return Subject.getSubject(context);
+        });
   }
 
   private static boolean hasAlluxioDelegationTokens(UserGroupInformation ugi) {
