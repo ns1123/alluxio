@@ -74,6 +74,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * File system master that checks privileges.
@@ -456,8 +457,9 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public boolean activeSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles) {
-    return mFileSystemMaster.activeSyncMetadata(path, changedFiles);
+  public boolean activeSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles,
+      ExecutorService executorService) {
+    return mFileSystemMaster.activeSyncMetadata(path, changedFiles, executorService);
   }
 
   @Override
