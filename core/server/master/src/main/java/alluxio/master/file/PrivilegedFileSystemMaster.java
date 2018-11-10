@@ -17,6 +17,7 @@ import alluxio.Server;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockInfoException;
+import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.exception.FileAlreadyCompletedException;
 import alluxio.exception.FileAlreadyExistsException;
@@ -446,7 +447,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public void startSync(AlluxioURI alluxioURI) throws IOException, InvalidPathException,
-      AccessControlException {
+      AccessControlException, ConnectionFailedException {
     mFileSystemMaster.startSync(alluxioURI);
   }
 
@@ -457,9 +458,9 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public boolean activeSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles,
-      ExecutorService executorService) {
-    return mFileSystemMaster.activeSyncMetadata(path, changedFiles, executorService);
+  public void activeSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles,
+      ExecutorService executorService) throws IOException {
+    mFileSystemMaster.activeSyncMetadata(path, changedFiles, executorService);
   }
 
   @Override
