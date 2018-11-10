@@ -173,7 +173,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
         // check permission for all nested UFS mount on the path.
         for (AlluxioURI parentUri : parentsUris) {
           checkUfsPermission(user, groups, Mode.Bits.EXECUTE, parentUri.getPath(), inodeList,
-              attributes, checkIsOwner);
+              attributes, false /** owner is only checked on the last inode */);
         }
         checkUfsPermission(user, groups, bits, path, inodeList, attributes, checkIsOwner);
       } catch (InvalidPathException e) {

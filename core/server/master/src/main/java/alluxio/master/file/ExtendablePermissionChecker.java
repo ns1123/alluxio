@@ -195,6 +195,11 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
       super(inode.getId(), inode.isDirectory());
       mInode = inode;
       mAttributes = attributes;
+      setName(mAttributes.getName());
+      setMode(mAttributes.getMode());
+      setOwner(mAttributes.getOwner());
+      setGroup(mAttributes.getGroup());
+      setLastModificationTimeMs(mAttributes.getLastModificationTimeMs());
     }
 
     @Override
@@ -228,31 +233,6 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
         throws UnsupportedOperationException {
       // TODO(feng): implement ACL support for plugin interface
       return this;
-    }
-
-    @Override
-    public String getName() {
-      return mAttributes.getName();
-    }
-
-    @Override
-    public String getOwner() {
-      return mAttributes.getOwner();
-    }
-
-    @Override
-    public String getGroup() {
-      return mAttributes.getGroup();
-    }
-
-    @Override
-    public short getMode() {
-      return mAttributes.getMode();
-    }
-
-    @Override
-    public long getLastModificationTimeMs() {
-      return mAttributes.getLastModificationTimeMs();
     }
   }
 }

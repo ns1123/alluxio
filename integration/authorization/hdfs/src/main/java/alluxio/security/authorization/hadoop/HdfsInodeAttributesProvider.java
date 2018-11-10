@@ -44,12 +44,15 @@ import org.apache.hadoop.hdfs.server.namenode.XAttrFeature;
 import org.apache.hadoop.hdfs.server.namenode.snapshot.Snapshot;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.AlluxioUserGroupInformation;
+import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -63,6 +66,7 @@ import java.util.stream.Collectors;
 public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
   private static final Logger LOG = LoggerFactory.getLogger(HdfsInodeAttributesProvider.class);
   private final INodeAttributeProvider mHdfsProvider;
+  private static boolean sIsAuthenticated;
 
   /**
    * Default constructor for Alluxio master to create {@link HdfsInodeAttributesProvider} instance.
@@ -74,31 +78,57 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
     if (conf != null) {
       conf.toMap().forEach((x, y) -> hadoopConf.set(x, Objects.toString(y, ""), "alluxio"));
     }
-    Class<? extends INodeAttributeProvider> klass = hadoopConf.getClass(
-        DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,
-        null, INodeAttributeProvider.class);
-    if (klass != null) {
-      // attempts to load the provider if a class name is given in the hadoop configuration
-      LOG.info("Loading INodeAttributeProvider from Hadoop configuration: {}, version {}",
-          klass.getName(), AuthorizationPluginConstants.AUTH_VERSION);
-      mHdfsProvider = ReflectionUtils.newInstance(klass, hadoopConf);
-    } else {
-      // falls back to using a ServiceLoader
-      LOG.info("Loading INodeAttributeProvider using ServiceLoader: version {}",
-          AuthorizationPluginConstants.AUTH_VERSION);
-      ServiceLoader<INodeAttributeProvider> providers =
-          ServiceLoader.load(INodeAttributeProvider.class);
-      if (!providers.iterator().hasNext()) {
-        throw new IllegalArgumentException(String.format(
-            "Unable to get external HDFS INodeAttributeProvider version %s using ServiceLoader.",
-            AuthorizationPluginConstants.AUTH_VERSION));
+    boolean isKerberized = SecurityUtil.getAuthenticationMethod(hadoopConf)
+        == UserGroupInformation.AuthenticationMethod.KERBEROS;
+    if (isKerberized) {
+      try {
+        login(conf);
+      } catch (IOException e) {
+        throw new IllegalStateException(
+            String.format("Failed while login with the configuration version %s: %s",
+            AuthorizationPluginConstants.AUTH_VERSION, e.getMessage()), e);
       }
-      mHdfsProvider = providers.iterator().next();
-      String className = mHdfsProvider.getClass().getName();
-      LOG.info("Found INodeAttributeProvider using ServiceLoader: {}, version {}", className,
-          AuthorizationPluginConstants.AUTH_VERSION);
-      hadoopConf.set(DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY, className);
-      ReflectionUtils.setConf(mHdfsProvider, hadoopConf);
+    }
+    PrivilegedExceptionAction<INodeAttributeProvider> action = () ->  {
+      INodeAttributeProvider provider;
+      Class<? extends INodeAttributeProvider> klass = hadoopConf.getClass(
+          DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,
+          null, INodeAttributeProvider.class);
+      if (klass != null) {
+        // attempts to load the provider if a class name is given in the hadoop configuration
+        LOG.info("Loading INodeAttributeProvider from Hadoop configuration: {}, version {}",
+            klass.getName(), AuthorizationPluginConstants.AUTH_VERSION);
+        provider = ReflectionUtils.newInstance(klass, hadoopConf);
+      } else {
+        // falls back to using a ServiceLoader
+        LOG.info("Loading INodeAttributeProvider using ServiceLoader: version {}",
+            AuthorizationPluginConstants.AUTH_VERSION);
+        ServiceLoader<INodeAttributeProvider> providers =
+            ServiceLoader.load(INodeAttributeProvider.class);
+        if (!providers.iterator().hasNext()) {
+          throw new IllegalArgumentException(String.format(
+              "Unable to get external HDFS INodeAttributeProvider version %s using ServiceLoader.",
+              AuthorizationPluginConstants.AUTH_VERSION));
+        }
+        provider = providers.iterator().next();
+        String className = provider.getClass().getName();
+        LOG.info("Found INodeAttributeProvider using ServiceLoader: {}, version {}", className,
+            AuthorizationPluginConstants.AUTH_VERSION);
+        hadoopConf.set(DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY, className);
+        ReflectionUtils.setConf(provider, hadoopConf);
+      }
+      return provider;
+    };
+    try {
+      if (isKerberized) {
+        // initializes the plugin using Kerberos credentials
+        mHdfsProvider = UserGroupInformation.getLoginUser().doAs(action);
+      } else {
+        mHdfsProvider = action.run();
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Failed to create INodeAttributeProvider version %s: %s",
+          AuthorizationPluginConstants.AUTH_VERSION, e.getMessage()), e);
     }
   }
 
@@ -138,6 +168,34 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
   public AccessControlEnforcer getExternalAccessControlEnforcer(
       AccessControlEnforcer defaultEnforcer) {
     return new HdfsAccessControlEnforcer(defaultEnforcer);
+  }
+
+  /**
+   * Logs in using Kerberos credentials from the given UFS configuration.
+   */
+  private void login(UnderFileSystemConfiguration ufsConf) throws IOException {
+    String principal =
+        ufsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab;
+    if (principal.isEmpty()) {
+      principal = ufsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+      keytab = ufsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+    } else {
+      keytab = ufsConf.getValue(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE);
+    }
+    if (principal.isEmpty() || keytab.isEmpty()) {
+      return;
+    }
+    synchronized (HdfsInodeAttributesProvider.class) {
+      if (!sIsAuthenticated) {
+        LOG.info("Login with principal: {} keytab: {}", principal, keytab);
+        UserGroupInformation.loginUserFromKeytab(principal, keytab);
+        sIsAuthenticated = true;
+      } else {
+        LOG.debug("Existing login with principal: {} keytab: {} existing ugi: {}",
+            principal, keytab, UserGroupInformation.getLoginUser());
+      }
+    }
   }
 
   private class HdfsAccessControlEnforcer implements AccessControlEnforcer {
