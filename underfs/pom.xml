@@ -35,6 +35,7 @@
     <module>s3a</module>
     <module>swift</module>
     <module>wasb</module>
+    <module>kodo</module>
   </modules>
 
   <properties>
