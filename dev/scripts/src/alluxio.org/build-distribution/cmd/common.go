@@ -62,8 +62,6 @@ var hadoopDistributions = map[string]version{
 	// // This distribution type is built with 2.2.0, but doesn't include the hadoop version in the name.
 	// "default": parseVersion("2.2.0"),
   // ALLUXIO CS END
-	// This distribution type is built with 2.2.0, but doesn't include the hadoop version in the name.
-	"default": parseVersion("2.2.0"),
 }
 
 // ALLUXIO CS ADD
