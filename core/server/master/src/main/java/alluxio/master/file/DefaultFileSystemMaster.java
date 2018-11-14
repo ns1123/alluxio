@@ -1015,6 +1015,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             InodeTree.LockMode.READ, child, childComponents)) {
           listStatusInternal(childInodePath, auditContext,
               nextDescendantType, statusList);
+        } catch (InvalidPathException e) {
+          LOG.debug("Path \"{0}\" is invalid, has been ignored.",
+              PathUtils.concatPath("/", childComponents));
         }
       }
     }
