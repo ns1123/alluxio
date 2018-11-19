@@ -243,7 +243,6 @@ public class MockUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void stopSync(AlluxioURI uri) {
-
   }
 
   @Override

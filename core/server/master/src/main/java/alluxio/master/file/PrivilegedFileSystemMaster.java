@@ -394,7 +394,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   public List<WorkerInfo> getWorkerInfoList() throws UnavailableException {
     return mFileSystemMaster.getWorkerInfoList();
   }
-  
+
   @Override
   public List<String> getSyncPathList() throws UnavailableException, AccessControlException {
     return mFileSystemMaster.getSyncPathList();
