@@ -12,6 +12,7 @@
 package alluxio.underfs.mock;
 
 import alluxio.AlluxioURI;
+import alluxio.SyncInfo;
 import alluxio.collections.Pair;
 import alluxio.security.authorization.AccessControlList;
 import alluxio.security.authorization.AclEntry;
@@ -223,6 +224,35 @@ public class MockUnderFileSystem implements UnderFileSystem {
 
   @Override
   public boolean supportsFlush() {
+    return false;
+  }
+
+  @Override
+  public boolean supportsActiveSync() {
+    return false;
+  }
+
+  @Override
+  public SyncInfo getActiveSyncInfo() {
+    return SyncInfo.emptyInfo();
+  }
+
+  @Override
+  public void startSync(AlluxioURI uri) {
+  }
+
+  @Override
+  public void stopSync(AlluxioURI uri) {
+
+  }
+
+  @Override
+  public boolean startActiveSyncPolling(long txId) {
+    return false;
+  }
+
+  @Override
+  public boolean stopActiveSyncPolling() {
     return false;
   }
 

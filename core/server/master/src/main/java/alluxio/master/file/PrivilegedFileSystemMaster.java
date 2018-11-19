@@ -17,6 +17,7 @@ import alluxio.Server;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockInfoException;
+import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.exception.FileAlreadyCompletedException;
 import alluxio.exception.FileAlreadyExistsException;
@@ -67,11 +68,13 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.thrift.TProcessor;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * File system master that checks privileges.
@@ -390,6 +393,34 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public List<WorkerInfo> getWorkerInfoList() throws UnavailableException {
     return mFileSystemMaster.getWorkerInfoList();
+  }
+  
+  @Override
+  public List<String> getSyncPathList() throws UnavailableException, AccessControlException {
+    return mFileSystemMaster.getSyncPathList();
+  }
+
+  @Override
+  public void startSync(AlluxioURI alluxioURI) throws IOException, InvalidPathException,
+      AccessControlException, ConnectionFailedException {
+    mFileSystemMaster.startSync(alluxioURI);
+  }
+
+  @Override
+  public void stopSync(AlluxioURI alluxioURI) throws IOException, InvalidPathException,
+      AccessControlException {
+    mFileSystemMaster.stopSync(alluxioURI);
+  }
+
+  @Override
+  public void activeSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles,
+      ExecutorService executorService) throws IOException {
+    mFileSystemMaster.activeSyncMetadata(path, changedFiles, executorService);
+  }
+
+  @Override
+  public boolean recordActiveSyncTxid(long txId, long mountId) {
+    return mFileSystemMaster.recordActiveSyncTxid(txId, mountId);
   }
 
   @Override
