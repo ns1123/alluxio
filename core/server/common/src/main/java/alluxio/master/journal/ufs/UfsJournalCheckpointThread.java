@@ -121,7 +121,7 @@ public final class UfsJournalCheckpointThread extends Thread {
   public void run() {
     try {
       runInternal();
-    } catch (RuntimeException e) {
+    } catch (Throwable e) {
       LOG.error("{}: Failed to run journal checkpoint thread, crashing.", mMaster.getName(), e);
       throw e;
     }
@@ -140,6 +140,12 @@ public final class UfsJournalCheckpointThread extends Thread {
       try {
         entry = mJournalReader.read();
         if (entry != null) {
+          // ALLUXIO CS ADD
+          if (mJournalReader.shouldResetState()) {
+            mMaster.resetState();
+            mJournalReader.notifyResetState();
+          }
+          // ALLUXIO CS END
           mMaster.processJournalEntry(entry);
           if (quietPeriodWaited) {
             LOG.info("Quiet period interrupted by new journal entry");

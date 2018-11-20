@@ -92,7 +92,14 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
   private static final ByteBuf EOF = Unpooled.buffer(0);
   private static final ByteBuf CANCEL = Unpooled.buffer(0);
   private static final ByteBuf ABORT = Unpooled.buffer(0);
+<<<<<<< HEAD
   private static final ByteBuf FLUSH = Unpooled.buffer(0);
+||||||| merged common ancestors
+  // ALLUXIO CS ADD
+=======
+  private static final ByteBuf FLUSH = Unpooled.buffer(0);
+  // ALLUXIO CS ADD
+>>>>>>> upstream/enterprise-1.8
   protected static final ByteBuf UFS_FALLBACK_INIT = Unpooled.buffer(0);
   @GuardedBy("mLock")
   protected long mUfsFallbackInitBytes = 0;
@@ -191,8 +198,16 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>>
         buf = EOF;
       } else if (writeRequest.getCancel()) {
         buf = CANCEL;
+<<<<<<< HEAD
       } else if (writeRequest.getFlush()) {
         buf = FLUSH;
+||||||| merged common ancestors
+      // ALLUXIO CS ADD
+=======
+      } else if (writeRequest.getFlush()) {
+        buf = FLUSH;
+      // ALLUXIO CS ADD
+>>>>>>> upstream/enterprise-1.8
       } else if (writeRequest.hasCreateUfsBlockOptions()
           && writeRequest.getOffset() == 0
           && writeRequest.getCreateUfsBlockOptions().hasBytesInBlockStore()) {

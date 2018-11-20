@@ -17,8 +17,15 @@ import alluxio.master.block.ContainerIdGenerable;
 import alluxio.master.file.state.DirectoryId;
 import alluxio.master.file.state.DirectoryId.UnmodifiableDirectoryId;
 import alluxio.master.journal.JournalContext;
+<<<<<<< HEAD
 import alluxio.master.journal.JournalEntryIterable;
 import alluxio.master.journal.JournalEntryReplayable;
+||||||| merged common ancestors
+import alluxio.master.journal.JournalEntryRepresentable;
+import alluxio.master.journal.NoopJournalContext;
+=======
+import alluxio.master.journal.JournalEntryRepresentable;
+>>>>>>> upstream/enterprise-1.8
 import alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.util.CommonUtils;
@@ -53,12 +60,25 @@ public class InodeDirectoryIdGenerator implements JournalEntryIterable, JournalE
     mNextDirectoryId = mState.getDirectoryId();
   }
 
+<<<<<<< HEAD
   @Override
   public boolean replayJournalEntryFromJournal(JournalEntry entry) {
     return mState.replayJournalEntryFromJournal(entry);
   }
 
   /**
+||||||| merged common ancestors
+  /**
+   * @return the next directory id
+   */
+  synchronized long getNewDirectoryId() throws UnavailableException {
+    return getNewDirectoryId(NoopJournalContext.INSTANCE);
+  }
+
+  /**
+=======
+  /**
+>>>>>>> upstream/enterprise-1.8
    * Returns the next directory id, and journals the state.
    *
    * @return the next directory id

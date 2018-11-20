@@ -17,7 +17,6 @@ import alluxio.annotation.PublicApi;
 import alluxio.thrift.ListStatusTOptions;
 import alluxio.wire.CommonOptions;
 import alluxio.wire.LoadMetadataType;
-import alluxio.wire.TtlAction;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -44,10 +43,19 @@ public final class ListStatusOptions {
   }
 
   private ListStatusOptions() {
+<<<<<<< HEAD
     mCommonOptions = CommonOptions.defaults()
         .setTtl(Configuration.getMs(PropertyKey.USER_FILE_LOAD_TTL))
         .setTtlAction(Configuration.getEnum(PropertyKey.USER_FILE_LOAD_TTL_ACTION,
             TtlAction.class));
+||||||| merged common ancestors
+    mCommonOptions = CommonOptions.defaults()
+        .setTtl(Configuration.getLong(PropertyKey.USER_FILE_LOAD_TTL))
+        .setTtlAction(Configuration.getEnum(PropertyKey.USER_FILE_LOAD_TTL_ACTION,
+            TtlAction.class));
+=======
+    mCommonOptions = CommonOptions.defaults();
+>>>>>>> upstream/enterprise-1.8
     mLoadMetadataType =
         Configuration.getEnum(PropertyKey.USER_FILE_METADATA_LOAD_TYPE, LoadMetadataType.class);
     mRecursive = false;

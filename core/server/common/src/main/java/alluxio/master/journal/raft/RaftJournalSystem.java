@@ -271,6 +271,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
           Arrays.toString(getClusterAddresses(mConf).toArray()), e.getCause().toString());
       throw new RuntimeException(errorMessage, e.getCause());
     }
+<<<<<<< HEAD
     try {
       catchUp(mStateMachine, client);
     } catch (TimeoutException e) {
@@ -281,6 +282,17 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     }
     long nextSN = mStateMachine.upgrade() + 1;
 
+||||||| merged common ancestors
+=======
+    try {
+      catchUp(mStateMachine, client);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
+    }
+    long nextSN = mStateMachine.upgrade() + 1;
+
+>>>>>>> upstream/enterprise-1.8
     Preconditions.checkState(mRaftJournalWriter == null);
     mRaftJournalWriter = new RaftJournalWriter(nextSN, client);
     mAsyncJournalWriter.set(new AsyncJournalWriter(mRaftJournalWriter));
@@ -325,6 +337,7 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
     LOG.info("Raft server successfully restarted");
   }
 
+<<<<<<< HEAD
   /**
    * Attempts to catch up. If the master loses leadership during this method, it will return early.
    *
@@ -332,7 +345,33 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
    */
   private void catchUp(JournalStateMachine stateMachine, CopycatClient client)
       throws TimeoutException, InterruptedException {
+||||||| merged common ancestors
+  private boolean snapshotExists(CopycatServer server) {
+    SingleThreadContext context = new SingleThreadContext("readJournal", createSerializer());
+    try {
+      return context
+          .execute(
+              () -> server.storage().openSnapshotStore("copycat").currentSnapshot() != null)
+          .get();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    } catch (ExecutionException e) {
+      throw new RuntimeException(e.getCause());
+    }
+  }
+
+  private void waitQuietPeriod(JournalStateMachine stateMachine, long quietPeriodMs, CopycatServer server) {
+=======
+  /**
+   * Attempts to catch up. If the master loses leadership during this method, it will return early.
+   *
+   * The caller is responsible for detecting and responding to leadership changes.
+   */
+  private void catchUp(JournalStateMachine stateMachine, CopycatClient client)
+      throws InterruptedException {
+>>>>>>> upstream/enterprise-1.8
     long startTime = System.currentTimeMillis();
+<<<<<<< HEAD
     // Wait for any outstanding snapshot to complete.
     CommonUtils.waitFor("snapshotting to finish", () -> !stateMachine.isSnapshotting(),
         WaitForOptions.defaults().setTimeoutMs(10 * Constants.MINUTE_MS));
@@ -389,6 +428,105 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       LOG.info("Caught up in {}ms. Last sequence number from previous term: {}.",
           System.currentTimeMillis() - startTime, stateMachine.getLastAppliedSequenceNumber());
       return;
+||||||| merged common ancestors
+    // Sleep for quietDurationMs, then keep sleeping until we've gone quietDurationMs milliseconds
+    // without applying any journal entries.
+    CommonUtils.sleepMs(quietPeriodMs);
+    // Wait for any pending snapshot to finish
+    CommonUtils.waitFor("any pending snapshots to finish", x -> !stateMachine.isSnapshotting());
+    ServerContext serverContext = getServerContext();
+    ServerStateMachine copycatStateMachine = serverContext.getStateMachine();
+    long loggedIndex = copycatStateMachine.getLastLogged();
+    LOG.info("Catching up to log index {}", loggedIndex);
+    CommonUtils.waitFor("apply index to be caught up to the log index",
+        x -> {
+          if (mPrimarySelector.getState() != PrimarySelector.State.PRIMARY) {
+            // Break out early if the server loses leadership.
+            return true;
+          }
+          long lastApplied = copycatStateMachine.getLastApplied();
+          long lastSubmittedCommand = copycatStateMachine.getLastSubmittedCommand();
+          long lastCompletedCommand = copycatStateMachine.getLastCompletedCommand();
+          // Make sure that copycat has applied all entries up to the log index, and that all
+          // entries submitted to our state machine have been processed.
+          return lastApplied >= loggedIndex && lastCompletedCommand == lastSubmittedCommand;
+        },
+        WaitForOptions.defaults().setTimeoutMs(100 * Constants.SECOND_MS));
+    long quiet = System.currentTimeMillis() - stateMachine.getLastModifiedMs();
+    while (quiet < quietPeriodMs) {
+      CommonUtils.sleepMs(quietPeriodMs - quiet);
+      quiet = System.currentTimeMillis() - stateMachine.getLastModifiedMs();
+    }
+
+    LOG.info("Waited in quiet period for {}ms. Last sequence number from previous term: {}.",
+        System.currentTimeMillis() - startTime, stateMachine.getLastAppliedSequenceNumber());
+  }
+
+  private ServerContext getServerContext() {
+    try {
+      Field field = CopycatServer.class.getDeclaredField("context");
+      field.setAccessible(true);
+      return (ServerContext) field.get(mServer);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+=======
+    // Wait for any outstanding snapshot to complete.
+    CommonUtils.waitFor("snapshotting to finish", () -> !stateMachine.isSnapshotting(),
+        WaitForOptions.defaults().setTimeoutMs(10 * Constants.MINUTE_MS));
+
+    // Loop until we lose leadership or convince ourselves that we are caught up and we are the only
+    // master serving. To convince ourselves of this, we need to accomplish three steps:
+    //
+    // 1. Write a unique ID to the copycat.
+    // 2. Wait for the ID to by applied to the state machine. This proves that we are
+    //    caught up since the copycat cannot apply commits from a previous term after applying
+    //    commits from a later term.
+    // 3. Wait for a quiet period to elapse without anything new being written to Copycat. This is a
+    //    heuristic to account for the time it takes for a node to realize it is no longer the
+    //    leader. If two nodes think they are leader at the same time, they will both write unique
+    //    IDs to the journal, but only the second one has a chance of becoming leader. The first
+    //    will see that an entry was written after its ID, and double check that it is still the
+    //    leader before trying again.
+    while (true) {
+      if (mPrimarySelector.getState() != PrimarySelector.State.PRIMARY) {
+        return;
+      }
+      long lastAppliedSN = stateMachine.getLastAppliedSequenceNumber();
+      long gainPrimacySN = ThreadLocalRandom.current().nextLong(Long.MIN_VALUE, 0);
+      LOG.info("Performing catchup. Last applied SN: {}. Catchup ID: {}", lastAppliedSN, gainPrimacySN);
+      CompletableFuture<Void> future = client.submit(new JournalEntryCommand(
+          JournalEntry.newBuilder().setSequenceNumber(gainPrimacySN).build()));
+      try {
+        future.get(5, TimeUnit.SECONDS);
+      } catch (TimeoutException | ExecutionException e) {
+        LOG.info("Exception submitting term start entry: {}", e.toString());
+        continue;
+      }
+
+      try {
+        CommonUtils.waitFor("term start entry " + gainPrimacySN + " to be applied to state machine", () ->
+                stateMachine.getLastPrimaryStartSequenceNumber() == gainPrimacySN,
+            WaitForOptions.defaults()
+                .setInterval(Constants.SECOND_MS)
+                .setTimeoutMs(5 * Constants.SECOND_MS));
+      } catch (RuntimeException e) {
+        LOG.info(e.toString());
+        continue;
+      }
+
+      // Wait 2 election timeouts so that this master and other masters have time to realize they
+      // are not leader.
+      CommonUtils.sleepMs(2 * mConf.getElectionTimeoutMs());
+      if (stateMachine.getLastAppliedSequenceNumber() != lastAppliedSN
+          || stateMachine.getLastPrimaryStartSequenceNumber() != gainPrimacySN) {
+        // Someone has committed a journal entry since we started trying to catch up.
+        // Restart the catchup process.
+        continue;
+      }
+      LOG.info("Caught up in {}ms. Last sequence number from previous term: {}.",
+          System.currentTimeMillis() - startTime, stateMachine.getLastAppliedSequenceNumber());
+      return;
+>>>>>>> upstream/enterprise-1.8
     }
   }
 

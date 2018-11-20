@@ -413,6 +413,7 @@ public final class PermissionCheckerTest {
       Assert.assertEquals(TEST_WEIRD_MODE.getOtherBits(), perm);
     }
   }
+<<<<<<< HEAD
   // ALLUXIO CS ADD
 
   @Test
@@ -465,6 +466,61 @@ public final class PermissionCheckerTest {
     checkPermission(TEST_USER_1, Mode.Bits.READ, TEST_DIR_FILE_URI);
   }
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  // ALLUXIO CS ADD
+
+  @Test
+  public void checkPermissionWithProviderSuccess() throws Exception {
+    InodeAttributesProvider provider = mock(InodeAttributesProvider.class);
+    AccessControlEnforcer ace =
+        mock(AccessControlEnforcer.class);
+    org.mockito.Mockito
+        .when(provider.getExternalAccessControlEnforcer(org.mockito.Mockito.any()))
+        .thenReturn(ace);
+    org.mockito.Mockito
+        .when(provider.getAttributes(org.mockito.Mockito.any(), org.mockito.Mockito.any()))
+        .thenAnswer(invocation -> invocation.getArgumentAt(
+            1, alluxio.master.file.meta.InodeAttributes.class));
+    mPermissionChecker = new ExtendablePermissionChecker(sTree, provider);
+
+    AuthenticatedClientUser.set(TEST_USER_1.getUser());
+    try (LockedInodePath inodePath = sTree.lockInodePath(
+        new AlluxioURI(TEST_DIR_FILE_URI), InodeTree.LockMode.READ)) {
+      mPermissionChecker.checkPermission(Mode.Bits.READ, inodePath);
+      List<Inode<?>> inodes = inodePath.getInodeList();
+      org.mockito.Mockito.verify(ace).checkPermission(TEST_USER_1.getUser(),
+          Lists.newArrayList(TEST_USER_1.getGroup()), Mode.Bits.READ, TEST_DIR_FILE_URI,
+          inodes, inodes.stream()
+              .map(x -> new ExtendablePermissionChecker.DefaultInodeAttributes(x))
+              .collect(java.util.stream.Collectors.toList()), false);
+    }
+  }
+
+  @Test
+  public void checkPermissionWithProviderFail() throws Exception {
+    InodeAttributesProvider provider = mock(InodeAttributesProvider.class);
+    AccessControlEnforcer ace =
+        mock(AccessControlEnforcer.class);
+    org.mockito.Mockito
+        .when(provider.getExternalAccessControlEnforcer(org.mockito.Mockito.any()))
+        .thenReturn(ace);
+    org.mockito.Mockito
+        .when(provider.getAttributes(org.mockito.Mockito.any(), org.mockito.Mockito.any()))
+        .thenAnswer(invocation -> invocation.getArgumentAt(
+            1, alluxio.master.file.meta.InodeAttributes.class));
+    org.mockito.Mockito
+        .doThrow(new AccessControlException("test"))
+        .when(ace).checkPermission(org.mockito.Mockito.any(),
+            org.mockito.Mockito.any(), org.mockito.Mockito.any(), org.mockito.Mockito.any(),
+            org.mockito.Mockito.any(), org.mockito.Mockito.any(), org.mockito.Mockito.anyBoolean());
+    mPermissionChecker = new ExtendablePermissionChecker(sTree, provider);
+    mThrown.expect(AccessControlException.class);
+
+    checkPermission(TEST_USER_1, Mode.Bits.READ, TEST_DIR_FILE_URI);
+  }
+  // ALLUXIO CS END
+>>>>>>> upstream/enterprise-1.8
 
   /**
    * Helper function to check user can perform action on path.

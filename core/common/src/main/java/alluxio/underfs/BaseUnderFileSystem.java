@@ -112,6 +112,7 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
     // TODO(yuzhu): include default ACL in the fingerprint
     try {
       UfsStatus status = getStatus(path);
+<<<<<<< HEAD
       Pair<AccessControlList, DefaultAccessControlList> aclPair = getAclPair(path);
 
       if (aclPair == null || aclPair.getFirst() == null || !aclPair.getFirst().hasExtended()) {
@@ -119,6 +120,18 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
       } else {
         return Fingerprint.create(getUnderFSType(), status, aclPair.getFirst()).serialize();
       }
+||||||| merged common ancestors
+      return Fingerprint.create(getUnderFSType(), status).serialize();
+=======
+      Pair<AccessControlList, DefaultAccessControlList> aclPair = getAclPair(path);
+
+      if (aclPair == null || aclPair.getFirst() == null || !aclPair.getFirst().hasExtended()) {
+        return Fingerprint.create(getUnderFSType(), status).serialize();
+      } else {
+        return Fingerprint.create(getUnderFSType(), status, aclPair.getFirst()).serialize();
+      }
+
+>>>>>>> upstream/enterprise-1.8
     } catch (Exception e) {
       // In certain scenarios, it is expected that the UFS path does not exist.
       LOG.debug("Failed fingerprint. path: {} error: {}", path, e.toString());

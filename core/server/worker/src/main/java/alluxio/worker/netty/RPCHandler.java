@@ -75,9 +75,23 @@ class RPCHandler extends ChannelInboundHandlerAdapter {
 
   private void handleRemoveBlockRequest(final ChannelHandlerContext ctx,
       final Protocol.RemoveBlockRequest request) {
+<<<<<<< HEAD
     mRPCExecutor.submit(() -> {
       final long sessionId = IdUtils.createSessionId();
       RpcUtils.nettyRPCAndLog(LOG, new RpcUtils.NettyRpcCallable<Void>() {
+||||||| merged common ancestors
+    mRPCExecutor.submit(new Runnable() {
+      @Override
+      public void run() {
+        final long sessionId = IdUtils.createSessionId();
+        RpcUtils.nettyRPCAndLog(LOG, new RpcUtils.NettyRPCCallable<Void>() {
+=======
+    mRPCExecutor.submit(new Runnable() {
+      @Override
+      public void run() {
+        final long sessionId = IdUtils.createSessionId();
+        RpcUtils.nettyRPCAndLog(LOG, new RpcUtils.NettyRpcCallable<Void>() {
+>>>>>>> upstream/enterprise-1.8
 
         @Override
         public Void call() throws Exception {
@@ -86,6 +100,7 @@ class RPCHandler extends ChannelInboundHandlerAdapter {
           return null;
         }
 
+<<<<<<< HEAD
         @Override
         public void exceptionCaught(Throwable throwable) {
           ctx.writeAndFlush(
@@ -95,6 +110,29 @@ class RPCHandler extends ChannelInboundHandlerAdapter {
           mWorker.cleanupSession(sessionId);
         }
       }, "HandleRemoveBlockRequest", "Request=%s", request);
+||||||| merged common ancestors
+          @Override
+          public void exceptionCaught(Throwable throwable) {
+            ctx.writeAndFlush(
+                RPCProtoMessage.createResponse(AlluxioStatusException.fromThrowable(throwable)));
+            // This is actually not necessary since removeBlock should be able to
+            // clean up any resources if it fails. Just to be safe.
+            mWorker.cleanupSession(sessionId);
+          }
+        });
+      }
+=======
+          @Override
+          public void exceptionCaught(Throwable throwable) {
+            ctx.writeAndFlush(
+                RPCProtoMessage.createResponse(AlluxioStatusException.fromThrowable(throwable)));
+            // This is actually not necessary since removeBlock should be able to
+            // clean up any resources if it fails. Just to be safe.
+            mWorker.cleanupSession(sessionId);
+          }
+        }, "HandleRemoveBlockRequest", "Request=%s", request);
+      }
+>>>>>>> upstream/enterprise-1.8
     });
   }
 }

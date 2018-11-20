@@ -99,6 +99,7 @@ public class MetricsCommand {
     String cacheMissPercentage = String.format("%.2f",
         (bytesReadTotal > 0) ? (100D * bytesReadUfs / bytesReadTotal) : 0);
 
+<<<<<<< HEAD
     mPrintStream.println(INDENT
         + String.format(mInfoFormat, "Alluxio Local", cacheHitLocalPercentage));
     mPrintStream.println(INDENT
@@ -137,6 +138,47 @@ public class MetricsCommand {
 
     // TODO(lu) improve printout info to sync with web UI
     mPrintStream.println("\nOther Metrics: ");
+||||||| merged common ancestors
+    mPrintStream.println("\nOther metrics information: ");
+=======
+    mPrintStream.println(INDENT
+        + String.format(mInfoFormat, "Alluxio Local", cacheHitLocalPercentage));
+    mPrintStream.println(INDENT
+        + String.format(mInfoFormat, "Alluxio Remote", cacheHitRemotePercentage));
+    mPrintStream.println(INDENT
+        + String.format(mInfoFormat, "Miss", cacheMissPercentage));
+
+    mPrintStream.println("\nLogical Operations: ");
+    printMetric(MasterMetrics.DIRECTORIES_CREATED, "Directories Created", false);
+    printMetric(MasterMetrics.FILE_BLOCK_INFOS_GOT, "File Block Infos Got", false);
+    printMetric(MasterMetrics.FILE_INFOS_GOT, "File Infos Got", false);
+    printMetric(MasterMetrics.FILES_COMPLETED, "Files Completed", false);
+    printMetric(MasterMetrics.FILES_CREATED, "Files Created", false);
+    printMetric(MasterMetrics.FILES_FREED, "Files Freed", false);
+    printMetric(MasterMetrics.FILES_PERSISTED, "Files Persisted", false);
+    printMetric(MasterMetrics.NEW_BLOCKS_GOT, "New Blocks Got", false);
+    printMetric(MasterMetrics.PATHS_DELETED, "Paths Deleted", false);
+    printMetric(MasterMetrics.PATHS_MOUNTED, "Paths Mounted", false);
+    printMetric(MasterMetrics.PATHS_RENAMED, "Paths Renamed", false);
+    printMetric(MasterMetrics.PATHS_UNMOUNTED, "Paths Unmounted", false);
+
+    mPrintStream.println("\nRPC Invocations: ");
+    printMetric(MasterMetrics.COMPLETE_FILE_OPS, "Complete File Operations", false);
+    printMetric(MasterMetrics.CREATE_DIRECTORIES_OPS, "Create Directory Operations", false);
+    printMetric(MasterMetrics.CREATE_FILES_OPS, "Create File Operations", false);
+    printMetric(MasterMetrics.DELETE_PATHS_OPS, "Delete Path Operations", false);
+    printMetric(MasterMetrics.FREE_FILE_OPS, "Free File Operations", false);
+    printMetric(MasterMetrics.GET_FILE_BLOCK_INFO_OPS, "Get File Block Info Operations", false);
+    printMetric(MasterMetrics.GET_FILE_INFO_OPS, "Get File Info Operations", false);
+    printMetric(MasterMetrics.GET_NEW_BLOCK_OPS, "Get New Block Operations", false);
+    printMetric(MasterMetrics.MOUNT_OPS, "Mount Operations", false);
+    printMetric(MasterMetrics.RENAME_PATH_OPS, "Rename Path Operations", false);
+    printMetric(MasterMetrics.SET_ATTRIBUTE_OPS, "Set Attribute Operations", false);
+    printMetric(MasterMetrics.UNMOUNT_OPS, "Unmount Operations", false);
+
+    // TODO(lu) improve printout info to sync with web UI
+    mPrintStream.println("\nOther Metrics: ");
+>>>>>>> upstream/enterprise-1.8
     mInfoFormat = "%s  (%s)"; // Some property names are too long to fit in previous info format
     for (Map.Entry<String, MetricValue> entry : mMetricsMap.entrySet()) {
       mPrintStream.println(INDENT + String.format(mInfoFormat,

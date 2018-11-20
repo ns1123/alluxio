@@ -34,8 +34,17 @@ public final class HadoopClientTestUtils {
    */
   public static void resetClient() {
     try {
+<<<<<<< HEAD
       Configuration.set(PropertyKey.USER_METRICS_COLLECTION_ENABLED, false);
       FileSystemContext.get().reset(Configuration.global());
+||||||| merged common ancestors
+      FileSystemContext.get().reset();
+      LineageContext.INSTANCE.reset();
+=======
+      Configuration.set(PropertyKey.USER_METRICS_COLLECTION_ENABLED, false);
+      FileSystemContext.get().reset(Configuration.global());
+      LineageContext.INSTANCE.reset();
+>>>>>>> upstream/enterprise-1.8
       Whitebox.setInternalState(AbstractFileSystem.class, "sInitialized", false);
     } catch (Exception e) {
       throw new RuntimeException(e);

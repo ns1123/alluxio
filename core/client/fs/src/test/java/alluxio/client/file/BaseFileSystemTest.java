@@ -116,6 +116,9 @@ public final class BaseFileSystemTest {
     AlluxioURI file = new AlluxioURI("/file");
     GetStatusOptions getStatusOptions = GetStatusOptions.defaults().setLoadMetadataType(
         LoadMetadataType.Never);
+    // ALLUXIO CS ADD
+    getStatusOptions.setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE);
+    // ALLUXIO CS END
     when(mFileSystemMasterClient.getStatus(file, getStatusOptions)).thenReturn(status);
     CreateFileOptions options = CreateFileOptions.defaults();
     FileOutStream out = mFileSystem.createFile(file, options);

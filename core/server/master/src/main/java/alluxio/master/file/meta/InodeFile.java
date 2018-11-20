@@ -124,6 +124,7 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
     mCacheable = false;
   }
 
+<<<<<<< HEAD
   @Override
   public DefaultAccessControlList getDefaultACL() throws UnsupportedOperationException {
     throw new UnsupportedOperationException("getDefaultACL: File does not have default ACL");
@@ -136,6 +137,26 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
   }
 
   @Override
+||||||| merged common ancestors
+  /**
+   * @return a duplication of all the block ids of the file
+   */
+=======
+  @Override
+  public DefaultAccessControlList getDefaultACL() throws UnsupportedOperationException {
+    throw new UnsupportedOperationException("getDefaultACL: File does not have default ACL");
+  }
+
+  @Override
+  public InodeFile setDefaultACL(DefaultAccessControlList acl)
+      throws UnsupportedOperationException {
+    throw new UnsupportedOperationException("setDefaultACL: File does not have default ACL");
+  }
+
+  /**
+   * @return a duplication of all the block ids of the file
+   */
+>>>>>>> upstream/enterprise-1.8
   public List<Long> getBlockIds() {
     return new ArrayList<>(mBlocks);
   }

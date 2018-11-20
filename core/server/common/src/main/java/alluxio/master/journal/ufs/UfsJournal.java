@@ -112,6 +112,7 @@ public class UfsJournal implements Journal {
   protected static UnderFileSystemConfiguration getJournalUfsConf() {
     Map<String, String> ufsConf =
         Configuration.getNestedProperties(PropertyKey.MASTER_JOURNAL_UFS_OPTION);
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (!ufsConf.containsKey(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName())) {
       // Do not use impersonation for the journal UFS.
@@ -121,6 +122,19 @@ public class UfsJournal implements Journal {
     }
     // ALLUXIO CS END
     return UnderFileSystemConfiguration.defaults().setMountSpecificConf(ufsConf);
+||||||| merged common ancestors
+    return UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(ufsConf);
+=======
+    // ALLUXIO CS ADD
+    if (!ufsConf.containsKey(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName())) {
+      // Do not use impersonation for the journal UFS.
+      LOG.info("Setting {} to 'false' for the journal UFS configuration.",
+          PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName());
+      ufsConf.put(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName(), "false");
+    }
+    // ALLUXIO CS END
+    return UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(ufsConf);
+>>>>>>> upstream/enterprise-1.8
   }
 
   /**

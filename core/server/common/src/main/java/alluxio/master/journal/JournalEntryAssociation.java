@@ -40,12 +40,20 @@ public final class JournalEntryAssociation {
         || entry.hasRemoveSyncPoint()
         || entry.hasRename()
         || entry.hasReinitializeFile()
+<<<<<<< HEAD
         || entry.hasSetAcl()
         || entry.hasSetAttribute()
         || entry.hasUpdateUfsMode()
         || entry.hasUpdateInode()
         || entry.hasUpdateInodeDirectory()
         || entry.hasUpdateInodeFile()) {
+||||||| merged common ancestors
+        || entry.hasSetAttribute()) {
+=======
+        || entry.hasSetAcl()
+        || entry.hasSetAttribute()
+        || entry.hasUpdateUfsMode()) {
+>>>>>>> upstream/enterprise-1.8
       return Constants.FILE_SYSTEM_MASTER_NAME;
     }
     if (entry.hasBlockContainerIdGenerator()
@@ -78,6 +86,12 @@ public final class JournalEntryAssociation {
     if (entry.hasFinishJob()
         || entry.hasStartJob()) {
       return Constants.JOB_MASTER_NAME;
+    }
+    if (entry.hasGetDelegationToken()
+        || entry.hasRemoveDelegationToken()
+        || entry.hasRenewDelegationToken()
+        || entry.hasUpdateMasterKey()) {
+      return Constants.FILE_SYSTEM_MASTER_NAME;
     }
     // ALLUXIO CS END
     throw new IllegalStateException("Unrecognized journal entry: " + entry);

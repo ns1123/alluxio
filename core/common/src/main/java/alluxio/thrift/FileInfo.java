@@ -66,10 +66,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final org.apache.thrift.protocol.TField MOUNT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("mountId", org.apache.thrift.protocol.TType.I64, (short)25);
   private static final org.apache.thrift.protocol.TField IN_ALLUXIO_PERCENTAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("inAlluxioPercentage", org.apache.thrift.protocol.TType.I32, (short)26);
   private static final org.apache.thrift.protocol.TField UFS_FINGERPRINT_FIELD_DESC = new org.apache.thrift.protocol.TField("ufsFingerprint", org.apache.thrift.protocol.TType.STRING, (short)27);
+<<<<<<< HEAD
   private static final org.apache.thrift.protocol.TField ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("acl", org.apache.thrift.protocol.TType.STRUCT, (short)28);
   private static final org.apache.thrift.protocol.TField DEFAULT_ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("defaultAcl", org.apache.thrift.protocol.TType.STRUCT, (short)29);
   private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
   private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
+||||||| merged common ancestors
+=======
+  private static final org.apache.thrift.protocol.TField ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("acl", org.apache.thrift.protocol.TType.STRUCT, (short)28);
+  private static final org.apache.thrift.protocol.TField DEFAULT_ACL_FIELD_DESC = new org.apache.thrift.protocol.TField("defaultAcl", org.apache.thrift.protocol.TType.STRUCT, (short)29);
+>>>>>>> upstream/enterprise-1.8
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -105,10 +111,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private long mountId; // required
   private int inAlluxioPercentage; // required
   private String ufsFingerprint; // required
+<<<<<<< HEAD
   private TAcl acl; // required
   private TAcl defaultAcl; // required
   private int replicationMax; // required
   private int replicationMin; // required
+||||||| merged common ancestors
+=======
+  private TAcl acl; // required
+  private TAcl defaultAcl; // required
+>>>>>>> upstream/enterprise-1.8
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -143,11 +155,19 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     TTL_ACTION((short)24, "ttlAction"),
     MOUNT_ID((short)25, "mountId"),
     IN_ALLUXIO_PERCENTAGE((short)26, "inAlluxioPercentage"),
+<<<<<<< HEAD
     UFS_FINGERPRINT((short)27, "ufsFingerprint"),
     ACL((short)28, "acl"),
     DEFAULT_ACL((short)29, "defaultAcl"),
     REPLICATION_MAX((short)1001, "replicationMax"),
     REPLICATION_MIN((short)1002, "replicationMin");
+||||||| merged common ancestors
+    UFS_FINGERPRINT((short)27, "ufsFingerprint");
+=======
+    UFS_FINGERPRINT((short)27, "ufsFingerprint"),
+    ACL((short)28, "acl"),
+    DEFAULT_ACL((short)29, "defaultAcl");
+>>>>>>> upstream/enterprise-1.8
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -218,6 +238,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           return IN_ALLUXIO_PERCENTAGE;
         case 27: // UFS_FINGERPRINT
           return UFS_FINGERPRINT;
+<<<<<<< HEAD
         case 28: // ACL
           return ACL;
         case 29: // DEFAULT_ACL
@@ -226,6 +247,13 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           return REPLICATION_MAX;
         case 1002: // REPLICATION_MIN
           return REPLICATION_MIN;
+||||||| merged common ancestors
+=======
+        case 28: // ACL
+          return ACL;
+        case 29: // DEFAULT_ACL
+          return DEFAULT_ACL;
+>>>>>>> upstream/enterprise-1.8
         default:
           return null;
       }
@@ -348,6 +376,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.UFS_FINGERPRINT, new org.apache.thrift.meta_data.FieldMetaData("ufsFingerprint", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+<<<<<<< HEAD
     tmpMap.put(_Fields.ACL, new org.apache.thrift.meta_data.FieldMetaData("acl", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAcl.class)));
     tmpMap.put(_Fields.DEFAULT_ACL, new org.apache.thrift.meta_data.FieldMetaData("defaultAcl", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -356,6 +385,13 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.REPLICATION_MIN, new org.apache.thrift.meta_data.FieldMetaData("replicationMin", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+||||||| merged common ancestors
+=======
+    tmpMap.put(_Fields.ACL, new org.apache.thrift.meta_data.FieldMetaData("acl", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAcl.class)));
+    tmpMap.put(_Fields.DEFAULT_ACL, new org.apache.thrift.meta_data.FieldMetaData("defaultAcl", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TAcl.class)));
+>>>>>>> upstream/enterprise-1.8
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(FileInfo.class, metaDataMap);
   }
@@ -390,11 +426,19 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     alluxio.thrift.TTtlAction ttlAction,
     long mountId,
     int inAlluxioPercentage,
+<<<<<<< HEAD
     String ufsFingerprint,
     TAcl acl,
     TAcl defaultAcl,
     int replicationMax,
     int replicationMin)
+||||||| merged common ancestors
+    String ufsFingerprint)
+=======
+    String ufsFingerprint,
+    TAcl acl,
+    TAcl defaultAcl)
+>>>>>>> upstream/enterprise-1.8
   {
     this();
     this.fileId = fileId;
@@ -441,12 +485,18 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     this.inAlluxioPercentage = inAlluxioPercentage;
     setInAlluxioPercentageIsSet(true);
     this.ufsFingerprint = ufsFingerprint;
+<<<<<<< HEAD
     this.acl = acl;
     this.defaultAcl = defaultAcl;
     this.replicationMax = replicationMax;
     setReplicationMaxIsSet(true);
     this.replicationMin = replicationMin;
     setReplicationMinIsSet(true);
+||||||| merged common ancestors
+=======
+    this.acl = acl;
+    this.defaultAcl = defaultAcl;
+>>>>>>> upstream/enterprise-1.8
   }
 
   /**
@@ -509,6 +559,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     if (other.isSetUfsFingerprint()) {
       this.ufsFingerprint = other.ufsFingerprint;
     }
+<<<<<<< HEAD
     if (other.isSetAcl()) {
       this.acl = new TAcl(other.acl);
     }
@@ -517,6 +568,15 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     }
     this.replicationMax = other.replicationMax;
     this.replicationMin = other.replicationMin;
+||||||| merged common ancestors
+=======
+    if (other.isSetAcl()) {
+      this.acl = new TAcl(other.acl);
+    }
+    if (other.isSetDefaultAcl()) {
+      this.defaultAcl = new TAcl(other.defaultAcl);
+    }
+>>>>>>> upstream/enterprise-1.8
   }
 
   public FileInfo deepCopy() {
@@ -570,12 +630,18 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     setInAlluxioPercentageIsSet(false);
     this.inAlluxioPercentage = 0;
     this.ufsFingerprint = null;
+<<<<<<< HEAD
     this.acl = null;
     this.defaultAcl = null;
     setReplicationMaxIsSet(false);
     this.replicationMax = 0;
     setReplicationMinIsSet(false);
     this.replicationMin = 0;
+||||||| merged common ancestors
+=======
+    this.acl = null;
+    this.defaultAcl = null;
+>>>>>>> upstream/enterprise-1.8
   }
 
   public long getFileId() {
@@ -1271,6 +1337,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     }
   }
 
+<<<<<<< HEAD
   public TAcl getAcl() {
     return this.acl;
   }
@@ -1365,6 +1432,57 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID, value);
   }
 
+||||||| merged common ancestors
+=======
+  public TAcl getAcl() {
+    return this.acl;
+  }
+
+  public FileInfo setAcl(TAcl acl) {
+    this.acl = acl;
+    return this;
+  }
+
+  public void unsetAcl() {
+    this.acl = null;
+  }
+
+  /** Returns true if field acl is set (has been assigned a value) and false otherwise */
+  public boolean isSetAcl() {
+    return this.acl != null;
+  }
+
+  public void setAclIsSet(boolean value) {
+    if (!value) {
+      this.acl = null;
+    }
+  }
+
+  public TAcl getDefaultAcl() {
+    return this.defaultAcl;
+  }
+
+  public FileInfo setDefaultAcl(TAcl defaultAcl) {
+    this.defaultAcl = defaultAcl;
+    return this;
+  }
+
+  public void unsetDefaultAcl() {
+    this.defaultAcl = null;
+  }
+
+  /** Returns true if field defaultAcl is set (has been assigned a value) and false otherwise */
+  public boolean isSetDefaultAcl() {
+    return this.defaultAcl != null;
+  }
+
+  public void setDefaultAclIsSet(boolean value) {
+    if (!value) {
+      this.defaultAcl = null;
+    }
+  }
+
+>>>>>>> upstream/enterprise-1.8
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case FILE_ID:
@@ -1591,6 +1709,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       break;
 
+<<<<<<< HEAD
     case ACL:
       if (value == null) {
         unsetAcl();
@@ -1623,6 +1742,25 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       break;
 
+||||||| merged common ancestors
+=======
+    case ACL:
+      if (value == null) {
+        unsetAcl();
+      } else {
+        setAcl((TAcl)value);
+      }
+      break;
+
+    case DEFAULT_ACL:
+      if (value == null) {
+        unsetDefaultAcl();
+      } else {
+        setDefaultAcl((TAcl)value);
+      }
+      break;
+
+>>>>>>> upstream/enterprise-1.8
     }
   }
 
@@ -1712,6 +1850,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     case UFS_FINGERPRINT:
       return getUfsFingerprint();
 
+<<<<<<< HEAD
     case ACL:
       return getAcl();
 
@@ -1724,6 +1863,15 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     case REPLICATION_MIN:
       return getReplicationMin();
 
+||||||| merged common ancestors
+=======
+    case ACL:
+      return getAcl();
+
+    case DEFAULT_ACL:
+      return getDefaultAcl();
+
+>>>>>>> upstream/enterprise-1.8
     }
     throw new IllegalStateException();
   }
@@ -1791,6 +1939,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       return isSetInAlluxioPercentage();
     case UFS_FINGERPRINT:
       return isSetUfsFingerprint();
+<<<<<<< HEAD
     case ACL:
       return isSetAcl();
     case DEFAULT_ACL:
@@ -1799,6 +1948,13 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       return isSetReplicationMax();
     case REPLICATION_MIN:
       return isSetReplicationMin();
+||||||| merged common ancestors
+=======
+    case ACL:
+      return isSetAcl();
+    case DEFAULT_ACL:
+      return isSetDefaultAcl();
+>>>>>>> upstream/enterprise-1.8
     }
     throw new IllegalStateException();
   }
@@ -2068,6 +2224,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return false;
     }
 
+<<<<<<< HEAD
     boolean this_present_acl = true && this.isSetAcl();
     boolean that_present_acl = true && that.isSetAcl();
     if (this_present_acl || that_present_acl) {
@@ -2104,6 +2261,27 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return false;
     }
 
+||||||| merged common ancestors
+=======
+    boolean this_present_acl = true && this.isSetAcl();
+    boolean that_present_acl = true && that.isSetAcl();
+    if (this_present_acl || that_present_acl) {
+      if (!(this_present_acl && that_present_acl))
+        return false;
+      if (!this.acl.equals(that.acl))
+        return false;
+    }
+
+    boolean this_present_defaultAcl = true && this.isSetDefaultAcl();
+    boolean that_present_defaultAcl = true && that.isSetDefaultAcl();
+    if (this_present_defaultAcl || that_present_defaultAcl) {
+      if (!(this_present_defaultAcl && that_present_defaultAcl))
+        return false;
+      if (!this.defaultAcl.equals(that.defaultAcl))
+        return false;
+    }
+
+>>>>>>> upstream/enterprise-1.8
     return true;
   }
 
@@ -2251,6 +2429,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     if (present_ufsFingerprint)
       list.add(ufsFingerprint);
 
+<<<<<<< HEAD
     boolean present_acl = true && (isSetAcl());
     list.add(present_acl);
     if (present_acl)
@@ -2271,6 +2450,19 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     if (present_replicationMin)
       list.add(replicationMin);
 
+||||||| merged common ancestors
+=======
+    boolean present_acl = true && (isSetAcl());
+    list.add(present_acl);
+    if (present_acl)
+      list.add(acl);
+
+    boolean present_defaultAcl = true && (isSetDefaultAcl());
+    list.add(present_defaultAcl);
+    if (present_defaultAcl)
+      list.add(defaultAcl);
+
+>>>>>>> upstream/enterprise-1.8
     return list.hashCode();
   }
 
@@ -2562,6 +2754,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return lastComparison;
       }
     }
+<<<<<<< HEAD
     lastComparison = Boolean.valueOf(isSetAcl()).compareTo(other.isSetAcl());
     if (lastComparison != 0) {
       return lastComparison;
@@ -2602,6 +2795,29 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return lastComparison;
       }
     }
+||||||| merged common ancestors
+=======
+    lastComparison = Boolean.valueOf(isSetAcl()).compareTo(other.isSetAcl());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAcl()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.acl, other.acl);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetDefaultAcl()).compareTo(other.isSetDefaultAcl());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetDefaultAcl()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.defaultAcl, other.defaultAcl);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+>>>>>>> upstream/enterprise-1.8
     return 0;
   }
 
@@ -2779,6 +2995,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       sb.append(this.ufsFingerprint);
     }
     first = false;
+<<<<<<< HEAD
     if (!first) sb.append(", ");
     sb.append("acl:");
     if (this.acl == null) {
@@ -2803,6 +3020,25 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     sb.append("replicationMin:");
     sb.append(this.replicationMin);
     first = false;
+||||||| merged common ancestors
+=======
+    if (!first) sb.append(", ");
+    sb.append("acl:");
+    if (this.acl == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.acl);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("defaultAcl:");
+    if (this.defaultAcl == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.defaultAcl);
+    }
+    first = false;
+>>>>>>> upstream/enterprise-1.8
     sb.append(")");
     return sb.toString();
   }
@@ -3103,6 +3339,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+<<<<<<< HEAD
           case 28: // ACL
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
               struct.acl = new TAcl();
@@ -3137,6 +3374,27 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+||||||| merged common ancestors
+=======
+          case 28: // ACL
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+              struct.acl = new TAcl();
+              struct.acl.read(iprot);
+              struct.setAclIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 29: // DEFAULT_ACL
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+              struct.defaultAcl = new TAcl();
+              struct.defaultAcl.read(iprot);
+              struct.setDefaultAclIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+>>>>>>> upstream/enterprise-1.8
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -3398,6 +3656,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetDefaultAcl()) {
         optionals.set(29);
       }
+<<<<<<< HEAD
       if (struct.isSetReplicationMax()) {
         optionals.set(30);
       }
@@ -3405,6 +3664,17 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         optionals.set(31);
       }
       oprot.writeBitSet(optionals, 32);
+||||||| merged common ancestors
+      oprot.writeBitSet(optionals, 30);
+=======
+      if (struct.isSetAcl()) {
+        optionals.set(30);
+      }
+      if (struct.isSetDefaultAcl()) {
+        optionals.set(31);
+      }
+      oprot.writeBitSet(optionals, 32);
+>>>>>>> upstream/enterprise-1.8
       if (struct.isSetFileId()) {
         oprot.writeI64(struct.fileId);
       }
@@ -3501,6 +3771,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetUfsFingerprint()) {
         oprot.writeString(struct.ufsFingerprint);
       }
+<<<<<<< HEAD
       if (struct.isSetAcl()) {
         struct.acl.write(oprot);
       }
@@ -3513,6 +3784,15 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetReplicationMin()) {
         oprot.writeI32(struct.replicationMin);
       }
+||||||| merged common ancestors
+=======
+      if (struct.isSetAcl()) {
+        struct.acl.write(oprot);
+      }
+      if (struct.isSetDefaultAcl()) {
+        struct.defaultAcl.write(oprot);
+      }
+>>>>>>> upstream/enterprise-1.8
     }
 
     @Override
@@ -3651,6 +3931,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.ufsFingerprint = iprot.readString();
         struct.setUfsFingerprintIsSet(true);
       }
+<<<<<<< HEAD
       if (incoming.get(28)) {
         struct.acl = new TAcl();
         struct.acl.read(iprot);
@@ -3669,6 +3950,19 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.replicationMin = iprot.readI32();
         struct.setReplicationMinIsSet(true);
       }
+||||||| merged common ancestors
+=======
+      if (incoming.get(30)) {
+        struct.acl = new TAcl();
+        struct.acl.read(iprot);
+        struct.setAclIsSet(true);
+      }
+      if (incoming.get(31)) {
+        struct.defaultAcl = new TAcl();
+        struct.defaultAcl.read(iprot);
+        struct.setDefaultAclIsSet(true);
+      }
+>>>>>>> upstream/enterprise-1.8
     }
   }
 

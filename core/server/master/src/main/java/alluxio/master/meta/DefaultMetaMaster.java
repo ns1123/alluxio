@@ -154,9 +154,22 @@ public final class DefaultMetaMaster extends AbstractMaster implements MetaMaste
   DefaultMetaMaster(BlockMaster blockMaster, MasterContext masterContext,
       ExecutorServiceFactory executorServiceFactory) {
     super(masterContext, new SystemClock(), executorServiceFactory);
+<<<<<<< HEAD
     mMasterAddress =
         new Address().setHost(Configuration.getOrDefault(PropertyKey.MASTER_HOSTNAME, "localhost"))
             .setRpcPort(masterContext.getPort());
+||||||| merged common ancestors
+    mSafeModeManager = masterContext.getSafeModeManager();
+    mStartTimeMs = masterContext.getStartTimeMs();
+    mMasterAddress = new Address().setHost(Configuration.get(PropertyKey.MASTER_HOSTNAME))
+        .setRpcPort(masterContext.getPort());
+=======
+    mSafeModeManager = masterContext.getSafeModeManager();
+    mStartTimeMs = masterContext.getStartTimeMs();
+    mMasterAddress =
+        new Address().setHost(Configuration.getOrDefault(PropertyKey.MASTER_HOSTNAME, "localhost"))
+            .setRpcPort(masterContext.getPort());
+>>>>>>> upstream/enterprise-1.8
     mBlockMaster = blockMaster;
     mBlockMaster.registerLostWorkerFoundListener(mWorkerConfigStore::lostNodeFound);
     mBlockMaster.registerWorkerLostListener(mWorkerConfigStore::handleNodeLost);
@@ -216,6 +229,7 @@ public final class DefaultMetaMaster extends AbstractMaster implements MetaMaste
           new LogConfigReportHeartbeatExecutor(),
           (int) Configuration.getMs(PropertyKey.MASTER_LOG_CONFIG_REPORT_HEARTBEAT_INTERVAL)));
     } else {
+<<<<<<< HEAD
       boolean haEnabled = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED);
       // ALLUXIO CS ADD
       haEnabled = haEnabled || (Configuration.getEnum(PropertyKey.MASTER_JOURNAL_TYPE,
@@ -231,6 +245,28 @@ public final class DefaultMetaMaster extends AbstractMaster implements MetaMaste
         LOG.info("Standby master with address {} starts sending heartbeat to leader master.",
             mMasterAddress);
       }
+||||||| merged common ancestors
+      // Standby master should setup MetaMasterSync to communicate with the leader master
+      RetryHandlingMetaMasterMasterClient metaMasterClient =
+          new RetryHandlingMetaMasterMasterClient(MasterClientConfig.defaults());
+      getExecutorService().submit(new HeartbeatThread(HeartbeatContext.META_MASTER_SYNC,
+          new MetaMasterSync(mMasterAddress, metaMasterClient),
+          (int) Configuration.getMs(PropertyKey.MASTER_MASTER_HEARTBEAT_INTERVAL)));
+      LOG.info("Standby master with address {} starts sending heartbeat to leader master.",
+          mMasterAddress);
+=======
+      boolean haEnabled = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED);
+      if (haEnabled) {
+        // Standby master should setup MetaMasterSync to communicate with the leader master
+        RetryHandlingMetaMasterMasterClient metaMasterClient =
+            new RetryHandlingMetaMasterMasterClient(MasterClientConfig.defaults());
+        getExecutorService().submit(new HeartbeatThread(HeartbeatContext.META_MASTER_SYNC,
+            new MetaMasterSync(mMasterAddress, metaMasterClient),
+            (int) Configuration.getMs(PropertyKey.MASTER_MASTER_HEARTBEAT_INTERVAL)));
+        LOG.info("Standby master with address {} starts sending heartbeat to leader master.",
+            mMasterAddress);
+      }
+>>>>>>> upstream/enterprise-1.8
     }
   }
 
@@ -261,8 +297,21 @@ public final class DefaultMetaMaster extends AbstractMaster implements MetaMaste
           now.toEpochMilli());
       backupFilePath = PathUtils.concatPath(dir, backupFileName);
       try {
+<<<<<<< HEAD
         try (OutputStream ufsStream = ufs.create(backupFilePath)) {
           mMasterContext.getBackupManager().backup(ufsStream);
+||||||| merged common ancestors
+        mBackupManager.backup(ufsStream);
+      } catch (Throwable t) {
+        try {
+          ufsStream.close();
+        } catch (Throwable t2) {
+          LOG.error("Failed to close backup stream to {}", backupFilePath, t2);
+          t.addSuppressed(t2);
+=======
+        try (OutputStream ufsStream = ufs.create(backupFilePath)) {
+          mBackupManager.backup(ufsStream);
+>>>>>>> upstream/enterprise-1.8
         }
       } catch (Throwable t) {
         try {

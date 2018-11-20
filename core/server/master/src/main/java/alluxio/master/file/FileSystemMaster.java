@@ -49,7 +49,14 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.MountPointInfo;
+<<<<<<< HEAD
 import alluxio.wire.SetAclAction;
+||||||| merged common ancestors
+import alluxio.wire.TtlAction;
+=======
+import alluxio.wire.SetAclAction;
+import alluxio.wire.TtlAction;
+>>>>>>> upstream/enterprise-1.8
 import alluxio.wire.WorkerInfo;
 
 import java.io.IOException;
@@ -441,6 +448,21 @@ public interface FileSystemMaster extends Master {
       IOException;
 
   /**
+   * Sets the ACL for a path.
+   *
+   * @param path the path to set attribute for
+   * @param action the set action to perform
+   * @param entries the list of ACL entries for setting ACL
+   * @param options the options for setting ACL
+   * @throws FileDoesNotExistException if the file does not exist
+   * @throws AccessControlException if permission checking fails
+   * @throws InvalidPathException if the given path is invalid
+   */
+  void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries, SetAclOptions options)
+      throws FileDoesNotExistException, AccessControlException, InvalidPathException,
+      IOException;
+
+  /**
    * Sets the file attribute.
    * <p>
    * This operation requires users to have WRITE permission on the path. In
@@ -506,6 +528,7 @@ public interface FileSystemMaster extends Master {
    * @return a list of {@link WorkerInfo} objects representing the workers in Alluxio
    */
   List<WorkerInfo> getWorkerInfoList() throws UnavailableException;
+<<<<<<< HEAD
 
   /**
    * @return the list of sync path
@@ -552,4 +575,83 @@ public interface FileSystemMaster extends Master {
    * @return true if successfully recorded in the journal
    */
   boolean recordActiveSyncTxid(long txId, long mountId);
+||||||| merged common ancestors
+=======
+  // ALLUXIO CS ADD
+
+  /**
+   * Get the delegation token for the request user.
+   * @param renewer the user name that is allowed to renwer the token
+   * @return the delegation token
+   */
+  alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws AccessControlException, UnavailableException;
+
+  /**
+   * Renews the given delegation token.
+   *
+   * @param token the delegation token to renew
+   * @return the new expiration epoch time
+   */
+  long renewDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws AccessControlException, UnavailableException;
+
+  /**
+   * Cancels the given delegation token.
+   *
+   * @param token the delegation token to cancel
+   */
+  void cancelDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws AccessControlException, UnavailableException;
+  // ALLUXIO CS END
+
+  /**
+   * @return the list of sync path
+   */
+  List<String> getSyncPathList() throws UnavailableException, AccessControlException;
+
+  /**
+   * starts active sync on a specified alluxioURI.
+   *
+   * @param alluxioURI sync point which is a valid path in Alluxio namespace
+   * @throws UnavailableException
+   * @throws InvalidPathException
+   * @throws AccessControlException
+   */
+  void startSync(AlluxioURI alluxioURI) throws IOException, InvalidPathException,
+      AccessControlException, ConnectionFailedException;
+
+  /**
+   * stops active sync on a specific syncpoint.
+   *
+   * @param alluxioURI alluxio path that has been added as a sync point
+   * @throws UnavailableException
+   * @throws InvalidPathException
+   * @throws AccessControlException
+   */
+  void stopSync(AlluxioURI alluxioURI) throws IOException, InvalidPathException,
+      AccessControlException;
+
+  /**
+   * Starts a batch sync with a list of changed files passed in.
+   * If no files are passed in, sync the entire path.
+   * @param path the path to sync
+   * @param changedFiles collection of files that are changed under the path to sync
+   * @param executorService executor for executing parallel syncs
+   */
+  void activeSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles,
+      ExecutorService executorService) throws IOException;
+
+  /**
+   * Journal the active sync transaction id so that we can restart more efficiently.
+   *
+   * @param txId transaction id
+   * @param mountId mount id
+   * @return true if successfully recorded in the journal
+   */
+  boolean recordActiveSyncTxid(long txId, long mountId);
+>>>>>>> upstream/enterprise-1.8
 }

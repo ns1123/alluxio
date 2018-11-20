@@ -903,6 +903,7 @@ public class ConfigurationTest {
     assertEquals("value", Configuration.get(fakeExtensionKey));
     assertTrue(PropertyKey.fromString(fakeKeyName).isBuiltIn());
   }
+<<<<<<< HEAD
 
   @Test
   public void findPropertiesFileClasspath() throws Exception {
@@ -941,4 +942,45 @@ public class ConfigurationTest {
           Configuration.get(Template.MASTER_JOURNAL_UFS_OPTION_PROPERTY.format("fs.obs.endpoint")));
     }
   }
+||||||| merged common ancestors
+=======
+
+  @Test
+  public void findPropertiesFileClasspath() throws Exception {
+    try (Closeable p =
+        new SystemPropertyRule(PropertyKey.TEST_MODE.toString(), "false").toResource()) {
+      File dir = AlluxioTestDirectory.createTemporaryDirectory("findPropertiesFileClasspath");
+      Whitebox.invokeMethod(ClassLoader.getSystemClassLoader(), "addURL", dir.toURI().toURL());
+      File props = new File(dir, "alluxio-site.properties");
+      try (BufferedWriter writer = Files.newBufferedWriter(props.toPath())) {
+        writer.write(String.format("%s=%s", PropertyKey.MASTER_HOSTNAME, "test_hostname"));
+      }
+      Configuration.reset();
+      assertEquals("test_hostname", Configuration.get(PropertyKey.MASTER_HOSTNAME));
+      assertEquals(Source.siteProperty(props.getPath()),
+          Configuration.getSource(PropertyKey.MASTER_HOSTNAME));
+      props.delete();
+    }
+  }
+
+  @Test
+  public void noPropertiesAnywhere() throws Exception {
+    try (Closeable p =
+             new SystemPropertyRule(PropertyKey.TEST_MODE.toString(), "false").toResource()) {
+      Configuration.set(PropertyKey.SITE_CONF_DIR, "");
+      Configuration.reset();
+      assertEquals("0.0.0.0", Configuration.get(PropertyKey.PROXY_WEB_BIND_HOST));
+    }
+  }
+
+  @Test
+  public void initConfWithExtenstionProperty() throws Exception {
+    try (Closeable p = new SystemPropertyRule("alluxio.master.journal.ufs.option.fs.obs.endpoint",
+        "foo").toResource()) {
+      Configuration.reset();
+      assertEquals("foo",
+          Configuration.get(Template.MASTER_JOURNAL_UFS_OPTION_PROPERTY.format("fs.obs.endpoint")));
+    }
+  }
+>>>>>>> upstream/enterprise-1.8
 }

@@ -54,6 +54,17 @@ public interface PermissionChecker {
    */
   Mode.Bits getPermission(LockedInodePath inodePath);
 
+  // ALLUXIO CS ADD
+  /**
+   * Gets the permission to access inodePath for the current client user.
+   *
+   * @param inodePath the inode path
+   * @param requestedMode the access mode requested by user
+   * @return the permission
+   */
+  Mode.Bits getPermission(LockedInodePath inodePath, Mode.Bits requestedMode);
+
+  // ALLUXIO CS END
   /**
    * Checks whether a user has permission to edit the attribute of a given path.
    *

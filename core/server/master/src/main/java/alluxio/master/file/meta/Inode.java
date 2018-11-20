@@ -14,6 +14,7 @@ package alluxio.master.file.meta;
 import alluxio.Constants;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.InvalidPathException;
+<<<<<<< HEAD
 import alluxio.master.ProtobufUtils;
 import alluxio.proto.journal.File.UpdateInodeEntry;
 import alluxio.security.authorization.AccessControlList;
@@ -23,6 +24,17 @@ import alluxio.security.authorization.AclEntry;
 import alluxio.security.authorization.AclEntryType;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.util.interfaces.Scoped;
+||||||| merged common ancestors
+import alluxio.master.journal.JournalEntryRepresentable;
+=======
+import alluxio.master.journal.JournalEntryRepresentable;
+import alluxio.security.authorization.AccessControlList;
+import alluxio.security.authorization.AclAction;
+import alluxio.security.authorization.AclActions;
+import alluxio.security.authorization.AclEntry;
+import alluxio.security.authorization.AclEntryType;
+import alluxio.security.authorization.DefaultAccessControlList;
+>>>>>>> upstream/enterprise-1.8
 import alluxio.wire.FileInfo;
 import alluxio.wire.TtlAction;
 
@@ -30,9 +42,15 @@ import com.google.common.base.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+<<<<<<< HEAD
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+||||||| merged common ancestors
+=======
+import java.io.IOException;
+import java.util.List;
+>>>>>>> upstream/enterprise-1.8
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -269,6 +287,94 @@ public abstract class Inode<T> implements InodeView {
   }
 
   /**
+   * Removes the extended ACL entries. The base entries are retained.
+   *
+   * @return the updated object
+   */
+  public T removeExtendedAcl() {
+    mAcl.removeExtendedEntries();
+    return getThis();
+  }
+
+  /**
+   * Removes ACL entries.
+   *
+   * @param entries the ACL entries to remove
+   * @return the updated object
+   */
+  public T removeAcl(List<AclEntry> entries) throws IOException {
+    for (AclEntry entry : entries) {
+      if (entry.isDefault()) {
+        AccessControlList defaultAcl = getDefaultACL();
+        defaultAcl.removeEntry(entry);
+      } else {
+        mAcl.removeEntry(entry);
+      }
+    }
+    updateMask(entries);
+    return getThis();
+  }
+
+  /**
+   * Replaces all existing ACL entries with a new list of entries.
+   *
+   * @param entries the new list of ACL entries
+   * @return the updated object
+   */
+  public T replaceAcl(List<AclEntry> entries) {
+    boolean clearACL = false;
+    for (AclEntry entry : entries) {
+      /**
+       * if we are only setting default ACLs, we do not need to clear access ACL entries
+       * observed same behavior on linux
+       */
+      if (!entry.isDefault()) {
+        clearACL = true;
+      }
+    }
+    if (clearACL) {
+      mAcl.clearEntries();
+    }
+    return setAcl(entries);
+  }
+
+  /**
+   * Update Mask for the Inode.
+   * This method should be called after updates to ACL and defaultACL.
+   *
+   * @param entries the list of ACL entries
+   * @return the updated object
+   */
+  public T updateMask(List<AclEntry> entries) {
+    boolean needToUpdateACL = false;
+    boolean needToUpdateDefaultACL = false;
+
+    for (AclEntry entry : entries) {
+      if (entry.getType().equals(AclEntryType.NAMED_USER)
+          || entry.getType().equals(AclEntryType.NAMED_GROUP)
+          || entry.getType().equals(AclEntryType.OWNING_GROUP)) {
+        if (entry.isDefault()) {
+          needToUpdateDefaultACL = true;
+        } else {
+          needToUpdateACL = true;
+        }
+      }
+      if (entry.getType().equals(AclEntryType.MASK)) {
+        // If mask is explicitly set or removed then we don't need to update the mask
+        return getThis();
+      }
+    }
+    if (needToUpdateACL) {
+      mAcl.updateMask();
+    }
+
+    if (needToUpdateDefaultACL) {
+      getDefaultACL().updateMask();
+    }
+    return getThis();
+  }
+
+  /**
    * @param creationTimeMs the creation time to use (in milliseconds)
    * @return the updated object
    */
@@ -395,6 +501,7 @@ public abstract class Inode<T> implements InodeView {
    * @return the updated object
    */
   public T setMode(short mode) {
+<<<<<<< HEAD
     mAcl.setMode(mode);
     return getThis();
   }
@@ -436,6 +543,64 @@ public abstract class Inode<T> implements InodeView {
    */
   public T setInternalAcl(AccessControlList acl) {
     mAcl = acl;
+||||||| merged common ancestors
+    mMode = mode;
+=======
+    mAcl.setMode(mode);
+    return getThis();
+  }
+
+  /**
+   * @return the access control list
+   */
+  public AccessControlList getACL() {
+    return mAcl;
+  }
+
+  /**
+   * @return the default ACL associated with this inode
+   * @throws UnsupportedOperationException if the inode is a file
+   */
+  public abstract DefaultAccessControlList getDefaultACL() throws UnsupportedOperationException;
+
+  /**
+   * @param acl set the default ACL associated with this inode
+   * @throws UnsupportedOperationException if the inode is a file
+   * @return the updated object
+   */
+  public abstract T setDefaultACL(DefaultAccessControlList acl)
+      throws UnsupportedOperationException;
+
+  /**
+   * Sets ACL entries into the internal ACL.
+   * The entries will overwrite any existing correspondent entries in the internal ACL.
+   *
+   * @param entries the ACL entries
+   * @return the updated object
+   */
+  public T setAcl(List<AclEntry> entries) {
+    if (entries == null || entries.isEmpty()) {
+      return getThis();
+    }
+    for (AclEntry entry : entries) {
+      if (entry.isDefault()) {
+        getDefaultACL().setEntry(entry);
+      } else {
+        mAcl.setEntry(entry);
+      }
+    }
+    updateMask(entries);
+    return getThis();
+  }
+
+  /**
+   * Sets the internal ACL to a specified ACL.
+   * @param acl the specified ACL
+   * @return the updated object
+   */
+  public T setInternalAcl(AccessControlList acl) {
+    mAcl = acl;
+>>>>>>> upstream/enterprise-1.8
     return getThis();
   }
 
@@ -530,6 +695,32 @@ public abstract class Inode<T> implements InodeView {
   @Override
   public boolean isReadLocked() {
     return mLock.getReadHoldCount() > 0;
+  }
+
+  /**
+   * Checks whether the user or one of the groups has the permission to take the action.
+   *
+   *
+   * @param user the user checking permission
+   * @param groups the groups the user belongs to
+   * @param action the action to take
+   * @return whether permitted to take the action
+   * @see AccessControlList#checkPermission(String, List, AclAction)
+   */
+  public boolean checkPermission(String user, List<String> groups, AclAction action) {
+    return mAcl.checkPermission(user, groups, action);
+  }
+
+  /**
+   * Gets the permitted actions for a user.
+   *
+   * @param user the user
+   * @param groups the groups the user belongs to
+   * @return the permitted actions
+   * @see AccessControlList#getPermission(String, List)
+   */
+  public AclActions getPermission(String user, List<String> groups) {
+    return mAcl.getPermission(user, groups);
   }
 
   @Override

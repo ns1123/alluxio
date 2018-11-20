@@ -34,7 +34,6 @@ public class JournalTestUtils {
     try {
       return new JournalSystem.Builder()
           .setLocation(new URI(folder))
-          .setQuietTimeMs(0)
           .build();
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);

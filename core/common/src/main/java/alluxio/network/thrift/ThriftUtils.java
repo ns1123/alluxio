@@ -39,6 +39,19 @@ public final class ThriftUtils {
   private static final int SERVER_SOCKET_TIMEOUT_MS = (int) Configuration
       .getMs(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS);
 
+  // ALLUXIO CS ADD
+  /**
+   * @param transport a transport for communicating with an Alluxio Thrift server
+   * @param serviceName the service to communicate with
+   * @return a Thrift protocol for bootstrap
+   */
+  public static TProtocol createBootstrapThriftProtocol(TTransport transport, String serviceName)
+      throws UnauthenticatedException {
+    TProtocol binaryProtocol = new TBinaryProtocol(transport);
+    return new TMultiplexedProtocol(binaryProtocol, serviceName);
+  }
+
+  // ALLUXIO CS END
   /**
    * @param transport a transport for communicating with an Alluxio Thrift server
    * @param serviceName the service to communicate with

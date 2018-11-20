@@ -221,4 +221,16 @@ public final class ProtoUtils {
     }
     return e.getMessage().equals(truncatedMessage);
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Converts byte[] to ByteString.
+   *
+   * @param bytes byte array to convert from
+   * @return the converted ByteString
+   */
+  public static com.google.protobuf.ByteString copyFrom(byte[] bytes) {
+    return com.google.protobuf.ByteString.copyFrom(bytes);
+  }
+  // ALLUXIO CS END
 }

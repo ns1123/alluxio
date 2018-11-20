@@ -172,6 +172,7 @@ public abstract class AbstractUfsManager implements UfsManager {
     Preconditions.checkArgument(mountId != IdUtils.INVALID_MOUNT_ID, "mountId");
     Preconditions.checkNotNull(ufsUri, "ufsUri");
     Preconditions.checkNotNull(ufsConf, "ufsConf");
+<<<<<<< HEAD
     mMountIdToUfsInfoMap.put(mountId, new UfsClient(() -> getOrAdd(ufsUri, ufsConf), ufsUri));
     // ALLUXIO CS ADD
     Map<Class<? extends UfsService>, UfsService> ufsServices =
@@ -189,6 +190,37 @@ public abstract class AbstractUfsManager implements UfsManager {
       });
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+    mMountIdToUfsInfoMap.put(mountId, new UfsClient(new Supplier<UnderFileSystem>() {
+      @Override
+      public UnderFileSystem get() {
+        return getOrAdd(ufsUri, ufsConf);
+      }
+    }, ufsUri));
+=======
+    mMountIdToUfsInfoMap.put(mountId, new UfsClient(new Supplier<UnderFileSystem>() {
+      @Override
+      public UnderFileSystem get() {
+        return getOrAdd(ufsUri, ufsConf);
+      }
+    }, ufsUri));
+    // ALLUXIO CS ADD
+    Map<Class<? extends UfsService>, UfsService> ufsServices =
+        mMountIdToUfsServicesMap.computeIfAbsent(mountId, id -> new ConcurrentHashMap<>());
+    for (Map.Entry<Class<? extends UfsService>, UfsServiceFactory> entry
+        : mUfsServicesFactories.entrySet()) {
+      ufsServices.computeIfAbsent(entry.getKey(), serviceType -> {
+        LOG.debug("Creating UFS service {} for URI {}", serviceType.getName(), ufsUri);
+        UfsService service = entry.getValue().createUfsService(ufsUri.toString(),
+            ufsConf, serviceType);
+        if (service != null) {
+          LOG.debug("Registering UFS service {} for URI {}", serviceType.getName(), ufsUri);
+        }
+        return service;
+      });
+    }
+    // ALLUXIO CS END
+>>>>>>> upstream/enterprise-1.8
   }
 
   @Override

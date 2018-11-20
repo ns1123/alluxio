@@ -92,8 +92,12 @@ public final class LoginUser {
    * @return the login user
    */
   public static User getClientUser() throws UnauthenticatedException {
-    return getUserWithConf(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
+    User user = getUserWithConf(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("getClientUser: user = {}, subject = {} ", user, user.getSubject());
+    }
+    return user;
   }
 
   /**
@@ -104,8 +108,12 @@ public final class LoginUser {
    * @return the login user
    */
   public static User getServerUser() throws UnauthenticatedException {
-    return getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
+    User user = getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("getServerUser: user = {}, subject = {} ", user, user.getSubject());
+    }
+    return user;
   }
 
   /**
@@ -189,30 +197,9 @@ public final class LoginUser {
         }
 
         if (Boolean.getBoolean("sun.security.jgss.native")) {
-          LOG.debug("Using native library (sun.security.jgss.native)");
-          // Use MIT native Kerberos library
-          // http://docs.oracle.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
-          // Unlike the default Java GSS implementation which relies on JAAS KerberosLoginModule
-          // for initial credential acquisition, when using native GSS, the initial credential
-          // should be acquired beforehand, e.g. kinit, prior to calling JGSS APIs.
-          //
-          // Note: when "sun.security.jgss.native" is set to true, it is required to set
-          // "javax.security.auth.useSubjectCredsOnly" to false. This relaxes the restriction of
-          // requiring a GSS mechanism to obtain necessary credentials from JAAS.
-          if (Boolean.getBoolean("javax.security.auth.useSubjectCredsOnly")) {
-            throw new LoginException("javax.security.auth.useSubjectCredsOnly must be set to false "
-                + "in order to use native platform GSS integration.");
-          }
-
-          try {
-            org.ietf.jgss.GSSCredential cred =
-                alluxio.security.util.KerberosUtils.getCredentialFromJGSS();
-            subject.getPrivateCredentials().add(cred);
-          } catch (org.ietf.jgss.GSSException e) {
-            throw new LoginException("Cannot add private credential to subject with JGSS: " + e);
-          }
+          jgssLogin(subject);
         } else if (principal.isEmpty() && sExternalLoginProvider != null
-            && sExternalLoginProvider.hasKerberosCrendentials()) {
+            && sExternalLoginProvider.hasKerberosCredentials()) {
           LOG.debug("Using external login provider");
           // Try external login if a Kerberos principal is not provided in configuration.
           subject = sExternalLoginProvider.login();
@@ -223,7 +210,7 @@ public final class LoginUser {
           sPrincipal = principal;
           sKeytab = keytab;
         }
-        LOG.debug("login subject: {}", subject);
+        LOG.debug("login subject for Kerberos: {}", subject);
 
         try {
           return new User(subject);
@@ -242,7 +229,7 @@ public final class LoginUser {
       throw new UnauthenticatedException("Failed to login: " + e.getMessage(), e);
     }
 
-    LOG.debug("login subject: {}", subject);
+    LOG.debug("login subject for SIMPLE: {}", subject);
     Set<User> userSet = subject.getPrincipals(User.class);
     if (userSet.isEmpty()) {
       throw new UnauthenticatedException("Failed to login: No Alluxio User is found.");
@@ -256,6 +243,78 @@ public final class LoginUser {
       throw new UnauthenticatedException(msg.toString());
     }
     return userSet.iterator().next();
+  }
+
+  private static void jgssLogin(Subject subject)
+      throws LoginException {
+    LOG.debug("Using native library (sun.security.jgss.native)");
+    // Use MIT native Kerberos library
+    // http://docs.oracle.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
+    // Unlike the default Java GSS implementation which relies on JAAS KerberosLoginModule
+    // for initial credential acquisition, when using native GSS, the initial credential
+    // should be acquired beforehand, e.g. kinit, prior to calling JGSS APIs.
+    //
+    // Note: when "sun.security.jgss.native" is set to true, it is required to set
+    // "javax.security.auth.useSubjectCredsOnly" to false. This relaxes the restriction of
+    // requiring a GSS mechanism to obtain necessary credentials from JAAS.
+    if (Boolean.getBoolean("javax.security.auth.useSubjectCredsOnly")) {
+      throw new LoginException("javax.security.auth.useSubjectCredsOnly must be set to false "
+          + "in order to use native platform GSS integration.");
+    }
+
+    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
+    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+    try {
+      org.ietf.jgss.GSSCredential cred =
+          alluxio.security.util.KerberosUtils.getCredentialFromJGSS();
+      subject.getPrivateCredentials().add(cred);
+    } catch (org.ietf.jgss.GSSException e) {
+      if ((!alluxio.util.CommonUtils.isAlluxioServer())
+          && Configuration.getBoolean(
+              PropertyKey.SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED)) {
+        // attempts to obtain a valid Kerberos ticket by using kinit command
+        try {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("KRB5CCNAME = {}", System.getenv("KRB5CCNAME"));
+            LOG.debug("KRB5_CONFIG = {}", System.getenv("KRB5_CONFIG"));
+          }
+          if (org.apache.commons.lang.StringUtils.isEmpty(keytab)) {
+            throw new LoginException("Cannot perform a kinit: keytab is not set.");
+          }
+          if (org.apache.commons.lang.StringUtils.isEmpty(principal)) {
+            throw new LoginException("Cannot perform a kinit: principal is not set.");
+          }
+          String[] cmd = new String[] {"kinit", "-kt", keytab, principal};
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Running kinit command: {}", java.util.Arrays.toString(cmd));
+          }
+          Process p = Runtime.getRuntime().exec(cmd);
+          if (!p.waitFor(30, java.util.concurrent.TimeUnit.SECONDS)) {
+            LOG.warn("Timeout after 30 seconds while waiting for kinit to complete.");
+          }
+          if (LOG.isDebugEnabled()) {
+            String stdout = org.apache.commons.io.IOUtils.toString(p.getInputStream());
+            LOG.debug("kinit stdout: {}", stdout);
+            String stderr = org.apache.commons.io.IOUtils.toString(p.getErrorStream());
+            LOG.debug("kinit stderr: {}", stderr);
+          }
+          org.ietf.jgss.GSSCredential cred =
+              alluxio.security.util.KerberosUtils.getCredentialFromJGSS();
+          subject.getPrivateCredentials().add(cred);
+          LOG.debug("kinit succeeded");
+          e = null;
+        } catch (Exception e2) {
+          LOG.error(
+              "Error running kinit to obtain ticket from JGSS: {}, principal = {}, keytab = {}",
+              e2.getMessage(), principal, keytab);
+        }
+      }
+      if (e != null) {
+        throw new LoginException(String.format(
+            "Cannot add private credential to subject with JGSS: %s, principal = %s, keytab = %s",
+            e.getMessage(), principal, keytab));
+      }
+    }
   }
   // ALLUXIO CS ADD
 
@@ -277,16 +336,18 @@ public final class LoginUser {
     if (!authType.equals(AuthType.KERBEROS)) {
       return;
     }
-    // Furthermore, if the user sets sun.security.jgss.native to true, it's assumed that
-    // the user will take the responsibility of keeping the tickets in the ticket
-    // cache always valid. Therefore, Alluxio does not perform automatic relogin in
-    // this case at the moment.
     if (Boolean.getBoolean("sun.security.jgss.native")) {
-      // TODO(gene) maybe implement the relogin via native JGSS
+      try {
+        jgssLogin(subject);
+      } catch (LoginException e) {
+        String msg = String.format("Failed to relogin user %s using jgss.",
+            sLoginUser.getName());
+        throw new UnauthenticatedException(msg, e);
+      }
       return;
     }
     if (com.google.common.base.Strings.isNullOrEmpty(sPrincipal)
-        && sExternalLoginProvider != null && sExternalLoginProvider.hasKerberosCrendentials()) {
+        && sExternalLoginProvider != null && sExternalLoginProvider.hasKerberosCredentials()) {
       try {
         sExternalLoginProvider.relogin();
       } catch (LoginException e) {
@@ -320,6 +381,21 @@ public final class LoginUser {
       String msg = String.format("Failed to login for %s: %s",
           sLoginUser.getName(), e.getMessage());
       throw new UnauthenticatedException(msg, e);
+    }
+  }
+
+  /**
+   * Resets logged in user.
+   */
+  public static void reset() {
+    if (sLoginContext != null) {
+      try {
+        sLoginContext.logout();
+        sLoginContext = null;
+      } catch (LoginException e) {
+        LOG.warn("Failed to log out for {}: {}", sLoginUser.getName(), e.getMessage());
+      }
+      sLoginUser = null;
     }
   }
   // ALLUXIO CS END

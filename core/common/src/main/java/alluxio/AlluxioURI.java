@@ -12,11 +12,16 @@
 package alluxio;
 
 import alluxio.annotation.PublicApi;
+<<<<<<< HEAD
 
 import alluxio.exception.InvalidPathException;
 import alluxio.uri.Authority;
 import alluxio.uri.NoAuthority;
 import alluxio.uri.URI;
+||||||| merged common ancestors
+=======
+import alluxio.exception.InvalidPathException;
+>>>>>>> upstream/enterprise-1.8
 import alluxio.util.URIUtils;
 import alluxio.util.io.PathUtils;
 

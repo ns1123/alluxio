@@ -1,8 +1,14 @@
 Alluxio (formerly Tachyon)
 =======
 
+<<<<<<< HEAD
 The master branch is in version 2.0.0-SNAPSHOT:
 
+||||||| merged common ancestors
+The master branch is in version 1.8.0-SNAPSHOT:
+
+=======
+>>>>>>> upstream/enterprise-1.8
 - [Alluxio Open Source Website](http://www.alluxio.org/) | [Alluxio Latest Release Document](http://www.alluxio.org/documentation/) | [Master Branch Document](http://alluxio.org/documentation/master/) | [Alluxio Inc.](http://www.alluxio.com/)
 - [Contribute to Alluxio](http://alluxio.org/documentation/master/en/Contributing-to-Alluxio.html) and
 [New Contributor Tasks](https://alluxio.atlassian.net/issues/?jql=project%20%3D%20ALLUXIO%20AND%20labels%20%3D%20NewContributor%20AND%20status%20%3D%20Open%20AND%20Assignee%20%3D%20null)

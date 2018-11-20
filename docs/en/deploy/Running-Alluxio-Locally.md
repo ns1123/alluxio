@@ -119,6 +119,7 @@ $ ./bin/alluxio-start.sh local NoMount
 
 Options:
 
+<<<<<<< HEAD:docs/en/deploy/Running-Alluxio-Locally.md
 * Start Alluxio as a super user.
 * Add the user to start Alluxio in [sudoers](https://help.ubuntu.com/community/Sudoers).
 * Give limited sudo privileges to the running user (e.g., "alluxio") by adding the following line to
@@ -132,3 +133,26 @@ This allows Linux user "alluxio" to mount, umount, mkdir and chmod (assume they 
 specific path `/mnt/ramdisk` with sudo privileges without typing the password, but nothing else. See
 more detailed explanation about
 [Sudoer User Specifications](https://help.ubuntu.com/community/Sudoers#User_Specifications).
+||||||| merged common ancestors
+* Start Alluxio as a superuser.
+* Add the user to start Alluxio in [suderors](https://help.ubuntu.com/community/Sudoers).
+* Give limited sudo privileges to the running user (e.g., "alluxio") by adding the following line to `/etc/sudoers` on Linux:
+`alluxio ALL=(ALL) NOPASSWD: /bin/mount * /mnt/ramdisk, /bin/umount * /mnt/ramdisk, /bin/mkdir * /mnt/ramdisk, /bin/chmod * /mnt/ramdisk`
+This allows Linux user "alluxio" to mount, umount, mkdir and chmod (assume they are in `/bin/`) a specific path `/mnt/ramdisk`
+with sudo privileges without typing the password, but nothing else.
+See more detailed explanation about [Sudoer User Specifications](https://help.ubuntu.com/community/Sudoers#User_Specifications).
+=======
+* Start Alluxio as a super user.
+* Add the user to start Alluxio in [suderors](https://help.ubuntu.com/community/Sudoers).
+* Give limited sudo privileges to the running user (e.g., "alluxio") by adding the following line to
+`/etc/sudoers` on Linux:
+
+```
+alluxio ALL=(ALL) NOPASSWD: /bin/mount * /mnt/ramdisk, /bin/umount */mnt/ramdisk, /bin/mkdir * /mnt/ramdisk, /bin/chmod * /mnt/ramdisk
+```
+
+This allows Linux user "alluxio" to mount, umount, mkdir and chmod (assume they are in `/bin/`) a
+specific path `/mnt/ramdisk` with sudo privileges without typing the password, but nothing else. See
+more detailed explanation about
+[Sudoer User Specifications](https://help.ubuntu.com/community/Sudoers#User_Specifications).
+>>>>>>> upstream/enterprise-1.8:docs/en/deploy/Running-Alluxio-Locally.md

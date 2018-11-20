@@ -228,6 +228,7 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+<<<<<<< HEAD
   public boolean supportsActiveSync() {
     return false;
   }
@@ -256,6 +257,38 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+||||||| merged common ancestors
+=======
+  public boolean supportsActiveSync() {
+    return false;
+  }
+
+  @Override
+  public SyncInfo getActiveSyncInfo() {
+    return SyncInfo.emptyInfo();
+  }
+
+  @Override
+  public void startSync(AlluxioURI uri) {
+  }
+
+  @Override
+  public void stopSync(AlluxioURI uri) {
+
+  }
+
+  @Override
+  public boolean startActiveSyncPolling(long txId) {
+    return false;
+  }
+
+  @Override
+  public boolean stopActiveSyncPolling() {
+    return false;
+  }
+
+  @Override
+>>>>>>> upstream/enterprise-1.8
   public UfsMode getOperationMode(Map<String, UfsMode> physicalUfsState) {
     return null;
   }

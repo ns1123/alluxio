@@ -9,9 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.security.capability;
-
-import alluxio.exception.InvalidCapabilityException;
+package alluxio.security;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -27,17 +25,17 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * The capability key which contains the secret key which is shared between Master and Workers.
+ * The master key which contains the secret key which is shared between Master and Workers.
  * It has a key id representing the key version and an expiration time.
  */
 @ThreadSafe
-public final class CapabilityKey {
+public final class MasterKey {
   private static final String HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_1.toString();
 
   /** Key id for versioning. */
   private final long mKeyId;
   /** Key expiration time in millisecond. */
-  private final long mExpirationTimeMs;
+  private long mExpirationTimeMs;
   /** The encoded secret key in bytes. */
   private final byte[] mEncodedKey;
 
@@ -49,7 +47,7 @@ public final class CapabilityKey {
   /**
    * Default constructor.
    */
-  public CapabilityKey() {
+  public MasterKey() {
     mKeyId = 0L;
     mExpirationTimeMs = 0L;
     mEncodedKey = null;
@@ -57,15 +55,15 @@ public final class CapabilityKey {
   }
 
   /**
-   * Creates a new {@link CapabilityKey} instance.
+   * Creates a new {@link MasterKey} instance.
    *
-   * @param keyId the capability key id
+   * @param keyId the master key id
    * @param expirationTimeMs the expiration time in milliseconds
    * @param encodedKey the encoded key
    * @throws NoSuchAlgorithmException if the algorithm can not be found
    * @throws InvalidKeyException if the secret key is invalid
    */
-  public CapabilityKey(long keyId, long expirationTimeMs, byte[] encodedKey)
+  public MasterKey(long keyId, long expirationTimeMs, byte[] encodedKey)
       throws NoSuchAlgorithmException, InvalidKeyException {
     mKeyId = keyId;
     mExpirationTimeMs = expirationTimeMs;
@@ -110,10 +108,10 @@ public final class CapabilityKey {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof CapabilityKey)) {
+    if (!(o instanceof MasterKey)) {
       return false;
     }
-    CapabilityKey that = (CapabilityKey) o;
+    MasterKey that = (MasterKey) o;
 
     return mKeyId == that.getKeyId()
         && mExpirationTimeMs == that.getExpirationTimeMs()
@@ -147,21 +145,6 @@ public final class CapabilityKey {
   }
 
   /**
-   * Verifies whether the given capability is signed by the current key.
-   *
-   * @param capability the {@link Capability} to verify
-   * @throws InvalidCapabilityException if the verification failed
-   */
-  public void verifyAuthenticator(Capability capability) throws InvalidCapabilityException {
-    byte[] expectedAuthenticator = calculateHMAC(capability.getContent());
-    if (!Arrays.equals(expectedAuthenticator, capability.getAuthenticator())) {
-      // SECURITY: the expectedAuthenticator should never be printed in logs.
-      throw new InvalidCapabilityException(
-          "Invalid capability: the authenticator can not be verified.");
-    }
-  }
-
-  /**
    * Clones the Mac.
    *
    * @return the cloned Mac object
@@ -175,5 +158,13 @@ public final class CapabilityKey {
       Throwables.propagate(e);
     }
     return null;
+  }
+
+  /**
+   * Sets the expiration time.
+   * @param expirationTimeMs the expiration epoch time
+   */
+  public void setExpirationTimeMs(long expirationTimeMs) {
+    mExpirationTimeMs = expirationTimeMs;
   }
 }

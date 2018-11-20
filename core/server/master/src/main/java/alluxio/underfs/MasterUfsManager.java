@@ -13,6 +13,7 @@ package alluxio.underfs;
 
 import alluxio.AlluxioURI;
 import alluxio.exception.InvalidPathException;
+<<<<<<< HEAD
 import alluxio.master.journal.JournalContext;
 import alluxio.master.journal.JournalEntryIterable;
 import alluxio.master.journal.JournalEntryReplayable;
@@ -20,17 +21,39 @@ import alluxio.proto.journal.File;
 import alluxio.proto.journal.File.UpdateUfsModeEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.underfs.UnderFileSystem.UfsMode;
+||||||| merged common ancestors
+import alluxio.resource.CloseableResource;
+=======
+import alluxio.master.file.RpcContext;
+import alluxio.master.journal.JournalEntryIterable;
+import alluxio.proto.journal.File.UfsMode;
+import alluxio.proto.journal.File.UpdateUfsModeEntry;
+import alluxio.proto.journal.Journal.JournalEntry;
+import alluxio.resource.CloseableResource;
+>>>>>>> upstream/enterprise-1.8
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+<<<<<<< HEAD
 import java.util.HashSet;
 import java.util.Iterator;
+||||||| merged common ancestors
+=======
+import java.util.Iterator;
+>>>>>>> upstream/enterprise-1.8
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import java.util.Set;
 import java.util.function.Supplier;
+||||||| merged common ancestors
+import java.util.concurrent.ConcurrentHashMap;
+=======
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+>>>>>>> upstream/enterprise-1.8
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -38,11 +61,35 @@ import javax.annotation.concurrent.ThreadSafe;
  * A class that manages the UFS for master servers.
  */
 @ThreadSafe
+<<<<<<< HEAD
 public final class MasterUfsManager extends AbstractUfsManager
     implements JournalEntryIterable, JournalEntryReplayable {
+||||||| merged common ancestors
+public final class MasterUfsManager extends AbstractUfsManager {
+=======
+public final class MasterUfsManager extends AbstractUfsManager implements JournalEntryIterable {
+>>>>>>> upstream/enterprise-1.8
   private static final Logger LOG = LoggerFactory.getLogger(MasterUfsManager.class);
 
+<<<<<<< HEAD
   private final State mState;
+||||||| merged common ancestors
+  /**
+   * {@link alluxio.underfs.UnderFileSystem.UfsMode} and mount ids corresponding to a physical ufs.
+   */
+  public static class UfsState {
+    private UnderFileSystem.UfsMode mUfsMode;
+    private ConcurrentHashSet<Long> mMountIds;
+=======
+  /**
+   * {@link alluxio.underfs.UnderFileSystem.UfsMode} and mount ids corresponding to a physical ufs.
+   *
+   * Only the ufs modes part of this data structure is journaled.
+   */
+  public static class UfsState {
+    private UnderFileSystem.UfsMode mUfsMode;
+    private ConcurrentHashSet<Long> mMountIds;
+>>>>>>> upstream/enterprise-1.8
 
   /** A set of all managed ufs roots. */
   private final Set<String> mUfsRoots;
@@ -96,10 +143,20 @@ public final class MasterUfsManager extends AbstractUfsManager
    * @param journalContext the journal context
    * @param ufsPath the physical ufs path (scheme and authority only)
    * @param ufsMode the ufs operation mode
+   * @param rpcContext rpc context
    * @throws InvalidPathException if no managed ufs covers the given path
    */
+<<<<<<< HEAD
   public synchronized void setUfsMode(Supplier<JournalContext> journalContext, AlluxioURI ufsPath,
       UfsMode ufsMode) throws InvalidPathException {
+||||||| merged common ancestors
+  public void setUfsMode(AlluxioURI ufsPath, UnderFileSystem.UfsMode ufsMode)
+      throws InvalidPathException {
+=======
+  public void setUfsMode(AlluxioURI ufsPath, UnderFileSystem.UfsMode ufsMode,
+      RpcContext rpcContext)
+      throws InvalidPathException {
+>>>>>>> upstream/enterprise-1.8
     LOG.info("Set ufs mode for {} to {}", ufsPath, ufsMode);
 
     String root = ufsPath.getRootPath();
@@ -169,5 +226,32 @@ public final class MasterUfsManager extends AbstractUfsManager
               .build())
           .iterator();
     }
+
+    rpcContext.journal(JournalEntry.newBuilder()
+        .setUpdateUfsMode(UpdateUfsModeEntry.newBuilder()
+            .setUfsPath(key)
+            .setUfsMode(UfsMode.valueOf(ufsMode.name())))
+        .build());
+  }
+
+  @Override
+  public Iterator<JournalEntry> getJournalEntryIterator() {
+    Iterator<Entry<String, UfsState>> it = mPhysicalUfsToState.entrySet().iterator();
+    return new Iterator<JournalEntry>() {
+      @Override
+      public boolean hasNext() {
+        return it.hasNext();
+      }
+
+      @Override
+      public JournalEntry next() {
+        Entry<String, UfsState> entry = it.next();
+        return JournalEntry.newBuilder()
+            .setUpdateUfsMode(UpdateUfsModeEntry.newBuilder()
+                .setUfsPath(entry.getKey())
+                .setUfsMode(UfsMode.valueOf(entry.getValue().getUfsMode().name())))
+            .build();
+      }
+    };
   }
 }

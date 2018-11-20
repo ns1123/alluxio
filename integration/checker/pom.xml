@@ -15,7 +15,13 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-integration</artifactId>
+<<<<<<< HEAD
     <version>2.0.0-SNAPSHOT</version>
+||||||| merged common ancestors
+    <version>1.8.0-SNAPSHOT</version>
+=======
+    <version>1.8.2-SNAPSHOT</version>
+>>>>>>> upstream/enterprise-1.8
   </parent>
   <artifactId>alluxio-checker</artifactId>
   <name>Alluxio Integration - Checker</name>
@@ -24,8 +30,19 @@
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
          properly from sub-project directories -->
+<<<<<<< HEAD
     <build.path>${project.parent.parent.basedir}/build</build.path>
     <checker.hadoop.version>${hadoop.version}</checker.hadoop.version>
+||||||| merged common ancestors
+    <license.header.path>${project.parent.parent.basedir}/build/license/</license.header.path>
+    <checkstyle.path>${project.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
+    <findbugs.path>${project.parent.parent.basedir}/build/findbugs/</findbugs.path>
+=======
+    <license.header.path>${project.parent.parent.basedir}/build/license/</license.header.path>
+    <checkstyle.path>${project.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
+    <findbugs.path>${project.parent.parent.basedir}/build/findbugs/</findbugs.path>
+    <checker.hadoop.version>${hadoop.version}</checker.hadoop.version>
+>>>>>>> upstream/enterprise-1.8
   </properties>
 
   <dependencies>
@@ -107,7 +124,7 @@
                 </filter>
               </filters>
               <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"></transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
               </transformers>
             </configuration>
           </execution>

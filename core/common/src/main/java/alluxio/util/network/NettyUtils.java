@@ -46,6 +46,7 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class NettyUtils {
   private static final Logger LOG = LoggerFactory.getLogger(NettyUtils.class);
 
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   public static final ChannelType MASTER_CHANNEL_TYPE =
       getChannelType(PropertyKey.MASTER_NETWORK_NETTY_CHANNEL);
@@ -56,6 +57,18 @@ public final class NettyUtils {
       getChannelType(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL);
 
   private static Boolean sNettyEpollAvailable = null;
+||||||| merged common ancestors
+  public static final ChannelType CHANNEL_TYPE = getChannelType();
+=======
+  public static final ChannelType USER_CHANNEL_TYPE =
+      getChannelType(PropertyKey.USER_NETWORK_NETTY_CHANNEL);
+  public static final ChannelType WORKER_CHANNEL_TYPE =
+      getChannelType(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL);
+  // ALLUXIO CS ADD
+  public static final ChannelType MASTER_CHANNEL_TYPE =
+      getChannelType(PropertyKey.MASTER_NETWORK_NETTY_CHANNEL);
+  // ALLUXIO CS END
+>>>>>>> upstream/enterprise-1.8
 
   private NettyUtils() {}
 
@@ -184,10 +197,26 @@ public final class NettyUtils {
           // Waits for the authentication result. Stop the process if authentication failed.
           if (!((alluxio.network.netty.KerberosSaslClientHandler) ctx.handler())
               .channelAuthenticated(ctx)) {
-            throw new java.io.IOException("Sasl authentication is finished but failed.");
+            throw new java.io.IOException("Sasl authentication with Kerberos is finished but failed.");
           }
         } catch (Exception e) {
           throw alluxio.exception.status.AlluxioStatusException.fromThrowable(e);
+        }
+      }
+
+      if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        ctx = channel.pipeline().context(
+                alluxio.network.netty.CapabilityAuthenticationSaslClientHandler.class);
+        if (ctx != null) {
+          try {
+            // Waits for the authentication result. Stop the process if authentication failed.
+            if (!((alluxio.network.netty.CapabilityAuthenticationSaslClientHandler) ctx.handler())
+                    .channelAuthenticated(ctx)) {
+              throw new java.io.IOException("Sasl authentication with Digest is finished but failed.");
+            }
+          } catch (Exception e) {
+            throw alluxio.exception.status.AlluxioStatusException.fromThrowable(e);
+          }
         }
       }
     }
@@ -195,8 +224,24 @@ public final class NettyUtils {
   // ALLUXIO CS END
 
   /**
+<<<<<<< HEAD
    * @return whether netty epoll is available to the system
+||||||| merged common ancestors
+   * Note: Packet streaming requires {@link io.netty.channel.epoll.EpollMode} to be set to
+   * LEVEL_TRIGGERED which is not supported in netty versions < 4.0.26.Final. Without shading
+   * netty in Alluxio, we cannot use epoll.
+   *
+   * @return {@link ChannelType} to use
+=======
+   * Note: Packet streaming requires {@link io.netty.channel.epoll.EpollMode} to be set to
+   * LEVEL_TRIGGERED which is not supported in netty versions < 4.0.26.Final. Without shading netty
+   * in Alluxio, we cannot use epoll.
+   *
+   * @param key the property key for looking up the configured channel type
+   * @return the channel type to use
+>>>>>>> upstream/enterprise-1.8
    */
+<<<<<<< HEAD
   public static synchronized boolean isNettyEpollAvailable() {
     if (sNettyEpollAvailable == null) {
       // Only call checkNettyEpollAvailable once ever so that we only log the result once.
@@ -227,7 +272,36 @@ public final class NettyUtils {
   private static ChannelType getChannelType(PropertyKey key) {
     if (!isNettyEpollAvailable()) {
       return ChannelType.NIO;
+||||||| merged common ancestors
+  private static ChannelType getChannelType() {
+    try {
+      EpollChannelOption.class.getField("EPOLL_MODE");
+    } catch (Throwable e) {
+      LOG.warn("EPOLL_MODE is not supported in netty with version < 4.0.26.Final.");
+      return ChannelType.NIO;
+=======
+  private static ChannelType getChannelType(PropertyKey key) {
+    ChannelType configured = Configuration.getEnum(key, ChannelType.class);
+    if (configured == ChannelType.EPOLL) {
+      if (!Epoll.isAvailable()) {
+        LOG.info("EPOLL is not available, will use NIO");
+        return ChannelType.NIO;
+      }
+      try {
+        EpollChannelOption.class.getField("EPOLL_MODE");
+      } catch (Throwable e) {
+        LOG.warn("EPOLL_MODE is not supported in netty with version < 4.0.26.Final, will use NIO");
+        return ChannelType.NIO;
+      }
+      LOG.info("EPOLL_MODE is available");
+>>>>>>> upstream/enterprise-1.8
     }
+<<<<<<< HEAD
     return Configuration.getEnum(key, ChannelType.class);
+||||||| merged common ancestors
+    return Configuration.getEnum(PropertyKey.USER_NETWORK_NETTY_CHANNEL, ChannelType.class);
+=======
+    return configured;
+>>>>>>> upstream/enterprise-1.8
   }
 }

@@ -47,6 +47,7 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.fs.BlockLocation;
@@ -527,17 +528,80 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     // modifications to ClientContext are global, affecting all Alluxio clients in this JVM.
     // We assume here that all clients use the same configuration.
     HadoopConfigurationUtils.mergeHadoopConfiguration(conf, Configuration.global());
+<<<<<<< HEAD
+||||||| merged common ancestors
+    Configuration.set(PropertyKey.ZOOKEEPER_ENABLED, isZookeeperMode());
+    // When using zookeeper we get the leader master address from the alluxio.zookeeper.address
+    // configuration property, so the user doesn't need to specify the authority.
+    // ALLUXIO CS REPLACE
+    // if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+    // ALLUXIO CS WITH
+    if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED) && alluxio.util.ConfigurationUtils
+        .getMasterRpcAddresses(Configuration.global()).size() == 1) {
+    // ALLUXIO CS END
+      Preconditions.checkNotNull(uri.getHost(), PreconditionMessage.URI_HOST_NULL);
+      Preconditions.checkNotNull(uri.getPort(), PreconditionMessage.URI_PORT_NULL);
+      Configuration.set(PropertyKey.MASTER_HOSTNAME, uri.getHost());
+      Configuration.set(PropertyKey.MASTER_RPC_PORT, uri.getPort());
+    }
+=======
+    Configuration.set(PropertyKey.ZOOKEEPER_ENABLED, isZookeeperMode());
+    // When using zookeeper we get the leader master address from the alluxio.zookeeper.address
+    // configuration property, so the user doesn't need to specify the authority.
+    // ALLUXIO CS REPLACE
+    // if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+    // ALLUXIO CS WITH
+    if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED) && alluxio.util.ConfigurationUtils
+        .getMasterRpcAddresses(Configuration.global()).size() == 1) {
+    // ALLUXIO CS END
+      Preconditions.checkNotNull(uri.getHost(), PreconditionMessage.URI_HOST_NULL);
+      Preconditions.checkState(uri.getPort() != -1, PreconditionMessage.URI_PORT_NULL);
+      Configuration.set(PropertyKey.MASTER_HOSTNAME, uri.getHost());
+      Configuration.set(PropertyKey.MASTER_RPC_PORT, uri.getPort());
+    }
+>>>>>>> upstream/enterprise-1.8
 
+<<<<<<< HEAD
     // Connection details in the URI has the highest priority
     Configuration.global().merge(uriConfProperties, Source.RUNTIME);
+||||||| merged common ancestors
+    // These must be reset to pick up the change to the master address.
+    // TODO(andrew): We should reset key value system in this situation - see ALLUXIO-1706.
+    LineageContext.INSTANCE.reset();
+    FileSystemContext.get().reset();
+=======
+    // These must be reset to pick up the change to the master address.
+    // TODO(andrew): We should reset key value system in this situation - see ALLUXIO-1706.
+    LineageContext.INSTANCE.reset();
+    FileSystemContext.get().reset(Configuration.global());
+>>>>>>> upstream/enterprise-1.8
 
+<<<<<<< HEAD
     // This must be reset to pick up the change to the master address.
     LOG.info("Initializing filesystem context with connect details {}",
         Factory.getConnectDetails(Configuration.global()));
     FileSystemContext.get().reset(Configuration.global());
     // ALLUXIO CS ADD
+||||||| merged common ancestors
+    // ALLUXIO CS ADD
+=======
+    // Try to connect to master, if it fails, the provided uri is invalid.
+    // ALLUXIO CS REPLACE
+    // FileSystemMasterClient client = FileSystemContext.get().acquireMasterClient();
+    // ALLUXIO CS WITH
+>>>>>>> upstream/enterprise-1.8
     alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+<<<<<<< HEAD
+||||||| merged common ancestors
+
+=======
+    // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
+    // to authenticate with master.
+    updateFileSystemAndContext();
+    FileSystemMasterClient client = mContext.acquireMasterClient();
+>>>>>>> upstream/enterprise-1.8
     // ALLUXIO CS END
+<<<<<<< HEAD
   }
 
   /**
@@ -575,6 +639,27 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       // ALLUXIO CS END
     }
     return alluxioConfProperties;
+||||||| merged common ancestors
+    // Try to connect to master, if it fails, the provided uri is invalid.
+    FileSystemMasterClient client = FileSystemContext.get().acquireMasterClient();
+    try {
+      client.connect();
+      // Connected, initialize.
+    } finally {
+      FileSystemContext.get().releaseMasterClient(client);
+    }
+=======
+    try {
+      client.connect();
+      // Connected, initialize.
+    } finally {
+      // ALLUXIO CS REPLACE
+      // FileSystemContext.get().releaseMasterClient(client);
+      // ALLUXIO CS WITH
+      mContext.releaseMasterClient(client);
+      // ALLUXIO CS END
+    }
+>>>>>>> upstream/enterprise-1.8
   }
 
   /**
@@ -591,15 +676,38 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
 
     // Merge hadoop configuration into Alluxio configuration
     HadoopConfigurationUtils.mergeHadoopConfiguration(conf, alluxioConf);
+<<<<<<< HEAD
 
     // Merge connection details in URI into Alluxio configuration
     alluxioConf.merge(uriConfProperties, Source.RUNTIME);
 
+||||||| merged common ancestors
+=======
+    if (uri.getHost() != null && !uri.getHost().isEmpty()) {
+      alluxioConf.merge(ImmutableMap.of(PropertyKey.MASTER_HOSTNAME, uri.getHost()),
+          Source.RUNTIME);
+      if (uri.getPort() != -1) {
+        alluxioConf.merge(ImmutableMap.of(PropertyKey.MASTER_RPC_PORT, uri.getPort()),
+            Source.RUNTIME);
+      }
+    }
+>>>>>>> upstream/enterprise-1.8
     ConnectDetails newDetails = Factory.getConnectDetails(alluxioConf);
     ConnectDetails oldDetails = FileSystemContext.get()
         .getMasterInquireClient().getConnectDetails();
 
     return newDetails.equals(oldDetails);
+  }
+
+  private String buildTokenService(URI uri) {
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
+        || alluxio.util.ConfigurationUtils.getMasterRpcAddresses(Configuration.global()).size() > 1) {
+      // builds token service name for logic alluxio service uri (HA)
+      return uri.toString();
+    }
+
+    // builds token service name for single master address.
+    return org.apache.hadoop.security.SecurityUtil.buildTokenService(uri).toString();
   }
 
   /**
@@ -610,7 +718,32 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     Subject subject = getHadoopSubject();
     if (subject != null) {
       LOG.debug("Using Hadoop subject: {}", subject);
+<<<<<<< HEAD
       mContext = FileSystemContext.get(subject);
+||||||| merged common ancestors
+      mContext = FileSystemContext.create(subject);
+=======
+      mContext = FileSystemContext.get(subject);
+      // ALLUXIO CS ADD
+      try {
+        UserGroupInformation user = UserGroupInformation.getCurrentUser();
+        if (!user.getTokens().isEmpty()) {
+          String tokenService = buildTokenService(mUri);
+          List<String> masters = mContext.getMasterInquireClient().getMasterRpcAddresses().stream()
+              .map(addr ->
+                  HostAndPort.fromParts(addr.getAddress().getHostAddress(), addr.getPort()).toString())
+              .collect(toList());
+          LOG.debug("Checking Alluxio delegation token for {} on service {}", subject, tokenService);
+          if (HadoopKerberosLoginProvider.populateAlluxioTokens(user, subject, tokenService, masters)) {
+            // update context after subject is populated with token
+            mContext = FileSystemContext.get(subject);
+          }
+        }
+      } catch (IOException e) {
+        LOG.warn("unable to populate Alluxio tokens.", e);
+      }
+      // ALLUXIO CS END
+>>>>>>> upstream/enterprise-1.8
       mFileSystem = FileSystem.Factory.get(mContext);
     } else {
       LOG.debug("No Hadoop subject. Using FileSystem Context without subject.");
@@ -798,6 +931,76 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public String getCanonicalServiceName() {
+    return buildTokenService(getUri());
+  }
+
+  @Override
+  public org.apache.hadoop.security.token.Token<?>[] addDelegationTokens(
+      final String renewer, org.apache.hadoop.security.Credentials credentials) throws IOException {
+    LOG.debug("addDelegationTokens(renewer={})", renewer);
+    return super.addDelegationTokens(renewer, credentials);
+  }
+
+  @Override
+  public org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws IOException {
+    LOG.debug("getDelegationToken(renewer={})", renewer);
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+        token = null;
+    try {
+      token = mFileSystem.getDelegationToken(renewer);
+    } catch (AlluxioException e) {
+      LOG.warn("Error getting delegation token: {}", e);
+      return null;
+    }
+    LOG.debug("getDelegationToken, got Alluxio token {}", token.toString());
+    // converts Alluxio token to HDFS token
+    AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId());
+    org.apache.hadoop.io.Text tokenService = new org.apache.hadoop.io.Text(buildTokenService(mUri));
+    org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> hadoopToken =
+        new org.apache.hadoop.security.token.Token<>(id.getBytes(), token.getPassword(),
+            id.getKind(), tokenService);
+    LOG.debug("getDelegationToken, return {}", hadoopToken.toString());
+    return hadoopToken;
+  }
+
+  private alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      extractAlluxioToken(org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> token)
+      throws IOException {
+    alluxio.security.authentication.DelegationTokenIdentifier id =
+        token.decodeIdentifier().getAlluxioIdentifier();
+    return new alluxio.security.authentication.Token<>(id, token.getPassword());
+  }
+
+  long renewDelegationToken(
+      org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> token)
+      throws IOException {
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+        alluxioToken = extractAlluxioToken(token);
+    try {
+      return mFileSystem.renewDelegationToken(alluxioToken);
+    } catch (AlluxioException e) {
+      throw alluxio.exception.status.AlluxioStatusException.fromAlluxioException(e);
+    }
+  }
+
+  void cancelDelegationToken(
+      org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> token)
+      throws IOException {
+    alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+        alluxioToken = extractAlluxioToken(token);
+    try {
+      mFileSystem.cancelDelegationToken(alluxioToken);
+    } catch (AlluxioException e) {
+      throw alluxio.exception.status.AlluxioStatusException.fromAlluxioException(e);
+    }
+  }
+
+  // ALLUXIO CS END
   /**
    * Convenience method which ensures the given path exists, wrapping any {@link AlluxioException}
    * in {@link IOException}.

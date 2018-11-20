@@ -192,6 +192,37 @@ public interface FileSystem {
   void free(AlluxioURI path, FreeOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException;
 
+  // ALLUXIO CS ADD
+  /**
+   * Gets the delegation token for the request user.
+   *
+   * @param renewer the name of the user who is allowed to renew this token
+   * @return the delegation token
+   */
+  alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws IOException, AlluxioException;
+
+  /**
+   * Renews the given delegation token.
+   *
+   * @param token the delegation token to renew
+   * @return the new expiration epoch time
+   */
+  long renewDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws IOException, AlluxioException;
+
+  /**
+   * Cancels the given delegation token.
+   *
+   * @param token the delegation token to cancel
+   */
+  void cancelDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      throws IOException, AlluxioException;
+
+  // ALLUXIO CS END
   /**
    * Convenience method for {@link #getStatus(AlluxioURI, GetStatusOptions)} with default options.
    *
@@ -341,6 +372,7 @@ public interface FileSystem {
       throws FileDoesNotExistException, IOException, AlluxioException;
 
   /**
+<<<<<<< HEAD
    * Convenience method for {@link #setAcl(AlluxioURI, SetAclAction, List, SetAclOptions)} with
    * default options.
    *
@@ -379,6 +411,35 @@ public interface FileSystem {
       throws FileDoesNotExistException, IOException, AlluxioException;
 
   /**
+||||||| merged common ancestors
+=======
+   * Starts the active syncing process on an Alluxio path.
+   * @param path the path to sync
+   */
+  void startSync(AlluxioURI path)
+      throws FileDoesNotExistException, IOException, AlluxioException;
+
+  /**
+   * Stops the active syncing process on an Alluxio path.
+   * @param path the path to stop syncing
+   */
+  void stopSync(AlluxioURI path)
+      throws FileDoesNotExistException, IOException, AlluxioException;
+
+  /**
+   * Sets the ACL for a path.
+   *
+   * @param path the path to set the ACL for
+   * @param action the set action to perform
+   * @param entries the ACL entries
+   * @param options options to associate with this operation
+   * @throws FileDoesNotExistException if the given file does not exist
+   */
+  void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries, SetAclOptions options)
+      throws FileDoesNotExistException, IOException, AlluxioException;
+
+  /**
+>>>>>>> upstream/enterprise-1.8
    * Convenience method for {@link #setAttribute(AlluxioURI, SetAttributeOptions)} with default
    * options.
    *

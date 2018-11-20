@@ -14,12 +14,21 @@ package alluxio.underfs;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+<<<<<<< HEAD
 import alluxio.annotation.PublicApi;
 import alluxio.SyncInfo;
 import alluxio.collections.Pair;
 import alluxio.security.authorization.AccessControlList;
 import alluxio.security.authorization.AclEntry;
 import alluxio.security.authorization.DefaultAccessControlList;
+||||||| merged common ancestors
+=======
+import alluxio.SyncInfo;
+import alluxio.collections.Pair;
+import alluxio.security.authorization.AccessControlList;
+import alluxio.security.authorization.AclEntry;
+import alluxio.security.authorization.DefaultAccessControlList;
+>>>>>>> upstream/enterprise-1.8
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.DeleteOptions;
 import alluxio.underfs.options.FileLocationOptions;

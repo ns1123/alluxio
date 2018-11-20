@@ -37,6 +37,18 @@ public final class AuthenticatedClientUser {
    */
   private static ThreadLocal<User> sUserThreadLocal = new ThreadLocal<>();
 
+  // ALLUXIO CS ADD
+  /**
+   * A {@link ThreadLocal} variable to maintain the connection user along with a specific thread.
+   */
+  private static ThreadLocal<User> sConnectionUserThreadLocal = new ThreadLocal<>();
+
+  /**
+   * A {@link ThreadLocal} variable to maintain the authentication method along with a specific thread.
+   */
+  private static ThreadLocal<String> sConnectionAuthMethod = new ThreadLocal<>();
+
+  // ALLUXIO CS END
   /**
    * Creates a {@link User} and sets it to the {@link ThreadLocal} variable.
    *
@@ -47,6 +59,7 @@ public final class AuthenticatedClientUser {
   }
 
   /**
+<<<<<<< HEAD
    * Sets {@link User} to the {@link ThreadLocal} variable.
    *
    * @param user the client user object
@@ -56,6 +69,38 @@ public final class AuthenticatedClientUser {
   }
 
   /**
+||||||| merged common ancestors
+=======
+   * Sets {@link User} to the {@link ThreadLocal} variable.
+   *
+   * @param user the client user object
+   */
+  public static void set(User user) {
+    sUserThreadLocal.set(user);
+  }
+
+  // ALLUXIO CS ADD
+  /**
+   * Creates a connection {@link User} and sets it to the {@link ThreadLocal} variable.
+   *
+   * @param userName the name of the connection user
+   */
+  public static void setConnectionUser(String userName) {
+    sConnectionUserThreadLocal.set(new User(userName));
+  }
+
+  /**
+   * Sets the connection authentication method to the {@link ThreadLocal} variable.
+   *
+   * @param authMethod the name of the authentication method
+   */
+  public static void setAuthMethod(String authMethod) {
+    sConnectionAuthMethod.set(authMethod);
+  }
+
+  // ALLUXIO CS END
+  /**
+>>>>>>> upstream/enterprise-1.8
    * Gets the {@link User} from the {@link ThreadLocal} variable.
    *
    * @return the client user, null if the user is not present
@@ -95,6 +140,38 @@ public final class AuthenticatedClientUser {
     }
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Gets the connection user name from the {@link ThreadLocal} variable.
+   *
+   * @return the client user in string, null if the user is not present
+   * @throws AccessControlException if the authentication is not enabled
+   */
+  public static String getConnectionUser() throws AccessControlException {
+    if (!SecurityUtils.isAuthenticationEnabled()) {
+      throw new AccessControlException(ExceptionMessage.AUTHENTICATION_IS_NOT_ENABLED.getMessage());
+    }
+    User user = sConnectionUserThreadLocal.get();
+    if (user == null) {
+      return null;
+    }
+    return user.getName();
+  }
+
+  /**
+   * Gets the connection authentication method from the {@link ThreadLocal} variable.
+   *
+   * @return the client user in string, null if the user is not present
+   * @throws AccessControlException if the authentication is not enabled
+   */
+  public static String getAuthMethod() throws AccessControlException {
+    if (!SecurityUtils.isAuthenticationEnabled()) {
+      throw new AccessControlException(ExceptionMessage.AUTHENTICATION_IS_NOT_ENABLED.getMessage());
+    }
+    return sConnectionAuthMethod.get();
+  }
+
+  // ALLUXIO CS END
   /**
    * Removes the {@link User} from the {@link ThreadLocal} variable.
    */

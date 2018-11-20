@@ -216,6 +216,26 @@ public class DefaultMetricsMaster extends AbstractMaster implements MetricsMaste
   @Override
   public void workerHeartbeat(String hostname, List<Metric> metrics) {
     mMetricsStore.putWorkerMetrics(hostname, metrics);
+<<<<<<< HEAD
+  }
+
+  /**
+   * Heartbeat executor that updates the cluster metrics.
+   */
+  private class ClusterMetricsUpdater implements HeartbeatExecutor {
+    @Override
+    public void heartbeat() throws InterruptedException {
+      updateMultiValueMetrics();
+    }
+
+    @Override
+    public void close() {
+      // nothing to clean up
+    }
+||||||| merged common ancestors
+    updateMultiValueMetrics();
+=======
+>>>>>>> upstream/enterprise-1.8
   }
 
   /**
@@ -232,4 +252,5 @@ public class DefaultMetricsMaster extends AbstractMaster implements MetricsMaste
       // nothing to clean up
     }
   }
+
 }

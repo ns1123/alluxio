@@ -93,8 +93,15 @@ public final class UfsSyncUtils {
    * @param ufsFingerprint the ufs fingerprint to check for the sync
    * @return true of the inode is synced with the ufs status
    */
+<<<<<<< HEAD
   public static boolean inodeUfsIsContentSynced(InodeView inode, Fingerprint inodeFingerprint,
       Fingerprint ufsFingerprint) {
+||||||| merged common ancestors
+  public static boolean inodeUfsIsContentSynced(Inode inode, Fingerprint ufsFingerprint) {
+=======
+  public static boolean inodeUfsIsContentSynced(Inode inode, Fingerprint inodeFingerprint,
+      Fingerprint ufsFingerprint) {
+>>>>>>> upstream/enterprise-1.8
     boolean isSyncedUnpersisted =
         !inode.isPersisted() && !ufsFingerprint.isValid();
     boolean isSyncedPersisted;
@@ -114,8 +121,16 @@ public final class UfsSyncUtils {
    * @param ufsFingerprint the ufs fingerprint to check for the sync
    * @return true of the inode is synced with the ufs status
    */
+<<<<<<< HEAD
   public static boolean inodeUfsIsMetadataSynced(InodeView inode, Fingerprint inodeFingerprint,
       Fingerprint ufsFingerprint) {
+||||||| merged common ancestors
+  public static boolean inodeUfsIsMetadataSynced(Inode inode, Fingerprint ufsFingerprint) {
+    Fingerprint inodeFingerprint = Fingerprint.parse(inode.getUfsFingerprint());
+=======
+  public static boolean inodeUfsIsMetadataSynced(Inode inode, Fingerprint inodeFingerprint,
+      Fingerprint ufsFingerprint) {
+>>>>>>> upstream/enterprise-1.8
     return inodeFingerprint.isValid() && inodeFingerprint.matchMetadata(ufsFingerprint);
   }
 

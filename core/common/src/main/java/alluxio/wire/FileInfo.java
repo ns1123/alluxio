@@ -633,14 +633,30 @@ public final class FileInfo implements Serializable {
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS REPLACE
         // mPersistenceState, mMountPoint, fileBlockInfos, TtlAction.toThrift(mTtlAction), mMountId,
+<<<<<<< HEAD
         // mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl, mReplicationMax,
         // mReplicationMin);
+||||||| merged common ancestors
+        // mInAlluxioPercentage, mUfsFingerprint);
+=======
+        // mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl);
+>>>>>>> upstream/enterprise-1.8
         // ALLUXIO CS WITH
+<<<<<<< HEAD
         mPersistenceState, mMountPoint, fileBlockInfos, mEncrypted, TtlAction.toThrift(mTtlAction),
         mMountId, mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl, mReplicationMax,
         mReplicationMin);
         // ALLUXIO CS END
     // ALLUXIO CS ADD
+||||||| merged common ancestors
+        mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
+        mEncrypted, TtlAction.toThrift(mTtlAction), mMountId, mInAlluxioPercentage,
+        mUfsFingerprint);
+=======
+        mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
+        mEncrypted, TtlAction.toThrift(mTtlAction), mMountId, mInAlluxioPercentage,
+        mUfsFingerprint, tAcl, tDefaultAcl);
+>>>>>>> upstream/enterprise-1.8
     if (mCapability != null) {
       info.setCapability(mCapability.toThrift());
     }
@@ -744,10 +760,18 @@ public final class FileInfo implements Serializable {
         // ALLUXIO CS ADD
         mCapability, mEncrypted,
         // ALLUXIO CS END
+<<<<<<< HEAD
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode, mReplicationMax,
         mReplicationMin, mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction,
         mInAlluxioPercentage, mUfsFingerprint, mAcl, mDefaultAcl);
+||||||| merged common ancestors
+        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage,
+        mUfsFingerprint);
+=======
+        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction, mInAlluxioPercentage,
+        mUfsFingerprint, mAcl, mDefaultAcl);
+>>>>>>> upstream/enterprise-1.8
   }
 
   @Override

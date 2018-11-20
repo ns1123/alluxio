@@ -54,10 +54,34 @@ alluxio.master.jvm.monitor.enabled:
   'Whether to enable start JVM monitor thread on master.'
 alluxio.master.keytab.file:
   'Kerberos keytab file for Alluxio master.'
+<<<<<<< HEAD
 alluxio.master.log.config.report.heartbeat.interval:
   'The interval for periodically logging the configuration check report.'
 alluxio.master.master.heartbeat.interval:
   'The interval between Alluxio masters'' heartbeats.'
+||||||| merged common ancestors
+alluxio.master.lineage.checkpoint.class:
+  'The class name of the checkpoint strategy for lineage output files. The default strategy is to checkpoint the latest completed lineage, i.e. the lineage whose output files are completed.'
+alluxio.master.lineage.checkpoint.interval:
+  'The interval between Alluxio''s checkpoint scheduling.'
+alluxio.master.lineage.recompute.interval:
+  'The interval between Alluxio''s recompute execution. The executor scans the all the lost files tracked by lineage, and re-executes the corresponding jobs.'
+alluxio.master.lineage.recompute.log.path:
+  'The path to the log that the recompute executor redirects the job''s stdout into.'
+=======
+alluxio.master.lineage.checkpoint.class:
+  'The class name of the checkpoint strategy for lineage output files. The default strategy is to checkpoint the latest completed lineage, i.e. the lineage whose output files are completed.'
+alluxio.master.lineage.checkpoint.interval:
+  'The interval between Alluxio''s checkpoint scheduling.'
+alluxio.master.lineage.recompute.interval:
+  'The interval between Alluxio''s recompute execution. The executor scans the all the lost files tracked by lineage, and re-executes the corresponding jobs.'
+alluxio.master.lineage.recompute.log.path:
+  'The path to the log that the recompute executor redirects the job''s stdout into.'
+alluxio.master.log.config.report.heartbeat.interval:
+  'The interval for periodically logging the configuration check report.'
+alluxio.master.master.heartbeat.interval:
+  'The interval between Alluxio masters'' heartbeats.'
+>>>>>>> upstream/enterprise-1.8
 alluxio.master.mount.table.root.alluxio:
   'Alluxio root mount point.'
 alluxio.master.mount.table.root.option:
@@ -76,8 +100,14 @@ alluxio.master.port:
   'The port that Alluxio master node runs on.'
 alluxio.master.principal:
   'Kerberos principal for Alluxio master.'
+<<<<<<< HEAD
 alluxio.master.serving.thread.timeout:
   'When stepping down from being the primary, the master will wait this long for the thrift serving thread to stop before giving up and shutting down the server.'
+||||||| merged common ancestors
+alluxio.master.retry:
+  'The number of retries that the client connects to master. (NOTE: this property is deprecated, use `alluxio.user.rpc.retry.max.num.retry` instead).'
+=======
+>>>>>>> upstream/enterprise-1.8
 alluxio.master.startup.block.integrity.check.enabled:
   'Whether the system should be checked on startup for orphaned blocks (blocks having no corresponding files but still taking system resource due to various system failures). Orphaned blocks will be deleted during master startup if this property is true. This property is available since 1.7.1'
 alluxio.master.startup.consistency.check.enabled:

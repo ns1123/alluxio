@@ -470,6 +470,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.SERVER)
           .build();
+<<<<<<< HEAD
   public static final PropertyKey WEB_TEMP_PATH =
       new Builder(Name.WEB_TEMP_PATH)
           .setDefaultValue(String.format("${%s}/web/", Name.WORK_DIR))
@@ -477,6 +478,17 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.IGNORE)
           .setScope(Scope.SERVER)
           .build();
+||||||| merged common ancestors
+=======
+  public static final PropertyKey WEB_TEMP_PATH =
+      new Builder(Name.WEB_TEMP_PATH)
+          .setDefaultValue(String.format("${%s}/web/", Name.WORK_DIR))
+          .setDescription("Path to store temporary web server files.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.IGNORE)
+          .setScope(Scope.SERVER)
+          .setIsHidden(true)
+          .build();
+>>>>>>> upstream/enterprise-1.8
   public static final PropertyKey WEB_THREADS =
       new Builder(Name.WEB_THREADS)
           .setDefaultValue(1)
@@ -556,6 +568,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
+<<<<<<< HEAD
   public static final PropertyKey UNDERFS_CLEANUP_ENABLED =
       new Builder(Name.UNDERFS_CLEANUP_ENABLED)
           .setDefaultValue(false)
@@ -575,6 +588,28 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
+||||||| merged common ancestors
+=======
+  public static final PropertyKey UNDERFS_CLEANUP_ENABLED =
+      new Builder(Name.UNDERFS_CLEANUP_ENABLED)
+          .setDefaultValue(false)
+          .setDescription("Whether or not to clean up under filesystem periodically."
+              + "Some ufs operations may not be completed and cleaned up successfully "
+              + "in normal ways and leave some intermediate data that needs periodical cleanup."
+              + "If enabled, all the mount points will be cleaned up when a leader master starts "
+              + "or cleanup interval is reached. This should be used sparingly.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey UNDERFS_CLEANUP_INTERVAL =
+      new Builder(Name.UNDERFS_CLEANUP_INTERVAL)
+          .setDefaultValue("1day")
+          .setDescription("The interval for periodically cleaning all the "
+              + " mounted under filesystem.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
+>>>>>>> upstream/enterprise-1.8
   public static final PropertyKey UNDERFS_LISTING_LENGTH =
       new Builder(Name.UNDERFS_LISTING_LENGTH)
           .setDefaultValue(1000)
@@ -865,6 +900,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.SERVER)
           .build();
+<<<<<<< HEAD
   public static final PropertyKey UNDERFS_S3A_STREAMING_UPLOAD_ENABLED =
       new Builder(Name.UNDERFS_S3A_STREAMING_UPLOAD_ENABLED)
           .setDefaultValue(false)
@@ -896,6 +932,26 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.SERVER)
           .build();
+||||||| merged common ancestors
+=======
+  public static final PropertyKey UNDERFS_S3A_STREAMING_UPLOAD_ENABLED =
+      new Builder(Name.UNDERFS_S3A_STREAMING_UPLOAD_ENABLED)
+          .setDefaultValue(false)
+          .setDescription("(Experimental) If true, using streaming upload to write to S3A.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.SERVER)
+          .build();
+  public static final PropertyKey UNDERFS_S3A_STREAMING_UPLOAD_PARTITION_SIZE =
+      new Builder(Name.UNDERFS_S3A_STREAMING_UPLOAD_PARTITION_SIZE)
+          .setDefaultValue("64MB")
+          .setDescription("Maximum allowable size of a single buffer file when using "
+              + "S3A streaming upload. When the buffer file reaches the partition size, "
+              + "it will be uploaded and the upcoming data will write to other buffer files."
+              + "If the partition size is too small, S3A upload speed might be affected. ")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.SERVER)
+          .build();
+>>>>>>> upstream/enterprise-1.8
 
   //
   // UFS access control related properties
@@ -1477,6 +1533,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
+<<<<<<< HEAD
   public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_RETRY_TIMEOUT =
       new Builder(Name.MASTER_ACTIVE_UFS_SYNC_RETRY_TIMEOUT)
           .setDescription("Retry period before workers give up on connecting to master")
@@ -1539,6 +1596,70 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setScope(Scope.MASTER)
           .build();
 
+||||||| merged common ancestors
+=======
+  public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_RETRY_TIMEOUT =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_RETRY_TIMEOUT)
+          .setDescription("Retry period before workers give up on connecting to master")
+          .setDefaultValue("1hour")
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_INTERVAL_MS =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_INTERVAL)
+          .setAlias(new String[]{"alluxio.master.activesync.interval.ms"})
+          .setDefaultValue("30sec")
+          .setDescription("Time interval to periodically actively sync UFS")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_BATCH_INTERVAL =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_BATCH_INTERVAL)
+          .setAlias(new String[]{"alluxio.master.activesync.batchinterval.ms"})
+          .setDefaultValue("1sec")
+          .setDescription("Time interval to batch incoming events for active syncing UFS")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_MAX_AGE =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_MAX_AGE)
+          .setDefaultValue("10")
+          .setDescription("Number of intervals before force syncing a "
+              + "directory as part of actively syncing UFS")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_INITIAL_SYNC =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_INITIAL_SYNC)
+          .setDefaultValue("true")
+          .setDescription("Perform an initial sync when we add a sync point")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .setIsHidden(true)
+          .build();
+  public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_MAX_ACTIVITY =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_MAX_ACTIVITY)
+          .setAlias(new String[]{"alluxio.master.activesync.maxactivity"})
+          .setDefaultValue("10")
+          .setDescription("Max number of changes in a directory to be considered for active syncing")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_ACTIVE_UFS_POLL_TIMEOUT =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_POLL_TIMEOUT)
+          .setDefaultValue("10sec")
+          .setDescription("Max time to wait before timing out a polling operation")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_EVENT_RATE_INTERVAL =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_EVENT_RATE_INTERVAL)
+          .setDefaultValue("60sec")
+          .setDescription("The time interval we use to estimate incoming event rate")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
+
+>>>>>>> upstream/enterprise-1.8
   public static final PropertyKey MASTER_UFS_BLOCK_LOCATION_CACHE_CAPACITY =
       new Builder(Name.MASTER_UFS_BLOCK_LOCATION_CACHE_CAPACITY)
           .setDefaultValue(1000000)
@@ -2642,6 +2763,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
           .build();
+<<<<<<< HEAD
   public static final PropertyKey USER_FILE_LOAD_TTL =
       new Builder(Name.USER_FILE_LOAD_TTL)
           .setDefaultValue(Constants.NO_TTL)
@@ -2653,6 +2775,20 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("When file's ttl is expired, the action performs on it. "
               + "FREE by default")
           .build();
+||||||| merged common ancestors
+  public static final PropertyKey USER_FILE_LOAD_TTL =
+      new Builder(Name.USER_FILE_LOAD_TTL)
+          .setDefaultValue(Constants.NO_TTL)
+          .setDescription("Time to live for files loaded from UFS by a user, no ttl by default.")
+          .build();
+  public static final PropertyKey USER_FILE_LOAD_TTL_ACTION =
+      new Builder(Name.USER_FILE_LOAD_TTL_ACTION)
+          .setDefaultValue("DELETE")
+          .setDescription("When file's ttl is expired, the action performs on it. "
+              + "DELETE by default")
+          .build();
+=======
+>>>>>>> upstream/enterprise-1.8
   public static final PropertyKey USER_FILE_READ_TYPE_DEFAULT =
       new Builder(Name.USER_FILE_READ_TYPE_DEFAULT)
           .setDefaultValue("CACHE_PROMOTE")
@@ -2682,6 +2818,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
           .build();
+<<<<<<< HEAD
   public static final PropertyKey USER_FILE_CREATE_TTL =
       new Builder(Name.USER_FILE_CREATE_TTL)
           .setDefaultValue(Constants.NO_TTL)
@@ -2699,6 +2836,20 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "writing data to Alluxio but fallback to write to UFS without stopping the "
               + "application. This property only works when the write type is ASYNC_THROUGH.")
           .setDefaultValue(false).build();
+||||||| merged common ancestors
+  public static final PropertyKey USER_FILE_CREATE_TTL =
+      new Builder(Name.USER_FILE_CREATE_TTL)
+          .setDefaultValue(Constants.NO_TTL)
+          .setDescription("Time to live for files created by a user, no ttl by default.")
+          .build();
+  public static final PropertyKey USER_FILE_CREATE_TTL_ACTION =
+      new Builder(Name.USER_FILE_CREATE_TTL_ACTION)
+          .setDefaultValue("DELETE")
+          .setDescription("When file's ttl is expired, the action performs on it. "
+              + "DELETE by default")
+          .build();
+=======
+>>>>>>> upstream/enterprise-1.8
   public static final PropertyKey USER_FILE_WRITE_LOCATION_POLICY =
       new Builder(Name.USER_FILE_WRITE_LOCATION_POLICY)
           .setDefaultValue("alluxio.client.file.policy.LocalFirstPolicy")
@@ -2773,7 +2924,18 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_METRICS_COLLECTION_ENABLED =
       new Builder(Name.USER_METRICS_COLLECTION_ENABLED)
+<<<<<<< HEAD
           .setDefaultValue(true)
+||||||| merged common ancestors
+          .setDefaultValue(false)
+=======
+          // ALLUXIO CS REPLACE
+          // .setDefaultValue(true)
+          // ALLUXIO CS WITH
+          // TODO(adit): Disable until https://tachyonnexus.atlassian.net/browse/AE-554 is resolved
+          .setDefaultValue(false)
+          // ALLUXIO CS END
+>>>>>>> upstream/enterprise-1.8
           .setDescription("Enable collecting the client-side metrics and hearbeat them to master")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
@@ -3301,6 +3463,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey UNDERFS_HDFS_VERSION =
       new Builder(Name.UNDERFS_HDFS_VERSION)
           .setDefaultValue("2.2")
+<<<<<<< HEAD
           .setIsHidden(true)
           .build();
   public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
@@ -3315,6 +3478,25 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "colons.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
+||||||| merged common ancestors
+=======
+          .setIsHidden(true)
+          .build();
+  public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
+      new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME)
+          .setDescription("Name of the authorization plugin for the under filesystem.")
+          .setDefaultValue("")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS =
+      new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS)
+          .setDescription("Classpaths for the under filesystem authorization plugin, separated by "
+              + "colons.")
+          .setDefaultValue("")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+>>>>>>> upstream/enterprise-1.8
           .build();
 
   //
@@ -3407,7 +3589,20 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES).setDefaultValue("0B")
           .setIsHidden(true).build();
   public static final PropertyKey USER_ENCRYPTION_CHUNK_SIZE_BYTES =
+<<<<<<< HEAD
       new Builder(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES).setDefaultValue("64KB").setIsHidden(true)
+||||||| merged common ancestors
+      new Builder(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES).setDefaultValue("64KB").build();
+  public static final PropertyKey USER_FILE_REPLICATION_MAX =
+      new Builder(Name.USER_FILE_REPLICATION_MAX)
+          .setDefaultValue(-1 /* negative value means infinity */)
+=======
+      new Builder(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES).setDefaultValue("64KB").setIsHidden(true)
+          .build();
+  public static final PropertyKey USER_FILE_REPLICATION_MAX =
+      new Builder(Name.USER_FILE_REPLICATION_MAX)
+          .setDefaultValue(-1 /* negative value means infinity */)
+>>>>>>> upstream/enterprise-1.8
           .build();
 
   //
@@ -3462,7 +3657,24 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_PRINCIPAL =
       new Builder(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL).build();
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
+<<<<<<< HEAD
       new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).build();
+||||||| merged common ancestors
+      new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
+=======
+      new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED =
+      new Builder(Name.SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED)
+          .setDescription(String.format(
+              "Whether the Alluxio client will use native Kerberos command to populate"
+              + " ticket cache if a valid ticket is not found. This is only in effect when Alluxio"
+              + " is configured to authenticate using native Kerberos library. Both %s and %s need"
+              + " to be set correctly for the login to succeed.",
+              Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE))
+          .setDefaultValue(false)
+          .setIsHidden(true)
+          .build();
+>>>>>>> upstream/enterprise-1.8
   public static final PropertyKey SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED =
       new Builder(Name.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED).setDefaultValue(true).build();
   public static final PropertyKey SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL =
@@ -3470,7 +3682,34 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   public static final PropertyKey SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE =
       new Builder(Name.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE).build();
   public static final PropertyKey SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
+<<<<<<< HEAD
       new Builder(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME).build();
+||||||| merged common ancestors
+      new Builder(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME).setDefaultValue("").build();
+=======
+      new Builder(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME).setDefaultValue("").build();
+  public static final PropertyKey SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS =
+      new Builder(Name.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS)
+          .setDefaultValue("1d")
+          .setDescription("Lifetime of a delegation token secret key.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS =
+      new Builder(Name.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS)
+          .setDefaultValue("7d")
+          .setDescription("Maximum lifetime of a delegation token.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS =
+      new Builder(Name.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS)
+          .setDefaultValue("1d")
+          .setDescription("Time before which a delegation token must be renewed.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+>>>>>>> upstream/enterprise-1.8
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
       new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED).setDefaultValue(false).build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
@@ -3481,6 +3720,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS)
           .setDefaultValue(Constants.DAY_MS)
           .build();
+<<<<<<< HEAD
   public static final PropertyKey SECURITY_AUTHORIZATION_PLUGIN_NAME =
       new Builder(Name.SECURITY_AUTHORIZATION_PLUGIN_NAME)
           .setDescription("Plugin for master authorization.")
@@ -3500,6 +3740,30 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
+||||||| merged common ancestors
+=======
+  public static final PropertyKey SECURITY_AUTHORIZATION_PLUGIN_NAME =
+      new Builder(Name.SECURITY_AUTHORIZATION_PLUGIN_NAME)
+          .setDefaultValue("")
+          .setDescription("Plugin for master authorization.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHORIZATION_PLUGIN_PATHS =
+      new Builder(Name.SECURITY_AUTHORIZATION_PLUGIN_PATHS)
+          .setDefaultValue("")
+          .setDescription("Classpath for master authorization plugin, separated by colons.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHORIZATION_PLUGINS_ENABLED =
+      new Builder(Name.SECURITY_AUTHORIZATION_PLUGINS_ENABLED)
+          .setDefaultValue(false)
+          .setDescription("Enable plugins for authorization.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+>>>>>>> upstream/enterprise-1.8
   public static final PropertyKey SECURITY_PRIVILEGES_ENABLED =
       new Builder(Name.SECURITY_PRIVILEGES_ENABLED).setDefaultValue(false).build();
   // TODO(chaomin): switch to per mount point encryption knob
@@ -3631,7 +3895,26 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         PropertyKey.KEY_VALUE_ENABLED,
         PropertyKey.KEY_VALUE_PARTITION_SIZE_BYTES_MAX,
         PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER,
+<<<<<<< HEAD
         PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
+||||||| merged common ancestors
+        PropertyKey.MASTER_LINEAGE_CHECKPOINT_CLASS,
+        PropertyKey.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS,
+        PropertyKey.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS,
+        PropertyKey.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
+        PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX,
+        PropertyKey.USER_FILE_WRITE_TIER_DEFAULT,
+        PropertyKey.USER_LINEAGE_ENABLED,
+        PropertyKey.USER_LINEAGE_MASTER_CLIENT_THREADS);
+=======
+        PropertyKey.MASTER_LINEAGE_CHECKPOINT_CLASS,
+        PropertyKey.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS,
+        PropertyKey.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS,
+        PropertyKey.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
+        PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX,
+        PropertyKey.USER_LINEAGE_ENABLED,
+        PropertyKey.USER_LINEAGE_MASTER_CLIENT_THREADS);
+>>>>>>> upstream/enterprise-1.8
   }
   // ALLUXIO CS END
 
@@ -3825,12 +4108,20 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String UNDERFS_HDFS_REMOTE = "alluxio.underfs.hdfs.remote";
     // ALLUXIO CS ADD
     public static final String UNDERFS_HDFS_VERSION = "alluxio.underfs.hdfs.version";
+<<<<<<< HEAD
     public static final String UNDERFS_VERSION = "alluxio.underfs.version";
 
     public static final String UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
         "alluxio.underfs.security.authorization.plugin.name";
     public static final String UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS =
         "alluxio.underfs.security.authorization.plugin.paths";
+||||||| merged common ancestors
+=======
+    public static final String UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
+        "alluxio.underfs.security.authorization.plugin.name";
+    public static final String UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS =
+        "alluxio.underfs.security.authorization.plugin.paths";
+>>>>>>> upstream/enterprise-1.8
     // ALLUXIO CS END
     public static final String UNDERFS_OBJECT_STORE_SERVICE_THREADS =
         "alluxio.underfs.object.store.service.threads";
@@ -3915,9 +4206,15 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SWIFT_SIMULATION = "fs.swift.simulation";
     public static final String SWIFT_TENANT_KEY = "fs.swift.tenant";
     public static final String SWIFT_USE_PUBLIC_URI_KEY = "fs.swift.use.public.url";
+<<<<<<< HEAD
     public static final String SWIFT_USER_KEY = "fs.swift.user";
     public static final String KODO_ACCESS_KEY = "fs.kodo.accesskey";
     public static final String KODO_SECRET_KEY = "fs.kodo.secretkey";
+||||||| merged common ancestors
+    public static final String SWIFT_REGION_KEY = "fs.swift.region";
+=======
+    public static final String SWIFT_USER_KEY = "fs.swift.user";
+>>>>>>> upstream/enterprise-1.8
 
     //
     // Master related properties
@@ -4255,10 +4552,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.file.metadata.sync.interval";
     public static final String USER_FILE_PASSIVE_CACHE_ENABLED =
         "alluxio.user.file.passive.cache.enabled";
-    public static final String USER_FILE_LOAD_TTL =
-        "alluxio.user.file.load.ttl";
-    public static final String USER_FILE_LOAD_TTL_ACTION =
-        "alluxio.user.file.load.ttl.action";
     public static final String USER_FILE_READ_TYPE_DEFAULT = "alluxio.user.file.readtype.default";
     public static final String USER_FILE_REPLICATION_MAX = "alluxio.user.file.replication.max";
     public static final String USER_FILE_REPLICATION_MIN = "alluxio.user.file.replication.min";
@@ -4269,10 +4562,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.file.seek.buffer.size.bytes";
     public static final String USER_FILE_WAITCOMPLETED_POLL_MS =
         "alluxio.user.file.waitcompleted.poll";
-    public static final String USER_FILE_CREATE_TTL =
-        "alluxio.user.file.create.ttl";
-    public static final String USER_FILE_CREATE_TTL_ACTION =
-        "alluxio.user.file.create.ttl.action";
     public static final String USER_FILE_WRITE_LOCATION_POLICY =
         "alluxio.user.file.write.location.policy.class";
     public static final String USER_FILE_WRITE_AVOID_EVICTION_POLICY_RESERVED_BYTES =
@@ -4383,6 +4672,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.security.login.impersonation.username";
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
     // ALLUXIO CS ADD
+<<<<<<< HEAD
 
     public static final String SECURITY_AUTHORIZATION_PLUGIN_NAME =
         "alluxio.security.authorization.plugin.name";
@@ -4390,6 +4680,21 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.security.authorization.plugin.paths";
     public static final String SECURITY_AUTHORIZATION_PLUGINS_ENABLED =
         "alluxio.security.authorization.plugins.enabled";
+||||||| merged common ancestors
+=======
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS =
+        "alluxio.security.authentication.delegation.token.key.lifetime.ms";
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS =
+        "alluxio.security.authentication.delegation.token.lifetime.ms";
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS =
+        "alluxio.security.authentication.delegation.token.renew.interval.ms";
+    public static final String SECURITY_AUTHORIZATION_PLUGIN_NAME =
+        "alluxio.security.authorization.plugin.name";
+    public static final String SECURITY_AUTHORIZATION_PLUGIN_PATHS =
+        "alluxio.security.authorization.plugin.paths";
+    public static final String SECURITY_AUTHORIZATION_PLUGINS_ENABLED =
+        "alluxio.security.authorization.plugins.enabled";
+>>>>>>> upstream/enterprise-1.8
     public static final String SECURITY_GROUP_MAPPING_LDAP_URL =
         "alluxio.security.group.mapping.ldap.url";
     public static final String SECURITY_GROUP_MAPPING_LDAP_SSL =
@@ -4434,6 +4739,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.security.kerberos.client.principal";
     public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
         "alluxio.security.kerberos.client.keytab.file";
+    public static final String SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED =
+        "alluxio.security.kerberos.client.ticketcache.login.enabled";
     public static final String SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED =
         "alluxio.security.underfs.hdfs.impersonation.enabled";
     public static final String SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL =

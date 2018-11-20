@@ -327,6 +327,7 @@ public class FileInStream extends InputStream implements BoundedStream, Position
     }
   }
 
+<<<<<<< HEAD
   // Send an async cache request to a worker based on read type and passive cache options.
   private void triggerAsyncCaching(BlockInStream stream) throws IOException {
     boolean cache = mOptions.getOptions().getReadType().isCache();
@@ -355,13 +356,100 @@ public class FileInStream extends InputStream implements BoundedStream, Position
                 .setSourceHost(dataSource.getHost()).setSourcePort(dataSource.getDataPort())
                 .build();
         Channel channel = mContext.acquireNettyChannel(worker);
+||||||| merged common ancestors
+      // Send an async cache request to a worker based on read type and passive cache options.
+      boolean cache = mOptions.getOptions().getReadType().isCache();
+      // ALLUXIO CS ADD
+      boolean overReplicated = mStatus.getReplicationMax() > 0
+          && mStatus.getFileBlockInfos().get((int) (getPos() / mBlockSize))
+          .getBlockInfo().getLocations().size() >= mStatus.getReplicationMax();
+      cache = cache && !overReplicated;
+      // ALLUXIO CS END
+      boolean passiveCache = Configuration.getBoolean(PropertyKey.USER_FILE_PASSIVE_CACHE_ENABLED);
+      long channelTimeout = Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
+      if (cache) {
+        WorkerNetAddress worker;
+        if (passiveCache && mContext.hasLocalWorker()) { // send request to local worker
+          worker = mContext.getLocalWorker();
+        } else { // send request to data source
+          worker = dataSource;
+        }
+=======
+  // Send an async cache request to a worker based on read type and passive cache options.
+  private void triggerAsyncCaching(BlockInStream stream) throws IOException {
+    boolean cache = mOptions.getOptions().getReadType().isCache();
+    // ALLUXIO CS ADD
+    boolean overReplicated = mStatus.getReplicationMax() > 0
+        && mStatus.getFileBlockInfos().get((int) (getPos() / mBlockSize))
+        .getBlockInfo().getLocations().size() >= mStatus.getReplicationMax();
+    cache = cache && !overReplicated;
+    // ALLUXIO CS END
+    boolean passiveCache = Configuration.getBoolean(PropertyKey.USER_FILE_PASSIVE_CACHE_ENABLED);
+    long channelTimeout = Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
+    // Get relevant information from the stream.
+    WorkerNetAddress dataSource = stream.getAddress();
+    long blockId = stream.getId();
+    if (cache && (mLastBlockIdCached != blockId)) {
+      WorkerNetAddress worker;
+      if (passiveCache && mContext.hasLocalWorker()) { // send request to local worker
+        worker = mContext.getLocalWorker();
+      } else { // send request to data source
+        worker = dataSource;
+      }
+      try {
+        // Construct the async cache request
+        long blockLength = mOptions.getBlockInfo(blockId).getLength();
+        Protocol.AsyncCacheRequest request =
+            Protocol.AsyncCacheRequest.newBuilder().setBlockId(blockId).setLength(blockLength)
+                .setOpenUfsBlockOptions(mOptions.getOpenUfsBlockOptions(blockId))
+                .setSourceHost(dataSource.getHost()).setSourcePort(dataSource.getDataPort())
+                .build();
+        // ALLUXIO CS REPLACE
+        // Channel channel = mContext.acquireNettyChannel(worker);
+        // ALLUXIO CS WITH
+        Channel channel;
+        if (mOptions.getCapabilityFetcher() != null) {
+          channel = mContext.acquireNettyChannel(worker,
+              mOptions.getCapabilityFetcher().getCapability().toProto());
+        } else {
+          channel = mContext.acquireNettyChannel(worker);
+        }
+        // ALLUXIO CS END
+>>>>>>> upstream/enterprise-1.8
         try {
+<<<<<<< HEAD
           NettyRPCContext rpcContext =
               NettyRPCContext.defaults().setChannel(channel).setTimeout(channelTimeout);
           NettyRPC.fireAndForget(rpcContext, new ProtoMessage(request));
           mLastBlockIdCached = blockId;
         } finally {
           mContext.releaseNettyChannel(worker, channel);
+||||||| merged common ancestors
+          // Construct the async cache request
+          long blockLength = mOptions.getBlockInfo(blockId).getLength();
+          Protocol.AsyncCacheRequest request =
+              Protocol.AsyncCacheRequest.newBuilder().setBlockId(blockId).setLength(blockLength)
+                  .setOpenUfsBlockOptions(mOptions.getOpenUfsBlockOptions(blockId))
+                  .setSourceHost(dataSource.getHost()).setSourcePort(dataSource.getDataPort())
+                  .build();
+          Channel channel = mContext.acquireNettyChannel(worker);
+          try {
+            NettyRPCContext rpcContext =
+                NettyRPCContext.defaults().setChannel(channel).setTimeout(channelTimeout);
+            NettyRPC.fireAndForget(rpcContext, new ProtoMessage(request));
+          } finally {
+            mContext.releaseNettyChannel(worker, channel);
+          }
+        } catch (Exception e) {
+          LOG.warn("Failed to complete async cache request for block {} at worker {}: {}", blockId,
+              worker, e.getMessage());
+=======
+          NettyRPCContext rpcContext =
+              NettyRPCContext.defaults().setChannel(channel).setTimeout(channelTimeout);
+          NettyRPC.fireAndForget(rpcContext, new ProtoMessage(request));
+        } finally {
+          mContext.releaseNettyChannel(worker, channel);
+>>>>>>> upstream/enterprise-1.8
         }
       } catch (Exception e) {
         LOG.warn("Failed to complete async cache request for block {} at worker {}: {}", blockId,

@@ -36,7 +36,14 @@ import alluxio.master.file.meta.options.MountInfo;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
+<<<<<<< HEAD
 import alluxio.master.journal.NoopJournalContext;
+||||||| merged common ancestors
+import alluxio.master.file.options.DeleteOptions;
+=======
+import alluxio.master.file.options.DeleteOptions;
+import alluxio.master.journal.NoopJournalContext;
+>>>>>>> upstream/enterprise-1.8
 import alluxio.master.metrics.MetricsMaster;
 import alluxio.master.metrics.MetricsMasterFactory;
 import alluxio.security.authorization.AccessControlList;
@@ -242,6 +249,7 @@ public final class InodeTreeTest {
   }
 
   /**
+<<<<<<< HEAD
    * Tests the createPath method, specifically for ACLs and default ACLs.
    */
   @Test
@@ -354,6 +362,122 @@ public final class InodeTreeTest {
   }
 
   /**
+||||||| merged common ancestors
+=======
+   * Tests the createPath method, specifically for ACLs and default ACLs.
+   */
+  @Test
+  public void createPathNonExtendedAclTest() throws Exception {
+    CreateDirectoryOptions dirOptions = CreateDirectoryOptions.defaults().setOwner(TEST_OWNER)
+        .setGroup(TEST_GROUP).setMode(TEST_DIR_MODE).setRecursive(true);
+    // create nested directory
+    InodeTree.CreatePathResult createResult = createPath(mTree, NESTED_URI, dirOptions);
+    List<Inode<?>> created = createResult.getCreated();
+    // 2 created directories
+    assertEquals(2, created.size());
+    assertEquals("nested", created.get(0).getName());
+    assertEquals("test", created.get(1).getName());
+    DefaultAccessControlList dAcl = new DefaultAccessControlList(created.get(1).mAcl);
+    dAcl.setEntry(AclEntry.fromCliString("default:user::r-x"));
+    created.get(1).setDefaultACL(dAcl);
+
+    // create nested directory
+    createResult = createPath(mTree, NESTED_DIR_URI, dirOptions);
+    created = createResult.getCreated();
+    // the new directory should have the same ACL as its parent
+    // 1 created directories
+    assertEquals(1, created.size());
+    assertEquals("dir", created.get(0).getName());
+    DefaultAccessControlList childDefaultAcl =  created.get(0).getDefaultACL();
+    AccessControlList childAcl = created.get(0).mAcl;
+    assertEquals(dAcl, childDefaultAcl);
+
+    assertEquals(childAcl.toStringEntries().stream().map(AclEntry::toDefault)
+        .collect(Collectors.toList()), dAcl.toStringEntries());
+    // create nested file
+    createResult = createPath(mTree, NESTED_FILE_URI, dirOptions);
+    created = createResult.getCreated();
+    // the new file should have the same ACL as its parent's default ACL
+    // 1 created file
+    assertEquals(1, created.size());
+    assertEquals("file", created.get(0).getName());
+    childAcl = created.get(0).mAcl;
+    assertEquals(childAcl.toStringEntries().stream().map(AclEntry::toDefault)
+        .collect(Collectors.toList()), dAcl.toStringEntries());
+
+    // create nested directory
+    createResult = createPath(mTree, NESTED_MULTIDIR_FILE_URI, dirOptions);
+    created = createResult.getCreated();
+    // 3 created directories
+    assertEquals(3, created.size());
+    assertEquals("dira", created.get(0).getName());
+    assertEquals("dirb", created.get(1).getName());
+    assertEquals("file", created.get(2).getName());
+
+    for (Inode<?> inode: created) {
+      childAcl = inode.mAcl;
+      // All the newly created directories and files should inherit the default ACL from parent
+      assertEquals(childAcl.toStringEntries().stream().map(AclEntry::toDefault)
+          .collect(Collectors.toList()), dAcl.toStringEntries());
+    }
+
+  }
+
+  /**
+   * Tests the createPath method, specifically for ACLs and default ACLs.
+   */
+  @Test
+  public void createPathExtendedAclTest() throws Exception {
+    CreateDirectoryOptions dirOptions = CreateDirectoryOptions.defaults().setOwner(TEST_OWNER)
+        .setGroup(TEST_GROUP).setMode(TEST_DIR_MODE).setRecursive(true);
+    // create nested directory /nested/test
+    InodeTree.CreatePathResult createResult = createPath(mTree, NESTED_URI, dirOptions);
+    List<Inode<?>> created = createResult.getCreated();
+    // 2 created directories
+    assertEquals(2, created.size());
+    assertEquals("nested", created.get(0).getName());
+    assertEquals("test", created.get(1).getName());
+
+    ((Inode<?>) created.get(1)).setAcl(Arrays.asList(
+        (AclEntry.fromCliString("default:user:testuser:r-x"))));
+    DefaultAccessControlList dAcl = ((InodeDirectory) created.get(1)).getDefaultACL();
+
+    // create nested directory
+    createResult = createPath(mTree, NESTED_DIR_URI, dirOptions);
+    created = createResult.getCreated();
+    // the new directory should have the same ACL as its parent
+    // 1 created directories
+    assertEquals(1, created.size());
+    assertEquals("dir", created.get(0).getName());
+    DefaultAccessControlList childDefaultAcl =  created.get(0).getDefaultACL();
+    AccessControlList childAcl = created.get(0).getACL();
+    assertEquals(dAcl, childDefaultAcl);
+
+    assertEquals(childAcl.toStringEntries().stream().map(AclEntry::toDefault)
+        .collect(Collectors.toList()), dAcl.toStringEntries());
+    // create nested file
+    CreateFileOptions fileOptions = CreateFileOptions.defaults()
+        .setOwner(TEST_OWNER).setGroup(TEST_GROUP).setMode(TEST_FILE_MODE)
+        .setRecursive(true);
+    createResult = createPath(mTree, NESTED_FILE_URI, fileOptions);
+    created = createResult.getCreated();
+    // the new file should have the same ACL as its parent's default ACL
+    // 1 created file
+    assertEquals(1, created.size());
+    assertEquals("file", created.get(0).getName());
+    childAcl = created.get(0).getACL();
+    // Because default mode for file is 644, the file's permission is not going to match default
+    // Acl's permission, but rather have all the execute permissions removed.
+    dAcl.setEntry(AclEntry.fromCliString("default:user::rw-"));
+    dAcl.setEntry(AclEntry.fromCliString("default:other::r--"));
+    dAcl.setEntry(AclEntry.fromCliString("default:mask::r--"));
+    assertEquals(dAcl.toStringEntries(),
+        childAcl.toStringEntries().stream().map(AclEntry::toDefault)
+        .collect(Collectors.toList()));
+  }
+
+  /**
+>>>>>>> upstream/enterprise-1.8
    * Tests the {@link InodeTree#createPath(RpcContext, LockedInodePath, CreatePathOptions)}
    * method.
    */

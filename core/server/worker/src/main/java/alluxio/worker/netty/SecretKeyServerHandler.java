@@ -15,7 +15,7 @@ import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.Status;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.security.Key;
-import alluxio.security.capability.CapabilityKey;
+import alluxio.security.MasterKey;
 import alluxio.util.proto.ProtoUtils;
 import alluxio.worker.WorkerProcess;
 import alluxio.worker.block.BlockWorker;
@@ -88,9 +88,9 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCProto
 
     switch (request.getKeyType()) {
       case CAPABILITY:
-        CapabilityKey key;
+        MasterKey key;
         try {
-          key = new CapabilityKey(request.getKeyId(), request.getExpirationTimeMs(), secretKey);
+          key = new MasterKey(request.getKeyId(), request.getExpirationTimeMs(), secretKey);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
           RPCProtoMessage error = RPCProtoMessage.createResponse(new InvalidArgumentException(e));
           ctx.channel().writeAndFlush(error).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);

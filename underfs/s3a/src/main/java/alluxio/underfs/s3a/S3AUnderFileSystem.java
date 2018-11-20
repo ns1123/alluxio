@@ -52,8 +52,18 @@ import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.util.Base64;
 import com.google.common.base.Preconditions;
+<<<<<<< HEAD
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+||||||| merged common ancestors
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+=======
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+>>>>>>> upstream/enterprise-1.8
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,10 +155,22 @@ public class S3AUnderFileSystem extends ObjectUnderFileSystem {
       UnderFileSystemConfiguration conf) {
     // Set the aws credential system properties based on Alluxio properties, if they are set;
     // otherwise, use the default credential provider.
+<<<<<<< HEAD
     if (conf.isSet(PropertyKey.S3A_ACCESS_KEY)
         && conf.isSet(PropertyKey.S3A_SECRET_KEY)) {
       return new AWSStaticCredentialsProvider(new BasicAWSCredentials(
           conf.get(PropertyKey.S3A_ACCESS_KEY), conf.get(PropertyKey.S3A_SECRET_KEY)));
+||||||| merged common ancestors
+    if (conf.containsKey(PropertyKey.S3A_ACCESS_KEY)
+        && conf.containsKey(PropertyKey.S3A_SECRET_KEY)) {
+      return new StaticCredentialsProvider(new BasicAWSCredentials(
+          conf.getValue(PropertyKey.S3A_ACCESS_KEY), conf.getValue(PropertyKey.S3A_SECRET_KEY)));
+=======
+    if (conf.containsKey(PropertyKey.S3A_ACCESS_KEY)
+        && conf.containsKey(PropertyKey.S3A_SECRET_KEY)) {
+      return new AWSStaticCredentialsProvider(new BasicAWSCredentials(
+          conf.getValue(PropertyKey.S3A_ACCESS_KEY), conf.getValue(PropertyKey.S3A_SECRET_KEY)));
+>>>>>>> upstream/enterprise-1.8
     }
     // Checks, in order, env variables, system properties, profile file, and instance profile.
     return new DefaultAWSCredentialsProviderChain();
@@ -209,9 +231,16 @@ public class S3AUnderFileSystem extends ObjectUnderFileSystem {
     clientConf
         .setRequestTimeout((int) Configuration.getMs(PropertyKey.UNDERFS_S3A_REQUEST_TIMEOUT));
 
+<<<<<<< HEAD
     boolean streamingUploadEnabled =
         conf.getBoolean(PropertyKey.UNDERFS_S3A_STREAMING_UPLOAD_ENABLED);
 
+||||||| merged common ancestors
+=======
+    boolean streamingUploadEnabled = conf.containsKey(PropertyKey.UNDERFS_S3A_STREAMING_UPLOAD_ENABLED)
+        ? Boolean.valueOf(conf.getValue(PropertyKey.UNDERFS_S3A_STREAMING_UPLOAD_ENABLED)) : false;
+
+>>>>>>> upstream/enterprise-1.8
     // Signer algorithm
     if (conf.isSet(PropertyKey.UNDERFS_S3A_SIGNER_ALGORITHM)) {
       clientConf.setSignerOverride(conf.get(PropertyKey.UNDERFS_S3A_SIGNER_ALGORITHM));
@@ -280,6 +309,7 @@ public class S3AUnderFileSystem extends ObjectUnderFileSystem {
   public void setMode(String path, short mode) throws IOException {}
 
   @Override
+<<<<<<< HEAD
   public void cleanup() {
     long cleanAge = mConf.isSet(PropertyKey.UNDERFS_S3A_INTERMEDIATE_UPLOAD_CLEAN_AGE)
         ? mConf.getMs(PropertyKey.UNDERFS_S3A_INTERMEDIATE_UPLOAD_CLEAN_AGE)
@@ -290,6 +320,19 @@ public class S3AUnderFileSystem extends ObjectUnderFileSystem {
   }
 
   @Override
+||||||| merged common ancestors
+=======
+  public void cleanup() {
+    long cleanAge = mConf.containsKey(PropertyKey.UNDERFS_S3A_INTERMEDIATE_UPLOAD_CLEAN_AGE)
+        ? FormatUtils.parseTimeSize(mConf.getValue(PropertyKey.UNDERFS_S3A_INTERMEDIATE_UPLOAD_CLEAN_AGE))
+        : FormatUtils.parseTimeSize(PropertyKey.UNDERFS_S3A_INTERMEDIATE_UPLOAD_CLEAN_AGE
+        .getDefaultValue());
+    Date cleanBefore = new Date(new Date().getTime() - cleanAge);
+    mManager.abortMultipartUploads(mBucketName, cleanBefore);
+  }
+
+  @Override
+>>>>>>> upstream/enterprise-1.8
   protected boolean copyObject(String src, String dst) {
     LOG.debug("Copying {} to {}", src, dst);
     // Retry copy for a few times, in case some AWS internal errors happened during copy.

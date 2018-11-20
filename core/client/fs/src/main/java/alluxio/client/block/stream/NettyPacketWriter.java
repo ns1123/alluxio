@@ -139,7 +139,17 @@ public final class NettyPacketWriter implements PacketWriter {
       throws IOException {
     long packetSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
-    Channel nettyChannel = context.acquireNettyChannel(address);
+    // ALLUXIO CS REPLACE
+    // Channel nettyChannel = context.acquireNettyChannel(address);
+    // ALLUXIO CS WITH
+    Channel nettyChannel;
+    if (options.getCapabilityFetcher() != null) {
+      nettyChannel = context.acquireNettyChannel(address,
+              options.getCapabilityFetcher().getCapability().toProto());
+    } else {
+      nettyChannel = context.acquireNettyChannel(address);
+    }
+    // ALLUXIO CS END
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(

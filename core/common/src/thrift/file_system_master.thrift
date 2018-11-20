@@ -5,8 +5,6 @@ include "exception.thrift"
 
 struct FileSystemMasterCommonTOptions {
   1: optional i64 syncIntervalMs
-  2: optional i64 ttl
-  3: optional common.TTtlAction ttlAction
 }
 
 struct CheckConsistencyTOptions {
@@ -27,8 +25,8 @@ struct CreateDirectoryTOptions {
   2: optional bool recursive
   3: optional bool allowExists
   4: optional i16 mode
-  5: optional i64 ttlNotUsed // deprecated from 1.8
-  6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
+  5: optional i64 ttl
+  6: optional common.TTtlAction ttlAction
   7: optional FileSystemMasterCommonTOptions commonOptions
 }
 struct CreateDirectoryTResponse {}
@@ -37,7 +35,7 @@ struct CreateFileTOptions {
   1: optional i64 blockSizeBytes
   2: optional bool persisted
   3: optional bool recursive
-  4: optional i64 ttlNotUsed // deprecated from 1.8
+  4: optional i64 ttl
   5: optional i16 mode
   6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
   7: optional FileSystemMasterCommonTOptions commonOptions
@@ -50,6 +48,14 @@ struct CreateFileTOptions {
   1002: optional i32 replicationMin;
   1003: optional i32 replicationDurable;
   // ALLUXIO CS END
+<<<<<<< HEAD
+||||||| merged common ancestors
+  6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
+  7: optional FileSystemMasterCommonTOptions commonOptions
+=======
+  6: optional common.TTtlAction ttlAction
+  7: optional FileSystemMasterCommonTOptions commonOptions
+>>>>>>> upstream/enterprise-1.8
 }
 struct CreateFileTResponse {}
 
@@ -84,15 +90,54 @@ struct GetNewBlockIdForFileTResponse {
 struct GetStatusTOptions {
   1: optional LoadMetadataTType loadMetadataType
   2: optional FileSystemMasterCommonTOptions commonOptions
+  // ALLUXIO CS ADD
+  3: optional i16 accessMode
+  // ALLUXIO CS END
 }
 struct GetStatusTResponse {
   1: FileInfo fileInfo
 }
 
+<<<<<<< HEAD
 struct GetSyncPathListTResponse {
   1: list<string> syncPathList
 }
 
+||||||| merged common ancestors
+=======
+// ALLUXIO CS ADD
+struct DelegationTokenIdentifier {
+  2: string owner
+  3: string renewer
+  4: string realUser
+  5: i64 issueDate
+  6: i64 maxDate
+  7: i64 sequenceNumber
+  8: i64 masterKeyId
+}
+
+struct DelegationToken {
+  1: DelegationTokenIdentifier identifier
+  2: binary password
+}
+
+struct GetDelegationTokenTResponse {
+  1: DelegationToken token
+}
+
+struct RenewDelegationTokenTResponse {
+  1: i64 expirationTimeMs
+}
+
+struct CancelDelegationTokenTResponse {}
+
+// ALLUXIO CS END
+
+struct GetSyncPathListTResponse {
+  1: list<string> syncPathList
+}
+
+>>>>>>> upstream/enterprise-1.8
 struct ListStatusTOptions {
   // This is deprecated since 1.1.1 and will be removed in 2.0. Use loadMetadataType.
   1: optional bool loadDirectChildren
@@ -184,6 +229,7 @@ struct FileInfo {
   25: i64 mountId
   26: i32 inAlluxioPercentage
   27: string ufsFingerprint
+<<<<<<< HEAD
   28: TAcl acl
   29: TAcl defaultAcl
   // ALLUXIO CS REPLACE
@@ -193,6 +239,11 @@ struct FileInfo {
   1001: i32 replicationMax
   1002: i32 replicationMin
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  28: TAcl acl
+  29: TAcl defaultAcl
+>>>>>>> upstream/enterprise-1.8
 }
 
 struct MountTOptions {
@@ -392,6 +443,32 @@ service FileSystemMasterClientService extends common.AlluxioService {
     )
     throws (1: exception.AlluxioTException e)
 
+  // ALLUXIO CS ADD
+  /**
+   * Returns the delegation token for the client user.
+   */
+  GetDelegationTokenTResponse getDelegationToken(
+    /** the rewnewer */ 1: string renwer,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  /**
+   * Renews the delegation token.
+   */
+  RenewDelegationTokenTResponse renewDelegationToken(
+    /** the token */ 1: DelegationToken token,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  /**
+   * Cancels the delegation token.
+   */
+  CancelDelegationTokenTResponse cancelDelegationToken(
+    /** the token */ 1: DelegationToken token,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  // ALLUXIO CS END
   /**
    * Returns the status of the file or directory.
    */

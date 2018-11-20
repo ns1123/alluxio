@@ -44,7 +44,16 @@ public final class ClientTestUtils {
   }
 
   private static void resetContexts() throws IOException {
+<<<<<<< HEAD
     Configuration.set(PropertyKey.USER_METRICS_COLLECTION_ENABLED, false);
     FileSystemContext.get().reset(Configuration.global());
+||||||| merged common ancestors
+    FileSystemContext.get().reset();
+    LineageContext.INSTANCE.reset();
+=======
+    Configuration.set(PropertyKey.USER_METRICS_COLLECTION_ENABLED, false);
+    FileSystemContext.get().reset(Configuration.global());
+    LineageContext.INSTANCE.reset();
+>>>>>>> upstream/enterprise-1.8
   }
 }

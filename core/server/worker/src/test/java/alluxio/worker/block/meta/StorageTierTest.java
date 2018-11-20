@@ -152,6 +152,7 @@ public class StorageTierTest {
         PropertyKey.WORKER_TIERED_STORE_LEVEL0_DIRS_QUOTA.getName()));
     mTier = StorageTier.newStorageTier("MEM");
   }
+<<<<<<< HEAD
 
   @Test
   public void tolerantFailureInStorageDir() throws Exception {
@@ -163,4 +164,18 @@ public class StorageTierTest {
     Assert.assertEquals(1, dirs.size());
     Assert.assertEquals(mTestBlockDirPath1, dirs.get(0).getDirPath());
   }
+||||||| merged common ancestors
+=======
+
+  @Test
+  public void tolerantFailureInStorageDir() throws Exception {
+    PropertyKey tierDirPathConf =
+        PropertyKey.Template.WORKER_TIERED_STORE_LEVEL_DIRS_PATH.format(0);
+    Configuration.set(tierDirPathConf, "/dev/null/invalid," + mTestDirPath1);
+    mTier = StorageTier.newStorageTier("MEM");
+    List<StorageDir> dirs = mTier.getStorageDirs();
+    Assert.assertEquals(1, dirs.size());
+    Assert.assertEquals(mTestDirPath1, dirs.get(0).getDirPath());
+  }
+>>>>>>> upstream/enterprise-1.8
 }

@@ -20,8 +20,14 @@ import "journal/lineage.proto";
 // 2.6.0 and adding this depedency would conflict with the version of protobuf used by Hadoop 2.x
 // and Spark. We use protobuf version 2.5.0 instead, which is compatible with Hadoop and Spark.
 //
+<<<<<<< HEAD
 
 // next available id: 39
+||||||| merged common ancestors
+// next available id: 31
+=======
+// next available id: 35
+>>>>>>> upstream/enterprise-1.8
 message JournalEntry {
   // ALLUXIO CS ADD
   // next available id: 1006
@@ -69,7 +75,35 @@ message JournalEntry {
   optional SetAclEntry set_acl = 31;
   optional SetAttributeEntry set_attribute = 27;
   optional UpdateUfsModeEntry update_ufs_mode = 30;
+<<<<<<< HEAD
   optional UpdateInodeEntry update_inode = 35;
   optional UpdateInodeDirectoryEntry update_inode_directory = 36;
   optional UpdateInodeFileEntry update_inode_file = 37;
+||||||| merged common ancestors
+  // ALLUXIO CS ADD
+  // next available id: 1006
+  optional FinishJobEntry finish_job = 1002;
+  optional LicenseCheckEntry license_check = 1001;
+  optional PrivilegeUpdateEntry privilege_update = 1004;
+  optional StartJobEntry start_job = 1003;
+  // This journal entry is a list of other entries. when a journal entry
+  // contains other journal entries, all other optional fields must be unset.
+  repeated JournalEntry journal_entries = 1005;
+  // ALLUXIO CS END
+=======
+  // ALLUXIO CS ADD
+  // next available id: 1010
+  optional FinishJobEntry finish_job = 1002;
+  optional GetDelegationTokenEntry get_delegation_token = 1006;
+  optional LicenseCheckEntry license_check = 1001;
+  optional PrivilegeUpdateEntry privilege_update = 1004;
+  optional RemoveDelegationTokenEntry remove_delegation_token = 1008;
+  optional RenewDelegationTokenEntry renew_delegation_token = 1009;
+  optional StartJobEntry start_job = 1003;
+  optional UpdateMasterKeyEntry update_master_key = 1007;
+  // This journal entry is a list of other entries. when a journal entry
+  // contains other journal entries, all other optional fields must be unset.
+  repeated JournalEntry journal_entries = 1005;
+  // ALLUXIO CS END
+>>>>>>> upstream/enterprise-1.8
 }
