@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 AbstractInodeAttributesProviderFactory.java
 AccessControlEnforcer.java
 ExtendablePermissionChecker.java
@@ -6,22 +5,4 @@ ExtensionInodeAttributesProvider.java
 InodeAttributes.java
 InodeAttributesProvider.java
 InodeAttributesProviderFactory.java
-||||||| merged common ancestors
-replication/
-FileSystemMasterJobServiceHandler.java
-PersistJob.java
-PersistRequest.java
-=======
-replication/
-AbstractInodeAttributesProviderFactory.java
-AccessControlEnforcer.java
-ExtendablePermissionChecker.java
-ExtensionInodeAttributesProvider.java
-FileSystemMasterJobServiceHandler.java
-InodeAttributes.java
-InodeAttributesProvider.java
-InodeAttributesProviderFactory.java
-PersistJob.java
-PersistRequest.java
->>>>>>> upstream/enterprise-1.8
 PrivilegedFileSystemMaster.java

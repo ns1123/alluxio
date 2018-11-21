@@ -161,15 +161,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
     mCapabilityCache =
         new alluxio.worker.security.CapabilityCache(
             alluxio.worker.security.CapabilityCache.Options.defaults()
-<<<<<<< HEAD
-                .setCapabilityKey(new alluxio.security.capability.CapabilityKey()));
-||||||| merged common ancestors
-                .setCapabilityKey(new alluxio.security.capability.CapabilityKey()));
-    mUfsManager = ufsManager;
-=======
                 .setCapabilityKey(new alluxio.security.MasterKey()));
-    mUfsManager = ufsManager;
->>>>>>> upstream/enterprise-1.8
     // ALLUXIO CS END
     mUfsManager = ufsManager;
     mUnderFileSystemBlockStore = new UnderFileSystemBlockStore(mBlockStore, ufsManager);

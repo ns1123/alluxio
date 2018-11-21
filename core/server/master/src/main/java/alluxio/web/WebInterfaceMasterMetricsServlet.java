@@ -201,7 +201,6 @@ public final class WebInterfaceMasterMetricsServlet extends WebInterfaceAbstract
     request.setAttribute("totalBytesWrittenUfsThroughput",
         FormatUtils.getSizeFromBytes(bytesWrittenUfsThroughput));
 
-<<<<<<< HEAD
     // cluster per UFS read
     Map<String, String> ufsReadSizeMap = new TreeMap<>();
     for (Map.Entry<String, Gauge> entry : mr.getGauges((name, metric) ->
@@ -240,68 +239,5 @@ public final class WebInterfaceMasterMetricsServlet extends WebInterfaceAbstract
       ufsOpsMap.put(ufs, perUfsMap);
     }
     request.setAttribute("ufsOps", ufsOpsMap);
-||||||| merged common ancestors
-    long bytesReadTotal = bytesReadLocal + bytesReadRemote + bytesReadUfs;
-    double cacheHitLocalPercentage =
-        (bytesReadTotal > 0) ? (100D * bytesReadLocal / bytesReadTotal) : 0;
-    double cacheHitRemotePercentage =
-        (bytesReadTotal > 0) ? (100D * bytesReadRemote / bytesReadTotal) : 0;
-    double cacheMissPercentage = (bytesReadTotal > 0) ? (100D * bytesReadUfs / bytesReadTotal) : 0;
-
-    request.setAttribute("cacheHitLocal", String.format("%.2f", cacheHitLocalPercentage));
-    request.setAttribute("cacheHitRemote", String.format("%.2f", cacheHitRemotePercentage));
-    request.setAttribute("cacheMiss", String.format("%.2f", cacheMissPercentage));
-=======
-    // cluster per UFS read
-    Map<String, String> ufsReadSizeMap = new TreeMap<>();
-    for (Map.Entry<String, Gauge> entry : mr.getGauges(new MetricFilter() {
-      @Override
-      public boolean matches(String name, Metric metric) {
-        return name.contains(WorkerMetrics.BYTES_READ_UFS);
-      }
-      }).entrySet()) {
-      alluxio.metrics.Metric metric =
-          alluxio.metrics.Metric.from(entry.getKey(), (long) entry.getValue().getValue());
-      ufsReadSizeMap.put(metric.getTags().get(WorkerMetrics.TAG_UFS),
-          FormatUtils.getSizeFromBytes((long) metric.getValue()));
-    }
-    request.setAttribute("ufsReadSize", ufsReadSizeMap);
-
-    // cluster per UFS write
-    Map<String, String> ufsWriteSizeMap = new TreeMap<>();
-    for (Map.Entry<String, Gauge> entry : mr.getGauges(new MetricFilter() {
-      @Override
-      public boolean matches(String name, Metric metric) {
-        return name.contains(WorkerMetrics.BYTES_WRITTEN_UFS);
-      }
-      }).entrySet()) {
-      alluxio.metrics.Metric metric =
-          alluxio.metrics.Metric.from(entry.getKey(), (long) entry.getValue().getValue());
-      ufsWriteSizeMap.put(metric.getTags().get(WorkerMetrics.TAG_UFS),
-          FormatUtils.getSizeFromBytes((long) metric.getValue()));
-    }
-    request.setAttribute("ufsWriteSize", ufsWriteSizeMap);
-
-    // per UFS ops
-    Map<String, Map<String, Long>> ufsOpsMap = new TreeMap<>();
-    for (Map.Entry<String, Gauge> entry : mr.getGauges(new MetricFilter() {
-      @Override
-      public boolean matches(String name, Metric metric) {
-        return name.contains(WorkerMetrics.UFS_OP_PREFIX);
-      }
-      }).entrySet()) {
-      alluxio.metrics.Metric metric =
-          alluxio.metrics.Metric.from(entry.getKey(), (long) entry.getValue().getValue());
-      if (!metric.getTags().containsKey(WorkerMetrics.TAG_UFS)) {
-        continue;
-      }
-      String ufs = metric.getTags().get(WorkerMetrics.TAG_UFS);
-      Map<String, Long> perUfsMap = ufsOpsMap.getOrDefault(ufs, new TreeMap<>());
-      perUfsMap.put(metric.getName().replaceFirst(WorkerMetrics.UFS_OP_PREFIX, ""),
-          (long) metric.getValue());
-      ufsOpsMap.put(ufs, perUfsMap);
-    }
-    request.setAttribute("ufsOps", ufsOpsMap);
->>>>>>> upstream/enterprise-1.8
   }
 }

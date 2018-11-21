@@ -4,13 +4,7 @@ DigestSaslNettyServer.java
 KerberosSaslDataServerHandler.java
 KerberosSaslNettyServer.java
 NettySecureRpcServer.java
-<<<<<<< HEAD
-||||||| merged common ancestors
-RPCHandler.java
-=======
-RPCHandler.java
 SaslDataServerHandlerProxy.java
->>>>>>> upstream/enterprise-1.8
 SecretKeyServerHandler.java
 SecureRpcServerInitializer.java
 Utils.java

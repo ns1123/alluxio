@@ -257,53 +257,7 @@ public final class CommonUtils {
    *
    * @param description a description of what causes condition to evaluate to true
    * @param condition the condition to wait on
-<<<<<<< HEAD
    * @throws TimeoutException if the function times out while waiting for the condition to be true
-||||||| merged common ancestors
-   * @return whether the condition returned true; returns false e.g. if the thread was interrupted
-   *         or hit the timeout with options.isThrowOnTimeout() = false
-   */
-  public static boolean waitFor(String description, Supplier<Boolean> condition) {
-    return waitFor(description, input -> condition.get(), WaitForOptions.defaults());
-  }
-
-  /**
-   * Waits for a condition to be satisfied.
-   *
-   * @param description a description of what causes condition to evaluate to true
-   * @param condition the condition to wait on
-   * @return whether the condition returned true; returns false e.g. if the thread was interrupted
-   *         or hit the timeout with options.isThrowOnTimeout() = false
-=======
-   * @return whether the condition returned true; returns false e.g. if the thread was interrupted
-   *         or hit the timeout with options.isThrowOnTimeout() = false
-   */
-  public static boolean waitFor(String description, Supplier<Boolean> condition) {
-    return waitFor(description, condition, WaitForOptions.defaults());
-  }
-
-  /**
-   * Waits for a condition to be satisfied.
-   *
-   * @param description a description of what causes condition to evaluate to true
-   * @param condition the condition to wait on
-   * @param options the options to use
-   * @return whether the condition returned true; returns false e.g. if the thread was interrupted
-   *         or hit the timeout with options.isThrowOnTimeout() = false
-   */
-  public static boolean waitFor(String description, Supplier<Boolean> condition,
-      WaitForOptions options) {
-    return waitFor(description, input -> condition.get(), options);
-  }
-
-  /**
-   * Waits for a condition to be satisfied.
-   *
-   * @param description a description of what causes condition to evaluate to true
-   * @param condition the condition to wait on
-   * @return whether the condition returned true; returns false e.g. if the thread was interrupted
-   *         or hit the timeout with options.isThrowOnTimeout() = false
->>>>>>> upstream/enterprise-1.8
    */
   public static void waitFor(String description, Supplier<Boolean> condition)
       throws InterruptedException, TimeoutException {

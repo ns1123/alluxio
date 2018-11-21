@@ -1,14 +1,1 @@
-<<<<<<< HEAD
 ExtensionInodeAttributesProviderTest.java
-||||||| merged common ancestors
-replication/
-PersistenceTest.java
-PersistJobTest.java
-PersistRequestTest.java
-=======
-replication/
-ExtensionInodeAttributesProviderTest.java
-PersistenceTest.java
-PersistJobTest.java
-PersistRequestTest.java
->>>>>>> upstream/enterprise-1.8

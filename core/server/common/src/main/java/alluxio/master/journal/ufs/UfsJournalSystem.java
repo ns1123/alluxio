@@ -30,13 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-<<<<<<< HEAD
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-||||||| merged common ancestors
-=======
-import java.util.concurrent.TimeUnit;
->>>>>>> upstream/enterprise-1.8
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -79,7 +74,6 @@ public class UfsJournalSystem extends AbstractJournalSystem {
     for (UfsJournal journal : mJournals.values()) {
       callables.add(() -> {
         journal.gainPrimacy();
-<<<<<<< HEAD
         return null;
       });
     }
@@ -87,19 +81,6 @@ public class UfsJournalSystem extends AbstractJournalSystem {
       CommonUtils.invokeAll(callables, 1 * Constants.HOUR_MS);
     } catch (TimeoutException | ExecutionException e) {
       throw new RuntimeException(e);
-||||||| merged common ancestors
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to upgrade journal to primary", e);
-=======
-        return null;
-      });
-    }
-    try {
-      CommonUtils.invokeAll(callables, 1, TimeUnit.HOURS);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
->>>>>>> upstream/enterprise-1.8
     }
   }
 

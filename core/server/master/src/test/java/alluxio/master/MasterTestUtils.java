@@ -38,16 +38,10 @@ public final class MasterTestUtils {
     //     Mockito.mock(BackupManager.class), -1, -1);
     // ALLUXIO CS WITH
     return new MasterContext(journalSystem, new TestSafeModeManager(),
-<<<<<<< HEAD
-        mock(BackupManager.class), -1, -1);
-||||||| merged common ancestors
-        Mockito.mock(BackupManager.class), -1, -1);
-=======
-        Mockito.mock(BackupManager.class),
-        Mockito.mock(alluxio.security.authentication.DelegationTokenManager.class),
+        mock(BackupManager.class),
+        mock(alluxio.security.authentication.DelegationTokenManager.class),
         -1, -1);
     // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.8
   }
 
   private MasterTestUtils() {} // Not intended for instatiation.

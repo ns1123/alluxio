@@ -181,30 +181,11 @@ public final class FileSystemMasterClientServiceHandler implements
   @Override
   public GetNewBlockIdForFileTResponse getNewBlockIdForFile(final String path,
       final GetNewBlockIdForFileTOptions options) throws AlluxioTException {
-<<<<<<< HEAD
     return RpcUtils.call(LOG,
         (RpcCallableThrowsIOException<GetNewBlockIdForFileTResponse>) () ->
             new GetNewBlockIdForFileTResponse(
                 mFileSystemMaster.getNewBlockIdForFile(new AlluxioURI(path))),
         "GetNewBlockIdForFile", "path=%s, options=%s", path, options);
-||||||| merged common ancestors
-    return RpcUtils.call(LOG, new RpcCallable<GetNewBlockIdForFileTResponse>() {
-      @Override
-      public GetNewBlockIdForFileTResponse call() throws AlluxioException {
-        return new GetNewBlockIdForFileTResponse(
-            mFileSystemMaster.getNewBlockIdForFile(new AlluxioURI(path)));
-      }
-
-      @Override
-      public String toString() {
-        return String.format("GetNewBlockIdForFile: path=%s, options=%s", path, options);
-      }
-    });
-=======
-    return RpcUtils.call(LOG,
-        (RpcCallable<GetNewBlockIdForFileTResponse>) () -> new GetNewBlockIdForFileTResponse(
-            mFileSystemMaster.getNewBlockIdForFile(new AlluxioURI(path))), "GetNewBlockIdForFile",
-        "path=%s, options=%s", path, options);
   }
 
   // ALLUXIO CS ADD
@@ -249,7 +230,6 @@ public final class FileSystemMasterClientServiceHandler implements
           mFileSystemMaster.cancelDelegationToken(delegationToken);
           return new alluxio.thrift.CancelDelegationTokenTResponse();
         }, "CancelDelegationToken", true, "token=%s", token.getIdentifier().toString());
->>>>>>> upstream/enterprise-1.8
   }
 
   // ALLUXIO CS END
@@ -358,7 +338,6 @@ public final class FileSystemMasterClientServiceHandler implements
   public ScheduleAsyncPersistenceTResponse scheduleAsyncPersistence(final String path,
       final ScheduleAsyncPersistenceTOptions options) throws AlluxioTException {
     return RpcUtils.call(LOG,
-<<<<<<< HEAD
         (RpcCallableThrowsIOException<ScheduleAsyncPersistenceTResponse>) () -> {
           mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path));
           return new ScheduleAsyncPersistenceTResponse();
@@ -377,39 +356,6 @@ public final class FileSystemMasterClientServiceHandler implements
           new SetAclOptions(options));
       return new SetAclTResponse();
     }, "SetAcl", "path=%s, entries=%s, options=%s", path, entries, options);
-||||||| merged common ancestors
-        new RpcCallableThrowsIOException<ScheduleAsyncPersistenceTResponse>() {
-          @Override
-          public ScheduleAsyncPersistenceTResponse call() throws AlluxioException, IOException {
-            mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path));
-            return new ScheduleAsyncPersistenceTResponse();
-          }
-
-          @Override
-          public String toString() {
-            return String.format("ScheduleAsyncPersist: path=%s, options=%s", path, options);
-          }
-        });
-=======
-        (RpcCallableThrowsIOException<ScheduleAsyncPersistenceTResponse>) () -> {
-          mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path));
-          return new ScheduleAsyncPersistenceTResponse();
-        }, "ScheduleAsyncPersist", "path=%s, options=%s", path, options);
-  }
-
-  @Override
-  public SetAclTResponse setAcl(String path, TSetAclAction action, List<TAclEntry> entries,
-      SetAclTOptions options) throws AlluxioTException {
-    return RpcUtils.call(LOG, (RpcCallableThrowsIOException<SetAclTResponse>) () -> {
-      List<AclEntry> aclEntries = Collections.emptyList();
-      if (entries != null) {
-        aclEntries = entries.stream().map(AclEntry::fromThrift).collect(Collectors.toList());
-      }
-      mFileSystemMaster.setAcl(new AlluxioURI(path), SetAclAction.fromThrift(action), aclEntries,
-          new SetAclOptions(options));
-      return new SetAclTResponse();
-    }, "SetAcl", "path=%s, entries=%s, options=%s", path, entries, options);
->>>>>>> upstream/enterprise-1.8
   }
 
   @Override

@@ -73,30 +73,10 @@ public final class KeyValueWorkerClientServiceHandler implements KeyValueWorkerC
   @Override
   public GetTResponse get(final long blockId, final ByteBuffer key, GetTOptions options)
       throws AlluxioTException {
-<<<<<<< HEAD
     return RpcUtils.call((RpcCallableThrowsIOException<GetTResponse>) () -> {
       ByteBuffer value = getInternal(blockId, key);
       if (value == null) {
         return new GetTResponse(ByteBuffer.allocate(0));
-||||||| merged common ancestors
-    return RpcUtils.call(LOG, new RpcCallableThrowsIOException<GetTResponse>() {
-      @Override
-      public GetTResponse call() throws AlluxioException, IOException {
-        ByteBuffer value = getInternal(blockId, key);
-        if (value == null) {
-          return new GetTResponse(ByteBuffer.allocate(0));
-        }
-        return new GetTResponse(copyAsNonDirectBuffer(value));
-=======
-    return RpcUtils.call(new RpcCallableThrowsIOException<GetTResponse>() {
-      @Override
-      public GetTResponse call() throws AlluxioException, IOException {
-        ByteBuffer value = getInternal(blockId, key);
-        if (value == null) {
-          return new GetTResponse(ByteBuffer.allocate(0));
-        }
-        return new GetTResponse(copyAsNonDirectBuffer(value));
->>>>>>> upstream/enterprise-1.8
       }
       return new GetTResponse(copyAsNonDirectBuffer(value));
     });

@@ -38,14 +38,8 @@ import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.codahale.metrics.Gauge;
-<<<<<<< HEAD
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-||||||| merged common ancestors
-=======
-import com.google.common.base.Objects;
-import com.google.common.annotations.VisibleForTesting;
->>>>>>> upstream/enterprise-1.8
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
@@ -401,17 +395,6 @@ public final class FileSystemContext implements Closeable {
    * @return the acquired netty channel
    */
   public Channel acquireNettyChannel(final WorkerNetAddress workerNetAddress) throws IOException {
-<<<<<<< HEAD
-    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
-    ChannelPoolKey key =
-        new ChannelPoolKey(address, TransportProviderUtils.getImpersonationUser(mParentSubject));
-    if (!mNettyChannelPools.containsKey(key)) {
-      Bootstrap bs = NettyClient.createClientBootstrap(mParentSubject, address);
-||||||| merged common ancestors
-    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
-    if (!mNettyChannelPools.containsKey(address)) {
-      Bootstrap bs = NettyClient.createClientBootstrap(address);
-=======
     return acquireNettyChannelInternal(new NettyChannelProperties(workerNetAddress));
   }
   // ALLUXIO CS ADD
@@ -446,7 +429,6 @@ public final class FileSystemContext implements Closeable {
       Bootstrap bs = NettyClient.createClientBootstrap(mParentSubject, address,
           channelProperties.getChannelCapability());
       // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.8
       bs.remoteAddress(address);
       // ALLUXIO CS ADD
       bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY,
@@ -647,49 +629,6 @@ public final class FileSystemContext implements Closeable {
 
     private Metrics() {} // prevent instantiation
   }
-<<<<<<< HEAD
-
-  /**
-   * Key for Netty channel pools. This requires both the worker address and the username, so that
-   * netty channels are created for different users.
-   */
-  private static final class ChannelPoolKey {
-    private final SocketAddress mSocketAddress;
-    private final String mUsername;
-
-    public ChannelPoolKey(SocketAddress socketAddress, String username) {
-      mSocketAddress = socketAddress;
-      mUsername = username;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(mSocketAddress, mUsername);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (!(o instanceof ChannelPoolKey)) {
-        return false;
-      }
-      ChannelPoolKey that = (ChannelPoolKey) o;
-      return Objects.equal(mSocketAddress, that.mSocketAddress)
-          && Objects.equal(mUsername, that.mUsername);
-    }
-
-    @Override
-    public String toString() {
-      return Objects.toStringHelper(this)
-          .add("socketAddress", mSocketAddress)
-          .add("username", mUsername)
-          .toString();
-    }
-  }
-||||||| merged common ancestors
-=======
 
   /**
    * Key for Netty channel pools. This requires both the worker address and the username, so that
@@ -742,7 +681,7 @@ public final class FileSystemContext implements Closeable {
     }
     // ALLUXIO CS ADD
     public NettyChannelProperties(WorkerNetAddress workerNetAddress,
-                                  alluxio.proto.security.CapabilityProto.Capability channelCapability) {
+        alluxio.proto.security.CapabilityProto.Capability channelCapability) {
       this(workerNetAddress);
       mChannelCapability = channelCapability;
     }
@@ -756,5 +695,4 @@ public final class FileSystemContext implements Closeable {
       return mWorkerNetAddress;
     }
   }
->>>>>>> upstream/enterprise-1.8
 }

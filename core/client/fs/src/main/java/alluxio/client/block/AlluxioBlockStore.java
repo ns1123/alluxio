@@ -68,20 +68,11 @@ public final class AlluxioBlockStore {
   private final FileSystemContext mContext;
   private final TieredIdentity mTieredIdentity;
 
-<<<<<<< HEAD
   /** Cached map for workers. */
   private List<BlockWorkerInfo> mWorkerInfoList = null;
   /** The policy to refresh workers list. */
   private final RefreshPolicy mWorkerRefreshPolicy;
 
-||||||| merged common ancestors
-=======
-  /** Cached map for workers. */
-  private List<BlockWorkerInfo> mWorkerInfoList = null;
-  /** The policy to refresh workers list. */
-  private RefreshPolicy mWorkerRefreshPolicy = null;
-
->>>>>>> upstream/enterprise-1.8
   /**
    * Creates an Alluxio block store with default file system context and default local hostname.
    *

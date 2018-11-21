@@ -12,22 +12,7 @@
 package alluxio.master.file.meta;
 
 import alluxio.AlluxioURI;
-<<<<<<< HEAD
 import alluxio.collections.Pair;
-||||||| merged common ancestors
-import alluxio.collections.ConcurrentHashSet;
-import alluxio.collections.FieldIndex;
-import alluxio.collections.IndexDefinition;
-import alluxio.collections.UniqueFieldIndex;
-import alluxio.exception.AccessControlException;
-=======
-import alluxio.collections.ConcurrentHashSet;
-import alluxio.collections.FieldIndex;
-import alluxio.collections.IndexDefinition;
-import alluxio.collections.Pair;
-import alluxio.collections.UniqueFieldIndex;
-import alluxio.exception.AccessControlException;
->>>>>>> upstream/enterprise-1.8
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
@@ -40,15 +25,8 @@ import alluxio.master.file.RpcContext;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
-<<<<<<< HEAD
 import alluxio.master.file.state.InodesView;
 import alluxio.master.journal.JournalContext;
-||||||| merged common ancestors
-import alluxio.master.file.options.DeleteOptions;
-=======
-import alluxio.master.file.options.DeleteOptions;
-import alluxio.master.journal.JournalContext;
->>>>>>> upstream/enterprise-1.8
 import alluxio.master.journal.JournalEntryIterable;
 import alluxio.master.journal.JournalEntryReplayable;
 import alluxio.proto.journal.File.DeleteFileEntry;
@@ -173,21 +151,10 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
    * @param mode the root mode
    * @param context the journal context to journal the initialization to
    */
-<<<<<<< HEAD
   public void initializeRoot(String owner, String group, Mode mode, JournalContext context)
       throws UnavailableException {
     if (mState.getRoot() == null) {
       InodeDirectory root = InodeDirectory.create(mDirectoryIdGenerator.getNewDirectoryId(context),
-||||||| merged common ancestors
-  public void initializeRoot(String owner, String group, Mode mode) throws UnavailableException {
-    if (mRoot == null) {
-      InodeDirectory root = InodeDirectory.create(mDirectoryIdGenerator.getNewDirectoryId(),
-=======
-  public void initializeRoot(String owner, String group, Mode mode, JournalContext context)
-      throws UnavailableException {
-    if (mRoot == null) {
-      InodeDirectory root = InodeDirectory.create(mDirectoryIdGenerator.getNewDirectoryId(context),
->>>>>>> upstream/enterprise-1.8
           NO_PARENT, ROOT_INODE_NAME,
           CreateDirectoryOptions.defaults().setOwner(owner).setGroup(group).setMode(mode));
       root.setPersistenceState(PersistenceState.PERSISTED);
@@ -725,52 +692,10 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
             // The competing directory could have been removed.
             continue;
           }
-<<<<<<< HEAD
 
           if (existing.isFile()) {
             throw new FileAlreadyExistsException(String.format(
                 "Directory creation for %s failed. Inode %s is a file", path, existing.getName()));
-||||||| merged common ancestors
-        } else {
-          try {
-            // Successfully added the child, while holding the write lock.
-            dir.setPinned(currentInodeDirectory.isPinned());
-            if (options.isPersisted()) {
-              // Do not journal the persist entry, since a creation entry will be journaled instead.
-              syncPersistDirectory(RpcContext.NOOP, dir);
-            }
-          } catch (Exception e) {
-            // Failed to persist the directory, so remove it from the parent.
-            currentInodeDirectory.removeChild(dir);
-            throw e;
-=======
-        } else {
-          try {
-            // Successfully added the child, while holding the write lock.
-            dir.setPinned(currentInodeDirectory.isPinned());
-
-            // if the parent has default ACL, copy that default ACL as the new directory's default
-            // and access acl, ANDed with the umask
-            // if it is part of a metadata load operation, we ignore the umask and simply inherit
-            // the default ACL as the directory's new default and access ACL
-            short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
-                : dir.getMode();
-            DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
-            if (!dAcl.isEmpty()) {
-              Pair<AccessControlList, DefaultAccessControlList> pair =
-                  dAcl.generateChildDirACL(mode);
-              dir.setInternalAcl(pair.getFirst());
-              dir.setDefaultACL(pair.getSecond());
-            }
-            if (options.isPersisted()) {
-              // Do not journal the persist entry, since a creation entry will be journaled instead.
-              syncPersistDirectory(RpcContext.NOOP, dir);
-            }
-          } catch (Exception e) {
-            // Failed to persist the directory, so remove it from the parent.
-            currentInodeDirectory.removeChild(dir);
-            throw e;
->>>>>>> upstream/enterprise-1.8
           }
           dir = (InodeDirectoryView) existing;
         }
@@ -827,7 +752,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
         break;
       }
 
-<<<<<<< HEAD
       Inode<?> newInode;
       // create the new inode, with a write lock
       if (options instanceof CreateDirectoryOptions) {
@@ -852,131 +776,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
               dAcl.generateChildDirACL(mode);
           newDir.setInternalAcl(pair.getFirst());
           newDir.setDefaultACL(pair.getSecond());
-||||||| merged common ancestors
-      } else {
-        // create the new inode, with a write lock
-        if (options instanceof CreateDirectoryOptions) {
-          CreateDirectoryOptions directoryOptions = (CreateDirectoryOptions) options;
-          lastInode = InodeDirectory.create(
-              mDirectoryIdGenerator.getNewDirectoryId(rpcContext.getJournalContext()),
-              currentInodeDirectory.getId(), name, directoryOptions);
-          // Lock the created inode before subsequent operations, and add it to the lock group.
-          extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(lastInode,
-              currentInodeDirectory, name);
-          if (directoryOptions.isPersisted()) {
-            // Do not journal the persist entry, since a creation entry will be journaled instead.
-            // TODO(david): remove this call to syncPersistDirectory to improve performance
-            // of recursive ls.
-            syncPersistDirectory(RpcContext.NOOP, (InodeDirectory) lastInode);
-          }
-        } else if (options instanceof CreateFileOptions) {
-          CreateFileOptions fileOptions = (CreateFileOptions) options;
-          lastInode = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
-              currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
-          // Lock the created inode before subsequent operations, and add it to the lock group.
-          extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(lastInode,
-              currentInodeDirectory, name);
-          if (fileOptions.isCacheable()) {
-            ((InodeFile) lastInode).setCacheable(true);
-          }
-        }
-        lastInode.setPinned(currentInodeDirectory.isPinned());
-
-        // Update state while holding the write lock.
-        // lastInode should be added to mInodes before getting added to its parent list, because it
-        // becomes visible at this point.
-        mInodes.add(lastInode);
-        if (!currentInodeDirectory.addChild(lastInode)) {
-          // Could not add the child inode to the parent. Continue and try again.
-          // Cleanup is not necessary, since other state is updated later, after a successful add.
-          mInodes.remove(lastInode);
-          extensibleInodePath.getLockList().unlockLast();
-          lastInode = null;
-          continue;
-=======
-      } else {
-        // create the new inode, with a write lock
-        if (options instanceof CreateDirectoryOptions) {
-          CreateDirectoryOptions directoryOptions = (CreateDirectoryOptions) options;
-          lastInode = InodeDirectory.create(
-              mDirectoryIdGenerator.getNewDirectoryId(rpcContext.getJournalContext()),
-              currentInodeDirectory.getId(), name, directoryOptions);
-
-          InodeDirectory newDir = (InodeDirectory) lastInode;
-          // Lock the created inode before subsequent operations, and add it to the lock group.
-
-          extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(lastInode,
-              currentInodeDirectory, name);
-
-          // if the parent has default ACL, take the default ACL ANDed with the umask as the new
-          // directory's default and access acl
-          // WHen it is a metadata load operation, do not take the umask into account
-          short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
-              : newDir.getMode();
-          DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
-          if (!dAcl.isEmpty()) {
-            Pair<AccessControlList, DefaultAccessControlList> pair =
-                dAcl.generateChildDirACL(mode);
-            newDir.setInternalAcl(pair.getFirst());
-            newDir.setDefaultACL(pair.getSecond());
-          }
-
-          if (directoryOptions.isPersisted()) {
-            // Do not journal the persist entry, since a creation entry will be journaled instead.
-            if (options.isMetadataLoad()) {
-              // if we are creating the file as a result of loading metadata, the newDir is already
-              // persisted, and we got the permissions info from the ufs.
-              newDir.setOwner(options.getOwner())
-                  .setGroup(options.getGroup())
-                  .setMode(options.getMode().toShort());
-
-              Long lastModificationTime = options.getOperationTimeMs();
-              if (lastModificationTime != null) {
-                newDir.setLastModificationTimeMs(lastModificationTime, true);
-              }
-              newDir.setPersistenceState(PersistenceState.PERSISTED);
-            } else {
-              syncPersistDirectory(RpcContext.NOOP, newDir);
-            }
-          }
-        } else if (options instanceof CreateFileOptions) {
-          CreateFileOptions fileOptions = (CreateFileOptions) options;
-          lastInode = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
-              currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
-          // Lock the created inode before subsequent operations, and add it to the lock group.
-
-          extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(lastInode,
-              currentInodeDirectory, name);
-
-          InodeFile newFile = (InodeFile) lastInode;
-          // if the parent has a default ACL, copy that default ACL ANDed with the umask as the new
-          // file's access ACL.
-          // If it is a metadata load operation, do not consider the umask.
-          DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
-          short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
-              : newFile.getMode();
-          if (!dAcl.isEmpty()) {
-            AccessControlList acl = dAcl.generateChildFileACL(mode);
-            newFile.setInternalAcl(acl);
-          }
-          if (fileOptions.isCacheable()) {
-            ((InodeFile) lastInode).setCacheable(true);
-          }
-        }
-        lastInode.setPinned(currentInodeDirectory.isPinned());
-
-        // Update state while holding the write lock.
-        // lastInode should be added to mInodes before getting added to its parent list, because it
-        // becomes visible at this point.
-        mInodes.add(lastInode);
-        if (!currentInodeDirectory.addChild(lastInode)) {
-          // Could not add the child inode to the parent. Continue and try again.
-          // Cleanup is not necessary, since other state is updated later, after a successful add.
-          mInodes.remove(lastInode);
-          extensibleInodePath.getLockList().unlockLast();
-          lastInode = null;
-          continue;
->>>>>>> upstream/enterprise-1.8
         }
 
         if (directoryOptions.isPersisted()) {
@@ -1074,7 +873,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
   }
 
   /**
-<<<<<<< HEAD
    * Lock from a specific poiint in the tree to the immediate child, and return a lockedInodePath.
    *
    * @param inodePath the root to start locking
@@ -1108,42 +906,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
   }
 
   /**
-||||||| merged common ancestors
-=======
-   * Lock from a specific poiint in the tree to the immediate child, and return a lockedInodePath.
-   *
-   * @param inodePath the root to start locking
-   * @param lockMode the lock type to use
-   * @param childInode the inode of the child that we are locking
-   * @param pathComponents the array of pre-parsed path components, or null to parse pathComponents
-   *                       from the uri
-   * @return an {@link InodeLockList} representing the list of descendants that got locked as
-   * a result of this call.
-   * @throws FileDoesNotExistException if the inode does not exist
-   * @throws InvalidPathException if the path is invalid
-   */
-  public LockedInodePath lockChildPath(LockedInodePath inodePath, LockMode lockMode,
-      Inode<?> childInode, String[] pathComponents)
-      throws FileDoesNotExistException, InvalidPathException {
-    InodeLockList inodeLockList = new InodeLockList();
-
-    if (lockMode == LockMode.READ) {
-      inodeLockList.lockReadAndCheckParent(childInode, inodePath.getInode());
-    } else {
-      inodeLockList.lockWriteAndCheckParent(childInode, inodePath.getInode());
-    }
-
-    if (pathComponents == null) {
-      return new MutableLockedInodePath(inodePath.getUri().join(childInode.getName()),
-          new CompositeInodeLockList(inodePath.mLockList, inodeLockList), lockMode);
-    } else {
-      return new MutableLockedInodePath(inodePath.getUri().join(childInode.getName()),
-          new CompositeInodeLockList(inodePath.mLockList, inodeLockList), pathComponents, lockMode);
-    }
-  }
-
-  /**
->>>>>>> upstream/enterprise-1.8
    * Locks a specific descendant of a particular {@link LockedInodePath}. It does not extend the
    * {@link LockedInodePath}, it only locks the descendant.
    *
@@ -1441,7 +1203,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
         // The directory is persisted
         return;
       }
-<<<<<<< HEAD
       Optional<Scoped> persisting = dir.tryAcquirePersistingLock();
       if (!persisting.isPresent()) {
         // Someone else is doing this persist. Continue and wait for them to finish.
@@ -1462,73 +1223,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
           if (isRootId(dir.getId())) {
             // Don't load the root dir metadata from UFS
             return;
-||||||| merged common ancestors
-      if (dir.compareAndSwap(PersistenceState.NOT_PERSISTED,
-          PersistenceState.TO_BE_PERSISTED)) {
-        boolean success = false;
-        try {
-          AlluxioURI uri = getPath(dir);
-          MountTable.Resolution resolution = mMountTable.resolve(uri);
-          String ufsUri = resolution.getUri().toString();
-          try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
-            UnderFileSystem ufs = ufsResource.get();
-            MkdirsOptions mkdirsOptions = MkdirsOptions.defaults().setCreateParent(false)
-                .setOwner(dir.getOwner()).setGroup(dir.getGroup()).setMode(new Mode(dir.getMode()));
-            if (!ufs.mkdirs(ufsUri, mkdirsOptions)) {
-              // Directory might already exist. Try loading the status from ufs.
-              UfsStatus status;
-              try {
-                status = ufs.getStatus(ufsUri);
-              } catch (Exception e) {
-                throw new IOException(String.format("Cannot sync UFS directory %s: %s.", ufsUri,
-                    e.toString()), e);
-              }
-              if (status.isFile()) {
-                throw new InvalidPathException(String.format(
-                    "Error persisting directory. A file exists at the UFS location %s.", ufsUri));
-              }
-              dir.setOwner(status.getOwner())
-                  .setGroup(status.getGroup())
-                  .setMode(status.getMode());
-              Long lastModificationTime = status.getLastModifiedTime();
-              if (lastModificationTime != null) {
-                dir.setLastModificationTimeMs(status.getLastModifiedTime(), true);
-              }
-            }
-=======
-      if (dir.compareAndSwap(PersistenceState.NOT_PERSISTED,
-          PersistenceState.TO_BE_PERSISTED)) {
-        boolean success = false;
-        try {
-          AlluxioURI uri = getPath(dir);
-          MountTable.Resolution resolution = mMountTable.resolve(uri);
-          String ufsUri = resolution.getUri().toString();
-          try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
-            UnderFileSystem ufs = ufsResource.get();
-            MkdirsOptions mkdirsOptions = MkdirsOptions.defaults().setCreateParent(false)
-                .setOwner(dir.getOwner()).setGroup(dir.getGroup()).setMode(new Mode(dir.getMode()));
-            if (!ufs.mkdirs(ufsUri, mkdirsOptions)) {
-              // Directory might already exist. Try loading the status from ufs.
-              UfsStatus status;
-              try {
-                status = ufs.getStatus(ufsUri);
-              } catch (Exception e) {
-                throw new IOException(String.format("Cannot create or load UFS directory %s: %s.",
-                    ufsUri, e.toString()), e);
-              }
-              if (status.isFile()) {
-                throw new InvalidPathException(String.format(
-                    "Error persisting directory. A file exists at the UFS location %s.", ufsUri));
-              }
-              dir.setOwner(status.getOwner())
-                  .setGroup(status.getGroup())
-                  .setMode(status.getMode());
-              Long lastModificationTime = status.getLastModifiedTime();
-              if (lastModificationTime != null) {
-                dir.setLastModificationTimeMs(status.getLastModifiedTime(), true);
-              }
-            }
->>>>>>> upstream/enterprise-1.8
           }
           entry.setOwner(status.getOwner())
               .setGroup(status.getGroup())

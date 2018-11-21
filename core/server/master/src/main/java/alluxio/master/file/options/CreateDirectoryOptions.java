@@ -11,13 +11,9 @@
 
 package alluxio.master.file.options;
 
-<<<<<<< HEAD
 import alluxio.security.authorization.AclEntry;
-||||||| merged common ancestors
-=======
 import alluxio.Constants;
 import alluxio.security.authorization.AclEntry;
->>>>>>> upstream/enterprise-1.8
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateDirectoryTOptions;
 import alluxio.underfs.UfsStatus;
@@ -99,26 +95,6 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
   }
 
   /**
-<<<<<<< HEAD
-   * @return the default ACL in the form of a list of default ACL Entries
-   */
-  public List<AclEntry> getDefaultAcl() {
-    return mDefaultAcl;
-  }
-
-  /**
-   * Sets the default ACL in the option.
-   * @param defaultAcl a list of default ACL Entries
-   * @return the updated options object
-   */
-  public CreateDirectoryOptions setDefaultAcl(List<AclEntry> defaultAcl) {
-    mDefaultAcl = ImmutableList.copyOf(defaultAcl);
-    return getThis();
-  }
-
-  /**
-||||||| merged common ancestors
-=======
    * @return the TTL (time to live) value; it identifies duration (in seconds) the created directory
    *         should be kept around before it is automatically deleted or free
    */
@@ -151,7 +127,6 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
   }
 
   /**
->>>>>>> upstream/enterprise-1.8
    * @return the {@link UfsStatus}
    */
   public UfsStatus getUfsStatus() {
@@ -213,47 +188,23 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
       return false;
     }
     CreateDirectoryOptions that = (CreateDirectoryOptions) o;
-<<<<<<< HEAD
-    return Objects.equal(mAllowExists, that.mAllowExists)
-        && Objects.equal(mUfsStatus, that.mUfsStatus)
-        && Objects.equal(mDefaultAcl, that.mDefaultAcl);
-||||||| merged common ancestors
-    return Objects.equal(mAllowExists, that.mAllowExists)
-        && Objects.equal(mUfsStatus, that.mUfsStatus);
-=======
     return Objects.equal(mAllowExists, that.mAllowExists) && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction) && Objects.equal(mUfsStatus, that.mUfsStatus)
         && Objects.equal(mDefaultAcl, that.mDefaultAcl);
->>>>>>> upstream/enterprise-1.8
   }
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
-    return super.hashCode() + Objects.hashCode(mAllowExists, mUfsStatus, mDefaultAcl);
-||||||| merged common ancestors
-    return super.hashCode() + Objects.hashCode(mAllowExists, mUfsStatus);
-=======
     return super.hashCode() + Objects.hashCode(mAllowExists, mTtl, mTtlAction, mUfsStatus, mDefaultAcl);
->>>>>>> upstream/enterprise-1.8
   }
 
   @Override
   public String toString() {
-<<<<<<< HEAD
-    return toStringHelper().add("allowExists", mAllowExists)
-        .add("ufsStatus", mUfsStatus)
-        .add("defaultAcl", mDefaultAcl).toString();
-||||||| merged common ancestors
-    return toStringHelper().add("allowExists", mAllowExists)
-        .add("ufsStatus", mUfsStatus).toString();
-=======
     return toStringHelper()
         .add("allowExists", mAllowExists).add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
         .add("ufsStatus", mUfsStatus)
         .add("defaultAcl", mDefaultAcl)
         .toString();
->>>>>>> upstream/enterprise-1.8
   }
 }

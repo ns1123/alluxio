@@ -23,16 +23,8 @@ import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
 import alluxio.security.authorization.Mode;
-<<<<<<< HEAD
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
-||||||| merged common ancestors
-import alluxio.security.group.provider.ShellBasedUnixGroupsMapping;
-=======
-import alluxio.security.group.provider.ShellBasedUnixGroupsMapping;
-import alluxio.util.CommonUtils;
-import alluxio.util.WaitForOptions;
->>>>>>> upstream/enterprise-1.8
 
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
@@ -73,13 +65,8 @@ final class AlluxioFuseFileSystem extends FuseStubFS {
   private static final Logger LOG = LoggerFactory.getLogger(AlluxioFuseFileSystem.class);
 
   private static final int MAX_OPEN_FILES = Integer.MAX_VALUE;
-<<<<<<< HEAD
   private static final int MAX_OPEN_WAITTIME_MS = 5000;
 
-||||||| merged common ancestors
-=======
-  private static final int MAX_OPEN_WAITTIME_MS = 5000;
->>>>>>> upstream/enterprise-1.8
   private static final long UID = AlluxioFuseUtils.getUid(System.getProperty("user.name"));
   private static final long GID = AlluxioFuseUtils.getGid(System.getProperty("user.name"));
   private final boolean mIsUserGroupTranslation;
@@ -797,7 +784,6 @@ final class AlluxioFuseFileSystem extends FuseStubFS {
   }
 
   /**
-<<<<<<< HEAD
    * Waits for the file to complete before opening it.
    *
    * @param uri the file path to check
@@ -822,30 +808,6 @@ final class AlluxioFuseFileSystem extends FuseStubFS {
   }
 
   /**
-||||||| merged common ancestors
-=======
-   * Waits for the file to complete before opening it.
-   *
-   * @param uri the file path to check
-   * @return whether the file is completed or not
-   */
-  private boolean waitForFileCompleted(AlluxioURI uri) {
-    try {
-      CommonUtils.waitFor("file completed", () -> {
-        try {
-          return mFileSystem.getStatus(uri).isCompleted();
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      }, WaitForOptions.defaults().setTimeoutMs(MAX_OPEN_WAITTIME_MS));
-      return true;
-    } catch (RuntimeException e) {
-      return false;
-    }
-  }
-
-  /**
->>>>>>> upstream/enterprise-1.8
    * Exposed for testing.
    */
   LoadingCache<String, AlluxioURI> getPathResolverCache() {

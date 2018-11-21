@@ -224,7 +224,6 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
         // ALLUXIO CS END
       }
     });
-<<<<<<< HEAD
 
     // Create the supported HdfsActiveSyncer if possible.
     HdfsActiveSyncProvider hdfsActiveSyncProvider = new NoopHdfsActiveSyncProvider();
@@ -247,30 +246,6 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     }
 
     mHdfsActiveSyncer = hdfsActiveSyncProvider;
-||||||| merged common ancestors
-=======
-
-    // Create the supported HdfsActiveSyncer if possible.
-    HdfsActiveSyncProvider hdfsActiveSyncProvider = new NoopHdfsActiveSyncProvider();
-
-    try {
-      Constructor c = Class.forName(HDFS_ACTIVESYNC_PROVIDER_CLASS)
-          .getConstructor(URI.class, Configuration.class);
-      Object o = c.newInstance(URI.create(ufsUri.toString()), hdfsConf);
-      if (o instanceof HdfsActiveSyncProvider) {
-        hdfsActiveSyncProvider = (HdfsActiveSyncProvider) o;
-      } else {
-        LOG.warn(
-            "SupportedHdfsActiveSyncProvider is not instance of HdfsActiveSyncProvider. "
-                + "HDFS ActiveSync will not be supported.");
-      }
-    } catch (Exception e) {
-      // ignore
-      LOG.warn("Cannot create SupportedHdfsActiveSyncProvider. HDFS ActiveSync will not be supported.");
-    }
-
-    mHdfsActiveSyncer = hdfsActiveSyncProvider;
->>>>>>> upstream/enterprise-1.8
   }
 
   @Override

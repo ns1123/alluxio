@@ -81,7 +81,6 @@ import javax.annotation.concurrent.ThreadSafe;
  * The synchronization strategy for this class is to synchronize all public methods.
  */
 @ThreadSafe
-<<<<<<< HEAD
 public final class MultiProcessCluster {
   public static final String ALLUXIO_USE_FIXED_TEST_PORTS = "ALLUXIO_USE_FIXED_TEST_PORTS";
   // ALLUXIO CS REPLACE
@@ -91,15 +90,6 @@ public final class MultiProcessCluster {
   // ALLUXIO CS END
   public static final int PORTS_PER_WORKER = 3;
 
-||||||| merged common ancestors
-public final class MultiProcessCluster implements TestRule {
-=======
-public final class MultiProcessCluster {
-  public static final String ALLUXIO_USE_FIXED_TEST_PORTS = "ALLUXIO_USE_FIXED_TEST_PORTS";
-  public static final int PORTS_PER_MASTER = 2;
-  public static final int PORTS_PER_WORKER = 3;
-
->>>>>>> upstream/enterprise-1.8
   private static final Logger LOG = LoggerFactory.getLogger(MultiProcessCluster.class);
   private static final File ARTIFACTS_DIR = new File(Constants.TEST_ARTIFACTS_DIR);
   private static final File TESTS_LOG = new File(Constants.TESTS_LOG);
@@ -114,13 +104,8 @@ public final class MultiProcessCluster {
   private final Closer mCloser;
   private final List<Master> mMasters;
   private final List<Worker> mWorkers;
-<<<<<<< HEAD
   private final List<ReservedPort> mPorts;
   private final boolean mNoFormat;
-||||||| merged common ancestors
-=======
-  private final List<ReservedPort> mPorts;
->>>>>>> upstream/enterprise-1.8
 
   private DeployMode mDeployMode;
 
@@ -138,7 +123,6 @@ public final class MultiProcessCluster {
 
   private MultiProcessCluster(Map<PropertyKey, String> properties,
       Map<Integer, Map<PropertyKey, String>> masterProperties,
-<<<<<<< HEAD
       Map<Integer, Map<PropertyKey, String>> workerProperties, int numMasters, int numWorkers,
       String clusterName, DeployMode mode, boolean noFormat,
       List<PortCoordination.ReservedPort> ports) {
@@ -149,20 +133,6 @@ public final class MultiProcessCluster {
               + "%s workers, and %s ports",
           PORTS_PER_MASTER, PORTS_PER_WORKER, numMasters, numWorkers, ports.size());
     }
-||||||| merged common ancestors
-      Map<Integer, Map<PropertyKey, String>> workerProperties,
-      int numMasters, int numWorkers, String clusterName, DeployMode mode) {
-=======
-      Map<Integer, Map<PropertyKey, String>> workerProperties, int numMasters, int numWorkers,
-      String clusterName, DeployMode mode, List<PortCoordination.ReservedPort> ports) {
-    if (System.getenv(ALLUXIO_USE_FIXED_TEST_PORTS) != null) {
-      Preconditions.checkState(
-          ports.size() == numMasters * PORTS_PER_MASTER + numWorkers * PORTS_PER_WORKER,
-          "We require %s ports per master and %s ports per worker, but there are %s masters, "
-              + "%s workers, and %s ports",
-          PORTS_PER_MASTER, PORTS_PER_WORKER, numMasters, numWorkers, ports.size());
-    }
->>>>>>> upstream/enterprise-1.8
     mProperties = properties;
     mMasterProperties = masterProperties;
     mWorkerProperties = workerProperties;
@@ -705,19 +675,8 @@ public final class MultiProcessCluster {
     List<MasterNetAddress> addrs = new ArrayList<>();
     for (int i = 0; i < numMasters; i++) {
       // ALLUXIO CS REPLACE
-<<<<<<< HEAD
       // addrs.add(
       //     new MasterNetAddress(NetworkAddressUtils.getLocalHostName(), getNewPort(), getNewPort()));
-||||||| merged common ancestors
-      // addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
-      //     PortUtils.getFreePort(), PortUtils.getFreePort()));
-=======
-      // addrs.add(
-      //     new MasterNetAddress(NetworkAddressUtils.getLocalHostName(), getNewPort(), getNewPort()));
-      //
-      // addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
-      //     PortUtils.getFreePort(), PortUtils.getFreePort()));
->>>>>>> upstream/enterprise-1.8
       // ALLUXIO CS WITH
       // Enterprise requires an additional port for embedded journal communication.
       addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
@@ -868,13 +827,7 @@ public final class MultiProcessCluster {
           "The worker indexes in worker properties should be bigger or equal to zero "
               + "and small than %s", mNumWorkers);
       return new MultiProcessCluster(mProperties, mMasterProperties, mWorkerProperties,
-<<<<<<< HEAD
           mNumMasters, mNumWorkers, mClusterName, mDeployMode, mNoFormat, mReservedPorts);
-||||||| merged common ancestors
-          mNumMasters, mNumWorkers, mClusterName, mDeployMode);
-=======
-          mNumMasters, mNumWorkers, mClusterName, mDeployMode, mReservedPorts);
->>>>>>> upstream/enterprise-1.8
     }
   }
 

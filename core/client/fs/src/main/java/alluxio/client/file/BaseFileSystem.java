@@ -42,16 +42,9 @@ import alluxio.exception.status.FailedPreconditionException;
 import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.exception.status.UnavailableException;
-<<<<<<< HEAD
 import alluxio.master.MasterInquireClient;
 import alluxio.security.authorization.AclEntry;
 import alluxio.uri.Authority;
-||||||| merged common ancestors
-import alluxio.wire.CommonOptions;
-=======
-import alluxio.wire.CommonOptions;
-import alluxio.security.authorization.AclEntry;
->>>>>>> upstream/enterprise-1.8
 import alluxio.wire.LoadMetadataType;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;
@@ -143,23 +136,13 @@ public class BaseFileSystem implements FileSystem {
       // ALLUXIO CS END
       masterClient.createFile(path, options);
       // Do not sync before this getStatus, since the UFS file is expected to not exist.
-<<<<<<< HEAD
       GetStatusOptions opts = GetStatusOptions.defaults();
       opts.setLoadMetadataType(LoadMetadataType.Never);
       opts.getCommonOptions().setSyncIntervalMs(-1);
+      // ALLUXIO CS ADD
+      opts.setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE)
+      // ALLUXIO CS END
       status = masterClient.getStatus(path, opts);
-||||||| merged common ancestors
-      status = masterClient.getStatus(path,
-          GetStatusOptions.defaults().setLoadMetadataType(LoadMetadataType.Never)
-              .setCommonOptions(CommonOptions.defaults().setSyncIntervalMs(-1)));
-=======
-      status = masterClient.getStatus(path,
-          GetStatusOptions.defaults().setLoadMetadataType(LoadMetadataType.Never)
-              // ALLUXIO CS ADD
-              .setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE)
-              // ALLUXIO CS END
-              .setCommonOptions(CommonOptions.defaults().setSyncIntervalMs(-1)));
->>>>>>> upstream/enterprise-1.8
       LOG.debug("Created file {}, options: {}", path.getPath(), options);
     } catch (AlreadyExistsException e) {
       throw new FileAlreadyExistsException(e.getMessage());
@@ -682,7 +665,6 @@ public class BaseFileSystem implements FileSystem {
   }
 
   @Override
-<<<<<<< HEAD
   public void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries)
       throws FileDoesNotExistException, IOException, AlluxioException {
     setAcl(path, action, entries, SetAclOptions.defaults());
@@ -708,27 +690,6 @@ public class BaseFileSystem implements FileSystem {
   }
 
   @Override
-||||||| merged common ancestors
-=======
-  public void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries,
-      SetAclOptions options) throws FileDoesNotExistException, IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
-    try {
-      masterClient.setAcl(path, action, entries, options);
-      LOG.debug("Set ACL for {}, entries: {} options: {}", path.getPath(), entries, options);
-    } catch (NotFoundException e) {
-      throw new FileDoesNotExistException(e.getMessage());
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
-    }
-  }
-
-  @Override
->>>>>>> upstream/enterprise-1.8
   public void setAttribute(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
     setAttribute(path, SetAttributeOptions.defaults());

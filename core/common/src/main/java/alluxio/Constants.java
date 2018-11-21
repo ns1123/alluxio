@@ -74,13 +74,8 @@ public final class Constants {
   // Google Cloud Storage header convention is "gs://".
   // See https://cloud.google.com/storage/docs/cloud-console
   public static final String HEADER_GCS = "gs://";
-<<<<<<< HEAD
   public static final String HEADER_COS = "cos://";
   public static final String HEADER_KODO = "kodo://";
-||||||| merged common ancestors
-=======
-  public static final String HEADER_COS = "cos://";
->>>>>>> upstream/enterprise-1.8
 
   public static final int MAX_PORT = 65535;
 
@@ -189,18 +184,6 @@ public final class Constants {
   // Ufs fingerprint
   public static final String INVALID_UFS_FINGERPRINT = "";
 
-<<<<<<< HEAD
-  // Output stream flushed signal
-  public static final String FLUSHED_SIGNAL = "FLUSHED";
-||||||| merged common ancestors
-  // ALLUXIO CS ADD
-  // Replication
-  public static final int REPLICATION_MAX_INFINITY = -1;
-
-  // Persistence
-  public static final int PERSISTENCE_INVALID_JOB_ID = -1;
-  public static final String PERSISTENCE_INVALID_UFS_PATH = "";
-=======
   // Output stream flushed signal
   public static final String FLUSHED_SIGNAL = "FLUSHED";
 
@@ -211,7 +194,6 @@ public final class Constants {
   // Persistence
   public static final int PERSISTENCE_INVALID_JOB_ID = -1;
   public static final String PERSISTENCE_INVALID_UFS_PATH = "";
->>>>>>> upstream/enterprise-1.8
 
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";

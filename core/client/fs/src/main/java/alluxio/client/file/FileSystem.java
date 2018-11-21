@@ -372,7 +372,6 @@ public interface FileSystem {
       throws FileDoesNotExistException, IOException, AlluxioException;
 
   /**
-<<<<<<< HEAD
    * Convenience method for {@link #setAcl(AlluxioURI, SetAclAction, List, SetAclOptions)} with
    * default options.
    *
@@ -411,35 +410,6 @@ public interface FileSystem {
       throws FileDoesNotExistException, IOException, AlluxioException;
 
   /**
-||||||| merged common ancestors
-=======
-   * Starts the active syncing process on an Alluxio path.
-   * @param path the path to sync
-   */
-  void startSync(AlluxioURI path)
-      throws FileDoesNotExistException, IOException, AlluxioException;
-
-  /**
-   * Stops the active syncing process on an Alluxio path.
-   * @param path the path to stop syncing
-   */
-  void stopSync(AlluxioURI path)
-      throws FileDoesNotExistException, IOException, AlluxioException;
-
-  /**
-   * Sets the ACL for a path.
-   *
-   * @param path the path to set the ACL for
-   * @param action the set action to perform
-   * @param entries the ACL entries
-   * @param options options to associate with this operation
-   * @throws FileDoesNotExistException if the given file does not exist
-   */
-  void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries, SetAclOptions options)
-      throws FileDoesNotExistException, IOException, AlluxioException;
-
-  /**
->>>>>>> upstream/enterprise-1.8
    * Convenience method for {@link #setAttribute(AlluxioURI, SetAttributeOptions)} with default
    * options.
    *

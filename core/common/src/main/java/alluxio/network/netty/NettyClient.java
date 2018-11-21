@@ -65,11 +65,6 @@ public final class NettyClient {
    * @param address the socket address
    * @return the new client {@link Bootstrap}
    */
-<<<<<<< HEAD
-  public static Bootstrap createClientBootstrap(Subject subject, SocketAddress address) {
-||||||| merged common ancestors
-  public static Bootstrap createClientBootstrap(SocketAddress address) {
-=======
   public static Bootstrap createClientBootstrap(Subject subject, SocketAddress address) {
     return createClientBootstrapInternal(new NettyBootstrapParamaters(subject, address));
   }
@@ -89,20 +84,11 @@ public final class NettyClient {
   // ALLUXIO CS END
 
   private static Bootstrap createClientBootstrapInternal(NettyBootstrapParamaters bootstrapParamaters) {
->>>>>>> upstream/enterprise-1.8
     final Bootstrap boot = new Bootstrap();
 
-<<<<<<< HEAD
-    boot.group(WORKER_GROUP)
-        .channel(NettyUtils.getClientChannelClass(!(address instanceof InetSocketAddress)));
-||||||| merged common ancestors
-    boot.group(WORKER_GROUP).channel(NettyUtils
-        .getClientChannelClass(NettyUtils.CHANNEL_TYPE, !(address instanceof InetSocketAddress)));
-=======
     boot.group(WORKER_GROUP)
         .channel(NettyUtils.getClientChannelClass(
             !(bootstrapParamaters.getSocketAddress() instanceof InetSocketAddress)));
->>>>>>> upstream/enterprise-1.8
     boot.option(ChannelOption.SO_KEEPALIVE, true);
     boot.option(ChannelOption.TCP_NODELAY, true);
     boot.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
@@ -135,11 +121,6 @@ public final class NettyClient {
         // ALLUXIO CS ADD
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
             alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-<<<<<<< HEAD
-          pipeline.addLast(new KerberosSaslClientHandler(subject));
-||||||| merged common ancestors
-          pipeline.addLast(KERBEROS_SASL_CLIENT_HANDLER);
-=======
           if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
               && bootstrapParamaters.getChannelCapability() != null) {
             pipeline.addLast(new CapabilityAuthenticationSaslClientHandler(
@@ -147,7 +128,6 @@ public final class NettyClient {
           } else {
             pipeline.addLast(new KerberosSaslClientHandler(bootstrapParamaters.getSubject()));
           }
->>>>>>> upstream/enterprise-1.8
         }
         // ALLUXIO CS END
       }

@@ -27,13 +27,7 @@ $ vagrant box add google https://github.com/mitchellh/vagrant-google/raw/master/
 
 **安装 Alluxio**
 
-<<<<<<< HEAD:docs/cn/deploy/Running-Alluxio-on-GCE.md
 使用“Clone”将[Alluxio](https://github.com/Alluxio/alluxio)源码复制到你本地的机器上。
-||||||| merged common ancestors
-下载 [Alluxio](https://alluxio.org/download)到你本地的机器上并解压(unzip)。
-=======
-复制 [Alluxio]目录(https://github.com/Alluxio/alluxio)到你本地的机器上。
->>>>>>> upstream/enterprise-1.8:docs/cn/deploy/Running-Alluxio-on-GCE.md
 
 **安装python依赖库**
 

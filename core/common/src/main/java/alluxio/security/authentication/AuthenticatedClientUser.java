@@ -59,18 +59,6 @@ public final class AuthenticatedClientUser {
   }
 
   /**
-<<<<<<< HEAD
-   * Sets {@link User} to the {@link ThreadLocal} variable.
-   *
-   * @param user the client user object
-   */
-  public static void set(User user) {
-    sUserThreadLocal.set(user);
-  }
-
-  /**
-||||||| merged common ancestors
-=======
    * Sets {@link User} to the {@link ThreadLocal} variable.
    *
    * @param user the client user object
@@ -100,7 +88,6 @@ public final class AuthenticatedClientUser {
 
   // ALLUXIO CS END
   /**
->>>>>>> upstream/enterprise-1.8
    * Gets the {@link User} from the {@link ThreadLocal} variable.
    *
    * @return the client user, null if the user is not present

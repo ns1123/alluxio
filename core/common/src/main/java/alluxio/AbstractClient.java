@@ -169,113 +169,8 @@ public abstract class AbstractClient implements Client {
   protected void beforeDisconnect() {
     // Empty implementation.
   }
-  // ALLUXIO CS ADD
 
   /**
-<<<<<<< HEAD
-||||||| merged common ancestors
-   * Handshakes with meta master.
-   */
-  private void doHandshake() throws AlluxioStatusException {
-    synchronized (AbstractClient.class) {
-      if (isConnected() || sHandshakeComplete.get()) {
-        return;
-      }
-      LOG.info("Alluxio client (version {}) is trying to bootstrap-connect with {}",
-          RuntimeConstants.VERSION, mAddress);
-      // A plain socket transport to bootstrap
-      TSocket socket = ThriftUtils.createThriftSocket(mAddress);
-      TTransport bootstrapTransport = new BootstrapClientTransport(socket);
-      TProtocol protocol = ThriftUtils.createThriftProtocol(bootstrapTransport,
-          Constants.META_MASTER_CLIENT_SERVICE_NAME);
-      List<ConfigProperty> clusterConfig;
-      try {
-        bootstrapTransport.open();
-        // We didn't use RetryHandlingMetaMasterClient because it inherits AbstractClient.
-        MetaMasterClientService.Client client = new MetaMasterClientService.Client(protocol);
-        // The credential configuration properties use displayValue
-        clusterConfig = client.getConfiguration(new GetConfigurationTOptions().setRawValue(true))
-            .getConfigList()
-            .stream()
-            .map(ConfigProperty::fromThrift)
-            .collect(Collectors.toList());
-      } catch (TException e) {
-        throw new UnavailableException(String.format(
-            "Failed to handshake with master %s to load cluster default configuration values",
-            mAddress), e);
-      } finally {
-        bootstrapTransport.close();
-      }
-      // merge conf returned by master as the cluster default into Configuration
-      Properties clusterProps = new Properties();
-      for (ConfigProperty property : clusterConfig) {
-        String name = property.getName();
-        // TODO(binfan): support propagating unsetting properties from master
-        if (PropertyKey.isValid(name) && property.getValue() != null) {
-          PropertyKey key = PropertyKey.fromString(name);
-          if (!key.getScope().contains(Scope.CLIENT)) {
-            // Only propagate client properties.
-            continue;
-          }
-          String value = property.getValue();
-          clusterProps.put(key, value);
-          LOG.debug("Loading cluster default: {} ({}) -> {}", key, key.getScope(), value);
-        }
-      }
-      String clientVersion = Configuration.get(PropertyKey.VERSION);
-      String clusterVersion = clusterProps.get(PropertyKey.VERSION).toString();
-      if (!clientVersion.equals(clusterVersion)) {
-        LOG.warn("Alluxio client version ({}) does not match Alluxio cluster version ({})",
-            clientVersion, clusterVersion);
-        clusterProps.remove(PropertyKey.VERSION);
-      }
-      Configuration.merge(clusterProps, Source.CLUSTER_DEFAULT);
-      Configuration.validate();
-      // This needs to be the last
-      sHandshakeComplete.set(true);
-      LOG.info("Alluxio client has bootstrap-connected with {}", mAddress);
-    }
-  }
-
-  private void doConnect() throws IOException, TTransportException {
-    LOG.info("Alluxio client (version {}) is trying to connect with {} @ {}",
-        RuntimeConstants.VERSION, getServiceName(), mAddress);
-    // The wrapper transport
-    TTransport clientTransport =
-        mTransportProvider.getClientTransport(mParentSubject, mAddress);
-    mProtocol = ThriftUtils.createThriftProtocol(clientTransport, getServiceName());
-    mProtocol.getTransport().open();
-    LOG.info("Client registered with {} @ {}", getServiceName(), mAddress);
-    mConnected = true;
-    afterConnect();
-    checkVersion(getClient(), getServiceVersion());
-  }
-
-  /**
-=======
-   * @return whether this client should load cluster defaults
-   */
-  protected boolean shouldLoadClusterDefaults() {
-    return true;
-  }
-  // ALLUXIO CS END
-
-  private void doConnect() throws IOException, TTransportException {
-    LOG.info("Alluxio client (version {}) is trying to connect with {} @ {}",
-        RuntimeConstants.VERSION, getServiceName(), mAddress);
-    // The wrapper transport
-    TTransport clientTransport =
-        TransportProvider.Factory.create().getClientTransport(mParentSubject, mAddress);
-    mProtocol = ThriftUtils.createThriftProtocol(clientTransport, getServiceName());
-    mProtocol.getTransport().open();
-    LOG.info("Client registered with {} @ {}", getServiceName(), mAddress);
-    mConnected = true;
-    afterConnect();
-    checkVersion(getClient(), getServiceVersion());
-  }
-
-  /**
->>>>>>> upstream/enterprise-1.8
    * Connects with the remote.
    */
   @Override
@@ -300,34 +195,6 @@ public abstract class AbstractClient implements Client {
             getServiceName(), retryPolicy.getAttemptCount(), e.toString());
         continue;
       }
-<<<<<<< HEAD
-||||||| merged common ancestors
-      // Bootstrap once
-      if (HANDSHAKE_NEEDED && !sHandshakeComplete.get()) {
-        try {
-          doHandshake();
-        } catch (UnavailableException e) {
-          LOG.warn("Failed to handshake ({}) with {} @ {}: {}", retryPolicy.getAttemptCount(),
-              getServiceName(), mAddress, e.getMessage());
-          continue;
-        }
-      }
-=======
-      // Bootstrap once for clients
-      // ALLUXIO CS REPLACE
-      // if (!isConnected()) {
-      // ALLUXIO CS WITH
-      if (!isConnected() && shouldLoadClusterDefaults()) {
-      // ALLUXIO CS END
-        try {
-          Configuration.loadClusterDefault(mAddress);
-        } catch (UnavailableException e) {
-          LOG.warn("Failed to handshake ({}) with {} @ {}: {}", retryPolicy.getAttemptCount(),
-              getServiceName(), mAddress, e.getMessage());
-          continue;
-        }
-      }
->>>>>>> upstream/enterprise-1.8
       try {
         beforeConnect();
         LOG.info("Alluxio client (version {}) is trying to connect with {} @ {}",

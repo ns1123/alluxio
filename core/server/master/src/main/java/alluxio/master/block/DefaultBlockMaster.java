@@ -810,16 +810,8 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
     // Make sure that the number of workers does not exceed the allowed maximum.
     synchronized (mTempWorkers) {
       if (!Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)
-<<<<<<< HEAD
           || mTempWorkers.size() + mWorkers.size() < mMaxWorkers) {
         while (!mTempWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
-||||||| merged common ancestors
-          || mWorkers.size() < mMaxWorkers) {
-        while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
-=======
-          || mTempWorkers.size() < mMaxWorkers) {
-        while (!mTempWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
->>>>>>> upstream/enterprise-1.8
           workerId = IdUtils.getRandomNonNegativeLong();
         }
       } else {
@@ -873,7 +865,6 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
             wireConfigList);
       }
     }
-<<<<<<< HEAD
 
     registerWorkerInternal(workerId);
 
@@ -883,17 +874,6 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
       mCapabilityKeyManager.scheduleNewKeyDistribution(worker.generateWorkerInfo(null, true));
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-
-=======
-    registerWorkerInternal(workerId);
-    // ALLUXIO CS ADD
-    if (mCapabilityEnabled) {
-      // Ordering is important, this requires the worker to be fully registered (ie. in mWorkers).
-      mCapabilityKeyManager.scheduleNewKeyDistribution(worker.generateWorkerInfo(null, true));
-    }
-    // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.8
     LOG.info("registerWorker(): {}", worker);
   }
 

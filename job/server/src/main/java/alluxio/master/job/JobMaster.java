@@ -91,19 +91,12 @@ public final class JobMaster extends AbstractNonJournaledMaster {
       };
 
   /**
-<<<<<<< HEAD
    * The total number of jobs that the JobMaster may run at any moment.
    */
   private final long mCapacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
 
   /**
    * All worker information. Access must be controlled on mWorkers using the RW lock(mWorkerRWLock).
-||||||| merged common ancestors
-   * All worker information. Access must be synchronized on mWorkers. If both block and worker
-   * metadata must be locked, mBlocks must be locked first.
-=======
-   * All worker information. Access must be controlled on mWorkers using the RW lock(mWorkerRWLock).
->>>>>>> upstream/enterprise-1.8
    */
   @GuardedBy("mWorkerRWLock")
   private final IndexedSet<MasterWorkerInfo> mWorkers = new IndexedSet<>(mIdIndex, mAddressIndex);
@@ -202,25 +195,7 @@ public final class JobMaster extends AbstractNonJournaledMaster {
    */
   public synchronized long run(JobConfig jobConfig)
       throws JobDoesNotExistException, ResourceExhaustedException {
-<<<<<<< HEAD
     if (mIdToJobCoordinator.size() == mCapacity) {
-||||||| merged common ancestors
-    long jobId = mJobIdGenerator.getNewJobId();
-    JobInfo jobInfo = new JobInfo(jobId, jobConfig, new Function<JobInfo, Void>() {
-      @Override
-      public Void apply(JobInfo jobInfo) {
-        Status status = jobInfo.getStatus();
-        mFinishedJobs.remove(jobInfo);
-        if (status.isFinished()) {
-          mFinishedJobs.add(jobInfo);
-        }
-        return null;
-      }
-    });
-    if (mIdToJobCoordinator.size() == CAPACITY) {
-=======
-    if (mIdToJobCoordinator.size() == CAPACITY) {
->>>>>>> upstream/enterprise-1.8
       if (mFinishedJobs.isEmpty()) {
         // The job master is at full capacity and no job has finished.
         throw new ResourceExhaustedException(
@@ -228,7 +203,6 @@ public final class JobMaster extends AbstractNonJournaledMaster {
       }
       // Discard old jobs that have completion time beyond retention policy
       Iterator<JobInfo> jobIterator = mFinishedJobs.iterator();
-<<<<<<< HEAD
       // Used to denote whether space could be reserved for the new job
       // It's 'true' if job master is at full capacity
       boolean isfull = true;
@@ -246,29 +220,6 @@ public final class JobMaster extends AbstractNonJournaledMaster {
       if (isfull) {
         throw new ResourceExhaustedException(
             ExceptionMessage.JOB_MASTER_FULL_CAPACITY.getMessage(mCapacity));
-||||||| merged common ancestors
-      JobInfo oldestJob = jobIterator.next();
-      if (CommonUtils.getCurrentMs() - oldestJob.getLastStatusChangeMs() < RETENTION_MS) {
-        // do not evict the candidate job if it has finished recently
-        throw new ResourceExhaustedException("Job master is at full capacity");
-=======
-      // Used to denote whether space could be reserved for the new job
-      // It's 'true' if job master is at full capacity
-      boolean isfull = true;
-      while (jobIterator.hasNext()) {
-        JobInfo oldestJob = jobIterator.next();
-        long completedBeforeMs = CommonUtils.getCurrentMs() - oldestJob.getLastStatusChangeMs();
-        if (completedBeforeMs < RETENTION_MS) {
-          // mFinishedJobs is sorted. Can't iterate to a job within retention policy
-          break;
-        }
-        jobIterator.remove();
-        mIdToJobCoordinator.remove(oldestJob.getId());
-        isfull = false;
-      }
-      if (isfull) {
-        throw new ResourceExhaustedException("Job master is at full capacity");
->>>>>>> upstream/enterprise-1.8
       }
     }
     long jobId = mJobIdGenerator.getNewJobId();

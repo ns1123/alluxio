@@ -423,83 +423,6 @@ public final class Configuration {
     return CONF;
   }
 
-<<<<<<< HEAD
-  /** Whether the cluster-default is loaded. */
-  private static final AtomicBoolean CLUSTER_DEFAULT_LOADED = new AtomicBoolean(false);
-
-  /**
-   * Loads cluster default values from the meta master.
-   *
-   * @param address the master address
-   */
-  public static void loadClusterDefault(InetSocketAddress address) throws AlluxioStatusException {
-    if (!Configuration.getBoolean(PropertyKey.USER_CONF_CLUSTER_DEFAULT_ENABLED)
-        || CLUSTER_DEFAULT_LOADED.get()) {
-      return;
-    }
-    synchronized (Configuration.class) {
-      if (CLUSTER_DEFAULT_LOADED.get()) {
-        return;
-      }
-      LOG.info("Alluxio client (version {}) is trying to bootstrap-connect with {}",
-          RuntimeConstants.VERSION, address);
-      // A plain socket transport to bootstrap
-      TSocket socket = ThriftUtils.createThriftSocket(address);
-      TTransport bootstrapTransport = new BootstrapClientTransport(socket);
-      TProtocol protocol = ThriftUtils.createThriftProtocol(bootstrapTransport,
-          Constants.META_MASTER_CLIENT_SERVICE_NAME);
-      List<ConfigProperty> clusterConfig;
-      try {
-        bootstrapTransport.open();
-        // We didn't use RetryHandlingMetaMasterClient because it inherits AbstractClient,
-        // and AbstractClient uses Configuration.loadClusterDefault inside.
-        MetaMasterClientService.Client client = new MetaMasterClientService.Client(protocol);
-        // The credential configuration properties use displayValue
-        clusterConfig = client.getConfiguration(new GetConfigurationTOptions().setRawValue(true))
-            .getConfigList()
-            .stream()
-            .map(ConfigProperty::fromThrift)
-            .collect(Collectors.toList());
-      } catch (TException e) {
-        throw new UnavailableException(String.format(
-            "Failed to handshake with master %s to load cluster default configuration values",
-            address), e);
-      } finally {
-        bootstrapTransport.close();
-      }
-      // merge conf returned by master as the cluster default into Configuration
-      Properties clusterProps = new Properties();
-      for (ConfigProperty property : clusterConfig) {
-        String name = property.getName();
-        // TODO(binfan): support propagating unsetting properties from master
-        if (PropertyKey.isValid(name) && property.getValue() != null) {
-          PropertyKey key = PropertyKey.fromString(name);
-          if (!key.getScope().contains(Scope.CLIENT)) {
-            // Only propagate client properties.
-            continue;
-          }
-          String value = property.getValue();
-          clusterProps.put(key, value);
-          LOG.debug("Loading cluster default: {} ({}) -> {}", key, key.getScope(), value);
-        }
-      }
-      String clientVersion = Configuration.get(PropertyKey.VERSION);
-      String clusterVersion = clusterProps.get(PropertyKey.VERSION).toString();
-      if (!clientVersion.equals(clusterVersion)) {
-        LOG.warn("Alluxio client version ({}) does not match Alluxio cluster version ({})",
-            clientVersion, clusterVersion);
-        clusterProps.remove(PropertyKey.VERSION);
-      }
-      Configuration.merge(clusterProps, Source.CLUSTER_DEFAULT);
-      Configuration.validate();
-      // This needs to be the last
-      CLUSTER_DEFAULT_LOADED.set(true);
-      LOG.info("Alluxio client has bootstrap-connected with {}", address);
-    }
-  }
-
-||||||| merged common ancestors
-=======
   /** Whether the cluster-default is loaded. */
   private static final AtomicBoolean CLUSTER_DEFAULT_LOADED = new AtomicBoolean(false);
 
@@ -579,6 +502,5 @@ public final class Configuration {
     }
   }
 
->>>>>>> upstream/enterprise-1.8
   private Configuration() {} // prevent instantiation
 }

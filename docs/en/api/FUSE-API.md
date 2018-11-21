@@ -103,7 +103,6 @@ operations. You might want to customize the behaviour of the Alluxio client used
 same way you would for any other client application.
 
 One possibility, for example, is to edit `$ALLUXIO_HOME/conf/alluxio-site.properties` and set your
-<<<<<<< HEAD:docs/en/api/FUSE-API.md
 specific Alluxio client options. Note that these changes should be before Alluxio-FUSE starts.
 
 ### Configure mount point options
@@ -146,11 +145,6 @@ $ integration/fuse/bin/alluxio-fuse mount -o allow_root mount_point [alluxio_pat
 ```
 
 Note that only one of the `allow_other` or `allow_root` could be set.
-||||||| merged common ancestors
-specific alluxio client options. Note that these changes should be before Alluxio-FUSE starts.
-=======
-specific Alluxio client options. Note that these changes should be before Alluxio-FUSE starts.
->>>>>>> upstream/enterprise-1.8:docs/en/api/FUSE-API.md
 
 ## Assumptions and limitations
 

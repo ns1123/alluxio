@@ -61,14 +61,8 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.Privilege;
-<<<<<<< HEAD
-import alluxio.wire.SetAclAction;
-||||||| merged common ancestors
-import alluxio.wire.TtlAction;
-=======
 import alluxio.wire.SetAclAction;
 import alluxio.wire.TtlAction;
->>>>>>> upstream/enterprise-1.8
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.ImmutableSet;

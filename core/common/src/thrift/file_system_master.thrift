@@ -37,7 +37,7 @@ struct CreateFileTOptions {
   3: optional bool recursive
   4: optional i64 ttl
   5: optional i16 mode
-  6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
+  6: optional common.TTtlAction ttlAction
   7: optional FileSystemMasterCommonTOptions commonOptions
   // ALLUXIO CS REPLACE
   // 8: optional i32 replicationMax;
@@ -48,14 +48,6 @@ struct CreateFileTOptions {
   1002: optional i32 replicationMin;
   1003: optional i32 replicationDurable;
   // ALLUXIO CS END
-<<<<<<< HEAD
-||||||| merged common ancestors
-  6: optional common.TTtlAction ttlActionNotUsed // deprecated from 1.8
-  7: optional FileSystemMasterCommonTOptions commonOptions
-=======
-  6: optional common.TTtlAction ttlAction
-  7: optional FileSystemMasterCommonTOptions commonOptions
->>>>>>> upstream/enterprise-1.8
 }
 struct CreateFileTResponse {}
 
@@ -98,13 +90,6 @@ struct GetStatusTResponse {
   1: FileInfo fileInfo
 }
 
-<<<<<<< HEAD
-struct GetSyncPathListTResponse {
-  1: list<string> syncPathList
-}
-
-||||||| merged common ancestors
-=======
 // ALLUXIO CS ADD
 struct DelegationTokenIdentifier {
   2: string owner
@@ -137,7 +122,6 @@ struct GetSyncPathListTResponse {
   1: list<string> syncPathList
 }
 
->>>>>>> upstream/enterprise-1.8
 struct ListStatusTOptions {
   // This is deprecated since 1.1.1 and will be removed in 2.0. Use loadMetadataType.
   1: optional bool loadDirectChildren
@@ -229,7 +213,6 @@ struct FileInfo {
   25: i64 mountId
   26: i32 inAlluxioPercentage
   27: string ufsFingerprint
-<<<<<<< HEAD
   28: TAcl acl
   29: TAcl defaultAcl
   // ALLUXIO CS REPLACE
@@ -239,11 +222,6 @@ struct FileInfo {
   1001: i32 replicationMax
   1002: i32 replicationMin
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-  28: TAcl acl
-  29: TAcl defaultAcl
->>>>>>> upstream/enterprise-1.8
 }
 
 struct MountTOptions {

@@ -43,19 +43,11 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
   private static final org.apache.thrift.protocol.TField RECURSIVE_FIELD_DESC = new org.apache.thrift.protocol.TField("recursive", org.apache.thrift.protocol.TType.BOOL, (short)3);
   private static final org.apache.thrift.protocol.TField TTL_FIELD_DESC = new org.apache.thrift.protocol.TField("ttl", org.apache.thrift.protocol.TType.I64, (short)4);
   private static final org.apache.thrift.protocol.TField MODE_FIELD_DESC = new org.apache.thrift.protocol.TField("mode", org.apache.thrift.protocol.TType.I16, (short)5);
-  private static final org.apache.thrift.protocol.TField TTL_ACTION_NOT_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlActionNotUsed", org.apache.thrift.protocol.TType.I32, (short)6);
+  private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)6);
   private static final org.apache.thrift.protocol.TField COMMON_OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("commonOptions", org.apache.thrift.protocol.TType.STRUCT, (short)7);
   private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
   private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
   private static final org.apache.thrift.protocol.TField REPLICATION_DURABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationDurable", org.apache.thrift.protocol.TType.I32, (short)1003);
-<<<<<<< HEAD
-||||||| merged common ancestors
-  private static final org.apache.thrift.protocol.TField TTL_ACTION_NOT_USED_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlActionNotUsed", org.apache.thrift.protocol.TType.I32, (short)6);
-  private static final org.apache.thrift.protocol.TField COMMON_OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("commonOptions", org.apache.thrift.protocol.TType.STRUCT, (short)7);
-=======
-  private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)6);
-  private static final org.apache.thrift.protocol.TField COMMON_OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("commonOptions", org.apache.thrift.protocol.TType.STRUCT, (short)7);
->>>>>>> upstream/enterprise-1.8
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -68,19 +60,11 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
   private boolean recursive; // optional
   private long ttl; // optional
   private short mode; // optional
-  private alluxio.thrift.TTtlAction ttlActionNotUsed; // optional
+  private alluxio.thrift.TTtlAction ttlAction; // optional
   private FileSystemMasterCommonTOptions commonOptions; // optional
   private int replicationMax; // optional
   private int replicationMin; // optional
   private int replicationDurable; // optional
-<<<<<<< HEAD
-||||||| merged common ancestors
-  private alluxio.thrift.TTtlAction ttlActionNotUsed; // optional
-  private FileSystemMasterCommonTOptions commonOptions; // optional
-=======
-  private alluxio.thrift.TTtlAction ttlAction; // optional
-  private FileSystemMasterCommonTOptions commonOptions; // optional
->>>>>>> upstream/enterprise-1.8
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -93,19 +77,11 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
      * 
      * @see alluxio.thrift.TTtlAction
      */
-<<<<<<< HEAD
-    TTL_ACTION_NOT_USED((short)6, "ttlActionNotUsed"),
+    TTL_ACTION((short)6, "ttlAction"),
     COMMON_OPTIONS((short)7, "commonOptions"),
     REPLICATION_MAX((short)1001, "replicationMax"),
     REPLICATION_MIN((short)1002, "replicationMin"),
     REPLICATION_DURABLE((short)1003, "replicationDurable");
-||||||| merged common ancestors
-    TTL_ACTION_NOT_USED((short)6, "ttlActionNotUsed"),
-    COMMON_OPTIONS((short)7, "commonOptions");
-=======
-    TTL_ACTION((short)6, "ttlAction"),
-    COMMON_OPTIONS((short)7, "commonOptions");
->>>>>>> upstream/enterprise-1.8
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -130,8 +106,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
           return TTL;
         case 5: // MODE
           return MODE;
-        case 6: // TTL_ACTION_NOT_USED
-          return TTL_ACTION_NOT_USED;
+        case 6: // TTL_ACTION
+          return TTL_ACTION;
         case 7: // COMMON_OPTIONS
           return COMMON_OPTIONS;
         case 1001: // REPLICATION_MAX
@@ -140,18 +116,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
           return REPLICATION_MIN;
         case 1003: // REPLICATION_DURABLE
           return REPLICATION_DURABLE;
-<<<<<<< HEAD
-||||||| merged common ancestors
-        case 6: // TTL_ACTION_NOT_USED
-          return TTL_ACTION_NOT_USED;
-        case 7: // COMMON_OPTIONS
-          return COMMON_OPTIONS;
-=======
-        case 6: // TTL_ACTION
-          return TTL_ACTION;
-        case 7: // COMMON_OPTIONS
-          return COMMON_OPTIONS;
->>>>>>> upstream/enterprise-1.8
         default:
           return null;
       }
@@ -201,13 +165,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
   private static final int __REPLICATIONMIN_ISSET_ID = 6;
   private static final int __REPLICATIONDURABLE_ISSET_ID = 7;
   private byte __isset_bitfield = 0;
-<<<<<<< HEAD
-  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL_NOT_USED,_Fields.MODE,_Fields.TTL_ACTION_NOT_USED,_Fields.COMMON_OPTIONS,_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN,_Fields.REPLICATION_DURABLE};
-||||||| merged common ancestors
-  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL_NOT_USED,_Fields.MODE,_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN,_Fields.REPLICATION_DURABLE,_Fields.TTL_ACTION_NOT_USED,_Fields.COMMON_OPTIONS};
-=======
-  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL,_Fields.MODE,_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN,_Fields.REPLICATION_DURABLE,_Fields.TTL_ACTION,_Fields.COMMON_OPTIONS};
->>>>>>> upstream/enterprise-1.8
+  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL,_Fields.MODE,_Fields.TTL_ACTION,_Fields.COMMON_OPTIONS,_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN,_Fields.REPLICATION_DURABLE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -221,7 +179,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.MODE, new org.apache.thrift.meta_data.FieldMetaData("mode", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
-    tmpMap.put(_Fields.TTL_ACTION_NOT_USED, new org.apache.thrift.meta_data.FieldMetaData("ttlActionNotUsed", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.TTL_ACTION, new org.apache.thrift.meta_data.FieldMetaData("ttlAction", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, alluxio.thrift.TTtlAction.class)));
     tmpMap.put(_Fields.COMMON_OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("commonOptions", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, FileSystemMasterCommonTOptions.class)));
@@ -231,18 +189,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.REPLICATION_DURABLE, new org.apache.thrift.meta_data.FieldMetaData("replicationDurable", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-<<<<<<< HEAD
-||||||| merged common ancestors
-    tmpMap.put(_Fields.TTL_ACTION_NOT_USED, new org.apache.thrift.meta_data.FieldMetaData("ttlActionNotUsed", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, alluxio.thrift.TTtlAction.class)));
-    tmpMap.put(_Fields.COMMON_OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("commonOptions", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, FileSystemMasterCommonTOptions.class)));
-=======
-    tmpMap.put(_Fields.TTL_ACTION, new org.apache.thrift.meta_data.FieldMetaData("ttlAction", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, alluxio.thrift.TTtlAction.class)));
-    tmpMap.put(_Fields.COMMON_OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("commonOptions", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, FileSystemMasterCommonTOptions.class)));
->>>>>>> upstream/enterprise-1.8
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(CreateFileTOptions.class, metaDataMap);
   }
@@ -260,22 +206,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     this.recursive = other.recursive;
     this.ttl = other.ttl;
     this.mode = other.mode;
-<<<<<<< HEAD
-    if (other.isSetTtlActionNotUsed()) {
-      this.ttlActionNotUsed = other.ttlActionNotUsed;
-||||||| merged common ancestors
-    this.replicationMax = other.replicationMax;
-    this.replicationMin = other.replicationMin;
-    this.replicationDurable = other.replicationDurable;
-    if (other.isSetTtlActionNotUsed()) {
-      this.ttlActionNotUsed = other.ttlActionNotUsed;
-=======
-    this.replicationMax = other.replicationMax;
-    this.replicationMin = other.replicationMin;
-    this.replicationDurable = other.replicationDurable;
     if (other.isSetTtlAction()) {
       this.ttlAction = other.ttlAction;
->>>>>>> upstream/enterprise-1.8
     }
     if (other.isSetCommonOptions()) {
       this.commonOptions = new FileSystemMasterCommonTOptions(other.commonOptions);
@@ -301,7 +233,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     this.ttl = 0;
     setModeIsSet(false);
     this.mode = 0;
-    this.ttlActionNotUsed = null;
+    this.ttlAction = null;
     this.commonOptions = null;
     setReplicationMaxIsSet(false);
     this.replicationMax = 0;
@@ -309,14 +241,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     this.replicationMin = 0;
     setReplicationDurableIsSet(false);
     this.replicationDurable = 0;
-<<<<<<< HEAD
-||||||| merged common ancestors
-    this.ttlActionNotUsed = null;
-    this.commonOptions = null;
-=======
-    this.ttlAction = null;
-    this.commonOptions = null;
->>>>>>> upstream/enterprise-1.8
   }
 
   public long getBlockSizeBytes() {
@@ -438,31 +362,31 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
    * 
    * @see alluxio.thrift.TTtlAction
    */
-  public alluxio.thrift.TTtlAction getTtlActionNotUsed() {
-    return this.ttlActionNotUsed;
+  public alluxio.thrift.TTtlAction getTtlAction() {
+    return this.ttlAction;
   }
 
   /**
    * 
    * @see alluxio.thrift.TTtlAction
    */
-  public CreateFileTOptions setTtlActionNotUsed(alluxio.thrift.TTtlAction ttlActionNotUsed) {
-    this.ttlActionNotUsed = ttlActionNotUsed;
+  public CreateFileTOptions setTtlAction(alluxio.thrift.TTtlAction ttlAction) {
+    this.ttlAction = ttlAction;
     return this;
   }
 
-  public void unsetTtlActionNotUsed() {
-    this.ttlActionNotUsed = null;
+  public void unsetTtlAction() {
+    this.ttlAction = null;
   }
 
-  /** Returns true if field ttlActionNotUsed is set (has been assigned a value) and false otherwise */
-  public boolean isSetTtlActionNotUsed() {
-    return this.ttlActionNotUsed != null;
+  /** Returns true if field ttlAction is set (has been assigned a value) and false otherwise */
+  public boolean isSetTtlAction() {
+    return this.ttlAction != null;
   }
 
-  public void setTtlActionNotUsedIsSet(boolean value) {
+  public void setTtlActionIsSet(boolean value) {
     if (!value) {
-      this.ttlActionNotUsed = null;
+      this.ttlAction = null;
     }
   }
 
@@ -559,122 +483,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REPLICATIONDURABLE_ISSET_ID, value);
   }
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-  /**
-   * 
-   * @see alluxio.thrift.TTtlAction
-   */
-  public alluxio.thrift.TTtlAction getTtlActionNotUsed() {
-    return this.ttlActionNotUsed;
-  }
-
-  /**
-   * 
-   * @see alluxio.thrift.TTtlAction
-   */
-  public CreateFileTOptions setTtlActionNotUsed(alluxio.thrift.TTtlAction ttlActionNotUsed) {
-    this.ttlActionNotUsed = ttlActionNotUsed;
-    return this;
-  }
-
-  public void unsetTtlActionNotUsed() {
-    this.ttlActionNotUsed = null;
-  }
-
-  /** Returns true if field ttlActionNotUsed is set (has been assigned a value) and false otherwise */
-  public boolean isSetTtlActionNotUsed() {
-    return this.ttlActionNotUsed != null;
-  }
-
-  public void setTtlActionNotUsedIsSet(boolean value) {
-    if (!value) {
-      this.ttlActionNotUsed = null;
-    }
-  }
-
-  public FileSystemMasterCommonTOptions getCommonOptions() {
-    return this.commonOptions;
-  }
-
-  public CreateFileTOptions setCommonOptions(FileSystemMasterCommonTOptions commonOptions) {
-    this.commonOptions = commonOptions;
-    return this;
-  }
-
-  public void unsetCommonOptions() {
-    this.commonOptions = null;
-  }
-
-  /** Returns true if field commonOptions is set (has been assigned a value) and false otherwise */
-  public boolean isSetCommonOptions() {
-    return this.commonOptions != null;
-  }
-
-  public void setCommonOptionsIsSet(boolean value) {
-    if (!value) {
-      this.commonOptions = null;
-    }
-  }
-
-=======
-  /**
-   * 
-   * @see alluxio.thrift.TTtlAction
-   */
-  public alluxio.thrift.TTtlAction getTtlAction() {
-    return this.ttlAction;
-  }
-
-  /**
-   * 
-   * @see alluxio.thrift.TTtlAction
-   */
-  public CreateFileTOptions setTtlAction(alluxio.thrift.TTtlAction ttlAction) {
-    this.ttlAction = ttlAction;
-    return this;
-  }
-
-  public void unsetTtlAction() {
-    this.ttlAction = null;
-  }
-
-  /** Returns true if field ttlAction is set (has been assigned a value) and false otherwise */
-  public boolean isSetTtlAction() {
-    return this.ttlAction != null;
-  }
-
-  public void setTtlActionIsSet(boolean value) {
-    if (!value) {
-      this.ttlAction = null;
-    }
-  }
-
-  public FileSystemMasterCommonTOptions getCommonOptions() {
-    return this.commonOptions;
-  }
-
-  public CreateFileTOptions setCommonOptions(FileSystemMasterCommonTOptions commonOptions) {
-    this.commonOptions = commonOptions;
-    return this;
-  }
-
-  public void unsetCommonOptions() {
-    this.commonOptions = null;
-  }
-
-  /** Returns true if field commonOptions is set (has been assigned a value) and false otherwise */
-  public boolean isSetCommonOptions() {
-    return this.commonOptions != null;
-  }
-
-  public void setCommonOptionsIsSet(boolean value) {
-    if (!value) {
-      this.commonOptions = null;
-    }
-  }
-
->>>>>>> upstream/enterprise-1.8
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case BLOCK_SIZE_BYTES:
@@ -717,11 +525,11 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       }
       break;
 
-    case TTL_ACTION_NOT_USED:
+    case TTL_ACTION:
       if (value == null) {
-        unsetTtlActionNotUsed();
+        unsetTtlAction();
       } else {
-        setTtlActionNotUsed((alluxio.thrift.TTtlAction)value);
+        setTtlAction((alluxio.thrift.TTtlAction)value);
       }
       break;
 
@@ -741,29 +549,11 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       }
       break;
 
-<<<<<<< HEAD
     case REPLICATION_MIN:
-||||||| merged common ancestors
-    case TTL_ACTION_NOT_USED:
-=======
-    case TTL_ACTION:
->>>>>>> upstream/enterprise-1.8
       if (value == null) {
-<<<<<<< HEAD
         unsetReplicationMin();
-||||||| merged common ancestors
-        unsetTtlActionNotUsed();
-=======
-        unsetTtlAction();
->>>>>>> upstream/enterprise-1.8
       } else {
-<<<<<<< HEAD
         setReplicationMin((Integer)value);
-||||||| merged common ancestors
-        setTtlActionNotUsed((alluxio.thrift.TTtlAction)value);
-=======
-        setTtlAction((alluxio.thrift.TTtlAction)value);
->>>>>>> upstream/enterprise-1.8
       }
       break;
 
@@ -795,8 +585,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     case MODE:
       return getMode();
 
-    case TTL_ACTION_NOT_USED:
-      return getTtlActionNotUsed();
+    case TTL_ACTION:
+      return getTtlAction();
 
     case COMMON_OPTIONS:
       return getCommonOptions();
@@ -810,22 +600,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     case REPLICATION_DURABLE:
       return getReplicationDurable();
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-    case TTL_ACTION_NOT_USED:
-      return getTtlActionNotUsed();
-
-    case COMMON_OPTIONS:
-      return getCommonOptions();
-
-=======
-    case TTL_ACTION:
-      return getTtlAction();
-
-    case COMMON_OPTIONS:
-      return getCommonOptions();
-
->>>>>>> upstream/enterprise-1.8
     }
     throw new IllegalStateException();
   }
@@ -847,8 +621,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       return isSetTtl();
     case MODE:
       return isSetMode();
-    case TTL_ACTION_NOT_USED:
-      return isSetTtlActionNotUsed();
+    case TTL_ACTION:
+      return isSetTtlAction();
     case COMMON_OPTIONS:
       return isSetCommonOptions();
     case REPLICATION_MAX:
@@ -857,18 +631,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       return isSetReplicationMin();
     case REPLICATION_DURABLE:
       return isSetReplicationDurable();
-<<<<<<< HEAD
-||||||| merged common ancestors
-    case TTL_ACTION_NOT_USED:
-      return isSetTtlActionNotUsed();
-    case COMMON_OPTIONS:
-      return isSetCommonOptions();
-=======
-    case TTL_ACTION:
-      return isSetTtlAction();
-    case COMMON_OPTIONS:
-      return isSetCommonOptions();
->>>>>>> upstream/enterprise-1.8
     }
     throw new IllegalStateException();
   }
@@ -931,12 +693,12 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         return false;
     }
 
-    boolean this_present_ttlActionNotUsed = true && this.isSetTtlActionNotUsed();
-    boolean that_present_ttlActionNotUsed = true && that.isSetTtlActionNotUsed();
-    if (this_present_ttlActionNotUsed || that_present_ttlActionNotUsed) {
-      if (!(this_present_ttlActionNotUsed && that_present_ttlActionNotUsed))
+    boolean this_present_ttlAction = true && this.isSetTtlAction();
+    boolean that_present_ttlAction = true && that.isSetTtlAction();
+    if (this_present_ttlAction || that_present_ttlAction) {
+      if (!(this_present_ttlAction && that_present_ttlAction))
         return false;
-      if (!this.ttlActionNotUsed.equals(that.ttlActionNotUsed))
+      if (!this.ttlAction.equals(that.ttlAction))
         return false;
     }
 
@@ -976,46 +738,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         return false;
     }
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-    boolean this_present_ttlActionNotUsed = true && this.isSetTtlActionNotUsed();
-    boolean that_present_ttlActionNotUsed = true && that.isSetTtlActionNotUsed();
-    if (this_present_ttlActionNotUsed || that_present_ttlActionNotUsed) {
-      if (!(this_present_ttlActionNotUsed && that_present_ttlActionNotUsed))
-        return false;
-      if (!this.ttlActionNotUsed.equals(that.ttlActionNotUsed))
-        return false;
-    }
-
-    boolean this_present_commonOptions = true && this.isSetCommonOptions();
-    boolean that_present_commonOptions = true && that.isSetCommonOptions();
-    if (this_present_commonOptions || that_present_commonOptions) {
-      if (!(this_present_commonOptions && that_present_commonOptions))
-        return false;
-      if (!this.commonOptions.equals(that.commonOptions))
-        return false;
-    }
-
-=======
-    boolean this_present_ttlAction = true && this.isSetTtlAction();
-    boolean that_present_ttlAction = true && that.isSetTtlAction();
-    if (this_present_ttlAction || that_present_ttlAction) {
-      if (!(this_present_ttlAction && that_present_ttlAction))
-        return false;
-      if (!this.ttlAction.equals(that.ttlAction))
-        return false;
-    }
-
-    boolean this_present_commonOptions = true && this.isSetCommonOptions();
-    boolean that_present_commonOptions = true && that.isSetCommonOptions();
-    if (this_present_commonOptions || that_present_commonOptions) {
-      if (!(this_present_commonOptions && that_present_commonOptions))
-        return false;
-      if (!this.commonOptions.equals(that.commonOptions))
-        return false;
-    }
-
->>>>>>> upstream/enterprise-1.8
     return true;
   }
 
@@ -1048,10 +770,10 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     if (present_mode)
       list.add(mode);
 
-    boolean present_ttlActionNotUsed = true && (isSetTtlActionNotUsed());
-    list.add(present_ttlActionNotUsed);
-    if (present_ttlActionNotUsed)
-      list.add(ttlActionNotUsed.getValue());
+    boolean present_ttlAction = true && (isSetTtlAction());
+    list.add(present_ttlAction);
+    if (present_ttlAction)
+      list.add(ttlAction.getValue());
 
     boolean present_commonOptions = true && (isSetCommonOptions());
     list.add(present_commonOptions);
@@ -1073,30 +795,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     if (present_replicationDurable)
       list.add(replicationDurable);
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-    boolean present_ttlActionNotUsed = true && (isSetTtlActionNotUsed());
-    list.add(present_ttlActionNotUsed);
-    if (present_ttlActionNotUsed)
-      list.add(ttlActionNotUsed.getValue());
-
-    boolean present_commonOptions = true && (isSetCommonOptions());
-    list.add(present_commonOptions);
-    if (present_commonOptions)
-      list.add(commonOptions);
-
-=======
-    boolean present_ttlAction = true && (isSetTtlAction());
-    list.add(present_ttlAction);
-    if (present_ttlAction)
-      list.add(ttlAction.getValue());
-
-    boolean present_commonOptions = true && (isSetCommonOptions());
-    list.add(present_commonOptions);
-    if (present_commonOptions)
-      list.add(commonOptions);
-
->>>>>>> upstream/enterprise-1.8
     return list.hashCode();
   }
 
@@ -1158,12 +856,12 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetTtlActionNotUsed()).compareTo(other.isSetTtlActionNotUsed());
+    lastComparison = Boolean.valueOf(isSetTtlAction()).compareTo(other.isSetTtlAction());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTtlActionNotUsed()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ttlActionNotUsed, other.ttlActionNotUsed);
+    if (isSetTtlAction()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ttlAction, other.ttlAction);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1188,26 +886,12 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         return lastComparison;
       }
     }
-<<<<<<< HEAD
     lastComparison = Boolean.valueOf(isSetReplicationMin()).compareTo(other.isSetReplicationMin());
-||||||| merged common ancestors
-    lastComparison = Boolean.valueOf(isSetTtlActionNotUsed()).compareTo(other.isSetTtlActionNotUsed());
-=======
-    lastComparison = Boolean.valueOf(isSetTtlAction()).compareTo(other.isSetTtlAction());
->>>>>>> upstream/enterprise-1.8
     if (lastComparison != 0) {
       return lastComparison;
     }
-<<<<<<< HEAD
     if (isSetReplicationMin()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.replicationMin, other.replicationMin);
-||||||| merged common ancestors
-    if (isSetTtlActionNotUsed()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ttlActionNotUsed, other.ttlActionNotUsed);
-=======
-    if (isSetTtlAction()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ttlAction, other.ttlAction);
->>>>>>> upstream/enterprise-1.8
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1271,49 +955,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       sb.append(this.mode);
       first = false;
     }
-<<<<<<< HEAD
-    if (isSetTtlActionNotUsed()) {
-||||||| merged common ancestors
-    if (isSetReplicationMax()) {
-      if (!first) sb.append(", ");
-      sb.append("replicationMax:");
-      sb.append(this.replicationMax);
-      first = false;
-    }
-    if (isSetReplicationMin()) {
-      if (!first) sb.append(", ");
-      sb.append("replicationMin:");
-      sb.append(this.replicationMin);
-      first = false;
-    }
-    if (isSetReplicationDurable()) {
-      if (!first) sb.append(", ");
-      sb.append("replicationDurable:");
-      sb.append(this.replicationDurable);
-      first = false;
-    }
-    if (isSetTtlActionNotUsed()) {
-=======
-    if (isSetReplicationMax()) {
-      if (!first) sb.append(", ");
-      sb.append("replicationMax:");
-      sb.append(this.replicationMax);
-      first = false;
-    }
-    if (isSetReplicationMin()) {
-      if (!first) sb.append(", ");
-      sb.append("replicationMin:");
-      sb.append(this.replicationMin);
-      first = false;
-    }
-    if (isSetReplicationDurable()) {
-      if (!first) sb.append(", ");
-      sb.append("replicationDurable:");
-      sb.append(this.replicationDurable);
-      first = false;
-    }
     if (isSetTtlAction()) {
->>>>>>> upstream/enterprise-1.8
       if (!first) sb.append(", ");
       sb.append("ttlAction:");
       if (this.ttlAction == null) {
@@ -1439,10 +1081,10 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // TTL_ACTION_NOT_USED
+          case 6: // TTL_ACTION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.ttlActionNotUsed = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
-              struct.setTtlActionNotUsedIsSet(true);
+              struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
+              struct.setTtlActionIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -1480,44 +1122,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-<<<<<<< HEAD
-||||||| merged common ancestors
-          case 6: // TTL_ACTION_NOT_USED
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.ttlActionNotUsed = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
-              struct.setTtlActionNotUsedIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 7: // COMMON_OPTIONS
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-              struct.commonOptions = new FileSystemMasterCommonTOptions();
-              struct.commonOptions.read(iprot);
-              struct.setCommonOptionsIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-=======
-          case 6: // TTL_ACTION
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
-              struct.setTtlActionIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 7: // COMMON_OPTIONS
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-              struct.commonOptions = new FileSystemMasterCommonTOptions();
-              struct.commonOptions.read(iprot);
-              struct.setCommonOptionsIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
->>>>>>> upstream/enterprise-1.8
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -1620,7 +1224,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       if (struct.isSetMode()) {
         optionals.set(4);
       }
-      if (struct.isSetTtlActionNotUsed()) {
+      if (struct.isSetTtlAction()) {
         optionals.set(5);
       }
       if (struct.isSetCommonOptions()) {
@@ -1629,13 +1233,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       if (struct.isSetReplicationMax()) {
         optionals.set(7);
       }
-<<<<<<< HEAD
       if (struct.isSetReplicationMin()) {
-||||||| merged common ancestors
-      if (struct.isSetTtlActionNotUsed()) {
-=======
-      if (struct.isSetTtlAction()) {
->>>>>>> upstream/enterprise-1.8
         optionals.set(8);
       }
       if (struct.isSetReplicationDurable()) {
@@ -1657,8 +1255,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       if (struct.isSetMode()) {
         oprot.writeI16(struct.mode);
       }
-      if (struct.isSetTtlActionNotUsed()) {
-        oprot.writeI32(struct.ttlActionNotUsed.getValue());
+      if (struct.isSetTtlAction()) {
+        oprot.writeI32(struct.ttlAction.getValue());
       }
       if (struct.isSetCommonOptions()) {
         struct.commonOptions.write(oprot);
@@ -1672,22 +1270,6 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       if (struct.isSetReplicationDurable()) {
         oprot.writeI32(struct.replicationDurable);
       }
-<<<<<<< HEAD
-||||||| merged common ancestors
-      if (struct.isSetTtlActionNotUsed()) {
-        oprot.writeI32(struct.ttlActionNotUsed.getValue());
-      }
-      if (struct.isSetCommonOptions()) {
-        struct.commonOptions.write(oprot);
-      }
-=======
-      if (struct.isSetTtlAction()) {
-        oprot.writeI32(struct.ttlAction.getValue());
-      }
-      if (struct.isSetCommonOptions()) {
-        struct.commonOptions.write(oprot);
-      }
->>>>>>> upstream/enterprise-1.8
     }
 
     @Override
@@ -1715,8 +1297,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         struct.setModeIsSet(true);
       }
       if (incoming.get(5)) {
-        struct.ttlActionNotUsed = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
-        struct.setTtlActionNotUsedIsSet(true);
+        struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
+        struct.setTtlActionIsSet(true);
       }
       if (incoming.get(6)) {
         struct.commonOptions = new FileSystemMasterCommonTOptions();
@@ -1728,16 +1310,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         struct.setReplicationMaxIsSet(true);
       }
       if (incoming.get(8)) {
-<<<<<<< HEAD
         struct.replicationMin = iprot.readI32();
         struct.setReplicationMinIsSet(true);
-||||||| merged common ancestors
-        struct.ttlActionNotUsed = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
-        struct.setTtlActionNotUsedIsSet(true);
-=======
-        struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
-        struct.setTtlActionIsSet(true);
->>>>>>> upstream/enterprise-1.8
       }
       if (incoming.get(9)) {
         struct.replicationDurable = iprot.readI32();

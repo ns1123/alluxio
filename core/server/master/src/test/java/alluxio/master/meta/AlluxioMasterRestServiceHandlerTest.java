@@ -203,26 +203,8 @@ public final class AlluxioMasterRestServiceHandlerTest {
   public void getMetrics() {
     final int FILES_PINNED_TEST_VALUE = 100;
     String filesPinnedProperty =
-<<<<<<< HEAD
         MetricsSystem.getMetricName(MasterMetrics.FILES_PINNED);
     Gauge<Integer> filesPinnedGauge = () -> FILES_PINNED_TEST_VALUE;
-||||||| merged common ancestors
-        MetricsSystem.getMetricName(DefaultFileSystemMaster.Metrics.FILES_PINNED);
-    Gauge<Integer> filesPinnedGauge = new Gauge<Integer>() {
-      @Override
-      public Integer getValue() {
-        return FILES_PINNED_TEST_VALUE;
-      }
-    };
-=======
-        MetricsSystem.getMetricName(MasterMetrics.FILES_PINNED);
-    Gauge<Integer> filesPinnedGauge = new Gauge<Integer>() {
-      @Override
-      public Integer getValue() {
-        return FILES_PINNED_TEST_VALUE;
-      }
-    };
->>>>>>> upstream/enterprise-1.8
     MetricSet mockMetricsSet = mock(MetricSet.class);
     Map<String, Metric> map = new HashMap<>();
     map.put(filesPinnedProperty, filesPinnedGauge);

@@ -858,7 +858,6 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     return result.get();
   }
 
-<<<<<<< HEAD
   @Override
   public boolean supportsActiveSync() {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
@@ -944,94 +943,6 @@ public class ForkUnderFileSystem implements UnderFileSystem {
         }, mUnderFileSystems.values());
   }
 
-||||||| merged common ancestors
-=======
-  @Override
-  public boolean supportsActiveSync() {
-    AtomicReference<Boolean> result = new AtomicReference<>(true);
-    for (Pair<String, UnderFileSystem> entry : mUnderFileSystems.values()) {
-      result.set(result.get() && entry.getValue().supportsActiveSync());
-    }
-    return result.get();
-  }
-
-  @Override
-  public boolean startActiveSyncPolling(long txId) throws IOException {
-    AtomicReference<Boolean> result = new AtomicReference<>(true);
-    for (Pair<String, UnderFileSystem> entry : mUnderFileSystems.values()) {
-      result.set(result.get() && entry.getValue().startActiveSyncPolling(txId));
-    }
-    return result.get();
-  }
-
-  @Override
-  public boolean stopActiveSyncPolling() throws IOException {
-    AtomicReference<Boolean> result = new AtomicReference<>(true);
-    for (Pair<String, UnderFileSystem> entry : mUnderFileSystems.values()) {
-      result.set(result.get() && entry.getValue().stopActiveSyncPolling());
-    }
-    return result.get();
-  }
-
-  @Override
-  public SyncInfo getActiveSyncInfo() throws IOException {
-    AtomicReference<SyncInfo> result = new AtomicReference<>();
-    ForkUnderFileSystemUtils.invokeOne(
-        new Function<Pair<Pair<String, UnderFileSystem>,
-            AtomicReference<SyncInfo>>, IOException>() {
-          @Nullable
-          @Override
-          public IOException apply(
-              Pair<Pair<String, UnderFileSystem>, AtomicReference<SyncInfo>>
-                  arg) {
-              try {
-                Pair<String, UnderFileSystem> entry = arg.getKey();
-                AtomicReference<SyncInfo> result = arg.getValue();
-                result.set(entry.getValue().getActiveSyncInfo());
-              } catch (IOException e) {
-                return e;
-              }
-              return null;
-          }
-        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.values(), result));
-    return result.get();
-  }
-
-  @Override
-  public void startSync(AlluxioURI uri) throws IOException {
-    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
-        new Function<Pair<String, UnderFileSystem>, IOException>() {
-          @Nullable
-          @Override
-          public IOException apply(Pair<String, UnderFileSystem> arg) {
-            try {
-              arg.getValue().startSync(uri);
-            } catch (IOException e) {
-              return e;
-            }
-            return null;
-          }
-        }, mUnderFileSystems.values());
-  }
-
-  @Override
-  public void stopSync(AlluxioURI uri) throws IOException {
-    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
-        new Function<Pair<String, UnderFileSystem>, IOException>() {
-          @Nullable
-          @Override
-          public IOException apply(Pair<String, UnderFileSystem> arg) {
-            try {
-              arg.getValue().stopSync(uri);
-            } catch (IOException e) {
-              return e;
-            }
-            return null;
-          }
-        }, mUnderFileSystems.values());
-  }
-
->>>>>>> upstream/enterprise-1.8
   private String convert(String base, String path) {
     return PathUtils.concatPath(base, (new AlluxioURI(path)).getPath());
   }

@@ -58,7 +58,6 @@ public final class MetricsSystem {
    * An enum of supported instance type.
    */
   public enum InstanceType {
-<<<<<<< HEAD
     JOB_MASTER("JobMaster"),
     JOB_WORKER("JobWorker"),
     MASTER("Master"),
@@ -66,25 +65,6 @@ public final class MetricsSystem {
     CLUSTER("Cluster"),
     CLIENT("Client"),
     PROXY("Proxy");
-||||||| merged common ancestors
-    // ALLUXIO CS ADD
-    JOB_WORKER("job_worker"),
-    // ALLUXIO CS END
-    MASTER("master"),
-    WORKER("worker"),
-    CLIENT("client"),
-    PROXY("proxy");
-=======
-    // ALLUXIO CS ADD
-    JOB_MASTER("JobMaster"),
-    JOB_WORKER("JobWorker"),
-    // ALLUXIO CS END
-    MASTER("Master"),
-    WORKER("Worker"),
-    CLUSTER("Cluster"),
-    CLIENT("Client"),
-    PROXY("Proxy");
->>>>>>> upstream/enterprise-1.8
 
     private String mValue;
 
@@ -227,20 +207,10 @@ public final class MetricsSystem {
         return getProxyMetricName(name);
       case WORKER:
         return getWorkerMetricName(name);
-<<<<<<< HEAD
       case JOB_MASTER:
         return getJobMasterMetricName(name);
       case JOB_WORKER:
         return getJobWorkerMetricName(name);
-||||||| merged common ancestors
-=======
-      // ALLUXIO CS ADD
-      case JOB_MASTER:
-        return getJobMasterMetricName(name);
-      case JOB_WORKER:
-        return getJobWorkerMetricName(name);
-      // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.8
       default:
         throw new IllegalStateException("Unknown process type");
     }

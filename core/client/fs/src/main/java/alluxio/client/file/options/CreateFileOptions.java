@@ -76,14 +76,8 @@ public final class CreateFileOptions {
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
-<<<<<<< HEAD
-||||||| merged common ancestors
-    // ALLUXIO CS END
-=======
-    // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
->>>>>>> upstream/enterprise-1.8
     mMode = Mode.defaults().applyFileUMask();
   }
 
@@ -331,14 +325,8 @@ public final class CreateFileOptions {
         .setReplicationDurable(mReplicationDurable)
         .setReplicationMax(mReplicationMax)
         .setReplicationMin(mReplicationMin)
-<<<<<<< HEAD
-||||||| merged common ancestors
-        // ALLUXIO CS END
-=======
-        // ALLUXIO CS END
         .setTtl(mTtl)
         .setTtlAction(mTtlAction)
->>>>>>> upstream/enterprise-1.8
         .setWriteTier(mWriteTier)
         .setWriteType(mWriteType);
   }
@@ -368,20 +356,11 @@ public final class CreateFileOptions {
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
-||||||| merged common ancestors
-    // ALLUXIO CS REPLACE
-    // return Objects
-    //     .hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mWriteTier,
-    //         mWriteType, mCommonOptions);
-    // ALLUXIO CS WITH
-=======
     // ALLUXIO CS REPLACE
     // return Objects
     //     .hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl, mTtlAction, mWriteTier,
     //         mWriteType, mCommonOptions);
     // ALLUXIO CS WITH
->>>>>>> upstream/enterprise-1.8
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode,
         mTtl, mTtlAction, mReplicationDurable, mReplicationMax, mReplicationMin, mWriteTier,
         mWriteType, mCommonOptions);
@@ -416,14 +395,8 @@ public final class CreateFileOptions {
     options.setReplicationDurable(mReplicationDurable);
     options.setReplicationMax(mReplicationMax);
     options.setReplicationMin(mReplicationMin);
-<<<<<<< HEAD
-||||||| merged common ancestors
-    // ALLUXIO CS END
-=======
-    // ALLUXIO CS END
     options.setTtl(mTtl);
     options.setTtlAction(TtlAction.toThrift(mTtlAction));
->>>>>>> upstream/enterprise-1.8
     if (mMode != null) {
       options.setMode(mMode.toShort());
     }

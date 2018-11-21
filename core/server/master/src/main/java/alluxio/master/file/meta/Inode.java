@@ -14,7 +14,6 @@ package alluxio.master.file.meta;
 import alluxio.Constants;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.InvalidPathException;
-<<<<<<< HEAD
 import alluxio.master.ProtobufUtils;
 import alluxio.proto.journal.File.UpdateInodeEntry;
 import alluxio.security.authorization.AccessControlList;
@@ -24,17 +23,6 @@ import alluxio.security.authorization.AclEntry;
 import alluxio.security.authorization.AclEntryType;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.util.interfaces.Scoped;
-||||||| merged common ancestors
-import alluxio.master.journal.JournalEntryRepresentable;
-=======
-import alluxio.master.journal.JournalEntryRepresentable;
-import alluxio.security.authorization.AccessControlList;
-import alluxio.security.authorization.AclAction;
-import alluxio.security.authorization.AclActions;
-import alluxio.security.authorization.AclEntry;
-import alluxio.security.authorization.AclEntryType;
-import alluxio.security.authorization.DefaultAccessControlList;
->>>>>>> upstream/enterprise-1.8
 import alluxio.wire.FileInfo;
 import alluxio.wire.TtlAction;
 
@@ -42,15 +30,9 @@ import com.google.common.base.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-<<<<<<< HEAD
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-||||||| merged common ancestors
-=======
-import java.io.IOException;
-import java.util.List;
->>>>>>> upstream/enterprise-1.8
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -501,51 +483,6 @@ public abstract class Inode<T> implements InodeView {
    * @return the updated object
    */
   public T setMode(short mode) {
-<<<<<<< HEAD
-    mAcl.setMode(mode);
-    return getThis();
-  }
-
-  /**
-   * @param acl set the default ACL associated with this inode
-   * @throws UnsupportedOperationException if the inode is a file
-   * @return the updated object
-   */
-  public abstract T setDefaultACL(DefaultAccessControlList acl)
-      throws UnsupportedOperationException;
-
-  /**
-   * Sets ACL entries into the internal ACL.
-   * The entries will overwrite any existing correspondent entries in the internal ACL.
-   *
-   * @param entries the ACL entries
-   * @return the updated object
-   */
-  public T setAcl(List<AclEntry> entries) {
-    if (entries == null || entries.isEmpty()) {
-      return getThis();
-    }
-    for (AclEntry entry : entries) {
-      if (entry.isDefault()) {
-        getDefaultACL().setEntry(entry);
-      } else {
-        mAcl.setEntry(entry);
-      }
-    }
-    updateMask(entries);
-    return getThis();
-  }
-
-  /**
-   * Sets the internal ACL to a specified ACL.
-   * @param acl the specified ACL
-   * @return the updated object
-   */
-  public T setInternalAcl(AccessControlList acl) {
-    mAcl = acl;
-||||||| merged common ancestors
-    mMode = mode;
-=======
     mAcl.setMode(mode);
     return getThis();
   }
@@ -600,7 +537,6 @@ public abstract class Inode<T> implements InodeView {
    */
   public T setInternalAcl(AccessControlList acl) {
     mAcl = acl;
->>>>>>> upstream/enterprise-1.8
     return getThis();
   }
 

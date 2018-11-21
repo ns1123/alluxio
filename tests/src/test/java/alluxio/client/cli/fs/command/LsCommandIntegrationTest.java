@@ -513,7 +513,6 @@ public final class LsCommandIntegrationTest extends AbstractFileSystemShellTest 
         50, STATE_FILE_IN_ALLUXIO, testFileA.getPersistenceState());
     Assert.assertEquals(expected, mOutput.toString());
   }
-<<<<<<< HEAD
 
   @Test
   @LocalAlluxioClusterResource.Config(
@@ -563,57 +562,4 @@ public final class LsCommandIntegrationTest extends AbstractFileSystemShellTest 
 
     Assert.assertEquals(expected, mOutput.toString());
   }
-||||||| merged common ancestors
-=======
-
-  @Test
-  @LocalAlluxioClusterResource.Config(
-      confParams = {PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
-          PropertyKey.Name.SECURITY_AUTHENTICATION_TYPE, "SIMPLE",
-          PropertyKey.Name.SECURITY_GROUP_MAPPING_CLASS,
-          "alluxio.security.group.provider.IdentityUserGroupsMapping",
-          PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP, "test_user_extended"})
-  public void lsWithExtendedAcl() throws IOException, AlluxioException {
-    String testUser = "test_user_extended";
-    int size = 50;
-    int indexOfExtended = 10; // index 10 of a line will be a '+'
-    clearAndLogin(testUser);
-
-    FileSystemTestUtils
-        .createByteFile(mFileSystem, "/testRoot/testDir/testFileB", WriteType.MUST_CACHE, 20);
-    FileSystemTestUtils
-        .createByteFile(mFileSystem, "/testRoot/testFile", WriteType.MUST_CACHE, size, size);
-
-    mFsShell.run("ls", "--sort", "path", "/testRoot");
-
-    String line = "";
-    String expected = "";
-    line = getLsResultStr(new AlluxioURI("/testRoot/testDir"), 1, testUser, testUser);
-    Assert.assertTrue(line.substring(0, 11).indexOf("+") != indexOfExtended);
-    expected += line;
-    line = getLsResultStr(new AlluxioURI("/testRoot/testFile"), size, testUser, testUser);
-    Assert.assertTrue(line.substring(0, 11).indexOf("+") != indexOfExtended);
-    expected += line;
-
-    Assert.assertEquals(expected, mOutput.toString());
-
-    mFileSystem.setAcl(new AlluxioURI("/testRoot/testDir"), SetAclAction.MODIFY,
-        Arrays.asList(AclEntry.fromCliString("default:user:nameduser:rwx")),
-        SetAclOptions.defaults());
-    mFileSystem.setAcl(new AlluxioURI("/testRoot/testFile"), SetAclAction.MODIFY,
-        Arrays.asList(AclEntry.fromCliString("user:nameduser:rwx")), SetAclOptions.defaults());
-
-    mFsShell.run("ls", "--sort", "path", "/testRoot");
-
-    line = getLsResultStr(new AlluxioURI("/testRoot/testDir"), 1, testUser, testUser);
-    Assert.assertTrue(line.substring(0, 11).indexOf("+") == indexOfExtended);
-    expected += line;
-    line = getLsResultStr(new AlluxioURI("/testRoot/testFile"), size, testUser, testUser);
-    Assert.assertTrue(line.substring(0, 11).indexOf("+") == indexOfExtended);
-    expected += line;
-
-    Assert.assertEquals(expected, mOutput.toString());
-  }
-
->>>>>>> upstream/enterprise-1.8
 }

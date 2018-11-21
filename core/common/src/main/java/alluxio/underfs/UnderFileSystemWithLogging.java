@@ -625,7 +625,6 @@ public class UnderFileSystemWithLogging implements UnderFileSystem {
     return mUnderFileSystem.supportsFlush();
   }
 
-<<<<<<< HEAD
   @Override
   public boolean supportsActiveSync() {
     return mUnderFileSystem.supportsActiveSync();
@@ -708,93 +707,6 @@ public class UnderFileSystemWithLogging implements UnderFileSystem {
     });
   }
 
-||||||| merged common ancestors
-=======
-  @Override
-  public boolean supportsActiveSync() {
-    return mUnderFileSystem.supportsActiveSync();
-  }
-
-  @Override
-  public boolean startActiveSyncPolling(long txId) throws IOException {
-    return call(new UfsCallable<Boolean>() {
-      @Override
-      public Boolean call() throws IOException {
-        return mUnderFileSystem.startActiveSyncPolling(txId);
-      }
-
-      @Override
-      public String toString() {
-        return String.format("Start ActiveSync Polling with %d", txId);
-      }
-    });
-  }
-
-  @Override
-  public boolean stopActiveSyncPolling() throws IOException {
-    return call(new UfsCallable<Boolean>() {
-      @Override
-      public Boolean call() throws IOException {
-        return mUnderFileSystem.stopActiveSyncPolling();
-      }
-
-      @Override
-      public String toString() {
-        return String.format("Stop ActiveSync Polling");
-      }
-    });
-  }
-
-  @Override
-  public SyncInfo getActiveSyncInfo() throws IOException {
-    return call(new UfsCallable<SyncInfo>() {
-      @Override
-      public SyncInfo call() throws IOException {
-        return mUnderFileSystem.getActiveSyncInfo();
-      }
-
-      @Override
-      public String toString() {
-        return String.format("getActiveSyncInfo");
-      }
-    });
-  }
-
-  @Override
-  public void startSync(AlluxioURI uri) throws IOException {
-    call(new UfsCallable<Void>() {
-      @Override
-      public Void call() throws IOException {
-        mUnderFileSystem.startSync(uri);
-        return null;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("startSync %s", uri.toString());
-      }
-    });
-
-  }
-
-  @Override
-  public void stopSync(AlluxioURI uri) throws IOException {
-    call(new UfsCallable<Void>() {
-      @Override
-      public Void call() throws IOException {
-        mUnderFileSystem.stopSync(uri);
-        return null;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("stopSync %s", uri.toString());
-      }
-    });
-
-  }
-
->>>>>>> upstream/enterprise-1.8
   /**
    * This is only used in the test.
    *

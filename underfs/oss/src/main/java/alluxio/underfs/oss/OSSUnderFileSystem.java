@@ -67,7 +67,6 @@ public class OSSUnderFileSystem extends ObjectUnderFileSystem {
   public static OSSUnderFileSystem createInstance(AlluxioURI uri,
       UnderFileSystemConfiguration conf) throws Exception {
     String bucketName = UnderFileSystemUtils.getBucketName(uri);
-<<<<<<< HEAD
     Preconditions.checkArgument(conf.isSet(PropertyKey.OSS_ACCESS_KEY),
         "Property %s is required to connect to OSS", PropertyKey.OSS_ACCESS_KEY);
     Preconditions.checkArgument(conf.isSet(PropertyKey.OSS_SECRET_KEY),
@@ -77,30 +76,6 @@ public class OSSUnderFileSystem extends ObjectUnderFileSystem {
     String accessId = conf.get(PropertyKey.OSS_ACCESS_KEY);
     String accessKey = conf.get(PropertyKey.OSS_SECRET_KEY);
     String endPoint = conf.get(PropertyKey.OSS_ENDPOINT_KEY);
-||||||| merged common ancestors
-    Preconditions.checkArgument(
-        conf.containsKey(PropertyKey.OSS_ACCESS_KEY),
-        "Property " + PropertyKey.OSS_ACCESS_KEY + " is required to connect to OSS");
-    Preconditions.checkArgument(
-        conf.containsKey(PropertyKey.OSS_SECRET_KEY),
-        "Property " + PropertyKey.OSS_SECRET_KEY + " is required to connect to OSS");
-    Preconditions.checkArgument(
-        conf.containsKey(PropertyKey.OSS_ENDPOINT_KEY),
-        "Property " + PropertyKey.OSS_ENDPOINT_KEY + " is required to connect to OSS");
-    String accessId = conf.getValue(PropertyKey.OSS_ACCESS_KEY);
-    String accessKey = conf.getValue(PropertyKey.OSS_SECRET_KEY);
-    String endPoint = conf.getValue(PropertyKey.OSS_ENDPOINT_KEY);
-=======
-    Preconditions.checkArgument(conf.containsKey(PropertyKey.OSS_ACCESS_KEY),
-        "Property %s is required to connect to OSS", PropertyKey.OSS_ACCESS_KEY);
-    Preconditions.checkArgument(conf.containsKey(PropertyKey.OSS_SECRET_KEY),
-        "Property %s is required to connect to OSS", PropertyKey.OSS_SECRET_KEY);
-    Preconditions.checkArgument(conf.containsKey(PropertyKey.OSS_ENDPOINT_KEY),
-        "Property %s is required to connect to OSS", PropertyKey.OSS_ENDPOINT_KEY);
-    String accessId = conf.getValue(PropertyKey.OSS_ACCESS_KEY);
-    String accessKey = conf.getValue(PropertyKey.OSS_SECRET_KEY);
-    String endPoint = conf.getValue(PropertyKey.OSS_ENDPOINT_KEY);
->>>>>>> upstream/enterprise-1.8
 
     ClientConfiguration ossClientConf = initializeOSSClientConfig();
     OSSClient ossClient = new OSSClient(endPoint, accessId, accessKey, ossClientConf);

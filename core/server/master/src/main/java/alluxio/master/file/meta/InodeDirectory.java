@@ -215,15 +215,6 @@ public final class InodeDirectory extends Inode<InodeDirectory> implements Inode
     return getThis();
   }
 
-<<<<<<< HEAD
-  @Override
-  public InodeDirectory setDefaultACL(DefaultAccessControlList acl) {
-    mDefaultAcl = acl;
-    return getThis();
-  }
-
-||||||| merged common ancestors
-=======
   @Override
   public DefaultAccessControlList getDefaultACL() {
     return mDefaultAcl;
@@ -234,7 +225,6 @@ public final class InodeDirectory extends Inode<InodeDirectory> implements Inode
     mDefaultAcl = acl;
     return getThis();
   }
->>>>>>> upstream/enterprise-1.8
   /**
    * Generates client file info for a folder.
    *
