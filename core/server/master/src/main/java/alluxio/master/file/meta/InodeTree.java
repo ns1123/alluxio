@@ -650,7 +650,9 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
         .setPersisted(options.isPersisted())
         .setOperationTimeMs(options.getOperationTimeMs())
         .setOwner(options.getOwner())
-        .setGroup(options.getGroup());
+        .setGroup(options.getGroup())
+        .setTtl(options.getTtl())
+        .setTtlAction(options.getTtlAction());
     for (int k = pathIndex; k < (pathComponents.length - 1); k++) {
       InodeDirectoryView dir = null;
       while (dir == null) {

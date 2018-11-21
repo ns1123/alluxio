@@ -12,13 +12,11 @@
 package alluxio.master.file.options;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.SecurityUtils;
 import alluxio.wire.CommonOptions;
-import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
 
@@ -36,8 +34,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   // ALLUXIO CS ADD
   private boolean mEncrypted;
   // ALLUXIO CS END
-  private long mTtl;
-  private TtlAction mTtlAction;
   private boolean mCacheable;
 
   /**
@@ -68,8 +64,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       // ALLUXIO CS ADD
       mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
       // ALLUXIO CS END
-      mTtl = options.getTtl();
-      mTtlAction = TtlAction.fromThrift(options.getTtlAction());
       if (SecurityUtils.isAuthenticationEnabled()) {
         mOwner = SecurityUtils.getOwnerFromThriftClient();
         mGroup = SecurityUtils.getGroupFromThriftClient();
@@ -91,8 +85,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     // ALLUXIO CS ADD
     mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
     // ALLUXIO CS END
-    mTtl = Constants.NO_TTL;
-    mTtlAction = TtlAction.DELETE;
     mMode.applyFileUMask();
     mCacheable = false;
   }
@@ -139,21 +131,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
    */
   public boolean isCacheable() {
     return mCacheable;
-  }
-
-  /**
-   * @return the TTL (time to live) value; it identifies duration (in seconds) the created file
-   *         should be kept around before it is automatically deleted
-   */
-  public long getTtl() {
-    return mTtl;
-  }
-
-  /**
-   * @return the {@link TtlAction}
-   */
-  public TtlAction getTtlAction() {
-    return mTtlAction;
   }
 
   /**
@@ -212,25 +189,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     return this;
   }
 
-  /**
-   * @param ttl the TTL (time to live) value to use; it identifies duration (in milliseconds) the
-   *        created file should be kept around before it is automatically deleted
-   * @return the updated options object
-   */
-  public CreateFileOptions setTtl(long ttl) {
-    mTtl = ttl;
-    return getThis();
-  }
-
-  /**
-   * @param ttlAction the {@link TtlAction}; It informs the action to take when Ttl is expired;
-   * @return the updated options object
-   */
-  public CreateFileOptions setTtlAction(TtlAction ttlAction) {
-    mTtlAction = ttlAction;
-    return getThis();
-  }
-
   @Override
   protected CreateFileOptions getThis() {
     return this;
@@ -255,19 +213,16 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
         // ALLUXIO CS ADD
         && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
-        && Objects.equal(mTtl, that.mTtl)
-        && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mCacheable, that.mCacheable);
   }
 
   @Override
   public int hashCode() {
-    // ALLUXIO CS REPLACE
-    // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mCacheable);
-    // ALLUXIO CS WITH
-    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mReplicationDurable,
-        mReplicationMax, mReplicationMin, mEncrypted, mCacheable);
-    // ALLUXIO CS END
+    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
+        // ALLUXIO CS ADD
+        mEncrypted,
+        // ALLUXIO CS END
+        mReplicationMax, mReplicationMin, mCacheable);
   }
 
   @Override
@@ -279,8 +234,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
         // ALLUXIO CS ADD
         .add("encrypted", mEncrypted)
         // ALLUXIO CS END
-        .add("ttl", mTtl)
-        .add("ttlAction", mTtlAction)
         .add("cacheable", mCacheable).toString();
   }
 }

@@ -2642,6 +2642,17 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
           .build();
+  public static final PropertyKey USER_FILE_LOAD_TTL =
+      new Builder(Name.USER_FILE_LOAD_TTL)
+          .setDefaultValue(Constants.NO_TTL)
+          .setDescription("Time to live for files loaded from UFS by a user, no ttl by default.")
+          .build();
+  public static final PropertyKey USER_FILE_LOAD_TTL_ACTION =
+      new Builder(Name.USER_FILE_LOAD_TTL_ACTION)
+          .setDefaultValue("DELETE")
+          .setDescription("When file's ttl is expired, the action performs on it. "
+              + "DELETE by default")
+          .build();
   public static final PropertyKey USER_FILE_READ_TYPE_DEFAULT =
       new Builder(Name.USER_FILE_READ_TYPE_DEFAULT)
           .setDefaultValue("CACHE_PROMOTE")
@@ -2670,6 +2681,17 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "using waitCompleted.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
+          .build();
+  public static final PropertyKey USER_FILE_CREATE_TTL =
+      new Builder(Name.USER_FILE_CREATE_TTL)
+          .setDefaultValue(Constants.NO_TTL)
+          .setDescription("Time to live for files created by a user, no ttl by default.")
+          .build();
+  public static final PropertyKey USER_FILE_CREATE_TTL_ACTION =
+      new Builder(Name.USER_FILE_CREATE_TTL_ACTION)
+          .setDefaultValue("DELETE")
+          .setDescription("When file's ttl is expired, the action performs on it. "
+              + "DELETE by default")
           .build();
   public static final PropertyKey USER_FILE_WRITE_LOCATION_POLICY =
       new Builder(Name.USER_FILE_WRITE_LOCATION_POLICY)
@@ -4264,6 +4286,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.file.metadata.sync.interval";
     public static final String USER_FILE_PASSIVE_CACHE_ENABLED =
         "alluxio.user.file.passive.cache.enabled";
+    public static final String USER_FILE_LOAD_TTL =
+        "alluxio.user.file.load.ttl";
+    public static final String USER_FILE_LOAD_TTL_ACTION =
+        "alluxio.user.file.load.ttl.action";
     public static final String USER_FILE_READ_TYPE_DEFAULT = "alluxio.user.file.readtype.default";
     public static final String USER_FILE_REPLICATION_MAX = "alluxio.user.file.replication.max";
     public static final String USER_FILE_REPLICATION_MIN = "alluxio.user.file.replication.min";
@@ -4274,6 +4300,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.file.seek.buffer.size.bytes";
     public static final String USER_FILE_WAITCOMPLETED_POLL_MS =
         "alluxio.user.file.waitcompleted.poll";
+    public static final String USER_FILE_CREATE_TTL =
+        "alluxio.user.file.create.ttl";
+    public static final String USER_FILE_CREATE_TTL_ACTION =
+        "alluxio.user.file.create.ttl.action";
     public static final String USER_FILE_WRITE_LOCATION_POLICY =
         "alluxio.user.file.write.location.policy.class";
     public static final String USER_FILE_WRITE_AVOID_EVICTION_POLICY_RESERVED_BYTES =
