@@ -524,6 +524,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
    */
   void initializeInternal(Map<String, Object> uriConfProperties,
       org.apache.hadoop.conf.Configuration conf) throws IOException {
+    // ALLUXIO CS ADD
+    // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
+    // to authenticate with master.
+    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+    // ALLUXIO CS END
     // Load Alluxio configuration if any and merge to the one in Alluxio file system. These
     // modifications to ClientContext are global, affecting all Alluxio clients in this JVM.
     // We assume here that all clients use the same configuration.
@@ -535,13 +540,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     // This must be reset to pick up the change to the master address.
     LOG.info("Initializing filesystem context with connect details {}",
         Factory.getConnectDetails(Configuration.global()));
-    // ALLUXIO CS ADD
-    // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
-    // to authenticate with master.
-    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
-    updateFileSystemAndContext();
     FileSystemContext.get().reset(Configuration.global());
-    // ALLUXIO CS END
   }
 
   /**
