@@ -85,9 +85,9 @@ import alluxio.master.file.options.WorkerHeartbeatOptions;
 import alluxio.master.journal.JournalContext;
 import alluxio.metrics.MasterMetrics;
 import alluxio.metrics.MetricsSystem;
-import alluxio.proto.journal.File.NewBlockEntry;
 import alluxio.proto.journal.File;
 import alluxio.proto.journal.File.AddSyncPointEntry;
+import alluxio.proto.journal.File.NewBlockEntry;
 import alluxio.proto.journal.File.RemoveSyncPointEntry;
 import alluxio.proto.journal.File.RenameEntry;
 import alluxio.proto.journal.File.SetAclEntry;
@@ -140,7 +140,6 @@ import alluxio.wire.FileInfo;
 import alluxio.wire.LoadMetadataType;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;
-import alluxio.wire.TtlAction;
 import alluxio.wire.WorkerInfo;
 
 import com.codahale.metrics.Counter;

@@ -47,7 +47,6 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.fs.BlockLocation;
@@ -624,7 +623,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     Subject subject = getHadoopSubject();
     if (subject != null) {
       LOG.debug("Using Hadoop subject: {}", subject);
-      mContext = FileSystemContext.get(subject);
       mContext = FileSystemContext.get(subject);
       // ALLUXIO CS ADD
       try {

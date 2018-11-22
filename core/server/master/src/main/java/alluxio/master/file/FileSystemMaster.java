@@ -50,8 +50,6 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;
-import alluxio.wire.SetAclAction;
-import alluxio.wire.TtlAction;
 import alluxio.wire.WorkerInfo;
 
 import java.io.IOException;

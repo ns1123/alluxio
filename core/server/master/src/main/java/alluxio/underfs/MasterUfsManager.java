@@ -96,7 +96,6 @@ public final class MasterUfsManager extends AbstractUfsManager
    * @param journalContext the journal context
    * @param ufsPath the physical ufs path (scheme and authority only)
    * @param ufsMode the ufs operation mode
-   * @param rpcContext rpc context
    * @throws InvalidPathException if no managed ufs covers the given path
    */
   public synchronized void setUfsMode(Supplier<JournalContext> journalContext, AlluxioURI ufsPath,
