@@ -99,4 +99,22 @@ public enum AclAction {
         throw new IllegalStateException("Unknown acl action: " + this);
     }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the {@link Mode.Bits} representation of this enum
+   */
+  public Mode.Bits toModeBits() {
+    switch (this) {
+      case READ:
+        return Mode.Bits.READ;
+      case WRITE:
+        return Mode.Bits.WRITE;
+      case EXECUTE:
+        return Mode.Bits.EXECUTE;
+      default:
+        throw new IllegalStateException("Unknown acl action: " + this);
+    }
+  }
+  // ALLUXIO CS END
 }

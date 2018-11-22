@@ -216,11 +216,6 @@ public final class InodeDirectory extends Inode<InodeDirectory> implements Inode
   }
 
   @Override
-  public DefaultAccessControlList getDefaultACL() {
-    return mDefaultAcl;
-  }
-
-  @Override
   public InodeDirectory setDefaultACL(DefaultAccessControlList acl) {
     mDefaultAcl = acl;
     return getThis();

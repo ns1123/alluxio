@@ -379,13 +379,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void setAcl(AlluxioURI path, SetAclAction action,
-      List<AclEntry> entries, SetAclOptions options)
-      throws FileDoesNotExistException, AccessControlException, InvalidPathException, IOException {
-    mFileSystemMaster.setAcl(path, action, entries, options);
-  }
-
-  @Override
   public void scheduleAsyncPersistence(AlluxioURI path)
       throws AlluxioException, UnavailableException {
     mFileSystemMaster.scheduleAsyncPersistence(path);
@@ -429,34 +422,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   // ALLUXIO CS END
-  @Override
-  public List<String> getSyncPathList() throws UnavailableException, AccessControlException {
-    return mFileSystemMaster.getSyncPathList();
-  }
-
-  @Override
-  public void startSync(AlluxioURI alluxioURI) throws IOException, InvalidPathException,
-      AccessControlException, ConnectionFailedException {
-    mFileSystemMaster.startSync(alluxioURI);
-  }
-
-  @Override
-  public void stopSync(AlluxioURI alluxioURI) throws IOException, InvalidPathException,
-      AccessControlException {
-    mFileSystemMaster.stopSync(alluxioURI);
-  }
-
-  @Override
-  public void activeSyncMetadata(AlluxioURI path, Collection<AlluxioURI> changedFiles,
-      ExecutorService executorService) throws IOException {
-    mFileSystemMaster.activeSyncMetadata(path, changedFiles, executorService);
-  }
-
-  @Override
-  public boolean recordActiveSyncTxid(long txId, long mountId) {
-    return mFileSystemMaster.recordActiveSyncTxid(txId, mountId);
-  }
-
   @Override
   public List<String> getSyncPathList() throws UnavailableException, AccessControlException {
     return mFileSystemMaster.getSyncPathList();

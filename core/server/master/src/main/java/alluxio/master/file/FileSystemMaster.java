@@ -443,21 +443,6 @@ public interface FileSystemMaster extends Master {
       IOException;
 
   /**
-   * Sets the ACL for a path.
-   *
-   * @param path the path to set attribute for
-   * @param action the set action to perform
-   * @param entries the list of ACL entries for setting ACL
-   * @param options the options for setting ACL
-   * @throws FileDoesNotExistException if the file does not exist
-   * @throws AccessControlException if permission checking fails
-   * @throws InvalidPathException if the given path is invalid
-   */
-  void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries, SetAclOptions options)
-      throws FileDoesNotExistException, AccessControlException, InvalidPathException,
-      IOException;
-
-  /**
    * Sets the file attribute.
    * <p>
    * This operation requires users to have WRITE permission on the path. In

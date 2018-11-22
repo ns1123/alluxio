@@ -2693,6 +2693,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("When file's ttl is expired, the action performs on it. "
               + "DELETE by default")
           .build();
+  public static final PropertyKey USER_FILE_UFS_TIER_ENABLED =
+      new Builder(Name.USER_FILE_UFS_TIER_ENABLED)
+          .setDescription("When workers run out of available memory, whether the client can skip "
+              + "writing data to Alluxio but fallback to write to UFS without stopping the "
+              + "application. This property only works when the write type is ASYNC_THROUGH.")
+          .setDefaultValue(false).build();
   public static final PropertyKey USER_FILE_WRITE_LOCATION_POLICY =
       new Builder(Name.USER_FILE_WRITE_LOCATION_POLICY)
           .setDefaultValue("alluxio.client.file.policy.LocalFirstPolicy")
@@ -4415,6 +4421,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
     // ALLUXIO CS ADD
 
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS =
+        "alluxio.security.authentication.delegation.token.key.lifetime.ms";
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS =
+        "alluxio.security.authentication.delegation.token.lifetime.ms";
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS =
+        "alluxio.security.authentication.delegation.token.renew.interval.ms";
     public static final String SECURITY_AUTHORIZATION_PLUGIN_NAME =
         "alluxio.security.authorization.plugin.name";
     public static final String SECURITY_AUTHORIZATION_PLUGIN_PATHS =

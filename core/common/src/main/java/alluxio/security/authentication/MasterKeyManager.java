@@ -11,6 +11,7 @@
 
 package alluxio.security.authentication;
 
+import alluxio.Constants;
 import alluxio.security.MasterKey;
 import alluxio.security.capability.SecretManager;
 import alluxio.util.CommonUtils;
@@ -68,7 +69,7 @@ public abstract class MasterKeyManager implements Closeable {
       mKeyRotationFuture.cancel(true);
     }
     if (mExecutor != null) {
-      ThreadUtils.shutdownAndAwaitTermination(mExecutor);
+      ThreadUtils.shutdownAndAwaitTermination(mExecutor, Constants.SECOND_MS);
     }
   }
 

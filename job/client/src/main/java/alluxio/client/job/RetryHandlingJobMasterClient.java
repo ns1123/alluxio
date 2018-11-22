@@ -80,12 +80,6 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  protected boolean shouldLoadClusterDefaults() {
-    // return false because only the master uses this client
-    return false;
-  }
-
-  @Override
   public synchronized void cancel(final long jobId) throws IOException {
     retryRPC((RpcCallable<Void>) () -> {
       mClient.cancel(jobId, new CancelTOptions());

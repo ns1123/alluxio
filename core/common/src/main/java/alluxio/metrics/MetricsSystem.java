@@ -291,16 +291,6 @@ public final class MetricsSystem {
   }
 
   /**
-   * Builds metric registry names for the job master instance. The pattern is instance.metricName.
-   *
-   * @param name the metric name
-   * @return the metric registry name
-   */
-  private static String getJobMasterMetricName(String name) {
-    return Joiner.on(".").join(InstanceType.JOB_MASTER, name);
-  }
-
-  /**
    * Builds metric registry name for job worker instance. The pattern is
    * instance.uniqueId.metricName.
    *

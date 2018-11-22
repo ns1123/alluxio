@@ -140,7 +140,7 @@ public class BaseFileSystem implements FileSystem {
       opts.setLoadMetadataType(LoadMetadataType.Never);
       opts.getCommonOptions().setSyncIntervalMs(-1);
       // ALLUXIO CS ADD
-      opts.setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE)
+      opts.setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE);
       // ALLUXIO CS END
       status = masterClient.getStatus(path, opts);
       LOG.debug("Created file {}, options: {}", path.getPath(), options);

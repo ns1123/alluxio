@@ -75,12 +75,6 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  protected boolean shouldLoadClusterDefaults() {
-    // return false because only the worker has loaded cluster conf on start
-    return false;
-  }
-
-  @Override
   public synchronized long registerWorker(final WorkerNetAddress address) throws IOException {
     return retryRPC(new RpcCallable<Long>() {
       public Long call() throws TException {
