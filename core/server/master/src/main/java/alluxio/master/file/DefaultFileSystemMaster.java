@@ -467,7 +467,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         || entry.hasDeleteLineage()) {
       // lineage is no longer supported, fall through
     } else {
-      // ALLUXIO CS ADD
+      // ALLUXIO CS REPLACE
+      // throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
+      // ALLUXIO CS WITH
       // TODO(feng): refactor journaling into DelegationTokenManager.
       if (entry.hasGetDelegationToken()) {
         addDelegationTokenFromEntry(entry.getGetDelegationToken());
@@ -481,9 +483,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         removeDelegationTokenFromEntry(entry.getRemoveDelegationToken());
       } else if (entry.hasRenewDelegationToken()) {
         renewDelegationTokenFromEntry(entry.getRenewDelegationToken());
+      } else {
+        throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
       }
       // ALLUXIO CS END
-      throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
     }
   }
 
