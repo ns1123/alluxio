@@ -167,8 +167,8 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // kills leaders one by one and uses delegation token after each fail over

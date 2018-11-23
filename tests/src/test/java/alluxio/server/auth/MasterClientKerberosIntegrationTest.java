@@ -241,8 +241,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
@@ -294,8 +294,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       tokenUGI.addCredentials(invalidCreds);
 
       // accesses master using delegation token
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
@@ -351,8 +351,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
@@ -402,8 +402,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
@@ -472,8 +472,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       cluster.startMasters();
 
       // accesses master using delegation token
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
@@ -526,8 +526,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       cluster.startMasters();
 
       // accesses master using delegation token
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
@@ -580,8 +580,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       cluster.startMasters();
 
       // accesses master using delegation token
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-      Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
