@@ -247,7 +247,7 @@ public final class ExtensionInodeAttributesProviderTest {
       throws Exception {
     try (
         LockedInodePath inodePath = mTree
-            .lockInodePath(new AlluxioURI(path), InodeTree.LockMode.WRITE)) {
+            .lockInodePath(new AlluxioURI(path), InodeTree.LockPattern.WRITE_LAST)) {
       InodeTree.CreatePathResult result = mTree.createPath(RpcContext.NOOP, inodePath, option);
       Inode<?> inode = (Inode<?>) result.getCreated().get(result.getCreated().size() - 1);
       inode.setOwner(option.getOwner());
@@ -260,7 +260,7 @@ public final class ExtensionInodeAttributesProviderTest {
       throws Exception {
     AuthenticatedClientUser.set(user.getUser());
     try (LockedInodePath inodePath = mTree
-        .lockInodePath(new AlluxioURI(path), InodeTree.LockMode.READ)) {
+        .lockInodePath(new AlluxioURI(path), InodeTree.LockPattern.READ)) {
       List<InodeView> inodes = inodePath.getInodeList();
       List<InodeAttributes> attributes = inodes.stream().map(x -> (InodeAttributes)
           new ExtendablePermissionChecker.DefaultInodeAttributes(x)).collect(Collectors.toList());

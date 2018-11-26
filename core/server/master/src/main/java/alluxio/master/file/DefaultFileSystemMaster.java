@@ -813,9 +813,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   public FileInfo getFileInfo(long fileId)
       throws FileDoesNotExistException, AccessControlException, UnavailableException {
     Metrics.GET_FILE_INFO_OPS.inc();
-    try (
-<<<<<<< HEAD
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+    try (LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, LockPattern.READ)) {
       // ALLUXIO CS REPLACE
       // return getFileInfoInternal(inodePath);
       // ALLUXIO CS WITH
@@ -823,13 +821,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       populateCapability(fileInfo, inodePath);
       return fileInfo;
       // ALLUXIO CS END
-||||||| merged common ancestors
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
-      return getFileInfoInternal(inodePath);
-=======
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, LockPattern.READ)) {
-      return getFileInfoInternal(inodePath);
->>>>>>> OPENSOURCE/master
     }
   }
 
