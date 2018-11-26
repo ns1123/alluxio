@@ -26,14 +26,21 @@ pipeline {
                     ]]
                 ])
                 timeout(90) {timestamps {script {
+<<<<<<< HEAD
                     def cmd = 'sudo -u jenkins docker run -u jenkins --rm ' +
+||||||| merged common ancestors
+                    def cmd = 'sudo -u jenkins docker run -u jenkins --rm ' + 
+=======
+                    def cmd = 'sudo -u jenkins docker run -u jenkins --rm ' +
+                              '--cap-add SYS_ADMIN --device /dev/fuse ' +
+>>>>>>> upstream/master
                               '-v "/home/jenkins/.m2":/home/jenkins/.m2 ' + 
                               '-v "\$(pwd)":/usr/src/alluxio ' + 
                               '-e MAVEN_CONFIG=/home/jenkins/.m2 ' + 
                               '-e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} ' +
                               '-e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} ' +
                               '-e ALLUXIO_USE_FIXED_TEST_PORTS=true ' +
-                              '-w /usr/src/alluxio alluxio/alluxio-maven:0.0.1 ' + 
+                              '-w /usr/src/alluxio alluxio/alluxio-maven:0.0.2 ' +
                               'mvn -Duser.home=/home/jenkins clean install ' + 
                               '-Dsurefire.forkCount=2'
                     // legacy branches that contain an annotation/ directory must skip annotation check because it requires cloning a private repo
