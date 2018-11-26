@@ -26,14 +26,8 @@ pipeline {
                     ]]
                 ])
                 timeout(90) {timestamps {script {
-<<<<<<< HEAD
-                    def cmd = 'sudo -u jenkins docker run -u jenkins --rm ' +
-||||||| merged common ancestors
-                    def cmd = 'sudo -u jenkins docker run -u jenkins --rm ' + 
-=======
                     def cmd = 'sudo -u jenkins docker run -u jenkins --rm ' +
                               '--cap-add SYS_ADMIN --device /dev/fuse ' +
->>>>>>> upstream/master
                               '-v "/home/jenkins/.m2":/home/jenkins/.m2 ' + 
                               '-v "\$(pwd)":/usr/src/alluxio ' + 
                               '-e MAVEN_CONFIG=/home/jenkins/.m2 ' + 
