@@ -24,7 +24,7 @@ public final class MasterTestUtils {
   /**
    * @return a basic master context for the purpose of testing
    */
-  public static MasterContext testMasterContext() {
+  public static CoreMasterContext testMasterContext() {
     return testMasterContext(new NoopJournalSystem());
   }
 
@@ -32,6 +32,7 @@ public final class MasterTestUtils {
    * @return a basic master context for the purpose of testing
    * @param journalSystem a journal system to use in the context
    */
+<<<<<<< HEAD
   public static MasterContext testMasterContext(JournalSystem journalSystem) {
     // ALLUXIO CS REPLACE
     // return new MasterContext(journalSystem, new TestSafeModeManager(),
@@ -42,6 +43,15 @@ public final class MasterTestUtils {
         mock(alluxio.security.authentication.DelegationTokenManager.class),
         -1, -1);
     // ALLUXIO CS END
+||||||| merged common ancestors
+  public static MasterContext testMasterContext(JournalSystem journalSystem) {
+    return new MasterContext(journalSystem, new TestSafeModeManager(),
+        mock(BackupManager.class), -1, -1);
+=======
+  public static CoreMasterContext testMasterContext(JournalSystem journalSystem) {
+    return new CoreMasterContext(journalSystem, new TestSafeModeManager(),
+        mock(BackupManager.class), -1, -1);
+>>>>>>> OPENSOURCE/master
   }
 
   private MasterTestUtils() {} // Not intended for instatiation.

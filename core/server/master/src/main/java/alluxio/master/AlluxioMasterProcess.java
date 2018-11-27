@@ -181,6 +181,7 @@ public class AlluxioMasterProcess implements MasterProcess {
       mRegistry = new MasterRegistry();
       mSafeModeManager = new DefaultSafeModeManager();
       mBackupManager = new BackupManager(mRegistry);
+<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // MasterContext context =
       //     new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort);
@@ -189,6 +190,13 @@ public class AlluxioMasterProcess implements MasterProcess {
           new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mDelegationTokenManager,
               mStartTimeMs, mPort);
       // ALLUXIO CS END
+||||||| merged common ancestors
+      MasterContext context =
+          new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort);
+=======
+      MasterContext context = new CoreMasterContext(mJournalSystem, mSafeModeManager,
+          mBackupManager, mStartTimeMs, mPort);
+>>>>>>> OPENSOURCE/master
       mPauseStateLock = context.pauseStateLock();
       MasterUtils.createMasters(mRegistry, context);
       // ALLUXIO CS ADD

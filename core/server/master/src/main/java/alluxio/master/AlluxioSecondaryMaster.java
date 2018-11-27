@@ -58,6 +58,7 @@ public final class AlluxioSecondaryMaster implements Process {
       mStartTimeMs = System.currentTimeMillis();
       mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
       // Create masters.
+<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // MasterUtils.createMasters(mRegistry,
       //     new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort));
@@ -67,6 +68,13 @@ public final class AlluxioSecondaryMaster implements Process {
           new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager,
               mDelegationTokenManager, mStartTimeMs, mPort));
       // ALLUXIO CS END
+||||||| merged common ancestors
+      MasterUtils.createMasters(mRegistry,
+          new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort));
+=======
+      MasterUtils.createMasters(mRegistry, new CoreMasterContext(mJournalSystem, mSafeModeManager,
+          mBackupManager, mStartTimeMs, mPort));
+>>>>>>> OPENSOURCE/master
       // Check that journals of each service have been formatted.
       if (!mJournalSystem.isFormatted()) {
         throw new RuntimeException(
