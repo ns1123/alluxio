@@ -70,25 +70,19 @@ public class MasterTestUtils {
     long startTimeMs = System.currentTimeMillis();
     int port = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
-<<<<<<< HEAD
-    // ALLUXIO CS REPLACE
-    // MasterContext masterContext = new MasterContext(journalSystem, safeModeManager,
-    //     mock(BackupManager.class), startTimeMs, port);
-    // ALLUXIO CS WITH
-    MasterContext masterContext = new MasterContext(journalSystem, safeModeManager,
-        mock(BackupManager.class),
-        mock(alluxio.security.authentication.DelegationTokenManager.class), startTimeMs, port);
-    // ALLUXIO CS END
+    CoreMasterContext masterContext = CoreMasterContext.newBuilder()
+        // ALLUXIO CS ADD
+        .setDelegationTokenManager(mock(alluxio.security.authentication.DelegationTokenManager.class))
+        // ALLUXIO CS END
+        .setJournalSystem(journalSystem)
+        .setSafeModeManager(safeModeManager)
+        .setBackupManager(mock(BackupManager.class))
+        .setStartTimeMs(startTimeMs)
+        .setPort(port)
+        .build();
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, masterContext);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    MasterContext masterContext = new MasterContext(journalSystem, safeModeManager,
-        mock(BackupManager.class), startTimeMs, port);
-=======
-    CoreMasterContext masterContext = new CoreMasterContext(journalSystem, safeModeManager,
-        mock(BackupManager.class), startTimeMs, port);
->>>>>>> OPENSOURCE/master
     new MetricsMasterFactory().create(registry, masterContext);
     new BlockMasterFactory().create(registry, masterContext);
     new FileSystemMasterFactory().create(registry, masterContext);

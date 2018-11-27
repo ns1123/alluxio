@@ -32,8 +32,8 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidPathException;
-import alluxio.master.MasterContext;
 import alluxio.master.MasterRegistry;
+import alluxio.master.MasterTestUtils;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.Inode;
@@ -161,10 +161,10 @@ public final class ExtensionInodeAttributesProviderTest {
     sRegistry = new MasterRegistry();
     JournalSystem journalSystem = new NoopJournalSystem();
     sMetricsMaster = new MetricsMasterFactory()
-        .create(sRegistry, new MasterContext(journalSystem));
+        .create(sRegistry, MasterTestUtils.testMasterContext(journalSystem));
     sRegistry.add(MetricsMaster.class, sMetricsMaster);
     sBlockMaster = new BlockMasterFactory()
-        .create(sRegistry,  new MasterContext(journalSystem));
+        .create(sRegistry,  MasterTestUtils.testMasterContext(journalSystem));
     sDirectoryIdGenerator = new InodeDirectoryIdGenerator(sBlockMaster);
 
     sRegistry.start(true);

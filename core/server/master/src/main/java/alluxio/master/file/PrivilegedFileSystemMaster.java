@@ -29,7 +29,7 @@ import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.PermissionDeniedException;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
-import alluxio.master.MasterContext;
+import alluxio.master.CoreMasterContext;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.PersistenceState;
@@ -97,7 +97,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
    * @param masterContext the context for Alluxio master
    */
   PrivilegedFileSystemMaster(BlockMaster blockMaster, PrivilegeMaster privilegeMaster,
-      MasterContext masterContext) {
+      CoreMasterContext masterContext) {
     mFileSystemMaster = new DefaultFileSystemMaster(blockMaster, masterContext);
     mPrivilegeChecker = new PrivilegeChecker(privilegeMaster);
   }

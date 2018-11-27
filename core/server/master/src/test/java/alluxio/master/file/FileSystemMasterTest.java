@@ -2628,16 +2628,10 @@ public final class FileSystemMasterTest {
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
-<<<<<<< HEAD
-    MasterContext masterContext = MasterTestUtils.testMasterContext(mJournalSystem);
+    CoreMasterContext masterContext = MasterTestUtils.testMasterContext(mJournalSystem);
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, masterContext);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    MasterContext masterContext = MasterTestUtils.testMasterContext(mJournalSystem);
-=======
-    CoreMasterContext masterContext = MasterTestUtils.testMasterContext(mJournalSystem);
->>>>>>> OPENSOURCE/master
     mMetricsMaster = new MetricsMasterFactory().create(mRegistry, masterContext);
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     mMetrics = Lists.newArrayList();
