@@ -56,6 +56,7 @@ import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeFileView;
 import alluxio.master.file.meta.InodePathPair;
 import alluxio.master.file.meta.InodeTree;
+import alluxio.master.file.meta.InodeTree.LockPattern;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.LockedInodePathList;
@@ -208,7 +209,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    * {@link LockedInodePath} is always unlocked, the following paradigm is recommended:
    *
    * <p><blockquote><pre>
-   *    try (LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.READ)) {
+   *    try (LockedInodePath inodePath = mInodeTree.lockInodePath(path, LockPattern.READ)) {
    *      ...
    *    }
    * </pre></blockquote>
@@ -560,7 +561,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       // Rebuild the list of persist jobs (mPersistJobs) and map of pending persist requests
       // (mPersistRequests)
       try (LockedInodePath inodePath = mInodeTree.lockInodePath(new AlluxioURI("/"),
-          alluxio.master.file.meta.InodeTree.LockMode.WRITE)) {
+          LockPattern.WRITE_LAST)) {
         // Walk the inode tree looking for files in the TO_BE_PERSISTED state.
         java.util.Queue<InodeDirectoryView> dirsToProcess = new java.util.LinkedList<>();
         dirsToProcess.add((InodeDirectoryView) inodePath.getInode());
@@ -720,7 +721,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       @Override
       public List<AlluxioURI> call() throws IOException {
         List<AlluxioURI> inconsistentUris = new ArrayList<>();
-        try (LockedInodePath dir = mInodeTree.lockFullInodePath(mFileId, InodeTree.LockMode.READ)) {
+        try (LockedInodePath dir = mInodeTree.lockFullInodePath(mFileId, LockPattern.READ)) {
           InodeView parentInode = dir.getInode();
           AlluxioURI parentUri = dir.getUri();
           if (!checkConsistencyInternal(parentInode, parentUri)) {
@@ -832,12 +833,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @Override
   public long getFileId(AlluxioURI path) throws AccessControlException, UnavailableException {
     try (RpcContext rpcContext = createRpcContext();
-         LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.WRITE)) {
+         LockedInodePath inodePath = mInodeTree.lockInodePath(path, LockPattern.WRITE_LAST)) {
       // This is WRITE locked, since loading metadata is possible.
       mPermissionChecker.checkPermission(Mode.Bits.READ, inodePath);
       loadMetadataIfNotExist(rpcContext, inodePath,
           LoadMetadataOptions.defaults().setCreateAncestors(true));
-      mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
+      mInodeTree.ensureFullInodePath(inodePath, LockPattern.READ);
       return inodePath.getInode().getId();
     } catch (InvalidPathException | FileDoesNotExistException e) {
       return IdUtils.INVALID_FILE_ID;
@@ -848,8 +849,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   public FileInfo getFileInfo(long fileId)
       throws FileDoesNotExistException, AccessControlException, UnavailableException {
     Metrics.GET_FILE_INFO_OPS.inc();
-    try (
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+    try (LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, LockPattern.READ)) {
       // ALLUXIO CS REPLACE
       // return getFileInfoInternal(inodePath);
       // ALLUXIO CS WITH
@@ -865,7 +865,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws FileDoesNotExistException, InvalidPathException, AccessControlException, IOException {
     Metrics.GET_FILE_INFO_OPS.inc();
     LockingScheme lockingScheme =
-        createLockingScheme(path, options.getCommonOptions(), InodeTree.LockMode.READ);
+        createLockingScheme(path, options.getCommonOptions(), LockPattern.READ);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
              .lockInodePath(lockingScheme.getPath(), lockingScheme.getMode());
@@ -936,7 +936,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @Override
   public PersistenceState getPersistenceState(long fileId) throws FileDoesNotExistException {
     try (
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, LockPattern.READ)) {
       return inodePath.getInode().getPersistenceState();
     }
   }
@@ -947,7 +947,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       UnavailableException {
     Metrics.GET_FILE_INFO_OPS.inc();
     LockingScheme lockingScheme =
-        createLockingScheme(path, listStatusOptions.getCommonOptions(), InodeTree.LockMode.READ);
+        createLockingScheme(path, listStatusOptions.getCommonOptions(), LockPattern.READ);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
              .lockInodePath(lockingScheme.getPath(), lockingScheme.getMode());
@@ -1066,7 +1066,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         childComponents[childComponents.length - 1] = child.getName();
 
         try (LockedInodePath childInodePath  = mInodeTree.lockChildPath(currInodePath,
-            InodeTree.LockMode.READ, child, childComponents)) {
+            LockPattern.READ, child, childComponents)) {
           listStatusInternal(childInodePath, auditContext,
               nextDescendantType, statusList);
         } catch (InvalidPathException e) {
@@ -1114,7 +1114,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws InvalidPathException, FileDoesNotExistException {
     boolean exists = false;
     try {
-      mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
+      mInodeTree.ensureFullInodePath(inodePath, LockPattern.READ);
       exists = true;
     } finally {
       if (!exists) {
@@ -1132,7 +1132,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   public List<AlluxioURI> checkConsistency(AlluxioURI path, CheckConsistencyOptions options)
       throws AccessControlException, FileDoesNotExistException, InvalidPathException, IOException {
     LockingScheme lockingScheme =
-        createLockingScheme(path, options.getCommonOptions(), InodeTree.LockMode.READ);
+        createLockingScheme(path, options.getCommonOptions(), LockPattern.READ);
     List<AlluxioURI> inconsistentUris = new ArrayList<>();
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath parent =
@@ -1153,7 +1153,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
 
       try (LockedInodePathList children =
-               mInodeTree.lockDescendants(parent, InodeTree.LockMode.READ)) {
+               mInodeTree.lockDescendants(parent, LockPattern.READ)) {
         for (LockedInodePath child : children.getInodePathList()) {
           AlluxioURI currentPath = child.getUri();
           if (!checkConsistencyInternal(child.getInode(), currentPath)) {
@@ -1214,7 +1214,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     Metrics.COMPLETE_FILE_OPS.inc();
     // No need to syncMetadata before complete.
     try (RpcContext rpcContext = createRpcContext();
-         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE);
+         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, LockPattern.WRITE_LAST);
          FileSystemMasterAuditContext auditContext =
              createAuditContext("completeFile", path, null, inodePath.getInodeOrNull())) {
       try {
@@ -1359,7 +1359,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       BlockInfoException, IOException, FileDoesNotExistException {
     Metrics.CREATE_FILES_OPS.inc();
     LockingScheme lockingScheme =
-        createLockingScheme(path, options.getCommonOptions(), InodeTree.LockMode.WRITE);
+        createLockingScheme(path, options.getCommonOptions(), LockPattern.WRITE_LAST);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
              .lockInodePath(lockingScheme.getPath(), lockingScheme.getMode());
@@ -1422,7 +1422,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       InvalidPathException, AccessControlException, UnavailableException {
     Metrics.GET_NEW_BLOCK_OPS.inc();
     try (RpcContext rpcContext = createRpcContext();
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE);
+        LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, LockPattern.WRITE_LAST);
         FileSystemMasterAuditContext auditContext =
             createAuditContext("getNewBlockIdForFile", path, null, inodePath.getInodeOrNull())) {
       try {
@@ -1506,14 +1506,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       AccessControlException {
     Metrics.DELETE_PATHS_OPS.inc();
     LockingScheme lockingScheme =
-        createLockingScheme(path, options.getCommonOptions(), InodeTree.LockMode.WRITE);
+        createLockingScheme(path, options.getCommonOptions(), LockPattern.WRITE_LAST);
     try (RpcContext rpcContext = createRpcContext();
         LockedInodePath inodePath =
             mInodeTree.lockInodePath(lockingScheme.getPath(), lockingScheme.getMode());
         FileSystemMasterAuditContext auditContext =
             createAuditContext("delete", path, null, inodePath.getInodeOrNull());
         LockedInodePathList children =
-            options.isRecursive() ? mInodeTree.lockDescendants(inodePath, InodeTree.LockMode.WRITE)
+            options.isRecursive() ? mInodeTree.lockDescendants(inodePath, LockPattern.WRITE_LAST)
                 : null) {
       try {
         mPermissionChecker.checkParentPermission(Mode.Bits.WRITE, inodePath);
@@ -1595,7 +1595,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     inodesToDelete.add(new Pair<>(inodePath.getUri(), inodePath));
 
     try (LockedInodePathList children =
-        mInodeTree.lockDescendants(inodePath, InodeTree.LockMode.WRITE)) {
+        mInodeTree.lockDescendants(inodePath, LockPattern.WRITE_LAST)) {
       // Traverse inodes top-down
       for (LockedInodePath child : children.getInodePathList()) {
         inodesToDelete
@@ -1693,7 +1693,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws FileDoesNotExistException, InvalidPathException, AccessControlException,
       UnavailableException {
     Metrics.GET_FILE_BLOCK_INFO_OPS.inc();
-    try (LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.READ);
+    try (LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, LockPattern.READ);
         FileSystemMasterAuditContext auditContext =
             createAuditContext("getFileBlockInfoList", path, null, inodePath.getInodeOrNull())) {
       try {
@@ -1946,7 +1946,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     LOG.debug("createDirectory {} ", path);
     Metrics.CREATE_DIRECTORIES_OPS.inc();
     LockingScheme lockingScheme =
-        createLockingScheme(path, options.getCommonOptions(), InodeTree.LockMode.WRITE);
+        createLockingScheme(path, options.getCommonOptions(), LockPattern.WRITE_LAST);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
              .lockInodePath(lockingScheme.getPath(), lockingScheme.getMode());
@@ -2032,9 +2032,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       IOException, AccessControlException {
     Metrics.RENAME_PATH_OPS.inc();
     LockingScheme srcLockingScheme =
-        createLockingScheme(srcPath, options.getCommonOptions(), InodeTree.LockMode.WRITE);
+        createLockingScheme(srcPath, options.getCommonOptions(), LockPattern.WRITE_LAST);
     LockingScheme dstLockingScheme =
-        createLockingScheme(dstPath, options.getCommonOptions(), InodeTree.LockMode.READ);
+        createLockingScheme(dstPath, options.getCommonOptions(), LockPattern.READ);
     // Require a WRITE lock on the source but only a READ lock on the destination. Since the
     // destination should not exist, we will only obtain a READ lock on the destination parent. The
     // modify operations on the parent inodes are thread safe so WRITE locks are not required.
@@ -2283,7 +2283,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     Metrics.FREE_FILE_OPS.inc();
     // No need to syncMetadata before free.
     try (RpcContext rpcContext = createRpcContext();
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE);
+        LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, LockPattern.WRITE_LAST);
         FileSystemMasterAuditContext auditContext =
              createAuditContext("free", path, null, inodePath.getInodeOrNull())) {
       try {
@@ -2318,7 +2318,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     List<InodeView> freeInodes = new ArrayList<>();
     freeInodes.add(inode);
     List<LockedInodePath> descendants = mInodeTree.lockDescendants(inodePath,
-        InodeTree.LockMode.WRITE).getInodePathList();
+        LockPattern.WRITE_LAST).getInodePathList();
     Closer closer = Closer.create();
     // Using a closer here because we add the inodePath to the descendants list which does not
     // need to be closed
@@ -2359,7 +2359,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @Override
   public AlluxioURI getPath(long fileId) throws FileDoesNotExistException {
     try (
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, LockPattern.READ)) {
       // the path is already locked.
       return mInodeTree.getPath(inodePath.getInode());
     }
@@ -2409,7 +2409,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws BlockInfoException, FileDoesNotExistException, InvalidPathException,
       InvalidFileSizeException, FileAlreadyCompletedException, IOException, AccessControlException {
     try (RpcContext rpcContext = createRpcContext();
-        LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.WRITE);
+        LockedInodePath inodePath = mInodeTree.lockInodePath(path, LockPattern.WRITE_LAST);
         FileSystemMasterAuditContext auditContext =
              createAuditContext("loadMetadata", path, null, inodePath.getParentInodeOrNull())) {
       if (options.isCreateAncestors()) {
@@ -2595,7 +2595,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         completeOptions.setOperationTimeMs(ufsLastModified);
       }
       completeFileInternal(rpcContext, inodePath, completeOptions);
-      if (inodePath.getLockMode() == InodeTree.LockMode.READ) {
+      if (inodePath.getLockPattern() == LockPattern.READ) {
         // After completing the inode, the lock on the last inode which stands for the created file
         // should be downgraded to a read lock, so that it won't block the reads operations from
         // other thread. More importantly, it's possible the subsequent read operations within the
@@ -2608,7 +2608,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     } catch (FileAlreadyExistsException e) {
       // This may occur if there are concurrent load metadata requests. To allow loading metadata
       // to be idempotent, ensure the full path exists when this happens.
-      mInodeTree.ensureFullInodePath(inodePath, inodePath.getLockMode());
+      mInodeTree.ensureFullInodePath(inodePath, inodePath.getLockPattern());
     }
   }
 
@@ -2675,7 +2675,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     try {
       createDirectoryInternal(rpcContext, inodePath, createDirectoryOptions);
-      if (inodePath.getLockMode() == InodeTree.LockMode.READ) {
+      if (inodePath.getLockPattern() == LockPattern.READ) {
         // If the directory is successfully created, createDirectoryInternal will add a write lock
         // to the inodePath's lock list. We are done modifying the directory, so we downgrade it to
         // a read lock.
@@ -2684,7 +2684,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     } catch (FileAlreadyExistsException e) {
       // This may occur if there are concurrent load metadata requests. To allow loading metadata
       // to be idempotent, ensure the full path exists when this happens.
-      mInodeTree.ensureFullInodePath(inodePath, inodePath.getLockMode());
+      mInodeTree.ensureFullInodePath(inodePath, inodePath.getLockPattern());
     }
   }
 
@@ -2727,7 +2727,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       IOException, AccessControlException {
     Metrics.MOUNT_OPS.inc();
     LockingScheme lockingScheme =
-        createLockingScheme(alluxioPath, options.getCommonOptions(), InodeTree.LockMode.WRITE);
+        createLockingScheme(alluxioPath, options.getCommonOptions(), LockPattern.WRITE_LAST);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
              .lockInodePath(lockingScheme.getPath(), lockingScheme.getMode());
@@ -2838,7 +2838,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // Unmount should lock the parent to remove the child inode.
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
-            .lockFullInodePath(alluxioPath, InodeTree.LockMode.WRITE_PARENT);
+            .lockFullInodePath(alluxioPath, LockPattern.WRITE_LAST);
          FileSystemMasterAuditContext auditContext =
              createAuditContext("unmount", alluxioPath, null, inodePath.getInodeOrNull())) {
       try {
@@ -2892,14 +2892,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws FileDoesNotExistException, AccessControlException, InvalidPathException, IOException {
     Metrics.SET_ACL_OPS.inc();
     LockingScheme lockingScheme =
-        createLockingScheme(path, options.getCommonOptions(), InodeTree.LockMode.WRITE);
+        createLockingScheme(path, options.getCommonOptions(), LockPattern.WRITE_LAST);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree.lockInodePath(lockingScheme.getPath(),
              lockingScheme.getMode());
          FileSystemMasterAuditContext auditContext = createAuditContext("setAcl", path, null,
              inodePath.getInodeOrNull());
          LockedInodePathList children = options.getRecursive()
-             ? mInodeTree.lockDescendants(inodePath, InodeTree.LockMode.WRITE) : null) {
+             ? mInodeTree.lockDescendants(inodePath, LockPattern.WRITE_LAST) : null) {
       try {
         mPermissionChecker.checkSetAttributePermission(inodePath, false, true);
 
@@ -3028,7 +3028,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       SetAclOptions options) throws IOException, FileDoesNotExistException {
     setAclSingleInode(rpcContext, action, inodePath, entries, replay, opTimeMs);
     try (LockedInodePathList children = options.getRecursive()
-        ? mInodeTree.lockDescendants(inodePath, InodeTree.LockMode.WRITE) : null) {
+        ? mInodeTree.lockDescendants(inodePath, LockPattern.WRITE_LAST) : null) {
       if (children != null) {
         for (LockedInodePath child : children.getInodePathList()) {
           setAclSingleInode(rpcContext, action, child, entries, replay, opTimeMs);
@@ -3066,7 +3066,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       commandName = "setAttribute";
     }
     LockingScheme lockingScheme =
-        createLockingScheme(path, options.getCommonOptions(), InodeTree.LockMode.WRITE);
+        createLockingScheme(path, options.getCommonOptions(), LockPattern.WRITE_LAST);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
              .lockInodePath(lockingScheme.getPath(), lockingScheme.getMode());
@@ -3123,7 +3123,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     long opTimeMs = System.currentTimeMillis();
     if (options.isRecursive() && targetInode.isDirectory()) {
       try (LockedInodePathList descendants = mInodeTree.lockDescendants(inodePath,
-          InodeTree.LockMode.WRITE)) {
+          LockPattern.WRITE_LAST)) {
         for (LockedInodePath childPath : descendants.getInodePathList()) {
           mPermissionChecker.checkSetAttributePermission(childPath, rootRequired, ownerRequired);
         }
@@ -3140,7 +3140,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws AlluxioException, UnavailableException {
     // We retry an async persist request until ufs permits the operation
     try (RpcContext rpcContext = createRpcContext();
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
+        LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, LockPattern.WRITE_LAST)) {
       mInodeTree.updateInode(rpcContext, UpdateInodeEntry.newBuilder()
           .setId(inodePath.getInode().getId())
           .setPersistenceState(PersistenceState.TO_BE_PERSISTED.name())
@@ -3176,7 +3176,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     LockingScheme lockingScheme =
         createLockingScheme(path, CommonOptions.defaults().setSyncIntervalMs(0),
-            InodeTree.LockMode.WRITE);
+            LockPattern.WRITE_LAST);
     Map<AlluxioURI, UfsStatus> statusCache;
     try (RpcContext rpcContext = createRpcContext()) {
       if (changedFiles == null) {
@@ -3191,7 +3191,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
       } else {
         try (LockedInodePath inodePath =
-                 mInodeTree.lockInodePath(lockingScheme.getPath(), InodeTree.LockMode.READ)) {
+                 mInodeTree.lockInodePath(lockingScheme.getPath(), LockPattern.READ)) {
           statusCache = populateStatusCache(inodePath, DescendantType.ALL);
         }
         Set<Callable<Void>> callables = new HashSet<>();
@@ -3199,7 +3199,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           callables.add(() -> {
             LockingScheme fileLockingScheme =
                 createLockingScheme(alluxioUri, CommonOptions.defaults().setSyncIntervalMs(0),
-                    InodeTree.LockMode.WRITE);
+                    LockPattern.WRITE_LAST);
             try (LockedInodePath inodePathChangedFile =
                      mInodeTree.lockInodePath(alluxioUri, fileLockingScheme.getMode())) {
               syncMetadataInternal(rpcContext, inodePathChangedFile, fileLockingScheme,
@@ -3537,7 +3537,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             continue;
           }
           try (LockedInodePath tempInodePath = mInodeTree.lockDescendantPath(inodePath,
-              InodeTree.LockMode.READ, inodePath.getUri().join(inodeEntry.getKey()))) {
+              LockPattern.READ, inodePath.getUri().join(inodeEntry.getKey()))) {
             // Recursively sync children
             if (syncDescendantType != DescendantType.ALL) {
               syncDescendantType = DescendantType.NONE;
@@ -3742,7 +3742,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws InvalidPathException, IOException {
     try (LockedInodePath inodePath = mInodeTree
         .lockInodePath(new AlluxioURI(addSyncPointEntry.getSyncpointPath()),
-            InodeTree.LockMode.WRITE)) {
+            LockPattern.WRITE_LAST)) {
       mSyncManager.addSyncPointFromJournal(inodePath.getUri());
     }
   }
@@ -3751,7 +3751,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws InvalidPathException, IOException {
     try (LockedInodePath inodePath = mInodeTree
         .lockInodePath(new AlluxioURI(removeSyncPointEntry.getSyncpointPath()),
-            InodeTree.LockMode.WRITE)) {
+            LockPattern.WRITE_LAST)) {
       mSyncManager.stopSync(inodePath.getUri());
     }
   }
@@ -3760,7 +3760,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   public void startSync(AlluxioURI syncPoint)
       throws IOException, InvalidPathException,
       AccessControlException, ConnectionFailedException {
-    LockingScheme lockingScheme = new LockingScheme(syncPoint, InodeTree.LockMode.WRITE, true);
+    LockingScheme lockingScheme = new LockingScheme(syncPoint, LockPattern.WRITE_LAST, true);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
              .lockInodePath(lockingScheme.getPath(), lockingScheme.getMode());
@@ -3793,7 +3793,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @Override
   public void stopSync(AlluxioURI syncPoint) throws IOException, InvalidPathException,
       AccessControlException {
-    LockingScheme lockingScheme = new LockingScheme(syncPoint, InodeTree.LockMode.READ, false);
+    LockingScheme lockingScheme = new LockingScheme(syncPoint, LockPattern.READ, false);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
              .lockInodePath(lockingScheme.getPath(), lockingScheme.getMode());
@@ -4028,7 +4028,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     private void handleExpired(long fileId) throws AlluxioException, UnavailableException {
       try (JournalContext journalContext = createJournalContext();
            LockedInodePath inodePath = mInodeTree
-               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+               .lockFullInodePath(fileId, LockPattern.WRITE_LAST)) {
         InodeFileView inode = inodePath.getInodeFile();
         switch (inode.getPersistenceState()) {
           case LOST:
@@ -4068,7 +4068,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       AlluxioURI uri;
       String tempUfsPath;
       try (LockedInodePath inodePath = mInodeTree
-          .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+          .lockFullInodePath(fileId, LockPattern.READ)) {
         InodeFileView inode = inodePath.getInodeFile();
         uri = inodePath.getUri();
         switch (inode.getPersistenceState()) {
@@ -4116,7 +4116,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       // Update the inode and journal the change.
       try (JournalContext journalContext = createJournalContext();
            LockedInodePath inodePath = mInodeTree
-               .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+               .lockFullInodePath(fileId, LockPattern.WRITE_LAST)) {
         InodeFileView inode = inodePath.getInodeFile();
         mInodeTree.updateInodeFile(journalContext, UpdateInodeFileEntry.newBuilder()
             .setId(inode.getId())
@@ -4154,7 +4154,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         AlluxioURI uri = null;
         try {
           try (LockedInodePath inodePath = mInodeTree
-              .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+              .lockFullInodePath(fileId, LockPattern.READ)) {
             uri = inodePath.getUri();
           }
           try {
@@ -4232,7 +4232,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       UfsManager.UfsClient ufsClient = null;
       try (JournalContext journalContext = createJournalContext();
           LockedInodePath inodePath = mInodeTree
-              .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+              .lockFullInodePath(fileId, LockPattern.WRITE_LAST)) {
         InodeFileView inode = inodePath.getInodeFile();
         MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
         ufsClient = mUfsManager.get(resolution.getMountId());
@@ -4652,7 +4652,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
 
   private LockingScheme createLockingScheme(AlluxioURI path, CommonOptions options,
-      InodeTree.LockMode desiredLockMode) {
+      LockPattern desiredLockMode) {
     boolean shouldSync =
         mUfsSyncPathCache.shouldSyncPath(path.getPath(), options.getSyncIntervalMs());
     return new LockingScheme(path, desiredLockMode, shouldSync);
