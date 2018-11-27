@@ -262,8 +262,10 @@ public final class LoginUser {
           + "in order to use native platform GSS integration.");
     }
 
-    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
-    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+    // server principal and keytab properties are not required with JGSS.
+    String principal =
+        Configuration.getOrDefault(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, "");
+    String keytab = Configuration.getOrDefault(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, "");
     try {
       org.ietf.jgss.GSSCredential cred =
           alluxio.security.util.KerberosUtils.getCredentialFromJGSS();
