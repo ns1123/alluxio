@@ -5,7 +5,7 @@ pipeline {
             agent {
                 docker {
                     image 'agent-docker'
-                    label 'workerXLarge'
+                    label 'worker4XLarge'
                     alwaysPull false
                 }
             }
@@ -35,7 +35,7 @@ pipeline {
                               '-w /usr/src/alluxio ' + 
                               'alluxio/alluxio-maven:0.0.2 ' +
                               'mvn -Duser.home=/home/jenkins -T 2C clean install ' + 
-                              '-Dsurefire.forkCount=4'
+                              '-Dsurefire.forkCount=12'
                     // legacy branches that contain an annotation/ directory must skip annotation check because it requires cloning a private repo
                     if (fileExists("${WORKSPACE}/annotation")) {
                         cmd += ' -Dannotation.skip'
