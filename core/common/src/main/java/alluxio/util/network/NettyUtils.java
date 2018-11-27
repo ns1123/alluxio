@@ -184,10 +184,26 @@ public final class NettyUtils {
           // Waits for the authentication result. Stop the process if authentication failed.
           if (!((alluxio.network.netty.KerberosSaslClientHandler) ctx.handler())
               .channelAuthenticated(ctx)) {
-            throw new java.io.IOException("Sasl authentication is finished but failed.");
+            throw new java.io.IOException("Sasl authentication with Kerberos is finished but failed.");
           }
         } catch (Exception e) {
           throw alluxio.exception.status.AlluxioStatusException.fromThrowable(e);
+        }
+      }
+
+      if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        ctx = channel.pipeline().context(
+                alluxio.network.netty.CapabilityAuthenticationSaslClientHandler.class);
+        if (ctx != null) {
+          try {
+            // Waits for the authentication result. Stop the process if authentication failed.
+            if (!((alluxio.network.netty.CapabilityAuthenticationSaslClientHandler) ctx.handler())
+                    .channelAuthenticated(ctx)) {
+              throw new java.io.IOException("Sasl authentication with Digest is finished but failed.");
+            }
+          } catch (Exception e) {
+            throw alluxio.exception.status.AlluxioStatusException.fromThrowable(e);
+          }
         }
       }
     }

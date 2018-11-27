@@ -739,6 +739,10 @@ public class AbstractFileSystemTest {
     when(mMockFileSystemContextCustomized.acquireMasterClient())
         .thenReturn(mMockFileSystemMasterClient);
     when(mMockFileSystemContext.getMasterInquireClient()).thenReturn(mMockMasterInquireClient);
+    // ALLUXIO CS ADD
+    // TODO(feng): merge this to AOS
+    when(mMockFileSystemContextCustomized.getMasterInquireClient()).thenReturn(mMockMasterInquireClient);
+    // ALLUXIO CS END
     doNothing().when(mMockFileSystemMasterClient).connect();
     when(mMockFileSystemContext.getMasterAddress())
         .thenReturn(new InetSocketAddress("defaultHost", 1));

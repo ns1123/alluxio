@@ -13,6 +13,8 @@ message Content {
     optional int32 access_mode = 3;
     // The user name.
     optional string user = 4;
+    // The key id.
+    optional int64 key_id = 5;
 }
 
 message Capability {

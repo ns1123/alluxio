@@ -33,8 +33,15 @@ public final class MasterTestUtils {
    * @param journalSystem a journal system to use in the context
    */
   public static MasterContext testMasterContext(JournalSystem journalSystem) {
+    // ALLUXIO CS REPLACE
+    // return new MasterContext(journalSystem, new TestSafeModeManager(),
+    //     Mockito.mock(BackupManager.class), -1, -1);
+    // ALLUXIO CS WITH
     return new MasterContext(journalSystem, new TestSafeModeManager(),
-        mock(BackupManager.class), -1, -1);
+        mock(BackupManager.class),
+        mock(alluxio.security.authentication.DelegationTokenManager.class),
+        -1, -1);
+    // ALLUXIO CS END
   }
 
   private MasterTestUtils() {} // Not intended for instatiation.

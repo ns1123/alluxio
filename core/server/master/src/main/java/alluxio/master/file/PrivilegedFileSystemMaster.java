@@ -395,6 +395,32 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
     return mFileSystemMaster.getWorkerInfoList();
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+      getDelegationToken(String renewer)
+      throws AccessControlException, UnavailableException {
+    return mFileSystemMaster.getDelegationToken(renewer);
+  }
+
+  @Override
+  public long renewDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+          delegationToken)
+      throws AccessControlException, UnavailableException {
+    return mFileSystemMaster.renewDelegationToken(delegationToken);
+  }
+
+  @Override
+  public void cancelDelegationToken(
+      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+          delegationToken)
+      throws AccessControlException, UnavailableException {
+    mFileSystemMaster.cancelDelegationToken(delegationToken);
+  }
+
+  // ALLUXIO CS END
   @Override
   public List<String> getSyncPathList() throws UnavailableException, AccessControlException {
     return mFileSystemMaster.getSyncPathList();

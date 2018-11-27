@@ -2649,9 +2649,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_FILE_LOAD_TTL_ACTION =
       new Builder(Name.USER_FILE_LOAD_TTL_ACTION)
-          .setDefaultValue("FREE")
+          .setDefaultValue("DELETE")
           .setDescription("When file's ttl is expired, the action performs on it. "
-              + "FREE by default")
+              + "DELETE by default")
           .build();
   public static final PropertyKey USER_FILE_READ_TYPE_DEFAULT =
       new Builder(Name.USER_FILE_READ_TYPE_DEFAULT)
@@ -2773,7 +2773,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_METRICS_COLLECTION_ENABLED =
       new Builder(Name.USER_METRICS_COLLECTION_ENABLED)
-          .setDefaultValue(true)
+          // ALLUXIO CS REPLACE
+          // .setDefaultValue(true)
+          // ALLUXIO CS WITH
+          // TODO(adit): Disable until https://tachyonnexus.atlassian.net/browse/AE-554 is resolved
+          .setDefaultValue(false)
+          // ALLUXIO CS END
           .setDescription("Enable collecting the client-side metrics and hearbeat them to master")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
@@ -3463,6 +3468,17 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL).build();
   public static final PropertyKey SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
       new Builder(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE).build();
+  public static final PropertyKey SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED =
+      new Builder(Name.SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED)
+          .setDescription(String.format(
+              "Whether the Alluxio client will use native Kerberos command to populate"
+                  + " ticket cache if a valid ticket is not found. This is only in effect when Alluxio"
+                  + " is configured to authenticate using native Kerberos library. Both %s and %s need"
+                  + " to be set correctly for the login to succeed.",
+              Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE))
+          .setDefaultValue(false)
+          .setIsHidden(true)
+          .build();
   public static final PropertyKey SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED =
       new Builder(Name.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED).setDefaultValue(true).build();
   public static final PropertyKey SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL =
@@ -3471,6 +3487,27 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE).build();
   public static final PropertyKey SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME =
       new Builder(Name.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME).build();
+  public static final PropertyKey SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS =
+      new Builder(Name.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS)
+          .setDefaultValue("1d")
+          .setDescription("Lifetime of a delegation token secret key.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS =
+      new Builder(Name.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS)
+          .setDefaultValue("7d")
+          .setDescription("Maximum lifetime of a delegation token.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS =
+      new Builder(Name.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS)
+          .setDefaultValue("1d")
+          .setDescription("Time before which a delegation token must be renewed.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
       new Builder(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED).setDefaultValue(false).build();
   public static final PropertyKey SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
@@ -4384,6 +4421,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
     // ALLUXIO CS ADD
 
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS =
+        "alluxio.security.authentication.delegation.token.key.lifetime.ms";
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS =
+        "alluxio.security.authentication.delegation.token.lifetime.ms";
+    public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS =
+        "alluxio.security.authentication.delegation.token.renew.interval.ms";
     public static final String SECURITY_AUTHORIZATION_PLUGIN_NAME =
         "alluxio.security.authorization.plugin.name";
     public static final String SECURITY_AUTHORIZATION_PLUGIN_PATHS =
@@ -4434,6 +4477,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.security.kerberos.client.principal";
     public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
         "alluxio.security.kerberos.client.keytab.file";
+    public static final String SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED =
+        "alluxio.security.kerberos.client.ticketcache.login.enabled";
     public static final String SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED =
         "alluxio.security.underfs.hdfs.impersonation.enabled";
     public static final String SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL =

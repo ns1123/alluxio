@@ -33,5 +33,5 @@ public interface KerberosLoginProvider {
   /**
    * @return whether Kerberos credentials are available
    */
-  boolean hasKerberosCrendentials();
+  boolean hasKerberosCredentials();
 }

@@ -12,16 +12,27 @@
 package alluxio.master.callhome;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 import alluxio.Constants;
+import alluxio.MasterStorageTierAssoc;
 import alluxio.RuntimeConstants;
+import alluxio.master.MasterProcess;
+import alluxio.master.block.BlockMaster;
+import alluxio.master.file.FileSystemMaster;
+import alluxio.master.license.License;
+import alluxio.master.license.LicenseMaster;
+import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.TieredIdentity;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +40,44 @@ import java.util.List;
  * Unit tests for {@link CallHomeUtils}.
  */
 public final class CallHomeUtilsTest {
+
+  @Test
+  public void collectDiagnostics() throws Exception {
+    // Create mock classes
+    MasterProcess mockMasterProcess = Mockito.mock(MasterProcess.class);
+    when(mockMasterProcess.getStartTimeMs()).thenReturn(System.currentTimeMillis());
+    String masterHostname = NetworkAddressUtils.getLocalHostName();
+    InetSocketAddress masterAddress = new InetSocketAddress(masterHostname, 19998);
+    when(mockMasterProcess.getRpcAddress()).thenReturn(masterAddress);
+
+    BlockMaster mockBlockMaster = Mockito.mock(BlockMaster.class);
+    List<WorkerInfo> liveWorkers = Arrays.asList(getTestWorkerInfoList("live", 1));
+    when(mockBlockMaster.getWorkerCount()).thenReturn(1);
+    when(mockBlockMaster.getWorkerInfoList()).thenReturn(liveWorkers);
+    List<WorkerInfo> lostWorkers = Arrays.asList(getTestWorkerInfoList("lost", 1));
+    when(mockBlockMaster.getLostWorkerCount()).thenReturn(1);
+    when(mockBlockMaster.getLostWorkersInfoList()).thenReturn(lostWorkers);
+    when(mockBlockMaster.getGlobalStorageTierAssoc()).thenReturn(new MasterStorageTierAssoc());
+
+    License mockLicense = Mockito.mock(License.class);
+    when(mockLicense.getKey()).thenReturn("key");
+    when(mockLicense.getToken()).thenReturn("token");
+
+    LicenseMaster mockLicenseMaster = Mockito.mock(LicenseMaster.class);
+    when(mockLicenseMaster.getLicense()).thenReturn(mockLicense);
+
+    FileSystemMaster mockFsMaster = Mockito.mock(FileSystemMaster.class);
+
+    // Check collect diagnostics makes a copy of worker infos
+    CallHomeInfo info = CallHomeUtils.collectDiagnostics(mockMasterProcess, mockBlockMaster,
+        mockLicenseMaster, mockFsMaster);
+    info.setMasterAddress("overwritemaster");
+    info.getWorkerInfos()[0].getAddress().setHost("overwritelive");
+    info.getLostWorkerInfos()[0].getAddress().setHost("overwritelost");
+    assertTrue(masterAddress.getHostString().equals(masterHostname));
+    assertTrue(liveWorkers.get(0).getAddress().getHost().startsWith("live"));
+    assertTrue(lostWorkers.get(0).getAddress().getHost().startsWith("lost"));
+  }
 
   @Test
   public void obfuscateDiagnostics() throws Exception {

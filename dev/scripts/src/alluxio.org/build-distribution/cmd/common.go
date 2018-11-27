@@ -58,10 +58,10 @@ var hadoopDistributions = map[string]version{
 	"mapr-5.1": parseVersion("2.7.0-mapr-1602"),
 	"mapr-5.2": parseVersion("2.7.0-mapr-1607"),
 	// ALLUXIO CS END
-  // ALLUXIO CS REMOVE
+	// ALLUXIO CS REMOVE
 	// // This distribution type is built with 2.2.0, but doesn't include the hadoop version in the name.
 	// "default": parseVersion("2.2.0"),
-  // ALLUXIO CS END
+	// ALLUXIO CS END
 }
 
 // ALLUXIO CS ADD
@@ -79,18 +79,18 @@ var ufsModules = map[string]module{
 	"ufs-hadoop-2.3": {"hadoop-2.3", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.3.0"},
 	"ufs-hadoop-2.4": {"hadoop-2.4", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.4.1"},
 	"ufs-hadoop-2.5": {"hadoop-2.5", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.5.2"},
-	"ufs-hadoop-2.6": {"hadoop-2.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.5"},
-	"ufs-hadoop-2.7": {"hadoop-2.7", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3"},
-	"ufs-hadoop-2.8": {"hadoop-2.8", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.8.0"},
-	"ufs-cdh-5.6":    {"cdh-5.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.6.1"},
-	"ufs-cdh-5.8":    {"cdh-5.8", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.8.5"},
-	"ufs-cdh-5.11":   {"cdh-5.11", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.11.2"},
-	"ufs-cdh-5.12":   {"cdh-5.12", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.12.2"},
-	"ufs-cdh-5.13":   {"cdh-5.13", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.13.2"},
-	"ufs-cdh-5.14":   {"cdh-5.14", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.14.0"},
-	"ufs-hdp-2.4":    {"hdp-2.4", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.1.2.4.4.1-9"},
-	"ufs-hdp-2.5":    {"hdp-2.5", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.5.5.5-2"},
-	"ufs-hdp-2.6":    {"hdp-2.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.6.1.0-129"},
+	"ufs-hadoop-2.6": {"hadoop-2.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.5 -PhdfsActiveSync"},
+	"ufs-hadoop-2.7": {"hadoop-2.7", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3 -PhdfsActiveSync"},
+	"ufs-hadoop-2.8": {"hadoop-2.8", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.8.0 -PhdfsActiveSync"},
+	"ufs-cdh-5.6":    {"cdh-5.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.6.1 -PhdfsActiveSync"},
+	"ufs-cdh-5.8":    {"cdh-5.8", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.8.5 -PhdfsActiveSync"},
+	"ufs-cdh-5.11":   {"cdh-5.11", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.11.2 -PhdfsActiveSync"},
+	"ufs-cdh-5.12":   {"cdh-5.12", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.12.2 -PhdfsActiveSync"},
+	"ufs-cdh-5.13":   {"cdh-5.13", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.13.2 -PhdfsActiveSync"},
+	"ufs-cdh-5.14":   {"cdh-5.14", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.14.0 -PhdfsActiveSync"},
+	"ufs-hdp-2.4":    {"hdp-2.4", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.1.2.4.4.1-9 -PhdfsActiveSync"},
+	"ufs-hdp-2.5":    {"hdp-2.5", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.5.5.5-2 -PhdfsActiveSync"},
+	"ufs-hdp-2.6":    {"hdp-2.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.6.1.0-129 -PhdfsActiveSync"},
 	"ufs-mapr-4.1":   {"mapr-4.1", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.5.1-mapr-1503"},
 	"ufs-mapr-5.0":   {"mapr-5.0", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.0-mapr-1506"},
 	"ufs-mapr-5.1":   {"mapr-5.1", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.0-mapr-1602"},

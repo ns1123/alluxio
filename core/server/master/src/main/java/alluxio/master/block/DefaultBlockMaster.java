@@ -808,7 +808,7 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
     // }
     // ALLUXIO CS WITH
     // Make sure that the number of workers does not exceed the allowed maximum.
-    synchronized (mWorkers) {
+    synchronized (mTempWorkers) {
       if (!Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)
           || mTempWorkers.size() + mWorkers.size() < mMaxWorkers) {
         while (!mTempWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {

@@ -14,11 +14,18 @@ package alluxio.server.auth;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.GetStatusOptions;
 import alluxio.exception.status.UnauthenticatedException;
+import alluxio.exception.status.UnavailableException;
+import alluxio.hadoop.AlluxioDelegationTokenIdentifier;
+import alluxio.hadoop.FileSystem;
+import alluxio.hadoop.HadoopKerberosLoginProvider;
+import alluxio.master.LocalAlluxioCluster;
 import alluxio.master.MasterClientConfig;
+import alluxio.security.LoginUser;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
@@ -27,6 +34,12 @@ import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.Credentials;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.token.Token;
+import org.apache.hadoop.security.token.TokenIdentifier;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -39,7 +52,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URLClassLoader;
+import java.security.PrivilegedExceptionAction;
 
 /**
  * Tests RPC authentication between master and its client, in Kerberos mode.
@@ -197,6 +212,392 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       masterClient.connect();
       isConnected = masterClient.isConnected();
     } catch (UnauthenticatedException e) {
+      isConnected = false;
+    }
+    Assert.assertFalse(isConnected);
+  }
+
+  /**
+   * Tests Alluxio client and Master authentication, with valid delegation token.
+   */
+  @Test
+  public void kerberosAuthenticationWithDelegationTokenTest() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
+    UserGroupInformation.setLoginUser(tokenUGI);
+    Credentials creds = new Credentials();
+    boolean isConnected = true;
+    try {
+      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
+      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      // obtains delegation token
+      hdfs.addDelegationTokens("yarn", creds);
+
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      LoginUser.reset();
+      tokenUGI.addCredentials(creds);
+
+      // accesses master using delegation token
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+
+      // gets a new client
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      FileSystemContext.clearCache();
+      fs = sLocalAlluxioClusterResource.get().getClient();
+      FileSystem newHdfs = new FileSystem(fs);
+
+      tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        Path rootPath = new Path("/");
+        FileStatus rootStat = newHdfs.getFileStatus(rootPath);
+        Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
+        return null;
+      });
+    } catch (UnauthenticatedException e) {
+      isConnected = false;
+    }
+    Assert.assertTrue(isConnected);
+  }
+
+  /**
+   * Tests Alluxio client and Master authentication, with invalid delegation token.
+   */
+  @Test
+  public void kerberosAuthenticationWithWrongDelegationTokenTest() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
+    UserGroupInformation.setLoginUser(tokenUGI);
+    Credentials creds = new Credentials();
+    boolean isConnected = true;
+    try {
+      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
+      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      // obtains delegation token
+      hdfs.addDelegationTokens("yarn", creds);
+      Assert.assertTrue(!creds.getAllTokens().isEmpty());
+
+      // creates a delegation token with invalid password
+      Credentials invalidCreds = new Credentials();
+      Token<? extends TokenIdentifier> token = creds.getAllTokens().iterator().next();
+      invalidCreds.addToken(token.getService(),
+          new Token<AlluxioDelegationTokenIdentifier>(token.getIdentifier(), "foo".getBytes(),
+              token.getKind(), token.getService()));
+      LoginUser.reset();
+      tokenUGI.addCredentials(invalidCreds);
+
+      // accesses master using delegation token
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+
+      // gets a new client
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      FileSystemContext.clearCache();
+      fs = sLocalAlluxioClusterResource.get().getClient();
+      FileSystem newHdfs = new FileSystem(fs);
+
+      tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        Path rootPath = new Path("/");
+        newHdfs.getFileStatus(rootPath);
+        return null;
+      });
+    } catch (UnavailableException e) {
+      isConnected = false;
+    }
+    Assert.assertFalse(isConnected);
+  }
+
+  /**
+   * Tests renewal of delegation token.
+   */
+  @Test
+  public void delegationTokenRenewalTest() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
+    UserGroupInformation.setLoginUser(tokenUGI);
+    Credentials creds = new Credentials();
+    boolean isConnected = true;
+    try {
+      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
+      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      // obtains delegation token
+      Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
+      Assert.assertEquals(1, tokens.length);
+      Assert.assertEquals(
+          AlluxioDelegationTokenIdentifier.ALLUXIO_DELEGATION_KIND,
+          tokens[0].getKind());
+
+      long expireTime1 = tokens[0].renew(hdfsConf);
+      Thread.sleep(200L);
+      long expireTime2 = tokens[0].renew(hdfsConf);
+
+      // verifies token expiration time has updated.
+      Assert.assertTrue(expireTime2 > expireTime1);
+
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      LoginUser.reset();
+      tokenUGI.addCredentials(creds);
+
+      // accesses master using delegation token
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+
+      // gets a new client
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      FileSystemContext.clearCache();
+      fs = sLocalAlluxioClusterResource.get().getClient();
+      FileSystem newHdfs = new FileSystem(fs);
+
+      tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        Path rootPath = new Path("/");
+        FileStatus rootStat = newHdfs.getFileStatus(rootPath);
+        Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
+        return null;
+      });
+    } catch (UnauthenticatedException | UnavailableException e) {
+      isConnected = false;
+    }
+    Assert.assertTrue(isConnected);
+  }
+
+  /**
+   * Tests renewal of delegation token.
+   */
+  @Test
+  public void delegationTokenCancellationTest() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
+    UserGroupInformation.setLoginUser(tokenUGI);
+    Credentials creds = new Credentials();
+    boolean isConnected = true;
+    try {
+      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
+      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      // obtains delegation token
+      Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
+      Assert.assertEquals(1, tokens.length);
+      Assert.assertEquals(
+          AlluxioDelegationTokenIdentifier.ALLUXIO_DELEGATION_KIND,
+          tokens[0].getKind());
+
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      LoginUser.reset();
+      tokenUGI.addCredentials(creds);
+
+      // accesses master using delegation token
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+
+      // gets a new client
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      FileSystemContext.clearCache();
+      fs = sLocalAlluxioClusterResource.get().getClient();
+      FileSystem newHdfs = new FileSystem(fs);
+
+      tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        Path rootPath = new Path("/");
+        FileStatus rootStat = newHdfs.getFileStatus(rootPath);
+        Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
+
+        tokens[0].cancel(hdfsConf);
+        return null;
+      });
+    } catch (UnauthenticatedException | UnavailableException e) {
+      isConnected = false;
+    }
+    Assert.assertTrue(isConnected);
+
+    try {
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      FileSystemContext.clearCache();
+      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
+      org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
+      FileSystem newHdfs = new FileSystem(fs);
+
+      // accesses master using cancelled delegation token
+      tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        Path rootPath = new Path("/");
+        FileStatus rootStat = newHdfs.getFileStatus(rootPath);
+        Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
+        return null;
+      });
+    } catch (UnauthenticatedException | UnavailableException e) {
+      isConnected = false;
+    }
+    Assert.assertFalse(isConnected);
+  }
+
+  @Test
+  public void journalGetDelegationToken() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
+    UserGroupInformation.setLoginUser(tokenUGI);
+    Credentials creds = new Credentials();
+    boolean isConnected = true;
+    try {
+      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
+      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      // obtains delegation token
+      hdfs.addDelegationTokens("yarn", creds);
+
+      LoginUser.reset();
+      tokenUGI.addCredentials(creds);
+
+      // restart masters
+      LocalAlluxioCluster cluster = sLocalAlluxioClusterResource.get();
+      cluster.stopMasters();
+      cluster.startMasters();
+
+      // accesses master using delegation token
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+
+      // gets a new client
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      FileSystemContext.clearCache();
+      fs = sLocalAlluxioClusterResource.get().getClient();
+      FileSystem newHdfs = new FileSystem(fs);
+
+      tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        Path rootPath = new Path("/");
+        FileStatus rootStat = newHdfs.getFileStatus(rootPath);
+        Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
+        return null;
+      });
+    } catch (UnauthenticatedException e) {
+      isConnected = false;
+    }
+    Assert.assertTrue(isConnected);
+  }
+
+  @Test
+  public void journalRenewDelegationToken() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
+    UserGroupInformation.setLoginUser(tokenUGI);
+    Credentials creds = new Credentials();
+    boolean isConnected = true;
+    try {
+      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
+      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      // obtains delegation token
+      Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
+      Assert.assertEquals(1, tokens.length);
+      Assert.assertEquals(
+          AlluxioDelegationTokenIdentifier.ALLUXIO_DELEGATION_KIND,
+          tokens[0].getKind());
+
+      tokens[0].renew(hdfsConf);
+
+      LoginUser.reset();
+      tokenUGI.addCredentials(creds);
+
+      // restart masters
+      LocalAlluxioCluster cluster = sLocalAlluxioClusterResource.get();
+      cluster.stopMasters();
+      cluster.startMasters();
+
+      // accesses master using delegation token
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+
+      // gets a new client
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      FileSystemContext.clearCache();
+      fs = sLocalAlluxioClusterResource.get().getClient();
+      FileSystem newHdfs = new FileSystem(fs);
+
+      tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        Path rootPath = new Path("/");
+        FileStatus rootStat = newHdfs.getFileStatus(rootPath);
+        Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
+        return null;
+      });
+    } catch (UnauthenticatedException | UnavailableException e) {
+      isConnected = false;
+    }
+    Assert.assertTrue(isConnected);
+  }
+
+  @Test
+  public void journalCancelDelegationToken() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
+    UserGroupInformation.setLoginUser(tokenUGI);
+    Credentials creds = new Credentials();
+    boolean isConnected = true;
+    try {
+      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
+      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      // obtains delegation token
+      Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
+      Assert.assertEquals(1, tokens.length);
+      Assert.assertEquals(
+          AlluxioDelegationTokenIdentifier.ALLUXIO_DELEGATION_KIND,
+          tokens[0].getKind());
+
+      tokens[0].cancel(hdfsConf);
+
+      LoginUser.reset();
+      tokenUGI.addCredentials(creds);
+
+      // restart masters
+      LocalAlluxioCluster cluster = sLocalAlluxioClusterResource.get();
+      cluster.stopMasters();
+      cluster.startMasters();
+
+      // accesses master using delegation token
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+
+      // gets a new client
+      sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
+      FileSystemContext.clearCache();
+      fs = sLocalAlluxioClusterResource.get().getClient();
+      FileSystem newHdfs = new FileSystem(fs);
+
+      tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        Path rootPath = new Path("/");
+        FileStatus rootStat = newHdfs.getFileStatus(rootPath);
+        Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
+        return null;
+      });
+    } catch (UnauthenticatedException | UnavailableException e) {
       isConnected = false;
     }
     Assert.assertFalse(isConnected);

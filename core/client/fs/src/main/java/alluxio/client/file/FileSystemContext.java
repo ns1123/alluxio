@@ -395,14 +395,44 @@ public final class FileSystemContext implements Closeable {
    * @return the acquired netty channel
    */
   public Channel acquireNettyChannel(final WorkerNetAddress workerNetAddress) throws IOException {
-    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
+    return acquireNettyChannelInternal(new NettyChannelProperties(workerNetAddress));
+  }
+  // ALLUXIO CS ADD
+  /**
+   * Acquires a netty channel from the channel pools. If there is no available client instance
+   * available in the pool, it tries to create a new one. And an exception is thrown if it fails to
+   * create a new one.
+   *
+   * @param workerNetAddress the network address of the channel
+   * @param channelCapability the capability for which the channel should be authenticated
+   *                          PS: It won't be used if the channel is already authenticated
+   * @return the acquired netty channel
+   */
+  public Channel acquireNettyChannel(final WorkerNetAddress workerNetAddress,
+      final alluxio.proto.security.CapabilityProto.Capability channelCapability)
+          throws IOException {
+    return acquireNettyChannelInternal(
+        new NettyChannelProperties(workerNetAddress, channelCapability));
+  }
+  // ALLUXIO CS END
+
+  private Channel acquireNettyChannelInternal(final NettyChannelProperties channelProperties)
+          throws IOException {
+    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(
+        channelProperties.getWorkerNetAddress());
     ChannelPoolKey key =
         new ChannelPoolKey(address, TransportProviderUtils.getImpersonationUser(mParentSubject));
     if (!mNettyChannelPools.containsKey(key)) {
-      Bootstrap bs = NettyClient.createClientBootstrap(mParentSubject, address);
+      // ALLUXIO CS REPLACE
+      // Bootstrap bs = NettyClient.createClientBootstrap(mParentSubject, address);
+      // ALLUXIO CS WITH
+      Bootstrap bs = NettyClient.createClientBootstrap(mParentSubject, address,
+          channelProperties.getChannelCapability());
+      // ALLUXIO CS END
       bs.remoteAddress(address);
       // ALLUXIO CS ADD
-      bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY, workerNetAddress.getHost());
+      bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY,
+          channelProperties.getWorkerNetAddress().getHost());
       // ALLUXIO CS END
       NettyChannelPool pool = new NettyChannelPool(bs,
           Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_CHANNEL_POOL_SIZE_MAX),
@@ -427,7 +457,7 @@ public final class FileSystemContext implements Closeable {
         exception = e;
         LOG.info("Failed to build an authenticated channel. "
             + "This may be due to Kerberos credential expiration. Retry login.");
-        releaseNettyChannel(workerNetAddress, channel);
+        releaseNettyChannel(channelProperties.getWorkerNetAddress(), channel);
         alluxio.security.LoginUser.relogin();
       }
     }
@@ -637,6 +667,32 @@ public final class FileSystemContext implements Closeable {
           .add("socketAddress", mSocketAddress)
           .add("username", mUsername)
           .toString();
+    }
+  }
+
+  private static final class NettyChannelProperties {
+    private WorkerNetAddress mWorkerNetAddress;
+    // ALLUXIO CS ADD
+    private alluxio.proto.security.CapabilityProto.Capability mChannelCapability;
+    // ALLUXIO CS END
+
+    public NettyChannelProperties(WorkerNetAddress workerNetAddress) {
+      mWorkerNetAddress = workerNetAddress;
+    }
+    // ALLUXIO CS ADD
+    public NettyChannelProperties(WorkerNetAddress workerNetAddress,
+        alluxio.proto.security.CapabilityProto.Capability channelCapability) {
+      this(workerNetAddress);
+      mChannelCapability = channelCapability;
+    }
+
+    public alluxio.proto.security.CapabilityProto.Capability  getChannelCapability() {
+      return mChannelCapability;
+    }
+    // ALLUXIO CS END
+
+    public WorkerNetAddress getWorkerNetAddress() {
+      return mWorkerNetAddress;
     }
   }
 }

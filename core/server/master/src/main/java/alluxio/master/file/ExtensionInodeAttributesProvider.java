@@ -157,11 +157,11 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
       if (mExternalMasterEnforcer != null) {
         try (ClassLoaderContext c = ClassLoaderContext.useClassLoaderFrom(mMasterProvider)) {
           LOG.debug("Checking external permission for Alluxio location {}, bits {}",
-              path, bits.toString());
+              path, bits);
           mExternalMasterEnforcer.checkPermission(user, groups, bits, path, inodeList, attributes,
               checkIsOwner);
           LOG.debug("Passed external permission check for Alluxio location {}, bits {}",
-              path, bits.toString());
+              path, bits);
         } catch (AccessControlException e) {
           throw new AccessControlException("Permission denied by authorization plugin: "
               + e.getMessage(), e);
@@ -174,7 +174,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
         // check permission for all nested UFS mount on the path.
         for (AlluxioURI parentUri : parentsUris) {
           checkUfsPermission(user, groups, Mode.Bits.EXECUTE, parentUri.getPath(), inodeList,
-              attributes, checkIsOwner);
+              attributes, false /** owner is only checked on the last inode */);
         }
         checkUfsPermission(user, groups, bits, path, inodeList, attributes, checkIsOwner);
       } catch (InvalidPathException e) {
@@ -197,7 +197,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
         List<InodeAttributes> ufsAttributes = convertToUfsInodeList(alluxioUri, mountPoint,
             attributes, PassThroughInode::new, resolution);
         LOG.debug("Checking external permission for UFS location {}, bits {}",
-            ufsUri.toString(), bits.toString());
+            ufsUri.toString(), bits);
         try (ClassLoaderContext c = ClassLoaderContext.useClassLoaderFrom(ufsAuthProvider)) {
           AccessControlEnforcer ufsEnforcer = ufsAuthProvider.getExternalAccessControlEnforcer(
               mDefaultEnforcer);
@@ -208,7 +208,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
               + "filesystem authorization plugin: %s", path, ufsUri.toString(), e.getMessage()), e);
         }
         LOG.debug("Passed external permission check for UFS location {}, bits {}",
-            ufsUri.toString(), bits.toString());
+            ufsUri.toString(), bits);
       } else if (mExternalMasterEnforcer == null) {
         // checks permission with default enforcer if master plugin is not available
         List<InodeView> partialNodes = convertToMountPointInodeList(alluxioUri, mountPoint,
@@ -216,11 +216,11 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
         List<InodeAttributes> partialAttrs = convertToMountPointInodeList(alluxioUri, mountPoint,
             attributes, PassThroughInode::new);
         LOG.debug("Checking default permission for {}, bits {}",
-            ufsUri.toString(), bits.toString());
+            ufsUri.toString(), bits);
         mDefaultEnforcer.checkPermission(user, groups, bits, path, partialNodes, partialAttrs,
             checkIsOwner);
         LOG.debug("Passed default permission check for {}, bits {}",
-            ufsUri.toString(), bits.toString());
+            ufsUri.toString(), bits);
       }
     }
 

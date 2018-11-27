@@ -1,7 +1,12 @@
 AuthenticatedThriftProtocol.java
 AuthenticatedThriftServer.java
+DelegationTokenIdentifier.java
+DelegationTokenManager.java
 DelegatingTProtocol.java
 DelegatingTTransport.java
 KerberosAuthenticationProvider.java
 KerberosLoginProvider.java
 KerberosSaslTransportProvider.java
+MasterKeyManager.java
+Token.java
+TokenIdentifier.java

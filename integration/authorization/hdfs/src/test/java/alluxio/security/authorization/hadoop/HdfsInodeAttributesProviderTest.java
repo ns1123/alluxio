@@ -148,7 +148,7 @@ public final class HdfsInodeAttributesProviderTest {
       public boolean matches(Object item) {
         T[] nodes = (T[]) item;
         String nodePath = String.join("/",
-            Arrays.stream(nodes).map(nameFunc).collect(Collectors.toList()));
+            Arrays.stream(nodes).filter(x -> x != null).map(nameFunc).collect(Collectors.toList()));
         return path.startsWith(nodePath);
       }
 
@@ -349,12 +349,57 @@ public final class HdfsInodeAttributesProviderTest {
         mProvider.new AlluxioHdfsAccessControlEnforcer(mDefaultEnforcer);
     int ancestorIndex = inodes.size() - 2;
     boolean doCheckOwner = false;
-    mThrown.expectMessage("Checking non-target node permission is not supported.");
+    mThrown.expectMessage("Checking parent node or sub node permission is not supported.");
     mThrown.expect(org.apache.hadoop.security.AccessControlException.class);
     fallbackEnforcer.checkPermission(fsOwner, supergroup, UserGroupInformation.createUserForTesting(
         user, groups.toArray(new String[0])), new INodeAttributes[0], new INode[0], new byte[0][],
         Snapshot.CURRENT_STATE_ID, path, ancestorIndex, doCheckOwner,
         null, access, null, null, false);
+  }
+
+  @Test
+  public void checkAncestorPermissionSuccess() throws Exception {
+    String user = "test";
+    List<String> groups = Collections.singletonList("test_group");
+    Mode.Bits bits = Mode.Bits.READ;
+    String path = "/folder/file";
+    String ancestorPath = "/folder";
+    List<InodeView> inodes = createInodesForPath(ancestorPath, 2);
+    List<InodeAttributes> attributes = createInodeAttributessForPath(ancestorPath, 2);
+    boolean doCheckOwner = false;
+
+    mEnforcer.checkPermission(user, groups, bits, path, inodes, attributes, doCheckOwner);
+
+    String fsOwner = LoginUser.getServerUser().getName();
+    String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    FsAction access = FsAction.getFsAction(bits.toString());
+    int ancestorIndex = inodes.size() - 1;
+    verify(mHadoopEnforcer).checkPermission(eq(fsOwner), eq(supergroup), matchUgi(user, groups),
+        matchHdfsAttributes(ancestorPath), matchHdfsInodes(ancestorPath), matchPathComponents(path),
+        eq(Snapshot.CURRENT_STATE_ID), eq(path), eq(ancestorIndex), eq(doCheckOwner),
+        eq(access), eq(null), eq(null), eq(null), eq(false));
+  }
+
+  @Test
+  public void checkAncestorFallbackPermissionSuccess() throws Exception {
+    String user = "test";
+    List<String> groups = Collections.singletonList("test_group");
+    String path = "/folder/file";
+    List<InodeView> inodes = createInodesForPath(path, 2);
+    String fsOwner = LoginUser.getServerUser().getName();
+    String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    FsAction access = FsAction.READ;
+    INodeAttributeProvider.AccessControlEnforcer fallbackEnforcer =
+        mProvider.new AlluxioHdfsAccessControlEnforcer(mDefaultEnforcer);
+    int ancestorIndex = inodes.size() - 2;
+    boolean doCheckOwner = false;
+    fallbackEnforcer.checkPermission(fsOwner, supergroup, UserGroupInformation.createUserForTesting(
+        user, groups.toArray(new String[0])), new INodeAttributes[0], new INode[0], new byte[0][],
+        Snapshot.CURRENT_STATE_ID, path, ancestorIndex, doCheckOwner,
+        access, null, null, null, false);
+    verify(mDefaultEnforcer).checkPermission(eq(user), eq(groups), eq(Mode.Bits.READ), eq(path),
+        ExtensionInodeAttributesProviderTest.matchInodeList(path),
+        ExtensionInodeAttributesProviderTest.matchAttributesList(path), eq(doCheckOwner));
   }
 
   @Test
@@ -433,5 +478,50 @@ public final class HdfsInodeAttributesProviderTest {
     assertEquals(newAttr.getMode(), mockAttr.getFsPermissionShort());
     assertEquals(newAttr.getLastModificationTimeMs(), mockAttr.getModificationTime());
     assertEquals(newAttr.isDirectory(), mockAttr.isDirectory());
+  }
+
+  @Test
+  public void checkOwnerPermissionSuccess() throws Exception {
+    String user = "test";
+    List<String> groups = Collections.singletonList("test_group");
+    Mode.Bits bits = null;
+    String path = "/folder/file";
+    List<InodeView> inodes = createInodesForPath(path, 3);
+    List<InodeAttributes> attributes = createInodeAttributessForPath(path, 3);
+    boolean doCheckOwner = true;
+
+    mEnforcer.checkPermission(user, groups, bits, path, inodes, attributes, doCheckOwner);
+
+    String fsOwner = LoginUser.getServerUser().getName();
+    String supergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    FsAction access = null;
+    int ancestorIndex = inodes.size() - 2;
+    verify(mHadoopEnforcer).checkPermission(eq(fsOwner), eq(supergroup), matchUgi(user, groups),
+        matchHdfsAttributes(path), matchHdfsInodes(path), matchPathComponents(path),
+        eq(Snapshot.CURRENT_STATE_ID), eq(path), eq(ancestorIndex), eq(doCheckOwner),
+        eq(null), eq(null), eq(access), eq(null), eq(false));
+  }
+
+  @Test
+  public void checkPermissionOwnerPassThroughSuccess() throws Exception {
+    String user = "test";
+    List<String> groups = Collections.singletonList("test_group");
+    Mode.Bits bits = null;
+    String path = "/folder/file";
+    List<InodeView> inodes = createInodesForPath(path, 3);
+    List<InodeAttributes> attributes = createInodeAttributessForPath(path, 3);
+    boolean doCheckOwner = false;
+    reset(mHadoopProvider);
+    doAnswer(invocation ->
+        new PassthroughAccessControlEnforcer(
+            (INodeAttributeProvider.AccessControlEnforcer) invocation.getArguments()[0]))
+        .when(mHadoopProvider).getExternalAccessControlEnforcer(any());
+    mEnforcer = mProvider.getExternalAccessControlEnforcer(mDefaultEnforcer);
+
+    mEnforcer.checkPermission(user, groups, bits, path, inodes, attributes, doCheckOwner);
+
+    verify(mDefaultEnforcer).checkPermission(eq(user), eq(groups), eq(bits), eq(path),
+        ExtensionInodeAttributesProviderTest.matchInodeList(path),
+        ExtensionInodeAttributesProviderTest.matchAttributesList(path), eq(doCheckOwner));
   }
 }

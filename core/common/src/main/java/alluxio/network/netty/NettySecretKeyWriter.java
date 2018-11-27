@@ -18,7 +18,7 @@ import alluxio.proto.security.Key;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
 import alluxio.security.LoginUser;
-import alluxio.security.capability.CapabilityKey;
+import alluxio.security.MasterKey;
 import alluxio.util.network.NettyUtils;
 import alluxio.util.proto.ProtoMessage;
 import alluxio.util.proto.ProtoUtils;
@@ -43,13 +43,13 @@ public final class NettySecretKeyWriter {
   private NettySecretKeyWriter() {}  // prevent instantiation
 
   /**
-   * Writes a {@link CapabilityKey} to the Netty server and waits for the response.
+   * Writes a {@link MasterKey} to the Netty server and waits for the response.
    *
    * @param address the network address of the secret key server
    * @param capabilityKey the capability key to send
    * @throws IOException if it fails to write capability key to the remote server
    */
-  public static void write(InetSocketAddress address, CapabilityKey capabilityKey)
+  public static void write(InetSocketAddress address, MasterKey capabilityKey)
       throws IOException {
     Channel channel = null;
     Metrics.NETTY_SECRET_KEY_WRITE_OPS.inc();

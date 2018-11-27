@@ -66,10 +66,29 @@ public final class NettyClient {
    * @return the new client {@link Bootstrap}
    */
   public static Bootstrap createClientBootstrap(Subject subject, SocketAddress address) {
+    return createClientBootstrapInternal(new NettyBootstrapParamaters(subject, address));
+  }
+  // ALLUXIO CS ADD
+  /**
+   * Creates and returns a new Netty client bootstrap for clients to connect to remote servers.
+   *
+   * @param subject the subject for this client (can be null)
+   * @param address the socket address
+   * @param channelCapability the channel capability for authentication
+   * @return the new client {@link Bootstrap}
+   */
+  public static Bootstrap createClientBootstrap(Subject subject, SocketAddress address,
+      alluxio.proto.security.CapabilityProto.Capability channelCapability) {
+    return createClientBootstrapInternal(new NettyBootstrapParamaters(subject, address, channelCapability));
+  }
+  // ALLUXIO CS END
+
+  private static Bootstrap createClientBootstrapInternal(NettyBootstrapParamaters bootstrapParamaters) {
     final Bootstrap boot = new Bootstrap();
 
     boot.group(WORKER_GROUP)
-        .channel(NettyUtils.getClientChannelClass(!(address instanceof InetSocketAddress)));
+        .channel(NettyUtils.getClientChannelClass(
+            !(bootstrapParamaters.getSocketAddress() instanceof InetSocketAddress)));
     boot.option(ChannelOption.SO_KEEPALIVE, true);
     boot.option(ChannelOption.TCP_NODELAY, true);
     boot.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
@@ -102,12 +121,54 @@ public final class NettyClient {
         // ALLUXIO CS ADD
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
             alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-          pipeline.addLast(new KerberosSaslClientHandler(subject));
+          if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+              && bootstrapParamaters.getChannelCapability() != null) {
+            pipeline.addLast(new CapabilityAuthenticationSaslClientHandler(
+                bootstrapParamaters.getChannelCapability()));
+          } else {
+            pipeline.addLast(new KerberosSaslClientHandler(bootstrapParamaters.getSubject()));
+          }
         }
         // ALLUXIO CS END
       }
     });
 
     return boot;
+  }
+
+  /**
+   * Parameter definition for creating a netty bootstrap.
+   */
+  private static final class NettyBootstrapParamaters {
+    private Subject mSubject;
+    private SocketAddress mSocketAdress;
+    // ALLUXIO CS ADD
+    private alluxio.proto.security.CapabilityProto.Capability mChannelCapability;
+
+    public NettyBootstrapParamaters(Subject subject, SocketAddress socketAddress,
+                                    alluxio.proto.security.CapabilityProto.Capability channelCapability) {
+      this(subject, socketAddress);
+      mChannelCapability = channelCapability;
+    }
+    // ALLUXIO CS END
+
+    public NettyBootstrapParamaters(Subject subject, SocketAddress socketAddress) {
+      mSubject = subject;
+      mSocketAdress = socketAddress;
+    }
+
+    public Subject getSubject() {
+      return mSubject;
+    }
+
+    public SocketAddress getSocketAddress() {
+      return mSocketAdress;
+    }
+
+    // ALLUXIO CS ADD
+    public alluxio.proto.security.CapabilityProto.Capability getChannelCapability() {
+      return mChannelCapability;
+    }
+    // ALLUXIO CS END
   }
 }

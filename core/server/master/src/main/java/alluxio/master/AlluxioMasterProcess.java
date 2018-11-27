@@ -123,6 +123,11 @@ public class AlluxioMasterProcess implements MasterProcess {
   /** The manager of safe mode state. */
   protected final SafeModeManager mSafeModeManager;
 
+  // ALLUXIO CS ADD
+  /** The manager of delegation tokens. */
+  protected final alluxio.security.authentication.DelegationTokenManager mDelegationTokenManager;
+
+  // ALLUXIO CS END
   /** The manager for creating and restoring backups. */
   private final BackupManager mBackupManager;
 
@@ -156,6 +161,9 @@ public class AlluxioMasterProcess implements MasterProcess {
             this + " web port is only allowed to be zero in test mode.");
       }
 
+      // ALLUXIO CS ADD
+      mDelegationTokenManager = new alluxio.security.authentication.DelegationTokenManager();
+      // ALLUXIO CS END
       mTransportProvider = TransportProvider.Factory.create();
       mRpcServerSocket = ThriftUtils.createThriftServerSocket(
           NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC));
@@ -173,8 +181,14 @@ public class AlluxioMasterProcess implements MasterProcess {
       mRegistry = new MasterRegistry();
       mSafeModeManager = new DefaultSafeModeManager();
       mBackupManager = new BackupManager(mRegistry);
+      // ALLUXIO CS REPLACE
+      // MasterContext context =
+      //     new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort);
+      // ALLUXIO CS WITH
       MasterContext context =
-          new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort);
+          new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mDelegationTokenManager,
+              mStartTimeMs, mPort);
+      // ALLUXIO CS END
       mPauseStateLock = context.pauseStateLock();
       MasterUtils.createMasters(mRegistry, context);
       // ALLUXIO CS ADD
@@ -395,8 +409,13 @@ public class AlluxioMasterProcess implements MasterProcess {
     TTransportFactory transportFactory;
     try {
       String serverName = NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC);
+      // ALLUXIO CS REPLACE
+      // transportFactory = new BootstrapServerTransport.Factory(
+      //     mTransportProvider.getServerTransportFactory(serverName));
+      // ALLUXIO CS WITH
       transportFactory = new BootstrapServerTransport.Factory(
-          mTransportProvider.getServerTransportFactory(serverName));
+          mTransportProvider.getServerTransportFactory(serverName, mDelegationTokenManager));
+      // ALLUXIO CS END
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

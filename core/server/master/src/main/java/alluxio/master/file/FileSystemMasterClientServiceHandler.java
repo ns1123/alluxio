@@ -188,6 +188,51 @@ public final class FileSystemMasterClientServiceHandler implements
         "GetNewBlockIdForFile", "path=%s, options=%s", path, options);
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public alluxio.thrift.GetDelegationTokenTResponse getDelegationToken(String renewer)
+      throws AlluxioTException, org.apache.thrift.TException {
+    return RpcUtils.call(LOG,
+        (RpcCallableThrowsIOException<alluxio.thrift.GetDelegationTokenTResponse>) () -> {
+          alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+              token = mFileSystemMaster.getDelegationToken(renewer);
+        return new alluxio.thrift.GetDelegationTokenTResponse(
+              new alluxio.thrift.DelegationToken(token.getId().toThrift(),
+                  java.nio.ByteBuffer.wrap(token.getPassword())));
+        }, "GetDelegationToken", true, "renewer=%s", renewer);
+  }
+
+  @Override
+  public alluxio.thrift.RenewDelegationTokenTResponse renewDelegationToken(
+      alluxio.thrift.DelegationToken token)
+      throws AlluxioTException, org.apache.thrift.TException {
+    return RpcUtils.call(LOG,
+        (RpcCallableThrowsIOException<alluxio.thrift.RenewDelegationTokenTResponse>) () -> {
+        alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+            delegationToken = new alluxio.security.authentication.Token<>(
+              alluxio.security.authentication.DelegationTokenIdentifier.fromThrift(token.getIdentifier()),
+              token.getPassword());
+        long expirationTimeMs = mFileSystemMaster.renewDelegationToken(delegationToken);
+        return new alluxio.thrift.RenewDelegationTokenTResponse(expirationTimeMs);
+      }, "RenewDelegationToken", true, "token=%s", token.getIdentifier().toString());
+  }
+
+  @Override
+  public alluxio.thrift.CancelDelegationTokenTResponse cancelDelegationToken(
+      alluxio.thrift.DelegationToken token)
+      throws AlluxioTException, org.apache.thrift.TException {
+    return RpcUtils.call(LOG,
+        (RpcCallableThrowsIOException<alluxio.thrift.CancelDelegationTokenTResponse>) () -> {
+          alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
+              delegationToken = new alluxio.security.authentication.Token<>(
+              alluxio.security.authentication.DelegationTokenIdentifier.fromThrift(token.getIdentifier()),
+              token.getPassword());
+          mFileSystemMaster.cancelDelegationToken(delegationToken);
+          return new alluxio.thrift.CancelDelegationTokenTResponse();
+        }, "CancelDelegationToken", true, "token=%s", token.getIdentifier().toString());
+  }
+
+  // ALLUXIO CS END
   @Override
   public GetStatusTResponse getStatus(final String path, final GetStatusTOptions options)
       throws AlluxioTException {

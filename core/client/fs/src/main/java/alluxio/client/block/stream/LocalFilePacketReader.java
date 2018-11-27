@@ -125,7 +125,16 @@ public final class LocalFilePacketReader implements PacketReader {
       mBlockId = blockId;
       mPacketSize = packetSize;
 
-      mChannel = context.acquireNettyChannel(address);
+      // ALLUXIO CS REPLACE
+      // mChannel = context.acquireNettyChannel(address);
+      // ALLUXIO CS WITH
+      if (options.getCapabilityFetcher() != null) {
+        mChannel = context.acquireNettyChannel(address,
+                options.getCapabilityFetcher().getCapability().toProto());
+      } else {
+        mChannel = context.acquireNettyChannel(address);
+      }
+      // ALLUXIO CS END
       Protocol.LocalBlockOpenRequest request =
           Protocol.LocalBlockOpenRequest.newBuilder().setBlockId(mBlockId)
               .setPromote(options.getOptions().getReadType().isPromote()).build();
