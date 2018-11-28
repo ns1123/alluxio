@@ -81,7 +81,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class MultiProcessCluster {
   public static final String ALLUXIO_USE_FIXED_TEST_PORTS = "ALLUXIO_USE_FIXED_TEST_PORTS";
-  public static final int PORTS_PER_MASTER = 2;
+  public static final int PORTS_PER_MASTER = 3;
   public static final int PORTS_PER_WORKER = 3;
 
   private static final Logger LOG = LoggerFactory.getLogger(MultiProcessCluster.class);
