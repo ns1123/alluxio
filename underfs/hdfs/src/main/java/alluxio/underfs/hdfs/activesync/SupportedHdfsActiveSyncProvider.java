@@ -57,6 +57,7 @@ public class SupportedHdfsActiveSyncProvider implements HdfsActiveSyncProvider {
   private final Lock mReadLock;
   private final Lock mWriteLock;
   private final ExecutorService mExecutorService;
+  private final URI mHdfsUri;
   private Future<?> mPollingThread;
   private List<AlluxioURI> mUfsUriList;
 
@@ -84,6 +85,7 @@ public class SupportedHdfsActiveSyncProvider implements HdfsActiveSyncProvider {
   public SupportedHdfsActiveSyncProvider(URI uri, org.apache.hadoop.conf.Configuration conf)
       throws IOException {
     mHdfsAdmin = new HdfsAdmin(uri, conf);
+    mHdfsUri = uri;
     mChangedFiles = new ConcurrentHashMap<>();
     mActivity = new ConcurrentHashMap<>();
     mAge = new ConcurrentHashMap<>();
@@ -114,7 +116,6 @@ public class SupportedHdfsActiveSyncProvider implements HdfsActiveSyncProvider {
 
   private void recordFileChanged(String syncPoint, String filePath, long txId) {
     AlluxioURI syncPointUri = new AlluxioURI(syncPoint);
-    LOG.debug("file Path {} in event {}", filePath, txId);
 
     try (LockResource r = new LockResource(mWriteLock)) {
       if (!mChangedFiles.containsKey(syncPoint)) {
@@ -169,11 +170,8 @@ public class SupportedHdfsActiveSyncProvider implements HdfsActiveSyncProvider {
     if (filePath.isEmpty()) {
       return false;
     }
-    LOG.debug("event path {}", filePath.toString());
     for (AlluxioURI syncPoint :  syncPointList) {
       try {
-        LOG.debug("file path in processEvent" + filePath);
-        LOG.debug("syncPoint in processEvent" + syncPoint.getPath());
         // find out if the changed file falls under one of the sync points
         if (PathUtils.hasPrefix(filePath, syncPoint.getPath())) {
           fileMatch = true;
@@ -234,7 +232,7 @@ public class SupportedHdfsActiveSyncProvider implements HdfsActiveSyncProvider {
    */
   @Override
   public void startSync(AlluxioURI ufsUri) {
-    LOG.debug("add {} to sync monitor list", ufsUri.toString());
+    LOG.debug("Add {} as a sync point", ufsUri.toString());
     mUfsUriList.add(ufsUri);
   }
 
@@ -245,7 +243,7 @@ public class SupportedHdfsActiveSyncProvider implements HdfsActiveSyncProvider {
    */
   @Override
   public void stopSync(AlluxioURI ufsUri) {
-    LOG.debug("removed {} from sync monitor list", ufsUri.toString());
+    LOG.debug("attempt to remove {} from sync point list", ufsUri.toString());
     mUfsUriList.remove(ufsUri);
   }
 
@@ -269,21 +267,27 @@ public class SupportedHdfsActiveSyncProvider implements HdfsActiveSyncProvider {
 
         if (batch != null) {
           long txId = batch.getTxid();
-          count += batch.getEvents().length;
+          count++;
           for (Event event : batch.getEvents()) {
             processEvent(event, mUfsUriList, txId);
           }
         }
         long end = System.currentTimeMillis();
         if (end > (start + interval)) {
-          LOG.info("processed {} events in {} ms, at a rate of {} rps", count,
-              end - start,
-              String.format("%.2f", count * 1000.0 / (end - start)));
           long currentlyBehind = eventStream.getTxidsBehindEstimate();
-          LOG.info("HDFS generated {} events in {} ms, at a rate of {} rps",
+          LOG.debug("HDFS at {} generated {} events in {} ms, at a rate of {} rps",
+              mHdfsUri.toString(),
               count + currentlyBehind - behind ,
               end - start,
               String.format("%.2f", (count + currentlyBehind - behind) * 1000.0 / (end - start)));
+          LOG.debug("HDFS at {} processed {} events in {} ms, at a rate of {} rps",
+              mHdfsUri.toString(),
+              count,
+              end - start,
+              String.format("%.2f", count * 1000.0 / (end - start)));
+          LOG.debug("HDFS at {} Currently TxidsBehindEstimate by {}",
+              mHdfsUri.toString(),
+              currentlyBehind);
           behind = currentlyBehind;
           start = end;
           count = 0;
@@ -339,8 +343,8 @@ public class SupportedHdfsActiveSyncProvider implements HdfsActiveSyncProvider {
           syncSyncPoint(uri.toString());
         }
         mEventMissed = false;
-        LOG.debug("force syncPoint");
-        LOG.debug(Arrays.toString(syncPointFiles.keySet().toArray()));
+        LOG.debug("Missed event, syncing all sync points\n{}",
+            Arrays.toString(syncPointFiles.keySet().toArray()));
         SyncInfo syncInfo = new SyncInfo(syncPointFiles, true, getLastTxId());
         return syncInfo;
       }
@@ -356,8 +360,8 @@ public class SupportedHdfsActiveSyncProvider implements HdfsActiveSyncProvider {
       }
       txId = getLastTxId();
     }
-    LOG.debug("syncPointFiles {}", syncPointFiles.size());
-    LOG.debug("lasttxid {}", txId);
+    LOG.debug("Syncing {} files for HDFS at {}", syncPointFiles.size(), mHdfsUri.toString());
+    LOG.debug("Last transaction id synced {} for HDFS at {}", txId, mHdfsUri.toString());
 
     SyncInfo syncInfo = new SyncInfo(syncPointFiles, false, txId);
     return syncInfo;
