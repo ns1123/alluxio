@@ -220,6 +220,7 @@ public final class InodeDirectory extends Inode<InodeDirectory> implements Inode
     mDefaultAcl = acl;
     return getThis();
   }
+
   /**
    * Generates client file info for a folder.
    *
