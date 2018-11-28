@@ -2031,6 +2031,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.WORKER)
           .build();
+  public static final PropertyKey WORKER_STORAGE_CHECKER_ENABLED =
+      new Builder(Name.WORKER_STORAGE_CHECKER_ENABLED)
+          .setDefaultValue(true)
+          .setDescription("Whether periodic storage health checker is enabled on Alluxio workers.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.WORKER)
+          .build();
   public static final PropertyKey WORKER_TIERED_STORE_BLOCK_LOCK_READERS =
       new Builder(Name.WORKER_TIERED_STORE_BLOCK_LOCK_READERS)
           .setDefaultValue(1000)
@@ -4169,6 +4176,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String WORKER_SECURE_RPC_PORT = "alluxio.worker.secure.rpc.port";
     // ALLUXIO CS END
     public static final String WORKER_SESSION_TIMEOUT_MS = "alluxio.worker.session.timeout";
+    public static final String WORKER_STORAGE_CHECKER_ENABLED =
+        "alluxio.worker.storage.checker.enabled";
     public static final String WORKER_TIERED_STORE_BLOCK_LOCK_READERS =
         "alluxio.worker.tieredstore.block.lock.readers";
     public static final String WORKER_TIERED_STORE_BLOCK_LOCKS =

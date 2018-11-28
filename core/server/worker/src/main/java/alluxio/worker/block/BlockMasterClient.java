@@ -133,6 +133,7 @@ public final class BlockMasterClient extends AbstractMasterClient {
    * The method the worker should periodically execute to heartbeat back to the master.
    *
    * @param workerId the worker id
+   * @param capacityBytesOnTiers a mapping from storage tier alias to capacity bytes
    * @param usedBytesOnTiers a mapping from storage tier alias to used bytes
    * @param removedBlocks a list of block removed from this worker
    * @param addedBlocks a mapping from storage tier alias to added blocks
@@ -140,13 +141,15 @@ public final class BlockMasterClient extends AbstractMasterClient {
    * @return an optional command for the worker to execute
    */
   public synchronized Command heartbeat(final long workerId,
-      final Map<String, Long> usedBytesOnTiers, final List<Long> removedBlocks,
-      final Map<String, List<Long>> addedBlocks, final List<Metric> metrics) throws IOException {
+      final Map<String, Long> capacityBytesOnTiers, final Map<String, Long> usedBytesOnTiers,
+      final List<Long> removedBlocks, final Map<String, List<Long>> addedBlocks,
+      final List<Metric> metrics) throws IOException {
     return retryRPC(new RpcCallable<Command>() {
       @Override
       public Command call() throws TException {
         return mClient.blockHeartbeat(workerId, usedBytesOnTiers, removedBlocks, addedBlocks,
-            new BlockHeartbeatTOptions(metrics)).getCommand();
+            new BlockHeartbeatTOptions().setMetrics(metrics)
+            .setCapacityBytesOnTiers(capacityBytesOnTiers)).getCommand();
       }
     });
   }
