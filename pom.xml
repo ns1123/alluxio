@@ -167,6 +167,7 @@
     <slf4j.version>1.7.2</slf4j.version>
     <surefire.forkCount>2</surefire.forkCount>
     <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
+    <surefire.rerunFailingTestsCount>1</surefire.rerunFailingTestsCount>
     <test.output.redirect>true</test.output.redirect>
     <!-- ALLUXIO CS ADD -->
     <!-- The native library path used in tests related to JNI. -->
@@ -1044,6 +1045,7 @@
             </excludes>
             <!-- ALLUXIO CS END -->
             <forkCount>${surefire.forkCount}</forkCount>
+            <rerunFailingTestsCount>${surefire.rerunFailingTestsCount}</rerunFailingTestsCount>
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
             <reuseForks>false</reuseForks>
             <runOrder>alphabetical</runOrder>
