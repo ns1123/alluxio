@@ -124,22 +124,6 @@ public final class MountTableTest {
         mMountTable.reverseResolve(new AlluxioURI("s3a://bucket/")));
     Assert.assertNull(mMountTable.reverseResolve(new AlluxioURI("/foobar")));
 
-    // Test reverseResolve()
-    Assert.assertEquals(new AlluxioURI("/mnt/foo"),
-        mMountTable.reverseResolve(new AlluxioURI("/foo")));
-    Assert.assertEquals(new AlluxioURI("/mnt/foo/x"),
-        mMountTable.reverseResolve(new AlluxioURI("/foo/x")));
-    Assert.assertEquals(mMountTable.reverseResolve(new AlluxioURI("/bar")),
-        new AlluxioURI("/mnt/bar"));
-    Assert.assertEquals(mMountTable.reverseResolve(new AlluxioURI("/bar/y")),
-        new AlluxioURI("/mnt/bar/y"));
-    // Test reverseResolve(), ufs path is not mounted
-    Assert.assertEquals(new AlluxioURI("/foobar"),
-        mMountTable.reverseResolve(new AlluxioURI("s3a://bucket/foobar")));
-    Assert.assertEquals(new AlluxioURI("/"),
-        mMountTable.reverseResolve(new AlluxioURI("s3a://bucket/")));
-    Assert.assertNull(mMountTable.reverseResolve(new AlluxioURI("/foobar")));
-
     // Test getMountPoint()
     Assert.assertEquals("/mnt/foo", mMountTable.getMountPoint(new AlluxioURI("/mnt/foo")));
     Assert.assertEquals("/mnt/foo", mMountTable.getMountPoint(new AlluxioURI("/mnt/foo/x")));
