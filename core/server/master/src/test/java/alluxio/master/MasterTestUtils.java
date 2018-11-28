@@ -24,7 +24,7 @@ public final class MasterTestUtils {
   /**
    * @return a basic master context for the purpose of testing
    */
-  public static MasterContext testMasterContext() {
+  public static CoreMasterContext testMasterContext() {
     return testMasterContext(new NoopJournalSystem());
   }
 
@@ -32,16 +32,17 @@ public final class MasterTestUtils {
    * @return a basic master context for the purpose of testing
    * @param journalSystem a journal system to use in the context
    */
-  public static MasterContext testMasterContext(JournalSystem journalSystem) {
-    // ALLUXIO CS REPLACE
-    // return new MasterContext(journalSystem, new TestSafeModeManager(),
-    //     Mockito.mock(BackupManager.class), -1, -1);
-    // ALLUXIO CS WITH
-    return new MasterContext(journalSystem, new TestSafeModeManager(),
-        mock(BackupManager.class),
-        mock(alluxio.security.authentication.DelegationTokenManager.class),
-        -1, -1);
-    // ALLUXIO CS END
+  public static CoreMasterContext testMasterContext(JournalSystem journalSystem) {
+    return CoreMasterContext.newBuilder()
+        // ALLUXIO CS ADD
+        .setDelegationTokenManager(mock(alluxio.security.authentication.DelegationTokenManager.class))
+        // ALLUXIO CS END
+        .setJournalSystem(journalSystem)
+        .setSafeModeManager(new TestSafeModeManager())
+        .setBackupManager(mock(BackupManager.class))
+        .setStartTimeMs(-1)
+        .setPort(-1)
+        .build();
   }
 
   private MasterTestUtils() {} // Not intended for instatiation.

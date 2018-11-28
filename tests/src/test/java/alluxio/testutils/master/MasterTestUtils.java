@@ -17,7 +17,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.master.BackupManager;
-import alluxio.master.MasterContext;
+import alluxio.master.CoreMasterContext;
 import alluxio.master.MasterRegistry;
 import alluxio.master.SafeModeManager;
 import alluxio.master.TestSafeModeManager;
@@ -70,14 +70,16 @@ public class MasterTestUtils {
     long startTimeMs = System.currentTimeMillis();
     int port = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
     JournalSystem journalSystem = JournalTestUtils.createJournalSystem(masterJournal);
-    // ALLUXIO CS REPLACE
-    // MasterContext masterContext = new MasterContext(journalSystem, safeModeManager,
-    //     mock(BackupManager.class), startTimeMs, port);
-    // ALLUXIO CS WITH
-    MasterContext masterContext = new MasterContext(journalSystem, safeModeManager,
-        mock(BackupManager.class),
-        mock(alluxio.security.authentication.DelegationTokenManager.class), startTimeMs, port);
-    // ALLUXIO CS END
+    CoreMasterContext masterContext = CoreMasterContext.newBuilder()
+        // ALLUXIO CS ADD
+        .setDelegationTokenManager(mock(alluxio.security.authentication.DelegationTokenManager.class))
+        // ALLUXIO CS END
+        .setJournalSystem(journalSystem)
+        .setSafeModeManager(safeModeManager)
+        .setBackupManager(mock(BackupManager.class))
+        .setStartTimeMs(startTimeMs)
+        .setPort(port)
+        .build();
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, masterContext);
     // ALLUXIO CS END

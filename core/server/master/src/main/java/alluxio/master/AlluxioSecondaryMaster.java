@@ -39,9 +39,6 @@ public final class AlluxioSecondaryMaster implements Process {
   private final CountDownLatch mLatch;
   private final SafeModeManager mSafeModeManager;
   private final BackupManager mBackupManager;
-  // ALLUXIO CS ADD
-  private final alluxio.security.authentication.DelegationTokenManager mDelegationTokenManager;
-  // ALLUXIO CS END
   private final long mStartTimeMs;
   private final int mPort;
 
@@ -58,15 +55,16 @@ public final class AlluxioSecondaryMaster implements Process {
       mStartTimeMs = System.currentTimeMillis();
       mPort = Configuration.getInt(PropertyKey.MASTER_RPC_PORT);
       // Create masters.
-      // ALLUXIO CS REPLACE
-      // MasterUtils.createMasters(mRegistry,
-      //     new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager, mStartTimeMs, mPort));
-      // ALLUXIO CS WITH
-      mDelegationTokenManager = new alluxio.security.authentication.DelegationTokenManager();
-      MasterUtils.createMasters(mRegistry,
-          new MasterContext(mJournalSystem, mSafeModeManager, mBackupManager,
-              mDelegationTokenManager, mStartTimeMs, mPort));
-      // ALLUXIO CS END
+      MasterUtils.createMasters(mRegistry, CoreMasterContext.newBuilder()
+          // ALLUXIO CS ADD
+          .setDelegationTokenManager(new alluxio.security.authentication.DelegationTokenManager())
+          // ALLUXIO CS END
+          .setJournalSystem(mJournalSystem)
+          .setSafeModeManager(mSafeModeManager)
+          .setBackupManager(mBackupManager)
+          .setStartTimeMs(mStartTimeMs)
+          .setPort(mPort)
+          .build());
       // Check that journals of each service have been formatted.
       if (!mJournalSystem.isFormatted()) {
         throw new RuntimeException(
