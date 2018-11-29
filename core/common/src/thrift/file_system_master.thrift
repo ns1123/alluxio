@@ -119,7 +119,6 @@ struct RenewDelegationTokenTResponse {
 struct CancelDelegationTokenTResponse {}
 
 // ALLUXIO CS END
-
 struct GetSyncPathListTResponse {
   1: list<string> syncPathList
 }
