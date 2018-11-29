@@ -1,4 +1,5 @@
 netty/
+DelegationTokenFaultToleranceIntegrationTest.java
 KerberosLoginModuleTest.java
 KerberosLoginUserTest.java
 MasterClientKerberosIntegrationTest.java

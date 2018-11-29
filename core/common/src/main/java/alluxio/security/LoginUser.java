@@ -229,7 +229,11 @@ public final class LoginUser {
       throw new UnauthenticatedException("Failed to login: " + e.getMessage(), e);
     }
 
+    // ALLUXIO CS REPLACE
+    // LOG.debug("login subject: {}", subject);
+    // ALLUXIO CS WITH
     LOG.debug("login subject for SIMPLE: {}", subject);
+    // ALLUXIO CS END
     Set<User> userSet = subject.getPrincipals(User.class);
     if (userSet.isEmpty()) {
       throw new UnauthenticatedException("Failed to login: No Alluxio User is found.");
@@ -244,6 +248,7 @@ public final class LoginUser {
     }
     return userSet.iterator().next();
   }
+  // ALLUXIO CS ADD
 
   private static void jgssLogin(Subject subject)
       throws LoginException {
@@ -318,7 +323,6 @@ public final class LoginUser {
       }
     }
   }
-  // ALLUXIO CS ADD
 
   /**
    * Performs relogin for {@link #sLoginUser}.

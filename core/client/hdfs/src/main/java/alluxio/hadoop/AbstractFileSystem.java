@@ -604,6 +604,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     return newDetails.equals(oldDetails);
   }
 
+  // ALLUXIO CS ADD
   private String buildTokenService(URI uri) {
     if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
         || alluxio.util.ConfigurationUtils.getMasterRpcAddresses(Configuration.global()).size() > 1) {
@@ -615,6 +616,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     return org.apache.hadoop.security.SecurityUtil.buildTokenService(uri).toString();
   }
 
+  // ALLUXIO CS END
   /**
    * Sets the file system and context. Contexts with the same subject are shared among file systems
    * to reduce resource usage such as the metrics heartbeat.

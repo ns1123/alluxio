@@ -14,7 +14,6 @@ package alluxio.security;
 import java.security.Principal;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.security.auth.login.LoginException;
 
 /**
  * This class represents a user in Alluxio. It implements {@link java.security.Principal} in the
@@ -75,7 +74,8 @@ public final class User implements Principal {
       mName = null;
     }
     if (mName == null) {
-      throw new LoginException(String.format("Unable to retrieve user name from subject: %s.", subject));
+      throw new javax.security.auth.login.LoginException(
+          String.format("Unable to retrieve user name from subject: %s.", subject));
     }
   }
   // ALLUXIO CS END

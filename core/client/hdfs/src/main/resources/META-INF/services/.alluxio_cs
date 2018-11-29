@@ -1,1 +1,2 @@
 org.apache.hadoop.security.token.TokenIdentifier
+org.apache.hadoop.security.token.TokenRenewer
