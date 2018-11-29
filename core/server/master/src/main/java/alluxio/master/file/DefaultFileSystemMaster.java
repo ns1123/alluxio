@@ -132,9 +132,6 @@ import alluxio.util.executor.ExecutorServiceFactory;
 import alluxio.util.interfaces.Scoped;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
-// ALLUXIO CS ADD
-import alluxio.util.proto.ProtoUtils;
-// ALLUXIO CS END
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.CommonOptions;
@@ -3947,7 +3944,7 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
                 .setMasterKey(File.MasterKey.newBuilder()
                     .setKeyId(key.getKeyId())
                     .setExpirationTimeMs(key.getExpirationTimeMs())
-                    .setEncodedKey(ProtoUtils.copyFrom(key.getEncodedKey()))))
+                    .setEncodedKey(alluxio.util.proto.ProtoUtils.copyFrom(key.getEncodedKey()))))
             .build());
       } catch (UnavailableException e) {
         LOG.error("Failed to journal master key update", e);
@@ -3975,7 +3972,8 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
                     .setMasterKey(File.MasterKey.newBuilder()
                         .setKeyId(entry.getValue().getKeyId())
                         .setExpirationTimeMs(entry.getValue().getExpirationTimeMs())
-                        .setEncodedKey(ProtoUtils.copyFrom(entry.getValue().getEncodedKey()))))
+                        .setEncodedKey(alluxio.util.proto.ProtoUtils
+                            .copyFrom(entry.getValue().getEncodedKey()))))
               .build()),
           getJournalEntryIteratorFor(mDelegationTokenManager.getTokens().entrySet().iterator(),
               entry -> JournalEntry.newBuilder()
