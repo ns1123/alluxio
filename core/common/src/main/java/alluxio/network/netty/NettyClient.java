@@ -83,12 +83,12 @@ public final class NettyClient {
   }
   // ALLUXIO CS END
 
-  private static Bootstrap createClientBootstrapInternal(NettyBootstrapParamaters bootstrapParamaters) {
+  private static Bootstrap createClientBootstrapInternal(
+      NettyBootstrapParamaters bootstrapParamaters) {
     final Bootstrap boot = new Bootstrap();
 
-    boot.group(WORKER_GROUP)
-        .channel(NettyUtils.getClientChannelClass(
-            !(bootstrapParamaters.getSocketAddress() instanceof InetSocketAddress)));
+    boot.group(WORKER_GROUP).channel(NettyUtils.getClientChannelClass(
+        !(bootstrapParamaters.getSocketAddress() instanceof InetSocketAddress)));
     boot.option(ChannelOption.SO_KEEPALIVE, true);
     boot.option(ChannelOption.TCP_NODELAY, true);
     boot.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
@@ -164,7 +164,6 @@ public final class NettyClient {
     public SocketAddress getSocketAddress() {
       return mSocketAdress;
     }
-
     // ALLUXIO CS ADD
     public alluxio.proto.security.CapabilityProto.Capability getChannelCapability() {
       return mChannelCapability;
