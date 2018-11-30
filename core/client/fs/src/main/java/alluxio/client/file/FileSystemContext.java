@@ -397,6 +397,7 @@ public final class FileSystemContext implements Closeable {
   public Channel acquireNettyChannel(final WorkerNetAddress workerNetAddress) throws IOException {
     return acquireNettyChannelInternal(new NettyChannelProperties(workerNetAddress));
   }
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Acquires a netty channel from the channel pools. If there is no available client instance
@@ -415,6 +416,8 @@ public final class FileSystemContext implements Closeable {
         new NettyChannelProperties(workerNetAddress, channelCapability));
   }
   // ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
 
   private Channel acquireNettyChannelInternal(final NettyChannelProperties channelProperties)
           throws IOException {
@@ -672,13 +675,17 @@ public final class FileSystemContext implements Closeable {
 
   private static final class NettyChannelProperties {
     private WorkerNetAddress mWorkerNetAddress;
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     private alluxio.proto.security.CapabilityProto.Capability mChannelCapability;
     // ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
 
     public NettyChannelProperties(WorkerNetAddress workerNetAddress) {
       mWorkerNetAddress = workerNetAddress;
     }
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     public NettyChannelProperties(WorkerNetAddress workerNetAddress,
         alluxio.proto.security.CapabilityProto.Capability channelCapability) {
@@ -690,6 +697,8 @@ public final class FileSystemContext implements Closeable {
       return mChannelCapability;
     }
     // ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
 
     public WorkerNetAddress getWorkerNetAddress() {
       return mWorkerNetAddress;

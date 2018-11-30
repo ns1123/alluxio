@@ -68,6 +68,7 @@ public final class NettyClient {
   public static Bootstrap createClientBootstrap(Subject subject, SocketAddress address) {
     return createClientBootstrapInternal(new NettyBootstrapParamaters(subject, address));
   }
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Creates and returns a new Netty client bootstrap for clients to connect to remote servers.
@@ -89,6 +90,15 @@ public final class NettyClient {
     boot.group(WORKER_GROUP)
         .channel(NettyUtils.getClientChannelClass(
             !(bootstrapParamaters.getSocketAddress() instanceof InetSocketAddress)));
+=======
+
+  private static Bootstrap createClientBootstrapInternal(
+      NettyBootstrapParamaters bootstrapParamaters) {
+    final Bootstrap boot = new Bootstrap();
+
+    boot.group(WORKER_GROUP).channel(NettyUtils.getClientChannelClass(
+        !(bootstrapParamaters.getSocketAddress() instanceof InetSocketAddress)));
+>>>>>>> OPENSOURCE/master
     boot.option(ChannelOption.SO_KEEPALIVE, true);
     boot.option(ChannelOption.TCP_NODELAY, true);
     boot.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
@@ -142,6 +152,7 @@ public final class NettyClient {
   private static final class NettyBootstrapParamaters {
     private Subject mSubject;
     private SocketAddress mSocketAdress;
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     private alluxio.proto.security.CapabilityProto.Capability mChannelCapability;
 
@@ -151,6 +162,8 @@ public final class NettyClient {
       mChannelCapability = channelCapability;
     }
     // ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
 
     public NettyBootstrapParamaters(Subject subject, SocketAddress socketAddress) {
       mSubject = subject;
@@ -164,11 +177,14 @@ public final class NettyClient {
     public SocketAddress getSocketAddress() {
       return mSocketAdress;
     }
+<<<<<<< HEAD
 
     // ALLUXIO CS ADD
     public alluxio.proto.security.CapabilityProto.Capability getChannelCapability() {
       return mChannelCapability;
     }
     // ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
   }
 }
