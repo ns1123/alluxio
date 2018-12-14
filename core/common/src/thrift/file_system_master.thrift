@@ -92,6 +92,7 @@ struct GetStatusTResponse {
   1: FileInfo fileInfo
 }
 
+<<<<<<< HEAD
 // ALLUXIO CS ADD
 struct DelegationTokenIdentifier {
   2: string owner
@@ -119,8 +120,22 @@ struct RenewDelegationTokenTResponse {
 struct CancelDelegationTokenTResponse {}
 
 // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+enum SyncPointStatus {
+  Not_Initially_Synced = 0;
+  Syncing = 1;
+  Initially_Synced = 2;
+}
+
+struct SyncPointInfo {
+  1: string syncPointUri
+  2: SyncPointStatus syncStatus
+}
+
+>>>>>>> os/master
 struct GetSyncPathListTResponse {
-  1: list<string> syncPathList
+  1: list<SyncPointInfo> syncPathList
 }
 
 struct ListStatusTOptions {
