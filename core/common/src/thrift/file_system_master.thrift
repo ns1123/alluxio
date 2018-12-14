@@ -119,8 +119,19 @@ struct RenewDelegationTokenTResponse {
 struct CancelDelegationTokenTResponse {}
 
 // ALLUXIO CS END
+enum SyncPointStatus {
+  Not_Initially_Synced = 0;
+  Syncing = 1;
+  Initially_Synced = 2;
+}
+
+struct SyncPointInfo {
+  1: string syncPointUri
+  2: SyncPointStatus syncStatus
+}
+
 struct GetSyncPathListTResponse {
-  1: list<string> syncPathList
+  1: list<SyncPointInfo> syncPathList
 }
 
 struct ListStatusTOptions {
