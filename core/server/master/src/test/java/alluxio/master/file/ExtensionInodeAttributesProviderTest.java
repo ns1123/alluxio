@@ -40,6 +40,7 @@ import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
 import alluxio.master.file.meta.InodeTree;
+import alluxio.master.file.meta.InodeTree.LockPattern;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
@@ -247,7 +248,7 @@ public final class ExtensionInodeAttributesProviderTest {
       throws Exception {
     try (
         LockedInodePath inodePath = mTree
-            .lockInodePath(new AlluxioURI(path), InodeTree.LockPattern.WRITE_LAST)) {
+            .lockInodePath(new AlluxioURI(path), LockPattern.WRITE_EDGE)) {
       InodeTree.CreatePathResult result = mTree.createPath(RpcContext.NOOP, inodePath, option);
       Inode<?> inode = (Inode<?>) result.getCreated().get(result.getCreated().size() - 1);
       inode.setOwner(option.getOwner());
