@@ -48,7 +48,6 @@ import alluxio.master.audit.AuditContext;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.activesync.ActiveSyncManager;
-import alluxio.wire.SyncPointInfo;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.InodeDirectory;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
@@ -142,6 +141,7 @@ import alluxio.wire.FileInfo;
 import alluxio.wire.LoadMetadataType;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;
+import alluxio.wire.SyncPointInfo;
 import alluxio.wire.WorkerInfo;
 
 import com.codahale.metrics.Counter;
@@ -665,17 +665,13 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       mAsyncAuditLogWriter.stop();
       mAsyncAuditLogWriter = null;
     }
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (mAuthProvider != null) {
       mAuthProvider.stop();
     }
     mDelegationTokenManager.close();
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     mSyncManager.stop();
->>>>>>> OPENSOURCE/master
     super.stop();
   }
 
@@ -848,9 +844,7 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
   public FileInfo getFileInfo(long fileId)
       throws FileDoesNotExistException, AccessControlException, UnavailableException {
     Metrics.GET_FILE_INFO_OPS.inc();
-<<<<<<< HEAD
-    try (
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, LockPattern.READ)) {
+    try (LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, LockPattern.READ)) {
       // ALLUXIO CS REPLACE
       // return getFileInfoInternal(inodePath);
       // ALLUXIO CS WITH
@@ -858,14 +852,6 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       populateCapability(fileInfo, inodePath, Mode.Bits.READ);
       return fileInfo;
       // ALLUXIO CS END
-||||||| merged common ancestors
-    try (
-        LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, LockPattern.READ)) {
-      return getFileInfoInternal(inodePath);
-=======
-    try (LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, LockPattern.READ)) {
-      return getFileInfoInternal(inodePath);
->>>>>>> OPENSOURCE/master
     }
   }
 

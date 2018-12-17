@@ -179,16 +179,10 @@ public final class PermissionCheckTest {
     mRegistry.add(MetricsMaster.class, mMetricsMaster);
     CoreMasterContext masterContext = MasterTestUtils.testMasterContext();
     mMetricsMaster = new MetricsMasterFactory().create(mRegistry, masterContext);
-<<<<<<< HEAD
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, masterContext);
+    new BlockMasterFactory().create(mRegistry, masterContext);
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, masterContext);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    mBlockMaster = new BlockMasterFactory().create(mRegistry, masterContext);
-=======
-    new BlockMasterFactory().create(mRegistry, masterContext);
->>>>>>> OPENSOURCE/master
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, masterContext);
     mRegistry.start(true);
 

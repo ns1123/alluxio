@@ -763,85 +763,27 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
         } else {
           syncPersistNewDirectory(newDir);
         }
-<<<<<<< HEAD
-        newInode = newDir;
-      } else if (options instanceof CreateFileOptions) {
-        CreateFileOptions fileOptions = (CreateFileOptions) options;
-        InodeFile newFile = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
-            currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
-        // Lock the created inode before subsequent operations, and add it to the lock group.
-
-        extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(newFile,
-            currentInodeDirectory, name);
-
-        // ALLUXIO CS ADD
-        if (currentInodeDirectory.isPinned()) {
-          // Create a file inside of a pinned directory, if its min replication inferred from its
-          // CreateFileOptions is zero (default value), we bump it to one to reflect its state of
-          // being pinned; and adjust the max replication if it is smaller than the min
-          // replication.
-          if (newFile.getReplicationMin() == 0) {
-            newFile.setReplicationMin(1);
-            if (newFile.getReplicationMax() < newFile.getReplicationMin()) {
-              // adjust replication upper limit in case it is smaller than 1
-              newFile.setReplicationMax(alluxio.Constants.REPLICATION_MAX_INFINITY);
-            }
-          }
-        }
-        // ALLUXIO CS END
-        // if the parent has a default ACL, copy that default ACL ANDed with the umask as the new
-        // file's access ACL.
-        // If it is a metadata load operation, do not consider the umask.
-        DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
-        short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
-            : newFile.getMode();
-        if (!dAcl.isEmpty()) {
-          AccessControlList acl = dAcl.generateChildFileACL(mode);
-          newFile.setInternalAcl(acl);
-        }
-
-        if (fileOptions.isCacheable()) {
-          newFile.setCacheable(true);
-        }
-        newInode = newFile;
-      } else {
-        throw new IllegalStateException(String.format("Unrecognized create options: %s", options));
-||||||| merged common ancestors
-        newInode = newDir;
-      } else if (options instanceof CreateFileOptions) {
-        CreateFileOptions fileOptions = (CreateFileOptions) options;
-        InodeFile newFile = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
-            currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
-        // Lock the created inode before subsequent operations, and add it to the lock group.
-
-        extensibleInodePath.getLockList().lockWriteAndCheckNameAndParent(newFile,
-            currentInodeDirectory, name);
-
-        // if the parent has a default ACL, copy that default ACL ANDed with the umask as the new
-        // file's access ACL.
-        // If it is a metadata load operation, do not consider the umask.
-        DefaultAccessControlList dAcl = currentInodeDirectory.getDefaultACL();
-        short mode = options.isMetadataLoad() ? Mode.createFullAccess().toShort()
-            : newFile.getMode();
-        if (!dAcl.isEmpty()) {
-          AccessControlList acl = dAcl.generateChildFileACL(mode);
-          newFile.setInternalAcl(acl);
-        }
-
-        if (fileOptions.isCacheable()) {
-          newFile.setCacheable(true);
-        }
-        newInode = newFile;
-      } else {
-        throw new IllegalStateException(String.format("Unrecognized create options: %s", options));
-=======
->>>>>>> OPENSOURCE/master
       }
       newInode = newDir;
     } else if (options instanceof CreateFileOptions) {
       CreateFileOptions fileOptions = (CreateFileOptions) options;
       InodeFile newFile = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
           currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
+      // ALLUXIO CS ADD
+      if (currentInodeDirectory.isPinned()) {
+        // Create a file inside of a pinned directory, if its min replication inferred from its
+        // CreateFileOptions is zero (default value), we bump it to one to reflect its state of
+        // being pinned; and adjust the max replication if it is smaller than the min
+        // replication.
+        if (newFile.getReplicationMin() == 0) {
+          newFile.setReplicationMin(1);
+          if (newFile.getReplicationMax() < newFile.getReplicationMin()) {
+            // adjust replication upper limit in case it is smaller than 1
+            newFile.setReplicationMax(alluxio.Constants.REPLICATION_MAX_INFINITY);
+          }
+        }
+      }
+      // ALLUXIO CS END
 
       // if the parent has a default ACL, copy that default ACL ANDed with the umask as the new
       // file's access ACL.
