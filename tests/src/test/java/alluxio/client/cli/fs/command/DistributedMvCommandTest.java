@@ -26,7 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 
 /**
- * Tests for enterprise-specific functionality in {@link MvCommand}.
+ * Tests for cross-mount {@link MvCommand}.
  */
 public final class DistributedMvCommandTest extends AbstractFileSystemShellTest {
   @Rule
