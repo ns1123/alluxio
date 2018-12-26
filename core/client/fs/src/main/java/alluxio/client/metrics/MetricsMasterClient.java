@@ -16,16 +16,8 @@ import alluxio.Constants;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.master.MasterClientConfig;
-<<<<<<< HEAD
-import alluxio.retry.RetryUtils;
-||||||| merged common ancestors
-import alluxio.retry.CountingRetry;
-import alluxio.retry.RetryPolicy;
-=======
 import alluxio.metrics.MetricsSystem;
-import alluxio.retry.CountingRetry;
-import alluxio.retry.RetryPolicy;
->>>>>>> FETCH_HEAD
+import alluxio.retry.RetryUtils;
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.Metric;
