@@ -13,11 +13,19 @@ package alluxio.client.metrics;
 
 import alluxio.AbstractMasterClient;
 import alluxio.Constants;
-import alluxio.client.file.FileSystemContext;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.master.MasterClientConfig;
+<<<<<<< HEAD
 import alluxio.retry.RetryUtils;
+||||||| merged common ancestors
+import alluxio.retry.CountingRetry;
+import alluxio.retry.RetryPolicy;
+=======
+import alluxio.metrics.MetricsSystem;
+import alluxio.retry.CountingRetry;
+import alluxio.retry.RetryPolicy;
+>>>>>>> FETCH_HEAD
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.Metric;
@@ -73,11 +81,11 @@ public class MetricsMasterClient extends AbstractMasterClient {
    *
    * @param metrics a list of client metrics
    */
-  public synchronized void heartbeat(final List<Metric> metrics) throws IOException {
+  public synchronized void heartbeat(List<Metric> metrics) throws IOException {
     connect();
     try {
-      mClient.metricsHeartbeat(FileSystemContext.get().getId(),
-          NetworkAddressUtils.getClientHostName(), new MetricsHeartbeatTOptions(metrics));
+      mClient.metricsHeartbeat(MetricsSystem.getAppId(), NetworkAddressUtils.getClientHostName(),
+          new MetricsHeartbeatTOptions(metrics));
     } catch (AlluxioTException e) {
       throw AlluxioStatusException.fromThrift(e);
     } catch (TException e) {
