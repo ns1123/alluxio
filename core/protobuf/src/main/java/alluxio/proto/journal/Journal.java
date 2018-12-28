@@ -1234,20 +1234,13 @@ public final class Journal {
               break;
             }
             case 314: {
-<<<<<<< HEAD
               if (!((mutable_bitField1_ & 0x00000800) == 0x00000800)) {
                 journalEntries_ = new java.util.ArrayList<alluxio.proto.journal.Journal.JournalEntry>();
                 mutable_bitField1_ |= 0x00000800;
-=======
-              if (!((mutable_bitField1_ & 0x00000008) == 0x00000008)) {
-                journalEntries_ = new java.util.ArrayList<alluxio.proto.journal.Journal.JournalEntry>();
-                mutable_bitField1_ |= 0x00000008;
->>>>>>> OPENSOURCE/master
               }
               journalEntries_.add(input.readMessage(alluxio.proto.journal.Journal.JournalEntry.PARSER, extensionRegistry));
               break;
             }
-<<<<<<< HEAD
             case 8010: {
               alluxio.proto.journal.License.LicenseCheckEntry.Builder subBuilder = null;
               if (((bitField0_ & 0x00000004) == 0x00000004)) {
@@ -1352,8 +1345,6 @@ public final class Journal {
               bitField0_ |= 0x00000020;
               break;
             }
-=======
->>>>>>> OPENSOURCE/master
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1362,11 +1353,7 @@ public final class Journal {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-<<<<<<< HEAD
         if (((mutable_bitField1_ & 0x00000800) == 0x00000800)) {
-=======
-        if (((mutable_bitField1_ & 0x00000008) == 0x00000008)) {
->>>>>>> OPENSOURCE/master
           journalEntries_ = java.util.Collections.unmodifiableList(journalEntries_);
         }
         this.unknownFields = unknownFields.build();
@@ -2640,7 +2627,6 @@ public final class Journal {
       for (int i = 0; i < journalEntries_.size(); i++) {
         output.writeMessage(39, journalEntries_.get(i));
       }
-<<<<<<< HEAD
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeMessage(1001, licenseCheck_);
       }
@@ -2665,8 +2651,6 @@ public final class Journal {
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeMessage(1009, renewDelegationToken_);
       }
-=======
->>>>>>> OPENSOURCE/master
       getUnknownFields().writeTo(output);
     }
 
@@ -2820,7 +2804,6 @@ public final class Journal {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(39, journalEntries_.get(i));
       }
-<<<<<<< HEAD
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1001, licenseCheck_);
@@ -2853,8 +2836,6 @@ public final class Journal {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1009, renewDelegationToken_);
       }
-=======
->>>>>>> OPENSOURCE/master
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
@@ -3271,17 +3252,10 @@ public final class Journal {
         } else {
           updateInodeFileBuilder_.clear();
         }
-<<<<<<< HEAD
         bitField1_ = (bitField1_ & ~0x00000400);
         if (journalEntriesBuilder_ == null) {
           journalEntries_ = java.util.Collections.emptyList();
           bitField1_ = (bitField1_ & ~0x00000800);
-=======
-        bitField1_ = (bitField1_ & ~0x00000004);
-        if (journalEntriesBuilder_ == null) {
-          journalEntries_ = java.util.Collections.emptyList();
-          bitField1_ = (bitField1_ & ~0x00000008);
->>>>>>> OPENSOURCE/master
         } else {
           journalEntriesBuilder_.clear();
         }
@@ -3656,15 +3630,9 @@ public final class Journal {
           result.updateInodeFile_ = updateInodeFileBuilder_.build();
         }
         if (journalEntriesBuilder_ == null) {
-<<<<<<< HEAD
           if (((bitField1_ & 0x00000800) == 0x00000800)) {
             journalEntries_ = java.util.Collections.unmodifiableList(journalEntries_);
             bitField1_ = (bitField1_ & ~0x00000800);
-=======
-          if (((bitField1_ & 0x00000008) == 0x00000008)) {
-            journalEntries_ = java.util.Collections.unmodifiableList(journalEntries_);
-            bitField1_ = (bitField1_ & ~0x00000008);
->>>>>>> OPENSOURCE/master
           }
           result.journalEntries_ = journalEntries_;
         } else {
@@ -4813,37 +4781,7 @@ public final class Journal {
         } else {
           updateMasterKeyBuilder_.clear();
         }
-<<<<<<< HEAD
         bitField0_ = (bitField0_ & ~0x00000080);
-=======
-        if (journalEntriesBuilder_ == null) {
-          if (!other.journalEntries_.isEmpty()) {
-            if (journalEntries_.isEmpty()) {
-              journalEntries_ = other.journalEntries_;
-              bitField1_ = (bitField1_ & ~0x00000008);
-            } else {
-              ensureJournalEntriesIsMutable();
-              journalEntries_.addAll(other.journalEntries_);
-            }
-            onChanged();
-          }
-        } else {
-          if (!other.journalEntries_.isEmpty()) {
-            if (journalEntriesBuilder_.isEmpty()) {
-              journalEntriesBuilder_.dispose();
-              journalEntriesBuilder_ = null;
-              journalEntries_ = other.journalEntries_;
-              bitField1_ = (bitField1_ & ~0x00000008);
-              journalEntriesBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getJournalEntriesFieldBuilder() : null;
-            } else {
-              journalEntriesBuilder_.addAllMessages(other.journalEntries_);
-            }
-          }
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
->>>>>>> OPENSOURCE/master
         return this;
       }
       /**
@@ -9056,15 +8994,9 @@ public final class Journal {
       private java.util.List<alluxio.proto.journal.Journal.JournalEntry> journalEntries_ =
         java.util.Collections.emptyList();
       private void ensureJournalEntriesIsMutable() {
-<<<<<<< HEAD
         if (!((bitField1_ & 0x00000800) == 0x00000800)) {
           journalEntries_ = new java.util.ArrayList<alluxio.proto.journal.Journal.JournalEntry>(journalEntries_);
           bitField1_ |= 0x00000800;
-=======
-        if (!((bitField1_ & 0x00000008) == 0x00000008)) {
-          journalEntries_ = new java.util.ArrayList<alluxio.proto.journal.Journal.JournalEntry>(journalEntries_);
-          bitField1_ |= 0x00000008;
->>>>>>> OPENSOURCE/master
          }
       }
 
@@ -9268,11 +9200,7 @@ public final class Journal {
       public Builder clearJournalEntries() {
         if (journalEntriesBuilder_ == null) {
           journalEntries_ = java.util.Collections.emptyList();
-<<<<<<< HEAD
           bitField1_ = (bitField1_ & ~0x00000800);
-=======
-          bitField1_ = (bitField1_ & ~0x00000008);
->>>>>>> OPENSOURCE/master
           onChanged();
         } else {
           journalEntriesBuilder_.clear();
@@ -9384,11 +9312,7 @@ public final class Journal {
           journalEntriesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               alluxio.proto.journal.Journal.JournalEntry, alluxio.proto.journal.Journal.JournalEntry.Builder, alluxio.proto.journal.Journal.JournalEntryOrBuilder>(
                   journalEntries_,
-<<<<<<< HEAD
                   ((bitField1_ & 0x00000800) == 0x00000800),
-=======
-                  ((bitField1_ & 0x00000008) == 0x00000008),
->>>>>>> OPENSOURCE/master
                   getParentForChildren(),
                   isClean());
           journalEntries_ = null;
@@ -9423,7 +9347,6 @@ public final class Journal {
     java.lang.String[] descriptorData = {
       "\n\025journal/journal.proto\022\025alluxio.proto.j" +
       "ournal\032\023journal/block.proto\032\022journal/fil" +
-<<<<<<< HEAD
       "e.proto\032\027journal/key_value.proto\032\021journa" +
       "l/job.proto\032\025journal/license.proto\032\027jour" +
       "nal/privilege.proto\032\025journal/lineage.pro" +
@@ -9504,71 +9427,6 @@ public final class Journal {
       "ournal_entries\030\' \003(\0132#.alluxio.proto.jou",
       "rnal.JournalEntryB\027\n\025alluxio.proto.journ" +
       "al"
-=======
-      "e.proto\032\027journal/key_value.proto\032\025journa" +
-      "l/lineage.proto\"\204\023\n\014JournalEntry\022\027\n\017sequ" +
-      "ence_number\030\001 \001(\003\022E\n\021active_sync_tx_id\030\"" +
-      " \001(\0132*.alluxio.proto.journal.ActiveSyncT" +
-      "xIdEntry\022@\n\016add_sync_point\030  \001(\0132(.allux" +
-      "io.proto.journal.AddSyncPointEntry\022B\n\017ad" +
-      "d_mount_point\030\002 \001(\0132).alluxio.proto.jour" +
-      "nal.AddMountPointEntry\022N\n\025async_persist_",
-      "request\030\020 \001(\0132/.alluxio.proto.journal.As" +
-      "yncPersistRequestEntry\022[\n\034block_containe" +
-      "r_id_generator\030\003 \001(\01325.alluxio.proto.jou" +
-      "rnal.BlockContainerIdGeneratorEntry\0229\n\nb" +
-      "lock_info\030\004 \001(\0132%.alluxio.proto.journal." +
-      "BlockInfoEntry\022?\n\rcomplete_file\030\005 \001(\0132(." +
-      "alluxio.proto.journal.CompleteFileEntry\022" +
-      "I\n\022complete_partition\030\025 \001(\0132-.alluxio.pr" +
-      "oto.journal.CompletePartitionEntry\022A\n\016co" +
-      "mplete_store\030\026 \001(\0132).alluxio.proto.journ",
-      "al.CompleteStoreEntry\022=\n\014create_store\030\027 " +
-      "\001(\0132\'.alluxio.proto.journal.CreateStoreE" +
-      "ntry\022=\n\014delete_block\030\035 \001(\0132\'.alluxio.pro" +
-      "to.journal.DeleteBlockEntry\022;\n\013delete_fi" +
-      "le\030\006 \001(\0132&.alluxio.proto.journal.DeleteF" +
-      "ileEntry\022A\n\016delete_lineage\030\007 \001(\0132).allux" +
-      "io.proto.journal.DeleteLineageEntry\022H\n\022d" +
-      "elete_mount_point\030\010 \001(\0132,.alluxio.proto." +
-      "journal.DeleteMountPointEntry\022=\n\014delete_" +
-      "store\030\031 \001(\0132\'.alluxio.proto.journal.Dele",
-      "teStoreEntry\022C\n\017inode_directory\030\t \001(\0132*." +
-      "alluxio.proto.journal.InodeDirectoryEntr" +
-      "y\022[\n\034inode_directory_id_generator\030\n \001(\0132" +
-      "5.alluxio.proto.journal.InodeDirectoryId" +
-      "GeneratorEntry\0229\n\ninode_file\030\013 \001(\0132%.all" +
-      "uxio.proto.journal.InodeFileEntry\022[\n\034ino" +
-      "de_last_modification_time\030\014 \001(\01325.alluxi" +
-      "o.proto.journal.InodeLastModificationTim" +
-      "eEntry\0224\n\007lineage\030\r \001(\0132#.alluxio.proto." +
-      "journal.LineageEntry\022L\n\024lineage_id_gener",
-      "ator\030\016 \001(\0132..alluxio.proto.journal.Linea" +
-      "geIdGeneratorEntry\022;\n\013merge_store\030\032 \001(\0132" +
-      "&.alluxio.proto.journal.MergeStoreEntry\022" +
-      "7\n\tnew_block\030& \001(\0132$.alluxio.proto.journ" +
-      "al.NewBlockEntry\022G\n\021persist_directory\030\017 " +
-      "\001(\0132,.alluxio.proto.journal.PersistDirec" +
-      "toryEntry\022G\n\021reinitialize_file\030\022 \001(\0132,.a" +
-      "lluxio.proto.journal.ReinitializeFileEnt" +
-      "ry\022F\n\021remove_sync_point\030! \001(\0132+.alluxio." +
-      "proto.journal.RemoveSyncPointEntry\0222\n\006re",
-      "name\030\023 \001(\0132\".alluxio.proto.journal.Renam" +
-      "eEntry\022=\n\014rename_store\030\034 \001(\0132\'.alluxio.p" +
-      "roto.journal.RenameStoreEntry\0223\n\007set_acl" +
-      "\030\037 \001(\0132\".alluxio.proto.journal.SetAclEnt" +
-      "ry\022?\n\rset_attribute\030\033 \001(\0132(.alluxio.prot" +
-      "o.journal.SetAttributeEntry\022B\n\017update_uf" +
-      "s_mode\030\036 \001(\0132).alluxio.proto.journal.Upd" +
-      "ateUfsModeEntry\022=\n\014update_inode\030# \001(\0132\'." +
-      "alluxio.proto.journal.UpdateInodeEntry\022P" +
-      "\n\026update_inode_directory\030$ \001(\01320.alluxio",
-      ".proto.journal.UpdateInodeDirectoryEntry" +
-      "\022F\n\021update_inode_file\030% \001(\0132+.alluxio.pr" +
-      "oto.journal.UpdateInodeFileEntry\022<\n\017jour" +
-      "nal_entries\030\' \003(\0132#.alluxio.proto.journa" +
-      "l.JournalEntryB\027\n\025alluxio.proto.journal"
->>>>>>> OPENSOURCE/master
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -9580,11 +9438,7 @@ public final class Journal {
           internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-<<<<<<< HEAD
               new java.lang.String[] { "FinishJob", "GetDelegationToken", "LicenseCheck", "PrivilegeUpdate", "RemoveDelegationToken", "RenewDelegationToken", "StartJob", "UpdateMasterKey", "SequenceNumber", "ActiveSyncTxId", "AddSyncPoint", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "NewBlock", "PersistDirectory", "ReinitializeFile", "RemoveSyncPoint", "Rename", "RenameStore", "SetAcl", "SetAttribute", "UpdateUfsMode", "UpdateInode", "UpdateInodeDirectory", "UpdateInodeFile", "JournalEntries", });
-=======
-              new java.lang.String[] { "SequenceNumber", "ActiveSyncTxId", "AddSyncPoint", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteBlock", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "NewBlock", "PersistDirectory", "ReinitializeFile", "RemoveSyncPoint", "Rename", "RenameStore", "SetAcl", "SetAttribute", "UpdateUfsMode", "UpdateInode", "UpdateInodeDirectory", "UpdateInodeFile", "JournalEntries", });
->>>>>>> OPENSOURCE/master
           return null;
         }
       };
