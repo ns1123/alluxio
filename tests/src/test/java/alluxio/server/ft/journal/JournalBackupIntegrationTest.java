@@ -73,7 +73,6 @@ public final class JournalBackupIntegrationTest extends BaseIntegrationTest {
     backupRestoreTest(true);
   }
 
-  // ALLUXIO CS ADD
   @Test
   public void backupRestoreEmbedded() throws Exception {
     mCluster = MultiProcessCluster.newBuilder(PortCoordination.BACKUP_RESTORE_EMBEDDED)
@@ -83,7 +82,6 @@ public final class JournalBackupIntegrationTest extends BaseIntegrationTest {
     backupRestoreTest(true);
   }
 
-  // ALLUXIO CS END
   @Test
   public void backupRestoreSingleMaster() throws Exception {
     mCluster = MultiProcessCluster.newBuilder(PortCoordination.BACKUP_RESTORE_SINGLE)

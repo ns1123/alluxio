@@ -128,6 +128,10 @@ public enum ExceptionMessage {
   JOURNAL_FLUSH_FAILURE("Failed to flush journal file ({0}): {1}"),
   UNEXPECTED_JOURNAL_ENTRY("Unexpected entry in journal: {0}"),
 
+  // Raft journal
+  FAILED_RAFT_BOOTSTRAP("Failed to bootstrap raft cluster with addresses {0}: {1}"),
+  FAILED_RAFT_CONNECT("Failed to connect to raft cluster with addresses {0}: {1}"),
+
   // file
   CANNOT_READ_DIRECTORY("Cannot read from {0} because it is a directory"),
   DELETE_FAILED_DIR_CHILDREN(
@@ -297,10 +301,6 @@ public enum ExceptionMessage {
   SQL_UNSUPPORTED_COLUMN_TYPE("Unsupported column type {0}, for column {1}."),
   SQL_UNSUPPORTED_PARTITION_COLUMN_TYPE("Unsupported partition column type {0}, for db type {1}."),
   SQL_NUM_PARTITIONS_TOO_LARGE("Range of partition column {0} does not support {1} partitions."),
-
-  // Raft journal
-  FAILED_RAFT_BOOTSTRAP("Failed to bootstrap raft cluster with addresses {0}: {1}"),
-  FAILED_RAFT_CONNECT("Failed to connect to raft cluster with addresses {0}: {1}"),
 
   // security
   CAPABILITY_EXPIRED("No capability content found. The capability might have expired"),

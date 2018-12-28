@@ -94,15 +94,16 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <h1>Snapshot control</h1>
  * <p>
- * The way we apply journal entries to the primary makes it tricky to perform primary state snapshots.
- * Normally Copycat would decide when it wants a snapshot, but with the pre-apply protocol we may be
- * in the middle of modifying state when the snapshot would happen. To manage this, we inject an
- * AtomicBoolean into Copycat which decides whether it will be allowed to take snapshots. Normally,
- * snapshots are prohibited on the primary. However, we don't want the primary's log to grow unbounded,
- * so we allow a snapshot to be taken once a day at a user-configured time. To support this, all
- * state changes must first acquire a read lock, and snapshotting requires the corresponding write
- * lock. Once we have the write lock for all state machines, we enable snapshots in Copycat through
- * our AtomicBoolean, then wait for any snapshot to complete.
+ * The way we apply journal entries to the primary makes it tricky to perform
+ * primary state snapshots. Normally Copycat would decide when it wants a snapshot,
+ * but with the pre-apply protocol we may be in the middle of modifying state
+ * when the snapshot would happen. To manage this, we inject an AtomicBoolean into Copycat
+ * which decides whether it will be allowed to take snapshots. Normally, snapshots
+ * are prohibited on the primary. However, we don't want the primary's log to grow unbounded,
+ * so we allow a snapshot to be taken once a day at a user-configured time. To support this,
+ * all state changes must first acquire a read lock, and snapshotting requires the
+ * corresponding write lock. Once we have the write lock for all state machines, we enable
+ * snapshots in Copycat through our AtomicBoolean, then wait for any snapshot to complete.
  */
 @ThreadSafe
 public final class RaftJournalSystem extends AbstractJournalSystem {
@@ -139,7 +140,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
   /// Lifecycle: created at startup and re-created when master loses primacy and resets.
 
   /**
-   * Interacts with Copycat, applying entries to masters, taking snapshots, and installing snapshots.
+   * Interacts with Copycat, applying entries to masters, taking snapshots,
+   * and installing snapshots.
    */
   private JournalStateMachine mStateMachine;
   /**
@@ -356,7 +358,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       }
       long lastAppliedSN = stateMachine.getLastAppliedSequenceNumber();
       long gainPrimacySN = ThreadLocalRandom.current().nextLong(Long.MIN_VALUE, 0);
-      LOG.info("Performing catchup. Last applied SN: {}. Catchup ID: {}", lastAppliedSN, gainPrimacySN);
+      LOG.info("Performing catchup. Last applied SN: {}. Catchup ID: {}",
+          lastAppliedSN, gainPrimacySN);
       CompletableFuture<Void> future = client.submit(new JournalEntryCommand(
           JournalEntry.newBuilder().setSequenceNumber(gainPrimacySN).build()));
       try {
@@ -367,7 +370,8 @@ public final class RaftJournalSystem extends AbstractJournalSystem {
       }
 
       try {
-        CommonUtils.waitFor("term start entry " + gainPrimacySN + " to be applied to state machine", () ->
+        CommonUtils.waitFor("term start entry " + gainPrimacySN
+            + " to be applied to state machine", () ->
             stateMachine.getLastPrimaryStartSequenceNumber() == gainPrimacySN,
             WaitForOptions.defaults()
                 .setInterval(Constants.SECOND_MS)

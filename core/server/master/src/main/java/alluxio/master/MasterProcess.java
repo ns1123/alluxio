@@ -16,6 +16,9 @@ import alluxio.Process;
 import alluxio.PropertyKey;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalUtils;
+import alluxio.master.journal.raft.RaftJournalSystem;
+
+import com.google.common.base.Preconditions;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -39,20 +42,13 @@ public interface MasterProcess extends Process {
       JournalSystem journalSystem =
           new JournalSystem.Builder().setLocation(journalLocation).build();
       if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-        // ALLUXIO CS ADD
-        com.google.common.base.Preconditions.checkState(
-            !(journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystem),
+        Preconditions.checkState(!(journalSystem instanceof RaftJournalSystem),
             "Raft journal cannot be used with Zookeeper enabled");
-        // ALLUXIO CS END
         PrimarySelector primarySelector = PrimarySelector.Factory.createZkPrimarySelector();
         return new FaultTolerantAlluxioMasterProcess(journalSystem, primarySelector);
-        // ALLUXIO CS ADD
-      } else if (journalSystem instanceof alluxio.master.journal.raft.RaftJournalSystem) {
-        PrimarySelector primarySelector =
-            ((alluxio.master.journal.raft.RaftJournalSystem) journalSystem)
-                .getPrimarySelector();
+      } else if (journalSystem instanceof RaftJournalSystem) {
+        PrimarySelector primarySelector = ((RaftJournalSystem) journalSystem).getPrimarySelector();
         return new FaultTolerantAlluxioMasterProcess(journalSystem, primarySelector);
-        // ALLUXIO CS END
       }
       return new AlluxioMasterProcess(journalSystem);
     }

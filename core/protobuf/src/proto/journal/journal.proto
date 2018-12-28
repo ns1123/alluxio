@@ -21,7 +21,7 @@ import "journal/lineage.proto";
 // and Spark. We use protobuf version 2.5.0 instead, which is compatible with Hadoop and Spark.
 //
 
-// next available id: 39
+// next available id: 40
 message JournalEntry {
   // ALLUXIO CS ADD
   // next available id: 1010
@@ -33,9 +33,6 @@ message JournalEntry {
   optional RenewDelegationTokenEntry renew_delegation_token = 1009;
   optional StartJobEntry start_job = 1003;
   optional UpdateMasterKeyEntry update_master_key = 1007;
-  // This journal entry is a list of other entries. when a journal entry
-  // contains other journal entries, all other optional fields must be unset.
-  repeated JournalEntry journal_entries = 1005;
   // ALLUXIO CS END
   optional int64 sequence_number = 1;
   optional ActiveSyncTxIdEntry active_sync_tx_id = 34;
@@ -76,4 +73,8 @@ message JournalEntry {
   optional UpdateInodeEntry update_inode = 35;
   optional UpdateInodeDirectoryEntry update_inode_directory = 36;
   optional UpdateInodeFileEntry update_inode_file = 37;
+
+  // This journal entry is a list of other entries. when a journal entry
+  // contains other journal entries, all other optional fields must be unset.
+  repeated JournalEntry journal_entries = 39;
 }

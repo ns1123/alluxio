@@ -23,22 +23,8 @@ public class MasterNetAddress {
   private final String mHostname;
   private final int mRpcPort;
   private final int mWebPort;
-  // ALLUXIO CS ADD
   private final int mEmbeddedJournalPort;
-  // ALLUXIO CS END
 
-  // ALLUXIO CS REPLACE
-  // /**
-  //  * @param hostname master hostname
-  //  * @param rpcPort master RPC port
-  //  * @param webPort master web port
-  //  */
-  // public MasterNetAddress(String hostname, int rpcPort, int webPort) {
-  //   mHostname = hostname;
-  //   mRpcPort = rpcPort;
-  //   mWebPort = webPort;
-  // }
-  // ALLUXIO CS WITH
   /**
    * @param hostname master hostname
    * @param rpcPort master RPC port
@@ -51,7 +37,6 @@ public class MasterNetAddress {
     mWebPort = webPort;
     mEmbeddedJournalPort = embeddedJournalPort;
   }
-  // ALLUXIO CS END
 
   /**
    * @return the master hostname
@@ -74,23 +59,20 @@ public class MasterNetAddress {
     return mWebPort;
   }
 
-  // ALLUXIO CS ADD
   /**
    * @return the embedded journal port
    */
   public int getEmbeddedJournalPort() {
     return mEmbeddedJournalPort;
   }
-  // ALLUXIO CS END
+
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
         .add("hostname", mHostname)
         .add("rpcPort", mRpcPort)
         .add("webPort", mWebPort)
-        // ALLUXIO CS ADD
         .add("embeddedJournalPort", mEmbeddedJournalPort)
-        // ALLUXIO CS END
         .toString();
   }
 }

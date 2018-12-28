@@ -30,8 +30,10 @@ import alluxio.exception.status.UnavailableException;
 import alluxio.master.LocalAlluxioCluster;
 import alluxio.master.MasterClientConfig;
 import alluxio.master.MasterInquireClient;
+import alluxio.master.PollingMasterInquireClient;
 import alluxio.master.SingleMasterInquireClient;
 import alluxio.master.ZkMasterInquireClient;
+import alluxio.master.journal.JournalType;
 import alluxio.multi.process.PortCoordination.ReservedPort;
 import alluxio.network.PortUtils;
 import alluxio.util.CommonUtils;
@@ -83,11 +85,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class MultiProcessCluster {
   public static final String ALLUXIO_USE_FIXED_TEST_PORTS = "ALLUXIO_USE_FIXED_TEST_PORTS";
-  // ALLUXIO CS REPLACE
-  // public static final int PORTS_PER_MASTER = 2;
-  // ALLUXIO CS WITH
   public static final int PORTS_PER_MASTER = 3;
-  // ALLUXIO CS END
   public static final int PORTS_PER_WORKER = 3;
 
   private static final Logger LOG = LoggerFactory.getLogger(MultiProcessCluster.class);
@@ -168,7 +166,6 @@ public final class MultiProcessCluster {
         mProperties.put(PropertyKey.MASTER_RPC_PORT, Integer.toString(masterAddress.getRpcPort()));
         mProperties.put(PropertyKey.MASTER_WEB_PORT, Integer.toString(masterAddress.getWebPort()));
         break;
-      // ALLUXIO CS ADD
       case EMBEDDED_HA:
         List<String> journalAddresses = new ArrayList<>();
         List<String> rpcAddresses = new ArrayList<>();
@@ -177,14 +174,12 @@ public final class MultiProcessCluster {
               .add(String.format("%s:%d", address.getHostname(), address.getEmbeddedJournalPort()));
           rpcAddresses.add(String.format("%s:%d", address.getHostname(), address.getRpcPort()));
         }
-        mProperties.put(PropertyKey.MASTER_JOURNAL_TYPE,
-            alluxio.master.journal.JournalType.EMBEDDED.toString());
+        mProperties.put(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.EMBEDDED.toString());
         mProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES,
             com.google.common.base.Joiner.on(",").join(journalAddresses));
         mProperties.put(PropertyKey.MASTER_RPC_ADDRESSES,
             com.google.common.base.Joiner.on(",").join(rpcAddresses));
         break;
-      // ALLUXIO CS END
       case ZOOKEEPER_HA:
         mCuratorServer = mCloser.register(
             new RestartableTestingServer(-1, AlluxioTestDirectory.createTemporaryDirectory("zk")));
@@ -454,7 +449,6 @@ public final class MultiProcessCluster {
    */
   public synchronized void updateDeployMode(DeployMode mode) {
     mDeployMode = mode;
-    // ALLUXIO CS ADD
     if (mDeployMode == DeployMode.EMBEDDED_HA) {
       // Ensure that the journal properties are set correctly.
       for (int i = 0; i < mMasters.size(); i++) {
@@ -468,7 +462,6 @@ public final class MultiProcessCluster {
         master.updateConf(PropertyKey.MASTER_JOURNAL_FOLDER, journalDir.getAbsolutePath());
       }
     }
-    // ALLUXIO CS END
   }
 
   /**
@@ -526,7 +519,6 @@ public final class MultiProcessCluster {
     conf.put(PropertyKey.MASTER_HOSTNAME, address.getHostname());
     conf.put(PropertyKey.MASTER_RPC_PORT, Integer.toString(address.getRpcPort()));
     conf.put(PropertyKey.MASTER_WEB_PORT, Integer.toString(address.getWebPort()));
-    // ALLUXIO CS ADD
     conf.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_PORT,
         Integer.toString(address.getEmbeddedJournalPort()));
     if (mDeployMode.equals(DeployMode.EMBEDDED_HA)) {
@@ -534,7 +526,6 @@ public final class MultiProcessCluster {
       journalDir.mkdirs();
       conf.put(PropertyKey.MASTER_JOURNAL_FOLDER, journalDir.getAbsolutePath());
     }
-    // ALLUXIO CS END
     Master master = mCloser.register(new Master(logsDir, conf));
     mMasters.add(master);
     return master;
@@ -578,7 +569,6 @@ public final class MultiProcessCluster {
    * Formats the cluster journal.
    */
   public synchronized void formatJournal() throws IOException {
-    // ALLUXIO CS ADD
     if (mDeployMode == DeployMode.EMBEDDED_HA) {
       for (Master master : mMasters) {
         File journalDir = new File(master.getConf().get(PropertyKey.MASTER_JOURNAL_FOLDER));
@@ -587,7 +577,6 @@ public final class MultiProcessCluster {
       }
       return;
     }
-    // ALLUXIO CS END
     try (Closeable c = new ConfigurationRule(PropertyKey.MASTER_JOURNAL_FOLDER,
         mProperties.get(PropertyKey.MASTER_JOURNAL_FOLDER)).toResource()) {
       Format.format(Format.Mode.MASTER);
@@ -606,14 +595,12 @@ public final class MultiProcessCluster {
             "Running with multiple masters requires Zookeeper to be enabled");
         return new SingleMasterInquireClient(new InetSocketAddress(
             mMasterAddresses.get(0).getHostname(), mMasterAddresses.get(0).getRpcPort()));
-      // ALLUXIO CS ADD
       case EMBEDDED_HA:
         List<InetSocketAddress> addresses = new ArrayList<>(mMasterAddresses.size());
         for (MasterNetAddress address : mMasterAddresses) {
           addresses.add(new InetSocketAddress(address.getHostname(), address.getRpcPort()));
         }
-        return new alluxio.master.PollingMasterInquireClient(addresses);
-      // ALLUXIO CS END
+        return new PollingMasterInquireClient(addresses);
       case ZOOKEEPER_HA:
         return ZkMasterInquireClient.getClient(mCuratorServer.getConnectString(),
             Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH),
@@ -674,14 +661,8 @@ public final class MultiProcessCluster {
   private List<MasterNetAddress> generateMasterAddresses(int numMasters) throws IOException {
     List<MasterNetAddress> addrs = new ArrayList<>();
     for (int i = 0; i < numMasters; i++) {
-      // ALLUXIO CS REPLACE
-      // addrs.add(
-      //     new MasterNetAddress(NetworkAddressUtils.getLocalHostName(), getNewPort(), getNewPort()));
-      // ALLUXIO CS WITH
-      // Enterprise requires an additional port for embedded journal communication.
       addrs.add(new MasterNetAddress(NetworkAddressUtils.getLocalHostName(),
           getNewPort(), getNewPort(), getNewPort()));
-      // ALLUXIO CS END
     }
     return addrs;
   }
@@ -694,9 +675,7 @@ public final class MultiProcessCluster {
    * Deploy mode for the cluster.
    */
   public enum DeployMode {
-    // ALLUXIO CS ADD
     EMBEDDED_HA,
-    // ALLUXIO CS END
     NON_HA, ZOOKEEPER_HA
   }
 

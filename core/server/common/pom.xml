@@ -30,7 +30,6 @@
 
   <dependencies>
     <!-- External dependencies -->
-    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
@@ -47,7 +46,6 @@
       <groupId>io.atomix.catalyst</groupId>
       <artifactId>catalyst-netty</artifactId>
     </dependency>
-    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>

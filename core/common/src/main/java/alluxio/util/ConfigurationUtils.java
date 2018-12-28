@@ -13,10 +13,12 @@ package alluxio.util;
 
 import static java.util.stream.Collectors.toList;
 
+import alluxio.AlluxioConfiguration;
 import alluxio.Configuration;
 import alluxio.ConfigurationValueOptions;
 import alluxio.PropertyKey;
 import alluxio.util.io.PathUtils;
+import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.ConfigProperty;
 import alluxio.wire.Scope;
 
@@ -27,7 +29,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -40,7 +44,6 @@ public final class ConfigurationUtils {
   private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUtils.class);
 
   private ConfigurationUtils() {} // prevent instantiation
-  // ALLUXIO CS ADD
 
   /**
    * Gets the RPC addresses of all masters based on the configuration.
@@ -48,13 +51,11 @@ public final class ConfigurationUtils {
    * @param conf the configuration to use
    * @return the master rpc addresses
    */
-  public static java.util.List<java.net.InetSocketAddress> getMasterRpcAddresses(
-      alluxio.AlluxioConfiguration conf) {
+  public static List<InetSocketAddress> getMasterRpcAddresses(AlluxioConfiguration conf) {
     if (conf.isSet(PropertyKey.MASTER_RPC_ADDRESSES)) {
       return parseInetSocketAddresses(conf.getList(PropertyKey.MASTER_RPC_ADDRESSES, ","));
     } else {
-      int rpcPort = alluxio.util.network.NetworkAddressUtils
-          .getPort(alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC, conf);
+      int rpcPort = NetworkAddressUtils.getPort(NetworkAddressUtils.ServiceType.MASTER_RPC, conf);
       return getRpcAddresses(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES, rpcPort, conf);
     }
   }
@@ -65,10 +66,8 @@ public final class ConfigurationUtils {
    * @param conf the configuration to use
    * @return the job master rpc addresses
    */
-  public static java.util.List<java.net.InetSocketAddress> getJobMasterRpcAddresses(
-      alluxio.AlluxioConfiguration conf) {
-    int jobRpcPort = alluxio.util.network.NetworkAddressUtils
-        .getPort(alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC);
+  public static List<InetSocketAddress> getJobMasterRpcAddresses(AlluxioConfiguration conf) {
+    int jobRpcPort = NetworkAddressUtils.getPort(NetworkAddressUtils.ServiceType.JOB_MASTER_RPC);
     if (conf.isSet(PropertyKey.JOB_MASTER_RPC_ADDRESSES)) {
       return parseInetSocketAddresses(
           conf.getList(PropertyKey.JOB_MASTER_RPC_ADDRESSES, ","));
@@ -88,14 +87,13 @@ public final class ConfigurationUtils {
    * @return a list of inet addresses using the hostnames from addressesKey with the port
    *         overridePort
    */
-  private static java.util.List<java.net.InetSocketAddress> getRpcAddresses(
-      PropertyKey addressesKey, int overridePort, alluxio.AlluxioConfiguration conf) {
-    java.util.List<java.net.InetSocketAddress> addresses =
+  private static List<InetSocketAddress> getRpcAddresses(
+      PropertyKey addressesKey, int overridePort, AlluxioConfiguration conf) {
+    List<InetSocketAddress> addresses =
         parseInetSocketAddresses(conf.getList(addressesKey, ","));
-    java.util.List<java.net.InetSocketAddress> newAddresses =
-        new java.util.ArrayList<>(addresses.size());
-    for (java.net.InetSocketAddress addr : addresses) {
-      newAddresses.add(new java.net.InetSocketAddress(addr.getHostName(), overridePort));
+    List<InetSocketAddress> newAddresses = new ArrayList<>(addresses.size());
+    for (InetSocketAddress addr : addresses) {
+      newAddresses.add(new InetSocketAddress(addr.getHostName(), overridePort));
     }
     return newAddresses;
   }
@@ -104,21 +102,18 @@ public final class ConfigurationUtils {
    * @param addresses a list of address strings in the form "hostname:port"
    * @return a list of InetSocketAddresses representing the given address strings
    */
-  private static java.util.List<java.net.InetSocketAddress> parseInetSocketAddresses(
-      java.util.List<String> addresses) {
-    java.util.List<java.net.InetSocketAddress> inetSocketAddresses =
-        new java.util.ArrayList<>(addresses.size());
+  private static List<InetSocketAddress> parseInetSocketAddresses(List<String> addresses) {
+    List<InetSocketAddress> inetSocketAddresses =
+        new ArrayList<>(addresses.size());
     for (String address : addresses) {
       try {
-        inetSocketAddresses
-            .add(alluxio.util.network.NetworkAddressUtils.parseInetSocketAddress(address));
+        inetSocketAddresses.add(NetworkAddressUtils.parseInetSocketAddress(address));
       } catch (IOException e) {
         throw new IllegalArgumentException("Failed to parse host:port: " + address, e);
       }
     }
     return inetSocketAddresses;
   }
-  // ALLUXIO CS END
 
   /**
    * Loads properties from a resource.
@@ -200,13 +195,9 @@ public final class ConfigurationUtils {
    */
   public static boolean jobMasterHostConfigured() {
     boolean usingZk = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
-        && Configuration.containsKey(PropertyKey.ZOOKEEPER_ADDRESS);
-    // ALLUXIO CS REPLACE
-    // return Configuration.isSet(PropertyKey.JOB_MASTER_HOSTNAME) || usingZk;
-    // ALLUXIO CS WITH
-    return Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME) || usingZk
+        && Configuration.isSet(PropertyKey.ZOOKEEPER_ADDRESS);
+    return Configuration.isSet(PropertyKey.JOB_MASTER_HOSTNAME) || usingZk
         || getJobMasterRpcAddresses(Configuration.global()).size() > 1;
-    // ALLUXIO CS END
   }
 
   /**
@@ -216,12 +207,8 @@ public final class ConfigurationUtils {
   public static boolean masterHostConfigured() {
     boolean usingZk = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
         && Configuration.isSet(PropertyKey.ZOOKEEPER_ADDRESS);
-    // ALLUXIO CS REPLACE
-    // return Configuration.isSet(PropertyKey.MASTER_HOSTNAME) || usingZk;
-    // ALLUXIO CS WITH
     return Configuration.isSet(PropertyKey.MASTER_HOSTNAME) || usingZk
         || getMasterRpcAddresses(Configuration.global()).size() > 1;
-    // ALLUXIO CS END
   }
 
   /**
