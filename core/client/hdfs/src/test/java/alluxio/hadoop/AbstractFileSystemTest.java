@@ -36,6 +36,7 @@ import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.URIStatus;
 import alluxio.master.MasterInquireClient;
 import alluxio.master.SingleMasterInquireClient.SingleMasterConnectDetails;
+import alluxio.util.ConfigurationUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
@@ -171,7 +172,6 @@ public class AbstractFileSystemTest {
     assertTrue(fs instanceof FileSystem);
   }
 
-  // ALLUXIO CS ADD
   @Test
   public void hadoopShouldLoadFileSystemWithMultiMasterUri() throws Exception {
     URI uri = URI.create("alluxio://host1:19998,host2:19998,host3:19998/path");
@@ -191,7 +191,6 @@ public class AbstractFileSystemTest {
     assertTrue(fs instanceof FileSystem);
   }
 
-  // ALLUXIO CS END
   @Test
   public void useSameContextWithZookeeper() throws Exception {
     URI uri = URI.create(Constants.HEADER + "dummyHost:19998/");
@@ -314,7 +313,6 @@ public class AbstractFileSystemTest {
     verify(mMockFileSystemContext, times(2)).reset(alluxio.Configuration.global());
   }
 
-  // ALLUXIO CS ADD
   @Test
   public void resetContextUsingMultiMasterUris() throws Exception {
     // Change to multi-master uri
@@ -340,7 +338,7 @@ public class AbstractFileSystemTest {
 
     assertFalse(alluxio.Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
     assertEquals(3,
-        alluxio.util.ConfigurationUtils.getMasterRpcAddresses(alluxio.Configuration.global()).size());
+        ConfigurationUtils.getMasterRpcAddresses(alluxio.Configuration.global()).size());
     assertEquals("host1:19998,host2:19998,host3:19998",
         alluxio.Configuration.get(PropertyKey.MASTER_RPC_ADDRESSES));
 
@@ -354,7 +352,7 @@ public class AbstractFileSystemTest {
 
     assertFalse(alluxio.Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
     assertEquals(3,
-        alluxio.util.ConfigurationUtils.getMasterRpcAddresses(alluxio.Configuration.global()).size());
+        ConfigurationUtils.getMasterRpcAddresses(alluxio.Configuration.global()).size());
     assertEquals("host1:19998,host2:19998,host3:19998",
         alluxio.Configuration.get(PropertyKey.MASTER_RPC_ADDRESSES));
 
@@ -365,12 +363,11 @@ public class AbstractFileSystemTest {
     assertEquals(PropertyKey.MASTER_JOURNAL_TYPE.getDefaultValue(),
         alluxio.Configuration.get(PropertyKey.MASTER_JOURNAL_TYPE));
     assertEquals(1,
-        alluxio.util.ConfigurationUtils.getMasterRpcAddresses(alluxio.Configuration.global()).size());
+        ConfigurationUtils.getMasterRpcAddresses(alluxio.Configuration.global()).size());
 
     verify(mMockFileSystemContext, times(2)).reset(alluxio.Configuration.global());
   }
 
-  // ALLUXIO CS END
   /**
    * Verifies that the initialize method is only called once even when there are many concurrent
    * initializers during the initialization phase.

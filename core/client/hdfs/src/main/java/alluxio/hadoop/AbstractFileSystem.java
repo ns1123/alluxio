@@ -40,6 +40,7 @@ import alluxio.master.MasterInquireClient.Factory;
 import alluxio.security.User;
 import alluxio.security.authorization.Mode;
 import alluxio.uri.Authority;
+import alluxio.uri.MultiMasterAuthority;
 import alluxio.uri.SingleMasterAuthority;
 import alluxio.uri.UnknownAuthority;
 import alluxio.uri.ZookeeperAuthority;
@@ -562,19 +563,18 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       alluxioConfProperties.put(PropertyKey.MASTER_RPC_PORT.getName(), authority.getPort());
       alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ENABLED.getName(), false);
       alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ADDRESS.getName(), null);
-      // ALLUXIO CS ADD
-      // Unset the embedded journal related configuration to support alluxio URI has the highest priority
+      // Unset the embedded journal related configuration
+      // to support alluxio URI has the highest priority
       alluxioConfProperties.put(PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES.getName(),
           PropertyKey.MASTER_EMBEDDED_JOURNAL_ADDRESSES.getDefaultValue());
       alluxioConfProperties.put(PropertyKey.MASTER_RPC_ADDRESSES.getName(), null);
-    } else if (alluxioUri.getAuthority() instanceof alluxio.uri.MultiMasterAuthority) {
-      alluxio.uri.MultiMasterAuthority authority =
-          (alluxio.uri.MultiMasterAuthority) alluxioUri.getAuthority();
-      alluxioConfProperties.put(PropertyKey.MASTER_RPC_ADDRESSES.getName(), authority.getMasterAddresses());
+    } else if (alluxioUri.getAuthority() instanceof MultiMasterAuthority) {
+      MultiMasterAuthority authority = (MultiMasterAuthority) alluxioUri.getAuthority();
+      alluxioConfProperties.put(PropertyKey.MASTER_RPC_ADDRESSES.getName(),
+          authority.getMasterAddresses());
       // Unset the zookeeper configuration to support alluxio URI has the highest priority
       alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ENABLED.getName(), false);
       alluxioConfProperties.put(PropertyKey.ZOOKEEPER_ADDRESS.getName(), null);
-      // ALLUXIO CS END
     }
     return alluxioConfProperties;
   }

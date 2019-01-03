@@ -26,9 +26,7 @@ public interface Authority extends Comparable<Authority>, Serializable {
   Pattern SINGLE_MASTER_AUTH = Pattern.compile("^([^:,;]+):(\\d+)$");
   // We allow zookeeper authorities to be delimited by ',' ';' or '+'.
   Pattern ZOOKEEPER_AUTH = Pattern.compile("^zk@([^:,;+]+:\\d+([,;+][^:,;+]+:\\d+)*)$");
-  // ALLUXIO CS ADD
   Pattern MULTI_MASTERS_AUTH = Pattern.compile("^[^:,;]+:\\d+([,;][^:,;]+:\\d+)+$");
-  // ALLUXIO CS END
 
   /**
    * Gets the Authority object from the input string.
@@ -48,12 +46,10 @@ public interface Authority extends Comparable<Authority>, Serializable {
       if (matcher.matches()) {
         return new SingleMasterAuthority(matcher.group(1), Integer.parseInt(matcher.group(2)));
       } else {
-        // ALLUXIO CS ADD
         matcher = MULTI_MASTERS_AUTH.matcher(authority);
         if (matcher.matches()) {
           return new MultiMasterAuthority(authority);
         }
-        // ALLUXIO CS END
         return new UnknownAuthority(authority);
       }
     }
