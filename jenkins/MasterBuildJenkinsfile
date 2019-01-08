@@ -24,7 +24,7 @@ pipeline {
                     ]]
                 ])
                 timeout(90) {timestamps {script {
-                    sh sudo -u jenkins ./dev/jenkins/run_docker.sh
+                    sh 'sudo -u jenkins dev/jenkins/run_docker.sh'
                 }}}
             }
             post {
