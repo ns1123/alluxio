@@ -58,7 +58,12 @@ function main {
   # Use this as an entrypoint instead of image argument so that it can be interrupted by Ctrl-C
   run_args+=" --entrypoint=dev/jenkins/build.sh"
 
+  # ALLUXIO CS ADD
+  run_args+=" -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+  run_args+=" -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+  # ALLUXIO CS END
   docker run ${run_args} ${ALLUXIO_DOCKER_IMAGE} $@
 }
 
-main $@
+main "$@"
+# ALLUXIO CS MODIFIED
