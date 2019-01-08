@@ -26,7 +26,7 @@ then
 fi
 
 docker run \
-       --rm \
+       -it --rm \
        --cap-add SYS_ADMIN \
        --device /dev/fuse \
        --security-opt apparmor:unconfined \
@@ -37,8 +37,9 @@ docker run \
        -e npm_config_cache=/home/jenkins/.npm \
        -e MAVEN_CONFIG=/home/jenkins/.m2 \
        -e ALLUXIO_USE_FIXED_TEST_PORTS=true \
+       --entrypoint dev/jenkins/build.sh \
        ${ALLUXIO_DOCKER_IMAGE} \
-       dev/jenkins/build.sh
+       $@
 
 # Needed to run fuse tests:
 # --cap-add SYS_ADMIN
