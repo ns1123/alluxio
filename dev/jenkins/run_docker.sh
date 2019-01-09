@@ -12,110 +12,6 @@
 
 set -e
 
-<<<<<<< HEAD
-function main {
-  if [ -z "${ALLUXIO_DOCKER_ID}" ]
-  then
-    ALLUXIO_DOCKER_ID="$(id -u)"
-  fi
-  if [ -z "${ALLUXIO_DOCKER_M2}" ]
-  then
-    ALLUXIO_DOCKER_M2="${HOME}/.m2"
-  fi
-  if [ -z "${ALLUXIO_DOCKER_IMAGE}" ]
-  then
-    ALLUXIO_DOCKER_IMAGE="alluxio/alluxio-maven:0.0.3"
-  fi
-
-  local run_args="--rm"
-
-  if [ -z ${ALLUXIO_DOCKER_NO_TTY} ]
-  then
-    run_args+=" -it"
-  fi
-
-  # Needed to run fuse tests:
-  run_args+=" --cap-add SYS_ADMIN"
-  run_args+=" --device /dev/fuse"
-  run_args+=" --security-opt apparmor:unconfined"
-
-  # Run as the host jenkins user so that files written to .m2 are written as jenkins.
-  # Use group 0 to get certain elevated permissions.
-  run_args+=" --user ${ALLUXIO_DOCKER_ID}:0"
-
-  # Mount the local directory inside the docker container, and set it as the working directory
-  run_args+=" -v $(pwd):/usr/src/alluxio"
-  run_args+=" -w /usr/src/alluxio"
-
-  # Since we're running as a user unknown to the Docker container, we need to explicitly
-  # configure anything that's relative to ${HOME}.
-  run_args+=" -v ${ALLUXIO_DOCKER_M2}:/home/jenkins/.m2"
-  run_args+=" -e npm_config_cache=/home/jenkins/.npm"
-  run_args+=" -e HOME=/home/jenkins"
-  run_args+=" -e MAVEN_CONFIG=/home/jenkins/.m2"
-
-  run_args+=" -e ALLUXIO_USE_FIXED_TEST_PORTS=true"
-
-  # Use this as an entrypoint instead of image argument so that it can be interrupted by Ctrl-C
-  run_args+=" --entrypoint=dev/jenkins/build.sh"
-
-  # ALLUXIO CS ADD
-  run_args+=" -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
-  run_args+=" -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-  # ALLUXIO CS END
-  docker run ${run_args} ${ALLUXIO_DOCKER_IMAGE} $@
-}
-
-main "$@"
-# ALLUXIO CS MODIFIED
-||||||| merged common ancestors
-if [ -z "${ALLUXIO_DOCKER_ID}" ]
-then
-  ALLUXIO_DOCKER_ID="$(id -u)"
-fi
-if [ -z "${ALLUXIO_DOCKER_M2}" ]
-then
-  ALLUXIO_DOCKER_M2="${HOME}/.m2"
-fi
-if [ -z "${ALLUXIO_DOCKER_IMAGE}" ]
-then
-  ALLUXIO_DOCKER_IMAGE="alluxio/alluxio-maven:0.0.3"
-fi
-
-docker run \
-       --rm \
-       --cap-add SYS_ADMIN \
-       --device /dev/fuse \
-       --security-opt apparmor:unconfined \
-       --user ${ALLUXIO_DOCKER_ID}:0 \
-       -v $(pwd):/usr/src/alluxio \
-       -w /usr/src/alluxio \
-       -v ${ALLUXIO_DOCKER_M2}:/home/jenkins/.m2 \
-       -e npm_config_cache=/home/jenkins/.npm \
-       -e MAVEN_CONFIG=/home/jenkins/.m2 \
-       -e ALLUXIO_USE_FIXED_TEST_PORTS=true \
-       ${ALLUXIO_DOCKER_IMAGE} \
-       dev/jenkins/build.sh
-
-# Needed to run fuse tests:
-# --cap-add SYS_ADMIN
-# --device /dev/fuse
-# --security-opt apparmor:unconfined
-
-# Run as the host jenkins user so that files written to .m2 are written as jenkins.
-# Use group 0 to get certain elevated permissions.
-# --user $(id -u jenkins):0
-
-# Mount the local directory inside the docker container, and set it as the working directory
-# -v $(pwd):/usr/src/alluxio
-# -w /usr/src/alluxio
-
-# Since we're running as a user unknown to the Docker container, we need to explicitly
-# configure anything that's relative to ${HOME}.
-# -v ${ALLUXIO_DOCKER_M2}:/home/jenkins/.m2
-# -e npm_config_cache=/home/jenkins/.npm
-# -e MAVEN_CONFIG=/home/jenkins/.m2
-=======
 function main {
   if [ -z "${ALLUXIO_DOCKER_ID}" ]
   then
@@ -163,8 +59,12 @@ function main {
   # Use this as an entrypoint instead of image argument so that it can be interrupted by Ctrl-C
   run_args+=" --entrypoint=dev/jenkins/build.sh"
 
+  # ALLUXIO CS ADD
+  run_args+=" -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+  run_args+=" -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+  # ALLUXIO CS END
   docker run ${run_args} ${ALLUXIO_DOCKER_IMAGE} $@
 }
 
 main "$@"
->>>>>>> OPENSOURCE/master
+# ALLUXIO CS MODIFIED

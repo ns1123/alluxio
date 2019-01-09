@@ -26,10 +26,4 @@ then
 fi
 
 git clean -fdx
-<<<<<<< HEAD
-mvn -Duser.home=/home/jenkins -T 4C clean install -PcompileJsp -Pdeveloper -Dmaven.javadoc.skip -Dsurefire.forkCount=8 $@
-||||||| merged common ancestors
-mvn -Duser.home=/home/jenkins -T 4C clean install -PcompileJsp -Pdeveloper -Dmaven.javadoc.skip -Dsurefire.forkCount=8
-=======
 mvn -Duser.home=/home/jenkins -T 4C clean install -PcompileJsp -Pdeveloper -Dmaven.javadoc.skip -Dsurefire.forkCount=${ALLUXIO_BUILD_FORKCOUNT} $@
->>>>>>> OPENSOURCE/master
