@@ -22,6 +22,7 @@ public enum HdfsVersion {
   HADOOP_2_2("hadoop-2.2", "(hadoop-?2\\.2(\\.(\\d+))?|2\\.2(\\.(\\d+)(-.*)?)?)"),
   HADOOP_2_3("hadoop-2.3", "(hadoop-?2\\.3(\\.(\\d+))?|2\\.3(\\.(\\d+)(-.*)?)?)"),
   HADOOP_2_4("hadoop-2.4", "(hadoop-?2\\.4(\\.(\\d+))?|2\\.4(\\.(\\d+)(-.*)?)?)"),
+<<<<<<< HEAD
   HADOOP_2_5("hadoop-2.5", "(hadoop-?2\\.5(\\.(\\d+))?|2\\.5(\\.(\\d+)(-(?!mapr).*)?)?)"),
   HADOOP_2_6("hadoop-2.6", "(hadoop-?2\\.6(\\.(\\d+))?|2\\.6(\\.(\\d+)(-(?!cdh).*)?)?)"),
   HADOOP_2_7("hadoop-2.7", "(hadoop-?2\\.7(\\.(\\d+))?|2\\.7(\\.(\\d+)(-(?!cdh|mapr).*)?)?)"),
@@ -43,6 +44,15 @@ public enum HdfsVersion {
   MAPR_5_0("maprfs-5.0", "(maprfs-?5\\.0|2\\.7\\.0-mapr-1506)"),
   MAPR_5_1("maprfs-5.1", "(maprfs-?5\\.1|2\\.7\\.0-mapr-1602)"),
   MAPR_5_2("maprfs-5.2", "(maprfs-?5\\.2|2\\.7\\.0-mapr-1607)"),
+=======
+  HADOOP_2_5("hadoop-2.5", "(hadoop-?2\\.5(\\.(\\d+))?|2\\.5(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_2_6("hadoop-2.6", "(hadoop-?2\\.6(\\.(\\d+))?|2\\.6(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_2_7("hadoop-2.7", "(hadoop-?2\\.7(\\.(\\d+))?|2\\.7(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_2_8("hadoop-2.8", "(hadoop-?2\\.8(\\.(\\d+))?|2\\.8(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_2_9("hadoop-2.9", "(hadoop-?2\\.9(\\.(\\d+))?|2\\.9(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_3_0("hadoop-3.0", "(hadoop-?3\\.0(\\.(\\d+))?|3\\.0(\\.(\\d+)(-.*)?)?)"),
+  HADOOP_3_1("hadoop-3.1", "(hadoop-?3\\.1(\\.(\\d+))?|3\\.1(\\.(\\d+)(-.*)?)?)"),
+>>>>>>> OPENSOURCE/master
   ;
 
   private final String mCanonicalVersion;

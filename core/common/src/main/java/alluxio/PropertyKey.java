@@ -3351,6 +3351,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.NONE)
           .build();
+<<<<<<< HEAD
   // ALLUXIO CS ADD
 
   public static final PropertyKey LIB_DIR =
@@ -3656,6 +3657,15 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
   }
   // ALLUXIO CS END
+=======
+  // Assumes that HDFS is the UFS and version is 2.2
+  // TODO(ns) Fix default value to handle other UFS types
+  public static final PropertyKey UNDERFS_VERSION =
+      new Builder(Name.UNDERFS_VERSION)
+          .setDefaultValue("2.2")
+          .setIsHidden(true)
+          .build();
+>>>>>>> OPENSOURCE/master
 
   //
   // Job service
@@ -3860,6 +3870,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String UNDERFS_HDFS_IMPL = "alluxio.underfs.hdfs.impl";
     public static final String UNDERFS_HDFS_PREFIXES = "alluxio.underfs.hdfs.prefixes";
     public static final String UNDERFS_HDFS_REMOTE = "alluxio.underfs.hdfs.remote";
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     public static final String UNDERFS_HDFS_VERSION = "alluxio.underfs.hdfs.version";
     public static final String UNDERFS_VERSION = "alluxio.underfs.version";
@@ -3869,6 +3880,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS =
         "alluxio.underfs.security.authorization.plugin.paths";
     // ALLUXIO CS END
+=======
+    public static final String UNDERFS_VERSION = "alluxio.underfs.version";
+>>>>>>> OPENSOURCE/master
     public static final String UNDERFS_OBJECT_STORE_SERVICE_THREADS =
         "alluxio.underfs.object.store.service.threads";
     public static final String UNDERFS_OBJECT_STORE_MOUNT_SHARED_PUBLICLY =

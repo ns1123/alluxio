@@ -74,6 +74,7 @@ public class HdfsVersionTest {
     Assert.assertEquals(HdfsVersion.HADOOP_2_8, HdfsVersion.find("hadoop-2.8"));
     Assert.assertEquals(HdfsVersion.HADOOP_2_8, HdfsVersion.find("hadoop-2.8.0"));
     Assert.assertEquals(HdfsVersion.HADOOP_2_8, HdfsVersion.find("hadoop2.8"));
+<<<<<<< HEAD
     Assert.assertEquals(HdfsVersion.CDH_5_6, HdfsVersion.find("2.6.0-cdh5.6.0"));
     Assert.assertEquals(HdfsVersion.CDH_5_6, HdfsVersion.find("cdh-5.6"));
     Assert.assertEquals(HdfsVersion.CDH_5_6, HdfsVersion.find("cdh5.6"));
@@ -101,5 +102,7 @@ public class HdfsVersionTest {
     Assert.assertEquals(HdfsVersion.MAPR_5_2, HdfsVersion.find("maprfs-5.2"));
     Assert.assertEquals(HdfsVersion.MAPR_5_2, HdfsVersion.find("2.7.0-mapr-1607"));
     Assert.assertEquals(HdfsVersion.MAPR_4_1, HdfsVersion.find("2.5.1-mapr-1503"));
+=======
+>>>>>>> OPENSOURCE/master
   }
 }

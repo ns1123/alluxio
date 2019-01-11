@@ -12,6 +12,7 @@
 package cmd
 
 import (
+<<<<<<< HEAD
 	// ALLUXIO CS ADD
 	"fmt"
 	// ALLUXIO CS END
@@ -19,6 +20,11 @@ import (
 	// ALLUXIO CS ADD
 	"strings"
 	// ALLUXIO CS END
+=======
+	"fmt"
+	"v.io/x/lib/cmdline"
+	"strings"
+>>>>>>> OPENSOURCE/master
 )
 
 var (
@@ -36,6 +42,7 @@ or generating a suite of release tarballs.
 	}
 
 	debugFlag bool
+<<<<<<< HEAD
 	// ALLUXIO CS ADD
 	callHomeFlag       bool
 	callHomeBucketFlag string
@@ -56,6 +63,12 @@ func updateRootFlags() error {
 	if strings.ToLower(authModulesFlag) == "all" {
 		authModulesFlag = strings.Join(validModules(authModules), ",")
 	}
+=======
+	ufsModulesFlag string
+)
+
+func updateRootFlags() error {
+>>>>>>> OPENSOURCE/master
 	if strings.ToLower(ufsModulesFlag) == "all" {
 		ufsModulesFlag = strings.Join(validModules(ufsModules), ",")
 	}
@@ -63,11 +76,14 @@ func updateRootFlags() error {
 }
 
 func checkRootFlags() error {
+<<<<<<< HEAD
 	for _, module := range strings.Split(authModulesFlag, ",") {
 		if _, ok := authModules[module]; !ok {
 			return fmt.Errorf("auth module %v not recognized", module)
 		}
 	}
+=======
+>>>>>>> OPENSOURCE/master
 	for _, module := range strings.Split(ufsModulesFlag, ",") {
 		if _, ok := ufsModules[module]; !ok {
 			return fmt.Errorf("ufs module %v not recognized", module)
@@ -76,6 +92,7 @@ func checkRootFlags() error {
 	return nil
 }
 
+<<<<<<< HEAD
 // ALLUXIO CS END
 func init() {
 	Root.Flags.BoolVar(&debugFlag, "debug", false, "whether to run this tool in debug mode to generate additional console output")
@@ -96,4 +113,10 @@ func init() {
 	Root.Flags.StringVar(&authModulesFlag, "auth-modules", strings.Join(defaultModules(authModules), ","),
 		fmt.Sprintf("a comma-separated list of authorization modules to compile into the distribution tarball(s). Specify 'all' to build all authorization modules. Supported authorization modules: [%v]", strings.Join(validModules(authModules), ",")))
 	// ALLUXIO CS END
+=======
+func init() {
+	Root.Flags.BoolVar(&debugFlag, "debug", false, "whether to run this tool in debug mode to generate additional console output")
+	Root.Flags.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultModules(ufsModules), ","),
+		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validModules(ufsModules), ",")))
+>>>>>>> OPENSOURCE/master
 }

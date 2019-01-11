@@ -57,14 +57,20 @@ func init() {
 }
 
 func single(_ *cmdline.Env, _ []string) error {
+<<<<<<< HEAD
 	// ALLUXIO CS ADD
+=======
+>>>>>>> OPENSOURCE/master
 	if err := updateRootFlags(); err != nil {
 		return err
 	}
 	if err := checkRootFlags(); err != nil {
 		return err
 	}
+<<<<<<< HEAD
 	// ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
 	if err := generateTarball(hadoopDistributionFlag); err != nil {
 		return err
 	}
@@ -162,7 +168,10 @@ func getVersion() (string, error) {
 	return match[1], nil
 }
 
+<<<<<<< HEAD
 // ALLUXIO CS ADD
+=======
+>>>>>>> OPENSOURCE/master
 func addModules(srcPath, dstPath, name, moduleFlag, version string, modules map[string]module) {
 	for _, moduleName := range strings.Split(moduleFlag, ",") {
 		moduleEntry, ok := modules[moduleName]
@@ -191,7 +200,10 @@ func buildModules(srcPath, name, ufsType, moduleFlag, version string, modules ma
 	}
 }
 
+<<<<<<< HEAD
 // ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
 func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version string) {
 	chdir(srcPath)
 	pathsToCopy := []string{
@@ -240,9 +252,12 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 		"integration/mesos/bin/common.sh",
 		fmt.Sprintf("lib/alluxio-underfs-cos-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-gcs-%v.jar", version),
+<<<<<<< HEAD
 		// ALLUXIO CS REMOVE
 		// fmt.Sprintf("lib/alluxio-underfs-hdfs-%v.jar", version),
 		// ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
 		fmt.Sprintf("lib/alluxio-underfs-local-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-oss-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-s3a-%v.jar", version),
@@ -286,7 +301,13 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 	if nativeFlag {
 		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/native"), filepath.Join(dstPath, "lib", "native"))
 	}
+<<<<<<< HEAD
 	// ALLUXIO CS END
+=======
+	mkdir(filepath.Join(dstPath, "assembly/server/target"))
+	mkdir(filepath.Join(dstPath, "lib"))
+	addModules(srcPath, dstPath, "underfs", ufsModulesFlag, version, ufsModules)
+>>>>>>> OPENSOURCE/master
 }
 
 func generateTarball(hadoopDistribution string) error {
@@ -345,11 +366,16 @@ func generateTarball(hadoopDistribution string) error {
 	// ALLUXIO CS END
 	mvnArgs := getCommonMvnArgs(hadoopVersion)
 	run("compiling repo", "mvn", mvnArgs...)
+<<<<<<< HEAD
 	// ALLUXIO CS ADD
 	// Compile ufs/auth modules for the main build
 	buildModules(srcPath, "underfs", "hdfs", ufsModulesFlag, version, ufsModules, mvnArgs)
 	buildModules(srcPath, "authorization", "hdfs", authModulesFlag, version, authModules, mvnArgs)
 	// ALLUXIO CS END
+=======
+	// Compile ufs modules for the main build
+	buildModules(srcPath, "underfs", "hdfs", ufsModulesFlag, version, ufsModules, mvnArgs)
+>>>>>>> OPENSOURCE/master
 
 	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
 	dstDir := strings.TrimSuffix(filepath.Base(tarball), ".tar.gz")
@@ -380,11 +406,15 @@ func generateTarball(hadoopDistribution string) error {
 	}
 
 	addAdditionalFiles(srcPath, dstPath, hadoopVersion, version)
+<<<<<<< HEAD
 	// ALLUXIO CS ADD
+=======
+>>>>>>> OPENSOURCE/master
 	hadoopVersion, ok = hadoopDistributions[hadoopDistribution]
 	if !ok {
 		return fmt.Errorf("hadoop distribution %s not recognized\n", hadoopDistribution)
 	}
+<<<<<<< HEAD
 	// This must be run at the end to avoid changing other jars depending on client
 	if hadoopVersion.hasHadoopKMS() {
 		kmsClientMvnArgs := append(mvnArgs, "-Phadoop-kms")
@@ -394,6 +424,8 @@ func generateTarball(hadoopDistribution string) error {
 		run("adding Alluxio KMS client jar", "mv", srcClientJar, dstClientJar)
 	}
 	// ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
 
 	chdir(cwd)
 	run("creating the distribution tarball", "tar", "-czvf", tarball, dstDir)

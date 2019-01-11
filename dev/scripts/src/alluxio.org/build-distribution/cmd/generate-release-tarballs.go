@@ -34,11 +34,17 @@ func init() {
 }
 
 func checkReleaseFlags() error {
+<<<<<<< HEAD
 	// ALLUXIO CS ADD
 	if err := checkRootFlags(); err != nil {
 		return err
 	}
 	// ALLUXIO CS END
+=======
+	if err := checkRootFlags(); err != nil {
+		return err
+	}
+>>>>>>> OPENSOURCE/master
 	for _, distribution := range strings.Split(hadoopDistributionsFlag, ",") {
 		_, ok := hadoopDistributions[distribution]
 		if !ok {
@@ -49,11 +55,17 @@ func checkReleaseFlags() error {
 }
 
 func release(_ *cmdline.Env, _ []string) error {
+<<<<<<< HEAD
 	// ALLUXIO CS ADD
 	if err := updateRootFlags(); err != nil {
 		return err
 	}
 	// ALLUXIO CS END
+=======
+	if err := updateRootFlags(); err != nil {
+		return err
+	}
+>>>>>>> OPENSOURCE/master
 	if err := checkReleaseFlags(); err != nil {
 		return err
 	}
