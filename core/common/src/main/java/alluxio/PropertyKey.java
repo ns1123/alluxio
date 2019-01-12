@@ -3351,6 +3351,15 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.NONE)
           .build();
+  
+  // Assumes that HDFS is the UFS and version is 2.2
+  // TODO(ns) Fix default value to handle other UFS types
+  public static final PropertyKey UNDERFS_VERSION =
+      new Builder(Name.UNDERFS_VERSION)
+          .setDefaultValue("2.2")
+          .setIsHidden(true)
+          .build();
+
   // ALLUXIO CS ADD
 
   public static final PropertyKey LIB_DIR =
@@ -3358,12 +3367,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
 
   //
   // UFS related CS properties
-  //
-  public static final PropertyKey UNDERFS_VERSION =
-      new Builder(Name.UNDERFS_VERSION)
-          .setDefaultValue("2.2")
-          .setIsHidden(true)
-          .build();
+  // 
   public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
       new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME)
           .setDescription("Name of the authorization plugin for the under filesystem.")
@@ -3647,13 +3651,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
   }
   // ALLUXIO CS END
-  // Assumes that HDFS is the UFS and version is 2.2
-  // TODO(ns) Fix default value to handle other UFS types
-  public static final PropertyKey UNDERFS_VERSION =
-      new Builder(Name.UNDERFS_VERSION)
-          .setDefaultValue("2.2")
-          .setIsHidden(true)
-          .build();
 
   //
   // Job service
