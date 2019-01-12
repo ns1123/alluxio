@@ -64,10 +64,6 @@ var hadoopDistributions = map[string]version{
 	// ALLUXIO CS END
 }
 
-<<<<<<< HEAD
-// ALLUXIO CS ADD
-=======
->>>>>>> OPENSOURCE/master
 type module struct {
 	name      string // the name used in the generated tarball
 	isDefault bool   // whether to build the module by default
@@ -85,7 +81,7 @@ var ufsModules = map[string]module{
 	"ufs-hadoop-2.6": {"hadoop-2.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.5 -PhdfsActiveSync"},
 	"ufs-hadoop-2.7": {"hadoop-2.7", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3 -PhdfsActiveSync"},
 	"ufs-hadoop-2.8": {"hadoop-2.8", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.8.0 -PhdfsActiveSync"},
-<<<<<<< HEAD
+	// ALLUXIO CS ADD
 	"ufs-cdh-5.6":    {"cdh-5.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.6.1 -PhdfsActiveSync"},
 	"ufs-cdh-5.8":    {"cdh-5.8", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.8.5 -PhdfsActiveSync"},
 	"ufs-cdh-5.11":   {"cdh-5.11", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.6.0-cdh5.11.2 -PhdfsActiveSync"},
@@ -99,16 +95,17 @@ var ufsModules = map[string]module{
 	"ufs-mapr-5.0":   {"mapr-5.0", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.0-mapr-1506"},
 	"ufs-mapr-5.1":   {"mapr-5.1", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.0-mapr-1602"},
 	"ufs-mapr-5.2":   {"mapr-5.2", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.0-mapr-1607"},
+	// ALLUXIO CS END
 }
 
+// ALLUXIO CS ADD
 // authModules is a map from authorization module to information for building the module.
 var authModules = map[string]module{
 	"auth-ranger-hdp-2.6": {"ranger-0.7-hdp-2.6", true, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.3.2.6.1.0-129 -Dauth.plugin.name=ranger-hdp-2.6 -Dauth.plugin.version=0.7.0.2.6.1.0-129"},
 	"auth-ranger-hdp-2.5": {"ranger-0.6-hdp-2.5", true, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.3.2.5.5.5-2 -Dauth.plugin.name=ranger-hdp-2.5 -Dauth.plugin.version=0.6.0.2.5.5.5-2"},
 	"auth-ranger-hdp-2.4": {"ranger-0.5-hdp-2.4", false, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.1.2.4.4.1-9 -Dauth.plugin.name=ranger-hdp-2.4 -Dauth.plugin.version=0.5.0.2.4.4.1-9"},
-=======
->>>>>>> OPENSOURCE/master
 }
+// ALLUXIO CS END
 
 func validModules(modules map[string]module) []string {
 	result := []string{}
@@ -130,10 +127,6 @@ func defaultModules(modules map[string]module) []string {
 	return result
 }
 
-<<<<<<< HEAD
-// ALLUXIO CS END
-=======
->>>>>>> OPENSOURCE/master
 func validHadoopDistributions() []string {
 	var result []string
 	for distribution := range hadoopDistributions {

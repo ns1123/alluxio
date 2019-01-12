@@ -54,10 +54,6 @@ public interface UnderFileSystemFactory
   default boolean supportsPath(String path, @Nullable UnderFileSystemConfiguration conf) {
     return supportsPath(path);
   }
-<<<<<<< HEAD
-  // ALLUXIO CS ADD
-=======
->>>>>>> OPENSOURCE/master
 
   /**
    * Get the version supported by this factory.
@@ -67,8 +63,4 @@ public interface UnderFileSystemFactory
   default String getVersion() {
     return "";
   }
-<<<<<<< HEAD
-  // ALLUXIO CS END
-=======
->>>>>>> OPENSOURCE/master
 }
