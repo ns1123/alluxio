@@ -3351,7 +3351,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.NONE)
           .build();
-  
   // Assumes that HDFS is the UFS and version is 2.2
   // TODO(ns) Fix default value to handle other UFS types
   public static final PropertyKey UNDERFS_VERSION =
@@ -3367,7 +3366,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
 
   //
   // UFS related CS properties
-  // 
+  //
   public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
       new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME)
           .setDescription("Name of the authorization plugin for the under filesystem.")
