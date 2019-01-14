@@ -32,7 +32,7 @@ or generating a suite of release tarballs.
 	}
 
 	debugFlag bool
-	ufsModulesFlag	string
+	ufsModulesFlag string
 	// ALLUXIO CS ADD
 	callHomeFlag       bool
 	callHomeBucketFlag string

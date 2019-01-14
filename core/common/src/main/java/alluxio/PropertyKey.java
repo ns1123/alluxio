@@ -3650,7 +3650,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
   }
   // ALLUXIO CS END
-
   //
   // Job service
   //

@@ -338,7 +338,11 @@ func generateTarball(hadoopDistribution string) error {
 	// ALLUXIO CS END
 	mvnArgs := getCommonMvnArgs(hadoopVersion)
 	run("compiling repo", "mvn", mvnArgs...)
-	// Compile ufs/auth modules for the main build
+	// ALLUXIO CS REPLACE
+	// // Compile ufs/auth modules for the main build
+	// ALLUXIO CS WITH
+	// Compile ufs modules for the main build
+	// ALLUXIO CS END
 	buildModules(srcPath, "underfs", "hdfs", ufsModulesFlag, version, ufsModules, mvnArgs)
 	// ALLUXIO CS ADD
 	buildModules(srcPath, "authorization", "hdfs", authModulesFlag, version, authModules, mvnArgs)
