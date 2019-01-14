@@ -106,7 +106,6 @@ var authModules = map[string]module{
 	"auth-ranger-hdp-2.4": {"ranger-0.5-hdp-2.4", false, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.1.2.4.4.1-9 -Dauth.plugin.name=ranger-hdp-2.4 -Dauth.plugin.version=0.5.0.2.4.4.1-9"},
 }
 // ALLUXIO CS END
-
 func validModules(modules map[string]module) []string {
 	result := []string{}
 	for moduleName := range modules {
