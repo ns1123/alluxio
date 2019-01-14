@@ -25,12 +25,8 @@
     <!-- The following paths need to be defined here as well as in the parent pom so that mvn can -->
     <!-- run properly from sub-project directories -->
     <build.path>${project.parent.parent.basedir}/build</build.path>
-    <!-- ALLUXIO CS REPLACE -->
-    <!-- <ufs.hadoop.version>${hadoop.version}</ufs.hadoop.version> -->
-    <!-- ALLUXIO CS WITH -->
     <!-- Decouple hadoop versions between north and south bound -->
     <ufs.hadoop.version>2.2.0</ufs.hadoop.version>
-    <!-- ALLUXIO CS END -->
   </properties>
 
   <dependencies>
@@ -62,13 +58,8 @@
   <profiles>
     <!-- Profile to build this UFS module connecting to hdfs 1 -->
     <profile>
-      <!-- ALLUXIO CS REPLACE -->
-      <!-- <id>hadoop-1</id> -->
-      <!-- ALLUXIO CS WITH -->
       <!-- Decouple hadoop profiles: hadoop-1 to indicate north bound and ufs-hadoop-1 to indicate the south bound -->
-      <!-- Note that this is only necessary in CS as the hadoop.version can be different in north and south bound -->
       <id>ufs-hadoop-1</id>
-      <!-- ALLUXIO CS END -->
       <dependencies>
         <dependency>
           <groupId>org.apache.hadoop</groupId>
@@ -95,13 +86,8 @@
 
     <!-- Profile to build this UFS module connecting to hdfs 2, this is the default profile -->
     <profile>
-      <!-- ALLUXIO CS REPLACE -->
-      <!-- <id>hadoop-2</id> -->
-      <!-- ALLUXIO CS WITH -->
-      <!-- Decouple hadoop profiles: hadoop-1 to indicate north bound and ufs-hadoop-1 to indicate the south bound -->
-      <!-- Note that this is only necessary in CS as the hadoop.version can be different in north and south bound -->
+      <!-- Decouple hadoop profiles: hadoop-2 to indicate north bound and ufs-hadoop-2 to indicate the south bound -->
       <id>ufs-hadoop-2</id>
-      <!-- ALLUXIO CS END -->
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
@@ -214,8 +200,6 @@
         <groupId>com.coderplus.maven.plugins</groupId>
         <artifactId>copy-rename-maven-plugin</artifactId>
       </plugin>
-
-      <!-- ALLUXIO CS ADD -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>templating-maven-plugin</artifactId>
@@ -232,7 +216,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- ALLUXIO CS END -->
       <plugin>
         <groupId>com.igormaznitsa</groupId>
         <artifactId>jcp</artifactId>

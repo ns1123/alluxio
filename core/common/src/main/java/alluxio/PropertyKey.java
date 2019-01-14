@@ -3351,6 +3351,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.NONE)
           .build();
+  // Assumes that HDFS is the UFS and version is 2.2
+  // TODO(ns) Fix default value to handle other UFS types
+  public static final PropertyKey UNDERFS_VERSION =
+      new Builder(Name.UNDERFS_VERSION)
+          .setDefaultValue("2.2")
+          .setIsHidden(true)
+          .build();
+
   // ALLUXIO CS ADD
 
   public static final PropertyKey LIB_DIR =
@@ -3359,20 +3367,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   //
   // UFS related CS properties
   //
-  public static final PropertyKey UNDERFS_VERSION =
-      new Builder(Name.UNDERFS_VERSION)
-          .setDefaultValue(String.format("${%s}", Name.UNDERFS_HDFS_VERSION))
-          .setIsHidden(true)
-          .build();
-  /**
-   * @deprecated since 1.9.0 and will be removed in 2.0.
-   */
-  @Deprecated
-  public static final PropertyKey UNDERFS_HDFS_VERSION =
-      new Builder(Name.UNDERFS_HDFS_VERSION)
-          .setDefaultValue("2.2")
-          .setIsHidden(true)
-          .build();
   public static final PropertyKey UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
       new Builder(Name.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME)
           .setDescription("Name of the authorization plugin for the under filesystem.")
@@ -3860,10 +3854,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String UNDERFS_HDFS_IMPL = "alluxio.underfs.hdfs.impl";
     public static final String UNDERFS_HDFS_PREFIXES = "alluxio.underfs.hdfs.prefixes";
     public static final String UNDERFS_HDFS_REMOTE = "alluxio.underfs.hdfs.remote";
-    // ALLUXIO CS ADD
-    public static final String UNDERFS_HDFS_VERSION = "alluxio.underfs.hdfs.version";
     public static final String UNDERFS_VERSION = "alluxio.underfs.version";
-
+    // ALLUXIO CS ADD
     public static final String UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME =
         "alluxio.underfs.security.authorization.plugin.name";
     public static final String UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS =

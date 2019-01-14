@@ -57,14 +57,12 @@ func init() {
 }
 
 func single(_ *cmdline.Env, _ []string) error {
-	// ALLUXIO CS ADD
 	if err := updateRootFlags(); err != nil {
 		return err
 	}
 	if err := checkRootFlags(); err != nil {
 		return err
 	}
-	// ALLUXIO CS END
 	if err := generateTarball(hadoopDistributionFlag); err != nil {
 		return err
 	}
@@ -162,7 +160,6 @@ func getVersion() (string, error) {
 	return match[1], nil
 }
 
-// ALLUXIO CS ADD
 func addModules(srcPath, dstPath, name, moduleFlag, version string, modules map[string]module) {
 	for _, moduleName := range strings.Split(moduleFlag, ",") {
 		moduleEntry, ok := modules[moduleName]
@@ -191,7 +188,6 @@ func buildModules(srcPath, name, ufsType, moduleFlag, version string, modules ma
 	}
 }
 
-// ALLUXIO CS END
 func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version string) {
 	chdir(srcPath)
 	pathsToCopy := []string{
@@ -240,9 +236,6 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 		"integration/mesos/bin/common.sh",
 		fmt.Sprintf("lib/alluxio-underfs-cos-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-gcs-%v.jar", version),
-		// ALLUXIO CS REMOVE
-		// fmt.Sprintf("lib/alluxio-underfs-hdfs-%v.jar", version),
-		// ALLUXIO CS END
 		fmt.Sprintf("lib/alluxio-underfs-local-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-oss-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-s3a-%v.jar", version),
@@ -279,9 +272,9 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 	// }
 	// mkdir(filepath.Join(dstPath, "assembly/server/target"))
 	// ALLUXIO CS END
-	// ALLUXIO CS ADD
 	mkdir(filepath.Join(dstPath, "lib"))
 	addModules(srcPath, dstPath, "underfs", ufsModulesFlag, version, ufsModules)
+	// ALLUXIO CS ADD
 	addModules(srcPath, dstPath, "authorization", authModulesFlag, version, authModules)
 	if nativeFlag {
 		run("adding Alluxio native libraries", "mv", fmt.Sprintf("lib/native"), filepath.Join(dstPath, "lib", "native"))
@@ -345,9 +338,9 @@ func generateTarball(hadoopDistribution string) error {
 	// ALLUXIO CS END
 	mvnArgs := getCommonMvnArgs(hadoopVersion)
 	run("compiling repo", "mvn", mvnArgs...)
-	// ALLUXIO CS ADD
 	// Compile ufs/auth modules for the main build
 	buildModules(srcPath, "underfs", "hdfs", ufsModulesFlag, version, ufsModules, mvnArgs)
+	// ALLUXIO CS ADD
 	buildModules(srcPath, "authorization", "hdfs", authModulesFlag, version, authModules, mvnArgs)
 	// ALLUXIO CS END
 
@@ -380,11 +373,11 @@ func generateTarball(hadoopDistribution string) error {
 	}
 
 	addAdditionalFiles(srcPath, dstPath, hadoopVersion, version)
-	// ALLUXIO CS ADD
 	hadoopVersion, ok = hadoopDistributions[hadoopDistribution]
 	if !ok {
 		return fmt.Errorf("hadoop distribution %s not recognized\n", hadoopDistribution)
 	}
+	// ALLUXIO CS ADD
 	// This must be run at the end to avoid changing other jars depending on client
 	if hadoopVersion.hasHadoopKMS() {
 		kmsClientMvnArgs := append(mvnArgs, "-Phadoop-kms")

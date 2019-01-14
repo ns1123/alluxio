@@ -1,3 +1,4 @@
+
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
  * (the "License"). You may not use this work except in compliance with the License, which is
@@ -29,7 +30,7 @@ public enum HdfsVersion {
   HADOOP_2_9("hadoop-2.9", "(hadoop-?2\\.9(\\.(\\d+))?|2\\.9(\\.(\\d+)(-(?!cdh).*)?)?)"),
   HADOOP_3_0("hadoop-3.0", "(hadoop-?3\\.0(\\.(\\d+))?|3\\.0(\\.(\\d+)(-(?!cdh).*)?)?)"),
   HADOOP_3_1("hadoop-3.1", "(hadoop-?3\\.1(\\.(\\d+))?|3\\.1(\\.(\\d+)(-(?!cdh).*)?)?)"),
-
+  // ALLUXIO CS ADD
   CDH_5_6("cdh-5.6", "(cdh-?5\\.6(\\.(\\d+))?|2\\.6\\.0-cdh5\\.6\\.(.*)?)"),
   CDH_5_8("cdh-5.8", "(cdh-?5\\.8(\\.(\\d+))?|2\\.6\\.0-cdh5\\.8\\.(.*)?)"),
   CDH_5_11("cdh-5.11", "(cdh-?5\\.11(\\.(\\d+))?|2\\.6\\.0-cdh5\\.11\\.(.*)?)"),
@@ -43,6 +44,7 @@ public enum HdfsVersion {
   MAPR_5_0("maprfs-5.0", "(maprfs-?5\\.0|2\\.7\\.0-mapr-1506)"),
   MAPR_5_1("maprfs-5.1", "(maprfs-?5\\.1|2\\.7\\.0-mapr-1602)"),
   MAPR_5_2("maprfs-5.2", "(maprfs-?5\\.2|2\\.7\\.0-mapr-1607)"),
+  // ALLUXIO CS END
   ;
 
   private final String mCanonicalVersion;

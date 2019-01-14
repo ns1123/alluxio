@@ -55,7 +55,6 @@ public final class HdfsUnderFileSystemFactory implements UnderFileSystemFactory 
     }
     return false;
   }
-  // ALLUXIO CS ADD
 
   @Override
   public boolean supportsPath(String path, UnderFileSystemConfiguration conf) {
@@ -81,5 +80,4 @@ public final class HdfsUnderFileSystemFactory implements UnderFileSystemFactory 
   public String getVersion() {
     return alluxio.UfsConstants.UFS_HADOOP_VERSION;
   }
-  // ALLUXIO CS END
 }
