@@ -4321,19 +4321,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     //
     // User related properties
     //
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     public static final String USER_BLOCK_FOOTER_SIZE_BYTES =
         "alluxio.user.block.footer.size.bytes";
     public static final String USER_BLOCK_HEADER_SIZE_BYTES =
         "alluxio.user.block.header.size.bytes";
     // ALLUXIO CS END
-    public static final String USER_BLOCK_MASTER_CLIENT_THREADS =
-        "alluxio.user.block.master.client.threads";
-||||||| merged common ancestors
-    public static final String USER_BLOCK_MASTER_CLIENT_THREADS =
-        "alluxio.user.block.master.client.threads";
-=======
     public static final String USER_BLOCK_MASTER_CLIENT_POOL_SIZE_MIN =
         "alluxio.user.block.master.client.pool.size.min";
     public static final String USER_BLOCK_MASTER_CLIENT_POOL_SIZE_MAX =
@@ -4342,7 +4335,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.block.master.client.pool.gc.interval";
     public static final String USER_BLOCK_MASTER_CLIENT_POOL_GC_THRESHOLD_MS =
         "alluxio.user.block.master.client.pool.gc.threshold";
->>>>>>> OPENSOURCE/branch-1.8
     public static final String USER_BLOCK_REMOTE_READER_CLASS =
         "alluxio.user.block.remote.reader.class";
     public static final String USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES =
