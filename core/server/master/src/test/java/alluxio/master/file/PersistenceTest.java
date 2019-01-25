@@ -143,13 +143,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Mock the job service interaction.
     Random random = new Random();
@@ -221,13 +217,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Mock the job service interaction.
     Random random = new Random();
@@ -264,13 +256,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Mock the job service interaction.
     Random random = new Random();
@@ -325,6 +313,7 @@ public final class PersistenceTest {
         CreateFileOptions.defaults().setPersisted(false));
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(),
         mFileSystemMaster.getFileInfo(fileId).getPersistenceState());
+    mFileSystemMaster.completeFile(alluxioFileSrc, CompleteFileOptions.defaults());
 
     // Schedule the async persistence, checking the internal state.
     mFileSystemMaster.scheduleAsyncPersistence(alluxioFileSrc);
@@ -397,13 +386,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Simulate restart.
     stopServices();
@@ -422,13 +407,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_OPTIONS);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Mock the job service interaction.
     Random random = new Random();

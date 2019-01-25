@@ -136,6 +136,10 @@ public final class PersistDefinition
       }
 
       FileSystem fs = FileSystem.Factory.get();
+      URIStatus uriStatus = fs.getStatus(uri);
+      if (!uriStatus.isCompleted()) {
+        throw new IOException("Cannot persist an incomplete Alluxio file: " + uri);
+      }
       long bytesWritten;
       try (Closer closer = Closer.create()) {
         OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
@@ -170,7 +174,6 @@ public final class PersistDefinition
                     .getSecond().toString());
           }
         }
-        URIStatus uriStatus = fs.getStatus(uri);
         OutputStream out = closer.register(
             ufs.create(dstPath.toString(), CreateOptions.defaults().setOwner(uriStatus.getOwner())
                 .setGroup(uriStatus.getGroup()).setMode(new Mode((short) uriStatus.getMode()))));

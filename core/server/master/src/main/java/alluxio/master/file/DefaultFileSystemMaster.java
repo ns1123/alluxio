@@ -3769,6 +3769,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    */
   private void scheduleAsyncPersistenceAndJournal(RpcContext rpcContext, LockedInodePath inodePath)
       throws AlluxioException {
+    if (!inodePath.getInodeFile().isCompleted()) {
+      throw new InvalidPathException(
+          "Cannot persist an incomplete Alluxio file: " + inodePath.getUri());
+    }
     long fileId = inodePath.getInode().getId();
     scheduleAsyncPersistenceInternal(inodePath);
     // write to journal
