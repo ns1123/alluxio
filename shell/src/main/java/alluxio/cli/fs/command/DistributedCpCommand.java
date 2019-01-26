@@ -22,26 +22,25 @@ import alluxio.job.migrate.MigrateConfig;
 
 import org.apache.commons.cli.CommandLine;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 /**
- * Moves a file or directory specified by args.
+ * Copies a file or directory specified by args.
  */
 @ThreadSafe
-public final class DistributedMvCommand extends AbstractFileSystemCommand {
+public final class DistributedCpCommand extends AbstractFileSystemCommand {
 
   /**
    * @param fs the filesystem of Alluxio
    */
-  public DistributedMvCommand(FileSystem fs) {
+  public DistributedCpCommand(FileSystem fs) {
     super(fs);
   }
 
   @Override
   public String getCommandName() {
-    return "distributedMv";
+    return "distributedCp";
   }
 
   @Override
@@ -57,21 +56,24 @@ public final class DistributedMvCommand extends AbstractFileSystemCommand {
     Thread thread = JobThriftClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
     thread.start();
     try {
-      JobThriftClientUtils.run(new MigrateConfig(srcPath.getPath(), dstPath.getPath(), null, true, true), 3);
+      JobThriftClientUtils.run(new MigrateConfig(srcPath.getPath(), dstPath.getPath(), null, true, false), 3);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return -1;
     } finally {
       thread.interrupt();
     }
-    System.out.println("Moved " + srcPath + " to " + dstPath);
+    System.out.println("Copied " + srcPath + " to " + dstPath);
     return 0;
   }
 
   @Override
   public String getUsage() {
-    return "distributedMv <src> <dst>";
+    return "distributedCp <src> <dst>";
   }
 
   @Override
   public String getDescription() {
-    return "Moves a file or directory in parallel at file level.";
+    return "Copies a file or directory in parallel at file level.";
   }
 }

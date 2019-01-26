@@ -287,14 +287,14 @@ public enum ExceptionMessage {
   JOB_DEFINITION_DOES_NOT_EXIST("The job definition for config {0} does not exist"),
   JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
 
-  // move job
-  MOVE_CANNOT_BE_TO_SUBDIRECTORY("Cannot move because {0} is a prefix of {1}"),
-  MOVE_DIRECTORY_TO_FILE("Cannot move a directory ({0}) to a file ({1})"),
-  MOVE_FILE_TO_DIRECTORY("Cannot move a file ({0}) to a directory ({1})"),
-  MOVE_NEED_OVERWRITE("Cannot move to {0} because it exists and overwrite is set to false"),
-  MOVE_OVERWRITE_DIRECTORY(
+  // migrate job (either move or copy)
+  MIGRATE_CANNOT_BE_TO_SUBDIRECTORY("Cannot migrate because {0} is a prefix of {1}"),
+  MIGRATE_DIRECTORY_TO_FILE("Cannot migrate a directory ({0}) to a file ({1})"),
+  MIGRATE_FILE_TO_DIRECTORY("Cannot migrate a file ({0}) to a directory ({1})"),
+  MIGRATE_NEED_OVERWRITE("Cannot migrate to {0} because it exists and overwrite is set to false"),
+  MIGRATE_OVERWRITE_DIRECTORY(
       "{0} already exists. The overwrite flag cannot be used to overwrite directories"),
-  MOVE_TO_FILE_AS_DIRECTORY("Cannot move to {0}. {1} is a file, not a directory"),
+  MIGRATE_TO_FILE_AS_DIRECTORY("Cannot migrate to {0}. {1} is a file, not a directory"),
 
   // JDBC UFS
   SQL_UNEXPECTED_COLUMN_COUNT("Expected {0} columns in SQL result, but received {1}."),
