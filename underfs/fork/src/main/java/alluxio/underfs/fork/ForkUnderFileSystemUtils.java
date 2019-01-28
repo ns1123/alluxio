@@ -11,6 +11,9 @@
 
 package alluxio.underfs.fork;
 
+import alluxio.security.User;
+import alluxio.security.authentication.AuthenticatedClientUser;
+
 import com.google.common.base.Function;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -133,13 +136,26 @@ public final class ForkUnderFileSystemUtils {
    */
   private static <T> List<IOException> apply(ExecutorService service,
       final Function<T, IOException> function, Collection<T> inputs) {
+    final User parentUser = AuthenticatedClientUser.getOrNull();
     final List<IOException> exceptions = new ArrayList<>();
     final List<Callable<IOException>> callables = new ArrayList<>();
     for (final T input : inputs) {
       callables.add(new Callable<IOException>() {
         @Override
         public IOException call() throws Exception {
-          return function.apply(input);
+          final User originalUser = AuthenticatedClientUser.getOrNull();
+          if (parentUser != null) {
+            AuthenticatedClientUser.set(parentUser);
+          }
+          try {
+            return function.apply(input);
+          } finally {
+            if (originalUser != null) {
+              AuthenticatedClientUser.set(originalUser);
+            } else {
+              AuthenticatedClientUser.remove();
+            }
+          }
         }
       });
     }
