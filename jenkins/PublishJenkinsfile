@@ -7,6 +7,11 @@ pipeline {
             description: 'Branch to checkout'
         )
         string(
+            name: 'Tag',
+            defaultValue: '',
+            description: 'Tag to checkout; overrides Branch if set'
+        )
+        string(
             name: 'CpArgs',
             defaultValue: '',
             description: 'Additional arguments to AWS cli when copying to S3'
@@ -47,9 +52,13 @@ pipeline {
                 AWS_DEFAULT_REGION    = 'us-east-1'
             }
             steps {script {
+                def checkoutDst = "*/${params.Branch}"
+                if (params.Tag.length() > 0) {
+                    checkoutDst = "refs/tags/${params.Tag}"
+                }
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: "*/${params.Branch}"]],
+                    branches: [[name: checkoutDst]],
                     extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CleanCheckout']],
                     userRemoteConfigs: [[
                         credentialsId: 'ALLUXIO-CI_GITHUB',
