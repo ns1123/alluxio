@@ -49,6 +49,7 @@
 dependency-reduced-pom.xml
 target/
 tests.log*
+<<<<<<< HEAD
 # ALLUXIO CS ADD
 /annotation/
 /lib/
@@ -57,3 +58,6 @@ tests.log*
 /underfs/hdfs/src/main/java/alluxio/UfsConstants.java
 # ALLUXIO CS END
 # ALLUXIO CS MODIFIED
+=======
+underfs/hdfs/src/main/java/alluxio/UfsConstants.java
+>>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803

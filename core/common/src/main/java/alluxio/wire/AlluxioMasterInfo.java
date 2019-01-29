@@ -11,6 +11,7 @@
 
 package alluxio.wire;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 import java.util.List;
@@ -317,7 +318,7 @@ public class AlluxioMasterInfo {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
         .add("capacity", mCapacity)
         .add("configuration", mConfiguration)
         // ALLUXIO CS ADD

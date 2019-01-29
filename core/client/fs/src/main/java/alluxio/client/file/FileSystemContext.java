@@ -15,6 +15,8 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.block.BlockMasterClient;
 import alluxio.client.block.BlockMasterClientPool;
+import alluxio.client.block.stream.BlockWorkerClient;
+import alluxio.client.block.stream.BlockWorkerClientPool;
 import alluxio.client.metrics.ClientMasterSync;
 import alluxio.client.metrics.MetricsMasterClient;
 import alluxio.conf.InstancedConfiguration;
@@ -25,11 +27,8 @@ import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.MasterClientConfig;
 import alluxio.master.MasterInquireClient;
 import alluxio.metrics.MetricsSystem;
-import alluxio.network.netty.NettyChannelPool;
-import alluxio.network.netty.NettyClient;
 import alluxio.resource.CloseableResource;
-import alluxio.security.authentication.TransportProviderUtils;
-import alluxio.util.CommonUtils;
+import alluxio.security.authentication.SaslParticipantProviderUtils;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.ThreadUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -38,9 +37,8 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.codahale.metrics.Gauge;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,9 +97,9 @@ public final class FileSystemContext implements Closeable {
   @GuardedBy("CONTEXT_CACHE_LOCK")
   private int mRefCount;
 
-  // The netty data server channel pools.
-  private final ConcurrentHashMap<ChannelPoolKey, NettyChannelPool>
-      mNettyChannelPools = new ConcurrentHashMap<>();
+  // The data server channel pools. This pool will only grow and keys are not removed.
+  private final ConcurrentHashMap<ClientPoolKey, BlockWorkerClientPool>
+      mBlockWorkerClientPool = new ConcurrentHashMap<>();
 
   // ALLUXIO CS ADD
   private alluxio.client.security.EncryptionCache mEncryptionCache =
@@ -268,6 +266,7 @@ public final class FileSystemContext implements Closeable {
     mBlockMasterClientPool = null;
     mMasterInquireClient = null;
 
+<<<<<<< HEAD
     for (NettyChannelPool pool : mNettyChannelPools.values()) {
       pool.close();
     }
@@ -276,6 +275,8 @@ public final class FileSystemContext implements Closeable {
     mEncryptionCache.clear();
     // ALLUXIO CS END
 
+=======
+>>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
     synchronized (this) {
       if (mMetricsMasterClient != null) {
         ThreadUtils.shutdownAndAwaitTermination(mExecutorService,
@@ -373,13 +374,14 @@ public final class FileSystemContext implements Closeable {
   }
 
   /**
-   * Acquires a netty channel from the channel pools. If there is no available client instance
+   * Acquires a block worker client from the client pools. If there is no available client instance
    * available in the pool, it tries to create a new one. And an exception is thrown if it fails to
    * create a new one.
    *
    * @param workerNetAddress the network address of the channel
-   * @return the acquired netty channel
+   * @return the acquired block worker
    */
+<<<<<<< HEAD
   public Channel acquireNettyChannel(final WorkerNetAddress workerNetAddress) throws IOException {
     return acquireNettyChannelInternal(new NettyChannelProperties(workerNetAddress));
   }
@@ -450,24 +452,41 @@ public final class FileSystemContext implements Closeable {
     throw new IOException("Failed to build an authenticated channel with valid credential",
         exception);
     // ALLUXIO CS END
+=======
+  public BlockWorkerClient acquireBlockWorkerClient(final WorkerNetAddress workerNetAddress)
+      throws IOException {
+    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
+    ClientPoolKey key = new ClientPoolKey(address,
+        SaslParticipantProviderUtils.getImpersonationUser(mParentSubject));
+    return mBlockWorkerClientPool.computeIfAbsent(key, k ->
+        new BlockWorkerClientPool(mParentSubject, address,
+        Configuration.getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE),
+        Configuration.getMs(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS))
+    ).acquire();
+>>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
   }
 
   /**
-   * Releases a netty channel to the channel pools.
+   * Releases a block worker client to the client pools.
    *
    * @param workerNetAddress the address of the channel
-   * @param channel the channel to release
+   * @param client the client to release
    */
-  public void releaseNettyChannel(WorkerNetAddress workerNetAddress, Channel channel) {
+  public void releaseBlockWorkerClient(WorkerNetAddress workerNetAddress,
+      BlockWorkerClient client) {
     SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
-    ChannelPoolKey key =
-        new ChannelPoolKey(address, TransportProviderUtils.getImpersonationUser(mParentSubject));
-    if (mNettyChannelPools.containsKey(key)) {
-      mNettyChannelPools.get(key).release(channel);
+    ClientPoolKey key = new ClientPoolKey(address,
+        SaslParticipantProviderUtils.getImpersonationUser(mParentSubject));
+    if (mBlockWorkerClientPool.containsKey(key)) {
+      mBlockWorkerClientPool.get(key).release(client);
     } else {
-      LOG.warn("No channel pool for key {}, closing channel instead. Context is closed: {}",
+      LOG.warn("No client pool for key {}, closing client instead. Context is closed: {}",
           key, mClosed.get());
-      CommonUtils.closeChannel(channel);
+      try {
+        client.close();
+      } catch (IOException e) {
+        LOG.warn("Error closing block worker client for key {}", key, e);
+      }
     }
   }
 
@@ -600,14 +619,12 @@ public final class FileSystemContext implements Closeable {
   @ThreadSafe
   private static final class Metrics {
     private static void initializeGauges() {
-      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMetricName("NettyConnectionsOpen"),
+      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMetricName("GrpcConnectionsOpen"),
           new Gauge<Long>() {
             @Override
             public Long getValue() {
               long ret = 0;
-              for (NettyChannelPool pool : get().mNettyChannelPools.values()) {
-                ret += pool.size();
-              }
+              // TODO(feng): use gRPC API to collect metrics for connections
               return ret;
             }
           });
@@ -617,14 +634,14 @@ public final class FileSystemContext implements Closeable {
   }
 
   /**
-   * Key for Netty channel pools. This requires both the worker address and the username, so that
-   * netty channels are created for different users.
+   * Key for block worker client pools. This requires both the worker address and the username, so
+   * that block workers are created for different users.
    */
-  private static final class ChannelPoolKey {
+  private static final class ClientPoolKey {
     private final SocketAddress mSocketAddress;
     private final String mUsername;
 
-    public ChannelPoolKey(SocketAddress socketAddress, String username) {
+    public ClientPoolKey(SocketAddress socketAddress, String username) {
       mSocketAddress = socketAddress;
       mUsername = username;
     }
@@ -639,22 +656,23 @@ public final class FileSystemContext implements Closeable {
       if (this == o) {
         return true;
       }
-      if (!(o instanceof ChannelPoolKey)) {
+      if (!(o instanceof ClientPoolKey)) {
         return false;
       }
-      ChannelPoolKey that = (ChannelPoolKey) o;
+      ClientPoolKey that = (ClientPoolKey) o;
       return Objects.equal(mSocketAddress, that.mSocketAddress)
           && Objects.equal(mUsername, that.mUsername);
     }
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this)
+      return MoreObjects.toStringHelper(this)
           .add("socketAddress", mSocketAddress)
           .add("username", mUsername)
           .toString();
     }
   }
+<<<<<<< HEAD
 
   private static final class NettyChannelProperties {
     private WorkerNetAddress mWorkerNetAddress;
@@ -681,4 +699,6 @@ public final class FileSystemContext implements Closeable {
       return mWorkerNetAddress;
     }
   }
+=======
+>>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
 }
