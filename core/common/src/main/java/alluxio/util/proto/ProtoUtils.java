@@ -78,6 +78,138 @@ public final class ProtoUtils {
           alluxio.proto.journal.Job.StartJobEntry.Builder builder, byte[] bytes) {
     return builder.setSerializedJobConfig(com.google.protobuf.ByteString.copyFrom(bytes));
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * A wrapper of {@link alluxio.proto.security.Key.SecretKey.Builder#setSecretKey} to take byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes results bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.security.Key.SecretKey.Builder setSecretKey(
+          alluxio.proto.security.Key.SecretKey.Builder builder, byte[] bytes) {
+    return builder.setSecretKey(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * Encodes the given content as a byte array.
+   *
+   * @param content the content to encode
+   * @return the encoded content
+   */
+  public static byte[] encode(alluxio.proto.security.CapabilityProto.Content content) {
+    byte[] result = new byte[content.getSerializedSize()];
+    com.google.protobuf.CodedOutputStream output =
+            com.google.protobuf.CodedOutputStream.newInstance(result);
+    try {
+      content.writeTo(output);
+    } catch (IOException e) {
+      // This should never happen.
+      throw com.google.common.base.Throwables.propagate(e);
+    }
+    output.checkNoSpaceLeft();
+    return result;
+  }
+
+  /**
+   * Decodes the given content.
+   *
+   * @param content the content to decode
+   * @return the decoded content
+   * @throws IOException if an error occurs
+   */
+  public static alluxio.proto.security.CapabilityProto.Content decode(byte[] content)
+          throws IOException {
+    try {
+      return alluxio.proto.security.CapabilityProto.Content.parseFrom(content);
+    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+      throw new IOException(e);
+    }
+  }
+
+  /**
+   * A wrapper of
+   * {@link alluxio.proto.security.EncryptionProto.CryptoKey.Builder#setKey} which takes a byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes key bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.security.EncryptionProto.CryptoKey.Builder setKey(
+          alluxio.proto.security.EncryptionProto.CryptoKey.Builder builder, byte[] bytes) {
+    return builder.setKey(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * A wrapper of
+   * {@link alluxio.proto.security.EncryptionProto.CryptoKey.Builder#setIv} which takes a byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes iv bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.security.EncryptionProto.CryptoKey.Builder setIv(
+          alluxio.proto.security.EncryptionProto.CryptoKey.Builder builder, byte[] bytes) {
+    return builder.setIv(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * @param capability the capability
+   * @return the capability content
+   */
+  public static byte[] getContent(alluxio.proto.security.CapabilityProto.Capability capability) {
+    return capability.getContent().toByteArray();
+  }
+
+  /**
+   * @param capability the capability builder
+   * @param content the capability content
+   */
+  public static void setContent(
+          alluxio.proto.security.CapabilityProto.Capability.Builder capability, byte[] content) {
+    capability.setContent(com.google.protobuf.ByteString.copyFrom(content));
+  }
+
+  /**
+   * @param capability the capability
+   * @return the capability authenticator
+   */
+  public static byte[] getAuthenticator(
+          alluxio.proto.security.CapabilityProto.Capability capability) {
+    return capability.getAuthenticator().toByteArray();
+  }
+
+  /**
+   * @param capability the capability builder
+   * @param authenticator the authenticator
+   */
+  public static void setAuthenticator(
+          alluxio.proto.security.CapabilityProto.Capability.Builder capability, byte[] authenticator) {
+    capability.setAuthenticator(com.google.protobuf.ByteString.copyFrom(authenticator));
+  }
+
+  /**
+   * @param key the secret key
+   * @return the key in byte array
+   */
+  public static byte[] getSecretKey(alluxio.proto.security.Key.SecretKey key) {
+    return key.getSecretKey().toByteArray();
+  }
+
+  /**
+   * Converts byte[] to ByteString.
+   *
+   * @param bytes byte array to convert from
+   * @return the converted ByteString
+   */
+  public static com.google.protobuf.ByteString copyFrom(byte[] bytes) {
+    return com.google.protobuf.ByteString.copyFrom(bytes);
+  }
+  // ALLUXIO CS END
 
   /**
    * Checks whether the exception is an {@link InvalidProtocolBufferException} thrown because of

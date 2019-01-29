@@ -3,22 +3,16 @@ syntax = "proto2";
 package alluxio.proto.journal;
 option java_package = "alluxio.proto.journal";
 
-<<<<<<< HEAD:core/protobuf/src/proto/journal/journal.proto
-import "journal/block.proto";
-import "journal/file.proto";
-import "journal/key_value.proto";
-// ALLUXIO CS ADD
-import "journal/job.proto";
-import "journal/license.proto";
-import "journal/privilege.proto";
-// ALLUXIO CS END
-import "journal/lineage.proto";
-=======
 import "proto/journal/block.proto";
 import "proto/journal/file.proto";
 import "proto/journal/key_value.proto";
+// ALLUXIO CS ADD
+import "proto/journal/job.proto";
+import "proto/journal/license.proto";
+import "proto/journal/privilege.proto";
+// ALLUXIO CS END
 import "proto/journal/lineage.proto";
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/transport/src/proto/journal/journal.proto
+
 
 // Wraps around all types of Alluxio journal entries.
 //

@@ -17,6 +17,7 @@ private static final long serialVersionUID = 0L;
   }
   private GetStatusPOptions() {
     loadMetadataType_ = 0;
+    accessMode_ = 0;
   }
 
   @java.lang.Override
@@ -72,6 +73,11 @@ private static final long serialVersionUID = 0L;
               commonOptions_ = subBuilder.buildPartial();
             }
             bitField0_ |= 0x00000002;
+            break;
+          }
+          case 8000: {
+            bitField0_ |= 0x00000004;
+            accessMode_ = input.readInt32();
             break;
           }
         }
@@ -136,6 +142,29 @@ private static final long serialVersionUID = 0L;
     return commonOptions_ == null ? alluxio.grpc.FileSystemMasterCommonPOptions.getDefaultInstance() : commonOptions_;
   }
 
+  public static final int ACCESSMODE_FIELD_NUMBER = 1000;
+  private int accessMode_;
+  /**
+   * <pre>
+   * ALLUXIO CS ADD
+   * </pre>
+   *
+   * <code>optional int32 accessMode = 1000;</code>
+   */
+  public boolean hasAccessMode() {
+    return ((bitField0_ & 0x00000004) == 0x00000004);
+  }
+  /**
+   * <pre>
+   * ALLUXIO CS ADD
+   * </pre>
+   *
+   * <code>optional int32 accessMode = 1000;</code>
+   */
+  public int getAccessMode() {
+    return accessMode_;
+  }
+
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -154,6 +183,9 @@ private static final long serialVersionUID = 0L;
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       output.writeMessage(2, getCommonOptions());
     }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      output.writeInt32(1000, accessMode_);
+    }
     unknownFields.writeTo(output);
   }
 
@@ -169,6 +201,10 @@ private static final long serialVersionUID = 0L;
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(2, getCommonOptions());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeInt32Size(1000, accessMode_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -195,6 +231,11 @@ private static final long serialVersionUID = 0L;
       result = result && getCommonOptions()
           .equals(other.getCommonOptions());
     }
+    result = result && (hasAccessMode() == other.hasAccessMode());
+    if (hasAccessMode()) {
+      result = result && (getAccessMode()
+          == other.getAccessMode());
+    }
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -213,6 +254,10 @@ private static final long serialVersionUID = 0L;
     if (hasCommonOptions()) {
       hash = (37 * hash) + COMMONOPTIONS_FIELD_NUMBER;
       hash = (53 * hash) + getCommonOptions().hashCode();
+    }
+    if (hasAccessMode()) {
+      hash = (37 * hash) + ACCESSMODE_FIELD_NUMBER;
+      hash = (53 * hash) + getAccessMode();
     }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
@@ -352,6 +397,8 @@ private static final long serialVersionUID = 0L;
         commonOptionsBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000002);
+      accessMode_ = 0;
+      bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
 
@@ -388,6 +435,10 @@ private static final long serialVersionUID = 0L;
       } else {
         result.commonOptions_ = commonOptionsBuilder_.build();
       }
+      if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        to_bitField0_ |= 0x00000004;
+      }
+      result.accessMode_ = accessMode_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -435,6 +486,9 @@ private static final long serialVersionUID = 0L;
       }
       if (other.hasCommonOptions()) {
         mergeCommonOptions(other.getCommonOptions());
+      }
+      if (other.hasAccessMode()) {
+        setAccessMode(other.getAccessMode());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -616,6 +670,54 @@ private static final long serialVersionUID = 0L;
         commonOptions_ = null;
       }
       return commonOptionsBuilder_;
+    }
+
+    private int accessMode_ ;
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     *
+     * <code>optional int32 accessMode = 1000;</code>
+     */
+    public boolean hasAccessMode() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     *
+     * <code>optional int32 accessMode = 1000;</code>
+     */
+    public int getAccessMode() {
+      return accessMode_;
+    }
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     *
+     * <code>optional int32 accessMode = 1000;</code>
+     */
+    public Builder setAccessMode(int value) {
+      bitField0_ |= 0x00000004;
+      accessMode_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     *
+     * <code>optional int32 accessMode = 1000;</code>
+     */
+    public Builder clearAccessMode() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      accessMode_ = 0;
+      onChanged();
+      return this;
     }
     public final Builder setUnknownFields(
         final com.google.protobuf.UnknownFieldSet unknownFields) {

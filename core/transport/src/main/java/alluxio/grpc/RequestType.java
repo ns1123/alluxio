@@ -22,9 +22,15 @@ public enum RequestType
    */
   UFS_FILE(1),
   /**
-   * <code>UFS_FALLBACK_BLOCK = 2;</code>
+   * <pre>
+   * ALLUXIO CS REPLACE
+   * UFS_FALLBACK_BLOCK = 2;
+   * ALLUXIO CS WITH
+   * </pre>
+   *
+   * <code>UFS_FALLBACK_BLOCK = 1000;</code>
    */
-  UFS_FALLBACK_BLOCK(2),
+  UFS_FALLBACK_BLOCK(1000),
   ;
 
   /**
@@ -36,9 +42,15 @@ public enum RequestType
    */
   public static final int UFS_FILE_VALUE = 1;
   /**
-   * <code>UFS_FALLBACK_BLOCK = 2;</code>
+   * <pre>
+   * ALLUXIO CS REPLACE
+   * UFS_FALLBACK_BLOCK = 2;
+   * ALLUXIO CS WITH
+   * </pre>
+   *
+   * <code>UFS_FALLBACK_BLOCK = 1000;</code>
    */
-  public static final int UFS_FALLBACK_BLOCK_VALUE = 2;
+  public static final int UFS_FALLBACK_BLOCK_VALUE = 1000;
 
 
   public final int getNumber() {
@@ -57,7 +69,7 @@ public enum RequestType
     switch (value) {
       case 0: return ALLUXIO_BLOCK;
       case 1: return UFS_FILE;
-      case 2: return UFS_FALLBACK_BLOCK;
+      case 1000: return UFS_FALLBACK_BLOCK;
       default: return null;
     }
   }

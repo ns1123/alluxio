@@ -106,4 +106,7 @@ message WorkerNetAddress {
   optional int32 webPort = 4;
   optional string domainSocketPath = 5;
   optional TieredIdentity tieredIdentity = 6;
+  // ALLUXIO CS ADD
+  optional int32 secureRpcPort = 1001;
+  // ALLUXIO CS END
 }

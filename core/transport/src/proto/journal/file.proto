@@ -5,7 +5,7 @@ package alluxio.proto.journal;
 import "proto/shared/acl.proto";
 
 // ALLUXIO CS ADD
-import "security/delegation_token_proto.proto";
+import "proto/security/delegation_token_proto.proto";
 
 // ALLUXIO CS END
 // Journal entry messages for the file master.

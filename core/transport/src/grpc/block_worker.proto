@@ -7,6 +7,9 @@ option java_outer_classname = "BlockWorkerProto";
 package alluxio.grpc.block;
 
 import "proto/dataserver/protocol.proto";
+// ALLUXIO CS ADD
+import "proto/security/capability_proto.proto";
+// ALLUXIO CS END
 
 // The block worker service
 service BlockWorker {
@@ -34,7 +37,11 @@ message Chunk {
 enum RequestType {
   ALLUXIO_BLOCK = 0;
   UFS_FILE = 1;
-  UFS_FALLBACK_BLOCK = 2;
+  // ALLUXIO CS REPLACE
+  // UFS_FALLBACK_BLOCK = 2;
+  // ALLUXIO CS WITH
+  UFS_FALLBACK_BLOCK = 1000;
+  // ALLUXIO CS END
 }
 
 // The read request.
@@ -49,6 +56,9 @@ message ReadRequest {
 
   // This is only set for UFS block read.
   optional alluxio.proto.dataserver.OpenUfsBlockOptions open_ufs_block_options = 6;
+  // ALLUXIO CS ADD
+  optional alluxio.proto.security.Capability capability = 1000;
+  // ALLUXIO CS END
 }
 
 // The read response.
@@ -67,9 +77,12 @@ message WriteRequestCommand {
   // This is only applicable for block write.
   optional int32 tier = 4;
   optional bool flush = 5;
-  optional alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 6;
-  optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
   // Cancel, close and error will be handled by standard gRPC stream APIs.
+  optional alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 6;
+  // ALLUXIO CS WITH
+  optional alluxio.proto.security.Capability capability = 1000;
+  optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;
+  // ALLUXIO CS END
 }
 
 // The write request.
@@ -107,6 +120,9 @@ message AsyncCacheResponse {}
 message OpenLocalBlockRequest {
   optional int64 block_id = 1;
   optional bool promote = 2;
+  // ALLUXIO CS ADD
+  optional alluxio.proto.security.Capability capability = 1001;
+  // ALLUXIO CS END
 }
 
 // next available id: 2
@@ -121,7 +137,12 @@ message CreateLocalBlockRequest {
   optional int64 space_to_reserve = 4;
   // If set, only reserve space for the block.
   optional bool only_reserve_space = 5;
-  optional bool cleanup_on_failure = 6;
+  // ALLUXIO CS REPLACE
+  // optional bool cleanup_on_failure = 6;
+  // ALLUXIO CS WITH
+  optional alluxio.proto.security.Capability capability = 1001;
+  optional bool cleanup_on_failure = 1002;
+  // ALLUXIO CS END
 }
 
 // next available id: 2
@@ -131,7 +152,11 @@ message CreateLocalBlockResponse {
 
 // next available id: 2
 message RemoveBlockRequest {
-  optional int64 block_id = 1;
+  // ALLUXIO CS REPLACE
+  // optional int64 block_id = 1;
+  // ALLUXIO CS WITH
+  optional int64 block_id = 1001;
+  // ALLUXIO CS END
 }
 
 message RemoveBlockResponse {}

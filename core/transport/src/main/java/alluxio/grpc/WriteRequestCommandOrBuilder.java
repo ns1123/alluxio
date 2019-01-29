@@ -69,40 +69,77 @@ public interface WriteRequestCommandOrBuilder extends
   boolean getFlush();
 
   /**
+   * <pre>
+   * Cancel, close and error will be handled by standard gRPC stream APIs.
+   * </pre>
+   *
    * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 6;</code>
    */
   boolean hasCreateUfsFileOptions();
   /**
+   * <pre>
+   * Cancel, close and error will be handled by standard gRPC stream APIs.
+   * </pre>
+   *
    * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 6;</code>
    */
   alluxio.proto.dataserver.Protocol.CreateUfsFileOptions getCreateUfsFileOptions();
   /**
+   * <pre>
+   * Cancel, close and error will be handled by standard gRPC stream APIs.
+   * </pre>
+   *
    * <code>optional .alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 6;</code>
    */
   alluxio.proto.dataserver.Protocol.CreateUfsFileOptionsOrBuilder getCreateUfsFileOptionsOrBuilder();
 
   /**
    * <pre>
-   * Cancel, close and error will be handled by standard gRPC stream APIs.
+   * ALLUXIO CS WITH
    * </pre>
    *
-   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+   * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+   */
+  boolean hasCapability();
+  /**
+   * <pre>
+   * ALLUXIO CS WITH
+   * </pre>
+   *
+   * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+   */
+  alluxio.proto.security.CapabilityProto.Capability getCapability();
+  /**
+   * <pre>
+   * ALLUXIO CS WITH
+   * </pre>
+   *
+   * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+   */
+  alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
+
+  /**
+   * <pre>
+   * ALLUXIO CS END
+   * </pre>
+   *
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
    */
   boolean hasCreateUfsBlockOptions();
   /**
    * <pre>
-   * Cancel, close and error will be handled by standard gRPC stream APIs.
+   * ALLUXIO CS END
    * </pre>
    *
-   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
    */
   alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions();
   /**
    * <pre>
-   * Cancel, close and error will be handled by standard gRPC stream APIs.
+   * ALLUXIO CS END
    * </pre>
    *
-   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
    */
   alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder();
 }

@@ -143,6 +143,9 @@ message GetStatusPResponse {
 message GetStatusPOptions {
   optional LoadMetadataPType loadMetadataType = 1;
   optional FileSystemMasterCommonPOptions commonOptions = 2;
+  // ALLUXIO CS ADD
+  optional int32 accessMode = 1000;
+  // ALLUXIO CS END
 }
 message GetStatusPRequest {
   /** the path of the file or directory */
@@ -150,6 +153,42 @@ message GetStatusPRequest {
   optional GetStatusPOptions options = 2;
 }
 
+// ALLUXIO CS ADD
+message DelegationTokenIdentifier {
+  optional string owner = 1;
+  optional string renewer = 2;
+  optional string realUser = 3;
+  optional int64 issueDate = 4;
+  optional int64 maxDate = 5;
+  optional int64 sequenceNumber = 6;
+  optional int64 masterKeyId = 7;
+}
+
+message DelegationToken {
+  optional DelegationTokenIdentifier identifier = 1;
+  optional bytes password = 2;
+}
+
+message GetDelegationTokenPResponse {
+  optional DelegationToken token = 1;
+}
+message GetDelegationTokenPRequest {
+  optional string renewer = 1;
+}
+
+message RenewDelegationTokenPResponse {
+  optional int64 expirationTimeMs = 1;
+}
+message RenewDelegationTokenPRequest {
+  optional DelegationToken token = 1;
+}
+
+message CancelDelegationTokenPResponse {}
+message CancelDelegationTokenPRequest {
+  optional DelegationToken token = 1;
+}
+
+// ALLUXIO CS END
 message ExistsPOptions {
   optional LoadMetadataPType loadMetadataType = 1;
   optional FileSystemMasterCommonPOptions commonOptions = 2;
@@ -276,6 +315,10 @@ message FileInfo {
   optional PAcl defaultAcl = 28;
   optional int32 replicationMax = 29;
   optional int32 replicationMin = 30;
+  // ALLUXIO CS ADD
+  optional fscommon.Capability capability = 1003;
+  optional bool encrypted = 1004;
+  // ALLUXIO CS END
 }
 
 message MountPResponse {}
@@ -550,6 +593,23 @@ service FileSystemMasterClientService {
    * Updates the ufs mode for a ufs path under one or more mount points.
    */
   rpc UpdateUfsMode(UpdateUfsModePRequest) returns (UpdateUfsModePResponse);
+
+  // ALLUXIO CS ADD
+  /**
+   * Returns the delegation token for the client user.
+   */
+  rpc GetDelegationToken(GetDelegationTokenPRequest) returns (GetDelegationTokenPResponse);
+
+  /**
+   * Renews the delegation token.
+   */
+  rpc RenewDelegationToken(RenewDelegationTokenPRequest) returns (RenewDelegationTokenPResponse);
+
+  /**
+   * Cancels the delegation token.
+   */
+  rpc CancelDelegationToken(CancelDelegationTokenPRequest) returns (CancelDelegationTokenPResponse);
+  // ALLUXIO CS END
 }
 
 message FileSystemHeartbeatPResponse {
