@@ -40,6 +40,7 @@ import alluxio.exception.InvalidPathException;
 import alluxio.security.authorization.AclEntry;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;
+import alluxio.wire.SyncPointInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -330,7 +331,7 @@ public interface FileSystem {
    *
    * @return a list of actively synced paths
    */
-  List<String> getSyncPathList() throws IOException, AlluxioException;
+  List<SyncPointInfo> getSyncPathList() throws IOException, AlluxioException;
 
   /**
    * Convenience method for {@link #openFile(AlluxioURI, OpenFileOptions)} with default options.

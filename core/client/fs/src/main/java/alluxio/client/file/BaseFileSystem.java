@@ -46,6 +46,7 @@ import alluxio.security.authorization.AclEntry;
 import alluxio.wire.LoadMetadataType;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;
+import alluxio.wire.SyncPointInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -548,7 +549,7 @@ public class BaseFileSystem implements FileSystem {
   }
 
   @Override
-  public List<String> getSyncPathList() throws IOException, AlluxioException {
+  public List<SyncPointInfo> getSyncPathList() throws IOException, AlluxioException {
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       return masterClient.getSyncPathList();

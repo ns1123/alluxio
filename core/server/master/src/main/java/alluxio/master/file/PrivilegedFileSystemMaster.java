@@ -62,6 +62,7 @@ import alluxio.wire.FileInfo;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.Privilege;
 import alluxio.wire.SetAclAction;
+import alluxio.wire.SyncPointInfo;
 import alluxio.wire.TtlAction;
 import alluxio.wire.WorkerInfo;
 
@@ -441,7 +442,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   // ALLUXIO CS END
   @Override
-  public List<String> getSyncPathList() throws UnavailableException, AccessControlException {
+  public List<SyncPointInfo> getSyncPathList() throws UnavailableException, AccessControlException {
     return mFileSystemMaster.getSyncPathList();
   }
 

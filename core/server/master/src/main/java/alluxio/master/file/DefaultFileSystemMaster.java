@@ -22,7 +22,6 @@ import alluxio.collections.PrefixList;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockInfoException;
-import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyCompletedException;
@@ -48,6 +47,7 @@ import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.activesync.ActiveSyncManager;
+import alluxio.wire.SyncPointInfo;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -55,6 +55,7 @@ import alluxio.master.file.meta.InodeDirectoryIdGenerator;
 import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodePathPair;
 import alluxio.master.file.meta.InodeTree;
+import alluxio.master.file.meta.InodeTree.LockMode;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.LockedInodePathList;
 import alluxio.master.file.meta.LockingScheme;
@@ -656,20 +657,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     } else if (entry.hasRenewDelegationToken()) {
       renewDelegationTokenFromEntry(entry.getRenewDelegationToken());
     // ALLUXIO CS END
-    } else if (entry.hasAddSyncPoint()) {
-      try {
-        startSyncFromJournalEntry(entry.getAddSyncPoint());
-      } catch (AlluxioException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasRemoveSyncPoint()) {
-      try {
-        stopSyncFromJournalEntry(entry.getRemoveSyncPoint());
-      } catch (AlluxioException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (entry.hasActiveSyncTxId()) {
-      updateTxIdFromJournalEntry(entry.getActiveSyncTxId());
+    } else if (mSyncManager.replayJournalEntryFromJournal(entry)) {
+      return;
     } else {
       throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
     }
@@ -827,6 +816,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
     mDelegationTokenManager.close();
     // ALLUXIO CS END
+    mSyncManager.stop();
     super.stop();
   }
 
@@ -1941,7 +1931,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
       }
 
-      mSyncManager.stopSync(inodePath.getUri());
+      MountTable.Resolution resolution = mSyncManager.resolveSyncPoint(inodePath.getUri());
+      if (resolution != null) {
+        mSyncManager.stopSyncInternal(inodePath.getUri(), resolution);
+      }
 
       // Delete Inodes
       for (Pair<AlluxioURI, LockedInodePath> delInodePair : revisedInodesToDelete) {
@@ -3400,7 +3393,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    */
   private boolean unmountInternal(AlluxioURI uri) throws InvalidPathException, IOException {
     MountTable.Resolution resolution = mMountTable.resolve(uri);
-    mSyncManager.stopSync(resolution.getMountId());
+    mSyncManager.stopSyncForMount(resolution.getMountId());
     return mMountTable.delete(uri);
   }
 
@@ -3875,7 +3868,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               syncMetadataInternal(rpcContext, inodePathChangedFile, fileLockingScheme, DescendantType.NONE,
                   statusCache);
             } catch (InvalidPathException e) {
-              LOG.warn("forceSyncMetadata processed an invalid path {}", alluxioUri.getPath());
+              LOG.info("forceSyncMetadata processed an invalid path {}", alluxioUri.getPath());
             }
             return null;
           });
@@ -3894,15 +3887,24 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   @Override
   public boolean recordActiveSyncTxid(long txId, long mountId) {
-    try (RpcContext rpcContext = createRpcContext()) {
+    MountInfo mountInfo = mMountTable.getMountInfo(mountId);
+    if (mountInfo == null) {
+      return false;
+    }
+    AlluxioURI mountPath = mountInfo.getAlluxioUri();
 
+    try (RpcContext rpcContext = createRpcContext();
+         LockedInodePath inodePath = mInodeTree
+             .lockFullInodePath(mountPath, LockMode.READ)) {
       File.ActiveSyncTxIdEntry txIdEntry =
           File.ActiveSyncTxIdEntry.newBuilder().setTxId(txId).setMountId(mountId).build();
       rpcContext.journal(JournalEntry.newBuilder().setActiveSyncTxId(txIdEntry).build());
-    } catch (UnavailableException e) {
-      LOG.warn("Exception when recording activesync txid {}", e);
+    } catch (UnavailableException | InvalidPathException | FileDoesNotExistException e) {
+      LOG.warn("Exception when recording activesync txid, path {}, exception {}",
+          mountPath, e);
       return false;
     }
+
     return true;
   }
 
@@ -4434,43 +4436,52 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   // ALLUXIO CS END
 
   @Override
-  public List<String> getSyncPathList() throws UnavailableException {
+  public List<SyncPointInfo> getSyncPathList() {
     return mSyncManager.getSyncPathList();
   }
 
   private void startSyncAndJournal(RpcContext rpcContext,
       LockingScheme lockingScheme, LockedInodePath lockedInodePath)
-      throws InvalidPathException, IOException, ConnectionFailedException {
+      throws InvalidPathException, IOException {
     try (LockResource r = new LockResource(mSyncManager.getSyncManagerLock())) {
-      mSyncManager.startSync(lockedInodePath.getUri());
+      AlluxioURI uri = lockedInodePath.getUri();
+      MountTable.Resolution resolution = mMountTable.resolve(uri);
+      long mountId = resolution.getMountId();
+      try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
+        if (!ufsResource.get().supportsActiveSync()) {
+          throw new UnsupportedOperationException("Active Syncing is not supported on this UFS type"
+              + ufsResource.get().getUnderFSType());
+        }
+      }
+      if (mSyncManager.isActivelySynced(uri)) {
+        throw new InvalidPathException("URI " + uri + " is already a sync point");
+      }
       AddSyncPointEntry addSyncPoint =
-          AddSyncPointEntry.newBuilder().setSyncpointPath(lockedInodePath.getUri().toString()).build();
+          AddSyncPointEntry.newBuilder().setSyncpointPath(uri.toString()).build();
       rpcContext.journal(JournalEntry.newBuilder().setAddSyncPoint(addSyncPoint).build());
-    }
-  }
-
-  private void startSyncFromJournalEntry(AddSyncPointEntry addSyncPointEntry)
-      throws InvalidPathException, IOException {
-    try (LockedInodePath inodePath = mInodeTree
-             .lockInodePath(new AlluxioURI(addSyncPointEntry.getSyncpointPath()),
-                 InodeTree.LockMode.WRITE)) {
-      mSyncManager.addSyncPointFromJournal(inodePath.getUri());
-    }
-  }
-
-  private void stopSyncFromJournalEntry(RemoveSyncPointEntry removeSyncPointEntry)
-      throws InvalidPathException, IOException {
-    try (LockedInodePath inodePath = mInodeTree
-        .lockInodePath(new AlluxioURI(removeSyncPointEntry.getSyncpointPath()),
-            InodeTree.LockMode.WRITE)) {
-      mSyncManager.stopSync(inodePath.getUri());
+      AddSyncPointEntry.newBuilder()
+          .setSyncpointPath(uri.toString())
+          .setMountId(mountId)
+          .build();
+      mSyncManager.applyAndJournal(rpcContext, addSyncPoint);
+      try {
+        mSyncManager.startSyncPostJournal(uri);
+      } catch (Throwable e) {
+        // revert state;
+        RemoveSyncPointEntry removeSyncPoint =
+            File.RemoveSyncPointEntry.newBuilder()
+                .setSyncpointPath(uri.toString()).build();
+        mSyncManager.applyAndJournal(rpcContext, removeSyncPoint);
+        mSyncManager.recoverFromStartSync(uri, resolution.getMountId());
+        throw e;
+      }
     }
   }
 
   @Override
   public void startSync(AlluxioURI syncPoint)
       throws IOException, InvalidPathException,
-      AccessControlException, ConnectionFailedException {
+      AccessControlException {
     LockingScheme lockingScheme = new LockingScheme(syncPoint, InodeTree.LockMode.WRITE, true);
     try (RpcContext rpcContext = createRpcContext();
          LockedInodePath inodePath = mInodeTree
@@ -4493,11 +4504,28 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       LockingScheme lockingScheme, LockedInodePath lockedInodePath)
       throws IOException, InvalidPathException {
     try (LockResource r = new LockResource(mSyncManager.getSyncManagerLock())) {
-      mSyncManager.stopSync(lockedInodePath.getUri());
-      RemoveSyncPointEntry removeSyncPoint =
-          File.RemoveSyncPointEntry.newBuilder()
-              .setSyncpointPath(lockedInodePath.getUri().toString()).build();
-      rpcContext.journal(JournalEntry.newBuilder().setRemoveSyncPoint(removeSyncPoint).build());
+      MountTable.Resolution resolution = mSyncManager.resolveSyncPoint(lockedInodePath.getUri());
+      if (resolution == null) {
+        throw new InvalidPathException(lockedInodePath.getUri() + " is not a sync point.");
+      }
+      AlluxioURI uri = lockedInodePath.getUri();
+      RemoveSyncPointEntry removeSyncPoint = File.RemoveSyncPointEntry.newBuilder()
+              .setSyncpointPath(lockedInodePath.getUri().toString())
+              .setMountId(resolution.getMountId())
+              .build();
+      mSyncManager.applyAndJournal(rpcContext, removeSyncPoint);
+
+      try {
+        mSyncManager.stopSyncPostJournal(lockedInodePath.getUri());
+      } catch (Throwable e) {
+        // revert state;
+        AddSyncPointEntry addSyncPoint =
+            File.AddSyncPointEntry.newBuilder()
+                .setSyncpointPath(uri.toString()).build();
+        mSyncManager.applyAndJournal(rpcContext, addSyncPoint);
+        mSyncManager.recoverFromStopSync(uri, resolution.getMountId());
+        throw e;
+      }
     }
   }
 
