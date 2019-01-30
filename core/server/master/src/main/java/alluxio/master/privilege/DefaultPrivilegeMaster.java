@@ -17,17 +17,16 @@ import alluxio.PropertyKey;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.UnavailableException;
+import alluxio.grpc.GrpcService;
+import alluxio.grpc.ServiceType;
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
 import alluxio.master.journal.JournalContext;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
 import alluxio.resource.LockResource;
-import alluxio.thrift.PrivilegeMasterClientService;
 import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.wire.Privilege;
-
-import org.apache.thrift.TProcessor;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -73,10 +72,10 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
   }
 
   @Override
-  public Map<String, TProcessor> getServices() {
-    Map<String, TProcessor> services = new HashMap<>();
-    services.put(Constants.PRIVILEGE_MASTER_CLIENT_SERVICE_NAME,
-        new PrivilegeMasterClientService.Processor<>(new PrivilegeMasterClientServiceHandler(this)));
+  public Map<ServiceType, GrpcService> getServices() {
+    Map<ServiceType, GrpcService> services = new HashMap<>();
+    services.put(ServiceType.PRIVILEGE_MASTER_CLIENT_SERVICE,
+        new GrpcService(new PrivilegeMasterClientServiceHandler(this)));
     return services;
   }
 

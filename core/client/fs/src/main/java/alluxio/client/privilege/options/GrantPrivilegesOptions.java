@@ -11,9 +11,9 @@
 
 package alluxio.client.privilege.options;
 
-import alluxio.thrift.GrantPrivilegesTOptions;
+import alluxio.grpc.GrantPrivilegesPOptions;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * Options for granting privileges to a group.
@@ -42,13 +42,13 @@ public final class GrantPrivilegesOptions {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).toString();
+    return MoreObjects.toStringHelper(this).toString();
   }
 
   /**
-   * @return Thrift representation of the options
+   * @return gRPC representation of the options
    */
-  public GrantPrivilegesTOptions toThrift() {
-    return new GrantPrivilegesTOptions();
+  public GrantPrivilegesPOptions toProto() {
+    return GrantPrivilegesPOptions.getDefaultInstance();
   }
 }

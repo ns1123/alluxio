@@ -64,6 +64,14 @@ public enum ServiceType
    * <code>UNKNOWN_SERVICE = 13;</code>
    */
   UNKNOWN_SERVICE(13),
+  /**
+   * <pre>
+   * ALLUXIO CS ADD
+   * </pre>
+   *
+   * <code>PRIVILEGE_MASTER_CLIENT_SERVICE = 1001;</code>
+   */
+  PRIVILEGE_MASTER_CLIENT_SERVICE(1001),
   ;
 
   /**
@@ -122,6 +130,14 @@ public enum ServiceType
    * <code>UNKNOWN_SERVICE = 13;</code>
    */
   public static final int UNKNOWN_SERVICE_VALUE = 13;
+  /**
+   * <pre>
+   * ALLUXIO CS ADD
+   * </pre>
+   *
+   * <code>PRIVILEGE_MASTER_CLIENT_SERVICE = 1001;</code>
+   */
+  public static final int PRIVILEGE_MASTER_CLIENT_SERVICE_VALUE = 1001;
 
 
   public final int getNumber() {
@@ -152,6 +168,7 @@ public enum ServiceType
       case 11: return KEY_VALUE_MASTER_CLIENT_SERVICE;
       case 12: return KEY_VALUE_WORKER_SERVICE;
       case 13: return UNKNOWN_SERVICE;
+      case 1001: return PRIVILEGE_MASTER_CLIENT_SERVICE;
       default: return null;
     }
   }

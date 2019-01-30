@@ -20,25 +20,25 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Unit tests for {@link ClosedSourceThriftUtils}.
+ * Unit tests for {@link ClosedSourceGrpcUtils}.
  */
-public final class ClosedSourceThriftUtilsTest {
+public final class ClosedSourceGrpcUtilsTest {
   @Test
   public void convertPrivileges() {
     for (Privilege p : Privilege.values()) {
-      assertEquals(p, ClosedSourceThriftUtils.fromThrift(ClosedSourceThriftUtils.toThrift(p)));
+      assertEquals(p, ClosedSourceGrpcUtils.fromProto(ClosedSourceGrpcUtils.toProto(p)));
     }
   }
 
   @Test
   public void convertPrivilegeList() {
     List<Privilege> ps = Arrays.asList(Privilege.values());
-    assertEquals(ps, ClosedSourceThriftUtils.fromThrift(ClosedSourceThriftUtils.toThrift(ps)));
+    assertEquals(ps, ClosedSourceGrpcUtils.fromProto(ClosedSourceGrpcUtils.toProto(ps)));
   }
 
   @Test
   public void convertEmptyPrivilegeList() {
     List<Privilege> ps = new ArrayList<>();
-    assertEquals(ps, ClosedSourceThriftUtils.fromThrift(ClosedSourceThriftUtils.toThrift(ps)));
+    assertEquals(ps, ClosedSourceGrpcUtils.fromProto(ClosedSourceGrpcUtils.toProto(ps)));
   }
 }

@@ -11,35 +11,36 @@
 
 package alluxio.wire;
 
-import alluxio.thrift.TPrivilege;
+import alluxio.grpc.GrpcUtils;
+import alluxio.grpc.PPrivilege;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 /**
- * Closed-source equivalent of {@link ThriftUtils}.
+ * Closed-source equivalent of {@link GrpcUtils}.
  */
-public final class ClosedSourceThriftUtils {
+public final class ClosedSourceGrpcUtils {
 
   /**
-   * @param tprivileges a list of thrift type privileges
+   * @param pprivileges a list of proto type privileges
    * @return a corresponding list of {@link Privilege}
    */
-  public static List<Privilege> fromThrift(Collection<TPrivilege> tprivileges) {
+  public static List<Privilege> fromProto(Collection<PPrivilege> pprivileges) {
     List<Privilege> privileges = new ArrayList<>();
-    for (TPrivilege tprivilege : tprivileges) {
-      privileges.add(fromThrift(tprivilege));
+    for (PPrivilege tprivilege : pprivileges) {
+      privileges.add(fromProto(tprivilege));
     }
     return privileges;
   }
 
   /**
-   * @param tprivilege a protocol buffer type privilege
+   * @param pprivilege a protocol buffer type privilege
    * @return the corresponding {@link Privilege}
    */
-  public static Privilege fromThrift(TPrivilege tprivilege) {
-    switch (tprivilege) {
+  public static Privilege fromProto(PPrivilege pprivilege) {
+    switch (pprivilege) {
       case FREE:
         return Privilege.FREE;
       case PIN:
@@ -49,18 +50,18 @@ public final class ClosedSourceThriftUtils {
       case REPLICATION:
         return Privilege.REPLICATION;
       default:
-        throw new IllegalArgumentException("Unrecognized tprivilege: " + tprivilege);
+        throw new IllegalArgumentException("Unrecognized pprivilege: " + pprivilege);
     }
   }
 
   /**
    * @param privileges a list of {@link Privilege}
-   * @return a corresponding list of thrift type privileges
+   * @return a corresponding list of proto type privileges
    */
-  public static List<TPrivilege> toThrift(Collection<Privilege> privileges) {
-    List<TPrivilege> tprivileges = new ArrayList<>();
+  public static List<PPrivilege> toProto(Collection<Privilege> privileges) {
+    List<PPrivilege> tprivileges = new ArrayList<>();
     for (Privilege privilege : privileges) {
-      tprivileges.add(toThrift(privilege));
+      tprivileges.add(toProto(privilege));
     }
     return tprivileges;
   }
@@ -69,20 +70,20 @@ public final class ClosedSourceThriftUtils {
    * @param privilege an {@link Privilege}
    * @return the corresponding protocol buffer type privilege
    */
-  public static TPrivilege toThrift(Privilege privilege) {
+  public static PPrivilege toProto(Privilege privilege) {
     switch (privilege) {
       case FREE:
-        return TPrivilege.FREE;
+        return PPrivilege.FREE;
       case PIN:
-        return TPrivilege.PIN;
+        return PPrivilege.PIN;
       case TTL:
-        return TPrivilege.TTL;
+        return PPrivilege.TTL;
       case REPLICATION:
-        return TPrivilege.REPLICATION;
+        return PPrivilege.REPLICATION;
       default:
         throw new IllegalArgumentException("Unrecognized privilege: " + privilege);
     }
   }
 
-  private ClosedSourceThriftUtils() {} // not intended for instantiation
+  private ClosedSourceGrpcUtils() {} // not intended for instantiation
 }

@@ -11,9 +11,9 @@
 
 package alluxio.client.privilege.options;
 
-import alluxio.thrift.GetGroupPrivilegesTOptions;
+import alluxio.grpc.GetGroupPrivilegesPOptions;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * Options for querying the privileges of a group.
@@ -42,13 +42,13 @@ public final class GetGroupPrivilegesOptions {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).toString();
+    return MoreObjects.toStringHelper(this).toString();
   }
 
   /**
-   * @return Thrift representation of the options
+   * @return gRPC representation of the options
    */
-  public GetGroupPrivilegesTOptions toThrift() {
-    return new GetGroupPrivilegesTOptions();
+  public GetGroupPrivilegesPOptions toProto() {
+    return GetGroupPrivilegesPOptions.getDefaultInstance();
   }
 }
