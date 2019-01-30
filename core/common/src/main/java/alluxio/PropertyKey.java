@@ -2760,16 +2760,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_METRICS_COLLECTION_ENABLED =
       new Builder(Name.USER_METRICS_COLLECTION_ENABLED)
-<<<<<<< HEAD
-          // ALLUXIO CS REPLACE
-          // .setDefaultValue(true)
-          // ALLUXIO CS WITH
+          // ALLUXIO CS ADD
           // TODO(adit): Disable until https://tachyonnexus.atlassian.net/browse/AE-554 is resolved
-          .setDefaultValue(false)
           // ALLUXIO CS END
-=======
           .setDefaultValue(false)
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
           .setDescription("Enable collecting the client-side metrics and hearbeat them to master")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
@@ -3561,8 +3555,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     IMMUTABLE_KEYS = com.google.common.collect.ImmutableSet.of(
         PropertyKey.KEY_VALUE_ENABLED,
         PropertyKey.KEY_VALUE_PARTITION_SIZE_BYTES_MAX,
-        PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER,
-        PropertyKey.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
+        PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER);
   }
   // ALLUXIO CS END
   //
@@ -4316,7 +4309,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String SECURITY_LOGIN_IMPERSONATION_USERNAME =
         "alluxio.security.login.impersonation.username";
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
-<<<<<<< HEAD
+    public static final String AUTHENTICATION_INACTIVE_CHANNEL_REAUTHENTICATE_PERIOD =
+            "alluxio.security.stale.channel.purge.interval";
     // ALLUXIO CS ADD
 
     public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS =
@@ -4441,10 +4435,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String DIAGNOSTIC_LOG_INTERVAL_MS = "alluxio.master.diagnostic.log.interval.ms";
     public static final String DIAGNOSTIC_LOG_LEVEL = "alluxio.master.diagnostic.log.level";
     // ALLUXIO CS END
-=======
-    public static final String AUTHENTICATION_INACTIVE_CHANNEL_REAUTHENTICATE_PERIOD =
-        "alluxio.security.stale.channel.purge.interval";
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
 
     //
     // Job service

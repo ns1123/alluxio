@@ -440,24 +440,10 @@ public final class Configuration {
       }
       LOG.info("Alluxio client (version {}) is trying to bootstrap-connect with {}",
           RuntimeConstants.VERSION, address);
-<<<<<<< HEAD
-      // A plain socket transport to bootstrap
-      TSocket socket = ThriftUtils.createThriftSocket(address);
-      TTransport bootstrapTransport = new BootstrapClientTransport(socket);
-      // ALLUXIO CS REPLACE
-      // TProtocol protocol = ThriftUtils.createThriftProtocol(bootstrapTransport,
-      //     Constants.META_MASTER_CLIENT_SERVICE_NAME);
-      // ALLUXIO CS WITH
-      TProtocol protocol = ThriftUtils.createBootstrapThriftProtocol(bootstrapTransport,
-          Constants.META_MASTER_CLIENT_SERVICE_NAME);
-      // ALLUXIO CS END
-      List<ConfigProperty> clusterConfig;
-=======
 
       GrpcChannel channel = null;
       List<alluxio.grpc.ConfigProperty> clusterConfig = null;
 
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
       try {
         channel = GrpcChannelBuilder.forAddress(address).disableAuthentication().build();
         MetaMasterConfigurationServiceGrpc.MetaMasterConfigurationServiceBlockingStub client =

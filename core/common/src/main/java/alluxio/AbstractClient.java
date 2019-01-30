@@ -16,6 +16,7 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.FailedPreconditionException;
 import alluxio.exception.status.Status;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.GetServiceVersionPRequest;
 import alluxio.grpc.GrpcChannelBuilder;
@@ -215,32 +216,17 @@ public abstract class AbstractClient implements Client {
         LOG.info("Alluxio client (version {}) is connected with {} @ {}", RuntimeConstants.VERSION,
             getServiceName(), mAddress);
         return;
-<<<<<<< HEAD
-      // ALLUXIO CS ADD
-      } catch (alluxio.exception.status.UnauthenticatedException e) {
-        throw e;
-      // ALLUXIO CS END
-      } catch (IOException | TTransportException e) {
-        LOG.warn("Failed to connect ({}) with {} @ {}: {}", retryPolicy.getAttemptCount(),
-            getServiceName(), mAddress, e.getMessage());
-        if (e.getCause() instanceof java.net.SocketTimeoutException) {
-          // Do not retry if socket timeout.
-          String message = "Thrift transport open times out. Please check whether the "
-              + "authentication types match between client and server. Note that NOSASL client "
-              + "is not able to connect to servers with SIMPLE security mode.";
-          throw new UnavailableException(message, e);
-        }
-        // ALLUXIO CS ADD
-        // If there has been a failure in opening TSaslTransport, it's possible because
-        // the authentication credential has expired. Relogin. This is a no-op for
-        // authTypes other than KERBEROS.
-        alluxio.security.LoginUser.relogin();
-        // ALLUXIO CS END
-=======
       } catch (IOException e) {
         LOG.warn("Failed to connect ({}) with {} @ {}: {}", retryPolicy.getAttemptCount(),
             getServiceName(), mAddress, e.getMessage());
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
+        // ALLUXIO CS ADD
+        if(e instanceof UnauthenticatedException) {
+          // If there has been a failure in opening TSaslTransport, it's possible because
+          // the authentication credential has expired. Relogin. This is a no-op for
+          // authTypes other than KERBEROS.
+          alluxio.security.LoginUser.relogin();
+        }
+        // ALLUXIO CS END
       }
     }
     // Reaching here indicates that we did not successfully connect.
