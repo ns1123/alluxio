@@ -8,6 +8,7 @@ package alluxio.grpc.file;
 
 import "grpc/common.proto";
 import "grpc/fscommon.proto";
+import "proto/security/capability_proto.proto";
 
 enum WritePType {
   MUST_CACHE = 1;
@@ -316,7 +317,7 @@ message FileInfo {
   optional int32 replicationMax = 29;
   optional int32 replicationMin = 30;
   // ALLUXIO CS ADD
-  optional fscommon.Capability capability = 1003;
+  optional alluxio.proto.security.Capability capability = 1003;
   optional bool encrypted = 1004;
   // ALLUXIO CS END
 }

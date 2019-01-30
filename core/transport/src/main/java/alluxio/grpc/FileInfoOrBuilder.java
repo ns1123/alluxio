@@ -344,7 +344,7 @@ public interface FileInfoOrBuilder extends
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+   * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
    */
   boolean hasCapability();
   /**
@@ -352,17 +352,17 @@ public interface FileInfoOrBuilder extends
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+   * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
    */
-  alluxio.grpc.Capability getCapability();
+  alluxio.proto.security.CapabilityProto.Capability getCapability();
   /**
    * <pre>
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+   * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
    */
-  alluxio.grpc.CapabilityOrBuilder getCapabilityOrBuilder();
+  alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
 
   /**
    * <pre>

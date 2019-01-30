@@ -11,11 +11,3 @@ enum LoadDescendantPType {
   ONE = 1;
   ALL = 2;
 }
-
-// ALLUXIO CS ADD
-message Capability {
-  optional bytes content = 1;
-  optional bytes authenticator = 2;
-  optional int64 keyId = 3;
-}
-// ALLUXIO CS END

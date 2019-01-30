@@ -135,7 +135,7 @@ public final class MasterKeyTest {
 
   @Test
   public void verifyAuthenticatorWithWrongUser() throws Exception {
-    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mContent).toThrift();
+    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mContent).toProto();
     capabilityThrift
         .setContent(mContent.toBuilder().setUser("wronguser").build().toByteArray());
     Capability capability = new Capability(capabilityThrift);

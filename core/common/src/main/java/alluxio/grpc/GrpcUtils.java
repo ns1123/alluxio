@@ -207,7 +207,7 @@ public final class GrpcUtils {
    * @return wire representation of the file information
    */
   public static FileInfo fromProto(alluxio.grpc.FileInfo pInfo) {
-    return new FileInfo().setFileId(pInfo.getFileId()).setName(pInfo.getName())
+    FileInfo fileInfo = new FileInfo().setFileId(pInfo.getFileId()).setName(pInfo.getName())
         .setPath(pInfo.getPath()).setUfsPath(pInfo.getUfsPath()).setLength(pInfo.getLength())
         .setBlockSizeBytes(pInfo.getBlockSizeBytes()).setCreationTimeMs(pInfo.getCreationTimeMs())
         .setCompleted(pInfo.getCompleted()).setFolder(pInfo.getFolder())
@@ -227,6 +227,19 @@ public final class GrpcUtils {
             pInfo.hasDefaultAcl() ? ((DefaultAccessControlList) fromProto(pInfo.getDefaultAcl()))
                 : DefaultAccessControlList.EMPTY_DEFAULT_ACL)
         .setReplicationMax(pInfo.getReplicationMax()).setReplicationMin(pInfo.getReplicationMin());
+    // ALLUXIO CS ADD
+    alluxio.security.capability.Capability capability = null;
+    if (pInfo.hasCapability()) {
+      try {
+        capability = new alluxio.security.capability.Capability(pInfo.getCapability());
+      } catch (alluxio.exception.InvalidCapabilityException e) {
+        throw com.google.common.base.Throwables.propagate(e);
+      }
+    }
+    fileInfo.setCapability(capability);
+    fileInfo.setEncrypted(pInfo.getEncrypted());
+    // ALLUXIO CS END
+    return fileInfo;
   }
 
   /**
@@ -460,6 +473,10 @@ public final class GrpcUtils {
     if (!fileInfo.getDefaultAcl().equals(DefaultAccessControlList.EMPTY_DEFAULT_ACL)) {
       builder.setDefaultAcl(toProto(fileInfo.getDefaultAcl()));
     }
+    // ALLUXIO CS ADD
+    builder.setEncrypted(fileInfo.isEncrypted());
+    builder.setCapability(fileInfo.getCapability().toProto());
+    // ALLUXIO CS END
     return builder.build();
   }
 

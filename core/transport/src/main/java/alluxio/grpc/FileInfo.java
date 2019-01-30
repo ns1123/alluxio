@@ -278,11 +278,11 @@ private static final long serialVersionUID = 0L;
             break;
           }
           case 8026: {
-            alluxio.grpc.Capability.Builder subBuilder = null;
+            alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
             if (((bitField0_ & 0x10000000) == 0x10000000)) {
               subBuilder = capability_.toBuilder();
             }
-            capability_ = input.readMessage(alluxio.grpc.Capability.PARSER, extensionRegistry);
+            capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
             if (subBuilder != null) {
               subBuilder.mergeFrom(capability_);
               capability_ = subBuilder.buildPartial();
@@ -1006,13 +1006,13 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int CAPABILITY_FIELD_NUMBER = 1003;
-  private alluxio.grpc.Capability capability_;
+  private alluxio.proto.security.CapabilityProto.Capability capability_;
   /**
    * <pre>
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+   * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
    */
   public boolean hasCapability() {
     return ((bitField0_ & 0x10000000) == 0x10000000);
@@ -1022,20 +1022,20 @@ private static final long serialVersionUID = 0L;
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+   * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
    */
-  public alluxio.grpc.Capability getCapability() {
-    return capability_ == null ? alluxio.grpc.Capability.getDefaultInstance() : capability_;
+  public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+    return capability_ == null ? alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance() : capability_;
   }
   /**
    * <pre>
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+   * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
    */
-  public alluxio.grpc.CapabilityOrBuilder getCapabilityOrBuilder() {
-    return capability_ == null ? alluxio.grpc.Capability.getDefaultInstance() : capability_;
+  public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+    return capability_ == null ? alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance() : capability_;
   }
 
   public static final int ENCRYPTED_FIELD_NUMBER = 1004;
@@ -3904,15 +3904,15 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private alluxio.grpc.Capability capability_ = null;
+    private alluxio.proto.security.CapabilityProto.Capability capability_ = null;
     private com.google.protobuf.SingleFieldBuilderV3<
-        alluxio.grpc.Capability, alluxio.grpc.Capability.Builder, alluxio.grpc.CapabilityOrBuilder> capabilityBuilder_;
+        alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
     /**
      * <pre>
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
      */
     public boolean hasCapability() {
       return ((bitField0_ & 0x40000000) == 0x40000000);
@@ -3922,11 +3922,11 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
      */
-    public alluxio.grpc.Capability getCapability() {
+    public alluxio.proto.security.CapabilityProto.Capability getCapability() {
       if (capabilityBuilder_ == null) {
-        return capability_ == null ? alluxio.grpc.Capability.getDefaultInstance() : capability_;
+        return capability_ == null ? alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance() : capability_;
       } else {
         return capabilityBuilder_.getMessage();
       }
@@ -3936,9 +3936,9 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
      */
-    public Builder setCapability(alluxio.grpc.Capability value) {
+    public Builder setCapability(alluxio.proto.security.CapabilityProto.Capability value) {
       if (capabilityBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -3956,10 +3956,10 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
      */
     public Builder setCapability(
-        alluxio.grpc.Capability.Builder builderForValue) {
+        alluxio.proto.security.CapabilityProto.Capability.Builder builderForValue) {
       if (capabilityBuilder_ == null) {
         capability_ = builderForValue.build();
         onChanged();
@@ -3974,15 +3974,15 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
      */
-    public Builder mergeCapability(alluxio.grpc.Capability value) {
+    public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
       if (capabilityBuilder_ == null) {
         if (((bitField0_ & 0x40000000) == 0x40000000) &&
             capability_ != null &&
-            capability_ != alluxio.grpc.Capability.getDefaultInstance()) {
+            capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
           capability_ =
-            alluxio.grpc.Capability.newBuilder(capability_).mergeFrom(value).buildPartial();
+            alluxio.proto.security.CapabilityProto.Capability.newBuilder(capability_).mergeFrom(value).buildPartial();
         } else {
           capability_ = value;
         }
@@ -3998,7 +3998,7 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
      */
     public Builder clearCapability() {
       if (capabilityBuilder_ == null) {
@@ -4015,9 +4015,9 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
      */
-    public alluxio.grpc.Capability.Builder getCapabilityBuilder() {
+    public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
       bitField0_ |= 0x40000000;
       onChanged();
       return getCapabilityFieldBuilder().getBuilder();
@@ -4027,14 +4027,14 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
      */
-    public alluxio.grpc.CapabilityOrBuilder getCapabilityOrBuilder() {
+    public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
       if (capabilityBuilder_ != null) {
         return capabilityBuilder_.getMessageOrBuilder();
       } else {
         return capability_ == null ?
-            alluxio.grpc.Capability.getDefaultInstance() : capability_;
+            alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance() : capability_;
       }
     }
     /**
@@ -4042,14 +4042,14 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional .alluxio.grpc.fscommon.Capability capability = 1003;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1003;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-        alluxio.grpc.Capability, alluxio.grpc.Capability.Builder, alluxio.grpc.CapabilityOrBuilder> 
+        alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> 
         getCapabilityFieldBuilder() {
       if (capabilityBuilder_ == null) {
         capabilityBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            alluxio.grpc.Capability, alluxio.grpc.Capability.Builder, alluxio.grpc.CapabilityOrBuilder>(
+            alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder>(
                 getCapability(),
                 getParentForChildren(),
                 isClean());

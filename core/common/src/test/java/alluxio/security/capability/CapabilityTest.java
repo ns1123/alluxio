@@ -61,7 +61,7 @@ public final class CapabilityTest {
 
   @Test
   public void capabilityFromThrift() throws Exception {
-    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
+    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toProto();
     Capability capability = new Capability(capabilityThrift);
     Assert.assertEquals(mReadContent, capability.getContentDecoded());
     Assert.assertEquals(mReadContent, CapabilityProto.Content.parseFrom(capability.getContent()));
@@ -70,7 +70,7 @@ public final class CapabilityTest {
 
   @Test
   public void invalidThriftCapability() throws Exception {
-    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
+    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toProto();
     capabilityThrift.setContent((byte[]) null);
     boolean invalidCapability = false;
     try {
@@ -83,7 +83,7 @@ public final class CapabilityTest {
 
   @Test
   public void verifyAuthenticator() throws Exception {
-    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
+    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toProto();
     capabilityThrift
         .setContent(mReadContent.toBuilder().setUser("wronguser").build().toByteArray());
     Capability capability = new Capability(capabilityThrift);
