@@ -167,54 +167,6 @@ public final class WorkerNetAddress implements Serializable {
     return this;
   }
 
-<<<<<<< HEAD:core/common/src/main/java/alluxio/wire/WorkerNetAddress.java
-  /**
-   * @return a net address of thrift construct
-   */
-  public alluxio.thrift.WorkerNetAddress toThrift() {
-    alluxio.thrift.WorkerNetAddress address = new alluxio.thrift.WorkerNetAddress();
-    // ALLUXIO CS ADD
-    address.setSecureRpcPort(mSecureRpcPort);
-    // ALLUXIO CS END
-    address.setHost(mHost);
-    address.setRpcPort(mRpcPort);
-    address.setDataPort(mDataPort);
-    address.setWebPort(mWebPort);
-    address.setDomainSocketPath(mDomainSocketPath);
-    if (mTieredIdentity != null) {
-      address.setTieredIdentity(mTieredIdentity.toThrift());
-    }
-    return address;
-  }
-
-  /**
-   * Creates a new instance of {@link WorkerNetAddress} from thrift representation.
-   *
-   * @param address the thrift net address
-   * @return the instance
-   */
-  public static WorkerNetAddress fromThrift(alluxio.thrift.WorkerNetAddress address) {
-    TieredIdentity tieredIdentity = TieredIdentity.fromThrift(address.getTieredIdentity());
-    if (tieredIdentity == null) {
-      // This means the worker is pre-1.7.0. We handle this in post-1.7.0 clients by filling out
-      // the tiered identity using the hostname field.
-      tieredIdentity = new TieredIdentity(
-          Arrays.asList(new LocalityTier(Constants.LOCALITY_NODE, address.getHost())));
-    }
-    return new WorkerNetAddress()
-        // ALLUXIO CS ADD
-        .setSecureRpcPort(address.getSecureRpcPort())
-        // ALLUXIO CS END
-        .setDataPort(address.getDataPort())
-        .setDomainSocketPath(address.getDomainSocketPath())
-        .setHost(address.getHost())
-        .setRpcPort(address.getRpcPort())
-        .setTieredIdentity(tieredIdentity)
-        .setWebPort(address.getWebPort());
-  }
-
-=======
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/base/src/main/java/alluxio/wire/WorkerNetAddress.java
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -248,20 +200,16 @@ public final class WorkerNetAddress implements Serializable {
 
   @Override
   public String toString() {
-<<<<<<< HEAD:core/common/src/main/java/alluxio/wire/WorkerNetAddress.java
-    return Objects.toStringHelper(this)
-        // ALLUXIO CS ADD
-        .add("secureRpcPort", mSecureRpcPort)
-        // ALLUXIO CS END
-=======
     return MoreObjects.toStringHelper(this)
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/base/src/main/java/alluxio/wire/WorkerNetAddress.java
         .add("host", mHost)
         .add("rpcPort", mRpcPort)
         .add("dataPort", mDataPort)
         .add("webPort", mWebPort)
         .add("domainSocketPath", mDomainSocketPath)
         .add("tieredIdentity", mTieredIdentity)
+        // ALLUXIO CS ADD
+        .add("secureRpcPort", mSecureRpcPort)
+        // ALLUXIO CS END
         .toString();
   }
 }

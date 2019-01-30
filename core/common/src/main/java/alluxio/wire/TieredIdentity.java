@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -58,29 +59,6 @@ public final class TieredIdentity implements Serializable {
    */
   public LocalityTier getTier(int i) {
     return mTiers.get(i);
-  }
-
-  /**
-<<<<<<< HEAD:core/common/src/main/java/alluxio/wire/TieredIdentity.java
-   * @return a Thrift representation
-   */
-  public alluxio.thrift.TieredIdentity toThrift() {
-    return new alluxio.thrift.TieredIdentity(mTiers.stream()
-        .map(LocalityTier::toThrift).collect(Collectors.toList())
-    );
-  }
-
-  /**
-   * @param tieredIdentity a Thrift tiered identity
-   * @return the corresponding wire type tiered identity
-   */
-  @Nullable
-  public static TieredIdentity fromThrift(alluxio.thrift.TieredIdentity tieredIdentity) {
-    if (tieredIdentity == null) {
-      return null;
-    }
-    return new TieredIdentity(tieredIdentity.getTiers().stream()
-        .map(LocalityTier::fromThrift).collect(Collectors.toList()));
   }
 
   // ALLUXIO CS REPLACE
@@ -149,8 +127,6 @@ public final class TieredIdentity implements Serializable {
   // ALLUXIO CS END
 
   /**
-=======
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/base/src/main/java/alluxio/wire/TieredIdentity.java
    * @param other a tiered identity to compare to
    * @return whether the top tier of this tiered identity matches the top tier of other
    */
@@ -216,6 +192,43 @@ public final class TieredIdentity implements Serializable {
     @Nullable
     public String getValue() {
       return mValue;
+    }
+
+    /**
+     * Locality comparison for wire type locality tiers, two locality tiers matches if both name and
+     * values are equal, or for the "node" tier, if the node names resolve to the same IP address.
+     *
+     * @param otherTier a wire type locality tier to compare to
+     * @return true if the wire type locality tier matches the given tier
+     */
+    public boolean matches(LocalityTier otherTier) {
+      String otherTierName = otherTier.getTierName();
+      if (!mTierName.equals(otherTierName)) {
+        return false;
+      }
+      String otherTierValue = otherTier.getValue();
+      if (mValue != null && mValue.equals(otherTierValue)) {
+        return true;
+      }
+      // For node tiers, attempt to resolve hostnames to IP addresses, this avoids common
+      // misconfiguration errors where a worker is using one hostname and the client is using
+      // another.
+      if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.LOCALITY_COMPARE_NODE_IP)) {
+        if (alluxio.Constants.LOCALITY_NODE.equals(mTierName)) {
+          try {
+            String tierIpAddress =
+                alluxio.util.network.NetworkAddressUtils.resolveIpAddress(mValue);
+            String otherTierIpAddress =
+                alluxio.util.network.NetworkAddressUtils.resolveIpAddress(otherTierValue);
+            if (tierIpAddress != null && tierIpAddress.equals(otherTierIpAddress)) {
+              return true;
+            }
+          } catch (java.net.UnknownHostException e) {
+            return false;
+          }
+        }
+      }
+      return false;
     }
 
     @Override
