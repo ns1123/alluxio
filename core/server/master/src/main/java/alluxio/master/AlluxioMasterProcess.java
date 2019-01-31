@@ -51,9 +51,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * This class encapsulates the different master services that are configured to run.
-// ALLUXIO CS ADD
- * {@link TServer} so that it is used in both OS and CS.
-// ALLUXIO CS END
  */
 @NotThreadSafe
 public class AlluxioMasterProcess implements MasterProcess {
@@ -91,18 +88,10 @@ public class AlluxioMasterProcess implements MasterProcess {
   private WebServer mWebServer;
 
   /** The RPC server. */
-<<<<<<< HEAD
-  // ALLUXIO CS REPLACE
-  // private TServer mThriftServer;
-  // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
-  // ALLUXIO CS END
-=======
   private GrpcServer mGrpcServer;
 
   /** Used for auto binding. **/
   private ServerSocket mBindSocket;
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
 
   /** The start time for when the master started. */
   private final long mStartTimeMs = System.currentTimeMillis();
@@ -154,17 +143,10 @@ public class AlluxioMasterProcess implements MasterProcess {
             this + " web port is only allowed to be zero in test mode.");
       }
 
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       mDelegationTokenManager = new alluxio.security.authentication.DelegationTokenManager();
       // ALLUXIO CS END
-      mTransportProvider = TransportProvider.Factory.create();
-      mRpcServerSocket = ThriftUtils.createThriftServerSocket(
-          NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC));
-      mPort = ThriftUtils.getThriftPort(mRpcServerSocket);
-      // reset master rpc port
-      Configuration.set(PropertyKey.MASTER_RPC_PORT, Integer.toString(mPort));
-=======
+
       // Random port binding.
       InetSocketAddress configuredBindAddress =
           NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC);
@@ -176,7 +158,6 @@ public class AlluxioMasterProcess implements MasterProcess {
         mPort = configuredBindAddress.getPort();
       }
 
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
       mRpcBindAddress = NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC);
       mRpcConnectAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC);
 
@@ -411,25 +392,11 @@ public class AlluxioMasterProcess implements MasterProcess {
     // TODO(ggezer) Executor threads not reused until thread capacity is hit.
     // ExecutorService executorService = Executors.newFixedThreadPool(mMaxWorkerThreads);
     try {
-<<<<<<< HEAD
-      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC);
-      // ALLUXIO CS REPLACE
-      // transportFactory = new BootstrapServerTransport.Factory(
-      //     mTransportProvider.getServerTransportFactory(serverName));
-      // ALLUXIO CS WITH
-      transportFactory = new BootstrapServerTransport.Factory(
-          mTransportProvider.getServerTransportFactory(serverName, mDelegationTokenManager));
-      // ALLUXIO CS END
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-=======
       if (mBindSocket != null) {
         // Server socket opened for auto bind.
         // Close it.
         mBindSocket.close();
       }
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
 
       LOG.info("Starting gRPC server on address {}", mRpcBindAddress);
       GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(mRpcBindAddress);
@@ -446,32 +413,6 @@ public class AlluxioMasterProcess implements MasterProcess {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-<<<<<<< HEAD
-    // create master thrift service with the multiplexed processor.
-    Args args = new TThreadPoolServer.Args(mRpcServerSocket)
-        .maxWorkerThreads(mMaxWorkerThreads)
-        .minWorkerThreads(mMinWorkerThreads)
-        .processor(processor)
-        .transportFactory(transportFactory)
-        .protocolFactory(ThriftUtils.createThriftProtocolFactory())
-        .stopTimeoutVal((int) TimeUnit.MILLISECONDS
-            .toSeconds(Configuration.getMs(PropertyKey.MASTER_THRIFT_SHUTDOWN_TIMEOUT)));
-    args.stopTimeoutUnit = TimeUnit.SECONDS;
-    // ALLUXIO CS ADD
-    args.executorService(
-        alluxio.concurrent.Executors.createDefaultExecutorServiceWithSecurityOn(args));
-    // ALLUXIO CS END
-    // ALLUXIO CS REPLACE
-    // mThriftServer = new TThreadPoolServer(args);
-    // ALLUXIO CS WITH
-    mThriftServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
-    // ALLUXIO CS END
-
-    // start thrift rpc server
-    mSafeModeManager.notifyRpcServerStarted();
-    mThriftServer.serve();
-=======
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
   }
 
   /**

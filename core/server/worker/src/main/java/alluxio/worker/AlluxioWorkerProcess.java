@@ -74,29 +74,13 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
 
   /** Worker Web UI server. */
   private WebServer mWebServer;
-
-<<<<<<< HEAD
-  /** The transport provider to create thrift server transport. */
-  private TransportProvider mTransportProvider;
   // ALLUXIO CS ADD
-
   /** Server for secure RPC. */
   private alluxio.worker.netty.NettySecureRpcServer mSecureRpcServer;
   // ALLUXIO CS END
 
-  /** Thread pool for thrift. */
-  // ALLUXIO CS REPLACE
-  // private TThreadPoolServer mThriftServer;
-  // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
-  // ALLUXIO CS END
-
-  /** Server socket for thrift. */
-  private TServerSocket mThriftServerSocket;
-=======
   /** Used for auto binding. **/
   private ServerSocket mBindSocket;
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
 
   /** The address for the rpc server. */
   private InetSocketAddress mRpcAddress;
@@ -308,16 +292,11 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
       mDomainSocketDataServer.close();
       mDomainSocketDataServer = null;
     }
-<<<<<<< HEAD
-    mThriftServer.stop();
-    mThriftServerSocket.close();
     // ALLUXIO CS ADD
     if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
       mSecureRpcServer.close();
     }
     // ALLUXIO CS END
-=======
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
     mUfsManager.close();
     try {
       mWebServer.stop();
@@ -326,125 +305,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     }
     MetricsSystem.stopSinks();
   }
-
-<<<<<<< HEAD
-  private void registerServices(TMultiplexedProcessor processor, Map<String, TProcessor> services) {
-    for (Map.Entry<String, TProcessor> service : services.entrySet()) {
-      processor.registerProcessor(service.getKey(), service.getValue());
-    }
-  }
-
-  /**
-   // ALLUXIO CS REPLACE
-   // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
-   // ALLUXIO CS WITH
-   * Helper method to create a {@link alluxio.security.authentication.AuthenticatedThriftServer}
-   * for handling
-   // ALLUXIO CS END
-   * incoming RPC requests.
-   *
-   * @return a thrift server
-   */
-  // ALLUXIO CS REPLACE
-  // private TThreadPoolServer createThriftServer() {
-  // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer createThriftServer() {
-  // ALLUXIO CS END
-    int minWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MIN);
-    int maxWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MAX);
-    TMultiplexedProcessor processor = new TMultiplexedProcessor();
-
-    for (Worker worker : mRegistry.getServers()) {
-      registerServices(processor, worker.getServices());
-    }
-
-    // Return a TTransportFactory based on the authentication type
-    TTransportFactory transportFactory;
-    // ALLUXIO CS ADD
-    final boolean isCapabilityEnabled =
-        Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
-    // ALLUXIO CS END
-    try {
-      // ALLUXIO CS REPLACE
-      // String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-      // transportFactory = new BootstrapServerTransport.Factory(mTransportProvider
-      //     .getServerTransportFactory(serverName));
-      // ALLUXIO CS WITH
-      if (isCapabilityEnabled) {
-        transportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
-          @Override
-          public void run() {
-            String user;
-            try {
-              user = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
-            } catch (alluxio.exception.AccessControlException e) {
-              LOG.warn("Failed to get the authenticated user", e);
-              return;
-            }
-            mRegistry.get(BlockWorker.class).getCapabilityCache()
-                .incrementUserConnectionCount(user);
-          }
-        }, NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC));
-      } else {
-        String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
-        transportFactory = new BootstrapServerTransport.Factory(mTransportProvider
-            .getServerTransportFactory(serverName));
-      }
-      // ALLUXIO CS END
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
-    TThreadPoolServer.Args args = new TThreadPoolServer.Args(mThriftServerSocket)
-        .minWorkerThreads(minWorkerThreads).maxWorkerThreads(maxWorkerThreads).processor(processor)
-        .transportFactory(transportFactory)
-        .protocolFactory(new TBinaryProtocol.Factory(true, true));
-    // ALLUXIO CS ADD
-    args.executorService(
-        alluxio.concurrent.Executors.createDefaultExecutorService(args, new Runnable() {
-          @Override
-          public void run() {
-            if (isCapabilityEnabled) {
-              String user;
-              try {
-                user = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
-              } catch (alluxio.exception.AccessControlException e) {
-                LOG.warn("Failed to get the authenticated user", e);
-                return;
-              }
-              mRegistry.get(BlockWorker.class).getCapabilityCache()
-                  .decrementUserConnectionCount(user);
-            }
-            alluxio.security.authentication.AuthenticatedClientUser.remove();
-          }
-        }));
-    // ALLUXIO CS END
-    if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
-      args.stopTimeoutVal = 0;
-    } else {
-      args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
-    }
-    // ALLUXIO CS REPLACE
-    // return new TThreadPoolServer(args);
-    // ALLUXIO CS WITH
-    return new alluxio.security.authentication.AuthenticatedThriftServer(args);
-    // ALLUXIO CS END
-  }
-
-  /**
-   * Helper method to create a {@link org.apache.thrift.transport.TServerSocket} for the RPC server.
-   *
-   * @return a thrift server socket
-   */
-  private TServerSocket createThriftServerSocket() {
-    try {
-      return new TServerSocket(NetworkAddressUtils.getBindAddress(ServiceType.WORKER_RPC));
-    } catch (TTransportException e) {
-      throw Throwables.propagate(e);
-    }
-  }
-
-=======
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
+  
   /**
    * @return true if domain socket is enabled
    */
