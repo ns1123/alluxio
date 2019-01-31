@@ -133,24 +133,19 @@ public class BaseFileSystem implements FileSystem {
       if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
             alluxio.client.EncryptionMetaFactory.createLayout(), options.getBlockSizeBytes());
-        options.setBlockSizeBytes(physicalBlockSize);
+        options = options.toBuilder().setBlockSizeBytes(physicalBlockSize).build();
       }
       // ALLUXIO CS END
       masterClient.createFile(path, options);
       // Do not sync before this getStatus, since the UFS file is expected to not exist.
-<<<<<<< HEAD
-      GetStatusOptions opts = GetStatusOptions.defaults();
-      opts.setLoadMetadataType(LoadMetadataType.Never);
-      opts.getCommonOptions().setSyncIntervalMs(-1);
-      // ALLUXIO CS ADD
-      opts.setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE);
-      // ALLUXIO CS END
-      status = masterClient.getStatus(path, opts);
-=======
       GetStatusPOptions gsOptions =
-          GetStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.NEVER).build();
+          GetStatusPOptions.newBuilder()
+                  .setLoadMetadataType(LoadMetadataPType.NEVER)
+                  // ALLUXIO CS ADD
+                  .setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE.toProto())
+                  // ALLUXIO CS END
+                  .build();
       status = masterClient.getStatus(path, gsOptions);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
       LOG.debug("Created file {}, options: {}", path.getPath(), options);
     } catch (AlreadyExistsException e) {
       throw new FileAlreadyExistsException(e.getMessage());
@@ -375,7 +370,7 @@ public class BaseFileSystem implements FileSystem {
   // ALLUXIO CS ADD
 
   private URIStatus getStatusInternal(
-      FileSystemMasterClient masterClient, AlluxioURI path, GetStatusOptions options)
+      FileSystemMasterClient masterClient, AlluxioURI path, GetStatusPOptions options)
       throws IOException {
     URIStatus status = masterClient.getStatus(path, options);
     if (!status.isFolder() && status.isEncrypted()) {
@@ -416,7 +411,7 @@ public class BaseFileSystem implements FileSystem {
   // ALLUXIO CS ADD
 
   private List<URIStatus> listStatusInternal(
-      FileSystemMasterClient masterClient, AlluxioURI path, ListStatusOptions options)
+      FileSystemMasterClient masterClient, AlluxioURI path, ListStatusPOptions options)
       throws IOException {
     List<URIStatus> statuses = masterClient.listStatus(path, options);
     List<URIStatus> retval = new java.util.ArrayList<>();
@@ -599,7 +594,7 @@ public class BaseFileSystem implements FileSystem {
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     URIStatus status;
     try {
-      status = getStatusInternal(masterClient, path, GetStatusOptions.defaults());
+      status = getStatusInternal(masterClient, path, GetStatusPOptions.getDefaultInstance());
     } catch (NotFoundException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } catch (UnavailableException e) {
@@ -614,15 +609,14 @@ public class BaseFileSystem implements FileSystem {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
     }
-<<<<<<< HEAD
-    InStreamOptions inStreamOptions = options.toInStreamOptions(status);
+    InStreamOptions inStreamOptions = new InStreamOptions(status, options);
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
           new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
               status.getCapability()));
     }
-    if (!options.isSkipTransformation()) {
+    if (!options.getSkipTransformation()) {
       inStreamOptions.setEncrypted(status.isEncrypted());
       if (status.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
@@ -644,9 +638,6 @@ public class BaseFileSystem implements FileSystem {
       }
     }
     // ALLUXIO CS END
-=======
-    InStreamOptions inStreamOptions = new InStreamOptions(status, options);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
     return new FileInStream(status, inStreamOptions, mFileSystemContext);
   }
 

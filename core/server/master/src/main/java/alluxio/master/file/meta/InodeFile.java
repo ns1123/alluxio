@@ -439,22 +439,14 @@ public final class InodeFile extends Inode<InodeFile> implements InodeFileView {
         .setBlockSizeBytes(context.getOptions().getBlockSizeBytes())
         .setCreationTimeMs(creationTimeMs)
         .setName(name)
-<<<<<<< HEAD
-        .setReplicationDurable(options.getReplicationDurable())
-        .setReplicationMax(options.getReplicationMax())
-        .setReplicationMin(options.getReplicationMin())
-        // ALLUXIO CS ADD
-        .setEncrypted(options.isEncrypted())
-        // ALLUXIO CS END
-        .setTtl(options.getTtl())
-        .setTtlAction(options.getTtlAction())
-=======
         .setReplicationDurable(context.getOptions().getReplicationDurable())
         .setReplicationMax(context.getOptions().getReplicationMax())
         .setReplicationMin(context.getOptions().getReplicationMin())
         .setTtl(context.getOptions().getCommonOptions().getTtl())
         .setTtlAction(context.getOptions().getCommonOptions().getTtlAction())
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
+        // ALLUXIO CS ADD
+        .setEncrypted(context.isEncrypted())
+        // ALLUXIO CS END
         .setParentId(parentId)
         .setLastModificationTimeMs(context.getOperationTimeMs(), true)
         .setOwner(context.getOwner())

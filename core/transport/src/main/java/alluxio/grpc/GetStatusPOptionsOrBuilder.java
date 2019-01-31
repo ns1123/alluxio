@@ -34,7 +34,7 @@ public interface GetStatusPOptionsOrBuilder extends
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional int32 accessMode = 1000;</code>
+   * <code>optional .alluxio.grpc.Bits accessMode = 1000;</code>
    */
   boolean hasAccessMode();
   /**
@@ -42,7 +42,7 @@ public interface GetStatusPOptionsOrBuilder extends
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional int32 accessMode = 1000;</code>
+   * <code>optional .alluxio.grpc.Bits accessMode = 1000;</code>
    */
-  int getAccessMode();
+  alluxio.grpc.Bits getAccessMode();
 }

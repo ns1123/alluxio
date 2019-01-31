@@ -17,7 +17,7 @@ private static final long serialVersionUID = 0L;
   }
   private GetStatusPOptions() {
     loadMetadataType_ = 0;
-    accessMode_ = 0;
+    accessMode_ = 1;
   }
 
   @java.lang.Override
@@ -76,8 +76,14 @@ private static final long serialVersionUID = 0L;
             break;
           }
           case 8000: {
-            bitField0_ |= 0x00000004;
-            accessMode_ = input.readInt32();
+            int rawValue = input.readEnum();
+            alluxio.grpc.Bits value = alluxio.grpc.Bits.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(1000, rawValue);
+            } else {
+              bitField0_ |= 0x00000004;
+              accessMode_ = rawValue;
+            }
             break;
           }
         }
@@ -149,7 +155,7 @@ private static final long serialVersionUID = 0L;
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional int32 accessMode = 1000;</code>
+   * <code>optional .alluxio.grpc.Bits accessMode = 1000;</code>
    */
   public boolean hasAccessMode() {
     return ((bitField0_ & 0x00000004) == 0x00000004);
@@ -159,10 +165,11 @@ private static final long serialVersionUID = 0L;
    * ALLUXIO CS ADD
    * </pre>
    *
-   * <code>optional int32 accessMode = 1000;</code>
+   * <code>optional .alluxio.grpc.Bits accessMode = 1000;</code>
    */
-  public int getAccessMode() {
-    return accessMode_;
+  public alluxio.grpc.Bits getAccessMode() {
+    alluxio.grpc.Bits result = alluxio.grpc.Bits.valueOf(accessMode_);
+    return result == null ? alluxio.grpc.Bits.NONE : result;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -184,7 +191,7 @@ private static final long serialVersionUID = 0L;
       output.writeMessage(2, getCommonOptions());
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
-      output.writeInt32(1000, accessMode_);
+      output.writeEnum(1000, accessMode_);
     }
     unknownFields.writeTo(output);
   }
@@ -204,7 +211,7 @@ private static final long serialVersionUID = 0L;
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(1000, accessMode_);
+        .computeEnumSize(1000, accessMode_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -233,8 +240,7 @@ private static final long serialVersionUID = 0L;
     }
     result = result && (hasAccessMode() == other.hasAccessMode());
     if (hasAccessMode()) {
-      result = result && (getAccessMode()
-          == other.getAccessMode());
+      result = result && accessMode_ == other.accessMode_;
     }
     result = result && unknownFields.equals(other.unknownFields);
     return result;
@@ -257,7 +263,7 @@ private static final long serialVersionUID = 0L;
     }
     if (hasAccessMode()) {
       hash = (37 * hash) + ACCESSMODE_FIELD_NUMBER;
-      hash = (53 * hash) + getAccessMode();
+      hash = (53 * hash) + accessMode_;
     }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
@@ -397,7 +403,7 @@ private static final long serialVersionUID = 0L;
         commonOptionsBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000002);
-      accessMode_ = 0;
+      accessMode_ = 1;
       bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
@@ -672,13 +678,13 @@ private static final long serialVersionUID = 0L;
       return commonOptionsBuilder_;
     }
 
-    private int accessMode_ ;
+    private int accessMode_ = 1;
     /**
      * <pre>
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional int32 accessMode = 1000;</code>
+     * <code>optional .alluxio.grpc.Bits accessMode = 1000;</code>
      */
     public boolean hasAccessMode() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
@@ -688,21 +694,25 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional int32 accessMode = 1000;</code>
+     * <code>optional .alluxio.grpc.Bits accessMode = 1000;</code>
      */
-    public int getAccessMode() {
-      return accessMode_;
+    public alluxio.grpc.Bits getAccessMode() {
+      alluxio.grpc.Bits result = alluxio.grpc.Bits.valueOf(accessMode_);
+      return result == null ? alluxio.grpc.Bits.NONE : result;
     }
     /**
      * <pre>
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional int32 accessMode = 1000;</code>
+     * <code>optional .alluxio.grpc.Bits accessMode = 1000;</code>
      */
-    public Builder setAccessMode(int value) {
+    public Builder setAccessMode(alluxio.grpc.Bits value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
       bitField0_ |= 0x00000004;
-      accessMode_ = value;
+      accessMode_ = value.getNumber();
       onChanged();
       return this;
     }
@@ -711,11 +721,11 @@ private static final long serialVersionUID = 0L;
      * ALLUXIO CS ADD
      * </pre>
      *
-     * <code>optional int32 accessMode = 1000;</code>
+     * <code>optional .alluxio.grpc.Bits accessMode = 1000;</code>
      */
     public Builder clearAccessMode() {
       bitField0_ = (bitField0_ & ~0x00000004);
-      accessMode_ = 0;
+      accessMode_ = 1;
       onChanged();
       return this;
     }

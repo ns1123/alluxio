@@ -209,19 +209,15 @@ public final class FileSystemMasterTest {
     // This makes sure that the mount point of the UFS corresponding to the Alluxio root ("/")
     // doesn't exist by default (helps loadRootTest).
     mUnderFS = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
-<<<<<<< HEAD
-    mNestedFileOptions =
-        // ALLUXIO CS REPLACE
-        // CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
-        // ALLUXIO CS WITH
-        CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true)
-            .setOwner(TEST_USER).setGroup("group")
-            .setMode(new alluxio.security.authorization.Mode((short) 0666));
-    // ALLUXIO CS END
-=======
+    // ALLUXIO CS REPLACE
+    // mNestedFileContext = CreateFileContext.defaults(
+    //     CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB).setRecursive(true));
+    // ALLUXIO CS WITH
     mNestedFileContext = CreateFileContext.defaults(
-        CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB).setRecursive(true));
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
+        CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB).setRecursive(true)
+    .setMode(new alluxio.security.authorization.Mode((short) 0666).toProto()));
+    // TODO(ggezer) Beware of missing ".setOwner(TEST_USER).setGroup("group")" during test failures.
+    // ALLUXIO CS END
     mJournalFolder = mTestFolder.newFolder().getAbsolutePath();
     startServices();
   }

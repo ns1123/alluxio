@@ -766,8 +766,7 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
     } else if (context instanceof CreateFileContext) {
       CreateFileContext fileContext = (CreateFileContext) context;
       InodeFile newFile = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
-<<<<<<< HEAD
-          currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
+          currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileContext);
       // ALLUXIO CS ADD
       if (currentInodeDirectory.isPinned()) {
         // Create a file inside of a pinned directory, if its min replication inferred from its
@@ -783,9 +782,6 @@ public class InodeTree implements JournalEntryIterable, JournalEntryReplayable {
         }
       }
       // ALLUXIO CS END
-=======
-          currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileContext);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
 
       // if the parent has a default ACL, copy that default ACL ANDed with the umask as the new
       // file's access ACL.

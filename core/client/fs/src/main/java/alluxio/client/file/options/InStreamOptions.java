@@ -40,17 +40,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 // TODO(calvin): Rename this class
 public final class InStreamOptions {
   private final URIStatus mStatus;
-<<<<<<< HEAD
-  private final OpenFileOptions mOptions;
+  private final OpenFilePOptions mProtoOptions;
+  private BlockLocationPolicy mUfsReadLocationPolicy;
   // ALLUXIO CS ADD
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
   private boolean mEncrypted = false;
   private alluxio.proto.security.EncryptionProto.Meta mEncryptionMeta = null;
   // ALLUXIO CS END
-=======
-  private final OpenFilePOptions mProtoOptions;
-  private BlockLocationPolicy mUfsReadLocationPolicy;
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
 
   /**
    * Creates with the default {@link OpenFilePOptions}.
@@ -221,32 +217,24 @@ public final class InStreamOptions {
     }
     InStreamOptions that = (InStreamOptions) o;
     return Objects.equal(mStatus, that.mStatus)
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         && Objects.equal(mEncrypted, that.mEncrypted)
         && Objects.equal(mEncryptionMeta, that.mEncryptionMeta)
         // ALLUXIO CS END
-        && Objects.equal(mOptions, that.mOptions);
-=======
         && Objects.equal(mProtoOptions, that.mProtoOptions);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(
         mStatus,
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         mCapabilityFetcher,
         mEncrypted,
         mEncryptionMeta,
         // ALLUXIO CS END
-        mOptions
-=======
         mProtoOptions
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
     );
   }
 
@@ -254,16 +242,12 @@ public final class InStreamOptions {
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("URIStatus", mStatus)
-<<<<<<< HEAD
-        .add("OpenFileOptions", mOptions)
+        .add("OpenFileOptions", mProtoOptions)
         // ALLUXIO CS ADD
         .add("CapabilityFetcher", mCapabilityFetcher)
         .add("Encrypted", mEncrypted)
         .add("EncryptionMeta", mEncryptionMeta)
         // ALLUXIO CS END
-=======
-        .add("OpenFileOptions", mProtoOptions)
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
         .toString();
   }
 }

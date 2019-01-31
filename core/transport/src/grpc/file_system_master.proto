@@ -66,6 +66,9 @@ message OpenFilePOptions {
   optional string fileReadLocationPolicy = 3;
   optional int32 hashingNumberOfShards = 4;
   optional FileSystemMasterCommonPOptions commonOptions = 5;
+  // ALLUXIO CS ADD
+  optional bool skipTransformation = 1001;
+  // ALLUXIO CS END
 }
 
 message CreateDirectoryPResponse {}
@@ -145,7 +148,7 @@ message GetStatusPOptions {
   optional LoadMetadataPType loadMetadataType = 1;
   optional FileSystemMasterCommonPOptions commonOptions = 2;
   // ALLUXIO CS ADD
-  optional int32 accessMode = 1000;
+  optional Bits accessMode = 1000;
   // ALLUXIO CS END
 }
 message GetStatusPRequest {

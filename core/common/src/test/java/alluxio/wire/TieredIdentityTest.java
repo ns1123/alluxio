@@ -52,7 +52,6 @@ public class TieredIdentityTest {
     TieredIdentity id3 = TieredIdentityFactory.fromString("node=C,rack=rack2");
     List<TieredIdentity> identities = Arrays.asList(id1, id2, id3);
 
-<<<<<<< HEAD
     assertSame(id1,
         TieredIdentityFactory.fromString("node=D,rack=rack1").nearest(identities).get());
     assertSame(id2,
@@ -69,16 +68,6 @@ public class TieredIdentityTest {
           TieredIdentityFactory.fromString("node=D,rack=rack3").nearest(identities).isPresent());
     }
     // ALLUXIO CS END
-=======
-    assertSame(id1, TieredIdentityUtils
-        .nearest(TieredIdentityFactory.fromString("node=D,rack=rack1"), identities).get());
-    assertSame(id2, TieredIdentityUtils
-        .nearest(TieredIdentityFactory.fromString("node=B,rack=rack2"), identities).get());
-    assertSame(id3, TieredIdentityUtils
-        .nearest(TieredIdentityFactory.fromString("node=C,rack=rack2"), identities).get());
-    assertSame(id1, TieredIdentityUtils
-        .nearest(TieredIdentityFactory.fromString("node=D,rack=rack3"), identities).get());
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
   }
 
   @Test

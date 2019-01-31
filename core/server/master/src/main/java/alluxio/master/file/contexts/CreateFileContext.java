@@ -11,6 +11,8 @@
 
 package alluxio.master.file.contexts;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.master.file.FileSystemMasterOptions;
 
@@ -23,6 +25,9 @@ public class CreateFileContext
     extends CreatePathContext<CreateFilePOptions.Builder, CreateFileContext> {
 
   private boolean mCacheable;
+  // ALLUXIO CS ADD
+  private boolean mEncrypted;
+  // ALLUXIO CS END
 
   /**
    * Creates context with given option data.
@@ -32,6 +37,7 @@ public class CreateFileContext
   private CreateFileContext(CreateFilePOptions.Builder optionsBuilder) {
     super(optionsBuilder);
     mCacheable = false;
+    mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
   }
 
   /**
@@ -75,11 +81,30 @@ public class CreateFileContext
     return this;
   }
 
+  /**
+   * @return true if file is cacheable
+   */
+  public boolean isEncrypted() {
+    return mEncrypted;
+  }
+
+  /**
+   * @param encrypted if encryption is enabled
+   * @return the updated context object
+   */
+  public CreateFileContext setEncrypted(boolean encrypted) {
+    mEncrypted = encrypted;
+    return this;
+  }
+
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("PathContext", super.toString())
         .add("Cacheable", mCacheable)
+        // ALLUXIO CS ADD
+        .add("Encrypted", mEncrypted)
+        // ALLUXIO CS END
         .toString();
   }
 }

@@ -13,6 +13,7 @@ package alluxio.security.authorization;
 
 import alluxio.Constants;
 import alluxio.annotation.PublicApi;
+import alluxio.grpc.Bits;
 import alluxio.grpc.PMode;
 
 import com.google.common.base.Preconditions;
@@ -315,6 +316,13 @@ public final class Mode {
         default:
           throw new IllegalArgumentException("Invalid mode string: " + string);
       }
+    }
+
+    /**
+     * @return the proto representation of Bits
+     */
+    public alluxio.grpc.Bits toProto() {
+      return alluxio.grpc.Bits.valueOf(name());
     }
 
     @Override
