@@ -79,6 +79,8 @@ message WriteRequestCommand {
   optional bool flush = 5;
   // Cancel, close and error will be handled by standard gRPC stream APIs.
   optional alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 6;
+  // ALLUXIO CS REPLACE
+  // optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
   // ALLUXIO CS WITH
   optional alluxio.proto.security.Capability capability = 1000;
   optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;

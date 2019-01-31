@@ -89,6 +89,7 @@ public final class LocalFileDataWriter implements DataWriter {
       } else {
         blockWorker = context.acquireBlockWorkerClient(address);
       }
+      // ALLUXIO CS END
 
       closer.register(new Closeable() {
         @Override
