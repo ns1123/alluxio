@@ -352,21 +352,17 @@ public class FileInStream extends InputStream implements BoundedStream, Position
                 .setOpenUfsBlockOptions(mOptions.getOpenUfsBlockOptions(blockId))
                 .setSourceHost(dataSource.getHost()).setSourcePort(dataSource.getDataPort())
                 .build();
-<<<<<<< HEAD
         // ALLUXIO CS REPLACE
-        // Channel channel = mContext.acquireNettyChannel(worker);
+        // BlockWorkerClient blockWorker = mContext.acquireBlockWorkerClient(worker);
         // ALLUXIO CS WITH
-        Channel channel;
+        BlockWorkerClient blockWorker;
         if (mOptions.getCapabilityFetcher() != null) {
-          channel = mContext.acquireNettyChannel(worker,
+          blockWorker = mContext.acquireBlockWorkerClient(worker,
               mOptions.getCapabilityFetcher().getCapability().toProto());
         } else {
-          channel = mContext.acquireNettyChannel(worker);
+          blockWorker = mContext.acquireBlockWorkerClient(worker);
         }
         // ALLUXIO CS END
-=======
-        BlockWorkerClient blockWorker = mContext.acquireBlockWorkerClient(worker);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
         try {
           blockWorker.asyncCache(request);
           mLastBlockIdCached = blockId;

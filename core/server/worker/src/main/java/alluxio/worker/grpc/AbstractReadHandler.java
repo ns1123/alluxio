@@ -29,6 +29,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,8 +93,42 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
     mResponseObserver = responseObserver;
   }
 
+  // TODO(ggezer) EE-SEC Implement for gRPC
+  //// ALLUXIO CS ADD
+  ///**
+  // * Check whether the current user has the requested access to a block.
+  // *
+  // * @param ctx the netty handler context
+  // * @param blockId the block ID
+  // * @param accessMode the requested access mode
+  // * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
+  // *         because expiration)
+  // * @throws alluxio.exception.AccessControlException if permission denied
+  // */
+  //protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
+  //                               alluxio.proto.security.CapabilityProto.Capability capability,
+  //                               alluxio.security.authorization.Mode.Bits accessMode)
+  //        throws alluxio.exception.InvalidCapabilityException,
+  //        alluxio.exception.AccessControlException {
+  //  // By default, we don't check permission.
+  //}
+  //// ALLUXIO CS END
+
   @Override
   public void onNext(alluxio.grpc.ReadRequest request) {
+    // TODO(ggezer) EE-SEC honor the check
+    //// ALLUXIO CS ADD
+    //try {
+    //  checkAccessMode(ctx, msg.getBlockId(), msg.getCapability(),
+    //          alluxio.security.authorization.Mode.Bits.READ);
+    //} catch (alluxio.exception.AccessControlException
+    //        | alluxio.exception.InvalidCapabilityException e) {
+    //  setError(ctx.channel(),
+    //          new java.lang.Error(new alluxio.exception.status.PermissionDeniedException(e), true));
+    //  return;
+    //}
+    //// ALLUXIO CS END
+
     // Expected state: context equals null as this handler is new for request.
     // Otherwise, notify the client an illegal state. Note that, we reset the context before
     // validation msg as validation may require to update error in context.

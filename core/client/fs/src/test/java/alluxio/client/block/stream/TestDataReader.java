@@ -25,32 +25,26 @@ public class TestDataReader implements DataReader {
   private final byte[] mData;
   private long mPos;
   private long mEnd;
-<<<<<<< HEAD:core/client/fs/src/test/java/alluxio/client/block/stream/TestPacketReader.java
   // ALLUXIO CS REPLACE
-  // private long mPacketSize = 128;
+  // private long mChunkSize = 128;
   //
-  // public TestPacketReader(byte[] data, long offset, long length) {
+  // public TestDataReader(byte[] data, long offset, long length) {
   //   mData = data;
   //   mPos = offset;
   //   mEnd = offset + length;
   // }
   // ALLUXIO CS WITH
-  private long mPacketSize;
+  private long mChunkSize;
 
-  public TestPacketReader(byte[] data, long offset, long length) {
+  public TestDataReader(byte[] data, long offset, long length) {
     this(data, offset, length, 128);
   }
 
-  public TestPacketReader(byte[] data, long offset, long length, long packetSize) {
-=======
-  private long mChunkSize = 128;
-
-  public TestDataReader(byte[] data, long offset, long length) {
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/client/fs/src/test/java/alluxio/client/block/stream/TestDataReader.java
+  public TestDataReader(byte[] data, long offset, long length, long chunkSize) {
     mData = data;
     mPos = offset;
     mEnd = offset + length;
-    mPacketSize = packetSize;
+    mChunkSize = chunkSize;
   }
   // ALLUXIO CS END
 

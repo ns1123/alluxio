@@ -151,17 +151,13 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
   private static BlockInStream createLocalBlockInStream(FileSystemContext context,
       WorkerNetAddress address, long blockId, long length, InStreamOptions options)
       throws IOException {
-<<<<<<< HEAD
-    long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_READER_PACKET_SIZE_BYTES);
+    long chunkSize = Configuration.getBytes(PropertyKey.USER_LOCAL_READER_CHUNK_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
-          options.getEncryptionMeta(), packetSize);
+      chunkSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
+          options.getEncryptionMeta(), chunkSize);
     }
     // ALLUXIO CS END
-=======
-    long chunkSize = Configuration.getBytes(PropertyKey.USER_LOCAL_READER_CHUNK_SIZE_BYTES);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
     return new BlockInStream(
         new LocalFileDataReader.Factory(context, address, blockId, chunkSize, options),
         address, BlockInStreamSource.LOCAL, blockId, length);
@@ -180,25 +176,16 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
    */
   private static BlockInStream createGrpcBlockInStream(FileSystemContext context,
       WorkerNetAddress address, BlockInStreamSource blockSource,
-<<<<<<< HEAD
-      Protocol.ReadRequest readRequestPartial, long blockSize, InStreamOptions options) {
-    long packetSize =
-        Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
+      ReadRequest readRequestPartial, long blockSize, InStreamOptions options) {
+    long chunkSize = Configuration.getBytes(PropertyKey.USER_NETWORK_READER_CHUNK_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
-          options.getEncryptionMeta(), packetSize);
+      chunkSize =
+          alluxio.client.LayoutUtils.toPhysicalChunksLength(options.getEncryptionMeta(), chunkSize);
     }
     // ALLUXIO CS END
-    PacketReader.Factory factory = new NettyPacketReader.Factory(context, address,
-        readRequestPartial.toBuilder().setPacketSize(packetSize).buildPartial());
-=======
-      ReadRequest readRequestPartial, long blockSize, InStreamOptions options) {
-    long chunkSize =
-        Configuration.getBytes(PropertyKey.USER_NETWORK_READER_CHUNK_SIZE_BYTES);
     DataReader.Factory factory = new GrpcDataReader.Factory(context, address,
         readRequestPartial.toBuilder().setChunkSize(chunkSize).buildPartial());
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
     return new BlockInStream(factory, address, blockSource, readRequestPartial.getBlockId(),
         blockSize);
   }
@@ -219,24 +206,16 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
   public static BlockInStream createRemoteBlockInStream(FileSystemContext context, long blockId,
       WorkerNetAddress address, BlockInStreamSource blockSource, long blockSize,
       Protocol.OpenUfsBlockOptions ufsOptions) {
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     // We don't need to adjust the packet size based on encryption flag, because this is worker to
     // worker communication and we are supposed to read raw and encrypted block from the remote
     // worker.
     // ALLUXIO CS END
-    long packetSize =
-        Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
-    Protocol.ReadRequest readRequest = Protocol.ReadRequest.newBuilder().setBlockId(blockId)
-        .setOpenUfsBlockOptions(ufsOptions).setPacketSize(packetSize).buildPartial();
-    PacketReader.Factory factory = new NettyPacketReader.Factory(context, address,
-=======
     long chunkSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_READER_CHUNK_SIZE_BYTES);
     ReadRequest readRequest = ReadRequest.newBuilder().setBlockId(blockId)
         .setOpenUfsBlockOptions(ufsOptions).setChunkSize(chunkSize).buildPartial();
     DataReader.Factory factory = new GrpcDataReader.Factory(context, address,
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
         readRequest.toBuilder().buildPartial());
     return new BlockInStream(factory, address, blockSource, blockId, blockSize);
   }

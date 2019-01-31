@@ -160,6 +160,14 @@ public final class UfsFileWriteHandler extends AbstractWriteHandler<UfsFileWrite
     String ufsString = MetricsSystem.escape(ufsClient.getUfsMountPointUri());
     String counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
         WorkerMetrics.TAG_UFS, ufsString);
+    // ALLUXIO CS ADD
+    // TODO(ggezer) EE-SEC Fetch user during creation.
+    String user = null;
+    if (user != null) {
+      counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
+              WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
+    }
+    // ALLUXIO CS END
     Counter counter = MetricsSystem.counter(counterName);
     context.setCounter(counter);
     String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,

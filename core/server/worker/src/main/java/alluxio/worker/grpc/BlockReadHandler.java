@@ -146,8 +146,8 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
                 mWorker.readBlockRemote(request.getSessionId(), request.getId(), lockId);
             String counterName = WorkerMetrics.BYTES_READ_ALLUXIO;
             // ALLUXIO CS ADD
-            String user =
-                channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+            // TODO(ggezer) EE-SEC fetch user during creation.
+            String user = null;
             if (user != null) {
               counterName = Metric.getMetricNameWithTags(
                   WorkerMetrics.BYTES_READ_ALLUXIO, WorkerMetrics.TAG_USER, user);
@@ -168,18 +168,15 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
 
         // When the block does not exist in Alluxio but exists in UFS, try to open the UFS block.
         Protocol.OpenUfsBlockOptions openUfsBlockOptions = request.getOpenUfsBlockOptions();
-<<<<<<< HEAD:core/server/worker/src/main/java/alluxio/worker/netty/BlockReadHandler.java
         // ALLUXIO CS ADD
-        String user = channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+        // TODO(ggezer) EE-SEC fetch user during creation.
+        String user = null;
         if (user != null) {
           openUfsBlockOptions = openUfsBlockOptions.toBuilder().setUser(user).build();
         }
         // ALLUXIO CS END
-        if (mWorker.openUfsBlock(request.getSessionId(), request.getId(), openUfsBlockOptions)) {
-=======
         if (mWorker.openUfsBlock(request.getSessionId(), request.getId(),
-            Protocol.OpenUfsBlockOptions.parseFrom(openUfsBlockOptions.toByteString()))) {
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/server/worker/src/main/java/alluxio/worker/grpc/BlockReadHandler.java
+                Protocol.OpenUfsBlockOptions.parseFrom(openUfsBlockOptions.toByteString()))) {
           try {
             BlockReader reader =
                 mWorker.readUfsBlock(request.getSessionId(), request.getId(), request.getStart());
@@ -227,23 +224,20 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
     mWorker = blockWorker;
   }
 
-<<<<<<< HEAD:core/server/worker/src/main/java/alluxio/worker/netty/BlockReadHandler.java
+  // TODO(ggezer) EE-SEC Implement for gRPC
   // ALLUXIO CS ADD
-  @Override
-  protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
-      alluxio.proto.security.CapabilityProto.Capability capability,
-      alluxio.security.authorization.Mode.Bits accessMode)
-      throws alluxio.exception.InvalidCapabilityException,
-      alluxio.exception.AccessControlException {
-    Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
-  }
-
+  //@Override
+  //protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+  //    alluxio.proto.security.CapabilityProto.Capability capability,
+  //    alluxio.security.authorization.Mode.Bits accessMode)
+  //    throws alluxio.exception.InvalidCapabilityException,
+  //    alluxio.exception.AccessControlException {
+  //  Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
+  //}
   // ALLUXIO CS END
+
   @Override
-  protected BlockReadRequestContext createRequestContext(Protocol.ReadRequest request) {
-=======
   protected BlockReadRequestContext createRequestContext(alluxio.grpc.ReadRequest request) {
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/server/worker/src/main/java/alluxio/worker/grpc/BlockReadHandler.java
     return new BlockReadRequestContext(request);
   }
 

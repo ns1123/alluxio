@@ -101,15 +101,12 @@ public final class LocalFileDataReader implements DataReader {
     private final WorkerNetAddress mAddress;
     private final long mBlockId;
     private final String mPath;
-<<<<<<< HEAD:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketReader.java
-    private final long mPacketSize;
+    private final long mChunkSize;
+    private final GrpcBlockingStream<OpenLocalBlockRequest, OpenLocalBlockResponse> mStream;
     // ALLUXIO CS ADD
     private final InStreamOptions mOptions;
     // ALLUXIO CS END
-=======
-    private final long mChunkSize;
-    private final GrpcBlockingStream<OpenLocalBlockRequest, OpenLocalBlockResponse> mStream;
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFileDataReader.java
+
     private LocalFileBlockReader mReader;
     private boolean mClosed;
 
@@ -129,20 +126,19 @@ public final class LocalFileDataReader implements DataReader {
       mBlockId = blockId;
       mChunkSize = chunkSize;
 
-<<<<<<< HEAD:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketReader.java
       // ALLUXIO CS REPLACE
-      // mChannel = context.acquireNettyChannel(address);
+      // mBlockWorker = context.acquireBlockWorkerClient(address);
       // ALLUXIO CS WITH
       if (options.getCapabilityFetcher() != null) {
-        mChannel = context.acquireNettyChannel(address,
-                options.getCapabilityFetcher().getCapability().toProto());
+        mBlockWorker = context.acquireBlockWorkerClient(address,
+            options.getCapabilityFetcher().getCapability().toProto());
       } else {
-        mChannel = context.acquireNettyChannel(address);
+        mBlockWorker = context.acquireBlockWorkerClient(address);
       }
       // ALLUXIO CS END
-      Protocol.LocalBlockOpenRequest request =
-          Protocol.LocalBlockOpenRequest.newBuilder().setBlockId(mBlockId)
-              .setPromote(options.getOptions().getReadType().isPromote()).build();
+      boolean isPromote = ReadType.fromProto(options.getOptions().getReadType()).isPromote();
+      OpenLocalBlockRequest request =
+          OpenLocalBlockRequest.newBuilder().setBlockId(mBlockId).setPromote(isPromote).build();
       // ALLUXIO CS ADD
       mOptions = options;
       if (options.getCapabilityFetcher() != null) {
@@ -150,12 +146,6 @@ public final class LocalFileDataReader implements DataReader {
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).build();
       }
       // ALLUXIO CS END
-=======
-      boolean isPromote = ReadType.fromProto(options.getOptions().getReadType()).isPromote();
-      OpenLocalBlockRequest request = OpenLocalBlockRequest.newBuilder()
-          .setBlockId(mBlockId).setPromote(isPromote).build();
-      mBlockWorker = context.acquireBlockWorkerClient(address);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFileDataReader.java
       try {
         mStream = new GrpcBlockingStream<>(mBlockWorker::openLocalBlock, READ_BUFFER_SIZE,
             address.toString());
@@ -192,17 +182,6 @@ public final class LocalFileDataReader implements DataReader {
       if (mReader != null) {
         mReader.close();
       }
-<<<<<<< HEAD:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketReader.java
-      Protocol.LocalBlockCloseRequest request =
-          Protocol.LocalBlockCloseRequest.newBuilder().setBlockId(mBlockId).build();
-      // ALLUXIO CS ADD
-      if (mOptions.getCapabilityFetcher() != null) {
-        request = request.toBuilder()
-            .setCapability(mOptions.getCapabilityFetcher().getCapability().toProto()).build();
-      }
-      // ALLUXIO CS END
-=======
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFileDataReader.java
       try {
         mStream.close();
         mStream.waitForComplete(READ_TIMEOUT_MS);

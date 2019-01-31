@@ -26,6 +26,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
 import io.grpc.stub.StreamObserver;
+import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,10 +162,51 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
     }
   }
 
+  // TODO(ggezer) Implement for gRPC.
+  //// ALLUXIO CS ADD
+  ///**
+  // * Check whether the current user has the requested access to a block.
+  // *
+  // * @param ctx the netty handler context
+  // * @param blockId the block ID
+  // * @param accessMode the requested access mode
+  // * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
+  // *         because expiration)
+  // * @throws alluxio.exception.AccessControlException if permission denied
+  // */
+  //protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
+  //                               alluxio.proto.security.CapabilityProto.Capability capability,
+  //                               alluxio.security.authorization.Mode.Bits accessMode)
+  //        throws alluxio.exception.InvalidCapabilityException,
+  //        alluxio.exception.AccessControlException {
+  //  // By default, we don't check permission.
+  //}
+  //// ALLUXIO CS END
+
   private void writeData(ByteString buf) {
     try {
       int readableBytes = buf.size();
       mContext.setPos(mContext.getPos() + readableBytes);
+      // TODO(ggezer) EE-SEC Honor the call
+      //// ALLUXIO CS ADD
+      ///**
+      // * Check whether the current user has the requested access to a block.
+      // *
+      // * @param ctx the netty handler context
+      // * @param blockId the block ID
+      // * @param accessMode the requested access mode
+      // * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
+      // *         because expiration)
+      // * @throws alluxio.exception.AccessControlException if permission denied
+      // */
+      //protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
+      //alluxio.proto.security.CapabilityProto.Capability capability,
+      //alluxio.security.authorization.Mode.Bits accessMode)
+      //throws alluxio.exception.InvalidCapabilityException,
+      //        alluxio.exception.AccessControlException {
+      //  // By default, we don't check permission.
+      //}
+      //// ALLUXIO CS END
       writeBuf(mContext, mResponseObserver, buf, mContext.getPos());
       incrementMetrics(readableBytes);
     } catch (Exception e) {

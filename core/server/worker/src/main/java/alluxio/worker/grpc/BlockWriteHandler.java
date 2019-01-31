@@ -20,6 +20,7 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.WorkerMetrics;
 import alluxio.worker.block.BlockWorker;
 
+import alluxio.worker.netty.Utils;
 import com.google.common.base.Preconditions;
 
 import com.google.protobuf.ByteString;
@@ -123,4 +124,16 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
     Preconditions.checkState(
         context.getBlockWriter().append(buf.asReadOnlyByteBuffer())  == sz);
   }
+
+  // TODO(ggezer EE-SEC Implement for gRPC.
+  //// ALLUXIO CS ADD
+  //@Override
+  //protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+  //                               alluxio.proto.security.CapabilityProto.Capability capability,
+  //                               alluxio.security.authorization.Mode.Bits accessMode)
+  //        throws alluxio.exception.InvalidCapabilityException,
+  //        alluxio.exception.AccessControlException {
+  //  Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
+  //}
+  //// ALLUXIO CS END
 }

@@ -305,7 +305,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     }
     MetricsSystem.stopSinks();
   }
-  
+
   /**
    * @return true if domain socket is enabled
    */

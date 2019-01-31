@@ -68,6 +68,7 @@ class ShortCircuitBlockWriteHandler implements StreamObserver<CreateLocalBlockRe
    */
   @Override
   public void onNext(CreateLocalBlockRequest request) {
+    // TODO(ggezer) EE-SEC validate request.getCapability(). Do we need validation during close?
     final String methodName = request.getOnlyReserveSpace() ? "ReserveSpace" : "CreateBlock";
     RpcUtils.streamingRPCAndLog(LOG, new RpcUtils.StreamingRpcCallable<CreateLocalBlockResponse>() {
       @Override

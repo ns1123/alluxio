@@ -30,6 +30,7 @@ import alluxio.worker.BlockUtils;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.meta.TempBlockMeta;
 
+import alluxio.worker.netty.Utils;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
@@ -75,6 +76,19 @@ public final class UfsFallbackBlockWriteHandler
     mUfsManager = ufsManager;
     mBlockWriteHandler = new BlockWriteHandler(blockWorker, responseObserver);
   }
+
+  // TODO(ggezer) EE-SEC Implement for gRPC.
+  //// ALLUXIO CS ADD
+  //@Override
+  //protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+  //                               alluxio.proto.security.CapabilityProto.Capability capability,
+  //                               alluxio.security.authorization.Mode.Bits accessMode)
+  //        throws alluxio.exception.InvalidCapabilityException,
+  //        alluxio.exception.AccessControlException {
+  //  Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
+  //}
+
+  // ALLUXIO CS END
 
   @Override
   protected BlockWriteRequestContext createRequestContext(alluxio.grpc.WriteRequest msg)
@@ -225,6 +239,16 @@ public final class UfsFallbackBlockWriteHandler
         WorkerMetrics.TAG_UFS, ufsString);
     String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
         WorkerMetrics.TAG_UFS, ufsString);
+    // ALLUXIO CS ADD
+    // TODO(ggezer) EE-SEC Fetch user during creation.
+    String user = null;
+    if (user != null) {
+      counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
+              WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
+      meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
+              WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
+    }
+    // ALLUXIO CS END
     context.setCounter(MetricsSystem.counter(counterName));
     context.setMeter(MetricsSystem.meter(meterName));
   }

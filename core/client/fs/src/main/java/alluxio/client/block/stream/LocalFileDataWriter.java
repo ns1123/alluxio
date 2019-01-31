@@ -68,58 +68,45 @@ public final class LocalFileDataWriter implements DataWriter {
    * @return the {@link LocalFileDataWriter} created
    */
   public static LocalFileDataWriter create(final FileSystemContext context,
-      final WorkerNetAddress address,
-      long blockId, OutStreamOptions options) throws IOException {
+      final WorkerNetAddress address, long blockId, OutStreamOptions options) throws IOException {
     long chunkSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_CHUNK_SIZE_BYTES);
 
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      packetSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
-          options.getEncryptionMeta(), packetSize);
+      chunkSize =
+          alluxio.client.LayoutUtils.toPhysicalChunksLength(options.getEncryptionMeta(), chunkSize);
     }
     // ALLUXIO CS END
     Closer closer = Closer.create();
     try {
-<<<<<<< HEAD:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketWriter.java
       // ALLUXIO CS REPLACE
-      // final Channel channel = context.acquireNettyChannel(address);
+      // final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
       // ALLUXIO CS WITH
-      final Channel channel;
+      BlockWorkerClient blockWorker;
       if (options.getCapabilityFetcher() != null) {
-        channel = context.acquireNettyChannel(address,
-                options.getCapabilityFetcher().getCapability().toProto());
+        blockWorker = context.acquireBlockWorkerClient(address,
+            options.getCapabilityFetcher().getCapability().toProto());
       } else {
-        channel = context.acquireNettyChannel(address);
+        blockWorker = context.acquireBlockWorkerClient(address);
       }
-      // ALLUXIO CS END
-=======
-      final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFileDataWriter.java
+
       closer.register(new Closeable() {
         @Override
         public void close() throws IOException {
           context.releaseBlockWorkerClient(address, blockWorker);
         }
       });
-      CreateLocalBlockRequest.Builder builder =
-          CreateLocalBlockRequest.newBuilder().setBlockId(blockId)
-              .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES);
+      CreateLocalBlockRequest.Builder builder = CreateLocalBlockRequest.newBuilder()
+          .setBlockId(blockId).setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES);
       if (options.getWriteType() == WriteType.ASYNC_THROUGH
           && Configuration.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
         builder.setCleanupOnFailure(false);
       }
-<<<<<<< HEAD:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketWriter.java
       // ALLUXIO CS ADD
       if (options.getCapabilityFetcher() != null) {
         builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
       }
       // ALLUXIO CS END
-      ProtoMessage createRequest = new ProtoMessage(builder.build());
-      NettyRPCContext nettyRPCContext =
-          NettyRPCContext.defaults().setChannel(channel).setTimeout(WRITE_TIMEOUT_MS);
-      ProtoMessage message = NettyRPC.call(nettyRPCContext, createRequest);
-      Preconditions.checkState(message.isLocalBlockCreateResponse());
-=======
       CreateLocalBlockRequest createRequest = builder.build();
       GrpcBlockingStream<CreateLocalBlockRequest, CreateLocalBlockResponse> stream =
           new GrpcBlockingStream<>(blockWorker::createLocalBlock, WRITE_BUFFER_SIZE,
@@ -127,11 +114,8 @@ public final class LocalFileDataWriter implements DataWriter {
       stream.send(createRequest, WRITE_TIMEOUT_MS);
       CreateLocalBlockResponse response = stream.receive(WRITE_TIMEOUT_MS);
       Preconditions.checkState(response != null && response.hasPath());
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFileDataWriter.java
-      LocalFileBlockWriter writer =
-          closer.register(new LocalFileBlockWriter(response.getPath()));
-      return new LocalFileDataWriter(chunkSize, blockWorker,
-          writer, createRequest, stream, closer);
+      LocalFileBlockWriter writer = closer.register(new LocalFileBlockWriter(response.getPath()));
+      return new LocalFileDataWriter(chunkSize, blockWorker, writer, createRequest, stream, closer);
     } catch (Exception e) {
       throw CommonUtils.closeAndRethrow(closer, e);
     }
@@ -186,20 +170,8 @@ public final class LocalFileDataWriter implements DataWriter {
     mCloser.register(new Closeable() {
       @Override
       public void close() throws IOException {
-<<<<<<< HEAD:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketWriter.java
-        Protocol.LocalBlockCompleteRequest request =
-            Protocol.LocalBlockCompleteRequest.newBuilder().setBlockId(mBlockId).build();
-        // ALLUXIO CS ADD
-        if (mOptions.getCapabilityFetcher() != null) {
-          request = request.toBuilder()
-              .setCapability(mOptions.getCapabilityFetcher().getCapability().toProto()).build();
-        }
-        // ALLUXIO CS END
-        NettyRPC.call(mNettyRPCContext, new ProtoMessage(request));
-=======
         mStream.close();
         mStream.waitForComplete(WRITE_TIMEOUT_MS);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFileDataWriter.java
       }
     });
     mCloser.close();
