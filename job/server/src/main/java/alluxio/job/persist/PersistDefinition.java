@@ -139,16 +139,14 @@ public final class PersistDefinition
       FileSystem fs = FileSystem.Factory.get();
       long bytesWritten;
       try (Closer closer = Closer.create()) {
-<<<<<<< HEAD
-        OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
-        // ALLUXIO CS ADD
-        // Disable decryption when reading from Alluxio in order to directly copy ciphertext to UFS.
-        options.setSkipTransformation(true);
-        // ALLUXIO CS END
-=======
         OpenFilePOptions options =
-            OpenFilePOptions.newBuilder().setReadType(ReadPType.NO_CACHE).build();
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
+            OpenFilePOptions.newBuilder().setReadType(ReadPType.NO_CACHE)
+                // ALLUXIO CS ADD
+                // Disable decryption when reading from Alluxio in order to directly copy ciphertext
+                // to UFS.
+                .setSkipTransformation(true)
+                // ALLUXIO CS END
+                .build();
         FileInStream in = closer.register(fs.openFile(uri, options));
         AlluxioURI dstPath = new AlluxioURI(ufsPath);
         // Create ancestor directories from top to the bottom. We cannot use recursive create

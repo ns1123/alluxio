@@ -115,15 +115,11 @@ public final class MigrateDefinitionRunTaskTest {
     when(mMockFileSystem.listStatus(new AlluxioURI(TEST_DIR)))
         .thenReturn(Lists.newArrayList());
     runTask(TEST_DIR, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionRunTaskTest.java
     if (mDeleteSource) {
-      verify(mMockFileSystem).delete(eq(new AlluxioURI(TEST_DIR)), any(DeleteOptions.class));
+      verify(mMockFileSystem).delete(eq(new AlluxioURI(TEST_DIR)), any(DeletePOptions.class));
     } else {
       verify(mMockFileSystem, never()).delete(new AlluxioURI(TEST_DIR));
     }
-=======
-    verify(mMockFileSystem).delete(eq(new AlluxioURI(TEST_DIR)), any(DeletePOptions.class));
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:job/server/src/test/java/alluxio/job/move/MoveDefinitionRunTaskTest.java
   }
 
   /**
@@ -139,15 +135,11 @@ public final class MigrateDefinitionRunTaskTest {
     when(mMockFileSystem.listStatus(new AlluxioURI(inner)))
         .thenReturn(Lists.newArrayList());
     runTask(TEST_DIR, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionRunTaskTest.java
     if (mDeleteSource) {
-      verify(mMockFileSystem).delete(eq(new AlluxioURI(TEST_DIR)), any(DeleteOptions.class));
+      verify(mMockFileSystem).delete(eq(new AlluxioURI(TEST_DIR)), any(DeletePOptions.class));
     } else {
       verify(mMockFileSystem, never()).delete(new AlluxioURI(TEST_DIR));
     }
-=======
-    verify(mMockFileSystem).delete(eq(new AlluxioURI(TEST_DIR)), any(DeletePOptions.class));
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:job/server/src/test/java/alluxio/job/move/MoveDefinitionRunTaskTest.java
   }
 
   /**
@@ -159,12 +151,7 @@ public final class MigrateDefinitionRunTaskTest {
     when(mMockFileSystem.listStatus(new AlluxioURI(TEST_DIR)))
         .thenReturn(Lists.newArrayList(new URIStatus(new FileInfo())));
     runTask(TEST_DIR, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionRunTaskTest.java
-    verify(mMockFileSystem, never()).delete(eq(new AlluxioURI(TEST_DIR)), any(DeleteOptions.class));
-=======
-    verify(mMockFileSystem, times(0)).delete(eq(new AlluxioURI(TEST_DIR)),
-        any(DeletePOptions.class));
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:job/server/src/test/java/alluxio/job/move/MoveDefinitionRunTaskTest.java
+    verify(mMockFileSystem, never()).delete(eq(new AlluxioURI(TEST_DIR)), any(DeletePOptions.class));
   }
 
   /**

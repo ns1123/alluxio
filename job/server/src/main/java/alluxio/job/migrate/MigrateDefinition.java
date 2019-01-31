@@ -291,24 +291,15 @@ public final class MigrateDefinition
     WriteType writeType = config.getWriteType() == null
         ? Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class)
         : WriteType.valueOf(config.getWriteType());
-<<<<<<< HEAD:job/server/src/main/java/alluxio/job/migrate/MigrateDefinition.java
     for (MigrateCommand command : commands) {
-      migrate(command, writeType, config.isDeleteSource(), mFileSystem);
-=======
-    for (MoveCommand command : commands) {
-      move(command, writeType.toProto(), mFileSystem);
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:job/server/src/main/java/alluxio/job/move/MoveDefinition.java
+      migrate(command, writeType.toProto(), config.isDeleteSource(), mFileSystem);
     }
     // Try to delete the source directory if it is empty.
     if (config.isDeleteSource() && !hasFiles(new AlluxioURI(config.getSource()), mFileSystem)) {
       try {
         LOG.debug("Deleting {}", config.getSource());
         mFileSystem.delete(new AlluxioURI(config.getSource()),
-<<<<<<< HEAD:job/server/src/main/java/alluxio/job/migrate/MigrateDefinition.java
-                DeleteOptions.defaults().setRecursive(true));
-=======
             DeletePOptions.newBuilder().setRecursive(true).build());
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:job/server/src/main/java/alluxio/job/move/MoveDefinition.java
       } catch (FileDoesNotExistException e) {
         // It's already deleted, possibly by another worker.
       }
@@ -322,13 +313,8 @@ public final class MigrateDefinition
    * @param deleteSource whether to delete source
    * @param fileSystem the Alluxio file system
    */
-<<<<<<< HEAD:job/server/src/main/java/alluxio/job/migrate/MigrateDefinition.java
-  private static void migrate(MigrateCommand command, WriteType writeType, boolean deleteSource,
+  private static void migrate(MigrateCommand command, WritePType writeType, boolean deleteSource,
       FileSystem fileSystem) throws Exception {
-=======
-  private static void move(MoveCommand command, WritePType writeType, FileSystem fileSystem)
-      throws Exception {
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803:job/server/src/main/java/alluxio/job/move/MoveDefinition.java
     String source = command.getSource();
     String destination = command.getDestination();
     LOG.debug("Migrating {} to {}", source, destination);

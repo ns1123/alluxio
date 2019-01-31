@@ -44,9 +44,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * This class is responsible for initializing the different masters that are configured to run.
- // ALLUXIO CS ADD
- * {@link TThreadPoolServer} for use in CS+OS
- // ALLUXIO CS END
  */
 @NotThreadSafe
 public class AlluxioJobMasterProcess implements JobMasterProcess {
@@ -76,19 +73,6 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
   /** The master managing all job related metadata. */
   protected JobMaster mJobMaster;
 
-<<<<<<< HEAD
-  /** The RPC server. */
-  // ALLUXIO CS REPLACE
-  // private TThreadPoolServer mMasterServiceServer = null;
-  // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer mMasterServiceServer = null;
-  // ALLUXIO CS END
-
-  /** is true if the master is serving the RPC server. */
-  private boolean mIsServing = false;
-
-=======
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
   /** The start time for when the master started. */
   private final long mStartTimeMs = System.currentTimeMillis();
 
@@ -306,29 +290,6 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-<<<<<<< HEAD
-    // create master thrift service with the multiplexed processor.
-    Args args = new Args(mTServerSocket).maxWorkerThreads(mMaxWorkerThreads)
-        .minWorkerThreads(mMinWorkerThreads).processor(processor).transportFactory(transportFactory)
-        .protocolFactory(new TBinaryProtocol.Factory(true, true));
-    if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
-      args.stopTimeoutVal = 0;
-    } else {
-      args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
-    }
-    // ALLUXIO CS REPLACE
-    // mMasterServiceServer = new TThreadPoolServer(args);
-    // ALLUXIO CS WITH
-    args.executorService(alluxio.concurrent.Executors
-        .createDefaultExecutorServiceWithSecurityOn(args));
-    mMasterServiceServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
-    // ALLUXIO CS END
-
-    // start thrift rpc server
-    mIsServing = true;
-    mMasterServiceServer.serve();
-=======
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
   }
 
   protected void stopServing() throws Exception {

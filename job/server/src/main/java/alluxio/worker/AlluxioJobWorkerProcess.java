@@ -53,17 +53,8 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
   /** RPC local port for gRPC. */
   private int mRPCPort;
 
-<<<<<<< HEAD
-  /** Thread pool for thrift. */
-  // ALLUXIO CS REPLACE
-  // private TThreadPoolServer mThriftServer;
-  // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
-  // ALLUXIO CS END
-=======
   /** gRPC server. */
   private GrpcServer mGrpcServer;
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
 
   /** Used for auto binding. **/
   private ServerSocket mBindSocket;
@@ -254,74 +245,7 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
       LOG.error("Failed to stop web server", e);
     }
   }
-
-<<<<<<< HEAD
-  private void registerServices(TMultiplexedProcessor processor, Map<String, TProcessor> services) {
-    for (Map.Entry<String, TProcessor> service : services.entrySet()) {
-      processor.registerProcessor(service.getKey(), service.getValue());
-    }
-  }
-
-  /**
-   *
-   * Helper method to create a thrift server for handling incoming RPC requests.
-   *
-   * @return a thrift server
-   */
-  // ALLUXIO CS REPLACE
-  // private TThreadPoolServer createThriftServer() {
-  // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer createThriftServer() {
-  // ALLUXIO CS END
-    int minWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MIN);
-    int maxWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MAX);
-    TMultiplexedProcessor processor = new TMultiplexedProcessor();
-
-    registerServices(processor, mJobWorker.getServices());
-
-    // Return a TTransportFactory based on the authentication type
-    TTransportFactory tTransportFactory;
-    try {
-      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC);
-      tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
-    TThreadPoolServer.Args args = new TThreadPoolServer.Args(mThriftServerSocket)
-        .minWorkerThreads(minWorkerThreads).maxWorkerThreads(maxWorkerThreads).processor(processor)
-        .transportFactory(tTransportFactory)
-        .protocolFactory(new TBinaryProtocol.Factory(true, true));
-    if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
-      args.stopTimeoutVal = 0;
-    } else {
-      args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
-    }
-    // ALLUXIO CS REPLACE
-    // return new TThreadPoolServer(args);
-    // ALLUXIO CS WITH
-    args.executorService(alluxio.concurrent.Executors
-        .createDefaultExecutorServiceWithSecurityOn(args));
-
-    return new alluxio.security.authentication.AuthenticatedThriftServer(args);
-    // ALLUXIO CS END
-  }
-
-  /**
-   * Helper method to create a {@link TServerSocket} for the RPC server.
-   *
-   * @return a thrift server socket
-   */
-  private TServerSocket createThriftServerSocket() {
-    try {
-      return new TServerSocket(NetworkAddressUtils.getBindAddress(ServiceType.JOB_WORKER_RPC));
-    } catch (TTransportException e) {
-      LOG.error(e.getMessage(), e);
-      throw Throwables.propagate(e);
-    }
-  }
-
-=======
->>>>>>> 8cc5a292f4c6e38ed0066ce5bd700cc946dc3803
+  
   @Override
   public String toString() {
     return "Alluxio job worker";
