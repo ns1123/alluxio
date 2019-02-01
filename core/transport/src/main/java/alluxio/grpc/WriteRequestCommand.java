@@ -283,6 +283,8 @@ private static final long serialVersionUID = 0L;
   private alluxio.proto.security.CapabilityProto.Capability capability_;
   /**
    * <pre>
+   * ALLUXIO CS REPLACE
+   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
    * ALLUXIO CS WITH
    * </pre>
    *
@@ -293,6 +295,8 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
+   * ALLUXIO CS REPLACE
+   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
    * ALLUXIO CS WITH
    * </pre>
    *
@@ -303,6 +307,8 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
+   * ALLUXIO CS REPLACE
+   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
    * ALLUXIO CS WITH
    * </pre>
    *
@@ -1204,6 +1210,8 @@ private static final long serialVersionUID = 0L;
         alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
     /**
      * <pre>
+     * ALLUXIO CS REPLACE
+     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -1214,6 +1222,8 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
+     * ALLUXIO CS REPLACE
+     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -1228,6 +1238,8 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
+     * ALLUXIO CS REPLACE
+     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -1248,6 +1260,8 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
+     * ALLUXIO CS REPLACE
+     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -1266,6 +1280,8 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
+     * ALLUXIO CS REPLACE
+     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -1290,6 +1306,8 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
+     * ALLUXIO CS REPLACE
+     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -1307,6 +1325,8 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
+     * ALLUXIO CS REPLACE
+     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -1319,6 +1339,8 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
+     * ALLUXIO CS REPLACE
+     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -1334,6 +1356,8 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
+     * ALLUXIO CS REPLACE
+     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
      * ALLUXIO CS WITH
      * </pre>
      *

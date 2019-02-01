@@ -51,11 +51,11 @@ private static final long serialVersionUID = 0L;
             break;
           }
           case 10: {
-            alluxio.grpc.DelegationTokenIdentifier.Builder subBuilder = null;
+            alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder subBuilder = null;
             if (((bitField0_ & 0x00000001) == 0x00000001)) {
               subBuilder = identifier_.toBuilder();
             }
-            identifier_ = input.readMessage(alluxio.grpc.DelegationTokenIdentifier.PARSER, extensionRegistry);
+            identifier_ = input.readMessage(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.PARSER, extensionRegistry);
             if (subBuilder != null) {
               subBuilder.mergeFrom(identifier_);
               identifier_ = subBuilder.buildPartial();
@@ -94,24 +94,24 @@ private static final long serialVersionUID = 0L;
 
   private int bitField0_;
   public static final int IDENTIFIER_FIELD_NUMBER = 1;
-  private alluxio.grpc.DelegationTokenIdentifier identifier_;
+  private alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier identifier_;
   /**
-   * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+   * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
    */
   public boolean hasIdentifier() {
     return ((bitField0_ & 0x00000001) == 0x00000001);
   }
   /**
-   * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+   * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
    */
-  public alluxio.grpc.DelegationTokenIdentifier getIdentifier() {
-    return identifier_ == null ? alluxio.grpc.DelegationTokenIdentifier.getDefaultInstance() : identifier_;
+  public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getIdentifier() {
+    return identifier_ == null ? alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance() : identifier_;
   }
   /**
-   * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+   * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
    */
-  public alluxio.grpc.DelegationTokenIdentifierOrBuilder getIdentifierOrBuilder() {
-    return identifier_ == null ? alluxio.grpc.DelegationTokenIdentifier.getDefaultInstance() : identifier_;
+  public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getIdentifierOrBuilder() {
+    return identifier_ == null ? alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance() : identifier_;
   }
 
   public static final int PASSWORD_FIELD_NUMBER = 2;
@@ -458,29 +458,29 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private alluxio.grpc.DelegationTokenIdentifier identifier_ = null;
+    private alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier identifier_ = null;
     private com.google.protobuf.SingleFieldBuilderV3<
-        alluxio.grpc.DelegationTokenIdentifier, alluxio.grpc.DelegationTokenIdentifier.Builder, alluxio.grpc.DelegationTokenIdentifierOrBuilder> identifierBuilder_;
+        alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder> identifierBuilder_;
     /**
-     * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
      */
     public boolean hasIdentifier() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
      */
-    public alluxio.grpc.DelegationTokenIdentifier getIdentifier() {
+    public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getIdentifier() {
       if (identifierBuilder_ == null) {
-        return identifier_ == null ? alluxio.grpc.DelegationTokenIdentifier.getDefaultInstance() : identifier_;
+        return identifier_ == null ? alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance() : identifier_;
       } else {
         return identifierBuilder_.getMessage();
       }
     }
     /**
-     * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
      */
-    public Builder setIdentifier(alluxio.grpc.DelegationTokenIdentifier value) {
+    public Builder setIdentifier(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier value) {
       if (identifierBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -494,10 +494,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
      */
     public Builder setIdentifier(
-        alluxio.grpc.DelegationTokenIdentifier.Builder builderForValue) {
+        alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder builderForValue) {
       if (identifierBuilder_ == null) {
         identifier_ = builderForValue.build();
         onChanged();
@@ -508,15 +508,15 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
      */
-    public Builder mergeIdentifier(alluxio.grpc.DelegationTokenIdentifier value) {
+    public Builder mergeIdentifier(alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier value) {
       if (identifierBuilder_ == null) {
         if (((bitField0_ & 0x00000001) == 0x00000001) &&
             identifier_ != null &&
-            identifier_ != alluxio.grpc.DelegationTokenIdentifier.getDefaultInstance()) {
+            identifier_ != alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance()) {
           identifier_ =
-            alluxio.grpc.DelegationTokenIdentifier.newBuilder(identifier_).mergeFrom(value).buildPartial();
+            alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.newBuilder(identifier_).mergeFrom(value).buildPartial();
         } else {
           identifier_ = value;
         }
@@ -528,7 +528,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
      */
     public Builder clearIdentifier() {
       if (identifierBuilder_ == null) {
@@ -541,33 +541,33 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
      */
-    public alluxio.grpc.DelegationTokenIdentifier.Builder getIdentifierBuilder() {
+    public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder getIdentifierBuilder() {
       bitField0_ |= 0x00000001;
       onChanged();
       return getIdentifierFieldBuilder().getBuilder();
     }
     /**
-     * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
      */
-    public alluxio.grpc.DelegationTokenIdentifierOrBuilder getIdentifierOrBuilder() {
+    public alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getIdentifierOrBuilder() {
       if (identifierBuilder_ != null) {
         return identifierBuilder_.getMessageOrBuilder();
       } else {
         return identifier_ == null ?
-            alluxio.grpc.DelegationTokenIdentifier.getDefaultInstance() : identifier_;
+            alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.getDefaultInstance() : identifier_;
       }
     }
     /**
-     * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+     * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-        alluxio.grpc.DelegationTokenIdentifier, alluxio.grpc.DelegationTokenIdentifier.Builder, alluxio.grpc.DelegationTokenIdentifierOrBuilder> 
+        alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder> 
         getIdentifierFieldBuilder() {
       if (identifierBuilder_ == null) {
         identifierBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            alluxio.grpc.DelegationTokenIdentifier, alluxio.grpc.DelegationTokenIdentifier.Builder, alluxio.grpc.DelegationTokenIdentifierOrBuilder>(
+            alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier.Builder, alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder>(
                 getIdentifier(),
                 getParentForChildren(),
                 isClean());

@@ -15,6 +15,7 @@ import alluxio.AbstractMasterClient;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.exception.status.AlluxioStatusException;
+import alluxio.grpc.CancelDelegationTokenPRequest;
 import alluxio.grpc.CheckConsistencyPOptions;
 import alluxio.grpc.CheckConsistencyPRequest;
 import alluxio.grpc.CompleteFilePOptions;
@@ -23,11 +24,14 @@ import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateDirectoryPRequest;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.CreateFilePRequest;
+import alluxio.grpc.DelegationToken;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.DeletePRequest;
 import alluxio.grpc.FileSystemMasterClientServiceGrpc;
 import alluxio.grpc.FreePOptions;
 import alluxio.grpc.FreePRequest;
+import alluxio.grpc.GetDelegationTokenPRequest;
+import alluxio.grpc.GetDelegationTokenPResponse;
 import alluxio.grpc.GetMountTablePRequest;
 import alluxio.grpc.GetNewBlockIdForFilePOptions;
 import alluxio.grpc.GetNewBlockIdForFilePRequest;
@@ -41,6 +45,7 @@ import alluxio.grpc.MountPOptions;
 import alluxio.grpc.MountPRequest;
 import alluxio.grpc.RenamePOptions;
 import alluxio.grpc.RenamePRequest;
+import alluxio.grpc.RenewDelegationTokenPRequest;
 import alluxio.grpc.ScheduleAsyncPersistencePRequest;
 import alluxio.grpc.ServiceType;
 import alluxio.grpc.SetAclAction;
@@ -57,6 +62,7 @@ import alluxio.grpc.UpdateUfsModePRequest;
 import alluxio.master.MasterClientConfig;
 import alluxio.security.authorization.AclEntry;
 import alluxio.wire.SyncPointInfo;
+import com.google.protobuf.ByteString;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -168,15 +174,15 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
 
   // ALLUXIO CS ADD
   @Override
-  public
-      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
-      getDelegationToken(String renewer)
-      throws AlluxioStatusException {
+  public alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> getDelegationToken(
+      String renewer) throws AlluxioStatusException {
     return retryRPC(() -> {
-      alluxio.thrift.GetDelegationTokenTResponse response = mClient.getDelegationToken(renewer);
+      GetDelegationTokenPResponse response = mClient
+          .getDelegationToken(GetDelegationTokenPRequest.newBuilder().setRenewer(renewer).build());
       return new alluxio.security.authentication.Token<>(
-          alluxio.security.authentication.DelegationTokenIdentifier.fromThrift(
-          response.getToken().getIdentifier()), response.getToken().getPassword());
+          alluxio.security.authentication.DelegationTokenIdentifier
+              .fromProto(response.getToken().getIdentifier()),
+          response.getToken().getPassword().toByteArray());
     }, "GetDelegationToken");
   }
 
@@ -184,19 +190,24 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   public long renewDelegationToken(
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
       throws AlluxioStatusException {
-    return retryRPC(() -> mClient.renewDelegationToken(
-        new alluxio.thrift.DelegationToken(
-            token.getId().toThrift(),
-            java.nio.ByteBuffer.wrap(token.getPassword()))).getExpirationTimeMs(), "RenewDelegationToken");
+    return retryRPC(() -> mClient
+        .renewDelegationToken(RenewDelegationTokenPRequest.newBuilder()
+            .setToken(DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
+                .setPassword(ByteString.copyFrom(token.getPassword())))
+            .build())
+        .getExpirationTimeMs(), "RenewDelegationToken");
   }
 
   @Override
   public void cancelDelegationToken(
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
       throws AlluxioStatusException {
-    retryRPC(() -> mClient.cancelDelegationToken(new alluxio.thrift.DelegationToken(
-        token.getId().toThrift(),
-        java.nio.ByteBuffer.wrap(token.getPassword()))), "CancelDelegationToken");
+    retryRPC(
+        () -> mClient.cancelDelegationToken(CancelDelegationTokenPRequest.newBuilder()
+            .setToken(DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
+                .setPassword(ByteString.copyFrom(token.getPassword())))
+            .build()),
+        "CancelDelegationToken");
   }
 
   // ALLUXIO CS END

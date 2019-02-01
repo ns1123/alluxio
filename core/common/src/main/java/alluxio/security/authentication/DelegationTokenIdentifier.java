@@ -14,6 +14,7 @@ package alluxio.security.authentication;
 import alluxio.proto.security.DelegationTokenProto;
 import alluxio.security.util.KerberosName;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 import java.io.IOException;
@@ -154,7 +155,7 @@ public class DelegationTokenIdentifier implements TokenIdentifier {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
         .add("owner", mOwner)
         .add("renewer", mRenewer)
         .add("realUser", mRealUser)
@@ -190,25 +191,6 @@ public class DelegationTokenIdentifier implements TokenIdentifier {
         && Objects.equal(mMaxDate, other.mMaxDate)
         && Objects.equal(mSequenceNumber, other.mSequenceNumber)
         && Objects.equal(mMasterKeyId, other.mMasterKeyId);
-  }
-
-  /**
-   * @return the thrift instance of the identifier
-   */
-  public alluxio.thrift.DelegationTokenIdentifier toThrift() {
-    return new alluxio.thrift.DelegationTokenIdentifier(mOwner, mRenewer, mRealUser,
-        mIssueDate, mMaxDate, mSequenceNumber, mMasterKeyId);
-  }
-
-  /**
-   * Converts thrift instance to the actual delegation token identifier.
-   *
-   * @param id the thrift instance of delegation token identifier
-   * @return the delegation token identifier
-   */
-  public static DelegationTokenIdentifier fromThrift(alluxio.thrift.DelegationTokenIdentifier id) {
-    return new DelegationTokenIdentifier(id.getOwner(), id.getRenewer(), id.getRealUser(),
-        id.getIssueDate(), id.getMaxDate(), id.getSequenceNumber(), id.getMasterKeyId());
   }
 
   /**

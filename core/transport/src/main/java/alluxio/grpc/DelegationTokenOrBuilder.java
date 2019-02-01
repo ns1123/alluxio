@@ -8,17 +8,17 @@ public interface DelegationTokenOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+   * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
    */
   boolean hasIdentifier();
   /**
-   * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+   * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
    */
-  alluxio.grpc.DelegationTokenIdentifier getIdentifier();
+  alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifier getIdentifier();
   /**
-   * <code>optional .alluxio.grpc.file.DelegationTokenIdentifier identifier = 1;</code>
+   * <code>optional .alluxio.proto.security.DelegationTokenIdentifier identifier = 1;</code>
    */
-  alluxio.grpc.DelegationTokenIdentifierOrBuilder getIdentifierOrBuilder();
+  alluxio.proto.security.DelegationTokenProto.DelegationTokenIdentifierOrBuilder getIdentifierOrBuilder();
 
   /**
    * <code>optional bytes password = 2;</code>

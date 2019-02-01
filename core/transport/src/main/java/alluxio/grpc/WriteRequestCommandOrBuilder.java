@@ -95,6 +95,8 @@ public interface WriteRequestCommandOrBuilder extends
 
   /**
    * <pre>
+   * ALLUXIO CS REPLACE
+   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
    * ALLUXIO CS WITH
    * </pre>
    *
@@ -103,6 +105,8 @@ public interface WriteRequestCommandOrBuilder extends
   boolean hasCapability();
   /**
    * <pre>
+   * ALLUXIO CS REPLACE
+   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
    * ALLUXIO CS WITH
    * </pre>
    *
@@ -111,6 +115,8 @@ public interface WriteRequestCommandOrBuilder extends
   alluxio.proto.security.CapabilityProto.Capability getCapability();
   /**
    * <pre>
+   * ALLUXIO CS REPLACE
+   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
    * ALLUXIO CS WITH
    * </pre>
    *

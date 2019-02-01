@@ -8,6 +8,7 @@ package alluxio.grpc.file;
 
 import "grpc/common.proto";
 import "grpc/fscommon.proto";
+import "proto/security/delegation_token_proto.proto";
 import "proto/security/capability_proto.proto";
 
 enum WritePType {
@@ -158,18 +159,9 @@ message GetStatusPRequest {
 }
 
 // ALLUXIO CS ADD
-message DelegationTokenIdentifier {
-  optional string owner = 1;
-  optional string renewer = 2;
-  optional string realUser = 3;
-  optional int64 issueDate = 4;
-  optional int64 maxDate = 5;
-  optional int64 sequenceNumber = 6;
-  optional int64 masterKeyId = 7;
-}
 
 message DelegationToken {
-  optional DelegationTokenIdentifier identifier = 1;
+  optional alluxio.proto.security.DelegationTokenIdentifier identifier = 1;
   optional bytes password = 2;
 }
 
