@@ -359,7 +359,7 @@ public final class FileSystemMasterClientServiceHandler
     SetAttributePOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<SetAttributePResponse>) () -> {
       mFileSystemMaster.setAttribute(new AlluxioURI(path),
-          SetAttributeContext.defaults(options.toBuilder()));
+          SetAttributeContext.create(options.toBuilder()));
       return SetAttributePResponse.newBuilder().build();
     }, "SetAttribute", "path=%s, options=%s", responseObserver, path, options);
   }

@@ -37,6 +37,16 @@ public class SetAttributeContext extends OperationContext<SetAttributePOptions.B
   }
 
   /**
+   * Creates the context with given {@link SetAttributePOptions}.
+   *
+   * @param optionsBuilder Builder for proto {@link SetAttributePOptions}
+   * @return the instance of {@link SetAttributeContext} with given proto options
+   */
+  public static SetAttributeContext create(SetAttributePOptions.Builder optionsBuilder) {
+    return new SetAttributeContext(optionsBuilder);
+  }
+
+  /**
    * Merges and embeds the given {@link SetAttributePOptions} with the corresponding master options.
    *
    * @param optionsBuilder Builder for proto {@link SetAttributePOptions} to merge with defaults

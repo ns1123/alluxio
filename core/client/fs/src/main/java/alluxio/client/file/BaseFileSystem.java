@@ -13,6 +13,7 @@ package alluxio.client.file;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.annotation.PublicApi;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
@@ -130,9 +131,14 @@ public class BaseFileSystem implements FileSystem {
     URIStatus status;
     try {
       // ALLUXIO CS ADD
+      long requestedBlockSizeBytes = options.getBlockSizeBytes();
+      if (!options.hasBlockSizeBytes()) {
+        requestedBlockSizeBytes =
+            alluxio.Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+      }
       if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
-            alluxio.client.EncryptionMetaFactory.createLayout(), options.getBlockSizeBytes());
+            alluxio.client.EncryptionMetaFactory.createLayout(), requestedBlockSizeBytes);
         options = options.toBuilder().setBlockSizeBytes(physicalBlockSize).build();
       }
       // ALLUXIO CS END

@@ -71,11 +71,11 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
   public void before() throws Exception {
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
     mWriteBoth = CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
-        .setWriteType(WritePType.CACHE_THROUGH).build();
+        .setWriteType(WritePType.CACHE_THROUGH).setRecursive(true).build();
     mWriteAlluxio = CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
-        .setWriteType(WritePType.MUST_CACHE).build();
+        .setWriteType(WritePType.MUST_CACHE).setRecursive(true).build();
     mWriteUnderStore = CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
-        .setWriteType(WritePType.THROUGH).build();
+        .setWriteType(WritePType.THROUGH).setRecursive(true).build();
     mTestPath = PathUtils.uniqPath();
   }
 

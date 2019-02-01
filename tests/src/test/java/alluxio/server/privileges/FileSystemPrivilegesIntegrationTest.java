@@ -112,7 +112,8 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN),
           GrantPrivilegesOptions.defaults());
     }
-    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(true).build());
+    mFileSystem.setAttribute(TEST_FILE,
+        SetAttributePOptions.newBuilder().setPinned(true).build());
   }
 
   @Test

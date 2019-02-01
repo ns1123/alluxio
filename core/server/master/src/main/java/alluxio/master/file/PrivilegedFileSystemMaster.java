@@ -54,6 +54,7 @@ import alluxio.master.journal.JournalContext;
 import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.proto.journal.Journal;
+import alluxio.security.authentication.ClientIpAddressInjector;
 import alluxio.security.authorization.AclEntry;
 import alluxio.underfs.UfsMode;
 import alluxio.wire.FileBlockInfo;
@@ -66,9 +67,11 @@ import alluxio.wire.UfsInfo;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.ImmutableSet;
+import io.grpc.ServerInterceptors;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +126,14 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public Map<ServiceType, GrpcService> getServices() {
-    return mFileSystemMaster.getServices();
+    Map<ServiceType, GrpcService> services = new HashMap<>();
+    services.put(ServiceType.FILE_SYSTEM_MASTER_CLIENT_SERVICE, new GrpcService(ServerInterceptors
+        .intercept(new FileSystemMasterClientServiceHandler(this), new ClientIpAddressInjector())));
+    services.put(ServiceType.FILE_SYSTEM_MASTER_JOB_SERVICE,
+        new GrpcService(new FileSystemMasterJobServiceHandler(this)));
+    services.put(ServiceType.FILE_SYSTEM_MASTER_WORKER_SERVICE,
+        new GrpcService(new FileSystemMasterWorkerServiceHandler(this)));
+    return services;
   }
 
   @Override

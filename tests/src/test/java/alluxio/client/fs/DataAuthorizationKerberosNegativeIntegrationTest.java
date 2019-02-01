@@ -38,6 +38,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
@@ -46,6 +47,8 @@ import java.io.File;
 /**
  * Integration tests on data authorization failures with Kerberos.
  */
+@Ignore
+// TODO(ggezer) EE-SEC reactivate after gRPC kerberos.
 public final class DataAuthorizationKerberosNegativeIntegrationTest extends BaseIntegrationTest {
   private static final String TMP_DIR = "/tmp";
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();

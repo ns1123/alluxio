@@ -44,6 +44,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,6 +54,8 @@ import java.io.File;
 import java.net.URI;
 import java.security.PrivilegedExceptionAction;
 
+@Ignore
+// TODO(ggezer) Reactivate after gRPC delegation token.
 public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegrationTest {
   // Fail if the cluster doesn't come up after this amount of time.
   private static final int CLUSTER_WAIT_TIMEOUT_MS = 120 * Constants.SECOND_MS;
