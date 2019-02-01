@@ -15,29 +15,23 @@ import alluxio.Configuration;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
-import alluxio.netty.NettyAttributes;
-import alluxio.network.netty.NettyClient;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.util.ShellUtils;
-import alluxio.util.network.NettyUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.WorkerProcess;
 import alluxio.worker.block.BlockWorker;
-import alluxio.worker.netty.NettyDataServer;
 
 import com.google.common.collect.ImmutableMap;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,16 +39,17 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 /**
  * Tests for Netty authentication with different Kerberos credential combinations.
  */
+// TODO(ggezer) EE-SEC implement for gRPC kerberos.
+@Ignore
 public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
   private static final String UNIFIED_INSTANCE = "instance";
 
-  private NettyDataServer mNettyDataServer;
+  //private NettyDataServer mNettyDataServer;
   private BlockWorker mBlockWorker;
 
   private static MiniKdc sKdc;
@@ -111,14 +106,14 @@ public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
     WorkerProcess workerProcess = Mockito.mock(WorkerProcess.class);
     Mockito.when(workerProcess.getWorker(BlockWorker.class)).thenReturn(mBlockWorker);
 
-    mNettyDataServer = new NettyDataServer(
-        new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), workerProcess);
+    //mNettyDataServer = new NettyDataServer(
+    //    new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), workerProcess);
   }
 
   @After
   public void after() throws Exception {
     cleanUpTicketCache();
-    mNettyDataServer.close();
+    //mNettyDataServer.close();
     ConfigurationTestUtils.resetConfiguration();
   }
 
@@ -161,17 +156,17 @@ public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
    * Creates a client bootstrap and waits until the channel is ready.
    */
   private void createChannel() throws IOException, InterruptedException {
-    InetSocketAddress address = (InetSocketAddress) mNettyDataServer.getBindAddress();
-    Bootstrap clientBootstrap = NettyClient.createClientBootstrap(null, address);
-    clientBootstrap.attr(NettyAttributes.HOSTNAME_KEY, address.getHostName());
-    ChannelFuture f = clientBootstrap.connect(address).sync();
-    Channel channel = f.channel();
-    try {
-      // Waits for the channel authentication complete.
-      NettyUtils.waitForClientChannelReady(channel);
-    } finally {
-      channel.close().sync();
-    }
+    //InetSocketAddress address = (InetSocketAddress) mNettyDataServer.getBindAddress();
+    //Bootstrap clientBootstrap = NettyClient.createClientBootstrap(null, address);
+    //clientBootstrap.attr(NettyAttributes.HOSTNAME_KEY, address.getHostName());
+    //ChannelFuture f = clientBootstrap.connect(address).sync();
+    //Channel channel = f.channel();
+    //try {
+    //  // Waits for the channel authentication complete.
+    //  NettyUtils.waitForClientChannelReady(channel);
+    //} finally {
+    //  channel.close().sync();
+    //}
   }
 
   private void cleanUpTicketCache() {

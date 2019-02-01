@@ -12,10 +12,10 @@
 package alluxio.server.fork;
 
 import alluxio.AlluxioURI;
-import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.MountOptions;
+import alluxio.grpc.CreateFilePOptions;
+import alluxio.grpc.MountPOptions;
+import alluxio.grpc.WritePType;
 import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.underfs.fork.ForkUnderFileSystem;
 import alluxio.util.io.PathUtils;
@@ -64,7 +64,7 @@ public class ForkUnderFileSystemIntegrationTest {
     properties.put("alluxio-fork.A.ufs", mUfsPathA);
     properties.put("alluxio-fork.B.ufs", mUfsPathB);
     mFileSystem.mount(new AlluxioURI("/mnt/test"), new AlluxioURI("alluxio-fork://test/"),
-        MountOptions.defaults().setProperties(properties));
+        MountPOptions.newBuilder().putAllProperties(properties).build());
     String filename = "test-file";
     AlluxioURI uri = new AlluxioURI("/mnt/test/test-file");
     // Initially the file should not exist in either UFS.
@@ -101,9 +101,9 @@ public class ForkUnderFileSystemIntegrationTest {
     Map<String, String> propertiesB = new HashMap<>();
     propertiesB.put("alluxio-fork.B.ufs", mUfsPathB);
     mFileSystem.mount(new AlluxioURI("/mnt/A"), new AlluxioURI("alluxio-fork://A/"),
-        MountOptions.defaults().setProperties(propertiesA));
+        MountPOptions.newBuilder().putAllProperties(propertiesA).build());
     mFileSystem.mount(new AlluxioURI("/mnt/B"), new AlluxioURI("alluxio-fork://B/"),
-        MountOptions.defaults().setProperties(propertiesB));
+        MountPOptions.newBuilder().putAllProperties(propertiesB).build());
     String filename = "test-file";
     AlluxioURI uriA = new AlluxioURI("/mnt/A/test-file");
     AlluxioURI uriB = new AlluxioURI("/mnt/B/test-file");
@@ -132,7 +132,8 @@ public class ForkUnderFileSystemIntegrationTest {
   }
 
   private void touch(AlluxioURI uri) throws Exception {
-    CreateFileOptions options = CreateFileOptions.defaults().setWriteType(WriteType.CACHE_THROUGH);
+    CreateFilePOptions options =
+        CreateFilePOptions.newBuilder().setWriteType(WritePType.CACHE_THROUGH).build();
     mFileSystem.createFile(uri, options).close();
   }
 }

@@ -27,8 +27,8 @@ public final class GetGroupToPrivilegesMappingOptionsTest {
   }
 
   @Test
-  public void toThrift() {
-    assertNotNull(GetGroupToPrivilegesMappingOptions.defaults().toThrift());
+  public void toProto() {
+    assertNotNull(GetGroupToPrivilegesMappingOptions.defaults().toProto());
   }
 
   @Test

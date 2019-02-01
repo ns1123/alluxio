@@ -16,10 +16,10 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemMasterClient;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.GetStatusOptions;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
+import alluxio.grpc.CreateFilePOptions;
+import alluxio.grpc.GetStatusPOptions;
 import alluxio.hadoop.AlluxioDelegationTokenIdentifier;
 import alluxio.hadoop.FileSystem;
 import alluxio.hadoop.HadoopKerberosLoginProvider;
@@ -46,6 +46,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -59,6 +60,8 @@ import java.security.PrivilegedExceptionAction;
 /**
  * Tests RPC authentication between master and its client, in Kerberos mode.
  */
+@Ignore
+// TODO(ggezer) EE-SEC reactivate after gRPC kerberos.
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
 public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTest {
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
@@ -139,9 +142,9 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Assert.assertFalse(masterClient.isConnected());
     masterClient.connect();
     Assert.assertTrue(masterClient.isConnected());
-    masterClient.createFile(new AlluxioURI(filename), CreateFileOptions.defaults());
+    masterClient.createFile(new AlluxioURI(filename), CreateFilePOptions.getDefaultInstance());
     Assert.assertNotNull(
-        masterClient.getStatus(new AlluxioURI(filename), GetStatusOptions.defaults()));
+        masterClient.getStatus(new AlluxioURI(filename), GetStatusPOptions.getDefaultInstance()));
     masterClient.disconnect();
     masterClient.close();
   }

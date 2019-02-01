@@ -131,7 +131,7 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
       Whitebox.setInternalState(TieredIdentityFactory.class, "sInstance",
           TieredIdentityFactory.fromString("node=node3,rack=rack3"));
       try {
-        FileSystemTestUtils.createByteFile(fs, "/file3", WriteType.MUST_CACHE, 10);
+        FileSystemTestUtils.createByteFile(fs, "/file3", WritePType.MUST_CACHE, 10);
         org.junit.Assert.fail("Expected an exception to be thrown");
       } catch (Exception e) {
         org.junit.Assert.assertThat(e.getMessage(), org.hamcrest.CoreMatchers.containsString("no worker"));

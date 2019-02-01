@@ -32,10 +32,16 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidPathException;
+import alluxio.grpc.CreateDirectoryPOptions;
+import alluxio.grpc.CreateFilePOptions;
 import alluxio.master.MasterRegistry;
 import alluxio.master.MasterTestUtils;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterFactory;
+import alluxio.master.file.contexts.CreateDirectoryContext;
+import alluxio.master.file.contexts.CreateFileContext;
+import alluxio.master.file.contexts.CreatePathContext;
+import alluxio.master.file.contexts.MountContext;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
@@ -45,10 +51,6 @@ import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.meta.options.MountInfo;
-import alluxio.master.file.options.CreateDirectoryOptions;
-import alluxio.master.file.options.CreateFileOptions;
-import alluxio.master.file.options.CreatePathOptions;
-import alluxio.master.file.options.MountOptions;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.NoopJournalContext;
 import alluxio.master.journal.noop.NoopJournalSystem;
@@ -100,8 +102,8 @@ public final class ExtensionInodeAttributesProviderTest {
   private static final String ROOT_UFS_URI = "/rootUfs/a/b";
   private static final String NESTED_UFS_URI = "/nestedUfs/c/d";
 
-  private static CreateFileOptions sFileOptions;
-  private static CreateDirectoryOptions sDirectoryOptions;
+  private static CreateFileContext sFileContext;
+  private static CreateDirectoryContext sDirectoryContext;
 
   private static MasterRegistry sRegistry;
   private static MetricsMaster sMetricsMaster;
@@ -152,12 +154,13 @@ public final class ExtensionInodeAttributesProviderTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    sFileOptions =
-        CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setOwner(TEST_USER.getUser())
-            .setGroup(TEST_USER.getGroup()).setMode(TEST_NORMAL_MODE).setRecursive(true);
-    sDirectoryOptions =
-        CreateDirectoryOptions.defaults().setOwner(TEST_USER.getUser())
-            .setGroup(TEST_USER.getGroup()).setMode(TEST_NORMAL_MODE).setRecursive(true);
+    sFileContext = CreateFileContext
+        .defaults(CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB)
+            .setMode(TEST_NORMAL_MODE.toProto()).setRecursive(true))
+        .setOwner(TEST_USER.getUser()).setGroup(TEST_USER.getGroup());
+    sDirectoryContext = CreateDirectoryContext.defaults(
+        CreateDirectoryPOptions.newBuilder().setMode(TEST_NORMAL_MODE.toProto()).setRecursive(true))
+        .setOwner(TEST_USER.getUser()).setGroup(TEST_USER.getGroup());
 
     sRegistry = new MasterRegistry();
     JournalSystem journalSystem = new NoopJournalSystem();
@@ -193,16 +196,17 @@ public final class ExtensionInodeAttributesProviderTest {
     when(mUfsManager.get(anyLong())).thenReturn(ufsClient);
     mFactory =
         mock(AbstractInodeAttributesProviderFactory.class);
-    mMountTable = new MountTable(mUfsManager, new MountInfo(new AlluxioURI(MountTable.ROOT),
-        new AlluxioURI(ROOT_UFS_URI), IdUtils.ROOT_MOUNT_ID, MountOptions.defaults()));
+    mMountTable = new MountTable(mUfsManager,
+        new MountInfo(new AlluxioURI(MountTable.ROOT), new AlluxioURI(ROOT_UFS_URI),
+            IdUtils.ROOT_MOUNT_ID, MountContext.defaults().getOptions().build()));
     // setup an InodeTree
     mTree = new InodeTree(sBlockMaster, sDirectoryIdGenerator, mMountTable);
     mTree.initializeRoot(TEST_USER_ADMIN.getUser(), TEST_USER_ADMIN.getGroup(), TEST_NORMAL_MODE,
         NoopJournalContext.INSTANCE);
 
     // build file structure
-    createAndSetPermission(TEST_DIR_FILE_URI, sFileOptions);
-    createAndSetPermission(TEST_DIR_NESTED_MOUNT, sDirectoryOptions);
+    createAndSetPermission(TEST_DIR_FILE_URI, sFileContext);
+    createAndSetPermission(TEST_DIR_NESTED_MOUNT, sDirectoryContext);
   }
 
   private void initPlugins(boolean masterPlugin, boolean rootUfsPlugin, boolean nestedUfsPlugin)
@@ -210,7 +214,8 @@ public final class ExtensionInodeAttributesProviderTest {
     long rootUfsMountId = IdUtils.ROOT_MOUNT_ID;
     long nestedUfsMountId = IdUtils.createMountId();
     mMountTable.add(NoopJournalContext.INSTANCE, new AlluxioURI(TEST_DIR_NESTED_MOUNT),
-        new AlluxioURI(NESTED_UFS_URI), nestedUfsMountId, MountOptions.defaults());
+        new AlluxioURI(NESTED_UFS_URI), nestedUfsMountId,
+        MountContext.defaults().getOptions().build());
     if (masterPlugin) {
       Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME, "test-plugin");
       mMasterProvider = mock(InodeAttributesProvider.class);
@@ -242,18 +247,18 @@ public final class ExtensionInodeAttributesProviderTest {
    * Helper function to create a path and set the permission to what specified in option.
    *
    * @param path path to construct the {@link AlluxioURI} from
-   * @param option method options for creating a file
+   * @param context method context for creating a file
    */
-  private void createAndSetPermission(String path, CreatePathOptions option)
+  private void createAndSetPermission(String path, CreatePathContext context)
       throws Exception {
     try (
         LockedInodePath inodePath = mTree
             .lockInodePath(new AlluxioURI(path), LockPattern.WRITE_EDGE)) {
-      InodeTree.CreatePathResult result = mTree.createPath(RpcContext.NOOP, inodePath, option);
+      InodeTree.CreatePathResult result = mTree.createPath(RpcContext.NOOP, inodePath, context);
       Inode<?> inode = (Inode<?>) result.getCreated().get(result.getCreated().size() - 1);
-      inode.setOwner(option.getOwner());
-      inode.setGroup(option.getGroup());
-      inode.setMode(option.getMode().toShort());
+      inode.setOwner(context.getOwner());
+      inode.setGroup(context.getGroup());
+      inode.setMode(context.getMode().toShort());
     }
   }
 

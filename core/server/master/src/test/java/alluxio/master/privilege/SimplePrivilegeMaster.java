@@ -12,12 +12,13 @@
 package alluxio.master.privilege;
 
 import alluxio.clock.SystemClock;
+import alluxio.grpc.GrpcService;
+import alluxio.grpc.ServiceType;
 import alluxio.master.AbstractNonJournaledMaster;
 import alluxio.master.MasterTestUtils;
 import alluxio.util.executor.ExecutorServiceFactory;
 import alluxio.wire.Privilege;
 
-import org.apache.thrift.TProcessor;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public final class SimplePrivilegeMaster extends AbstractNonJournaledMaster
   }
 
   @Override
-  public Map<String, TProcessor> getServices() {
+  public Map<ServiceType, GrpcService> getServices() {
     return null;
   }
 

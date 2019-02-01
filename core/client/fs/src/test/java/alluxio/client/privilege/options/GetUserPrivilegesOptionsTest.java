@@ -27,8 +27,8 @@ public final class GetUserPrivilegesOptionsTest {
   }
 
   @Test
-  public void toThrift() {
-    assertNotNull(GetUserPrivilegesOptions.defaults().toThrift());
+  public void toProto() {
+    assertNotNull(GetUserPrivilegesOptions.defaults().toProto());
   }
 
   @Test

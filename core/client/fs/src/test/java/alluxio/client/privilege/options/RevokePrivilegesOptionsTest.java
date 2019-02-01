@@ -27,8 +27,8 @@ public final class RevokePrivilegesOptionsTest {
   }
 
   @Test
-  public void toThrift() {
-    assertNotNull(RevokePrivilegesOptions.defaults().toThrift());
+  public void toProto() {
+    assertNotNull(RevokePrivilegesOptions.defaults().toProto());
   }
 
   @Test

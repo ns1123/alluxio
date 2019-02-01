@@ -13,21 +13,21 @@ package alluxio.client.fs;
 
 import alluxio.AlluxioURI;
 import alluxio.PropertyKey;
-import alluxio.client.WriteType;
 import alluxio.client.file.CryptoFileInStream;
 import alluxio.client.file.CryptoFileOutStream;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.DeleteOptions;
-import alluxio.client.file.options.ListStatusOptions;
+import alluxio.grpc.CreateFilePOptions;
+import alluxio.grpc.DeletePOptions;
+import alluxio.grpc.ListStatusPOptions;
+import alluxio.grpc.LoadMetadataPType;
+import alluxio.grpc.WritePType;
 import alluxio.security.authorization.Mode;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
-import alluxio.wire.LoadMetadataType;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -56,9 +56,9 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
           .build();
 
   private FileSystem mFileSystem;
-  private CreateFileOptions mWriteBoth;
-  private CreateFileOptions mWriteAlluxio;
-  private CreateFileOptions mWriteUnderStore;
+  private CreateFilePOptions mWriteBoth;
+  private CreateFilePOptions mWriteAlluxio;
+  private CreateFilePOptions mWriteUnderStore;
   private String mTestPath;
 
   @Rule
@@ -70,17 +70,17 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
   @Before
   public void before() throws Exception {
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
-    mWriteBoth = CreateFileOptions.defaults().setMode(Mode.createFullAccess())
-        .setWriteType(WriteType.CACHE_THROUGH);
-    mWriteAlluxio = CreateFileOptions.defaults().setMode(Mode.createFullAccess())
-        .setWriteType(WriteType.MUST_CACHE);
-    mWriteUnderStore = CreateFileOptions.defaults().setMode(Mode.createFullAccess())
-        .setWriteType(WriteType.THROUGH);
+    mWriteBoth = CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
+        .setWriteType(WritePType.CACHE_THROUGH).build();
+    mWriteAlluxio = CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
+        .setWriteType(WritePType.MUST_CACHE).build();
+    mWriteUnderStore = CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
+        .setWriteType(WritePType.THROUGH).build();
     mTestPath = PathUtils.uniqPath();
   }
 
-  private List<CreateFileOptions> getOptionSet() {
-    List<CreateFileOptions> ret = new ArrayList<>(3);
+  private List<CreateFilePOptions> getOptionSet() {
+    List<CreateFilePOptions> ret = new ArrayList<>(3);
     ret.add(mWriteBoth);
     ret.add(mWriteAlluxio);
     ret.add(mWriteUnderStore);
@@ -89,7 +89,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
 
   @Test
   public void readByteAfterWriteByte() throws Exception {
-    for (CreateFileOptions options : getOptionSet()) {
+    for (CreateFilePOptions options : getOptionSet()) {
       String filename = mTestPath + options.getWriteType().toString();
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
@@ -111,7 +111,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     int fileLength = BLOCK_SIZE;
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
     byte[] actual = new byte[fileLength];
-    for (CreateFileOptions options : getOptionSet()) {
+    for (CreateFilePOptions options : getOptionSet()) {
       String filename = mTestPath + options.getWriteType().toString();
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
@@ -134,7 +134,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     int fileLength = BLOCK_SIZE * 2 - 1;
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
     byte[] actual = new byte[fileLength];
-    for (CreateFileOptions options : getOptionSet()) {
+    for (CreateFilePOptions options : getOptionSet()) {
       String filename = mTestPath + options.getWriteType().toString();
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
@@ -161,7 +161,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
     int len = BLOCK_SIZE - 1;
     byte[] actual = new byte[BLOCK_SIZE - 1];
-    for (CreateFileOptions options : getOptionSet()) {
+    for (CreateFilePOptions options : getOptionSet()) {
       String filename = mTestPath + options.getWriteType().toString();
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
@@ -196,7 +196,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
   public void seekInSameEncryptionChunk() throws Exception {
     int fileLength = BLOCK_SIZE / 4;
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
-    for (CreateFileOptions options : getOptionSet()) {
+    for (CreateFilePOptions options : getOptionSet()) {
       String filename = mTestPath + options.getWriteType().toString();
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
@@ -223,7 +223,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     // Create a file with a half block and a partial block. File footer is within the first block.
     int fileLength = BLOCK_SIZE / 2;
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
-    for (CreateFileOptions options : getOptionSet()) {
+    for (CreateFilePOptions options : getOptionSet()) {
       String filename = mTestPath + options.getWriteType().toString();
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
@@ -247,7 +247,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     // Create a file with a half block and a partial block. File footer is within the first block.
     int fileLength = BLOCK_SIZE / 2;
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
-    for (CreateFileOptions options : getOptionSet()) {
+    for (CreateFilePOptions options : getOptionSet()) {
       String filename = mTestPath + options.getWriteType().toString();
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
@@ -271,7 +271,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
     int len = BLOCK_SIZE / 2;
     byte[] actual = new byte[len];
-    for (CreateFileOptions options : getOptionSet()) {
+    for (CreateFilePOptions options : getOptionSet()) {
       String filename = mTestPath + options.getWriteType().toString();
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
@@ -296,7 +296,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     int fileLength = BLOCK_SIZE * 2;
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
     byte[] actual = new byte[BLOCK_SIZE / 2];
-    for (CreateFileOptions options : getOptionSet()) {
+    for (CreateFilePOptions options : getOptionSet()) {
       String filename = mTestPath + options.getWriteType().toString();
       AlluxioURI uri = new AlluxioURI(filename);
       FileOutStream os = mFileSystem.createFile(uri, options);
@@ -322,7 +322,7 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     byte[] expected = BufferUtils.getIncreasingByteArray(1, fileLength);
     int len = BLOCK_SIZE - 1;
     byte[] actual = new byte[len];
-    CreateFileOptions createFileOptions = mWriteBoth;
+    CreateFilePOptions createFileOptions = mWriteBoth;
     String filename = mTestPath + createFileOptions.getWriteType().toString();
     AlluxioURI uri = new AlluxioURI(filename);
     FileOutStream os = mFileSystem.createFile(uri, createFileOptions);
@@ -332,10 +332,10 @@ public final class CryptoFileInStreamIntegrationTest extends BaseIntegrationTest
     os.close();
     long oldFileId = mFileSystem.getStatus(uri).getFileId();
     // Delete the file only in Alluxio.
-    mFileSystem.delete(uri, DeleteOptions.defaults().setAlluxioOnly(true));
+    mFileSystem.delete(uri, DeletePOptions.newBuilder().setAlluxioOnly(true).build());
     // Reload the metadata from UFS.
-    mFileSystem.listStatus(
-        uri, ListStatusOptions.defaults().setLoadMetadataType(LoadMetadataType.Always));
+    mFileSystem.listStatus(uri,
+        ListStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.ALWAYS).build());
     // Verify the file id is different.
     long newFileId = mFileSystem.getStatus(uri).getFileId();
     Assert.assertNotEquals(oldFileId, newFileId);

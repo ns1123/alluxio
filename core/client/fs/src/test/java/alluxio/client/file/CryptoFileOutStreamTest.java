@@ -28,11 +28,11 @@ import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.stream.TestBlockOutStream;
 import alluxio.client.block.stream.UnderFileSystemFileOutStream;
-import alluxio.client.file.options.GetStatusOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.util.ClientTestUtils;
 import alluxio.client.util.EncryptionMetaTestUtils;
 import alluxio.exception.PreconditionMessage;
+import alluxio.grpc.GetStatusPOptions;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.resource.DummyCloseableResource;
 import alluxio.security.GroupMappingServiceTestUtils;
@@ -105,7 +105,7 @@ public final class CryptoFileOutStreamTest {
 
     when(mFileSystemContext.acquireMasterClientResource())
         .thenReturn(new DummyCloseableResource<>(mFileSystemMasterClient));
-    when(mFileSystemMasterClient.getStatus(any(AlluxioURI.class), any(GetStatusOptions.class)))
+    when(mFileSystemMasterClient.getStatus(any(AlluxioURI.class), any(GetStatusPOptions.class)))
         .thenReturn(new URIStatus(new FileInfo()));
 
     // Return sequentially increasing numbers for new block ids

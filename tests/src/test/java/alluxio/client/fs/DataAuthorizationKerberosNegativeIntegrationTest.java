@@ -14,13 +14,13 @@ package alluxio.client.fs;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
-import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
-import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.client.file.options.CreateFileOptions;
 import alluxio.exception.status.PermissionDeniedException;
+import alluxio.grpc.CreateDirectoryPOptions;
+import alluxio.grpc.CreateFilePOptions;
+import alluxio.grpc.WritePType;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authorization.Mode;
@@ -116,14 +116,14 @@ public final class DataAuthorizationKerberosNegativeIntegrationTest extends Base
 
     FileSystem fileSystem = localAlluxioClusterResource.get().getClient();
     fileSystem.createDirectory(new AlluxioURI(TMP_DIR),
-        CreateDirectoryOptions.defaults().setMode(Mode.createFullAccess()));
+        CreateDirectoryPOptions.newBuilder().setMode(Mode.createFullAccess().toProto()).build());
 
     String uniqPath = TMP_DIR + PathUtils.uniqPath();
     AlluxioURI uri = new AlluxioURI(uniqPath);
     Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
-    CreateFileOptions options =
-        CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE);
+    CreateFilePOptions options = CreateFilePOptions.newBuilder().setMode(mode.toProto())
+        .setWriteType(WritePType.MUST_CACHE).build();
     try (FileOutStream outStream = fileSystem.createFile(uri, options)) {
       outStream.write(1);
       Assert.fail();

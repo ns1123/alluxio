@@ -629,18 +629,18 @@ public class UfsJournalIntegrationTest extends BaseIntegrationTest {
    */
   @Test
   public void setReplication() throws Exception {
-    SetAttributeOptions setReplicationMaxOptions
-        = SetAttributeOptions.defaults().setReplicationMax(10);
-    SetAttributeOptions setReplicationMinOptions
-        = SetAttributeOptions.defaults().setReplicationMin(1);
+    SetAttributePOptions setReplicationMaxOptions =
+        SetAttributePOptions.newBuilder().setReplicationMax(10).build();
+    SetAttributePOptions setReplicationMinOptions =
+        SetAttributePOptions.newBuilder().setReplicationMin(1).build();
 
     AlluxioURI dirUri = new AlluxioURI("/myFolder");
     AlluxioURI file0Path = new AlluxioURI("/myFolder/file0");
     AlluxioURI file1Path = new AlluxioURI("/myFolder/file1");
 
     mFileSystem.createDirectory(dirUri);
-    mFileSystem.createFile(file0Path, CreateFileOptions.defaults()).close();
-    mFileSystem.createFile(file1Path, CreateFileOptions.defaults()).close();
+    mFileSystem.createFile(file0Path, CreateFilePOptions.getDefaultInstance()).close();
+    mFileSystem.createFile(file1Path, CreateFilePOptions.getDefaultInstance()).close();
 
     mFileSystem.setAttribute(dirUri, setReplicationMaxOptions);
     mFileSystem.setAttribute(file0Path, setReplicationMinOptions);

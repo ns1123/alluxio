@@ -33,8 +33,8 @@ public final class GetGroupPrivilegesOptionsTest {
    * Tests conversion to thrift representation.
    */
   @Test
-  public void toThrift() {
-    assertNotNull(GetGroupPrivilegesOptions.defaults().toThrift());
+  public void toProto() {
+    assertNotNull(GetGroupPrivilegesOptions.defaults().toProto());
   }
 
   @Test
