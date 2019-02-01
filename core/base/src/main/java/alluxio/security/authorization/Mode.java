@@ -318,6 +318,10 @@ public final class Mode {
       }
     }
 
+    public static Bits fromProto(alluxio.grpc.Bits protoBits) {
+      return Bits.valueOf(protoBits.name());
+    }
+
     /**
      * @return the proto representation of Bits
      */

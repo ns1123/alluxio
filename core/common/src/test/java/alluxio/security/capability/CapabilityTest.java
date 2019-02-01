@@ -61,7 +61,7 @@ public final class CapabilityTest {
   }
 
   @Test
-  public void capabilityFromThrift() throws Exception {
+  public void capabilityFromProto() throws Exception {
     CapabilityProto.Capability capabilityProto = new Capability(mKey, mReadContent).toProto();
     Capability capability = new Capability(capabilityProto);
     Assert.assertEquals(mReadContent, capability.getContentDecoded());
@@ -70,12 +70,15 @@ public final class CapabilityTest {
   }
 
   @Test
-  public void invalidThriftCapability() throws Exception {
-    CapabilityProto.Capability.Builder capabilityBuilder =
-        new Capability(mKey, mReadContent).toProto().toBuilder();
+  public void invalidProtoCapability() throws Exception {
+    CapabilityProto.Capability capability = new Capability(mKey, mReadContent).toProto();
+    CapabilityProto.Capability.Builder invalidBuilder = CapabilityProto.Capability.newBuilder();
+    invalidBuilder.setKeyId(capability.getKeyId());
+    invalidBuilder.setAuthenticator(capability.getAuthenticator());
+    // Don't set rest of required fields.
     boolean invalidCapability = false;
     try {
-      new Capability(capabilityBuilder.build());
+      new Capability(invalidBuilder.build());
     } catch (InvalidCapabilityException e) {
       invalidCapability = true;
     }

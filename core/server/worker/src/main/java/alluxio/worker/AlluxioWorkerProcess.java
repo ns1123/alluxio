@@ -334,6 +334,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
         // ALLUXIO CS ADD
         // TODO(ggezer) EE-SEC secure key server.
         //.setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort())
+        .setSecureRpcPort(0)
         // ALLUXIO CS END
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC))
         .setRpcPort(mRpcAddress.getPort())

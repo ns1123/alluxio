@@ -15,7 +15,6 @@ import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.policy.BlockLocationPolicy;
 import alluxio.client.block.policy.options.GetWorkerOptions;
 import alluxio.network.TieredIdentityFactory;
-import alluxio.util.TieredIdentityUtils;
 import alluxio.wire.TieredIdentity;
 import alluxio.wire.WorkerNetAddress;
 
@@ -75,7 +74,7 @@ public final class LocalFirstPolicy implements FileWriteLocationPolicy, BlockLoc
         .map(worker -> worker.getNetAddress().getTieredIdentity())
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
-    Optional<TieredIdentity> nearest = TieredIdentityUtils.nearest(mTieredIdentity, identities);
+    Optional<TieredIdentity> nearest = mTieredIdentity.nearest(identities);
     if (!nearest.isPresent()) {
       return null;
     }

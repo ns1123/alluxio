@@ -22,7 +22,6 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.network.TieredIdentityFactory;
 import alluxio.util.CommonUtils;
-import alluxio.util.TieredIdentityUtils;
 import alluxio.grpc.GrpcUtils;
 import alluxio.wire.TieredIdentity.LocalityTier;
 
@@ -99,13 +98,13 @@ public class TieredIdentityTest {
     LocalityTier lt7 = new LocalityTier("rack", "");
     LocalityTier lt8 = new LocalityTier("node", "NonResolvableHostname-A");
     LocalityTier lt9 = new LocalityTier("node", "");
-    assertTrue(TieredIdentityUtils.matches(lt1, lt1));
-    assertTrue(TieredIdentityUtils.matches(lt1, lt2));
-    assertFalse(TieredIdentityUtils.matches(lt2, lt3));
-    assertTrue(TieredIdentityUtils.matches(lt5, lt6));
-    assertFalse(TieredIdentityUtils.matches(lt4, lt5));
-    assertFalse(TieredIdentityUtils.matches(lt6, lt7));
-    assertFalse(TieredIdentityUtils.matches(lt8, lt9));
+    assertTrue(lt1.matches(lt1));
+    assertTrue(lt1.matches(lt2));
+    assertFalse(lt2.matches(lt3));
+    assertTrue(lt5.matches(lt6));
+    assertFalse(lt4.matches(lt5));
+    assertFalse(lt6.matches(lt7));
+    assertFalse(lt8.matches(lt9));
   }
 
   @Test
@@ -115,10 +114,10 @@ public class TieredIdentityTest {
     LocalityTier lt2 = new LocalityTier("node", "127.0.0.1");
 
     Configuration.set(PropertyKey.LOCALITY_COMPARE_NODE_IP, "true");
-    assertTrue(TieredIdentityUtils.matches(lt1, lt2));
+    assertTrue(lt1.matches(lt2));
 
     Configuration.set(PropertyKey.LOCALITY_COMPARE_NODE_IP, "false");
-    assertFalse(TieredIdentityUtils.matches(lt1, lt2));
+    assertFalse(lt1.matches(lt2));
   }
 
   public void string() {

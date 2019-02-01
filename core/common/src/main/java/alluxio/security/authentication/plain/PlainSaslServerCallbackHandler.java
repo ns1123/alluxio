@@ -74,17 +74,18 @@ public final class PlainSaslServerCallbackHandler implements CallbackHandler {
 
     if (ac != null) {
       ac.setAuthorized(true);
-      // ALLUXIO CS ADD
-      try {
-        alluxio.security.User oldUser = AuthenticatedClientUser.get();
-        Preconditions
-            .checkState(oldUser == null, "A user (%s) exists while adding user (%s).", oldUser,
-                ac.getAuthorizedID());
-      } catch (IOException e) {
-        // This should never happen.
-        throw com.google.common.base.Throwables.propagate(e);
-      }
-      // ALLUXIO CS END
+      // TODO(ggezer) EE-SEC ?
+      //// ALLUXIO CS ADD
+      //try {
+      //  alluxio.security.User oldUser = AuthenticatedClientUser.get();
+      //  Preconditions
+      //      .checkState(oldUser == null, "A user (%s) exists while adding user (%s).", oldUser,
+      //          ac.getAuthorizedID());
+      //} catch (IOException e) {
+      //  // This should never happen.
+      //  throw com.google.common.base.Throwables.propagate(e);
+      //}
+      //// ALLUXIO CS END
 
       try {
         // getAuthorizedID() only works after the AuthorizeCallback is authorized

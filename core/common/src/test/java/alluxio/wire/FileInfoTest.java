@@ -159,9 +159,9 @@ public class FileInfoTest {
     result.setLength(length);
     result.setMode(permission);
     result.setMountPoint(mountPoint);
-    // ALLUXIO CS ADD
     result.setReplicationMax(replicationMax);
     result.setReplicationMin(replicationMin);
+    // ALLUXIO CS ADD
     result.setEncrypted(encrypted);
     // ALLUXIO CS END
     result.setName(name);

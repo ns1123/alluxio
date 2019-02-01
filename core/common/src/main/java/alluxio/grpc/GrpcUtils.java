@@ -323,6 +323,9 @@ public final class GrpcUtils {
     workerNetAddress.setWebPort(workerNetPAddress.getWebPort());
     workerNetAddress.setDomainSocketPath(workerNetPAddress.getDomainSocketPath());
     workerNetAddress.setTieredIdentity(fromProto(workerNetPAddress.getTieredIdentity()));
+    // ALLUXIO CS ADD
+    workerNetAddress.setSecureRpcPort(workerNetPAddress.getSecureRpcPort());
+    // ALLUXIO CS END
     return workerNetAddress;
   }
 
@@ -475,7 +478,9 @@ public final class GrpcUtils {
     }
     // ALLUXIO CS ADD
     builder.setEncrypted(fileInfo.isEncrypted());
-    builder.setCapability(fileInfo.getCapability().toProto());
+    if(fileInfo.getCapability() != null) {
+      builder.setCapability(fileInfo.getCapability().toProto());
+    }
     // ALLUXIO CS END
     return builder.build();
   }
@@ -590,6 +595,9 @@ public final class GrpcUtils {
     if (workerNetAddress.getTieredIdentity() != null) {
       address.setTieredIdentity(toProto(workerNetAddress.getTieredIdentity()));
     }
+    // ALLUXIO CS ADD
+    address.setSecureRpcPort(workerNetAddress.getSecureRpcPort());
+    // ALLUXIO CS END
     return address.build();
   }
 
