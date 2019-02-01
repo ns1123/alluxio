@@ -30,7 +30,6 @@ import alluxio.worker.BlockUtils;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.meta.TempBlockMeta;
 
-import alluxio.worker.netty.Utils;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;

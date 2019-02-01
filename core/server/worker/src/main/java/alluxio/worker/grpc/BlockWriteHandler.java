@@ -20,7 +20,6 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.WorkerMetrics;
 import alluxio.worker.block.BlockWorker;
 
-import alluxio.worker.netty.Utils;
 import com.google.common.base.Preconditions;
 
 import com.google.protobuf.ByteString;

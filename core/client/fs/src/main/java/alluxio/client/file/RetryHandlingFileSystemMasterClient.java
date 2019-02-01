@@ -60,8 +60,12 @@ import alluxio.grpc.UnmountPRequest;
 import alluxio.grpc.UpdateUfsModePOptions;
 import alluxio.grpc.UpdateUfsModePRequest;
 import alluxio.master.MasterClientConfig;
+// ALLUXIO CS ADD
+import alluxio.security.authentication.DelegationTokenIdentifier;
+// ALLUXIO CS END
 import alluxio.security.authorization.AclEntry;
 import alluxio.wire.SyncPointInfo;
+
 import com.google.protobuf.ByteString;
 
 import java.util.ArrayList;
@@ -174,7 +178,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
 
   // ALLUXIO CS ADD
   @Override
-  public alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> getDelegationToken(
+  public alluxio.security.authentication.Token<DelegationTokenIdentifier> getDelegationToken(
       String renewer) throws AlluxioStatusException {
     return retryRPC(() -> {
       GetDelegationTokenPResponse response = mClient
@@ -188,7 +192,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
 
   @Override
   public long renewDelegationToken(
-      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      alluxio.security.authentication.Token<DelegationTokenIdentifier> token)
       throws AlluxioStatusException {
     return retryRPC(() -> mClient
         .renewDelegationToken(RenewDelegationTokenPRequest.newBuilder()
@@ -200,7 +204,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
 
   @Override
   public void cancelDelegationToken(
-      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
+      alluxio.security.authentication.Token<DelegationTokenIdentifier> token)
       throws AlluxioStatusException {
     retryRPC(
         () -> mClient.cancelDelegationToken(CancelDelegationTokenPRequest.newBuilder()

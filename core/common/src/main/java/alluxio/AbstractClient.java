@@ -220,7 +220,7 @@ public abstract class AbstractClient implements Client {
         LOG.warn("Failed to connect ({}) with {} @ {}: {}", retryPolicy.getAttemptCount(),
             getServiceName(), mAddress, e.getMessage());
         // ALLUXIO CS ADD
-        if(e instanceof UnauthenticatedException) {
+        if (e instanceof UnauthenticatedException) {
           // If there has been a failure in opening TSaslTransport, it's possible because
           // the authentication credential has expired. Relogin. This is a no-op for
           // authTypes other than KERBEROS.

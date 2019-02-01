@@ -91,6 +91,9 @@ import alluxio.master.file.contexts.MountContext;
 import alluxio.master.file.contexts.RenameContext;
 import alluxio.master.file.contexts.SetAclContext;
 import alluxio.master.file.contexts.SetAttributeContext;
+// ALLUXIO CS ADD
+import alluxio.security.authentication.DelegationTokenIdentifier;
+// ALLUXIO CS END
 import alluxio.underfs.UfsMode;
 import alluxio.grpc.GrpcUtils;
 import alluxio.wire.MountPointInfo;
@@ -108,8 +111,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 /**
  * This class is a gRPC handler for file system master RPCs invoked by an Alluxio client.
@@ -205,12 +206,12 @@ public final class FileSystemMasterClientServiceHandler
         "GetNewBlockIdForFile", "path=%s, options=%s", responseObserver, path, options);
   }
   // ALLUXIO CS ADD
-  
+
   @Override
   public void getDelegationToken(GetDelegationTokenPRequest request,
       StreamObserver<GetDelegationTokenPResponse> responseObserver) {
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<GetDelegationTokenPResponse>) () -> {
-      alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token =
+      alluxio.security.authentication.Token<DelegationTokenIdentifier> token =
           mFileSystemMaster.getDelegationToken(request.getRenewer());
       return GetDelegationTokenPResponse.newBuilder()
           .setToken(DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
@@ -224,7 +225,7 @@ public final class FileSystemMasterClientServiceHandler
       StreamObserver<RenewDelegationTokenPResponse> responseObserver) {
     RpcUtils.call(LOG,
         (RpcUtils.RpcCallableThrowsIOException<RenewDelegationTokenPResponse>) () -> {
-          alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> delegationToken =
+          alluxio.security.authentication.Token<DelegationTokenIdentifier> delegationToken =
               new alluxio.security.authentication.Token<>(
                   alluxio.security.authentication.DelegationTokenIdentifier
                       .fromProto(request.getToken().getIdentifier()),
@@ -240,7 +241,7 @@ public final class FileSystemMasterClientServiceHandler
       StreamObserver<CancelDelegationTokenPResponse> responseObserver) {
     RpcUtils.call(LOG,
         (RpcUtils.RpcCallableThrowsIOException<CancelDelegationTokenPResponse>) () -> {
-          alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> delegationToken =
+          alluxio.security.authentication.Token<DelegationTokenIdentifier> delegationToken =
               new alluxio.security.authentication.Token<>(
                   alluxio.security.authentication.DelegationTokenIdentifier
                       .fromProto(request.getToken().getIdentifier()),

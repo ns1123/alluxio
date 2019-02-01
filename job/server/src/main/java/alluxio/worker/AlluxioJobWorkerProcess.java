@@ -245,7 +245,7 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
       LOG.error("Failed to stop web server", e);
     }
   }
-  
+
   @Override
   public String toString() {
     return "Alluxio job worker";

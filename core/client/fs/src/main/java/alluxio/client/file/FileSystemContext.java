@@ -381,7 +381,8 @@ public final class FileSystemContext implements Closeable {
    * @return the acquired block worker
    */
   public BlockWorkerClient acquireBlockWorkerClient(final WorkerNetAddress workerNetAddress,
-      final alluxio.proto.security.CapabilityProto.Capability channelCapability) throws IOException{
+      final alluxio.proto.security.CapabilityProto.Capability channelCapability)
+      throws IOException {
     // TODO(ggezer) EE-SEC: use channelCapability as channel key
     return acquireBlockWorkerClient(workerNetAddress);
   }
