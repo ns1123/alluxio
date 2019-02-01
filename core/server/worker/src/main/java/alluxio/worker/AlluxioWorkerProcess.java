@@ -159,11 +159,10 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
         FileUtils.changeLocalFileToFullPermission(domainSocketPath);
       }
       // ALLUXIO CS ADD
-
-      if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-        // Setup Secret Key server
-        // TODO(ggezer) EE-SEC secure key server.
-      }
+      // TODO(ggezer) EE-SEC secure key server.
+      // if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+      //   // Setup Secret Key server
+      // }
       // ALLUXIO CS END
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -291,9 +290,10 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
       mDomainSocketDataServer = null;
     }
     // ALLUXIO CS ADD
-    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-      // TODO(ggezer) EE-SEC close secure key server.
-    }
+    // TODO(ggezer) EE-SEC close secure key server.
+    // if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+    //
+    // }
     // ALLUXIO CS END
     mUfsManager.close();
     try {

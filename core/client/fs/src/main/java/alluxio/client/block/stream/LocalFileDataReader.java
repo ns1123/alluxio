@@ -141,7 +141,7 @@ public final class LocalFileDataReader implements DataReader {
           OpenLocalBlockRequest.newBuilder().setBlockId(mBlockId).setPromote(isPromote).build();
       // ALLUXIO CS ADD
       mOptions = options;
-      if (options.getCapabilityFetcher() != null) {
+      if (mOptions.getCapabilityFetcher() != null) {
         request = request.toBuilder()
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).build();
       }
