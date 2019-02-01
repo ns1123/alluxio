@@ -29,44 +29,43 @@ import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.PermissionDeniedException;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
+import alluxio.grpc.GrpcService;
+import alluxio.grpc.ServiceType;
+import alluxio.grpc.SetAclAction;
 import alluxio.master.CoreMasterContext;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.file.contexts.CheckConsistencyContext;
+import alluxio.master.file.contexts.CompleteFileContext;
+import alluxio.master.file.contexts.CreateDirectoryContext;
+import alluxio.master.file.contexts.CreateFileContext;
+import alluxio.master.file.contexts.DeleteContext;
+import alluxio.master.file.contexts.FreeContext;
+import alluxio.master.file.contexts.GetStatusContext;
+import alluxio.master.file.contexts.ListStatusContext;
+import alluxio.master.file.contexts.LoadMetadataContext;
+import alluxio.master.file.contexts.MountContext;
+import alluxio.master.file.contexts.RenameContext;
+import alluxio.master.file.contexts.SetAclContext;
+import alluxio.master.file.contexts.SetAttributeContext;
+import alluxio.master.file.contexts.WorkerHeartbeatContext;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.PersistenceState;
-import alluxio.master.file.options.CheckConsistencyOptions;
-import alluxio.master.file.options.CompleteFileOptions;
-import alluxio.master.file.options.CreateDirectoryOptions;
-import alluxio.master.file.options.CreateFileOptions;
-import alluxio.master.file.options.DeleteOptions;
-import alluxio.master.file.options.FreeOptions;
-import alluxio.master.file.options.GetStatusOptions;
-import alluxio.master.file.options.ListStatusOptions;
-import alluxio.master.file.options.LoadMetadataOptions;
-import alluxio.master.file.options.MountOptions;
-import alluxio.master.file.options.RenameOptions;
-import alluxio.master.file.options.SetAclOptions;
-import alluxio.master.file.options.SetAttributeOptions;
-import alluxio.master.file.options.WorkerHeartbeatOptions;
 import alluxio.master.journal.JournalContext;
 import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.proto.journal.Journal;
 import alluxio.security.authorization.AclEntry;
-import alluxio.thrift.FileSystemCommand;
-import alluxio.thrift.FileSystemMasterClientService;
-import alluxio.thrift.FileSystemMasterWorkerService;
-import alluxio.thrift.UfsInfo;
-import alluxio.underfs.UnderFileSystem.UfsMode;
+import alluxio.underfs.UfsMode;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
+import alluxio.wire.FileSystemCommand;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.Privilege;
-import alluxio.wire.SetAclAction;
 import alluxio.wire.SyncPointInfo;
+import alluxio.wire.UfsInfo;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.thrift.TProcessor;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -124,18 +123,8 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public Map<String, TProcessor> getServices() {
-    Map<String, TProcessor> services = new HashMap<>();
-    services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
-        new FileSystemMasterClientService.Processor<>(
-            new FileSystemMasterClientServiceHandler(this)));
-    services.put(Constants.FILE_SYSTEM_MASTER_JOB_SERVICE_NAME,
-        new alluxio.thrift.FileSystemMasterJobService.Processor<>(
-            new FileSystemMasterJobServiceHandler(this)));
-    services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
-        new FileSystemMasterWorkerService.Processor<>(
-            new FileSystemMasterWorkerServiceHandler(this)));
-    return services;
+  public Map<ServiceType, GrpcService> getServices() {
+    return mFileSystemMaster.getServices();
   }
 
   @Override
@@ -154,30 +143,30 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public long createDirectory(AlluxioURI path, CreateDirectoryOptions options)
+  public long createDirectory(AlluxioURI path, CreateDirectoryContext context)
       throws InvalidPathException, FileAlreadyExistsException, IOException, AccessControlException,
       FileDoesNotExistException {
-    if (options.getTtl() != alluxio.Constants.NO_TTL) {
+    if (context.getTtl() != alluxio.Constants.NO_TTL) {
       mPrivilegeChecker.check(Privilege.TTL);
     }
-    return mFileSystemMaster.createDirectory(path, options);
+    return mFileSystemMaster.createDirectory(path, context);
   }
 
   @Override
-  public long createFile(AlluxioURI path, CreateFileOptions options)
+  public long createFile(AlluxioURI path, CreateFileContext context)
       throws AccessControlException, InvalidPathException, FileAlreadyExistsException,
       BlockInfoException, IOException, FileDoesNotExistException {
-    if (options.getReplicationMin() > 0) {
+    if (context.getOptions().getReplicationMin() > 0) {
       mPrivilegeChecker.check(Privilege.REPLICATION);
     }
-    if (options.getTtl() != Constants.NO_TTL) {
+    if (context.getTtl() != Constants.NO_TTL) {
       mPrivilegeChecker.check(Privilege.TTL);
     }
-    return mFileSystemMaster.createFile(path, options);
+    return mFileSystemMaster.createFile(path, context);
   }
 
   @Override
-  public void free(AlluxioURI path, FreeOptions options)
+  public void free(AlluxioURI path, FreeContext context)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException,
       UnexpectedAlluxioException, UnavailableException, IOException {
     try {
@@ -185,26 +174,27 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
     } catch (PermissionDeniedException | UnauthenticatedException e) {
       throw new AccessControlException(e.getMessage(), e);
     }
-    mFileSystemMaster.free(path, options);
+    mFileSystemMaster.free(path, context);
   }
 
   @Override
-  public void setAttribute(AlluxioURI path, SetAttributeOptions options)
+  public void setAttribute(AlluxioURI path, SetAttributeContext context)
       throws FileDoesNotExistException, AccessControlException, InvalidPathException, IOException {
     try {
-      if (options.getPinned() != null) {
+      if (context.getOptions().hasPinned()) {
         mPrivilegeChecker.check(Privilege.PIN);
       }
-      if (options.getReplicationMin() != null && options.getReplicationMin() > 0) {
+      if (context.getOptions().hasReplicationMin()
+          && context.getOptions().getReplicationMin() > 0) {
         mPrivilegeChecker.check(Privilege.REPLICATION);
       }
-      if (options.getTtl() != null) {
+      if (context.getOptions().getCommonOptions().hasTtl()) {
         mPrivilegeChecker.check(Privilege.TTL);
       }
     } catch (PermissionDeniedException | UnauthenticatedException e) {
       throw new AccessControlException(e.getMessage(), e.getCause());
     }
-    mFileSystemMaster.setAttribute(path, options);
+    mFileSystemMaster.setAttribute(path, context);
   }
 
   @Override
@@ -229,10 +219,10 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public FileInfo getFileInfo(AlluxioURI path, GetStatusOptions options)
+  public FileInfo getFileInfo(AlluxioURI path, GetStatusContext context)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException,
       UnavailableException, IOException {
-    return mFileSystemMaster.getFileInfo(path, options);
+    return mFileSystemMaster.getFileInfo(path, context);
   }
 
   @Override
@@ -241,10 +231,10 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public List<FileInfo> listStatus(AlluxioURI path, ListStatusOptions listStatusOptions)
+  public List<FileInfo> listStatus(AlluxioURI path, ListStatusContext context)
       throws AccessControlException, FileDoesNotExistException, InvalidPathException,
       UnavailableException, IOException {
-    return mFileSystemMaster.listStatus(path, listStatusOptions);
+    return mFileSystemMaster.listStatus(path, context);
   }
 
   @Override
@@ -253,16 +243,16 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public List<AlluxioURI> checkConsistency(AlluxioURI path, CheckConsistencyOptions options)
+  public List<AlluxioURI> checkConsistency(AlluxioURI path, CheckConsistencyContext context)
       throws AccessControlException, FileDoesNotExistException, InvalidPathException, IOException {
-    return mFileSystemMaster.checkConsistency(path, options);
+    return mFileSystemMaster.checkConsistency(path, context);
   }
 
   @Override
-  public void completeFile(AlluxioURI path, CompleteFileOptions options) throws BlockInfoException,
+  public void completeFile(AlluxioURI path, CompleteFileContext context) throws BlockInfoException,
       FileDoesNotExistException, InvalidPathException, InvalidFileSizeException,
       FileAlreadyCompletedException, AccessControlException, UnavailableException {
-    mFileSystemMaster.completeFile(path, options);
+    mFileSystemMaster.completeFile(path, context);
   }
 
   @Override
@@ -292,10 +282,10 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void delete(AlluxioURI path, DeleteOptions options) throws IOException,
+  public void delete(AlluxioURI path, DeleteContext context) throws IOException,
       FileDoesNotExistException, DirectoryNotEmptyException, InvalidPathException,
       AccessControlException {
-    mFileSystemMaster.delete(path, options);
+    mFileSystemMaster.delete(path, context);
   }
 
   @Override
@@ -315,10 +305,10 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void rename(AlluxioURI srcPath, AlluxioURI dstPath, RenameOptions options)
+  public void rename(AlluxioURI srcPath, AlluxioURI dstPath, RenameContext context)
       throws FileAlreadyExistsException, FileDoesNotExistException, InvalidPathException,
       IOException, AccessControlException {
-    mFileSystemMaster.rename(srcPath, dstPath, options);
+    mFileSystemMaster.rename(srcPath, dstPath, context);
   }
 
   @Override
@@ -352,17 +342,17 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public long loadMetadata(AlluxioURI path, LoadMetadataOptions options)
+  public long loadMetadata(AlluxioURI path, LoadMetadataContext context)
       throws BlockInfoException, FileDoesNotExistException, InvalidPathException,
       InvalidFileSizeException, FileAlreadyCompletedException, IOException, AccessControlException {
-    return mFileSystemMaster.loadMetadata(path, options);
+    return mFileSystemMaster.loadMetadata(path, context);
   }
 
   @Override
-  public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath, MountOptions options)
+  public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath, MountContext context)
       throws FileAlreadyExistsException, FileDoesNotExistException, InvalidPathException,
       IOException, AccessControlException {
-    mFileSystemMaster.mount(alluxioPath, ufsPath, options);
+    mFileSystemMaster.mount(alluxioPath, ufsPath, context);
   }
 
   @Override
@@ -373,9 +363,9 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public void setAcl(AlluxioURI path, SetAclAction action,
-      List<AclEntry> entries, SetAclOptions options)
+      List<AclEntry> entries, SetAclContext context)
       throws FileDoesNotExistException, AccessControlException, InvalidPathException, IOException {
-    mFileSystemMaster.setAcl(path, action, entries, options);
+    mFileSystemMaster.setAcl(path, action, entries, context);
   }
 
   @Override
@@ -386,9 +376,9 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public FileSystemCommand workerHeartbeat(long workerId, List<Long> persistedFiles,
-      WorkerHeartbeatOptions options)
+      WorkerHeartbeatContext context)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException, IOException {
-    return mFileSystemMaster.workerHeartbeat(workerId, persistedFiles, options);
+    return mFileSystemMaster.workerHeartbeat(workerId, persistedFiles, context);
   }
 
   @Override

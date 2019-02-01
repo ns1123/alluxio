@@ -11,6 +11,7 @@
 
 package alluxio.wire;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -169,7 +170,7 @@ public class LicenseInfo {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("version", mVersion).add("name", mName)
+    return MoreObjects.toStringHelper(this).add("version", mVersion).add("name", mName)
         .add("email", mEmail).add("key", mKey).add("checksum", mChecksum)
         .add("last check", mLastCheckMs)
         .add("last successful check", mLastCheckSuccessMs).toString();

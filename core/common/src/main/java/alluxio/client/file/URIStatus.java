@@ -12,6 +12,7 @@
 package alluxio.client.file;
 
 import alluxio.annotation.PublicApi;
+import alluxio.grpc.GrpcUtils;
 import alluxio.security.authorization.AccessControlList;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.wire.FileBlockInfo;
@@ -307,7 +308,7 @@ public class URIStatus {
    * @return a clone of the file info
    */
   public FileInfo toFileInfo() {
-    return FileInfo.fromThrift(mInfo.toThrift());
+    return GrpcUtils.fromProto(GrpcUtils.toProto(mInfo));
   }
   // ALLUXIO CS END
 }

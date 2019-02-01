@@ -55,8 +55,8 @@ public abstract class AbstractUfsManager implements UfsManager {
       mProperties = (properties == null || properties.isEmpty()) ? null : properties;
       // ALLUXIO CS ADD
       if (alluxio.util.CommonUtils.isAlluxioServer()) {
-        mOwner = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
-        mGroup = alluxio.util.SecurityUtils.getGroupFromThriftClient();
+        mOwner = alluxio.util.SecurityUtils.getOwnerFromGrpcClient();
+        mGroup = alluxio.util.SecurityUtils.getGroupFromGrpcClient();
       } else {
         mOwner = alluxio.util.SecurityUtils.getOwnerFromLoginModule();
         mGroup = alluxio.util.SecurityUtils.getGroupFromLoginModule();

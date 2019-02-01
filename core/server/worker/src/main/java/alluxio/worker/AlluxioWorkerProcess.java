@@ -76,7 +76,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
   private WebServer mWebServer;
   // ALLUXIO CS ADD
   /** Server for secure RPC. */
-  private alluxio.worker.netty.NettySecureRpcServer mSecureRpcServer;
+  // TODO(ggezer) EE-SEC secure key server.
   // ALLUXIO CS END
 
   /** Used for auto binding. **/
@@ -162,9 +162,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
 
       if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
         // Setup Secret Key server
-        mSecureRpcServer =
-            new alluxio.worker.netty.NettySecureRpcServer(
-                NetworkAddressUtils.getBindAddress(ServiceType.WORKER_SECURE_RPC), this);
+        // TODO(ggezer) EE-SEC secure key server.
       }
       // ALLUXIO CS END
     } catch (Exception e) {
@@ -294,7 +292,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     }
     // ALLUXIO CS ADD
     if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-      mSecureRpcServer.close();
+      // TODO(ggezer) EE-SEC close secure key server.
     }
     // ALLUXIO CS END
     mUfsManager.close();
@@ -334,7 +332,8 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
   public WorkerNetAddress getAddress() {
     return new WorkerNetAddress()
         // ALLUXIO CS ADD
-        .setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort())
+        // TODO(ggezer) EE-SEC secure key server.
+        //.setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort())
         // ALLUXIO CS END
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC))
         .setRpcPort(mRpcAddress.getPort())

@@ -11,6 +11,7 @@
 
 package alluxio.security;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -120,7 +121,7 @@ public final class MasterKey {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
         .add("keyId", mKeyId)
         .add("expirationTimeMs", mExpirationTimeMs)
         .add("encodedKey", mEncodedKey == null ? "" : new String(mEncodedKey))

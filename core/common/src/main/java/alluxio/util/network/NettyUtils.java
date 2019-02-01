@@ -165,50 +165,6 @@ public final class NettyUtils {
       return workerNetAddress.getHost().equals(NetworkAddressUtils.getClientHostName());
     }
   }
-  // ALLUXIO CS ADD
-
-  /**
-   * Waits for channel to be ready. If Kerberos is enabled, waits until the channel
-   * is authenticated.
-   *
-   * @param channel the input channel
-   */
-  public static void waitForClientChannelReady(Channel channel)
-      throws alluxio.exception.status.AlluxioStatusException {
-    if (Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
-        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      io.netty.channel.ChannelHandlerContext ctx =
-          channel.pipeline().context(alluxio.network.netty.KerberosSaslClientHandler.class);
-      if (ctx != null) {
-        try {
-          // Waits for the authentication result. Stop the process if authentication failed.
-          if (!((alluxio.network.netty.KerberosSaslClientHandler) ctx.handler())
-              .channelAuthenticated(ctx)) {
-            throw new java.io.IOException("Sasl authentication with Kerberos is finished but failed.");
-          }
-        } catch (Exception e) {
-          throw alluxio.exception.status.AlluxioStatusException.fromThrowable(e);
-        }
-      }
-
-      if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-        ctx = channel.pipeline().context(
-                alluxio.network.netty.CapabilityAuthenticationSaslClientHandler.class);
-        if (ctx != null) {
-          try {
-            // Waits for the authentication result. Stop the process if authentication failed.
-            if (!((alluxio.network.netty.CapabilityAuthenticationSaslClientHandler) ctx.handler())
-                    .channelAuthenticated(ctx)) {
-              throw new java.io.IOException("Sasl authentication with Digest is finished but failed.");
-            }
-          } catch (Exception e) {
-            throw alluxio.exception.status.AlluxioStatusException.fromThrowable(e);
-          }
-        }
-      }
-    }
-  }
-  // ALLUXIO CS END
 
   /**
    * @return whether netty epoll is available to the system

@@ -15,7 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.cli.CommandUtils;
 import alluxio.client.file.FileSystem;
-import alluxio.client.job.JobThriftClientUtils;
+import alluxio.client.job.JobGrpcClientUtils;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.status.InvalidArgumentException;
 import alluxio.job.migrate.MigrateConfig;
@@ -53,10 +53,10 @@ public final class DistributedCpCommand extends AbstractFileSystemCommand {
     String[] args = cl.getArgs();
     AlluxioURI srcPath = new AlluxioURI(args[0]);
     AlluxioURI dstPath = new AlluxioURI(args[1]);
-    Thread thread = JobThriftClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
+    Thread thread = JobGrpcClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
     thread.start();
     try {
-      JobThriftClientUtils.run(new MigrateConfig(srcPath.getPath(), dstPath.getPath(), null, true, false), 3);
+      JobGrpcClientUtils.run(new MigrateConfig(srcPath.getPath(), dstPath.getPath(), null, true, false), 3);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       return -1;

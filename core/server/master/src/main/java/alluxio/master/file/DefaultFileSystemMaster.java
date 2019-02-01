@@ -901,7 +901,7 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       FileInfo fileInfo = getFileInfoInternal(inodePath);
       // ALLUXIO CS ADD
       populateCapability(fileInfo, inodePath,
-          Mode.Bits.fromShort((short) context.getOptions().getAccessMode()));
+          Mode.Bits.fromString(context.getOptions().getAccessMode().name()));
       // ALLUXIO CS END
       auditContext.setSrcInode(inodePath.getInode()).setSucceeded(true);
       return fileInfo;

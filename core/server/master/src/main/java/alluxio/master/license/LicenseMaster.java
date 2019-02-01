@@ -20,6 +20,8 @@ import alluxio.Server;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.UnavailableException;
+import alluxio.grpc.GrpcService;
+import alluxio.grpc.ServiceType;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
@@ -42,7 +44,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.thrift.TProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +101,7 @@ public class LicenseMaster extends AbstractMaster {
   }
 
   @Override
-  public Map<String, TProcessor> getServices() {
+  public Map<ServiceType, GrpcService> getServices() {
     return new HashMap<>();
   }
 
