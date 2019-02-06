@@ -140,12 +140,9 @@ public final class UfsJournalCheckpointThread extends Thread {
       try {
         entry = mJournalReader.read();
         if (entry != null) {
-          // ALLUXIO CS ADD
-          if (mJournalReader.shouldResetState()) {
+          if (entry.getSequenceNumber() == 0) {
             mMaster.resetState();
-            mJournalReader.notifyResetState();
           }
-          // ALLUXIO CS END
           mMaster.processJournalEntry(entry);
           if (quietPeriodWaited) {
             LOG.info("Quiet period interrupted by new journal entry");

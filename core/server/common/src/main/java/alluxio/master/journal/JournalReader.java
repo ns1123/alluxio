@@ -39,18 +39,4 @@ public interface JournalReader extends Closeable {
    * @return the next sequence number
    */
   long getNextSequenceNumber();
-  // ALLUXIO CS ADD
-
-  /**
-   * @return whether reset should be performed on state machine before applying the last journal entry
-   */
-  default boolean shouldResetState() {
-    return false;
-  }
-
-  /**
-   * Notifies the reader that the state machine has been reset.
-   */
-  default void notifyResetState() { }
-  // ALLUXIO CS END
 }

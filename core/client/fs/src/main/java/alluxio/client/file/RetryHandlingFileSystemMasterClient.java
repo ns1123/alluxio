@@ -33,6 +33,7 @@ import alluxio.master.MasterClientConfig;
 import alluxio.security.authorization.AclEntry;
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.FileSystemMasterClientService;
+import alluxio.thrift.GetFilePathTOptions;
 import alluxio.thrift.GetMountTableTResponse;
 import alluxio.thrift.GetNewBlockIdForFileTOptions;
 import alluxio.thrift.LoadMetadataTOptions;
@@ -136,6 +137,11 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   public synchronized void free(final AlluxioURI path, final FreeOptions options)
       throws AlluxioStatusException {
     retryRPC(() -> mClient.free(path.getPath(), options.isRecursive(), options.toThrift()), "Free");
+  }
+
+  @Override
+  public String getFilePath(final GetFilePathTOptions options) throws AlluxioStatusException {
+    return retryRPC(() -> mClient.getFilePath(options).getPath(), "GetFilePath");
   }
 
   @Override
