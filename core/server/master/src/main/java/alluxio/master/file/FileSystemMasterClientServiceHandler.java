@@ -47,6 +47,8 @@ import alluxio.thrift.FileInfo;
 import alluxio.thrift.FileSystemMasterClientService;
 import alluxio.thrift.FreeTOptions;
 import alluxio.thrift.FreeTResponse;
+import alluxio.thrift.GetFilePathTOptions;
+import alluxio.thrift.GetFilePathTResponse;
 import alluxio.thrift.GetMountTableTResponse;
 import alluxio.thrift.GetNewBlockIdForFileTOptions;
 import alluxio.thrift.GetNewBlockIdForFileTResponse;
@@ -234,6 +236,16 @@ public final class FileSystemMasterClientServiceHandler implements
   }
 
   // ALLUXIO CS END
+  @Override
+  public GetFilePathTResponse getFilePath(final GetFilePathTOptions options)
+      throws AlluxioTException {
+    return RpcUtils.call(LOG,
+        (RpcCallableThrowsIOException<GetFilePathTResponse>) () -> new GetFilePathTResponse(
+            mFileSystemMaster.getPath(options.getFileId()).toString()),
+        // getStatus is often used to check file existence, so we avoid logging all of its failures
+        "GetFilePath", true, "options=%s", options);
+  }
+
   @Override
   public GetStatusTResponse getStatus(final String path, final GetStatusTOptions options)
       throws AlluxioTException {

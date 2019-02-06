@@ -31,7 +31,12 @@ import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.AlreadyExistsException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.master.MasterClientConfig;
+<<<<<<< HEAD
 import alluxio.security.authorization.AclEntry;
+||||||| merged common ancestors
+=======
+import alluxio.thrift.GetFilePathTOptions;
+>>>>>>> OPENSOURCE/branch-1.8
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;
 import alluxio.wire.SyncPointInfo;
@@ -116,6 +121,12 @@ public interface FileSystemMasterClient extends Client {
    * @throws NotFoundException if the path does not exist
    */
   void free(AlluxioURI path, FreeOptions options) throws AlluxioStatusException;
+
+  /**
+   * @param options the getFilePath options
+   * @return the file path for the given file id
+   */
+  String getFilePath(GetFilePathTOptions options) throws AlluxioStatusException;
 
   /**
    * @param path the file path

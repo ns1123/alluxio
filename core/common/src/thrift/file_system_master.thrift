@@ -75,6 +75,14 @@ struct GetNewBlockIdForFileTResponse {
   1: i64 id
 }
 
+struct GetFilePathTOptions {
+  1: i64 fileId
+}
+
+struct GetFilePathTResponse {
+  1: string path
+}
+
 struct GetStatusTOptions {
   1: optional LoadMetadataTType loadMetadataType
   2: optional FileSystemMasterCommonTOptions commonOptions
@@ -446,6 +454,14 @@ service FileSystemMasterClientService extends common.AlluxioService {
     throws (1: exception.AlluxioTException e)
 
   // ALLUXIO CS END
+  /**
+   * Returns the file path of a file id.
+   */
+  GetFilePathTResponse getFilePath(
+    /** the file id */ 1: GetFilePathTOptions options,
+    )
+    throws (1: exception.AlluxioTException e)
+
   /**
    * Returns the status of the file or directory.
    */

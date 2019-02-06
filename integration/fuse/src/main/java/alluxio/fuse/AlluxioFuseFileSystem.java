@@ -786,6 +786,7 @@ final class AlluxioFuseFileSystem extends FuseStubFS {
   }
 
   /**
+<<<<<<< HEAD
    * Waits for the file to complete before opening it.
    *
    * @param uri the file path to check
@@ -807,6 +808,25 @@ final class AlluxioFuseFileSystem extends FuseStubFS {
   }
 
   /**
+||||||| merged common ancestors
+=======
+   * Waits for the file to complete before opening it.
+   *
+   * @param uri the file path to check
+   * @return whether the file is completed or not
+   */
+  private boolean waitForFileCompleted(AlluxioURI uri) {
+    return CommonUtils.waitFor("file completed", (input) -> {
+      try {
+        return mFileSystem.getStatus(uri).isCompleted();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }, WaitForOptions.defaults().setTimeoutMs(MAX_OPEN_WAITTIME_MS));
+  }
+
+  /**
+>>>>>>> OPENSOURCE/branch-1.8
    * Exposed for testing.
    */
   LoadingCache<String, AlluxioURI> getPathResolverCache() {
