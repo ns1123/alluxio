@@ -224,8 +224,8 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
     mWorker = blockWorker;
   }
 
-  // TODO(ggezer) EE-SEC Implement for gRPC
   // ALLUXIO CS ADD
+  // TODO(ggezer) EE-SEC Implement for gRPC
   //@Override
   //protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
   //    alluxio.proto.security.CapabilityProto.Capability capability,

@@ -161,8 +161,8 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
     }
   }
 
+  // ALLUXIO CS ADD
   // TODO(ggezer) Implement for gRPC.
-  //// ALLUXIO CS ADD
   ///**
   // * Check whether the current user has the requested access to a block.
   // *
@@ -180,14 +180,14 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
   //        alluxio.exception.AccessControlException {
   //  // By default, we don't check permission.
   //}
-  //// ALLUXIO CS END
+  // ALLUXIO CS END
 
   private void writeData(ByteString buf) {
     try {
       int readableBytes = buf.size();
       mContext.setPos(mContext.getPos() + readableBytes);
+      // ALLUXIO CS ADD
       // TODO(ggezer) EE-SEC Honor the call
-      //// ALLUXIO CS ADD
       ///**
       // * Check whether the current user has the requested access to a block.
       // *
@@ -205,7 +205,7 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
       //        alluxio.exception.AccessControlException {
       //  // By default, we don't check permission.
       //}
-      //// ALLUXIO CS END
+      // ALLUXIO CS END
       writeBuf(mContext, mResponseObserver, buf, mContext.getPos());
       incrementMetrics(readableBytes);
     } catch (Exception e) {

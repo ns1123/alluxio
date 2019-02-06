@@ -24,23 +24,23 @@ import java.util.List;
 public final class ClosedSourceGrpcUtils {
 
   /**
-   * @param pprivileges a list of proto type privileges
+   * @param pPrivileges a list of proto type privileges
    * @return a corresponding list of {@link Privilege}
    */
-  public static List<Privilege> fromProto(Collection<PPrivilege> pprivileges) {
+  public static List<Privilege> fromProto(Collection<PPrivilege> pPrivileges) {
     List<Privilege> privileges = new ArrayList<>();
-    for (PPrivilege tprivilege : pprivileges) {
-      privileges.add(fromProto(tprivilege));
+    for (PPrivilege pPrivilege : pPrivileges) {
+      privileges.add(fromProto(pPrivilege));
     }
     return privileges;
   }
 
   /**
-   * @param pprivilege a protocol buffer type privilege
+   * @param pPrivilege a protocol buffer type privilege
    * @return the corresponding {@link Privilege}
    */
-  public static Privilege fromProto(PPrivilege pprivilege) {
-    switch (pprivilege) {
+  public static Privilege fromProto(PPrivilege pPrivilege) {
+    switch (pPrivilege) {
       case FREE:
         return Privilege.FREE;
       case PIN:
@@ -50,7 +50,7 @@ public final class ClosedSourceGrpcUtils {
       case REPLICATION:
         return Privilege.REPLICATION;
       default:
-        throw new IllegalArgumentException("Unrecognized pprivilege: " + pprivilege);
+        throw new IllegalArgumentException("Unrecognized pPrivilege: " + pPrivilege);
     }
   }
 
@@ -59,11 +59,11 @@ public final class ClosedSourceGrpcUtils {
    * @return a corresponding list of proto type privileges
    */
   public static List<PPrivilege> toProto(Collection<Privilege> privileges) {
-    List<PPrivilege> tprivileges = new ArrayList<>();
+    List<PPrivilege> pPrivileges = new ArrayList<>();
     for (Privilege privilege : privileges) {
-      tprivileges.add(toProto(privilege));
+      pPrivileges.add(toProto(privilege));
     }
-    return tprivileges;
+    return pPrivileges;
   }
 
   /**

@@ -221,7 +221,7 @@ public abstract class AbstractClient implements Client {
             getServiceName(), mAddress, e.getMessage());
         // ALLUXIO CS ADD
         if (e instanceof UnauthenticatedException) {
-          // If there has been a failure in opening TSaslTransport, it's possible because
+          // If there has been a failure in opening GrpcChannel, it's possible because
           // the authentication credential has expired. Relogin. This is a no-op for
           // authTypes other than KERBEROS.
           alluxio.security.LoginUser.relogin();

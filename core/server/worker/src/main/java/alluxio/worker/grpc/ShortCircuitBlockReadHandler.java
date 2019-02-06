@@ -65,7 +65,9 @@ class ShortCircuitBlockReadHandler implements StreamObserver<OpenLocalBlockReque
    */
   @Override
   public void onNext(OpenLocalBlockRequest request) {
+    // ALLUXIO CS ADD
     // TODO(ggezer) EE-SEC validate request.getCapability(). Do we need validation during close?
+    // ALLUXIO CS END
     RpcUtils.streamingRPCAndLog(LOG, new RpcUtils.StreamingRpcCallable<OpenLocalBlockResponse>() {
       @Override
       public OpenLocalBlockResponse call() throws Exception {

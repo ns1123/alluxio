@@ -385,6 +385,13 @@ function main {
     ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
     runJavaClass "$@"
   ;;
+  # ALLUXIO CS ADD
+  "privileges")
+    CLASS="alluxio.cli.privileges.Privileges"
+    CLASSPATH=${ALLUXIO_CLIENT_CLASSPATH}
+    runJavaClass "$@"
+  ;;
+  # ALLUXIO CS END
   "clearCache")
     sync; echo 3 > /proc/sys/vm/drop_caches ;
   ;;

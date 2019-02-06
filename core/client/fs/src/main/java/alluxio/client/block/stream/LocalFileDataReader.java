@@ -126,6 +126,10 @@ public final class LocalFileDataReader implements DataReader {
       mBlockId = blockId;
       mChunkSize = chunkSize;
 
+      boolean isPromote = ReadType.fromProto(options.getOptions().getReadType()).isPromote();
+      OpenLocalBlockRequest request =
+              OpenLocalBlockRequest.newBuilder().setBlockId(mBlockId).setPromote(isPromote).build();
+
       // ALLUXIO CS REPLACE
       // mBlockWorker = context.acquireBlockWorkerClient(address);
       // ALLUXIO CS WITH
@@ -135,11 +139,7 @@ public final class LocalFileDataReader implements DataReader {
       } else {
         mBlockWorker = context.acquireBlockWorkerClient(address);
       }
-      // ALLUXIO CS END
-      boolean isPromote = ReadType.fromProto(options.getOptions().getReadType()).isPromote();
-      OpenLocalBlockRequest request =
-          OpenLocalBlockRequest.newBuilder().setBlockId(mBlockId).setPromote(isPromote).build();
-      // ALLUXIO CS ADD
+
       mOptions = options;
       if (mOptions.getCapabilityFetcher() != null) {
         request = request.toBuilder()

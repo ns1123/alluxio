@@ -124,8 +124,8 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
         context.getBlockWriter().append(buf.asReadOnlyByteBuffer())  == sz);
   }
 
-  // TODO(ggezer EE-SEC Implement for gRPC.
-  //// ALLUXIO CS ADD
+  // ALLUXIO CS ADD
+  // TODO(ggezer) EE-SEC Implement for gRPC.
   //@Override
   //protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
   //                               alluxio.proto.security.CapabilityProto.Capability capability,
@@ -134,5 +134,5 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
   //        alluxio.exception.AccessControlException {
   //  Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
   //}
-  //// ALLUXIO CS END
+  // ALLUXIO CS END
 }

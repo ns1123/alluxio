@@ -37,7 +37,9 @@ public class CreateFileContext
   private CreateFileContext(CreateFilePOptions.Builder optionsBuilder) {
     super(optionsBuilder);
     mCacheable = false;
+    // ALLUXIO CS ADD
     mEncrypted = Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
+    // ALLUXIO CS END
   }
 
   /**
@@ -80,6 +82,7 @@ public class CreateFileContext
     mCacheable = cacheable;
     return this;
   }
+  // ALLUXIO CS ADD
 
   /**
    * @return true if file is cacheable
@@ -96,6 +99,7 @@ public class CreateFileContext
     mEncrypted = encrypted;
     return this;
   }
+  // ALLUXIO CS END
 
   @Override
   public String toString() {

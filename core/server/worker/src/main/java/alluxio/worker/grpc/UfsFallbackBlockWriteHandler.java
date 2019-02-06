@@ -76,8 +76,8 @@ public final class UfsFallbackBlockWriteHandler
     mBlockWriteHandler = new BlockWriteHandler(blockWorker, responseObserver);
   }
 
+  // ALLUXIO CS ADD
   // TODO(ggezer) EE-SEC Implement for gRPC.
-  //// ALLUXIO CS ADD
   //@Override
   //protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
   //                               alluxio.proto.security.CapabilityProto.Capability capability,
@@ -86,7 +86,7 @@ public final class UfsFallbackBlockWriteHandler
   //        alluxio.exception.AccessControlException {
   //  Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
   //}
-  //// ALLUXIO CS END
+  // ALLUXIO CS END
 
   @Override
   protected BlockWriteRequestContext createRequestContext(alluxio.grpc.WriteRequest msg)

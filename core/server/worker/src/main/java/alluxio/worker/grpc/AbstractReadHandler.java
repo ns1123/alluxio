@@ -92,8 +92,8 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
     mResponseObserver = responseObserver;
   }
 
+  // ALLUXIO CS ADD
   // TODO(ggezer) EE-SEC Implement for gRPC
-  //// ALLUXIO CS ADD
   ///**
   // * Check whether the current user has the requested access to a block.
   // *
@@ -111,12 +111,12 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
   //        alluxio.exception.AccessControlException {
   //  // By default, we don't check permission.
   //}
-  //// ALLUXIO CS END
+  // ALLUXIO CS END
 
   @Override
   public void onNext(alluxio.grpc.ReadRequest request) {
+    // ALLUXIO CS ADD
     // TODO(ggezer) EE-SEC honor the check
-    //// ALLUXIO CS ADD
     //try {
     //  checkAccessMode(ctx, msg.getBlockId(), msg.getCapability(),
     //          alluxio.security.authorization.Mode.Bits.READ);
@@ -126,7 +126,7 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
     //          new java.lang.Error(new alluxio.exception.status.PermissionDeniedException(e), true));
     //  return;
     //}
-    //// ALLUXIO CS END
+    // ALLUXIO CS END
 
     // Expected state: context equals null as this handler is new for request.
     // Otherwise, notify the client an illegal state. Note that, we reset the context before
