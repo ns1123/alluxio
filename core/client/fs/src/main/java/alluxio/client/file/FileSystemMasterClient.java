@@ -31,12 +31,8 @@ import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.AlreadyExistsException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.master.MasterClientConfig;
-<<<<<<< HEAD
 import alluxio.security.authorization.AclEntry;
-||||||| merged common ancestors
-=======
 import alluxio.thrift.GetFilePathTOptions;
->>>>>>> OPENSOURCE/branch-1.8
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SetAclAction;
 import alluxio.wire.SyncPointInfo;
