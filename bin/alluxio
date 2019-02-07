@@ -39,6 +39,9 @@ function printUsage {
   echo -e "  copyDir <PATH>\t Copy the PATH to all worker nodes."
   echo -e "  clearCache    \t Clear OS buffer cache of the machine."
   echo -e "  confDocGen    \t Generate configuration docs."
+  # ALLUXIO CS ADD
+  echo -e "  privileges    \t Command line tool for interacting with privileges."
+  # ALLUXIO CS END
   echo -e "  version       \t Print Alluxio version and exit."
   echo -e "  validateConf  \t Validate Alluxio conf and exit."
   echo -e "  validateEnv   \t Validate Alluxio environment."
