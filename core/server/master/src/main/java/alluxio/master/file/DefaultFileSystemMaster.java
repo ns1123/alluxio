@@ -4459,12 +4459,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         throw new InvalidPathException("URI " + uri + " is already a sync point");
       }
       AddSyncPointEntry addSyncPoint =
-          AddSyncPointEntry.newBuilder().setSyncpointPath(uri.toString()).build();
-      rpcContext.journal(JournalEntry.newBuilder().setAddSyncPoint(addSyncPoint).build());
-      AddSyncPointEntry.newBuilder()
-          .setSyncpointPath(uri.toString())
-          .setMountId(mountId)
-          .build();
+          AddSyncPointEntry.newBuilder()
+              .setSyncpointPath(uri.toString())
+              .setMountId(mountId)
+              .build();
       mSyncManager.applyAndJournal(rpcContext, addSyncPoint);
       try {
         mSyncManager.startSyncPostJournal(uri);
