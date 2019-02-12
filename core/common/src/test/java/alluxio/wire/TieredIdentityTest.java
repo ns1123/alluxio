@@ -22,6 +22,7 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.network.TieredIdentityFactory;
 import alluxio.util.CommonUtils;
+import alluxio.grpc.GrpcUtils;
 import alluxio.wire.TieredIdentity.LocalityTier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,9 +79,9 @@ public class TieredIdentityTest {
   }
 
   @Test
-  public void thrift() {
+  public void proto() {
     TieredIdentity tieredIdentity = createRandomTieredIdentity();
-    TieredIdentity other = TieredIdentity.fromThrift(tieredIdentity.toThrift());
+    TieredIdentity other = GrpcUtils.fromProto(GrpcUtils.toProto(tieredIdentity));
     checkEquality(tieredIdentity, other);
   }
 

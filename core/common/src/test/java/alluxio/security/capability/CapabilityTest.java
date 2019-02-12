@@ -17,6 +17,7 @@ import alluxio.security.MasterKey;
 import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 
+import com.google.protobuf.ByteString;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,21 +61,24 @@ public final class CapabilityTest {
   }
 
   @Test
-  public void capabilityFromThrift() throws Exception {
-    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
-    Capability capability = new Capability(capabilityThrift);
+  public void capabilityFromProto() throws Exception {
+    CapabilityProto.Capability capabilityProto = new Capability(mKey, mReadContent).toProto();
+    Capability capability = new Capability(capabilityProto);
     Assert.assertEquals(mReadContent, capability.getContentDecoded());
     Assert.assertEquals(mReadContent, CapabilityProto.Content.parseFrom(capability.getContent()));
     Assert.assertNotEquals(0, capability.getAuthenticator().length);
   }
 
   @Test
-  public void invalidThriftCapability() throws Exception {
-    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
-    capabilityThrift.setContent((byte[]) null);
+  public void invalidProtoCapability() throws Exception {
+    CapabilityProto.Capability capability = new Capability(mKey, mReadContent).toProto();
+    CapabilityProto.Capability.Builder invalidBuilder = CapabilityProto.Capability.newBuilder();
+    invalidBuilder.setKeyId(capability.getKeyId());
+    invalidBuilder.setAuthenticator(capability.getAuthenticator());
+    // Don't set rest of required fields.
     boolean invalidCapability = false;
     try {
-      new Capability(capabilityThrift);
+      new Capability(invalidBuilder.build());
     } catch (InvalidCapabilityException e) {
       invalidCapability = true;
     }
@@ -83,10 +87,11 @@ public final class CapabilityTest {
 
   @Test
   public void verifyAuthenticator() throws Exception {
-    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
-    capabilityThrift
-        .setContent(mReadContent.toBuilder().setUser("wronguser").build().toByteArray());
-    Capability capability = new Capability(capabilityThrift);
+    CapabilityProto.Capability.Builder capabilityBuilder =
+        new Capability(mKey, mReadContent).toProto().toBuilder();
+    capabilityBuilder.setContent(
+        ByteString.copyFrom(mReadContent.toBuilder().setUser("wronguser").build().toByteArray()));
+    Capability capability = new Capability(capabilityBuilder.build());
     try {
       capability.verifyAuthenticator(mKey);
       Assert.fail("Changed content should fail to authenticate.");

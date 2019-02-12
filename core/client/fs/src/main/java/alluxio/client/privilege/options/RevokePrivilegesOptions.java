@@ -11,9 +11,9 @@
 
 package alluxio.client.privilege.options;
 
-import alluxio.thrift.RevokePrivilegesTOptions;
+import alluxio.grpc.RevokePrivilegesPOptions;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * Options for revoking privileges from a group.
@@ -42,13 +42,13 @@ public final class RevokePrivilegesOptions {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).toString();
+    return MoreObjects.toStringHelper(this).toString();
   }
 
   /**
-   * @return Thrift representation of the options
+   * @return gRPC representation of the options
    */
-  public RevokePrivilegesTOptions toThrift() {
-    return new RevokePrivilegesTOptions();
+  public RevokePrivilegesPOptions toProto() {
+    return RevokePrivilegesPOptions.getDefaultInstance();
   }
 }

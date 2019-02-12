@@ -25,7 +25,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.FileInfo;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -388,7 +388,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this).add("name", getName())
+      return MoreObjects.toStringHelper(this).add("name", getName())
           .add("lastModificationTimeMs", getLastModificationTimeMs()).add("owner", getOwner())
           .add("group", getGroup()).add("permission", getMode()).toString();
     }

@@ -20,6 +20,7 @@ import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.underfs.Fingerprint;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
+import alluxio.underfs.UfsMode;
 import alluxio.underfs.UfsStatus;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;

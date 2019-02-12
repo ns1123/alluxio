@@ -27,8 +27,8 @@ public final class GrantPrivilegesOptionsTest {
   }
 
   @Test
-  public void toThrift() {
-    assertNotNull(GrantPrivilegesOptions.defaults().toThrift());
+  public void toProto() {
+    assertNotNull(GrantPrivilegesOptions.defaults().toProto());
   }
 
   @Test

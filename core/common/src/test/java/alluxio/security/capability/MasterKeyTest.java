@@ -18,6 +18,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 import alluxio.util.FormatUtils;
 
+import com.google.protobuf.ByteString;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.junit.Assert;
 import org.junit.Before;
@@ -135,10 +136,11 @@ public final class MasterKeyTest {
 
   @Test
   public void verifyAuthenticatorWithWrongUser() throws Exception {
-    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mContent).toThrift();
-    capabilityThrift
-        .setContent(mContent.toBuilder().setUser("wronguser").build().toByteArray());
-    Capability capability = new Capability(capabilityThrift);
+    CapabilityProto.Capability.Builder capabilityBuilder =
+        new Capability(mKey, mContent).toProto().toBuilder();
+    capabilityBuilder.setContent(
+        ByteString.copyFrom(mContent.toBuilder().setUser("wronguser").build().toByteArray()));
+    Capability capability = new Capability(capabilityBuilder.build());
     try {
       capability.verifyAuthenticator(mKey);
       Assert.fail("Changed content should fail to authenticate.");

@@ -68,12 +68,12 @@ public final class Capability {
    * @param capability the proto representation of the capability
    * @throws InvalidCapabilityException if the proto object is malformed
    */
-  public Capability(alluxio.proto.security.CapabilityProto.Capability capability)
+  public Capability(CapabilityProto.Capability capability)
       throws InvalidCapabilityException {
     if (capability == null || !capability.hasContent() || !capability.hasAuthenticator()
         || !capability.hasKeyId()) {
       throw new InvalidCapabilityException(
-          "Invalid thrift capability. The keyId, authenticator and content must be all set.");
+          "Invalid proto capability. The keyId, authenticator and content must be all set.");
     }
 
     mKeyId = capability.getKeyId();
@@ -88,35 +88,6 @@ public final class Capability {
       throw new InvalidCapabilityException("Content buffer is not valid :"
               + capability.toString()
               + "Exception :" + exc.getMessage());
-    }
-  }
-
-  /**
-   * Creates an instance of {@link Capability} from a thrift representation of the capability.
-   *
-   * @param capability the thrift representation of the capability
-   * @throws InvalidCapabilityException if the thrift object is malformed
-   */
-  public Capability(alluxio.thrift.Capability capability) throws InvalidCapabilityException {
-    if (capability == null || !capability.isSetContent() || !capability.isSetAuthenticator()
-        || !capability.isSetKeyId()) {
-      throw new InvalidCapabilityException(
-          "Invalid thrift capability. The keyId, authenticator and content must be all set.");
-    }
-
-    mKeyId = capability.getKeyId();
-    mAuthenticator = capability.getAuthenticator();
-    // Augment given thrift content with the key Id.
-    try {
-      CapabilityProto.Content augmentedContent =
-              CapabilityProto.Content.newBuilder().mergeFrom(capability.getContent())
-                      .setKeyId(mKeyId).build();
-      mContent = ProtoUtils.encode(augmentedContent);
-    } catch (Exception exc) {
-      throw new InvalidCapabilityException(
-          "Thrift capability content buffer is not valid : "
-              + Arrays.toString(capability.getContent())
-              + " Exception: " + exc.getMessage());
     }
   }
 
@@ -190,17 +161,6 @@ public final class Capability {
       throw new InvalidCapabilityException(
           "Invalid capability: the authenticator can not be verified.");
     }
-  }
-
-  /**
-   * @return the thrift representation of the object
-   */
-  public alluxio.thrift.Capability toThrift() {
-    alluxio.thrift.Capability capability = new alluxio.thrift.Capability();
-    capability.setContent(mContent);
-    capability.setAuthenticator(mAuthenticator);
-    capability.setKeyId(mKeyId);
-    return capability;
   }
 
   /**

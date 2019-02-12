@@ -12,7 +12,6 @@
 package alluxio.security.authorization;
 
 import alluxio.proto.shared.Acl;
-import alluxio.thrift.TAclAction;
 
 /**
  * Actions to be controlled in {@link AccessControlList}.
@@ -68,33 +67,33 @@ public enum AclAction {
   }
 
   /**
-   * @param tAction the thrift representation
+   * @param pAction the proto representation
    * @return the {@link AclAction} created from the thrift representation
    */
-  public static AclAction fromThrift(TAclAction tAction) {
-    switch (tAction) {
-      case Read:
+  public static AclAction fromProto(Acl.AclAction pAction) {
+    switch (pAction) {
+      case READ:
         return READ;
-      case Write:
+      case WRITE:
         return WRITE;
-      case Execute:
+      case EXECUTE:
         return EXECUTE;
       default:
-        throw new IllegalStateException("Unknown TAclACtion: " + tAction);
+        throw new IllegalStateException("Unknown Acl.AclAction: " + pAction);
     }
   }
 
   /**
-   * @return the thrift representation of this enum
+   * @return the proto representation of this enum
    */
-  public TAclAction toThrift() {
+  public Acl.AclAction toProto() {
     switch (this) {
       case READ:
-        return TAclAction.Read;
+        return Acl.AclAction.READ;
       case WRITE:
-        return TAclAction.Write;
+        return Acl.AclAction.WRITE;
       case EXECUTE:
-        return TAclAction.Execute;
+        return Acl.AclAction.EXECUTE;
       default:
         throw new IllegalStateException("Unknown acl action: " + this);
     }

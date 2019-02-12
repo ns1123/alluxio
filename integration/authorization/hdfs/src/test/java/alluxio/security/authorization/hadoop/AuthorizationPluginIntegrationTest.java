@@ -23,6 +23,7 @@ import alluxio.LoginUserRule;
 import alluxio.PropertyKey;
 import alluxio.conf.Source;
 import alluxio.exception.AccessControlException;
+import alluxio.grpc.RegisterWorkerPOptions;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.CoreMasterContext;
@@ -32,14 +33,13 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.FileSystemMasterFactory;
+import alluxio.master.file.contexts.ListStatusContext;
 import alluxio.master.file.meta.TtlIntervalRule;
-import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalTestUtils;
 import alluxio.master.metrics.MetricsMaster;
 import alluxio.master.metrics.MetricsMasterFactory;
 import alluxio.security.GroupMappingServiceTestUtils;
-import alluxio.thrift.RegisterWorkerTOptions;
 import alluxio.util.io.FileUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.WorkerNetAddress;
@@ -132,7 +132,7 @@ public final class AuthorizationPluginIntegrationTest {
   @Test
   public void checkMasterFallbackPermissionPass() throws Exception {
     mFileSystemMaster.listStatus(new AlluxioURI("/"),
-        ListStatusOptions.defaults());
+        ListStatusContext.defaults());
   }
 
   @Test
@@ -143,11 +143,11 @@ public final class AuthorizationPluginIntegrationTest {
     FileUtils.changeLocalFilePermission(ufsSubdir, "---------");
     // load metadata to Alluxio
     mFileSystemMaster.listStatus(new AlluxioURI("/" + noAccessDir),
-        ListStatusOptions.defaults());
+        ListStatusContext.defaults());
     mThrown.expect(AccessControlException.class);
     try (Closeable r = new AuthenticatedUserRule("test_guest").toResource()) {
       mFileSystemMaster.listStatus(new AlluxioURI("/" + noAccessDir),
-          ListStatusOptions.defaults());
+          ListStatusContext.defaults());
     }
   }
 
@@ -161,11 +161,11 @@ public final class AuthorizationPluginIntegrationTest {
     FileUtils.changeLocalFilePermission(ufsNoAccessDir, "---------");
     // load metadata to Alluxio
     mFileSystemMaster.listStatus(new AlluxioURI("/" + noAccessDir),
-        ListStatusOptions.defaults());
+        ListStatusContext.defaults());
     mThrown.expect(AccessControlException.class);
     try (Closeable r = new AuthenticatedUserRule("test_guest").toResource()) {
       mFileSystemMaster.listStatus(new AlluxioURI("/" + childDir),
-          ListStatusOptions.defaults());
+          ListStatusContext.defaults());
     }
   }
 
@@ -189,13 +189,13 @@ public final class AuthorizationPluginIntegrationTest {
     mBlockMaster.workerRegister(mWorkerId1, Arrays.asList("MEM", "SSD"),
         ImmutableMap.of("MEM", (long) Constants.MB, "SSD", (long) Constants.MB),
         ImmutableMap.of("MEM", (long) Constants.KB, "SSD", (long) Constants.KB),
-        new HashMap<String, List<Long>>(), new RegisterWorkerTOptions());
+        new HashMap<String, List<Long>>(), RegisterWorkerPOptions.getDefaultInstance());
     mWorkerId2 = mBlockMaster.getWorkerId(
         new WorkerNetAddress().setHost("remote").setRpcPort(80).setDataPort(81).setWebPort(82));
     mBlockMaster.workerRegister(mWorkerId2, Arrays.asList("MEM", "SSD"),
         ImmutableMap.of("MEM", (long) Constants.MB, "SSD", (long) Constants.MB),
         ImmutableMap.of("MEM", (long) Constants.KB, "SSD", (long) Constants.KB),
-        new HashMap<String, List<Long>>(), new RegisterWorkerTOptions());
+        new HashMap<String, List<Long>>(), RegisterWorkerPOptions.getDefaultInstance());
   }
 
   private void stopServices() throws Exception {

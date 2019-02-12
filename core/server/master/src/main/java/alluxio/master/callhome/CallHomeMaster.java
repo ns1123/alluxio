@@ -15,6 +15,8 @@ import alluxio.CallHomeConstants;
 import alluxio.Constants;
 import alluxio.Server;
 import alluxio.clock.SystemClock;
+import alluxio.grpc.GrpcService;
+import alluxio.grpc.ServiceType;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
@@ -39,7 +41,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.thrift.TProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +122,7 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
   }
 
   @Override
-  public Map<String, TProcessor> getServices() {
+  public Map<ServiceType, GrpcService> getServices() {
     return new HashMap<>();
   }
 

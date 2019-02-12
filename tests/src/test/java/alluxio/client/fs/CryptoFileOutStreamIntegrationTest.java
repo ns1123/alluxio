@@ -15,17 +15,16 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
-import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 import alluxio.client.file.CryptoFileInStream;
 import alluxio.client.file.CryptoFileOutStream;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.OpenFileOptions;
 import alluxio.client.file.policy.LocalFirstPolicy;
-import alluxio.client.fs.AbstractFileOutStreamIntegrationTest;
+import alluxio.grpc.CreateFilePOptions;
+import alluxio.grpc.OpenFilePOptions;
+import alluxio.grpc.ReadPType;
 import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UnderFileSystem;
@@ -82,7 +81,8 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
   public void writeBytes() throws Exception {
     String uniqPath = PathUtils.uniqPath();
     for (int len = MIN_LEN; len <= MAX_LEN; len += DELTA) {
-      CreateFileOptions op = CreateFileOptions.defaults().setWriteType(mWriteType);
+      CreateFilePOptions op = CreateFilePOptions.newBuilder().setWriteType(mWriteType.toProto())
+          .setRecursive(true).build();
       AlluxioURI filePath =
           new AlluxioURI(PathUtils.concatPath(uniqPath, "file_" + len + "_" + mWriteType));
       writeIncreasingBytesToFile(filePath, len, op);
@@ -99,7 +99,8 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
   public void writeTwoByteArrays() throws Exception {
     String uniqPath = PathUtils.uniqPath();
     for (int len = MIN_LEN; len <= MAX_LEN; len += DELTA) {
-      CreateFileOptions op = CreateFileOptions.defaults().setWriteType(mWriteType);
+      CreateFilePOptions op = CreateFilePOptions.newBuilder().setWriteType(mWriteType.toProto())
+          .setRecursive(true).build();
       AlluxioURI filePath =
           new AlluxioURI(PathUtils.concatPath(uniqPath, "file_" + len + "_" + mWriteType));
       writeTwoIncreasingByteArraysToFile(filePath, len, op);
@@ -117,8 +118,9 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
     final int length = 2;
     try (FileOutStream os = mFileSystem.createFile(filePath,
-        CreateFileOptions.defaults().setWriteType(mWriteType)
-            .setLocationPolicy(new LocalFirstPolicy()))) {
+        CreateFilePOptions.newBuilder().setWriteType(mWriteType.toProto())
+            .setFileWriteLocationPolicy(LocalFirstPolicy.class.getTypeName()).setRecursive(true)
+            .build())) {
       Assert.assertTrue(os instanceof CryptoFileOutStream);
       os.write((byte) 0);
       os.write((byte) 1);
@@ -135,8 +137,9 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
   public void longWrite() throws Exception {
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
     final int length = 2;
-    try (FileOutStream os = mFileSystem.createFile(
-        filePath, CreateFileOptions.defaults().setWriteType(mWriteType))) {
+    try (FileOutStream os = mFileSystem.createFile(filePath,
+        CreateFilePOptions.newBuilder().setWriteType(mWriteType.toProto()).setRecursive(true)
+            .build())) {
       Assert.assertTrue(os instanceof CryptoFileOutStream);
       os.write((byte) 0);
       Thread.sleep(Configuration.getMs(PropertyKey.USER_HEARTBEAT_INTERVAL_MS) * 2);
@@ -155,8 +158,8 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
     // A length greater than 0.5 * BUFFER_BYTES and less than BUFFER_BYTES.
     int length = (BUFFER_BYTES * 3) / 4;
-    try (FileOutStream os = mFileSystem.createFile(
-        filePath, CreateFileOptions.defaults().setWriteType(mWriteType))) {
+    try (FileOutStream os = mFileSystem.createFile(filePath, CreateFilePOptions.newBuilder()
+        .setWriteType(mWriteType.toProto()).setRecursive(true).build())) {
       // Write something small, so it is written into the buffer, and not directly to the file.
       os.write((byte) 0);
       // Write a large amount of data (larger than BUFFER_BYTES/2, but will not overflow the buffer.
@@ -174,8 +177,8 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
     URIStatus status = mFileSystem.getStatus(filePath);
     Assert.assertEquals(fileLen, status.getLength());
     Assert.assertTrue(status.isEncrypted());
-    try (FileInStream is = mFileSystem
-        .openFile(filePath, OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE))) {
+    try (FileInStream is = mFileSystem.openFile(filePath,
+        OpenFilePOptions.newBuilder().setReadType(ReadPType.NO_CACHE).build())) {
       Assert.assertTrue(is instanceof CryptoFileInStream);
       byte[] res = new byte[(int) status.getLength()];
       Assert.assertEquals((int) status.getLength(), is.read(res));

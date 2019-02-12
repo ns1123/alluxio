@@ -11,6 +11,7 @@
 
 package alluxio.wire;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -189,33 +190,6 @@ public final class WorkerInfo implements Serializable {
     return this;
   }
 
-  /**
-   * @return thrift representation of the worker information
-   */
-  public  alluxio.thrift.WorkerInfo toThrift() {
-    return new alluxio.thrift.WorkerInfo(mId, mAddress.toThrift(), mLastContactSec,
-        mState, mCapacityBytes, mUsedBytes, mStartTimeMs, mCapacityBytesOnTiers, mUsedBytesOnTiers);
-  }
-
-  /**
-   * Creates a new instance of {@link WorkerInfo} from a thrift representation.
-   *
-   * @param workerInfo the thrift representation of a worker information
-   * @return the instance
-   */
-  public static WorkerInfo fromThrift(alluxio.thrift.WorkerInfo workerInfo) {
-    return new WorkerInfo()
-        .setAddress(WorkerNetAddress.fromThrift(workerInfo.getAddress()))
-        .setCapacityBytes(workerInfo.getCapacityBytes())
-        .setCapacityBytesOnTiers(workerInfo.getCapacityBytesOnTiers())
-        .setId(workerInfo.getId())
-        .setLastContactSec(workerInfo.getLastContactSec())
-        .setStartTimeMs(workerInfo.getStartTimeMs())
-        .setState(workerInfo.getState())
-        .setUsedBytes(workerInfo.getUsedBytes())
-        .setUsedBytesOnTiers(workerInfo.getUsedBytesOnTiers());
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -256,7 +230,7 @@ public final class WorkerInfo implements Serializable {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("id", mId).add("address", mAddress)
+    return MoreObjects.toStringHelper(this).add("id", mId).add("address", mAddress)
         .add("lastContactSec", mLastContactSec).add("state", mState)
         .add("capacityBytes", mCapacityBytes).add("usedBytes", mUsedBytes)
         .add("startTimeMs", mStartTimeMs).add("capacityBytesOnTiers", mCapacityBytesOnTiers)

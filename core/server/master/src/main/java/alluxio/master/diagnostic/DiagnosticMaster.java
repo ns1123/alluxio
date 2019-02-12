@@ -16,6 +16,8 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.Server;
 import alluxio.clock.SystemClock;
+import alluxio.grpc.GrpcService;
+import alluxio.grpc.ServiceType;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
@@ -35,7 +37,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.thrift.TProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +113,7 @@ public final class DiagnosticMaster extends AbstractNonJournaledMaster {
   }
 
   @Override
-  public Map<String, TProcessor> getServices() {
+  public Map<ServiceType, GrpcService> getServices() {
     return new HashMap<>();
   }
 

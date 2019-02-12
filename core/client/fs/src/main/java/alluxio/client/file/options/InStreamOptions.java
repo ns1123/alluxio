@@ -11,12 +11,20 @@
 
 package alluxio.client.file.options;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
+import alluxio.client.ReadType;
+import alluxio.client.block.policy.BlockLocationPolicy;
+import alluxio.client.block.policy.options.CreateOptions;
 import alluxio.client.file.URIStatus;
+import alluxio.grpc.OpenFilePOptions;
 import alluxio.master.block.BlockId;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.FileBlockInfo;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -24,7 +32,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Information for reading a file. This is an internal options class which contains information
- * from {@link OpenFileOptions} as well as the {@link URIStatus} being read. In addition to
+ * from {@link OpenFilePOptions} as well as the {@link URIStatus} being read. In addition to
  * providing access to the fields, it provides convenience functions for various nested
  * fields and creating {@link alluxio.proto.dataserver.Protocol.ReadRequest}s.
  */
@@ -32,7 +40,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 // TODO(calvin): Rename this class
 public final class InStreamOptions {
   private final URIStatus mStatus;
-  private final OpenFileOptions mOptions;
+  private final OpenFilePOptions mProtoOptions;
+  private BlockLocationPolicy mUfsReadLocationPolicy;
   // ALLUXIO CS ADD
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
   private boolean mEncrypted = false;
@@ -40,28 +49,63 @@ public final class InStreamOptions {
   // ALLUXIO CS END
 
   /**
-   * Creates with the default {@link OpenFileOptions}.
+   * Creates with the default {@link OpenFilePOptions}.
    * @param status the file to create the options for
    */
   public InStreamOptions(URIStatus status) {
-    this(status, OpenFileOptions.defaults());
+    this(status, OpenFilePOptions.getDefaultInstance());
   }
 
   /**
-   * Creates based on the arguments provided.
-   * @param status the file to create the options for
-   * @param options the {@link OpenFileOptions} to use
+   * Creates with given {@link OpenFilePOptions} instance.
+   * @param status URI status
+   * @param options OpenFile options
    */
-  public InStreamOptions(URIStatus status, OpenFileOptions options) {
+  public InStreamOptions(URIStatus status, OpenFilePOptions options) {
+    // Create OpenOptions builder with default options.
+    OpenFilePOptions.Builder openOptionsBuilder = OpenFilePOptions.newBuilder()
+        .setReadType(Configuration.getEnum(PropertyKey.USER_FILE_READ_TYPE_DEFAULT, ReadType.class)
+            .toProto())
+        .setFileReadLocationPolicy(
+            Configuration.get(PropertyKey.USER_UFS_BLOCK_READ_LOCATION_POLICY))
+        .setHashingNumberOfShards(Configuration
+            .getInt(PropertyKey.USER_UFS_BLOCK_READ_LOCATION_POLICY_DETERMINISTIC_HASH_SHARDS))
+        .setMaxUfsReadConcurrency(
+            Configuration.getInt(PropertyKey.USER_UFS_BLOCK_READ_CONCURRENCY_MAX));
+    // Merge default options with given options.
+    OpenFilePOptions openOptions = openOptionsBuilder.mergeFrom(options).build();
+
     mStatus = status;
-    mOptions = options;
+    mProtoOptions = openOptions;
+    CreateOptions blockLocationPolicyCreateOptions =
+        CreateOptions.defaults().setLocationPolicyClassName(openOptions.getFileReadLocationPolicy())
+            .setDeterministicHashPolicyNumShards(openOptions.getHashingNumberOfShards());
+    mUfsReadLocationPolicy = BlockLocationPolicy.Factory.create(blockLocationPolicyCreateOptions);
   }
 
   /**
-   * @return the {@link OpenFileOptions} associated with the instream
+   * @return the {@link OpenFilePOptions} associated with the instream
    */
-  public OpenFileOptions getOptions() {
-    return mOptions;
+  public OpenFilePOptions getOptions() {
+    return mProtoOptions;
+  }
+
+  /**
+   * Sets block read location policy.
+   *
+   * @param ufsReadLocationPolicy block location policy implementation
+   */
+  @VisibleForTesting
+  public void setUfsReadLocationPolicy(BlockLocationPolicy ufsReadLocationPolicy) {
+
+    mUfsReadLocationPolicy = Preconditions.checkNotNull(ufsReadLocationPolicy);
+  }
+
+  /**
+   * @return the {@link BlockLocationPolicy} associated with the instream
+   */
+  public BlockLocationPolicy getUfsReadLocationPolicy() {
+    return mUfsReadLocationPolicy;
   }
 
   /**
@@ -97,11 +141,11 @@ public final class InStreamOptions {
     }
     long blockStart = BlockId.getSequenceNumber(blockId) * mStatus.getBlockSizeBytes();
     BlockInfo info = getBlockInfo(blockId);
-    Protocol.OpenUfsBlockOptions openUfsBlockOptions =
-        Protocol.OpenUfsBlockOptions.newBuilder().setUfsPath(mStatus.getUfsPath())
-            .setOffsetInFile(blockStart).setBlockSize(info.getLength())
-            .setMaxUfsReadConcurrency(mOptions.getMaxUfsReadConcurrency())
-            .setNoCache(!mOptions.getReadType().isCache()).setMountId(mStatus.getMountId()).build();
+    Protocol.OpenUfsBlockOptions openUfsBlockOptions = Protocol.OpenUfsBlockOptions.newBuilder()
+        .setUfsPath(mStatus.getUfsPath()).setOffsetInFile(blockStart).setBlockSize(info.getLength())
+        .setMaxUfsReadConcurrency(mProtoOptions.getMaxUfsReadConcurrency())
+        .setNoCache(!ReadType.fromProto(mProtoOptions.getReadType()).isCache())
+        .setMountId(mStatus.getMountId()).build();
     if (storedAsUfsBlock) {
       // On client-side, we do not have enough mount information to fill in the UFS file path.
       // Instead, we unset the ufsPath field and fill in a flag ufsBlock to indicate the UFS file
@@ -178,7 +222,7 @@ public final class InStreamOptions {
         && Objects.equal(mEncrypted, that.mEncrypted)
         && Objects.equal(mEncryptionMeta, that.mEncryptionMeta)
         // ALLUXIO CS END
-        && Objects.equal(mOptions, that.mOptions);
+        && Objects.equal(mProtoOptions, that.mProtoOptions);
   }
 
   @Override
@@ -190,15 +234,15 @@ public final class InStreamOptions {
         mEncrypted,
         mEncryptionMeta,
         // ALLUXIO CS END
-        mOptions
+        mProtoOptions
     );
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
         .add("URIStatus", mStatus)
-        .add("OpenFileOptions", mOptions)
+        .add("OpenFileOptions", mProtoOptions)
         // ALLUXIO CS ADD
         .add("CapabilityFetcher", mCapabilityFetcher)
         .add("Encrypted", mEncrypted)

@@ -13,6 +13,7 @@ package alluxio.master.callhome;
 
 import alluxio.wire.WorkerInfo;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 import java.util.Arrays;
@@ -325,7 +326,7 @@ public final class CallHomeInfo {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
         .add("json version", mVersion)
         .add("product", mProduct)
         .add("start time", mStartTime)
@@ -421,7 +422,7 @@ public final class CallHomeInfo {
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this).add("alias", mAlias).add("size", mSize).toString();
+      return MoreObjects.toStringHelper(this).add("alias", mAlias).add("size", mSize).toString();
     }
   }
 
@@ -502,7 +503,7 @@ public final class CallHomeInfo {
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this)
+      return MoreObjects.toStringHelper(this)
               .add("licenseKey", mLicenseKey)
               .add("token", mToken)
               .add("email", mEmail)

@@ -11,9 +11,9 @@
 
 package alluxio.client.privilege.options;
 
-import alluxio.thrift.GetUserPrivilegesTOptions;
+import alluxio.grpc.GetUserPrivilegesPOptions;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * Options for querying the privileges of a user.
@@ -42,13 +42,13 @@ public final class GetUserPrivilegesOptions {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).toString();
+    return MoreObjects.toStringHelper(this).toString();
   }
 
   /**
-   * @return Thrift representation of the options
+   * @return gRPC representation of the options
    */
-  public GetUserPrivilegesTOptions toThrift() {
-    return new GetUserPrivilegesTOptions();
+  public GetUserPrivilegesPOptions toProto() {
+    return GetUserPrivilegesPOptions.getDefaultInstance();
   }
 }

@@ -13,23 +13,10 @@ package alluxio.client.file;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.annotation.PublicApi;
-import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.DeleteOptions;
-import alluxio.client.file.options.ExistsOptions;
-import alluxio.client.file.options.FreeOptions;
-import alluxio.client.file.options.GetStatusOptions;
 import alluxio.client.file.options.InStreamOptions;
-import alluxio.client.file.options.ListStatusOptions;
-import alluxio.client.file.options.LoadMetadataOptions;
-import alluxio.client.file.options.MountOptions;
-import alluxio.client.file.options.OpenFileOptions;
 import alluxio.client.file.options.OutStreamOptions;
-import alluxio.client.file.options.RenameOptions;
-import alluxio.client.file.options.SetAclOptions;
-import alluxio.client.file.options.SetAttributeOptions;
-import alluxio.client.file.options.UnmountOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.exception.ExceptionMessage;
@@ -42,12 +29,27 @@ import alluxio.exception.status.FailedPreconditionException;
 import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.exception.status.UnavailableException;
+import alluxio.grpc.CreateDirectoryPOptions;
+import alluxio.grpc.CreateFilePOptions;
+import alluxio.grpc.DeletePOptions;
+import alluxio.grpc.ExistsPOptions;
+import alluxio.grpc.FreePOptions;
+import alluxio.grpc.GetStatusPOptions;
+import alluxio.grpc.GrpcUtils;
+import alluxio.grpc.ListStatusPOptions;
+import alluxio.grpc.LoadMetadataPOptions;
+import alluxio.grpc.LoadMetadataPType;
+import alluxio.grpc.MountPOptions;
+import alluxio.grpc.OpenFilePOptions;
+import alluxio.grpc.RenamePOptions;
+import alluxio.grpc.SetAclAction;
+import alluxio.grpc.SetAclPOptions;
+import alluxio.grpc.SetAttributePOptions;
+import alluxio.grpc.UnmountPOptions;
 import alluxio.master.MasterInquireClient;
 import alluxio.security.authorization.AclEntry;
 import alluxio.uri.Authority;
-import alluxio.wire.LoadMetadataType;
 import alluxio.wire.MountPointInfo;
-import alluxio.wire.SetAclAction;
 import alluxio.wire.SyncPointInfo;
 
 import org.slf4j.Logger;
@@ -91,11 +93,11 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void createDirectory(AlluxioURI path)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
-    createDirectory(path, CreateDirectoryOptions.defaults());
+    createDirectory(path, CreateDirectoryPOptions.getDefaultInstance());
   }
 
   @Override
-  public void createDirectory(AlluxioURI path, CreateDirectoryOptions options)
+  public void createDirectory(AlluxioURI path, CreateDirectoryPOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
@@ -118,32 +120,38 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public FileOutStream createFile(AlluxioURI path)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
-    return createFile(path, CreateFileOptions.defaults());
+    return createFile(path, CreateFilePOptions.getDefaultInstance());
   }
 
   @Override
-  public FileOutStream createFile(AlluxioURI path, CreateFileOptions options)
+  public FileOutStream createFile(AlluxioURI path, CreateFilePOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     URIStatus status;
     try {
       // ALLUXIO CS ADD
+      long requestedBlockSizeBytes = options.getBlockSizeBytes();
+      if (!options.hasBlockSizeBytes()) {
+        requestedBlockSizeBytes =
+            alluxio.Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+      }
       if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
-            alluxio.client.EncryptionMetaFactory.createLayout(), options.getBlockSizeBytes());
-        options.setBlockSizeBytes(physicalBlockSize);
+            alluxio.client.EncryptionMetaFactory.createLayout(), requestedBlockSizeBytes);
+        options = options.toBuilder().setBlockSizeBytes(physicalBlockSize).build();
       }
       // ALLUXIO CS END
       masterClient.createFile(path, options);
       // Do not sync before this getStatus, since the UFS file is expected to not exist.
-      GetStatusOptions opts = GetStatusOptions.defaults();
-      opts.setLoadMetadataType(LoadMetadataType.Never);
-      opts.getCommonOptions().setSyncIntervalMs(-1);
-      // ALLUXIO CS ADD
-      opts.setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE);
-      // ALLUXIO CS END
-      status = masterClient.getStatus(path, opts);
+      GetStatusPOptions gsOptions =
+          GetStatusPOptions.newBuilder()
+                  .setLoadMetadataType(LoadMetadataPType.NEVER)
+                  // ALLUXIO CS ADD
+                  .setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE.toProto())
+                  // ALLUXIO CS END
+                  .build();
+      status = masterClient.getStatus(path, gsOptions);
       LOG.debug("Created file {}, options: {}", path.getPath(), options);
     } catch (AlreadyExistsException e) {
       throw new FileAlreadyExistsException(e.getMessage());
@@ -156,7 +164,8 @@ public class BaseFileSystem implements FileSystem {
     } finally {
       mFileSystemContext.releaseMasterClient(masterClient);
     }
-    OutStreamOptions outStreamOptions = options.toOutStreamOptions();
+
+    OutStreamOptions outStreamOptions = new OutStreamOptions(options);
     outStreamOptions.setUfsPath(status.getUfsPath());
     outStreamOptions.setMountId(status.getMountId());
     // ALLUXIO CS ADD
@@ -192,11 +201,11 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void delete(AlluxioURI path)
       throws DirectoryNotEmptyException, FileDoesNotExistException, IOException, AlluxioException {
-    delete(path, DeleteOptions.defaults());
+    delete(path, DeletePOptions.getDefaultInstance());
   }
 
   @Override
-  public void delete(AlluxioURI path, DeleteOptions options)
+  public void delete(AlluxioURI path, DeletePOptions options)
       throws DirectoryNotEmptyException, FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
@@ -220,17 +229,17 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public boolean exists(AlluxioURI path)
       throws InvalidPathException, IOException, AlluxioException {
-    return exists(path, ExistsOptions.defaults());
+    return exists(path, ExistsPOptions.getDefaultInstance());
   }
 
   @Override
-  public boolean exists(AlluxioURI path, ExistsOptions options)
+  public boolean exists(AlluxioURI path, ExistsPOptions options)
       throws InvalidPathException, IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       // TODO(calvin): Make this more efficient
-      masterClient.getStatus(path, options.toGetStatusOptions());
+      masterClient.getStatus(path, GrpcUtils.toGetStatusOptions(options));
       return true;
     } catch (NotFoundException e) {
       return false;
@@ -250,11 +259,11 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void free(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    free(path, FreeOptions.defaults());
+    free(path, FreePOptions.getDefaultInstance());
   }
 
   @Override
-  public void free(AlluxioURI path, FreeOptions options)
+  public void free(AlluxioURI path, FreePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
@@ -333,11 +342,11 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public URIStatus getStatus(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    return getStatus(path, GetStatusOptions.defaults());
+    return getStatus(path, GetStatusPOptions.getDefaultInstance());
   }
 
   @Override
-  public URIStatus getStatus(AlluxioURI path, GetStatusOptions options)
+  public URIStatus getStatus(AlluxioURI path, GetStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
@@ -367,7 +376,7 @@ public class BaseFileSystem implements FileSystem {
   // ALLUXIO CS ADD
 
   private URIStatus getStatusInternal(
-      FileSystemMasterClient masterClient, AlluxioURI path, GetStatusOptions options)
+      FileSystemMasterClient masterClient, AlluxioURI path, GetStatusPOptions options)
       throws IOException {
     URIStatus status = masterClient.getStatus(path, options);
     if (!status.isFolder() && status.isEncrypted()) {
@@ -380,11 +389,11 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public List<URIStatus> listStatus(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    return listStatus(path, ListStatusOptions.defaults());
+    return listStatus(path, ListStatusPOptions.getDefaultInstance());
   }
 
   @Override
-  public List<URIStatus> listStatus(AlluxioURI path, ListStatusOptions options)
+  public List<URIStatus> listStatus(AlluxioURI path, ListStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
@@ -408,7 +417,7 @@ public class BaseFileSystem implements FileSystem {
   // ALLUXIO CS ADD
 
   private List<URIStatus> listStatusInternal(
-      FileSystemMasterClient masterClient, AlluxioURI path, ListStatusOptions options)
+      FileSystemMasterClient masterClient, AlluxioURI path, ListStatusPOptions options)
       throws IOException {
     List<URIStatus> statuses = masterClient.listStatus(path, options);
     List<URIStatus> retval = new java.util.ArrayList<>();
@@ -495,7 +504,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void loadMetadata(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    loadMetadata(path, LoadMetadataOptions.defaults());
+    loadMetadata(path, LoadMetadataPOptions.getDefaultInstance());
   }
 
   /**
@@ -505,32 +514,32 @@ public class BaseFileSystem implements FileSystem {
    */
   @Deprecated
   @Override
-  public void loadMetadata(AlluxioURI path, LoadMetadataOptions options)
+  public void loadMetadata(AlluxioURI path, LoadMetadataPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
-    try {
-      masterClient.loadMetadata(path, options);
-      LOG.debug("Loaded metadata {}, options: {}", path.getPath(), options);
-    } catch (NotFoundException e) {
-      throw new FileDoesNotExistException(e.getMessage());
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
-    }
+//    checkUri(path);
+//    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+//    try {
+//      masterClient.loadMetadata(path, options);
+//      LOG.debug("Loaded metadata {}, options: {}", path.getPath(), options);
+//    } catch (NotFoundException e) {
+//      throw new FileDoesNotExistException(e.getMessage());
+//    } catch (UnavailableException e) {
+//      throw e;
+//    } catch (AlluxioStatusException e) {
+//      throw e.toAlluxioException();
+//    } finally {
+//      mFileSystemContext.releaseMasterClient(masterClient);
+//    }
   }
 
   @Override
   public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath)
       throws IOException, AlluxioException {
-    mount(alluxioPath, ufsPath, MountOptions.defaults());
+    mount(alluxioPath, ufsPath, MountPOptions.getDefaultInstance());
   }
 
   @Override
-  public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath, MountOptions options)
+  public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath, MountPOptions options)
       throws IOException, AlluxioException {
     checkUri(alluxioPath);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
@@ -578,11 +587,11 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public FileInStream openFile(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    return openFile(path, OpenFileOptions.defaults());
+    return openFile(path, OpenFilePOptions.getDefaultInstance());
   }
 
   @Override
-  public FileInStream openFile(AlluxioURI path, OpenFileOptions options)
+  public FileInStream openFile(AlluxioURI path, OpenFilePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
     // ALLUXIO CS REPLACE
@@ -591,7 +600,7 @@ public class BaseFileSystem implements FileSystem {
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     URIStatus status;
     try {
-      status = getStatusInternal(masterClient, path, GetStatusOptions.defaults());
+      status = getStatusInternal(masterClient, path, GetStatusPOptions.getDefaultInstance());
     } catch (NotFoundException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } catch (UnavailableException e) {
@@ -606,14 +615,14 @@ public class BaseFileSystem implements FileSystem {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
     }
-    InStreamOptions inStreamOptions = options.toInStreamOptions(status);
+    InStreamOptions inStreamOptions = new InStreamOptions(status, options);
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
           new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
               status.getCapability()));
     }
-    if (!options.isSkipTransformation()) {
+    if (!options.getSkipTransformation()) {
       inStreamOptions.setEncrypted(status.isEncrypted());
       if (status.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
@@ -641,11 +650,11 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void rename(AlluxioURI src, AlluxioURI dst)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    rename(src, dst, RenameOptions.defaults());
+    rename(src, dst, RenamePOptions.getDefaultInstance());
   }
 
   @Override
-  public void rename(AlluxioURI src, AlluxioURI dst, RenameOptions options)
+  public void rename(AlluxioURI src, AlluxioURI dst, RenamePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(src);
     checkUri(dst);
@@ -668,12 +677,12 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    setAcl(path, action, entries, SetAclOptions.defaults());
+    setAcl(path, action, entries, SetAclPOptions.getDefaultInstance());
   }
 
   @Override
   public void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries,
-      SetAclOptions options) throws FileDoesNotExistException, IOException, AlluxioException {
+      SetAclPOptions options) throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
@@ -693,11 +702,11 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void setAttribute(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    setAttribute(path, SetAttributeOptions.defaults());
+    setAttribute(path, SetAttributePOptions.getDefaultInstance());
   }
 
   @Override
-  public void setAttribute(AlluxioURI path, SetAttributeOptions options)
+  public void setAttribute(AlluxioURI path, SetAttributePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
@@ -762,11 +771,11 @@ public class BaseFileSystem implements FileSystem {
 
   @Override
   public void unmount(AlluxioURI path) throws IOException, AlluxioException {
-    unmount(path, UnmountOptions.defaults());
+    unmount(path, UnmountPOptions.getDefaultInstance());
   }
 
   @Override
-  public void unmount(AlluxioURI path, UnmountOptions options)
+  public void unmount(AlluxioURI path, UnmountPOptions options)
       throws IOException, AlluxioException {
     checkUri(path);
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();

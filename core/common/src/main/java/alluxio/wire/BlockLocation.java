@@ -13,6 +13,7 @@ package alluxio.wire;
 
 import alluxio.annotation.PublicApi;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -87,26 +88,6 @@ public final class BlockLocation implements Serializable {
     return this;
   }
 
-  /**
-   * @return thrift representation of the block location
-   */
-  protected alluxio.thrift.BlockLocation toThrift() {
-    return new alluxio.thrift.BlockLocation(mWorkerId, mWorkerAddress.toThrift(), mTierAlias);
-  }
-
-  /**
-   * Creates a new instance of {@link BlockLocation} from a thrift representation.
-   *
-   * @param blockLocation the thrift representation of a block location
-   * @return the instance
-   */
-  public static BlockLocation fromThrift(alluxio.thrift.BlockLocation blockLocation) {
-    return new BlockLocation()
-        .setWorkerId(blockLocation.getWorkerId())
-        .setWorkerAddress(WorkerNetAddress.fromThrift(blockLocation.getWorkerAddress()))
-        .setTierAlias(blockLocation.getTierAlias());
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -127,7 +108,9 @@ public final class BlockLocation implements Serializable {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("workerId", mWorkerId).add("address", mWorkerAddress)
+    return MoreObjects.toStringHelper(this)
+        .add("workerId", mWorkerId)
+        .add("address", mWorkerAddress)
         .add("tierAlias", mTierAlias).toString();
   }
 }

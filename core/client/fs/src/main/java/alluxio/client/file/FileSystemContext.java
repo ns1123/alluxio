@@ -15,6 +15,8 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.block.BlockMasterClient;
 import alluxio.client.block.BlockMasterClientPool;
+import alluxio.client.block.stream.BlockWorkerClient;
+import alluxio.client.block.stream.BlockWorkerClientPool;
 import alluxio.client.metrics.ClientMasterSync;
 import alluxio.client.metrics.MetricsMasterClient;
 import alluxio.conf.InstancedConfiguration;
@@ -25,11 +27,8 @@ import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.MasterClientConfig;
 import alluxio.master.MasterInquireClient;
 import alluxio.metrics.MetricsSystem;
-import alluxio.network.netty.NettyChannelPool;
-import alluxio.network.netty.NettyClient;
 import alluxio.resource.CloseableResource;
-import alluxio.security.authentication.TransportProviderUtils;
-import alluxio.util.CommonUtils;
+import alluxio.security.authentication.SaslParticipantProviderUtils;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.ThreadUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -38,9 +37,8 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.codahale.metrics.Gauge;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,9 +97,9 @@ public final class FileSystemContext implements Closeable {
   @GuardedBy("CONTEXT_CACHE_LOCK")
   private int mRefCount;
 
-  // The netty data server channel pools.
-  private final ConcurrentHashMap<ChannelPoolKey, NettyChannelPool>
-      mNettyChannelPools = new ConcurrentHashMap<>();
+  // The data server channel pools. This pool will only grow and keys are not removed.
+  private final ConcurrentHashMap<ClientPoolKey, BlockWorkerClientPool>
+      mBlockWorkerClientPool = new ConcurrentHashMap<>();
 
   // ALLUXIO CS ADD
   private alluxio.client.security.EncryptionCache mEncryptionCache =
@@ -268,10 +266,10 @@ public final class FileSystemContext implements Closeable {
     mBlockMasterClientPool = null;
     mMasterInquireClient = null;
 
-    for (NettyChannelPool pool : mNettyChannelPools.values()) {
+    for (BlockWorkerClientPool pool : mBlockWorkerClientPool.values()) {
       pool.close();
     }
-    mNettyChannelPools.clear();
+    mBlockWorkerClientPool.clear();
     // ALLUXIO CS ADD
     mEncryptionCache.clear();
     // ALLUXIO CS END
@@ -291,7 +289,7 @@ public final class FileSystemContext implements Closeable {
   }
 
   /**
-   * Resets the context. It is only used in {@link alluxio.hadoop.AbstractFileSystem} and tests to
+   * Resets the context. It is only used in {@code alluxio.hadoop.AbstractFileSystem} and tests to
    * reset the default file system context.
    *
    * @param configuration the instance configuration
@@ -371,103 +369,66 @@ public final class FileSystemContext implements Closeable {
       }
     };
   }
+  // ALLUXIO CS ADD
 
   /**
-   * Acquires a netty channel from the channel pools. If there is no available client instance
+   * Acquires a block worker client from the client pools. If there is no available client instance
    * available in the pool, it tries to create a new one. And an exception is thrown if it fails to
    * create a new one.
    *
    * @param workerNetAddress the network address of the channel
-   * @return the acquired netty channel
+   * @param channelCapability the capability against which the channel should be authenticated
+   * @return the acquired block worker
    */
-  public Channel acquireNettyChannel(final WorkerNetAddress workerNetAddress) throws IOException {
-    return acquireNettyChannelInternal(new NettyChannelProperties(workerNetAddress));
-  }
-  // ALLUXIO CS ADD
-  /**
-   * Acquires a netty channel from the channel pools. If there is no available client instance
-   * available in the pool, it tries to create a new one. And an exception is thrown if it fails to
-   * create a new one.
-   *
-   * @param workerNetAddress the network address of the channel
-   * @param channelCapability the capability for which the channel should be authenticated
-   *                          PS: It won't be used if the channel is already authenticated
-   * @return the acquired netty channel
-   */
-  public Channel acquireNettyChannel(final WorkerNetAddress workerNetAddress,
+  public BlockWorkerClient acquireBlockWorkerClient(final WorkerNetAddress workerNetAddress,
       final alluxio.proto.security.CapabilityProto.Capability channelCapability)
-          throws IOException {
-    return acquireNettyChannelInternal(
-        new NettyChannelProperties(workerNetAddress, channelCapability));
+      throws IOException {
+    // TODO(ggezer) EE-SEC: use channelCapability as channel key
+    return acquireBlockWorkerClient(workerNetAddress);
   }
   // ALLUXIO CS END
 
-  private Channel acquireNettyChannelInternal(final NettyChannelProperties channelProperties)
-          throws IOException {
-    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(
-        channelProperties.getWorkerNetAddress());
-    ChannelPoolKey key =
-        new ChannelPoolKey(address, TransportProviderUtils.getImpersonationUser(mParentSubject));
-    if (!mNettyChannelPools.containsKey(key)) {
-      // ALLUXIO CS REPLACE
-      // Bootstrap bs = NettyClient.createClientBootstrap(mParentSubject, address);
-      // ALLUXIO CS WITH
-      Bootstrap bs = NettyClient.createClientBootstrap(mParentSubject, address,
-          channelProperties.getChannelCapability());
-      // ALLUXIO CS END
-      bs.remoteAddress(address);
-      // ALLUXIO CS ADD
-      bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY,
-          channelProperties.getWorkerNetAddress().getHost());
-      // ALLUXIO CS END
-      NettyChannelPool pool = new NettyChannelPool(bs,
-          Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_CHANNEL_POOL_SIZE_MAX),
-          Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_CHANNEL_POOL_GC_THRESHOLD_MS));
-      if (mNettyChannelPools.putIfAbsent(key, pool) != null) {
-        // This can happen if this function is called concurrently.
-        pool.close();
-      }
-    }
-    // ALLUXIO CS REPLACE
-    // return mNettyChannelPools.get(key).acquire();
-    // ALLUXIO CS WITH
-    alluxio.retry.RetryPolicy retryPolicy = new alluxio.retry.CountingRetry(1);
-    Channel channel;
-    Exception exception = null;
-    while (retryPolicy.attempt()) {
-      channel = mNettyChannelPools.get(key).acquire();
-      try {
-        alluxio.util.network.NettyUtils.waitForClientChannelReady(channel);
-        return channel;
-      } catch (Exception e) {
-        exception = e;
-        LOG.info("Failed to build an authenticated channel. "
-            + "This may be due to Kerberos credential expiration. Retry login.");
-        releaseNettyChannel(channelProperties.getWorkerNetAddress(), channel);
-        alluxio.security.LoginUser.relogin();
-      }
-    }
-    throw new IOException("Failed to build an authenticated channel with valid credential",
-        exception);
-    // ALLUXIO CS END
+  /**
+   * Acquires a block worker client from the client pools. If there is no available client instance
+   * available in the pool, it tries to create a new one. And an exception is thrown if it fails to
+   * create a new one.
+   *
+   * @param workerNetAddress the network address of the channel
+   * @return the acquired block worker
+   */
+  public BlockWorkerClient acquireBlockWorkerClient(final WorkerNetAddress workerNetAddress)
+      throws IOException {
+    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
+    ClientPoolKey key = new ClientPoolKey(address,
+        SaslParticipantProviderUtils.getImpersonationUser(mParentSubject));
+    return mBlockWorkerClientPool.computeIfAbsent(key, k ->
+        new BlockWorkerClientPool(mParentSubject, address,
+        Configuration.getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE),
+        Configuration.getMs(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS))
+    ).acquire();
   }
 
   /**
-   * Releases a netty channel to the channel pools.
+   * Releases a block worker client to the client pools.
    *
    * @param workerNetAddress the address of the channel
-   * @param channel the channel to release
+   * @param client the client to release
    */
-  public void releaseNettyChannel(WorkerNetAddress workerNetAddress, Channel channel) {
+  public void releaseBlockWorkerClient(WorkerNetAddress workerNetAddress,
+      BlockWorkerClient client) {
     SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
-    ChannelPoolKey key =
-        new ChannelPoolKey(address, TransportProviderUtils.getImpersonationUser(mParentSubject));
-    if (mNettyChannelPools.containsKey(key)) {
-      mNettyChannelPools.get(key).release(channel);
+    ClientPoolKey key = new ClientPoolKey(address,
+        SaslParticipantProviderUtils.getImpersonationUser(mParentSubject));
+    if (mBlockWorkerClientPool.containsKey(key)) {
+      mBlockWorkerClientPool.get(key).release(client);
     } else {
-      LOG.warn("No channel pool for key {}, closing channel instead. Context is closed: {}",
+      LOG.warn("No client pool for key {}, closing client instead. Context is closed: {}",
           key, mClosed.get());
-      CommonUtils.closeChannel(channel);
+      try {
+        client.close();
+      } catch (IOException e) {
+        LOG.warn("Error closing block worker client for key {}", key, e);
+      }
     }
   }
 
@@ -600,14 +561,12 @@ public final class FileSystemContext implements Closeable {
   @ThreadSafe
   private static final class Metrics {
     private static void initializeGauges() {
-      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMetricName("NettyConnectionsOpen"),
+      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMetricName("GrpcConnectionsOpen"),
           new Gauge<Long>() {
             @Override
             public Long getValue() {
               long ret = 0;
-              for (NettyChannelPool pool : get().mNettyChannelPools.values()) {
-                ret += pool.size();
-              }
+              // TODO(feng): use gRPC API to collect metrics for connections
               return ret;
             }
           });
@@ -617,14 +576,14 @@ public final class FileSystemContext implements Closeable {
   }
 
   /**
-   * Key for Netty channel pools. This requires both the worker address and the username, so that
-   * netty channels are created for different users.
+   * Key for block worker client pools. This requires both the worker address and the username, so
+   * that block workers are created for different users.
    */
-  private static final class ChannelPoolKey {
+  private static final class ClientPoolKey {
     private final SocketAddress mSocketAddress;
     private final String mUsername;
 
-    public ChannelPoolKey(SocketAddress socketAddress, String username) {
+    public ClientPoolKey(SocketAddress socketAddress, String username) {
       mSocketAddress = socketAddress;
       mUsername = username;
     }
@@ -639,46 +598,20 @@ public final class FileSystemContext implements Closeable {
       if (this == o) {
         return true;
       }
-      if (!(o instanceof ChannelPoolKey)) {
+      if (!(o instanceof ClientPoolKey)) {
         return false;
       }
-      ChannelPoolKey that = (ChannelPoolKey) o;
+      ClientPoolKey that = (ClientPoolKey) o;
       return Objects.equal(mSocketAddress, that.mSocketAddress)
           && Objects.equal(mUsername, that.mUsername);
     }
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this)
+      return MoreObjects.toStringHelper(this)
           .add("socketAddress", mSocketAddress)
           .add("username", mUsername)
           .toString();
-    }
-  }
-
-  private static final class NettyChannelProperties {
-    private WorkerNetAddress mWorkerNetAddress;
-    // ALLUXIO CS ADD
-    private alluxio.proto.security.CapabilityProto.Capability mChannelCapability;
-    // ALLUXIO CS END
-
-    public NettyChannelProperties(WorkerNetAddress workerNetAddress) {
-      mWorkerNetAddress = workerNetAddress;
-    }
-    // ALLUXIO CS ADD
-    public NettyChannelProperties(WorkerNetAddress workerNetAddress,
-        alluxio.proto.security.CapabilityProto.Capability channelCapability) {
-      this(workerNetAddress);
-      mChannelCapability = channelCapability;
-    }
-
-    public alluxio.proto.security.CapabilityProto.Capability  getChannelCapability() {
-      return mChannelCapability;
-    }
-    // ALLUXIO CS END
-
-    public WorkerNetAddress getWorkerNetAddress() {
-      return mWorkerNetAddress;
     }
   }
 }

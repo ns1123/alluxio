@@ -11,6 +11,7 @@
 
 package alluxio.underfs.fork;
 
+import alluxio.underfs.UfsMode;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.underfs.mock.MockUnderFileSystem;
@@ -104,18 +105,18 @@ public class ForkUnderFileSystemTest {
     properties.put("alluxio-fork.A.ufs", uriA);
     UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://test",
         UnderFileSystemConfiguration.defaults().setMountSpecificConf(properties));
-    Map<String, UnderFileSystem.UfsMode> physicalUfsState = new Hashtable<>();
+    Map<String, UfsMode> physicalUfsState = new Hashtable<>();
     // Check default
-    Assert.assertEquals(UnderFileSystem.UfsMode.READ_WRITE, ufs.getOperationMode(physicalUfsState));
+    Assert.assertEquals(UfsMode.READ_WRITE, ufs.getOperationMode(physicalUfsState));
     // Check single ufs down
-    physicalUfsState.put(uriA, UnderFileSystem.UfsMode.NO_ACCESS);
-    Assert.assertEquals(UnderFileSystem.UfsMode.READ_ONLY, ufs.getOperationMode(physicalUfsState));
+    physicalUfsState.put(uriA, UfsMode.NO_ACCESS);
+    Assert.assertEquals(UfsMode.READ_ONLY, ufs.getOperationMode(physicalUfsState));
     // Check single ufs read only
-    physicalUfsState.put(uriA, UnderFileSystem.UfsMode.READ_ONLY);
-    Assert.assertEquals(UnderFileSystem.UfsMode.READ_ONLY, ufs.getOperationMode(physicalUfsState));
+    physicalUfsState.put(uriA, UfsMode.READ_ONLY);
+    Assert.assertEquals(UfsMode.READ_ONLY, ufs.getOperationMode(physicalUfsState));
     // Check both ufs down
-    physicalUfsState.put(uriA, UnderFileSystem.UfsMode.NO_ACCESS);
-    physicalUfsState.put(uriB, UnderFileSystem.UfsMode.NO_ACCESS);
-    Assert.assertEquals(UnderFileSystem.UfsMode.NO_ACCESS, ufs.getOperationMode(physicalUfsState));
+    physicalUfsState.put(uriA, UfsMode.NO_ACCESS);
+    physicalUfsState.put(uriB, UfsMode.NO_ACCESS);
+    Assert.assertEquals(UfsMode.NO_ACCESS, ufs.getOperationMode(physicalUfsState));
   }
 }

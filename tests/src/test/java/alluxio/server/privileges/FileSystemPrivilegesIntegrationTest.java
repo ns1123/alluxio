@@ -15,15 +15,16 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.LoginUserRule;
 import alluxio.PropertyKey;
-import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemTestUtils;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.exception.ExceptionMessage;
+import alluxio.grpc.CreateFilePOptions;
+import alluxio.grpc.FileSystemMasterCommonPOptions;
+import alluxio.grpc.SetAttributePOptions;
+import alluxio.grpc.WritePType;
 import alluxio.master.MasterClientConfig;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
@@ -80,8 +81,10 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
     mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
     try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
       refreshFileSystemClient();
-      FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, CreateFileOptions.defaults()
-          .setMode(Mode.createFullAccess()).setWriteType(WriteType.CACHE_THROUGH), 10);
+      FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE,
+          CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
+              .setWriteType(WritePType.CACHE_THROUGH).build(),
+          10);
     }
     refreshFileSystemClient();
   }
@@ -109,13 +112,14 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN),
           GrantPrivilegesOptions.defaults());
     }
-    mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setPinned(true));
+    mFileSystem.setAttribute(TEST_FILE,
+        SetAttributePOptions.newBuilder().setPinned(true).build());
   }
 
   @Test
   public void pinWithoutPrivilege() throws Exception {
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.PIN));
-    mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setPinned(true));
+    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(true).build());
   }
 
   @Test
@@ -125,10 +129,11 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN),
           GrantPrivilegesOptions.defaults());
       refreshFileSystemClient();
-      mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setPinned(true));
+      mFileSystem.setAttribute(TEST_FILE,
+          SetAttributePOptions.newBuilder().setPinned(true).build());
     }
     refreshFileSystemClient();
-    mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setPinned(false));
+    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(false).build());
   }
 
   @Test
@@ -136,11 +141,12 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
     // Become superuser to pin.
     try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
       refreshFileSystemClient();
-      mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setPinned(true));
+      mFileSystem.setAttribute(TEST_FILE,
+          SetAttributePOptions.newBuilder().setPinned(true).build());
     }
     refreshFileSystemClient();
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.PIN));
-    mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setPinned(false));
+    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(false).build());
   }
 
   @Test
@@ -150,14 +156,16 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.REPLICATION),
           GrantPrivilegesOptions.defaults());
     }
-    mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setReplicationMin(1));
+    mFileSystem.setAttribute(TEST_FILE,
+        SetAttributePOptions.newBuilder().setReplicationMin(1).build());
   }
 
   @Test
   public void setReplicationWithoutPrivilege() throws Exception {
     mThrown.expectMessage(
         ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.REPLICATION));
-    mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setReplicationMin(1));
+    mFileSystem.setAttribute(TEST_FILE,
+        SetAttributePOptions.newBuilder().setReplicationMin(1).build());
   }
 
   @Test
@@ -167,13 +175,15 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.TTL),
           GrantPrivilegesOptions.defaults());
     }
-    mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setTtl(1));
+    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder()
+        .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder().setTtl(1)).build());
   }
 
   @Test
   public void setTtlWithoutPrivilege() throws Exception {
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.TTL));
-    mFileSystem.setAttribute(TEST_FILE, SetAttributeOptions.defaults().setTtl(1));
+    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder()
+        .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder().setTtl(1)).build());
   }
 
   /**

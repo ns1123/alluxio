@@ -16,6 +16,7 @@ import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.io.BaseEncoding;
 import org.slf4j.Logger;
@@ -244,7 +245,7 @@ public class License {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("version", mVersion).add("name", mName)
+    return MoreObjects.toStringHelper(this).add("version", mVersion).add("name", mName)
         .add("email", mEmail).add("key", mKey).add("checksum", mChecksum)
         .add("expiration", mExpiration).add("nodes", mNodes).add("remote", mRemote)
         .add("secret", mSecret).toString();

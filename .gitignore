@@ -49,11 +49,11 @@
 dependency-reduced-pom.xml
 target/
 tests.log*
+/underfs/hdfs/src/main/java/alluxio/UfsConstants.java
 # ALLUXIO CS ADD
 /annotation/
 /lib/
 /core/client/fs/src/main/native/cmake/
 /integration/authorization/hdfs/src/main/java/alluxio/security/authorization/AuthorizationPluginConstants.java
-/underfs/hdfs/src/main/java/alluxio/UfsConstants.java
 # ALLUXIO CS END
 # ALLUXIO CS MODIFIED

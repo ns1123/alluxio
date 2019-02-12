@@ -16,13 +16,11 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.status.UnavailableException;
 import alluxio.master.block.BlockMaster;
-import alluxio.network.netty.NettySecretKeyWriter;
 import alluxio.retry.RetryPolicy;
 import alluxio.retry.TimeoutRetry;
 import alluxio.security.MasterKey;
 import alluxio.security.authentication.MasterKeyManager;
 import alluxio.util.IdUtils;
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Throwables;
@@ -141,8 +139,10 @@ public class CapabilityKeyManager extends MasterKeyManager {
     MasterKey key = mNewKey == null ? mMasterKey : mNewKey;
     try {
       LOG.debug("Sending key with id {} to worker {}", key.getKeyId(), worker.getAddress());
-      NettySecretKeyWriter
-          .write(NetworkAddressUtils.getSecureRpcPortSocketAddress(worker.getAddress()), key);
+      // TODO(ggezer) EE-SEC Make the call on new secure gRPC server.
+      //NettySecretKeyWriter
+      //    .write(NetworkAddressUtils.getSecureRpcPortSocketAddress(worker.getAddress()), key);
+      throw new IOException("not implemented");
     } catch (IOException e) {
       LOG.debug("Retrying to send key with id {} to worker {}, previously failed with: {}",
           key.getKeyId(), worker.getAddress(), e.getMessage());

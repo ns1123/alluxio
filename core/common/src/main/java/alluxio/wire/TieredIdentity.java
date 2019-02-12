@@ -11,21 +11,17 @@
 
 package alluxio.wire;
 
-import alluxio.Configuration;
-import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.annotation.PublicApi;
-import alluxio.util.network.NetworkAddressUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Joiner;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.io.Serializable;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,28 +59,6 @@ public final class TieredIdentity implements Serializable {
    */
   public LocalityTier getTier(int i) {
     return mTiers.get(i);
-  }
-
-  /**
-   * @return a Thrift representation
-   */
-  public alluxio.thrift.TieredIdentity toThrift() {
-    return new alluxio.thrift.TieredIdentity(mTiers.stream()
-        .map(LocalityTier::toThrift).collect(Collectors.toList())
-    );
-  }
-
-  /**
-   * @param tieredIdentity a Thrift tiered identity
-   * @return the corresponding wire type tiered identity
-   */
-  @Nullable
-  public static TieredIdentity fromThrift(alluxio.thrift.TieredIdentity tieredIdentity) {
-    if (tieredIdentity == null) {
-      return null;
-    }
-    return new TieredIdentity(tieredIdentity.getTiers().stream()
-        .map(LocalityTier::fromThrift).collect(Collectors.toList()));
   }
 
   // ALLUXIO CS REPLACE
@@ -221,24 +195,8 @@ public final class TieredIdentity implements Serializable {
     }
 
     /**
-     * @return a Thrift representation
-     */
-    public alluxio.thrift.LocalityTier toThrift() {
-      return new alluxio.thrift.LocalityTier(mTierName, mValue);
-    }
-
-    /**
-     * @param localityTier a Thrift locality tier
-     * @return the corresponding wire type locality tier
-     */
-    public static LocalityTier fromThrift(alluxio.thrift.LocalityTier localityTier) {
-      return new LocalityTier(localityTier.getTierName(), localityTier.getValue());
-    }
-
-    /**
-     * Locality comparison for wire type locality tiers, two locality tiers matches if both name
-     * and values are equal, or for the "node" tier, if the node names resolve to the same
-     * IP address.
+     * Locality comparison for wire type locality tiers, two locality tiers matches if both name and
+     * values are equal, or for the "node" tier, if the node names resolve to the same IP address.
      *
      * @param otherTier a wire type locality tier to compare to
      * @return true if the wire type locality tier matches the given tier
@@ -255,15 +213,17 @@ public final class TieredIdentity implements Serializable {
       // For node tiers, attempt to resolve hostnames to IP addresses, this avoids common
       // misconfiguration errors where a worker is using one hostname and the client is using
       // another.
-      if (Configuration.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP)) {
-        if (Constants.LOCALITY_NODE.equals(mTierName)) {
+      if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.LOCALITY_COMPARE_NODE_IP)) {
+        if (alluxio.Constants.LOCALITY_NODE.equals(mTierName)) {
           try {
-            String tierIpAddress = NetworkAddressUtils.resolveIpAddress(mValue);
-            String otherTierIpAddress = NetworkAddressUtils.resolveIpAddress(otherTierValue);
+            String tierIpAddress =
+                alluxio.util.network.NetworkAddressUtils.resolveIpAddress(mValue);
+            String otherTierIpAddress =
+                alluxio.util.network.NetworkAddressUtils.resolveIpAddress(otherTierValue);
             if (tierIpAddress != null && tierIpAddress.equals(otherTierIpAddress)) {
               return true;
             }
-          } catch (UnknownHostException e) {
+          } catch (java.net.UnknownHostException e) {
             return false;
           }
         }
@@ -290,7 +250,7 @@ public final class TieredIdentity implements Serializable {
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this)
+      return MoreObjects.toStringHelper(this)
           .add("tierName", mTierName)
           .add("value", mValue)
           .toString();

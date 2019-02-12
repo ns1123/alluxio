@@ -12,7 +12,7 @@
 package alluxio.network.netty;
 
 import alluxio.security.LoginUser;
-import alluxio.security.authentication.TransportProviderUtils;
+import alluxio.security.authentication.SaslParticipantProviderUtils;
 import alluxio.security.util.KerberosUtils;
 
 import com.google.common.base.Throwables;
@@ -62,7 +62,7 @@ public class KerberosSaslNettyClient {
     final String instanceName = unifiedInstanceName != null ? unifiedInstanceName : serverHostname;
 
     // Determine the impersonation user
-    String impersonationUser = TransportProviderUtils.getImpersonationUser(clientSubject);
+    String impersonationUser = SaslParticipantProviderUtils.getImpersonationUser(clientSubject);
 
     try {
       mSaslClient = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslClient>() {

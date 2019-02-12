@@ -1,0 +1,94 @@
+syntax = "proto2";
+
+option java_multiple_files = true;
+option java_package = "alluxio.grpc";
+option java_outer_classname = "PrivilegeMasterProto";
+
+package alluxio.grpc.privilege;
+
+enum PPrivilege {
+  FREE = 1;
+  PIN = 2;
+  REPLICATION = 3;
+  TTL = 4;
+}
+
+message PrivilegeList {
+  repeated PPrivilege privileges = 1;
+}
+
+message GetGroupPrivilegesPResponse {
+  repeated PPrivilege privileges = 1;
+}
+message GetGroupPrivilegesPOptions {}
+message GetGroupPrivilegesPRequest {
+  optional string group = 1;
+  optional GetGroupPrivilegesPOptions options = 2;
+}
+
+message GetUserPrivilegesPResponse {
+  repeated PPrivilege privileges = 1;
+}
+message GetUserPrivilegesPOptions {}
+message GetUserPrivilegesPRequest {
+  optional string user = 1;
+  optional GetUserPrivilegesPOptions options = 2;
+}
+
+message GetGroupToPrivilegesMappingPResponse {
+  map<string, PrivilegeList> groupPrivileges = 1;
+}
+message GetGroupToPrivilegesMappingPOptions {}
+message GetGroupToPrivilegesMappingPRequest {
+  optional GetGroupToPrivilegesMappingPOptions options = 1;
+}
+
+message GrantPrivilegesPResponse {
+  repeated PPrivilege privileges = 1;
+}
+message GrantPrivilegesPOptions {}
+message GrantPrivilegesPRequest {
+  optional string group = 1;
+  repeated PPrivilege privileges = 2;
+  optional GrantPrivilegesPOptions options = 3;
+}
+
+message RevokePrivilegesPResponse {
+  repeated PPrivilege privileges = 1;
+}
+message RevokePrivilegesPOptions {}
+message RevokePrivilegesPRequest {
+  optional string group = 1;
+  repeated PPrivilege privileges = 2;
+  optional RevokePrivilegesPOptions options = 3;
+}
+
+/**
+ * This interface contains privilege master service endpoints for Alluxio clients.
+ */
+service PrivilegeMasterClientService {
+  /**
+   * Returns the privilege information for the given group.
+   */
+  rpc GetGroupPrivileges(GetGroupPrivilegesPRequest) returns (GetGroupPrivilegesPResponse);
+
+  /**
+   * Returns the privilege information for the given user.
+   */
+  rpc GetUserPrivileges(GetUserPrivilegesPRequest) returns (GetUserPrivilegesPResponse);
+
+  /**
+   * Returns the mapping from groups to privileges.
+   */
+  rpc GetGroupToPrivilegesMapping(GetGroupToPrivilegesMappingPRequest) returns (GetGroupToPrivilegesMappingPResponse);
+
+  /**
+   * Grants the given privileges to the given group, returning the updated privileges for the group.
+   */
+  rpc GrantPrivileges(GrantPrivilegesPRequest) returns (GrantPrivilegesPResponse);
+
+  /**
+   * Removes the given privileges from the given group, returning the updated privileges for the group.
+   */
+  rpc RevokePrivileges(RevokePrivilegesPRequest) returns (RevokePrivilegesPResponse);
+}

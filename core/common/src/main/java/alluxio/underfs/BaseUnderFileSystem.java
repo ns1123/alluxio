@@ -71,8 +71,8 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
     mUri = Preconditions.checkNotNull(uri, "uri");
     // ALLUXIO CS ADD
     if (alluxio.util.CommonUtils.isAlluxioServer()) {
-      mUser = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
-      mGroup = alluxio.util.SecurityUtils.getGroupFromThriftClient();
+      mUser = alluxio.util.SecurityUtils.getOwnerFromGrpcClient();
+      mGroup = alluxio.util.SecurityUtils.getGroupFromGrpcClient();
     } else {
       mUser = alluxio.util.SecurityUtils.getOwnerFromLoginModule();
       mGroup = alluxio.util.SecurityUtils.getGroupFromLoginModule();

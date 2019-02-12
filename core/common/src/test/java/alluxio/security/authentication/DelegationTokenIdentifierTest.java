@@ -23,7 +23,7 @@ public final class DelegationTokenIdentifierTest {
   public void createDelegationTokenIdentifierFromThrift() throws Exception {
     DelegationTokenIdentifier id = new DelegationTokenIdentifier("user", "renewer", "proxy",
         0L, 1L, 2L, 3L);
-    Assert.assertEquals(id, DelegationTokenIdentifier.fromThrift(id.toThrift()));
+    Assert.assertEquals(id, DelegationTokenIdentifier.fromProto(id.toProto()));
   }
 
   @Test

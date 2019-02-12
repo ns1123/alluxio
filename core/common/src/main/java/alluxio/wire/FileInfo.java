@@ -11,13 +11,12 @@
 
 package alluxio.wire;
 
-import static alluxio.util.StreamUtils.map;
-
 import alluxio.Constants;
+import alluxio.grpc.TtlAction;
 import alluxio.security.authorization.AccessControlList;
 import alluxio.security.authorization.DefaultAccessControlList;
-import alluxio.thrift.TAcl;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -616,98 +615,6 @@ public final class FileInfo implements Serializable {
     return this;
   }
 
-  /**
-   * @return thrift representation of the file information
-   */
-  public alluxio.thrift.FileInfo toThrift() {
-    List<alluxio.thrift.FileBlockInfo> fileBlockInfos = new ArrayList<>();
-    for (FileBlockInfo fileBlockInfo : mFileBlockInfos) {
-      fileBlockInfos.add(fileBlockInfo.toThrift());
-    }
-    TAcl tAcl = mAcl.equals(AccessControlList.EMPTY_ACL) ? null : mAcl.toThrift();
-    TAcl tDefaultAcl = mDefaultAcl.equals(DefaultAccessControlList.EMPTY_DEFAULT_ACL)
-        ? null : mDefaultAcl.toThrift();
-    alluxio.thrift.FileInfo info =
-        new alluxio.thrift.FileInfo(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
-        mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
-        mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
-        // ALLUXIO CS REPLACE
-        // mPersistenceState, mMountPoint, fileBlockInfos, TtlAction.toThrift(mTtlAction), mMountId,
-        // mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl, mReplicationMax,
-        // mReplicationMin);
-        // ALLUXIO CS WITH
-        mPersistenceState, mMountPoint, fileBlockInfos, mEncrypted, TtlAction.toThrift(mTtlAction),
-        mMountId, mInAlluxioPercentage, mUfsFingerprint, tAcl, tDefaultAcl, mReplicationMax,
-        mReplicationMin);
-        // ALLUXIO CS END
-    // ALLUXIO CS ADD
-    if (mCapability != null) {
-      info.setCapability(mCapability.toThrift());
-    }
-    // ALLUXIO CS END
-
-    return info;
-  }
-
-  /**
-   * Creates a new instance of {@link FileInfo} from thrift representation.
-   *
-   * @param info the thrift representation of a file information
-   * @return the instance
-   */
-  public static FileInfo fromThrift(alluxio.thrift.FileInfo info) {
-    // ALLUXIO CS ADD
-    alluxio.security.capability.Capability capability = null;
-    if (info.isSetCapability()) {
-      try {
-        capability = new alluxio.security.capability.Capability(info.getCapability());
-      } catch (alluxio.exception.InvalidCapabilityException e) {
-        throw com.google.common.base.Throwables.propagate(e);
-      }
-    }
-    // ALLUXIO CS END
-    return new FileInfo()
-        .setReplicationMin(info.getReplicationMin())
-        .setReplicationMax(info.getReplicationMax())
-        // ALLUXIO CS ADD
-        .setCapability(capability)
-        .setEncrypted(info.isEncrypted())
-        // ALLUXIO CS END
-        .setFileId(info.getFileId())
-        .setName(info.getName())
-        .setPath(info.getPath())
-        .setUfsPath(info.getUfsPath())
-        .setLength(info.getLength())
-        .setBlockSizeBytes(info.getBlockSizeBytes())
-        .setCreationTimeMs(info.getCreationTimeMs())
-        .setCompleted(info.isCompleted())
-        .setFolder(info.isFolder())
-        .setPinned(info.isPinned())
-        .setCacheable(info.isCacheable())
-        .setPersisted(info.isPersisted())
-        .setBlockIds(info.getBlockIds())
-        .setInMemoryPercentage(info.getInMemoryPercentage())
-        .setLastModificationTimeMs(info.getLastModificationTimeMs())
-        .setTtl(info.getTtl())
-        .setTtlAction(TtlAction.fromThrift(info.getTtlAction()))
-        .setOwner(info.getOwner())
-        .setGroup(info.getGroup())
-        .setMode(info.getMode())
-        .setPersistenceState(info.getPersistenceState())
-        .setMountPoint(info.isMountPoint())
-        .setFileBlockInfos(map(FileBlockInfo::fromThrift, info.getFileBlockInfos()))
-        .setMountId(info.getMountId())
-        .setInAlluxioPercentage(info.getInAlluxioPercentage())
-        .setUfsFingerprint(info.isSetUfsFingerprint() ? info.getUfsFingerprint()
-            : Constants.INVALID_UFS_FINGERPRINT)
-        .setAcl(info.isSetAcl()
-            ? (AccessControlList.fromThrift(info.getAcl()))
-            : AccessControlList.EMPTY_ACL)
-        .setDefaultAcl(info.isSetDefaultAcl()
-            ? ((DefaultAccessControlList) AccessControlList.fromThrift(info.getDefaultAcl()))
-            : DefaultAccessControlList.EMPTY_DEFAULT_ACL);
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -752,7 +659,10 @@ public final class FileInfo implements Serializable {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("fileId", mFileId).add("name", mName).add("path", mPath)
+    return MoreObjects.toStringHelper(this)
+        .add("fileId", mFileId)
+        .add("name", mName)
+        .add("path", mPath)
         .add("ufsPath", mUfsPath).add("length", mLength).add("blockSizeBytes", mBlockSizeBytes)
         .add("creationTimeMs", mCreationTimeMs).add("completed", mCompleted).add("folder", mFolder)
         .add("pinned", mPinned).add("cacheable", mCacheable).add("persisted", mPersisted)
@@ -762,7 +672,8 @@ public final class FileInfo implements Serializable {
         .add("persistenceState", mPersistenceState).add("mountPoint", mMountPoint)
         .add("replicationMax", mReplicationMax).add("replicationMin", mReplicationMin)
         // ALLUXIO CS ADD
-        .add("capability", mCapability).add("encrypted", mEncrypted)
+        .add("capability", mCapability)
+        .add("encrypted", mEncrypted)
         // ALLUXIO CS END
         .add("fileBlockInfos", mFileBlockInfos)
         .add("mountId", mMountId).add("inAlluxioPercentage", mInAlluxioPercentage)

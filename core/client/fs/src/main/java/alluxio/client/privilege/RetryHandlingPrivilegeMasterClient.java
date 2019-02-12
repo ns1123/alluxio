@@ -19,14 +19,17 @@ import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
+import alluxio.grpc.GetGroupPrivilegesPRequest;
+import alluxio.grpc.GetGroupToPrivilegesMappingPRequest;
+import alluxio.grpc.GetUserPrivilegesPRequest;
+import alluxio.grpc.GrantPrivilegesPRequest;
+import alluxio.grpc.PrivilegeList;
+import alluxio.grpc.PrivilegeMasterClientServiceGrpc;
+import alluxio.grpc.RevokePrivilegesPRequest;
+import alluxio.grpc.ServiceType;
 import alluxio.master.MasterClientConfig;
-import alluxio.thrift.AlluxioService.Client;
-import alluxio.thrift.PrivilegeMasterClientService;
-import alluxio.thrift.TPrivilege;
-import alluxio.wire.ClosedSourceThriftUtils;
+import alluxio.wire.ClosedSourceGrpcUtils;
 import alluxio.wire.Privilege;
-
-import org.apache.thrift.TException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,16 +39,13 @@ import java.util.Map;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A wrapper for the thrift client to interact with the privilege master, used by Alluxio clients.
- *
- * Since thrift clients are not thread safe, this class is a wrapper to provide thread safety, and
- * to provide retries.
+ * A wrapper for the gRPC client to interact with the privilege master, used by Alluxio clients.
  */
 @ThreadSafe
 public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClient
     implements PrivilegeMasterClient {
 
-  private PrivilegeMasterClientService.Client mClient = null;
+  private PrivilegeMasterClientServiceGrpc.PrivilegeMasterClientServiceBlockingStub mClient = null;
 
   /**
    * Creates a new {@link RetryHandlingFileSystemMasterClient} instance.
@@ -57,72 +57,62 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
   }
 
   @Override
-  public synchronized List<Privilege> getGroupPrivileges(final String group,
+  public List<Privilege> getGroupPrivileges(final String group,
       final GetGroupPrivilegesOptions options) throws IOException {
-    return retryRPC(new RpcCallable<List<Privilege>>() {
-      @Override
-      public List<Privilege> call() throws TException {
-        return ClosedSourceThriftUtils
-            .fromThrift(mClient.getGroupPrivileges(group, options.toThrift()).getPrivileges());
-      }
-    });
+    return retryRPC(
+        () -> ClosedSourceGrpcUtils
+            .fromProto(mClient.getGroupPrivileges(GetGroupPrivilegesPRequest.newBuilder()
+                .setGroup(group).setOptions(options.toProto()).build()).getPrivilegesList()),
+        "GetGroupPrivileges");
   }
 
   @Override
-  public synchronized List<Privilege> getUserPrivileges(final String user,
+  public List<Privilege> getUserPrivileges(final String user,
       final GetUserPrivilegesOptions options) throws IOException {
-    return retryRPC(new RpcCallable<List<Privilege>>() {
-      @Override
-      public List<Privilege> call() throws TException {
-        return ClosedSourceThriftUtils
-            .fromThrift(mClient.getUserPrivileges(user, options.toThrift()).getPrivileges());
-      }
-    });
+    return retryRPC(
+        () -> ClosedSourceGrpcUtils.fromProto(mClient.getUserPrivileges(GetUserPrivilegesPRequest
+            .newBuilder().setUser(user).setOptions(options.toProto()).build()).getPrivilegesList()),
+        "GetUserPrivileges");
   }
 
   @Override
-  public synchronized Map<String, List<Privilege>> getGroupToPrivilegesMapping(
+  public Map<String, List<Privilege>> getGroupToPrivilegesMapping(
       final GetGroupToPrivilegesMappingOptions options) throws IOException {
-    return retryRPC(new RpcCallable<Map<String, List<Privilege>>>() {
-      @Override
-      public Map<String, List<Privilege>> call() throws TException {
-        Map<String, List<Privilege>> groupInfo = new HashMap<>();
-        for (Map.Entry<String, List<TPrivilege>> entry : mClient
-            .getGroupToPrivilegesMapping(options.toThrift()).getGroupPrivilegesMap().entrySet()) {
-          groupInfo.put(entry.getKey(), ClosedSourceThriftUtils.fromThrift(entry.getValue()));
-        }
-        return groupInfo;
+    return retryRPC(() -> {
+      Map<String, List<Privilege>> groupInfo = new HashMap<>();
+      for (Map.Entry<String, PrivilegeList> entry : mClient.getGroupToPrivilegesMapping(
+          GetGroupToPrivilegesMappingPRequest.newBuilder().setOptions(options.toProto()).build())
+          .getGroupPrivilegesMap().entrySet()) {
+        groupInfo.put(entry.getKey(),
+            ClosedSourceGrpcUtils.fromProto(entry.getValue().getPrivilegesList()));
       }
-    });
+      return groupInfo;
+    }, "GetGroupToPrivilegesMapping");
   }
 
   @Override
-  public synchronized List<Privilege> grantPrivileges(final String group,
+  public List<Privilege> grantPrivileges(final String group,
       final List<Privilege> privileges, final GrantPrivilegesOptions options) throws IOException {
-    return retryRPC(new RpcCallable<List<Privilege>>() {
-      @Override
-      public List<Privilege> call() throws TException {
-        return ClosedSourceThriftUtils.fromThrift(mClient.grantPrivileges(group,
-            ClosedSourceThriftUtils.toThrift(privileges), options.toThrift()).getPrivileges());
-      }
-    });
+    return retryRPC(() -> ClosedSourceGrpcUtils
+        .fromProto(mClient.grantPrivileges(GrantPrivilegesPRequest.newBuilder().setGroup(group)
+            .addAllPrivileges(ClosedSourceGrpcUtils.toProto(privileges))
+            .setOptions(options.toProto()).build()).getPrivilegesList()),
+        "GrantPrivileges");
   }
 
   @Override
-  public synchronized List<Privilege> revokePrivileges(final String group,
+  public List<Privilege> revokePrivileges(final String group,
       final List<Privilege> privileges, final RevokePrivilegesOptions options) throws IOException {
-    return retryRPC(new RpcCallable<List<Privilege>>() {
-      @Override
-      public List<Privilege> call() throws TException {
-        return ClosedSourceThriftUtils.fromThrift(mClient.revokePrivileges(group,
-            ClosedSourceThriftUtils.toThrift(privileges), options.toThrift()).getPrivileges());
-      }
-    });
+    return retryRPC(() -> ClosedSourceGrpcUtils
+        .fromProto(mClient.revokePrivileges(RevokePrivilegesPRequest.newBuilder().setGroup(group)
+            .addAllPrivileges(ClosedSourceGrpcUtils.toProto(privileges))
+            .setOptions(options.toProto()).build()).getPrivilegesList()),
+        "RevokePrivileges");
   }
 
   @Override
-  protected Client getClient() {
-    return mClient;
+  protected ServiceType getRemoteServiceType() {
+    return ServiceType.PRIVILEGE_MASTER_CLIENT_SERVICE;
   }
 
   @Override
@@ -137,6 +127,6 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   protected void afterConnect() {
-    mClient = new PrivilegeMasterClientService.Client(mProtocol);
+    mClient = PrivilegeMasterClientServiceGrpc.newBlockingStub(mChannel);
   }
 }

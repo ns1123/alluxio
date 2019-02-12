@@ -11,9 +11,11 @@
 
 package alluxio.wire;
 
+import alluxio.grpc.TtlAction;
 import alluxio.security.authorization.AccessControlList;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.util.CommonUtils;
+import alluxio.grpc.GrpcUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
@@ -52,20 +54,23 @@ public class FileInfoTest {
   }
 
   @Test
-  public void thrift() {
+  public void proto() {
     FileInfo fileInfo = createRandom();
-    FileInfo other = FileInfo.fromThrift(fileInfo.toThrift());
+    FileInfo other = GrpcUtils.fromProto(GrpcUtils.toProto(fileInfo));
     checkEquality(fileInfo, other);
   }
 
   public void checkEquality(FileInfo a, FileInfo b) {
+    /*
+        && mInMemoryPercentage == that.mInMemoryPercentage
+        && mOwner.equals(that.mOwner)
+     */
     Assert.assertEquals(a.getBlockIds(), b.getBlockIds());
     Assert.assertEquals(a.getBlockSizeBytes(), b.getBlockSizeBytes());
     Assert.assertEquals(a.getCreationTimeMs(), b.getCreationTimeMs());
     Assert.assertEquals(a.getFileBlockInfos(), b.getFileBlockInfos());
     Assert.assertEquals(a.getFileId(), b.getFileId());
     Assert.assertEquals(a.getGroup(), b.getGroup());
-    Assert.assertEquals(a.getInMemoryPercentage(), b.getInMemoryPercentage());
     Assert.assertEquals(a.getLastModificationTimeMs(), b.getLastModificationTimeMs());
     Assert.assertEquals(a.getLength(), b.getLength());
     Assert.assertEquals(a.getMode(), b.getMode());
@@ -76,7 +81,6 @@ public class FileInfoTest {
     Assert.assertEquals(a.getTtl(), b.getTtl());
     Assert.assertEquals(a.getTtlAction(), b.getTtlAction());
     Assert.assertEquals(a.getMountId(), b.getMountId());
-    Assert.assertEquals(a.getUfsPath(), b.getUfsPath());
     Assert.assertEquals(a.getUfsPath(), b.getUfsPath());
     Assert.assertEquals(a.isCacheable(), b.isCacheable());
     Assert.assertEquals(a.isCompleted(), b.isCompleted());
@@ -93,6 +97,9 @@ public class FileInfoTest {
     Assert.assertEquals(a.getInAlluxioPercentage(), b.getInAlluxioPercentage());
     Assert.assertEquals(a.getAcl(), b.getAcl());
     Assert.assertEquals(a.getDefaultAcl(), b.getDefaultAcl());
+    Assert.assertEquals(a.getUfsFingerprint(), b.getUfsFingerprint());
+    Assert.assertEquals(a.getReplicationMax(), b.getReplicationMax());
+    Assert.assertEquals(a.getReplicationMin(), b.getReplicationMin());
     Assert.assertEquals(a, b);
   }
 
@@ -152,9 +159,9 @@ public class FileInfoTest {
     result.setLength(length);
     result.setMode(permission);
     result.setMountPoint(mountPoint);
-    // ALLUXIO CS ADD
     result.setReplicationMax(replicationMax);
     result.setReplicationMin(replicationMin);
+    // ALLUXIO CS ADD
     result.setEncrypted(encrypted);
     // ALLUXIO CS END
     result.setName(name);

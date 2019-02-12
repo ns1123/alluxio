@@ -12,6 +12,7 @@
 package alluxio.master.license;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -59,6 +60,6 @@ public class LicenseSecret {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("token", mToken).toString();
+    return MoreObjects.toStringHelper(this).add("token", mToken).toString();
   }
 }
