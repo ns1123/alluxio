@@ -51,6 +51,8 @@ var hadoopDistributions = map[string]version{
 	"hdp-2.4":  parseVersion("2.7.1.2.4.4.1-9"),
 	"hdp-2.5":  parseVersion("2.7.3.2.5.5.5-2"),
 	"hdp-2.6":  parseVersion("2.7.3.2.6.1.0-129"),
+	"hdp-3.0":  parseVersion("3.1.0.3.0.0.8-1"),
+	"hdp-3.1":  parseVersion("3.1.1.3.1.0.0-78"),
 	"mapr-4.1": parseVersion("2.5.1-mapr-1503"),
 	"mapr-5.0": parseVersion("2.7.0-mapr-1506"),
 	"mapr-5.1": parseVersion("2.7.0-mapr-1602"),
@@ -91,6 +93,8 @@ var ufsModules = map[string]module{
 	"ufs-hdp-2.4":    {"hdp-2.4", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.1.2.4.4.1-9 -PhdfsActiveSync"},
 	"ufs-hdp-2.5":    {"hdp-2.5", true, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.5.5.5-2 -PhdfsActiveSync"},
 	"ufs-hdp-2.6":    {"hdp-2.6", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.3.2.6.1.0-129 -PhdfsActiveSync"},
+	"ufs-hdp-3.0":    {"hdp-3.0", false, "-pl underfs/hdfs -Pufs-hadoop-3 -Dufs.hadoop.version=3.1.0.3.0.0.8-1 -PhdfsActiveSync"},
+	"ufs-hdp-3.1":    {"hdp-3.1", false, "-pl underfs/hdfs -Pufs-hadoop-3 -Dufs.hadoop.version=3.1.1.3.1.0.0-78 -PhdfsActiveSync"},
 	"ufs-mapr-4.1":   {"mapr-4.1", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.5.1-mapr-1503"},
 	"ufs-mapr-5.0":   {"mapr-5.0", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.0-mapr-1506"},
 	"ufs-mapr-5.1":   {"mapr-5.1", false, "-pl underfs/hdfs -Pufs-hadoop-2 -Dufs.hadoop.version=2.7.0-mapr-1602"},
@@ -99,6 +103,8 @@ var ufsModules = map[string]module{
 
 // authModules is a map from authorization module to information for building the module.
 var authModules = map[string]module{
+	"auth-ranger-hdp-3.1": {"ranger-1.2-hdp-3.1", true, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=3.1.1.3.1.0.0-78 -Dauth.plugin.name=ranger-hdp-3.1 -Dauth.plugin.version=1.2.0.3.1.0.0-78"},
+	"auth-ranger-hdp-3.0": {"ranger-1.1-hdp-3.0", true, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=3.1.0.3.0.0.8-1 -Dauth.plugin.name=ranger-hdp-3.0 -Dauth.plugin.version=1.1.0.3.0.0.8-1"},
 	"auth-ranger-hdp-2.6": {"ranger-0.7-hdp-2.6", true, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.3.2.6.1.0-129 -Dauth.plugin.name=ranger-hdp-2.6 -Dauth.plugin.version=0.7.0.2.6.1.0-129"},
 	"auth-ranger-hdp-2.5": {"ranger-0.6-hdp-2.5", true, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.3.2.5.5.5-2 -Dauth.plugin.name=ranger-hdp-2.5 -Dauth.plugin.version=0.6.0.2.5.5.5-2"},
 	"auth-ranger-hdp-2.4": {"ranger-0.5-hdp-2.4", false, "-pl integration/authorization/hdfs -Pauth-ranger -Dauth.hadoop.version=2.7.1.2.4.4.1-9 -Dauth.plugin.name=ranger-hdp-2.4 -Dauth.plugin.version=0.5.0.2.4.4.1-9"},
