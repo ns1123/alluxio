@@ -23,6 +23,8 @@ import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.file.policy.LocalFirstPolicy;
 import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.NotFoundException;
@@ -105,7 +107,8 @@ public final class JobUtils {
       throws AlluxioException, IOException {
     AlluxioBlockStore blockStore = AlluxioBlockStore.create(context);
 
-    String localHostName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
+    String localHostName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC,
+        ServerConfiguration.global());
     List<BlockWorkerInfo> workerInfoList = blockStore.getAllWorkers();
     WorkerNetAddress localNetAddress = null;
 
@@ -130,6 +133,7 @@ public final class JobUtils {
         OpenFilePOptions.newBuilder().setReadType(ReadPType.NO_CACHE)
             .setFileReadLocationPolicy(LocalFirstPolicy.class.getCanonicalName()).build();
 
+<<<<<<< HEAD
     InStreamOptions inOptions = new InStreamOptions(status, openOptions);
     OutStreamOptions outOptions = OutStreamOptions.defaults();
     // ALLUXIO CS ADD
@@ -142,6 +146,11 @@ public final class JobUtils {
               status.getCapability()));
     }
     // ALLUXIO CS END
+=======
+    AlluxioConfiguration conf = ServerConfiguration.global();
+    InStreamOptions inOptions = new InStreamOptions(status, openOptions, conf);
+    OutStreamOptions outOptions = OutStreamOptions.defaults(conf);
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
 
     // use -1 to reuse the existing block size for this block
     try (OutputStream outputStream =

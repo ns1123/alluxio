@@ -11,8 +11,8 @@
 
 package alluxio.util.network;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.network.ChannelType;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.io.FileUtils;
@@ -46,6 +46,7 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class NettyUtils {
   private static final Logger LOG = LoggerFactory.getLogger(NettyUtils.class);
 
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   public static final ChannelType MASTER_CHANNEL_TYPE =
       getChannelType(PropertyKey.MASTER_NETWORK_NETTY_CHANNEL);
@@ -55,6 +56,8 @@ public final class NettyUtils {
   public static final ChannelType WORKER_CHANNEL_TYPE =
       getChannelType(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL);
 
+=======
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   private static Boolean sNettyEpollAvailable = null;
 
   private NettyUtils() {}
@@ -89,21 +92,24 @@ public final class NettyUtils {
    * worker.
    *
    * @param isDomainSocket whether this is a domain socket server
+   * @param conf Alluxio configuration
    * @return ServerSocketChannel matching the requirements
    */
-  public static Class<? extends ServerChannel> getServerChannelClass(boolean isDomainSocket) {
+  public static Class<? extends ServerChannel> getServerChannelClass(boolean isDomainSocket,
+      AlluxioConfiguration conf) {
+    ChannelType workerChannelType = getWorkerChannel(conf);
     if (isDomainSocket) {
-      Preconditions.checkState(WORKER_CHANNEL_TYPE == ChannelType.EPOLL,
+      Preconditions.checkState(workerChannelType == ChannelType.EPOLL,
           "Domain sockets are only supported with EPOLL channel type.");
       return EpollServerDomainSocketChannel.class;
     }
-    switch (WORKER_CHANNEL_TYPE) {
+    switch (workerChannelType) {
       case NIO:
         return NioServerSocketChannel.class;
       case EPOLL:
         return EpollServerSocketChannel.class;
       default:
-        throw new IllegalArgumentException("Unknown io type: " + WORKER_CHANNEL_TYPE);
+        throw new IllegalArgumentException("Unknown io type: " + workerChannelType);
     }
   }
 
@@ -111,21 +117,24 @@ public final class NettyUtils {
    * Returns the correct {@link io.netty.channel.socket.SocketChannel} class for use by the client.
    *
    * @param isDomainSocket whether this is to connect to a domain socket server
+   * @param conf Alluxio configuration
    * @return Channel matching the requirements
    */
-  public static Class<? extends Channel> getClientChannelClass(boolean isDomainSocket) {
+  public static Class<? extends Channel> getClientChannelClass(boolean isDomainSocket,
+      AlluxioConfiguration conf) {
+    ChannelType userChannelType = getUserChannel(conf);
     if (isDomainSocket) {
-      Preconditions.checkState(USER_CHANNEL_TYPE == ChannelType.EPOLL,
+      Preconditions.checkState(userChannelType == ChannelType.EPOLL,
           "Domain sockets are only supported with EPOLL channel type.");
       return EpollDomainSocketChannel.class;
     }
-    switch (USER_CHANNEL_TYPE) {
+    switch (userChannelType) {
       case NIO:
         return NioSocketChannel.class;
       case EPOLL:
         return EpollSocketChannel.class;
       default:
-        throw new IllegalArgumentException("Unknown io type: " + USER_CHANNEL_TYPE);
+        throw new IllegalArgumentException("Unknown io type: " + userChannelType);
     }
   }
 
@@ -152,17 +161,19 @@ public final class NettyUtils {
 
   /**
    * @param workerNetAddress the worker address
+   * @param conf Alluxio configuration
    * @return true if the domain socket is enabled on this client
    */
-  public static boolean isDomainSocketSupported(WorkerNetAddress workerNetAddress) {
+  public static boolean isDomainSocketSupported(WorkerNetAddress workerNetAddress,
+      AlluxioConfiguration conf) {
     if (workerNetAddress.getDomainSocketPath().isEmpty()
-        || USER_CHANNEL_TYPE != ChannelType.EPOLL) {
+        || getUserChannel(conf) != ChannelType.EPOLL) {
       return false;
     }
-    if (Configuration.getBoolean(PropertyKey.WORKER_DATA_SERVER_DOMAIN_SOCKET_AS_UUID)) {
+    if (conf.getBoolean(PropertyKey.WORKER_DATA_SERVER_DOMAIN_SOCKET_AS_UUID)) {
       return FileUtils.exists(workerNetAddress.getDomainSocketPath());
     } else {
-      return workerNetAddress.getHost().equals(NetworkAddressUtils.getClientHostName());
+      return workerNetAddress.getHost().equals(NetworkAddressUtils.getClientHostName(conf));
     }
   }
 
@@ -193,13 +204,35 @@ public final class NettyUtils {
   }
 
   /**
+   * Gets the ChannelType properly from the USER_NETWORK_NETTY_CHANNEL property key.
+   *
+   * @param conf Alluxio configuration
+   * @return the proper channel type USER_NETWORK_NETTY_CHANNEL
+   */
+  public static ChannelType getUserChannel(AlluxioConfiguration conf) {
+    return getChannelType(PropertyKey.USER_NETWORK_NETTY_CHANNEL, conf);
+  }
+
+  /**
+   * Gets the worker channel properly from the WORKER_NETWORK_NETTY_CHANNEL property key.
+   *
+   * @param conf Alluxio configuration
+   * @return the proper channel type for WORKER_NETWORK_NETY_CHANNEL
+   */
+  public static ChannelType getWorkerChannel(AlluxioConfiguration conf) {
+    return getChannelType(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL, conf);
+  }
+
+  /**
+   * Get the proper channel type. Always returns {@link ChannelType} NIO if EPOLL is not available.
+   *
    * @param key the property key for looking up the configured channel type
    * @return the channel type to use
    */
-  private static ChannelType getChannelType(PropertyKey key) {
+  private static ChannelType getChannelType(PropertyKey key, AlluxioConfiguration conf) {
     if (!isNettyEpollAvailable()) {
       return ChannelType.NIO;
     }
-    return Configuration.getEnum(key, ChannelType.class);
+    return conf.getEnum(key, ChannelType.class);
   }
 }

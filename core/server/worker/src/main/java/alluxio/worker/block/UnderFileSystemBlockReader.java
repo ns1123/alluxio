@@ -12,8 +12,8 @@
 package alluxio.worker.block;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.ServerConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.exception.AlluxioException;
@@ -118,7 +118,7 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    */
   private UnderFileSystemBlockReader(UnderFileSystemBlockMeta blockMeta, BlockStore localBlockStore,
       UfsManager ufsManager, UfsInputStreamManager ufsInstreamManager) throws IOException {
-    mInitialBlockSize = Configuration.getBytes(PropertyKey.WORKER_FILE_BUFFER_SIZE);
+    mInitialBlockSize = ServerConfiguration.getBytes(PropertyKey.WORKER_FILE_BUFFER_SIZE);
     mBlockMeta = blockMeta;
     mLocalBlockStore = localBlockStore;
     mInStreamPos = -1;
@@ -135,11 +135,18 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    * @param offset the position within the block to start the read
    */
   private void init(long offset) throws IOException {
+<<<<<<< HEAD
     // ALLUXIO CS REMOVE
     // UnderFileSystem ufs = mUfsResource.get();
     // ufs.connectFromWorker(
     //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
     // ALLUXIO CS END
+=======
+    UnderFileSystem ufs = mUfsResource.get();
+    ufs.connectFromWorker(
+        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC,
+            ServerConfiguration.global()));
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
     updateUnderFileSystemInputStream(offset);
     updateBlockWriter(offset);
   }

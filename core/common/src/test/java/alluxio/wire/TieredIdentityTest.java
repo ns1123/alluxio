@@ -17,16 +17,16 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
-import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-import alluxio.PropertyKey;
+import alluxio.conf.InstancedConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.network.TieredIdentityFactory;
 import alluxio.util.CommonUtils;
 import alluxio.grpc.GrpcUtils;
 import alluxio.wire.TieredIdentity.LocalityTier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.net.InetAddress;
@@ -39,18 +39,21 @@ import java.util.Random;
  */
 public class TieredIdentityTest {
 
-  @After
-  public void after() {
-    ConfigurationTestUtils.resetConfiguration();
+  private InstancedConfiguration mConfiguration = ConfigurationTestUtils.defaults();
+
+  @Before
+  public void before() {
+    mConfiguration = ConfigurationTestUtils.defaults();
   }
 
   @Test
   public void nearest() throws Exception {
-    TieredIdentity id1 = TieredIdentityFactory.fromString("node=A,rack=rack1");
-    TieredIdentity id2 = TieredIdentityFactory.fromString("node=B,rack=rack2");
-    TieredIdentity id3 = TieredIdentityFactory.fromString("node=C,rack=rack2");
+    TieredIdentity id1 = TieredIdentityFactory.fromString("node=A,rack=rack1", mConfiguration);
+    TieredIdentity id2 = TieredIdentityFactory.fromString("node=B,rack=rack2", mConfiguration);
+    TieredIdentity id3 = TieredIdentityFactory.fromString("node=C,rack=rack2", mConfiguration);
     List<TieredIdentity> identities = Arrays.asList(id1, id2, id3);
 
+<<<<<<< HEAD
     assertSame(id1,
         TieredIdentityFactory.fromString("node=D,rack=rack1").nearest(identities).get());
     assertSame(id2,
@@ -67,6 +70,21 @@ public class TieredIdentityTest {
           TieredIdentityFactory.fromString("node=D,rack=rack3").nearest(identities).isPresent());
     }
     // ALLUXIO CS END
+=======
+    boolean resolveIp = mConfiguration.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP);
+    assertSame(id1, TieredIdentityUtils
+        .nearest(TieredIdentityFactory.fromString("node=D,rack=rack1", mConfiguration), identities,
+            resolveIp).get());
+    assertSame(id2, TieredIdentityUtils
+        .nearest(TieredIdentityFactory.fromString("node=B,rack=rack2", mConfiguration), identities,
+            resolveIp).get());
+    assertSame(id3, TieredIdentityUtils
+        .nearest(TieredIdentityFactory.fromString("node=C,rack=rack2", mConfiguration), identities,
+            resolveIp).get());
+    assertSame(id1, TieredIdentityUtils
+        .nearest(TieredIdentityFactory.fromString("node=D,rack=rack3", mConfiguration), identities,
+            resolveIp).get());
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   }
 
   @Test
@@ -87,8 +105,6 @@ public class TieredIdentityTest {
 
   @Test
   public void matchByStringEquality() {
-    Configuration.set(PropertyKey.LOCALITY_COMPARE_NODE_IP, "true");
-
     LocalityTier lt1 = new LocalityTier("node", "NonResolvableHostname-A");
     LocalityTier lt2 = new LocalityTier("node", "NonResolvableHostname-A");
     LocalityTier lt3 = new LocalityTier("node", "NonResolvableHostname-B");
@@ -98,6 +114,7 @@ public class TieredIdentityTest {
     LocalityTier lt7 = new LocalityTier("rack", "");
     LocalityTier lt8 = new LocalityTier("node", "NonResolvableHostname-A");
     LocalityTier lt9 = new LocalityTier("node", "");
+<<<<<<< HEAD
     assertTrue(lt1.matches(lt1));
     assertTrue(lt1.matches(lt2));
     assertFalse(lt2.matches(lt3));
@@ -105,6 +122,15 @@ public class TieredIdentityTest {
     assertFalse(lt4.matches(lt5));
     assertFalse(lt6.matches(lt7));
     assertFalse(lt8.matches(lt9));
+=======
+    assertTrue(TieredIdentityUtils.matches(lt1, lt1, true));
+    assertTrue(TieredIdentityUtils.matches(lt1, lt2, true));
+    assertFalse(TieredIdentityUtils.matches(lt2, lt3, true));
+    assertTrue(TieredIdentityUtils.matches(lt5, lt6, true));
+    assertFalse(TieredIdentityUtils.matches(lt4, lt5, true));
+    assertFalse(TieredIdentityUtils.matches(lt6, lt7, true));
+    assertFalse(TieredIdentityUtils.matches(lt8, lt9, true));
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   }
 
   @Test
@@ -113,11 +139,16 @@ public class TieredIdentityTest {
     LocalityTier lt1 = new LocalityTier("node", "localhost");
     LocalityTier lt2 = new LocalityTier("node", "127.0.0.1");
 
+<<<<<<< HEAD
     Configuration.set(PropertyKey.LOCALITY_COMPARE_NODE_IP, "true");
     assertTrue(lt1.matches(lt2));
 
     Configuration.set(PropertyKey.LOCALITY_COMPARE_NODE_IP, "false");
     assertFalse(lt1.matches(lt2));
+=======
+    assertTrue(TieredIdentityUtils.matches(lt1, lt2, true));
+    assertFalse(TieredIdentityUtils.matches(lt1, lt2, false));
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   }
 
   public void string() {

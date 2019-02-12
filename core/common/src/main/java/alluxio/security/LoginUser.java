@@ -11,8 +11,8 @@
 
 package alluxio.security;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
@@ -62,8 +62,14 @@ public final class LoginUser {
    * runs Alluxio client. When Alluxio client gets a user by this method and connects to Alluxio
    * service, this user represents the client and is maintained in service.
    *
+   * Note that until if the authentication type or login user changes between the first
+   * invocation of this method that it is possible the cached user won't respect the updated
+   * configuration properties.
+   *
+   * @param conf Alluxio's current configuration
    * @return the login user
    */
+<<<<<<< HEAD
   public static User get() throws UnauthenticatedException {
     // ALLUXIO CS REPLACE
     // if (sLoginUser == null) {
@@ -160,6 +166,13 @@ public final class LoginUser {
                 Configuration.get(keytabKey));
           }
           sLoginUser = login();
+=======
+  public static User get(AlluxioConfiguration conf) throws UnauthenticatedException {
+    if (sLoginUser == null) {
+      synchronized (LoginUser.class) {
+        if (sLoginUser == null) {
+          sLoginUser = login(conf);
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
         }
       }
     }
@@ -172,9 +185,8 @@ public final class LoginUser {
    *
    * @return the login user
    */
-  private static User login() throws UnauthenticatedException {
-    AuthType authType =
-        Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+  private static User login(AlluxioConfiguration conf) throws UnauthenticatedException {
+    AuthType authType = conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     checkSecurityEnabled(authType);
     Subject subject = new Subject();
 
@@ -223,7 +235,7 @@ public final class LoginUser {
       // class loader to dynamically instantiate login modules. This enables
       // Subject#getPrincipals to use reflection to search for User.class instances.
       LoginContext loginContext = createLoginContext(authType, subject, User.class.getClassLoader(),
-          new LoginModuleConfiguration());
+          new LoginModuleConfiguration(), conf);
       loginContext.login();
     } catch (LoginException e) {
       throw new UnauthenticatedException("Failed to login: " + e.getMessage(), e);
@@ -506,11 +518,12 @@ public final class LoginUser {
    * @throws LoginException if LoginContext cannot be created
    */
   private static LoginContext createLoginContext(AuthType authType, Subject subject,
-      ClassLoader classLoader, javax.security.auth.login.Configuration configuration)
+      ClassLoader classLoader, javax.security.auth.login.Configuration configuration,
+      AlluxioConfiguration alluxioConf)
       throws LoginException {
     CallbackHandler callbackHandler = null;
     if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
-      callbackHandler = new AppLoginModule.AppCallbackHandler();
+      callbackHandler = new AppLoginModule.AppCallbackHandler(alluxioConf);
     }
 
     ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();

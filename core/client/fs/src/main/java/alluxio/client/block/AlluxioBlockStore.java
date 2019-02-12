@@ -14,9 +14,8 @@ package alluxio.client.block;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.block.policy.BlockLocationPolicy;
 import alluxio.client.block.policy.options.GetWorkerOptions;
@@ -74,22 +73,14 @@ public final class AlluxioBlockStore {
   private final RefreshPolicy mWorkerRefreshPolicy;
 
   /**
-   * Creates an Alluxio block store with default file system context and default local hostname.
-   *
-   * @return the {@link AlluxioBlockStore} created
-   */
-  public static AlluxioBlockStore create() {
-    return create(FileSystemContext.get());
-  }
-
-  /**
    * Creates an Alluxio block store with default local hostname.
    *
    * @param context the file system context
    * @return the {@link AlluxioBlockStore} created
    */
   public static AlluxioBlockStore create(FileSystemContext context) {
-    return new AlluxioBlockStore(context, TieredIdentityFactory.localIdentity());
+    return new AlluxioBlockStore(context,
+        TieredIdentityFactory.localIdentity(context.getConf()));
   }
 
   /**
@@ -103,7 +94,8 @@ public final class AlluxioBlockStore {
     mContext = context;
     mTieredIdentity = tieredIdentity;
     mWorkerRefreshPolicy =
-        new TimeoutRefresh(Configuration.getMs(PropertyKey.USER_WORKER_LIST_REFRESH_INTERVAL));
+        new TimeoutRefresh(mContext.getConf()
+            .getMs(PropertyKey.USER_WORKER_LIST_REFRESH_INTERVAL));
   }
 
   /**
@@ -215,7 +207,14 @@ public final class AlluxioBlockStore {
           locations.stream().map(location -> location.getWorkerAddress().getTieredIdentity())
               .collect(toList());
       Collections.shuffle(tieredLocations);
+<<<<<<< HEAD
       Optional<TieredIdentity> nearest = mTieredIdentity.nearest(tieredLocations);
+=======
+      Optional<TieredIdentity> nearest =
+          TieredIdentityUtils.nearest(mTieredIdentity, tieredLocations,
+              mContext.getConf()
+                  .getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP));
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       if (nearest.isPresent()) {
         dataSource = locations.stream().map(BlockLocation::getWorkerAddress)
             .filter(addr -> addr.getTieredIdentity().equals(nearest.get())).findFirst().get();

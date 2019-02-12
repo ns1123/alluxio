@@ -80,6 +80,7 @@ public final class ServiceVersionClientServiceHandler
       case JOB_MASTER_WORKER_SERVICE:
         serviceVersion = Constants.JOB_MASTER_WORKER_SERVICE_VERSION;
         break;
+<<<<<<< HEAD
       case KEY_VALUE_MASTER_CLIENT_SERVICE:
         serviceVersion = Constants.KEY_VALUE_MASTER_CLIENT_SERVICE_VERSION;
         break;
@@ -91,6 +92,8 @@ public final class ServiceVersionClientServiceHandler
         serviceVersion = Constants.PRIVILEGE_MASTER_CLIENT_SERVICE_VERSION;
         break;
       // ALLUXIO CS END
+=======
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       default:
         serviceVersion = Constants.UNKNOWN_SERVICE_VERSION;
         break;

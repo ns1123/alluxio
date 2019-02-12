@@ -59,10 +59,14 @@ import alluxio.grpc.UnmountPOptions;
 import alluxio.grpc.UnmountPRequest;
 import alluxio.grpc.UpdateUfsModePOptions;
 import alluxio.grpc.UpdateUfsModePRequest;
+<<<<<<< HEAD
 import alluxio.master.MasterClientConfig;
 // ALLUXIO CS ADD
 import alluxio.security.authentication.DelegationTokenIdentifier;
 // ALLUXIO CS END
+=======
+import alluxio.master.MasterClientContext;
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
 import alluxio.security.authorization.AclEntry;
 import alluxio.wire.SyncPointInfo;
 
@@ -91,7 +95,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
    *
    * @param conf master client configuration
    */
-  public RetryHandlingFileSystemMasterClient(MasterClientConfig conf) {
+  public RetryHandlingFileSystemMasterClient(MasterClientContext conf) {
     super(conf);
   }
 

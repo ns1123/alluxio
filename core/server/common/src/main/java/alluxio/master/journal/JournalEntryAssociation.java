@@ -39,7 +39,6 @@ public final class JournalEntryAssociation {
         || entry.hasPersistDirectory()
         || entry.hasRemoveSyncPoint()
         || entry.hasRename()
-        || entry.hasReinitializeFile()
         || entry.hasSetAcl()
         || entry.hasSetAttribute()
         || entry.hasUpdateUfsMode()
@@ -53,6 +52,7 @@ public final class JournalEntryAssociation {
         || entry.hasBlockInfo()) {
       return Constants.BLOCK_MASTER_NAME;
     }
+<<<<<<< HEAD
     if (entry.hasCompletePartition()
         || entry.hasCompleteStore()
         || entry.hasCreateStore()
@@ -86,6 +86,8 @@ public final class JournalEntryAssociation {
       return Constants.FILE_SYSTEM_MASTER_NAME;
     }
     // ALLUXIO CS END
+=======
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
     throw new IllegalStateException("Unrecognized journal entry: " + entry);
   }
 

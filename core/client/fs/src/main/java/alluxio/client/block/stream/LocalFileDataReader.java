@@ -11,11 +11,11 @@
 
 package alluxio.client.block.stream;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.client.ReadType;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.InStreamOptions;
+import alluxio.conf.PropertyKey;
 import alluxio.grpc.OpenLocalBlockRequest;
 import alluxio.grpc.OpenLocalBlockResponse;
 import alluxio.metrics.ClientMetrics;
@@ -37,10 +37,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class LocalFileDataReader implements DataReader {
-  private static final int READ_BUFFER_SIZE =
-      Configuration.getInt(PropertyKey.USER_NETWORK_READER_BUFFER_SIZE_MESSAGES);
-  private static final long READ_TIMEOUT_MS =
-      Configuration.getMs(PropertyKey.USER_NETWORK_DATA_TIMEOUT_MS);
   /** The file reader to read a local block. */
   private final LocalFileBlockReader mReader;
   private final long mEnd;
@@ -101,13 +97,15 @@ public final class LocalFileDataReader implements DataReader {
     private final WorkerNetAddress mAddress;
     private final long mBlockId;
     private final String mPath;
-    private final long mChunkSize;
+    private final long mLocalReaderChunkSize;
+    private final int mReadBufferSize;
     private final GrpcBlockingStream<OpenLocalBlockRequest, OpenLocalBlockResponse> mStream;
     // ALLUXIO CS ADD
     private final InStreamOptions mOptions;
     // ALLUXIO CS END
 
     private LocalFileBlockReader mReader;
+    private final long mDataTimeoutMs;
     private boolean mClosed;
 
     /**
@@ -116,17 +114,21 @@ public final class LocalFileDataReader implements DataReader {
      * @param context the file system context
      * @param address the worker address
      * @param blockId the block ID
-     * @param chunkSize the packet size
+     * @param localReaderChunkSize chunk size in bytes for local reads
      * @param options the instream options
      */
     public Factory(FileSystemContext context, WorkerNetAddress address, long blockId,
-        long chunkSize, InStreamOptions options) throws IOException {
+        long localReaderChunkSize, InStreamOptions options) throws IOException {
+      AlluxioConfiguration conf = context.getConf();
       mContext = context;
       mAddress = address;
       mBlockId = blockId;
-      mChunkSize = chunkSize;
+      mLocalReaderChunkSize = localReaderChunkSize;
+      mReadBufferSize = conf.getInt(PropertyKey.USER_NETWORK_READER_BUFFER_SIZE_MESSAGES);
+      mDataTimeoutMs = conf.getMs(PropertyKey.USER_NETWORK_DATA_TIMEOUT_MS);
 
       boolean isPromote = ReadType.fromProto(options.getOptions().getReadType()).isPromote();
+<<<<<<< HEAD
       OpenLocalBlockRequest request =
               OpenLocalBlockRequest.newBuilder().setBlockId(mBlockId).setPromote(isPromote).build();
 
@@ -146,11 +148,17 @@ public final class LocalFileDataReader implements DataReader {
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).build();
       }
       // ALLUXIO CS END
+=======
+      OpenLocalBlockRequest request = OpenLocalBlockRequest.newBuilder()
+          .setBlockId(mBlockId).setPromote(isPromote).build();
+
+      mBlockWorker = context.acquireBlockWorkerClient(address);
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       try {
-        mStream = new GrpcBlockingStream<>(mBlockWorker::openLocalBlock, READ_BUFFER_SIZE,
+        mStream = new GrpcBlockingStream<>(mBlockWorker::openLocalBlock, mReadBufferSize,
             address.toString());
-        mStream.send(request, READ_TIMEOUT_MS);
-        OpenLocalBlockResponse response = mStream.receive(READ_TIMEOUT_MS);
+        mStream.send(request, mDataTimeoutMs);
+        OpenLocalBlockResponse response = mStream.receive(mDataTimeoutMs);
         Preconditions.checkState(response.hasPath());
         mPath = response.getPath();
       } catch (Exception e) {
@@ -166,7 +174,7 @@ public final class LocalFileDataReader implements DataReader {
       }
       Preconditions.checkState(mReader.getUsageCount() == 0);
       mReader.increaseUsageCount();
-      return new LocalFileDataReader(mReader, offset, len, mChunkSize);
+      return new LocalFileDataReader(mReader, offset, len, mLocalReaderChunkSize);
     }
 
     @Override
@@ -184,7 +192,7 @@ public final class LocalFileDataReader implements DataReader {
       }
       try {
         mStream.close();
-        mStream.waitForComplete(READ_TIMEOUT_MS);
+        mStream.waitForComplete(mDataTimeoutMs);
       } finally {
         mClosed = true;
         mContext.releaseBlockWorkerClient(mAddress, mBlockWorker);

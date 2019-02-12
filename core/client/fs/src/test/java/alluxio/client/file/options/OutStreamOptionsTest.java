@@ -14,12 +14,12 @@ package alluxio.client.file.options;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import alluxio.Configuration;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.LoginUserRule;
-import alluxio.PropertyKey;
+import alluxio.conf.InstancedConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.client.AlluxioStorageType;
 import alluxio.client.UnderStorageType;
 import alluxio.client.WriteType;
@@ -34,6 +34,8 @@ import alluxio.util.ModeUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.testing.EqualsTester;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -50,6 +52,9 @@ import java.util.Random;
     {alluxio.proto.security.EncryptionProto.Meta.class, alluxio.util.SecurityUtils.class})
 // ALLUXIO CS END
 public class OutStreamOptionsTest {
+
+  private InstancedConfiguration mConf = ConfigurationTestUtils.defaults();
+
   /**
    * A mapping from a user to its corresponding group.
    */
@@ -67,10 +72,15 @@ public class OutStreamOptionsTest {
   @Rule
   public ConfigurationRule mConfiguration = new ConfigurationRule(ImmutableMap.of(
       PropertyKey.SECURITY_GROUP_MAPPING_CLASS, FakeUserGroupsMapping.class.getName()
-  ));
+  ), mConf);
 
   @Rule
-  public LoginUserRule mRule = new LoginUserRule("test_user");
+  public LoginUserRule mRule = new LoginUserRule("test_user", mConf);
+
+  @After
+  public void after() {
+    mConf = ConfigurationTestUtils.defaults();
+  }
 
   /**
    * Tests that building an {@link OutStreamOptions} with the defaults works.
@@ -79,6 +89,7 @@ public class OutStreamOptionsTest {
   public void defaults() throws IOException {
     AlluxioStorageType alluxioType = AlluxioStorageType.STORE;
     UnderStorageType ufsType = UnderStorageType.SYNC_PERSIST;
+<<<<<<< HEAD
     Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
     Configuration.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.CACHE_THROUGH.toString());
     Configuration.set(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT, Constants.LAST_TIER);
@@ -89,27 +100,36 @@ public class OutStreamOptionsTest {
     org.powermock.api.mockito.PowerMockito.when(
         alluxio.util.SecurityUtils.getGroupFromLoginModule()).thenReturn("test_group");
     // ALLUXIO CS END
+=======
+    mConf.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
+    mConf.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.CACHE_THROUGH.toString());
+    mConf.set(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT, Constants.LAST_TIER);
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
 
-    OutStreamOptions options = OutStreamOptions.defaults();
+    OutStreamOptions options = OutStreamOptions.defaults(mConf);
 
     assertEquals(alluxioType, options.getAlluxioStorageType());
     assertEquals(64 * Constants.MB, options.getBlockSizeBytes());
     assertTrue(options.getLocationPolicy() instanceof LocalFirstPolicy);
     assertEquals("test_user", options.getOwner());
     assertEquals("test_group", options.getGroup());
-    assertEquals(ModeUtils.applyFileUMask(Mode.defaults()), options.getMode());
+    assertEquals(ModeUtils.applyFileUMask(Mode.defaults(),
+        mConf.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_UMASK)), options.getMode());
     assertEquals(Constants.NO_TTL, options.getTtl());
     assertEquals(TtlAction.DELETE, options.getTtlAction());
     assertEquals(ufsType, options.getUnderStorageType());
     assertEquals(WriteType.CACHE_THROUGH, options.getWriteType());
     // ALLUXIO CS REMOVE
     assertEquals(Constants.LAST_TIER, options.getWriteTier());
+<<<<<<< HEAD
     // ALLUXIO CS END
     // ALLUXIO CS ADD
     assertEquals(false, options.isEncrypted());
     assertEquals(null, options.getEncryptionMeta());
     // ALLUXIO CS END
     ConfigurationTestUtils.resetConfiguration();
+=======
+>>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   }
 
   /**
@@ -119,7 +139,7 @@ public class OutStreamOptionsTest {
   public void fields() throws Exception {
     Random random = new Random();
     long blockSize = random.nextLong();
-    FileWriteLocationPolicy locationPolicy = new RoundRobinPolicy();
+    FileWriteLocationPolicy locationPolicy = new RoundRobinPolicy(mConf);
     String owner = CommonUtils.randomAlphaNumString(10);
     String group = CommonUtils.randomAlphaNumString(10);
     Mode mode = new Mode((short) random.nextInt());
@@ -133,7 +153,7 @@ public class OutStreamOptionsTest {
         alluxio.client.util.EncryptionMetaTestUtils.create();
     // ALLUXIO CS END
 
-    OutStreamOptions options = OutStreamOptions.defaults();
+    OutStreamOptions options = OutStreamOptions.defaults(mConf);
     options.setBlockSizeBytes(blockSize);
     options.setLocationPolicy(locationPolicy);
     options.setOwner(owner);
@@ -170,6 +190,10 @@ public class OutStreamOptionsTest {
 
   @Test
   public void equalsTest() throws Exception {
-    alluxio.test.util.CommonUtils.testEquals(OutStreamOptions.class);
+    new EqualsTester()
+        .addEqualityGroup(
+            OutStreamOptions.defaults(mConf),
+            OutStreamOptions.defaults(mConf))
+        .testEquals();
   }
 }
