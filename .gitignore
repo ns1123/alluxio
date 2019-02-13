@@ -49,7 +49,6 @@
 dependency-reduced-pom.xml
 target/
 tests.log*
-<<<<<<< HEAD
 /underfs/hdfs/src/main/java/alluxio/UfsConstants.java
 # ALLUXIO CS ADD
 /annotation/
@@ -58,7 +57,6 @@ tests.log*
 /integration/authorization/hdfs/src/main/java/alluxio/security/authorization/AuthorizationPluginConstants.java
 # ALLUXIO CS END
 # ALLUXIO CS MODIFIED
-=======
 /alluxio-ui/**/**/build/
 /alluxio-ui/**/**/coverage/
 /alluxio-ui/**/**/dist/
@@ -74,4 +72,3 @@ tests.log*
 /alluxio-ui/**/node
 /alluxio-ui/**/node_modules
 /alluxio-ui/**/npm-debug.log
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885

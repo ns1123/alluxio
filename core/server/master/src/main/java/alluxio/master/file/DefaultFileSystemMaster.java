@@ -408,11 +408,10 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
     // TODO(gene): Handle default config value for whitelist.
     mWhitelist = new PrefixList(ServerConfiguration.getList(PropertyKey.MASTER_WHITELIST, ","));
 
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // mPermissionChecker = new DefaultPermissionChecker(mInodeTree);
     // ALLUXIO CS WITH
-    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_PLUGINS_ENABLED)) {
+    if (ServerConfiguration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_PLUGINS_ENABLED)) {
       AbstractInodeAttributesProviderFactory authProviderFactory =
           new AbstractInodeAttributesProviderFactory();
       mUfsManager.registerUfsServiceFactory(InodeAttributesProvider.class, authProviderFactory);
@@ -425,12 +424,8 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
     mDelegationTokenEventListener = new DelegationTokenManagerEventListener();
     mDelegationTokenManager.registerEventListener(mDelegationTokenEventListener);
     // ALLUXIO CS END
-    mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
-=======
-    mPermissionChecker = new DefaultPermissionChecker(mInodeTree);
     mJobMasterClientPool = new JobMasterClientPool(JobMasterClientContext
         .newBuilder(ClientContext.create(ServerConfiguration.global())).build());
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
     mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     mUfsAbsentPathCache = UfsAbsentPathCache.Factory.create(mMountTable);
@@ -640,18 +635,14 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_LOST_FILES_DETECTION,
               new LostFileDetector(this, mInodeTree),
-<<<<<<< HEAD
-              (int) Configuration.getMs(PropertyKey.MASTER_WORKER_HEARTBEAT_INTERVAL)));
+              (int) ServerConfiguration.getMs(PropertyKey.MASTER_WORKER_HEARTBEAT_INTERVAL),
+              ServerConfiguration.global()));
       // ALLUXIO CS ADD
       if (mAuthProvider != null) {
         mAuthProvider.start();
       }
       mDelegationTokenManager.startThreadPool();
       // ALLUXIO CS END
-=======
-              (int) ServerConfiguration.getMs(PropertyKey.MASTER_WORKER_HEARTBEAT_INTERVAL),
-              ServerConfiguration.global()));
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster,

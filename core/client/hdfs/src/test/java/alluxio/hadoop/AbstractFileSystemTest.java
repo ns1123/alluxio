@@ -33,6 +33,7 @@ import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.URIStatus;
+import alluxio.master.MasterInquireClient;
 import alluxio.util.ConfigurationUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.FileBlockInfo;
@@ -52,6 +53,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -63,6 +65,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,6 +73,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.security.auth.Subject;
 
 /**
  * Unit tests for {@link AbstractFileSystem}.
@@ -685,7 +690,6 @@ public class AbstractFileSystemTest {
     return conf;
   }
 
-<<<<<<< HEAD
   private void mockFileSystemContextAndMasterClient() throws Exception {
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockFileSystemContextCustomized = PowerMockito.mock(FileSystemContext.class);
@@ -710,11 +714,11 @@ public class AbstractFileSystemTest {
     doNothing().when(mMockFileSystemMasterClient).connect();
     when(mMockFileSystemContext.getMasterAddress())
         .thenReturn(new InetSocketAddress("defaultHost", 1));
-=======
+  }
+
   private FileSystem getHadoopFilesystem(org.apache.hadoop.fs.FileSystem fs) {
     assertTrue(fs instanceof FileSystem);
     return (FileSystem) fs;
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   }
 
   private void mockUserGroupInformation(String username) throws IOException {

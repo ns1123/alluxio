@@ -135,18 +135,12 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    * @param offset the position within the block to start the read
    */
   private void init(long offset) throws IOException {
-<<<<<<< HEAD
     // ALLUXIO CS REMOVE
     // UnderFileSystem ufs = mUfsResource.get();
     // ufs.connectFromWorker(
-    //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+    //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC,
+    //         ServerConfiguration.global()));
     // ALLUXIO CS END
-=======
-    UnderFileSystem ufs = mUfsResource.get();
-    ufs.connectFromWorker(
-        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC,
-            ServerConfiguration.global()));
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
     updateUnderFileSystemInputStream(offset);
     updateBlockWriter(offset);
   }

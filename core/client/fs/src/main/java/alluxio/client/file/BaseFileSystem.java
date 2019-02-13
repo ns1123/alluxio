@@ -187,16 +187,12 @@ public class BaseFileSystem implements FileSystem {
     // ALLUXIO CS END
     outStreamOptions.setAcl(status.getAcl());
     try {
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       if (outStreamOptions.isEncrypted()) {
-        return new CryptoFileOutStream(path, outStreamOptions, mFileSystemContext);
+        return new CryptoFileOutStream(path, outStreamOptions, mFsContext);
       }
       // ALLUXIO CS END
-      return new FileOutStream(path, outStreamOptions, mFileSystemContext);
-=======
       return new FileOutStream(path, outStreamOptions, mFsContext);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
     } catch (Exception e) {
       delete(path);
       throw e;
@@ -620,19 +616,18 @@ public class BaseFileSystem implements FileSystem {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
     }
-<<<<<<< HEAD
     InStreamOptions inStreamOptions = new InStreamOptions(status, options);
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
-          new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
+          new alluxio.client.security.CapabilityFetcher(mFsContext, status.getPath(),
               status.getCapability()));
     }
     if (!options.getSkipTransformation()) {
       inStreamOptions.setEncrypted(status.isEncrypted());
       if (status.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
-            mFileSystemContext.getEncryptionMeta(status.getFileId());
+            mFsContext.getEncryptionMeta(status.getFileId());
         if (meta == null || !meta.hasCryptoKey()) {
           // Retry getting the crypto key if the cached meta does not have a valid crypto key.
           meta = getEncryptionMetaFromFooter(status);
@@ -641,21 +636,16 @@ public class BaseFileSystem implements FileSystem {
                 "Can not open an encrypted file because the client can not get the crypto key.");
           }
           // Update the meta in cache with the new crypto key set.
-          mFileSystemContext.putEncryptionMeta(status.getFileId(), meta);
+          mFsContext.putEncryptionMeta(status.getFileId(), meta);
         }
         inStreamOptions.setEncryptionMeta(meta);
       }
       if (inStreamOptions.isEncrypted()) {
-        return CryptoFileInStream.create(status, inStreamOptions, mFileSystemContext);
+        return CryptoFileInStream.create(status, inStreamOptions, mFsContext);
       }
     }
     // ALLUXIO CS END
-    return new FileInStream(status, inStreamOptions, mFileSystemContext);
-=======
-    InStreamOptions inStreamOptions = new InStreamOptions(status, options,
-        mFsContext.getConf());
     return new FileInStream(status, inStreamOptions, mFsContext);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   }
 
   @Override

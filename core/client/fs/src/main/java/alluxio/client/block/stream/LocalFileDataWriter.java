@@ -65,15 +65,10 @@ public final class LocalFileDataWriter implements DataWriter {
    * @return the {@link LocalFileDataWriter} created
    */
   public static LocalFileDataWriter create(final FileSystemContext context,
-<<<<<<< HEAD
-      final WorkerNetAddress address, long blockId, OutStreamOptions options) throws IOException {
-    long chunkSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_CHUNK_SIZE_BYTES);
-=======
       final WorkerNetAddress address,
       long blockId, OutStreamOptions options) throws IOException {
     AlluxioConfiguration conf = context.getConf();
     long chunkSize = conf.getBytes(PropertyKey.USER_LOCAL_WRITER_CHUNK_SIZE_BYTES);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
 
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
@@ -101,10 +96,6 @@ public final class LocalFileDataWriter implements DataWriter {
           context.releaseBlockWorkerClient(address, blockWorker);
         }
       });
-<<<<<<< HEAD
-      CreateLocalBlockRequest.Builder builder = CreateLocalBlockRequest.newBuilder()
-          .setBlockId(blockId).setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES);
-=======
       int writerBufferSizeMessages =
           conf.getInt(PropertyKey.USER_NETWORK_WRITER_BUFFER_SIZE_MESSAGES);
       long fileBufferByes = conf.getBytes(PropertyKey.USER_FILE_BUFFER_BYTES);
@@ -113,7 +104,6 @@ public final class LocalFileDataWriter implements DataWriter {
       CreateLocalBlockRequest.Builder builder =
           CreateLocalBlockRequest.newBuilder().setBlockId(blockId)
               .setTier(options.getWriteTier()).setSpaceToReserve(fileBufferByes);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       if (options.getWriteType() == WriteType.ASYNC_THROUGH
           && conf.getBoolean(PropertyKey.USER_FILE_UFS_TIER_ENABLED)) {
         builder.setCleanupOnFailure(false);
@@ -131,16 +121,11 @@ public final class LocalFileDataWriter implements DataWriter {
       stream.send(createRequest, dataTimeout);
       CreateLocalBlockResponse response = stream.receive(dataTimeout);
       Preconditions.checkState(response != null && response.hasPath());
-<<<<<<< HEAD
-      LocalFileBlockWriter writer = closer.register(new LocalFileBlockWriter(response.getPath()));
-      return new LocalFileDataWriter(chunkSize, blockWorker, writer, createRequest, stream, closer);
-=======
       LocalFileBlockWriter writer =
           closer.register(new LocalFileBlockWriter(response.getPath()));
       return new LocalFileDataWriter(chunkSize, blockWorker,
           writer, createRequest, stream, closer, fileBufferByes,
           dataTimeout);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
     } catch (Exception e) {
       throw CommonUtils.closeAndRethrow(closer, e);
     }

@@ -89,10 +89,9 @@ public class OutStreamOptionsTest {
   public void defaults() throws IOException {
     AlluxioStorageType alluxioType = AlluxioStorageType.STORE;
     UnderStorageType ufsType = UnderStorageType.SYNC_PERSIST;
-<<<<<<< HEAD
-    Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
-    Configuration.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.CACHE_THROUGH.toString());
-    Configuration.set(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT, Constants.LAST_TIER);
+    mConf.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
+    mConf.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.CACHE_THROUGH.toString());
+    mConf.set(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT, Constants.LAST_TIER);
     // ALLUXIO CS ADD
     org.powermock.api.mockito.PowerMockito.mockStatic(alluxio.util.SecurityUtils.class);
     org.powermock.api.mockito.PowerMockito.when(
@@ -100,11 +99,6 @@ public class OutStreamOptionsTest {
     org.powermock.api.mockito.PowerMockito.when(
         alluxio.util.SecurityUtils.getGroupFromLoginModule()).thenReturn("test_group");
     // ALLUXIO CS END
-=======
-    mConf.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
-    mConf.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.CACHE_THROUGH.toString());
-    mConf.set(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT, Constants.LAST_TIER);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
 
     OutStreamOptions options = OutStreamOptions.defaults(mConf);
 
@@ -121,15 +115,11 @@ public class OutStreamOptionsTest {
     assertEquals(WriteType.CACHE_THROUGH, options.getWriteType());
     // ALLUXIO CS REMOVE
     assertEquals(Constants.LAST_TIER, options.getWriteTier());
-<<<<<<< HEAD
     // ALLUXIO CS END
     // ALLUXIO CS ADD
     assertEquals(false, options.isEncrypted());
     assertEquals(null, options.getEncryptionMeta());
     // ALLUXIO CS END
-    ConfigurationTestUtils.resetConfiguration();
-=======
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   }
 
   /**

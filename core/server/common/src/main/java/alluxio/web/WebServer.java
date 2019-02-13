@@ -84,43 +84,21 @@ public abstract class WebServer {
 
     System.setProperty("org.apache.jasper.compiler.disablejsr199", "false");
 
-<<<<<<< HEAD
-    mWebAppContext = new WebAppContext();
-    mWebAppContext.setContextPath(AlluxioURI.SEPARATOR);
-    File warPath = new File(Configuration.get(PropertyKey.WEB_RESOURCES));
-    mWebAppContext.setWar(warPath.getAbsolutePath());
-    String webTempPath = Configuration.get(PropertyKey.WEB_TEMP_PATH);
-    LOG.info("Using temporary directory {} for web server resources", webTempPath);
-    if (!Files.exists(Paths.get(webTempPath))) {
-      try {
-        Files.createDirectories(Paths.get(webTempPath));
-      } catch (IOException e) {
-        LOG.error("Failed to create temporary directory {} for web server: {}", webTempPath, e);
-      }
-    }
-
-    mWebAppContext.setAttribute(WebAppContext.BASETEMPDIR, webTempPath);
-
     // ALLUXIO CS ADD
-    if (WebServerUtils.isLoginEnabled()) {
-      WebServerUtils.addLoginServlet(mWebAppContext);
-      WebServerUtils.addLogoutServlet(mWebAppContext);
+    // TODO(william): Create security logic for REST and UI
+    // if (WebServerUtils.isLoginEnabled()) {
+    //   WebServerUtils.addLoginServlet(mWebAppContext);
+    //   WebServerUtils.addLogoutServlet(mWebAppContext);
 
-      WebServerUtils.addAuthenticationFilter(mWebAppContext);
-    }
+    //   WebServerUtils.addAuthenticationFilter(mWebAppContext);
+    // }
     // ALLUXIO CS END
     // Set the ContainerIncludeJarPattern so that jetty examines these
     // container-path jars for tlds, web-fragments etc.
     // If you omit the jar that contains the jstl .tlds, the jsp engine will
     // scan for them instead.
-    mWebAppContext.setAttribute(
-        "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
-        ".*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$"
-         + "|.*/[^/]*taglibs.*\\.jar$");
-=======
     mServletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
     mServletContextHandler.setContextPath(AlluxioURI.SEPARATOR);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
 
     HandlerList handlers = new HandlerList();
     handlers.setHandlers(new Handler[] {mServletContextHandler, new DefaultHandler()});

@@ -102,16 +102,9 @@ import java.util.concurrent.ConcurrentMap;
  *     │   └── f3
  *     └── f1
  */
-<<<<<<< HEAD:job/server/src/main/java/alluxio/job/migrate/MigrateDefinition.java
 public final class MigrateDefinition
     extends AbstractVoidJobDefinition<MigrateConfig, ArrayList<MigrateCommand>> {
   private static final Logger LOG = LoggerFactory.getLogger(MigrateDefinition.class);
-  private final FileSystemContext mFileSystemContext;
-=======
-public final class MoveDefinition
-    extends AbstractVoidJobDefinition<MoveConfig, ArrayList<MoveCommand>> {
-  private static final Logger LOG = LoggerFactory.getLogger(MoveDefinition.class);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885:job/server/src/main/java/alluxio/job/move/MoveDefinition.java
   private final FileSystem mFileSystem;
   private final FileSystemContext mFsContext;
   private final Random mRandom = new Random();
@@ -119,15 +112,9 @@ public final class MoveDefinition
   /**
    * Constructs a new {@link MigrateDefinition}.
    */
-<<<<<<< HEAD:job/server/src/main/java/alluxio/job/migrate/MigrateDefinition.java
   public MigrateDefinition() {
-    mFileSystemContext = FileSystemContext.get();
-    mFileSystem = BaseFileSystem.get(FileSystemContext.get());
-=======
-  public MoveDefinition() {
     mFsContext = FileSystemContext.create(ServerConfiguration.global());
     mFileSystem = BaseFileSystem.create(mFsContext);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885:job/server/src/main/java/alluxio/job/move/MoveDefinition.java
   }
 
   /**
@@ -136,13 +123,8 @@ public final class MoveDefinition
    * @param fsContext the {@link FileSystemContext} used by the {@link FileSystem}
    * @param fileSystem the {@link FileSystem} client
    */
-<<<<<<< HEAD:job/server/src/main/java/alluxio/job/migrate/MigrateDefinition.java
-  public MigrateDefinition(FileSystemContext context, FileSystem fileSystem) {
-    mFileSystemContext = context;
-=======
-  public MoveDefinition(FileSystemContext fsContext, FileSystem fileSystem) {
+  public MigrateDefinition(FileSystemContext fsContext, FileSystem fileSystem) {
     mFsContext = fsContext;
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885:job/server/src/main/java/alluxio/job/move/MoveDefinition.java
     mFileSystem = fileSystem;
   }
 
@@ -197,14 +179,7 @@ public final class MoveDefinition
     if (source.equals(destination)) {
       return new HashMap<>();
     }
-<<<<<<< HEAD:job/server/src/main/java/alluxio/job/migrate/MigrateDefinition.java
     checkMigrateValid(config);
-=======
-    checkMoveValid(config);
-
-    List<BlockWorkerInfo> alluxioWorkerInfoList =
-        AlluxioBlockStore.create(mFsContext).getAllWorkers();
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885:job/server/src/main/java/alluxio/job/move/MoveDefinition.java
     Preconditions.checkState(!jobWorkerInfoList.isEmpty(), "No workers are available");
 
     List<URIStatus> allPathStatuses = getPathStatuses(source);

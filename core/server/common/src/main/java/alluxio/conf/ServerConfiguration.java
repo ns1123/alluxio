@@ -109,21 +109,12 @@ public final class ServerConfiguration {
    * @param source the source of the the properties (e.g., system property, default and etc)
    */
   public static void set(PropertyKey key, Object value, Source source) {
-<<<<<<< HEAD:core/common/src/main/java/alluxio/Configuration.java
-    Preconditions.checkArgument(key != null && value != null && !value.equals(""),
-        String.format("The key value pair (%s, %s) cannot be null", key, value));
-    Preconditions.checkArgument(!value.equals(""),
-        String.format("The key \"%s\" cannot be have an empty string as a value. Use "
-            + "Configuration.unset to remove a key from the configuration.", key));
     // ALLUXIO CS ADD
     Preconditions.checkArgument(
         getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
-    PROPERTIES.put(key, String.valueOf(value), source);
-=======
     sConf.set(key, value, source);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885:core/server/common/src/main/java/alluxio/conf/ServerConfiguration.java
   }
 
   /**
@@ -132,17 +123,12 @@ public final class ServerConfiguration {
    * @param key the key to unset
    */
   public static void unset(PropertyKey key) {
-<<<<<<< HEAD:core/common/src/main/java/alluxio/Configuration.java
-    Preconditions.checkNotNull(key, "key");
     // ALLUXIO CS ADD
     Preconditions.checkArgument(
         getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
-    PROPERTIES.remove(key);
-=======
     sConf.unset(key);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885:core/server/common/src/main/java/alluxio/conf/ServerConfiguration.java
   }
 
   /**

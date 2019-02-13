@@ -50,6 +50,7 @@ import alluxio.wire.WorkerNetAddress;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jline.internal.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -497,7 +498,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
 
     AlluxioProperties alluxioProps = ConfigurationUtils.defaults();
     AlluxioConfiguration alluxioConf = mergeConfigurations(uriConfProperties, conf, alluxioProps);
-
+    // ALLUXIO CS ADD
+    // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
+    // to authenticate with master.
+    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+    // ALLUXIO CS END
     Subject subject = getHadoopSubject();
     if (subject != null) {
       LOG.debug("Using Hadoop subject: {}", subject);
@@ -525,20 +530,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
    * @param conf the hadoop conf
    * @param alluxioProps Alluxio configuration properties
    */
-<<<<<<< HEAD
-  void initializeInternal(Map<String, Object> uriConfProperties,
-      org.apache.hadoop.conf.Configuration conf) throws IOException {
-    // ALLUXIO CS ADD
-    // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
-    // to authenticate with master.
-    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
-    // ALLUXIO CS END
-    // Load Alluxio configuration if any and merge to the one in Alluxio file system. These
-    // modifications to ClientContext are global, affecting all Alluxio clients in this JVM.
-    // We assume here that all clients use the same configuration.
-    HadoopConfigurationUtils.mergeHadoopConfiguration(conf, Configuration.global());
-
-=======
   private AlluxioConfiguration mergeConfigurations(Map<String, Object> uriConfProperties,
       org.apache.hadoop.conf.Configuration conf, AlluxioProperties alluxioProps)
       throws IOException {
@@ -546,7 +537,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     // all three into a single object.
     InstancedConfiguration newConf = HadoopConfigurationUtils.mergeHadoopConfiguration(conf,
         alluxioProps);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
     // Connection details in the URI has the highest priority
     newConf.merge(uriConfProperties, Source.RUNTIME);
     return newConf;
@@ -587,34 +577,8 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
     return alluxioConfProperties;
   }
-
-  /**
-<<<<<<< HEAD
-   * Checks whether the connect details from the uri + hadoop conf + global Alluxio conf are the
-   * same as the connect details currently being used by {@link FileSystemContext}.
-   *
-   * @param uriConfProperties the configuration properties from the input URI
-   * @param conf a hadoop conf
-   * @return whether the details match
-   */
-  private boolean connectDetailsMatch(Map<String, Object> uriConfProperties,
-      org.apache.hadoop.conf.Configuration conf) {
-    AlluxioConfiguration alluxioConf = new InstancedConfiguration(Configuration.global());
-
-    // Merge hadoop configuration into Alluxio configuration
-    HadoopConfigurationUtils.mergeHadoopConfiguration(conf, alluxioConf);
-
-    // Merge connection details in URI into Alluxio configuration
-    alluxioConf.merge(uriConfProperties, Source.RUNTIME);
-
-    ConnectDetails newDetails = Factory.getConnectDetails(alluxioConf);
-    ConnectDetails oldDetails = FileSystemContext.get()
-        .getMasterInquireClient().getConnectDetails();
-
-    return newDetails.equals(oldDetails);
-  }
-
   // ALLUXIO CS ADD
+
   private String buildTokenService(URI uri) {
     if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
         || alluxio.util.ConfigurationUtils.getMasterRpcAddresses(Configuration.global()).size() > 1) {
@@ -625,47 +589,9 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     // builds token service name for single master address.
     return org.apache.hadoop.security.SecurityUtil.buildTokenService(uri).toString();
   }
-
   // ALLUXIO CS END
-  /**
-   * Sets the file system and context. Contexts with the same subject are shared among file systems
-   * to reduce resource usage such as the metrics heartbeat.
-   */
-  private void updateFileSystemAndContext() {
-    Subject subject = getHadoopSubject();
-    if (subject != null) {
-      LOG.debug("Using Hadoop subject: {}", subject);
-      mContext = FileSystemContext.get(subject);
-      // ALLUXIO CS ADD
-      try {
-        UserGroupInformation user = UserGroupInformation.getCurrentUser();
-        if (!user.getTokens().isEmpty()) {
-          String tokenService = buildTokenService(mUri);
-          List<String> masters = mContext.getMasterInquireClient().getMasterRpcAddresses().stream()
-              .map(addr ->
-                  HostAndPort.fromParts(addr.getAddress().getHostAddress(), addr.getPort()).toString())
-              .collect(toList());
-          LOG.debug("Checking Alluxio delegation token for {} on service {}", subject, tokenService);
-          if (HadoopKerberosLoginProvider.populateAlluxioTokens(user, subject, tokenService, masters)) {
-            // update context after subject is populated with token
-            mContext = FileSystemContext.get(subject);
-          }
-        }
-      } catch (IOException e) {
-        LOG.warn("unable to populate Alluxio tokens.", e);
-      }
-      // ALLUXIO CS END
-      mFileSystem = FileSystem.Factory.get(mContext);
-    } else {
-      LOG.debug("No Hadoop subject. Using FileSystem Context without subject.");
-      mContext = FileSystemContext.get();
-      mFileSystem = FileSystem.Factory.get(mContext);
-    }
-  }
 
   /**
-=======
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
    * @return the hadoop subject if exists, null if not exist
    */
   @Nullable

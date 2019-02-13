@@ -128,9 +128,8 @@ public final class LocalFileDataReader implements DataReader {
       mDataTimeoutMs = conf.getMs(PropertyKey.USER_NETWORK_DATA_TIMEOUT_MS);
 
       boolean isPromote = ReadType.fromProto(options.getOptions().getReadType()).isPromote();
-<<<<<<< HEAD
-      OpenLocalBlockRequest request =
-              OpenLocalBlockRequest.newBuilder().setBlockId(mBlockId).setPromote(isPromote).build();
+      OpenLocalBlockRequest request = OpenLocalBlockRequest.newBuilder()
+          .setBlockId(mBlockId).setPromote(isPromote).build();
 
       // ALLUXIO CS REPLACE
       // mBlockWorker = context.acquireBlockWorkerClient(address);
@@ -148,12 +147,6 @@ public final class LocalFileDataReader implements DataReader {
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).build();
       }
       // ALLUXIO CS END
-=======
-      OpenLocalBlockRequest request = OpenLocalBlockRequest.newBuilder()
-          .setBlockId(mBlockId).setPromote(isPromote).build();
-
-      mBlockWorker = context.acquireBlockWorkerClient(address);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       try {
         mStream = new GrpcBlockingStream<>(mBlockWorker::openLocalBlock, mReadBufferSize,
             address.toString());

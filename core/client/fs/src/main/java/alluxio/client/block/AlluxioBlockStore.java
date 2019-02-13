@@ -207,14 +207,10 @@ public final class AlluxioBlockStore {
           locations.stream().map(location -> location.getWorkerAddress().getTieredIdentity())
               .collect(toList());
       Collections.shuffle(tieredLocations);
-<<<<<<< HEAD
-      Optional<TieredIdentity> nearest = mTieredIdentity.nearest(tieredLocations);
-=======
       Optional<TieredIdentity> nearest =
           TieredIdentityUtils.nearest(mTieredIdentity, tieredLocations,
               mContext.getConf()
                   .getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP));
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       if (nearest.isPresent()) {
         dataSource = locations.stream().map(BlockLocation::getWorkerAddress)
             .filter(addr -> addr.getTieredIdentity().equals(nearest.get())).findFirst().get();

@@ -46,18 +46,6 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class NettyUtils {
   private static final Logger LOG = LoggerFactory.getLogger(NettyUtils.class);
 
-<<<<<<< HEAD
-  // ALLUXIO CS ADD
-  public static final ChannelType MASTER_CHANNEL_TYPE =
-      getChannelType(PropertyKey.MASTER_NETWORK_NETTY_CHANNEL);
-  // ALLUXIO CS END
-  public static final ChannelType USER_CHANNEL_TYPE =
-      getChannelType(PropertyKey.USER_NETWORK_NETTY_CHANNEL);
-  public static final ChannelType WORKER_CHANNEL_TYPE =
-      getChannelType(PropertyKey.WORKER_NETWORK_NETTY_CHANNEL);
-
-=======
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   private static Boolean sNettyEpollAvailable = null;
 
   private NettyUtils() {}

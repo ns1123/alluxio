@@ -130,19 +130,13 @@ public final class OutStreamOptions {
     mMode = ModeUtils.applyFileUMask(Mode.defaults(), alluxioConf
         .get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_UMASK));
     mMountId = IdUtils.INVALID_MOUNT_ID;
-<<<<<<< HEAD
-    mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
-    mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
-    mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    mReplicationDurable = alluxioConf.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
+    mReplicationMax = alluxioConf.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
+    mReplicationMin = alluxioConf.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS ADD
     mEncrypted = false;
     mEncryptionMeta = null;
     // ALLUXIO CS END
-=======
-    mReplicationDurable = alluxioConf.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
-    mReplicationMax = alluxioConf.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
-    mReplicationMin = alluxioConf.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   }
 
   /**

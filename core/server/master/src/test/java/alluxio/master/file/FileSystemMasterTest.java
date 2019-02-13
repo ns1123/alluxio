@@ -209,15 +209,11 @@ public final class FileSystemMasterTest {
     MetricsSystem.clearAllMetrics();
     // This makes sure that the mount point of the UFS corresponding to the Alluxio root ("/")
     // doesn't exist by default (helps loadRootTest).
-<<<<<<< HEAD
-    mUnderFS = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
+    mUnderFS = ServerConfiguration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
     // ALLUXIO CS REPLACE
     // mNestedFileContext = CreateFileContext.defaults(
     //     CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB).setRecursive(true));
-    // ALLUXIO CS WITH
-=======
-    mUnderFS = ServerConfiguration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
+    // ALLUXIO CS WITH c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
     mNestedFileContext = CreateFileContext.defaults(
         CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB).setRecursive(true)
     .setMode(new alluxio.security.authorization.Mode((short) 0666).toProto()));

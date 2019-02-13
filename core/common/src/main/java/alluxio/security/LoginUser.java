@@ -69,13 +69,12 @@ public final class LoginUser {
    * @param conf Alluxio's current configuration
    * @return the login user
    */
-<<<<<<< HEAD
-  public static User get() throws UnauthenticatedException {
+  public static User get(AlluxioConfiguration conf) throws UnauthenticatedException {
     // ALLUXIO CS REPLACE
     // if (sLoginUser == null) {
     //   synchronized (LoginUser.class) {
     //     if (sLoginUser == null) {
-    //       sLoginUser = login();
+    //       sLoginUser = login(conf);
     //     }
     //   }
     // }
@@ -166,13 +165,6 @@ public final class LoginUser {
                 Configuration.get(keytabKey));
           }
           sLoginUser = login();
-=======
-  public static User get(AlluxioConfiguration conf) throws UnauthenticatedException {
-    if (sLoginUser == null) {
-      synchronized (LoginUser.class) {
-        if (sLoginUser == null) {
-          sLoginUser = login(conf);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
         }
       }
     }

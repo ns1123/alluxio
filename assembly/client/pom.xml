@@ -48,31 +48,6 @@
     </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
-<<<<<<< HEAD
-      <artifactId>alluxio-keyvalue-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-keyvalue-hadoop</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <!-- ALLUXIO CS ADD -->
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-kms-dummy</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-kms-twosigma</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <!-- ALLUXIO CS END -->
-    <dependency>
-      <groupId>org.alluxio</groupId>
-=======
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       <artifactId>alluxio-shell</artifactId>
       <version>${project.version}</version>
     </dependency>

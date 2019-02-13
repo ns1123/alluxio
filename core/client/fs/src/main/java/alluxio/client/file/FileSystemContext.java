@@ -266,26 +266,14 @@ public final class FileSystemContext implements Closeable {
       mBlockMasterClientPool.close();
       mBlockMasterClientPool = null;
       mMasterInquireClient = null;
+      for (BlockWorkerClientPool pool : mBlockWorkerClientPool.values()) {
+        pool.close();
+      }
+      mBlockWorkerClientPool.clear();
+      // ALLUXIO CS ADD
+      mEncryptionCache.clear();
+      // ALLUXIO CS END
 
-<<<<<<< HEAD
-  private void closeInternal() throws IOException {
-    mFileSystemMasterClientPool.close();
-    mFileSystemMasterClientPool = null;
-    mBlockMasterClientPool.close();
-    mBlockMasterClientPool = null;
-    mMasterInquireClient = null;
-
-    for (BlockWorkerClientPool pool : mBlockWorkerClientPool.values()) {
-      pool.close();
-    }
-    mBlockWorkerClientPool.clear();
-    // ALLUXIO CS ADD
-    mEncryptionCache.clear();
-    // ALLUXIO CS END
-
-    synchronized (this) {
-=======
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       if (mMetricsMasterClient != null) {
         ThreadUtils.shutdownAndAwaitTermination(mExecutorService,
             mClientContext.getConf().getMs(PropertyKey.METRICS_CONTEXT_SHUTDOWN_TIMEOUT));
@@ -303,15 +291,7 @@ public final class FileSystemContext implements Closeable {
   }
 
   /**
-<<<<<<< HEAD
-   * Resets the context. It is only used in {@code alluxio.hadoop.AbstractFileSystem} and tests to
-   * reset the default file system context.
-   *
-   * @param configuration the instance configuration
-   *
-=======
    * @return the {@link ClientContext} backing this {@link FileSystemContext}
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
    */
   public ClientContext getClientContext() {
     return mClientContext;

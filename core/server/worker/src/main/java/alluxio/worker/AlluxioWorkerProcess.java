@@ -339,17 +339,13 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
   @Override
   public WorkerNetAddress getAddress() {
     return new WorkerNetAddress()
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         // TODO(ggezer) EE-SEC secure key server.
         //.setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort())
         .setSecureRpcPort(0)
         // ALLUXIO CS END
-        .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC))
-=======
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC,
             ServerConfiguration.global()))
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
         .setRpcPort(mRpcAddress.getPort())
         .setDataPort(getDataLocalPort())
         .setDomainSocketPath(getDataDomainSocketPath())

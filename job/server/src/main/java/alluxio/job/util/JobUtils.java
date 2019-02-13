@@ -133,9 +133,9 @@ public final class JobUtils {
         OpenFilePOptions.newBuilder().setReadType(ReadPType.NO_CACHE)
             .setFileReadLocationPolicy(LocalFirstPolicy.class.getCanonicalName()).build();
 
-<<<<<<< HEAD
-    InStreamOptions inOptions = new InStreamOptions(status, openOptions);
-    OutStreamOptions outOptions = OutStreamOptions.defaults();
+    AlluxioConfiguration conf = ServerConfiguration.global();
+    InStreamOptions inOptions = new InStreamOptions(status, openOptions, conf);
+    OutStreamOptions outOptions = OutStreamOptions.defaults(conf);
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inOptions.setCapabilityFetcher(
@@ -146,11 +146,6 @@ public final class JobUtils {
               status.getCapability()));
     }
     // ALLUXIO CS END
-=======
-    AlluxioConfiguration conf = ServerConfiguration.global();
-    InStreamOptions inOptions = new InStreamOptions(status, openOptions, conf);
-    OutStreamOptions outOptions = OutStreamOptions.defaults(conf);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
 
     // use -1 to reuse the existing block size for this block
     try (OutputStream outputStream =

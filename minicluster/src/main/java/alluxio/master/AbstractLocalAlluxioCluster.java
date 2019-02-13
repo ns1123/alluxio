@@ -266,24 +266,15 @@ public abstract class AbstractLocalAlluxioCluster {
       ServerConfiguration.set(entry.getKey(), entry.getValue());
     }
 
-<<<<<<< HEAD
-    Configuration.set(PropertyKey.TEST_MODE, true);
-    Configuration.set(PropertyKey.MASTER_RPC_PORT, 0);
-    Configuration.set(PropertyKey.MASTER_WEB_PORT, 0);
-    Configuration.set(PropertyKey.PROXY_WEB_PORT, 0);
-    Configuration.set(PropertyKey.WORKER_RPC_PORT, 0);
-    Configuration.set(PropertyKey.WORKER_WEB_PORT, 0);
-    // ALLUXIO CS ADD
-    Configuration.set(PropertyKey.WORKER_SECURE_RPC_PORT, 0);
-    // ALLUXIO CS END
-=======
     ServerConfiguration.set(PropertyKey.MASTER_RPC_PORT, 0);
     ServerConfiguration.set(PropertyKey.TEST_MODE, true);
     ServerConfiguration.set(PropertyKey.MASTER_WEB_PORT, 0);
     ServerConfiguration.set(PropertyKey.PROXY_WEB_PORT, 0);
     ServerConfiguration.set(PropertyKey.WORKER_RPC_PORT, 0);
     ServerConfiguration.set(PropertyKey.WORKER_WEB_PORT, 0);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
+    // ALLUXIO CS ADD
+    ServerConfiguration.set(PropertyKey.WORKER_SECURE_RPC_PORT, 0);
+    // ALLUXIO CS END
   }
 
   /**

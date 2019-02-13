@@ -111,8 +111,7 @@ public class UfsJournal implements Journal {
    */
   protected static UnderFileSystemConfiguration getJournalUfsConf() {
     Map<String, String> ufsConf =
-<<<<<<< HEAD
-        Configuration.getNestedProperties(PropertyKey.MASTER_JOURNAL_UFS_OPTION);
+        ServerConfiguration.getNestedProperties(PropertyKey.MASTER_JOURNAL_UFS_OPTION);
     // ALLUXIO CS ADD
     if (!ufsConf.containsKey(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName())) {
       // Do not use impersonation for the journal UFS.
@@ -121,12 +120,8 @@ public class UfsJournal implements Journal {
       ufsConf.put(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName(), "false");
     }
     // ALLUXIO CS END
-    return UnderFileSystemConfiguration.defaults().setMountSpecificConf(ufsConf);
-=======
-        ServerConfiguration.getNestedProperties(PropertyKey.MASTER_JOURNAL_UFS_OPTION);
     return UnderFileSystemConfiguration.defaults(ServerConfiguration.global())
                .createMountSpecificConf(ufsConf);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
   }
 
   /**

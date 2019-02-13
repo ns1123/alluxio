@@ -207,15 +207,10 @@ public final class AlluxioMasterRestServiceHandler {
       }
       return new AlluxioMasterInfo().setCapacity(getCapacityInternal())
           .setConfiguration(getConfigurationInternal(rawConfig))
-<<<<<<< HEAD
           // ALLUXIO CS ADD
           .setLicense(getLicenseInfoInternal())
           // ALLUXIO CS END
-          .setLostWorkers(mBlockMaster.getLostWorkersInfoList())
-          .setMetrics(getMetricsInternal())
-=======
           .setLostWorkers(mBlockMaster.getLostWorkersInfoList()).setMetrics(getMetricsInternal())
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
           .setMountPoints(getMountPointsInternal())
           .setRpcAddress(mMasterProcess.getRpcAddress().toString())
           .setStartTimeMs(mMasterProcess.getStartTimeMs())

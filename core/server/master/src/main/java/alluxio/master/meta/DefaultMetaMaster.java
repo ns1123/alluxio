@@ -245,15 +245,11 @@ public final class DefaultMetaMaster extends CoreMaster implements MetaMaster {
         mDailyBackup.start();
       }
     } else {
-<<<<<<< HEAD
-      boolean haEnabled = Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED);
+      boolean haEnabled = ServerConfiguration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED);
       // ALLUXIO CS ADD
-      haEnabled = haEnabled || (Configuration.getEnum(PropertyKey.MASTER_JOURNAL_TYPE,
+      haEnabled = haEnabled || (ServerConfiguration.getEnum(PropertyKey.MASTER_JOURNAL_TYPE,
           alluxio.master.journal.JournalType.class) == alluxio.master.journal.JournalType.EMBEDDED);
       // ALLUXIO CS END
-=======
-      boolean haEnabled = ServerConfiguration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
       if (haEnabled) {
         // Standby master should setup MetaMasterSync to communicate with the leader master
         RetryHandlingMetaMasterMasterClient metaMasterClient =

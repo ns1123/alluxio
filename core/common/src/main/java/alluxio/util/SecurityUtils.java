@@ -98,15 +98,11 @@ public final class SecurityUtils {
    */
   public static String getGroupFromLoginModule(AlluxioConfiguration conf) {
     try {
-<<<<<<< HEAD
-      return CommonUtils.getPrimaryGroupName(LoginUser.get().getName());
+      return CommonUtils.getPrimaryGroupName(LoginUser.get(conf).getName());
     // ALLUXIO CS ADD
     } catch (UnauthenticatedException e) {
       return "";
     // ALLUXIO CS END
-=======
-      return CommonUtils.getPrimaryGroupName(LoginUser.get(conf).getName(), conf);
->>>>>>> c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
     } catch (IOException | UnsupportedOperationException e) {
       return "";
     }
