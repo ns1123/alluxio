@@ -695,6 +695,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // ALLUXIO CS ADD
     mDelegationTokenManager.reset();
     // ALLUXIO CS END
+    mSyncManager.reset();
   }
 
   @Override
