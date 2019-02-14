@@ -8,23 +8,11 @@ public interface RemoveBlockRequestOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <pre>
-   * ALLUXIO CS REPLACE
-   * optional int64 block_id = 1;
-   * ALLUXIO CS WITH
-   * </pre>
-   *
-   * <code>optional int64 block_id = 1001;</code>
+   * <code>optional int64 block_id = 1;</code>
    */
   boolean hasBlockId();
   /**
-   * <pre>
-   * ALLUXIO CS REPLACE
-   * optional int64 block_id = 1;
-   * ALLUXIO CS WITH
-   * </pre>
-   *
-   * <code>optional int64 block_id = 1001;</code>
+   * <code>optional int64 block_id = 1;</code>
    */
   long getBlockId();
 }

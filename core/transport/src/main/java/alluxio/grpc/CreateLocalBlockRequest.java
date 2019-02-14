@@ -78,9 +78,14 @@ private static final long serialVersionUID = 0L;
             onlyReserveSpace_ = input.readBool();
             break;
           }
+          case 48: {
+            bitField0_ |= 0x00000010;
+            cleanupOnFailure_ = input.readBool();
+            break;
+          }
           case 8010: {
             alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
-            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+            if (((bitField0_ & 0x00000020) == 0x00000020)) {
               subBuilder = capability_.toBuilder();
             }
             capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
@@ -88,12 +93,7 @@ private static final long serialVersionUID = 0L;
               subBuilder.mergeFrom(capability_);
               capability_ = subBuilder.buildPartial();
             }
-            bitField0_ |= 0x00000010;
-            break;
-          }
-          case 8016: {
             bitField0_ |= 0x00000020;
-            cleanupOnFailure_ = input.readBool();
             break;
           }
         }
@@ -189,25 +189,36 @@ private static final long serialVersionUID = 0L;
     return onlyReserveSpace_;
   }
 
+  public static final int CLEANUP_ON_FAILURE_FIELD_NUMBER = 6;
+  private boolean cleanupOnFailure_;
+  /**
+   * <code>optional bool cleanup_on_failure = 6;</code>
+   */
+  public boolean hasCleanupOnFailure() {
+    return ((bitField0_ & 0x00000010) == 0x00000010);
+  }
+  /**
+   * <code>optional bool cleanup_on_failure = 6;</code>
+   */
+  public boolean getCleanupOnFailure() {
+    return cleanupOnFailure_;
+  }
+
   public static final int CAPABILITY_FIELD_NUMBER = 1001;
   private alluxio.proto.security.CapabilityProto.Capability capability_;
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional bool cleanup_on_failure = 6;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
    */
   public boolean hasCapability() {
-    return ((bitField0_ & 0x00000010) == 0x00000010);
+    return ((bitField0_ & 0x00000020) == 0x00000020);
   }
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional bool cleanup_on_failure = 6;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
@@ -217,38 +228,13 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional bool cleanup_on_failure = 6;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
    */
   public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
     return capability_ == null ? alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance() : capability_;
-  }
-
-  public static final int CLEANUP_ON_FAILURE_FIELD_NUMBER = 1002;
-  private boolean cleanupOnFailure_;
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional bool cleanup_on_failure = 1002;</code>
-   */
-  public boolean hasCleanupOnFailure() {
-    return ((bitField0_ & 0x00000020) == 0x00000020);
-  }
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional bool cleanup_on_failure = 1002;</code>
-   */
-  public boolean getCleanupOnFailure() {
-    return cleanupOnFailure_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -276,10 +262,10 @@ private static final long serialVersionUID = 0L;
       output.writeBool(5, onlyReserveSpace_);
     }
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
-      output.writeMessage(1001, getCapability());
+      output.writeBool(6, cleanupOnFailure_);
     }
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
-      output.writeBool(1002, cleanupOnFailure_);
+      output.writeMessage(1001, getCapability());
     }
     unknownFields.writeTo(output);
   }
@@ -307,11 +293,11 @@ private static final long serialVersionUID = 0L;
     }
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(1001, getCapability());
+        .computeBoolSize(6, cleanupOnFailure_);
     }
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBoolSize(1002, cleanupOnFailure_);
+        .computeMessageSize(1001, getCapability());
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -349,15 +335,15 @@ private static final long serialVersionUID = 0L;
       result = result && (getOnlyReserveSpace()
           == other.getOnlyReserveSpace());
     }
-    result = result && (hasCapability() == other.hasCapability());
-    if (hasCapability()) {
-      result = result && getCapability()
-          .equals(other.getCapability());
-    }
     result = result && (hasCleanupOnFailure() == other.hasCleanupOnFailure());
     if (hasCleanupOnFailure()) {
       result = result && (getCleanupOnFailure()
           == other.getCleanupOnFailure());
+    }
+    result = result && (hasCapability() == other.hasCapability());
+    if (hasCapability()) {
+      result = result && getCapability()
+          .equals(other.getCapability());
     }
     result = result && unknownFields.equals(other.unknownFields);
     return result;
@@ -389,14 +375,14 @@ private static final long serialVersionUID = 0L;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getOnlyReserveSpace());
     }
-    if (hasCapability()) {
-      hash = (37 * hash) + CAPABILITY_FIELD_NUMBER;
-      hash = (53 * hash) + getCapability().hashCode();
-    }
     if (hasCleanupOnFailure()) {
       hash = (37 * hash) + CLEANUP_ON_FAILURE_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getCleanupOnFailure());
+    }
+    if (hasCapability()) {
+      hash = (37 * hash) + CAPABILITY_FIELD_NUMBER;
+      hash = (53 * hash) + getCapability().hashCode();
     }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
@@ -540,13 +526,13 @@ private static final long serialVersionUID = 0L;
       bitField0_ = (bitField0_ & ~0x00000004);
       onlyReserveSpace_ = false;
       bitField0_ = (bitField0_ & ~0x00000008);
+      cleanupOnFailure_ = false;
+      bitField0_ = (bitField0_ & ~0x00000010);
       if (capabilityBuilder_ == null) {
         capability_ = null;
       } else {
         capabilityBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000010);
-      cleanupOnFailure_ = false;
       bitField0_ = (bitField0_ & ~0x00000020);
       return this;
     }
@@ -591,15 +577,15 @@ private static final long serialVersionUID = 0L;
       if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
         to_bitField0_ |= 0x00000010;
       }
+      result.cleanupOnFailure_ = cleanupOnFailure_;
+      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        to_bitField0_ |= 0x00000020;
+      }
       if (capabilityBuilder_ == null) {
         result.capability_ = capability_;
       } else {
         result.capability_ = capabilityBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-        to_bitField0_ |= 0x00000020;
-      }
-      result.cleanupOnFailure_ = cleanupOnFailure_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -654,11 +640,11 @@ private static final long serialVersionUID = 0L;
       if (other.hasOnlyReserveSpace()) {
         setOnlyReserveSpace(other.getOnlyReserveSpace());
       }
-      if (other.hasCapability()) {
-        mergeCapability(other.getCapability());
-      }
       if (other.hasCleanupOnFailure()) {
         setCleanupOnFailure(other.getCleanupOnFailure());
+      }
+      if (other.hasCapability()) {
+        mergeCapability(other.getCapability());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -832,26 +818,54 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
+    private boolean cleanupOnFailure_ ;
+    /**
+     * <code>optional bool cleanup_on_failure = 6;</code>
+     */
+    public boolean hasCleanupOnFailure() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional bool cleanup_on_failure = 6;</code>
+     */
+    public boolean getCleanupOnFailure() {
+      return cleanupOnFailure_;
+    }
+    /**
+     * <code>optional bool cleanup_on_failure = 6;</code>
+     */
+    public Builder setCleanupOnFailure(boolean value) {
+      bitField0_ |= 0x00000010;
+      cleanupOnFailure_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional bool cleanup_on_failure = 6;</code>
+     */
+    public Builder clearCleanupOnFailure() {
+      bitField0_ = (bitField0_ & ~0x00000010);
+      cleanupOnFailure_ = false;
+      onChanged();
+      return this;
+    }
+
     private alluxio.proto.security.CapabilityProto.Capability capability_ = null;
     private com.google.protobuf.SingleFieldBuilderV3<
         alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional bool cleanup_on_failure = 6;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      */
     public boolean hasCapability() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional bool cleanup_on_failure = 6;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
@@ -865,9 +879,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional bool cleanup_on_failure = 6;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
@@ -882,14 +894,12 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       return this;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional bool cleanup_on_failure = 6;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
@@ -902,21 +912,19 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       return this;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional bool cleanup_on_failure = 6;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      */
     public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
       if (capabilityBuilder_ == null) {
-        if (((bitField0_ & 0x00000010) == 0x00000010) &&
+        if (((bitField0_ & 0x00000020) == 0x00000020) &&
             capability_ != null &&
             capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
           capability_ =
@@ -928,14 +936,12 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       return this;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional bool cleanup_on_failure = 6;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
@@ -947,28 +953,24 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000010);
+      bitField0_ = (bitField0_ & ~0x00000020);
       return this;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional bool cleanup_on_failure = 6;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      */
     public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       onChanged();
       return getCapabilityFieldBuilder().getBuilder();
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional bool cleanup_on_failure = 6;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
@@ -983,9 +985,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional bool cleanup_on_failure = 6;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
@@ -1002,54 +1002,6 @@ private static final long serialVersionUID = 0L;
         capability_ = null;
       }
       return capabilityBuilder_;
-    }
-
-    private boolean cleanupOnFailure_ ;
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional bool cleanup_on_failure = 1002;</code>
-     */
-    public boolean hasCleanupOnFailure() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional bool cleanup_on_failure = 1002;</code>
-     */
-    public boolean getCleanupOnFailure() {
-      return cleanupOnFailure_;
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional bool cleanup_on_failure = 1002;</code>
-     */
-    public Builder setCleanupOnFailure(boolean value) {
-      bitField0_ |= 0x00000020;
-      cleanupOnFailure_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional bool cleanup_on_failure = 1002;</code>
-     */
-    public Builder clearCleanupOnFailure() {
-      bitField0_ = (bitField0_ & ~0x00000020);
-      cleanupOnFailure_ = false;
-      onChanged();
-      return this;
     }
     public final Builder setUnknownFields(
         final com.google.protobuf.UnknownFieldSet unknownFields) {
