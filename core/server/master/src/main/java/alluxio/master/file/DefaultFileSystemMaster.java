@@ -3849,7 +3849,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     try (RpcContext rpcContext = createRpcContext()) {
       if (changedFiles == null) {
         try (LockedInodePath inodePath =
-               mInodeTree.lockInodePath(lockingScheme.getPath(), lockingScheme.getMode())) {
+            mInodeTree.lockInodePath(lockingScheme.getPath(), lockingScheme.getMode())) {
           statusCache = populateStatusCache(inodePath, DescendantType.ALL);
           syncMetadataInternal(rpcContext, inodePath, lockingScheme, DescendantType.ALL, statusCache);
           LOG.info("Ended an active full sync of {}", path.toString());
@@ -3857,7 +3857,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
       } else {
         try (LockedInodePath inodePath =
-                 mInodeTree.lockInodePath(lockingScheme.getPath(), InodeTree.LockMode.READ)) {
+            mInodeTree.lockInodePath(lockingScheme.getPath(), InodeTree.LockMode.READ)) {
           statusCache = populateStatusCache(inodePath, DescendantType.ALL);
         }
         Set<Callable<Void>> callables = new HashSet<>();
@@ -3867,16 +3867,18 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 createLockingScheme(alluxioUri, CommonOptions.defaults().setSyncIntervalMs(0),
                     InodeTree.LockMode.WRITE);
             try (LockedInodePath inodePathChangedFile =
-                     mInodeTree.lockInodePath(alluxioUri, fileLockingScheme.getMode())) {
-              syncMetadataInternal(rpcContext, inodePathChangedFile, fileLockingScheme, DescendantType.NONE,
-                  statusCache);
+                mInodeTree.lockInodePath(alluxioUri, fileLockingScheme.getMode())) {
+              syncMetadataInternal(rpcContext, inodePathChangedFile, fileLockingScheme,
+                  DescendantType.NONE, statusCache);
             } catch (InvalidPathException e) {
-              LOG.info("forceSyncMetadata processed an invalid path {}", alluxioUri.getPath());
+              LOG.info("forceSyncMetadata processed an invalid path {}: {}", alluxioUri.getPath(),
+                  e.toString());
             }
             return null;
           });
         }
         executorService.invokeAll(callables);
+        LOG.info("Ended an active incremental sync of {} files", changedFiles.size());
       }
     } catch (InvalidPathException e) {
       LOG.warn("InvalidPathException during active sync {}", e);
@@ -3885,7 +3887,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       Thread.currentThread().interrupt();
       return;
     }
-    LOG.info("Ended an active incremental sync of {} files", changedFiles.size());
   }
 
   @Override
