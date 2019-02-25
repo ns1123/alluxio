@@ -12,8 +12,6 @@
 package alluxio.client.fs;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
 import alluxio.client.WriteType;
 import alluxio.client.file.CryptoFileInStream;
@@ -22,6 +20,8 @@ import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.policy.LocalFirstPolicy;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.OpenFilePOptions;
 import alluxio.grpc.ReadPType;
@@ -64,17 +64,16 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
   @Before
   public void before() throws Exception {
     super.before();
-    mMeta = alluxio.client.util.EncryptionMetaTestUtils.create();
+    mMeta = alluxio.client.util.EncryptionMetaTestUtils.create(ServerConfiguration.global());
   }
 
   @Override
-  protected LocalAlluxioClusterResource buildLocalAlluxioClusterResource() {
-    return new LocalAlluxioClusterResource.Builder()
+  protected void customizeClusterResource(LocalAlluxioClusterResource.Builder resource) {
+    resource
         .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
         .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
         .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
-        .setProperty(PropertyKey.SECURITY_ENCRYPTION_ENABLED, true)
-        .build();
+        .setProperty(PropertyKey.SECURITY_ENCRYPTION_ENABLED, true);
   }
 
   @Test
@@ -142,7 +141,7 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
             .build())) {
       Assert.assertTrue(os instanceof CryptoFileOutStream);
       os.write((byte) 0);
-      Thread.sleep(Configuration.getMs(PropertyKey.USER_HEARTBEAT_INTERVAL_MS) * 2);
+      Thread.sleep(ServerConfiguration.getMs(PropertyKey.USER_HEARTBEAT_INTERVAL_MS) * 2);
       os.write((byte) 1);
     }
     if (mWriteType.getAlluxioStorageType().isStore()) {
@@ -189,7 +188,8 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
   private void checkEncryptedFileInUnderStorage(AlluxioURI filePath) throws Exception {
     URIStatus status = mFileSystem.getStatus(filePath);
     String checkpointPath = status.getUfsPath();
-    UnderFileSystem ufs = UnderFileSystem.Factory.create(checkpointPath);
+    UnderFileSystem ufs = UnderFileSystem.Factory.create(checkpointPath,
+        ServerConfiguration.global());
 
     UfsFileStatus ufsStatus = ufs.getFileStatus(checkpointPath);
     long ufsLen = ufsStatus.getContentLength();

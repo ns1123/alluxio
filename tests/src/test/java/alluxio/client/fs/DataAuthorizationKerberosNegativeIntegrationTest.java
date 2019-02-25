@@ -12,11 +12,10 @@
 package alluxio.client.fs;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
-import alluxio.client.file.FileSystemContext;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.status.PermissionDeniedException;
 import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
@@ -51,7 +50,8 @@ import java.io.File;
 // TODO(ggezer) EE-SEC reactivate after gRPC kerberos.
 public final class DataAuthorizationKerberosNegativeIntegrationTest extends BaseIntegrationTest {
   private static final String TMP_DIR = "/tmp";
-  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
+  private static final String HOSTNAME = NetworkAddressUtils
+      .getLocalHostName(ServerConfiguration.getInt(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
   private static final String UNIFIED_INSTANCE = "instance";
 
   private static MiniKdc sKdc;
@@ -86,13 +86,11 @@ public final class DataAuthorizationKerberosNegativeIntegrationTest extends Base
 
   @Before
   public void before() throws Exception {
-    FileSystemContext.get().reset(Configuration.global());
     LoginUserTestUtils.resetLoginUser();
   }
 
   @After
   public void after() throws Exception {
-    FileSystemContext.get().reset(Configuration.global());
     LoginUserTestUtils.resetLoginUser();
   }
 

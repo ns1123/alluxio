@@ -22,6 +22,7 @@ import alluxio.conf.InstancedConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.network.TieredIdentityFactory;
 import alluxio.util.CommonUtils;
+import alluxio.util.TieredIdentityUtils;
 import alluxio.grpc.GrpcUtils;
 import alluxio.wire.TieredIdentity.LocalityTier;
 
@@ -53,27 +54,26 @@ public class TieredIdentityTest {
     TieredIdentity id3 = TieredIdentityFactory.fromString("node=C,rack=rack2", mConfiguration);
     List<TieredIdentity> identities = Arrays.asList(id1, id2, id3);
 
-    boolean resolveIp = mConfiguration.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP);
     assertSame(id1, TieredIdentityUtils
         .nearest(TieredIdentityFactory.fromString("node=D,rack=rack1", mConfiguration), identities,
-            resolveIp).get());
+            mConfiguration).get());
     assertSame(id2, TieredIdentityUtils
         .nearest(TieredIdentityFactory.fromString("node=B,rack=rack2", mConfiguration), identities,
-            resolveIp).get());
+            mConfiguration).get());
     assertSame(id3, TieredIdentityUtils
         .nearest(TieredIdentityFactory.fromString("node=C,rack=rack2", mConfiguration), identities,
-            resolveIp).get());
+            mConfiguration).get());
     assertSame(id1, TieredIdentityUtils
         .nearest(TieredIdentityFactory.fromString("node=D,rack=rack3", mConfiguration), identities,
-            resolveIp).get());
+            mConfiguration).get());
     // ALLUXIO CS ADD
     try (java.io.Closeable c = new alluxio.ConfigurationRule(
-        alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK),
-        "true").toResource()) {
+        PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK),
+        "true", mConfiguration).toResource()) {
       org.junit.Assert.assertFalse(
           TieredIdentityUtils.nearest(
               TieredIdentityFactory.fromString("node=D,rack=rack3", mConfiguration),
-              identities, resolveIp).get().isPresent());
+              identities, mConfiguration).isPresent());
     }
     // ALLUXIO CS END
   }

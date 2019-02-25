@@ -52,10 +52,17 @@ public interface CreateLocalBlockRequestOrBuilder extends
   boolean getOnlyReserveSpace();
 
   /**
+   * <code>optional bool cleanup_on_failure = 6;</code>
+   */
+  boolean hasCleanupOnFailure();
+  /**
+   * <code>optional bool cleanup_on_failure = 6;</code>
+   */
+  boolean getCleanupOnFailure();
+
+  /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional bool cleanup_on_failure = 6;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
@@ -63,9 +70,7 @@ public interface CreateLocalBlockRequestOrBuilder extends
   boolean hasCapability();
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional bool cleanup_on_failure = 6;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
@@ -73,29 +78,10 @@ public interface CreateLocalBlockRequestOrBuilder extends
   alluxio.proto.security.CapabilityProto.Capability getCapability();
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional bool cleanup_on_failure = 6;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
    */
   alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
-
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional bool cleanup_on_failure = 1002;</code>
-   */
-  boolean hasCleanupOnFailure();
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional bool cleanup_on_failure = 1002;</code>
-   */
-  boolean getCleanupOnFailure();
 }

@@ -13,9 +13,9 @@ package alluxio.master.callhome;
 
 import static java.util.stream.Collectors.toList;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.MasterProcess;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
@@ -63,7 +63,7 @@ public final class CallHomeUtils {
     }
     CallHomeInfo info = new CallHomeInfo();
     info.setProduct("enterprise");
-    info.setFaultTolerant(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
+    info.setFaultTolerant(ServerConfiguration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
     info.setWorkerCount(blockMaster.getWorkerCount());
     List<WorkerInfo> workerInfos = blockMaster.getWorkerInfoList();
     // Make a copy
@@ -79,8 +79,8 @@ public final class CallHomeUtils {
     info.setUptime(masterProcess.getUptimeMs());
     info.setClusterVersion(RuntimeConstants.VERSION);
     // Set ufs information.
-    String ufsRoot = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
-    UnderFileSystem ufs = UnderFileSystem.Factory.createForRoot();
+    String ufsRoot = ServerConfiguration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
+    UnderFileSystem ufs = UnderFileSystem.Factory.createForRoot(ServerConfiguration.global());
     info.setUfsType(ufs.getUnderFSType());
     info.setUfsSize(ufs.getSpace(ufsRoot, UnderFileSystem.SpaceType.SPACE_TOTAL));
     // Set storage tiers.

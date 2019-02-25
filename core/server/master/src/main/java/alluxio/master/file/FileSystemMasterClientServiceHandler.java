@@ -13,6 +13,8 @@ package alluxio.master.file;
 
 import alluxio.AlluxioURI;
 import alluxio.RpcUtils;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.CancelDelegationTokenPRequest;
 import alluxio.grpc.CancelDelegationTokenPResponse;
 import alluxio.grpc.CheckConsistencyPOptions;
@@ -228,7 +230,8 @@ public final class FileSystemMasterClientServiceHandler
           alluxio.security.authentication.Token<DelegationTokenIdentifier> delegationToken =
               new alluxio.security.authentication.Token<>(
                   alluxio.security.authentication.DelegationTokenIdentifier
-                      .fromProto(request.getToken().getIdentifier()),
+                      .fromProto(request.getToken().getIdentifier(),
+                          ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
                   request.getToken().getPassword().toByteArray());
           long expirationTimeMs = mFileSystemMaster.renewDelegationToken(delegationToken);
           return RenewDelegationTokenPResponse.newBuilder().setExpirationTimeMs(expirationTimeMs)
@@ -244,7 +247,8 @@ public final class FileSystemMasterClientServiceHandler
           alluxio.security.authentication.Token<DelegationTokenIdentifier> delegationToken =
               new alluxio.security.authentication.Token<>(
                   alluxio.security.authentication.DelegationTokenIdentifier
-                      .fromProto(request.getToken().getIdentifier()),
+                      .fromProto(request.getToken().getIdentifier(),
+                          ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
                   request.getToken().getPassword().toByteArray());
           mFileSystemMaster.cancelDelegationToken(delegationToken);
           return CancelDelegationTokenPResponse.getDefaultInstance();

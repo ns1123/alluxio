@@ -1352,6 +1352,7 @@
             <exclude>third-party-license-generation/*</exclude>
             <exclude>**/native/**</exclude>
             <exclude>dev/scripts/**</exclude>
+            <exclude>**/*.min.js</exclude>
 
             <!-- ALLUXIO CS END -->
             <!-- Default Local File System Exclusions -->

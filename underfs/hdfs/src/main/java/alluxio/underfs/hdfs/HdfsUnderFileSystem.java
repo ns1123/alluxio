@@ -892,7 +892,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
         Boolean.valueOf(mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
     String user = HDFS_USER;
     if (isImpersonationEnabled) {
-      user = alluxio.util.SecurityUtils.getOwnerFromGrpcClient();
+      user = alluxio.util.SecurityUtils.getOwnerFromGrpcClient(mAlluxioConf);
     }
     // ALLUXIO CS END
     try {

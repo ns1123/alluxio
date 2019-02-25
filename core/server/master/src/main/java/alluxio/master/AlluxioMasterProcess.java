@@ -145,7 +145,8 @@ public class AlluxioMasterProcess implements MasterProcess {
       }
 
       // ALLUXIO CS ADD
-      mDelegationTokenManager = new alluxio.security.authentication.DelegationTokenManager();
+      mDelegationTokenManager =
+          new alluxio.security.authentication.DelegationTokenManager(ServerConfiguration.global());
       // ALLUXIO CS END
 
       // Random port binding.
@@ -186,10 +187,10 @@ public class AlluxioMasterProcess implements MasterProcess {
       MasterUtils.createMasters(mRegistry, context);
       // ALLUXIO CS ADD
       if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
-          && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED)) {
+          && ServerConfiguration.getBoolean(PropertyKey.CALL_HOME_ENABLED)) {
         mRegistry.get(alluxio.master.callhome.CallHomeMaster.class).setMaster(this);
       }
-      if (Configuration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL,
+      if (ServerConfiguration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL,
           alluxio.master.diagnostic.DiagnosticLogLevel.class)
           != alluxio.master.diagnostic.DiagnosticLogLevel.NONE
           && Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {

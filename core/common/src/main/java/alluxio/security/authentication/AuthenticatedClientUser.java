@@ -135,11 +135,12 @@ public final class AuthenticatedClientUser {
   /**
    * Gets the connection user name from the {@link ThreadLocal} variable.
    *
+   * @param conf Alluxio configuration
    * @return the client user in string, null if the user is not present
    * @throws AccessControlException if the authentication is not enabled
    */
-  public static String getConnectionUser() throws AccessControlException {
-    if (!SecurityUtils.isAuthenticationEnabled()) {
+  public static String getConnectionUser(AlluxioConfiguration conf) throws AccessControlException {
+    if (!SecurityUtils.isAuthenticationEnabled(conf)) {
       throw new AccessControlException(ExceptionMessage.AUTHENTICATION_IS_NOT_ENABLED.getMessage());
     }
     User user = sConnectionUserThreadLocal.get();
@@ -152,11 +153,12 @@ public final class AuthenticatedClientUser {
   /**
    * Gets the connection authentication method from the {@link ThreadLocal} variable.
    *
+   * @param conf Alluxio configuration
    * @return the client user in string, null if the user is not present
    * @throws AccessControlException if the authentication is not enabled
    */
-  public static String getAuthMethod() throws AccessControlException {
-    if (!SecurityUtils.isAuthenticationEnabled()) {
+  public static String getAuthMethod(AlluxioConfiguration conf) throws AccessControlException {
+    if (!SecurityUtils.isAuthenticationEnabled(conf)) {
       throw new AccessControlException(ExceptionMessage.AUTHENTICATION_IS_NOT_ENABLED.getMessage());
     }
     return sConnectionAuthMethod.get();

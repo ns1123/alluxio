@@ -26,10 +26,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidPathException;
 import alluxio.grpc.CreateDirectoryPOptions;
@@ -125,7 +124,8 @@ public final class ExtensionInodeAttributesProviderTest {
   private InodeAttributesProvider mMasterProvider;
   private AccessControlEnforcer mMasterEnforcer;
   private final UnderFileSystem mTestUfs =
-      new LocalUnderFileSystemFactory().create("/", UnderFileSystemConfiguration.defaults());
+      new LocalUnderFileSystemFactory().create("/", UnderFileSystemConfiguration.defaults(
+          ServerConfiguration.global()), ServerConfiguration.global());
   private InodeAttributesProvider mRootUfsProvider;
   private AccessControlEnforcer mRootUfsEnforcer;
   private InodeAttributesProvider mNestedUfsProvider;
@@ -174,18 +174,18 @@ public final class ExtensionInodeAttributesProviderTest {
     sRegistry.start(true);
 
     GroupMappingServiceTestUtils.resetCache();
-    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
+    ServerConfiguration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
         PermissionCheckerTest.FakeUserGroupsMapping.class.getName());
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
-    Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PLUGINS_ENABLED, "true");
+    ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    ServerConfiguration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
+    ServerConfiguration.set(PropertyKey.SECURITY_AUTHORIZATION_PLUGINS_ENABLED, "true");
   }
 
   @AfterClass
   public static void afterClass() throws Exception {
     sRegistry.stop();
     AuthenticatedClientUser.remove();
-    ConfigurationTestUtils.resetConfiguration();
+    ServerConfiguration.reset();
   }
 
   @Before
@@ -217,7 +217,7 @@ public final class ExtensionInodeAttributesProviderTest {
         new AlluxioURI(NESTED_UFS_URI), nestedUfsMountId,
         MountContext.defaults().getOptions().build());
     if (masterPlugin) {
-      Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME, "test-plugin");
+      ServerConfiguration.set(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME, "test-plugin");
       mMasterProvider = mock(InodeAttributesProvider.class);
       mMasterEnforcer = mock(AccessControlEnforcer.class);
       when(mFactory.createMasterProvider()).thenReturn(mMasterProvider);

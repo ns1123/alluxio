@@ -94,10 +94,21 @@ public interface WriteRequestCommandOrBuilder extends
   alluxio.proto.dataserver.Protocol.CreateUfsFileOptionsOrBuilder getCreateUfsFileOptionsOrBuilder();
 
   /**
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+   */
+  boolean hasCreateUfsBlockOptions();
+  /**
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+   */
+  alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions();
+  /**
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+   */
+  alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder();
+
+  /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
@@ -105,9 +116,7 @@ public interface WriteRequestCommandOrBuilder extends
   boolean hasCapability();
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
@@ -115,37 +124,10 @@ public interface WriteRequestCommandOrBuilder extends
   alluxio.proto.security.CapabilityProto.Capability getCapability();
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
    */
   alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
-
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-   */
-  boolean hasCreateUfsBlockOptions();
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-   */
-  alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions();
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-   */
-  alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder();
 }

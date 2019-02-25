@@ -154,6 +154,11 @@ public class InstancedConfiguration implements AlluxioConfiguration {
   public void set(PropertyKey key, Object value, Source source) {
     Preconditions.checkArgument(key != null && value != null && !value.equals(""),
         String.format("The key value pair (%s, %s) cannot be null", key, value));
+    // ALLUXIO CS ADD
+    Preconditions.checkArgument(
+        getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key),
+        String.format("changing the value of key %s is not supported", key));
+    // ALLUXIO CS END
     Preconditions.checkArgument(!value.equals(""),
         String.format("The key \"%s\" cannot be have an empty string as a value. Use "
             + "ServerConfiguration.unset to remove a key from the configuration.", key));
@@ -168,6 +173,11 @@ public class InstancedConfiguration implements AlluxioConfiguration {
    */
   public void unset(PropertyKey key) {
     Preconditions.checkNotNull(key, "key");
+    // ALLUXIO CS ADD
+    Preconditions.checkArgument(
+        getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key),
+        String.format("changing the value of key %s is not supported", key));
+    // ALLUXIO CS END
     mProperties.remove(key);
   }
 

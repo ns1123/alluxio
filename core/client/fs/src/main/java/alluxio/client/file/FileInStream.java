@@ -71,7 +71,12 @@ public class FileInStream extends InputStream implements BoundedStream, Position
   private final URIStatus mStatus;
   private final InStreamOptions mOptions;
   private final AlluxioBlockStore mBlockStore;
-  private final FileSystemContext mContext;
+  // ALLUXIO CS REPLACE
+  // private final FileSystemContext mContext;
+  // ALLUXIO CS WITH
+  // TODO(zac) port this to AOS
+  protected final FileSystemContext mContext;
+  // ALLUXIO CS END
   private final boolean mPassiveCachingEnabled;
 
   /* Convenience values derived from mStatus, use these instead of querying mStatus. */

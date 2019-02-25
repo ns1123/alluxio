@@ -543,8 +543,9 @@ public class ConfigurationTest {
   public void jobMasterHostnameDefaultsToMasterHostname() throws Exception {
     try (Closeable c = new SystemPropertyRule(PropertyKey.MASTER_HOSTNAME.toString(), "new_master")
         .toResource()) {
-      Configuration.reset();
-      assertEquals("new_master", Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
+      ConfigurationUtils.reloadProperties();
+      mConfiguration = ConfigurationTestUtils.defaults();
+      assertEquals("new_master", mConfiguration.get(PropertyKey.JOB_MASTER_HOSTNAME));
     }
   }
   // ALLUXIO CS END

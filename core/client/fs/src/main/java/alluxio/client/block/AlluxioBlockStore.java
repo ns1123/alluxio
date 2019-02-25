@@ -36,6 +36,7 @@ import alluxio.refresh.RefreshPolicy;
 import alluxio.refresh.TimeoutRefresh;
 import alluxio.resource.CloseableResource;
 import alluxio.util.FormatUtils;
+import alluxio.util.TieredIdentityUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.TieredIdentity;
@@ -121,7 +122,9 @@ public final class AlluxioBlockStore {
       // ALLUXIO CS WITH
       mWorkerInfoList = getAllWorkers().stream()
           // Filter out workers in different strict tiers.
-          .filter(w -> w.getNetAddress().getTieredIdentity().strictTiersMatch(mTieredIdentity))
+          .filter(w -> TieredIdentityUtils
+              .strictTiersMatch(w.getNetAddress().getTieredIdentity().getTiers(), mTieredIdentity,
+                  mContext.getConf()))
           .collect(toList());
       // ALLUXIO CS END
     }
@@ -208,9 +211,7 @@ public final class AlluxioBlockStore {
               .collect(toList());
       Collections.shuffle(tieredLocations);
       Optional<TieredIdentity> nearest =
-          TieredIdentityUtils.nearest(mTieredIdentity, tieredLocations,
-              mContext.getConf()
-                  .getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP));
+          TieredIdentityUtils.nearest(mTieredIdentity, tieredLocations, mContext.getConf());
       if (nearest.isPresent()) {
         dataSource = locations.stream().map(BlockLocation::getWorkerAddress)
             .filter(addr -> addr.getTieredIdentity().equals(nearest.get())).findFirst().get();

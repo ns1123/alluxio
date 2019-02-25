@@ -11,6 +11,7 @@
 
 package alluxio.master.privilege;
 
+import alluxio.conf.ServerConfiguration;
 import alluxio.proto.journal.Privilege.PPrivilege;
 import alluxio.util.CommonUtils;
 import alluxio.wire.Privilege;
@@ -96,7 +97,7 @@ public final class PrivilegeUtils {
   public static Set<Privilege> getUserPrivileges(PrivilegeMaster privilegeService, String user) {
     List<String> groups;
     try {
-      groups = CommonUtils.getGroups(user);
+      groups = CommonUtils.getGroups(user, ServerConfiguration.global());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

@@ -11,8 +11,8 @@
 
 package alluxio.security.util;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.netty.NettyAttributes;
 import alluxio.proto.security.CapabilityProto;
 import alluxio.security.Credentials;
@@ -121,25 +121,27 @@ public final class KerberosUtils {
   /**
    * Gets the Kerberos service name from {@link PropertyKey#SECURITY_KERBEROS_SERVICE_NAME}.
    *
+   * @param conf Alluxio configuration
    * @return the Kerberos service name
    */
-  public static String getKerberosServiceName() {
-    String serviceName = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME);
-    if (!serviceName.isEmpty()) {
-      return serviceName;
+  public static String getKerberosServiceName(AlluxioConfiguration conf) {
+    String kerberosServiceName = conf.get(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME);
+    if (!kerberosServiceName.isEmpty()) {
+      return kerberosServiceName;
     }
     throw new RuntimeException(
         PropertyKey.SECURITY_KERBEROS_SERVICE_NAME.toString() + " must be set.");
   }
 
   /**
+   * @param conf Alluxio configuration
    * @return the Kerberos unified instance name if set, otherwise null
    */
-  public static String maybeGetKerberosUnifiedInstanceName() {
-    if (!Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME)) {
+  public static String maybeGetKerberosUnifiedInstanceName(AlluxioConfiguration conf) {
+    if (!conf.isSet(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME)) {
       return null;
     }
-    String unifedInstance = Configuration.get(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME);
+    String unifedInstance = conf.get(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME);
     if (unifedInstance.isEmpty()) {
       return null;
     }
@@ -271,9 +273,10 @@ public final class KerberosUtils {
    *                       be null if the client user is authenticated using own credentials.
    * @param authMethod the authentication method used by the client
    */
-  private static void updateThriftRpcUsers(String user, String connectionUser, String authMethod) {
+  private static void updateThriftRpcUsers(String user, String connectionUser, String authMethod,
+      AlluxioConfiguration conf) {
     try {
-      User oldUser = AuthenticatedClientUser.get();
+      User oldUser = AuthenticatedClientUser.get(conf);
       Preconditions
           .checkState(oldUser == null, "A user (%s) exists while adding user (%s).", oldUser,
               user);
@@ -296,11 +299,14 @@ public final class KerberosUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractGssSaslCallbackHandler.class);
     private final ImpersonationAuthenticator mImpersonationAuthenticator;
 
+    protected final AlluxioConfiguration mConf;
+
     /**
      * Creates a new instance of {@link AbstractGssSaslCallbackHandler}.
      */
-    public AbstractGssSaslCallbackHandler() {
-      mImpersonationAuthenticator = new ImpersonationAuthenticator();
+    public AbstractGssSaslCallbackHandler(AlluxioConfiguration conf) {
+      mImpersonationAuthenticator = new ImpersonationAuthenticator(conf);
+      mConf = conf;
     }
 
     @Override
@@ -321,14 +327,16 @@ public final class KerberosUtils {
         String authorizationId = ac.getAuthorizationID();
 
         try {
-          authorizationId = new KerberosName(authorizationId).getShortName();
+          authorizationId = new KerberosName(authorizationId)
+              .getShortName(mConf.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
         } catch (Exception e) {
           // Ignore, since the impersonation user is not guaranteed to be a Kerberos name
         }
 
         String connectionUser;
         try {
-          connectionUser = new KerberosName(authenticationId).getShortName();
+          connectionUser = new KerberosName(authenticationId)
+              .getShortName(mConf.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
           mImpersonationAuthenticator
               .authenticate(connectionUser, authorizationId);
           ac.setAuthorized(true);
@@ -341,7 +349,9 @@ public final class KerberosUtils {
 
         if (ac.isAuthorized()) {
           ac.setAuthorizedID(authorizationId);
-          done(new KerberosName(authorizationId).getShortName(), connectionUser);
+          done(new KerberosName(authorizationId)
+                  .getShortName(mConf.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+              connectionUser);
         }
         // Do not set the AuthenticatedClientUser if the user is not authorized.
       }
@@ -365,9 +375,11 @@ public final class KerberosUtils {
     /**
      * Creates a {@link ThriftGssSaslCallbackHandler} instance.
      *
+     * @param conf Alluxio configuration
      * @param callback the callback runs after the connection is authenticated
      */
-    public ThriftGssSaslCallbackHandler(Runnable callback) {
+    public ThriftGssSaslCallbackHandler(AlluxioConfiguration conf, Runnable callback) {
+      super(conf);
       mCallback = callback;
     }
 
@@ -375,7 +387,7 @@ public final class KerberosUtils {
     protected void done(String user, String connectionUser) {
       // After verification succeeds, a user with this authorizationId will be set to a
       // Threadlocal.
-      updateThriftRpcUsers(user, connectionUser, GSSAPI_MECHANISM_NAME);
+      updateThriftRpcUsers(user, connectionUser, GSSAPI_MECHANISM_NAME, mConf);
       mCallback.run();
     }
   }
@@ -389,9 +401,11 @@ public final class KerberosUtils {
     /**
      * Creates an {@link NettyGssSaslCallbackHandler} instance.
      *
+     * @param conf Alluxio configuration
      * @param channel the netty channel
      */
-    public NettyGssSaslCallbackHandler(Channel channel) {
+    public NettyGssSaslCallbackHandler(AlluxioConfiguration conf, Channel channel) {
+      super(conf);
       mChannel = channel;
     }
 
@@ -508,16 +522,20 @@ public final class KerberosUtils {
     private final Runnable mCallback;
     private final DelegationTokenManager mTokenManager;
 
+    private final AlluxioConfiguration mConf;
+
     /**
      * Creates a {@link ThriftDelegationTokenServerCallbackHandler} instance.
      *
+     * @param conf Alluxio configuration
      * @param manager delegation token manager
      * @param callback the callback runs after the connection is authenticated
      */
-    public ThriftDelegationTokenServerCallbackHandler(Runnable callback,
+    public ThriftDelegationTokenServerCallbackHandler(AlluxioConfiguration conf, Runnable callback,
         DelegationTokenManager manager) {
       mCallback = callback;
       mTokenManager = manager;
+      mConf = conf;
     }
 
     @Override
@@ -527,7 +545,7 @@ public final class KerberosUtils {
       String authenticationId = id.getRealUser();
       ac.setAuthorized(true);
       ac.setAuthorizedID(authorizationId);
-      updateThriftRpcUsers(authorizationId, authenticationId, DIGEST_MECHANISM_NAME);
+      updateThriftRpcUsers(authorizationId, authenticationId, DIGEST_MECHANISM_NAME, mConf);
       mCallback.run();
     }
 
@@ -549,7 +567,8 @@ public final class KerberosUtils {
     }
 
     private DelegationTokenIdentifier getDelegationTokenIdentifier(String name) throws IOException {
-      return DelegationTokenIdentifier.fromByteArray(Base64.decodeBase64(name.getBytes()));
+      return DelegationTokenIdentifier.fromByteArray(Base64.decodeBase64(name.getBytes()),
+          mConf.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
     }
   }
 

@@ -56,8 +56,8 @@ public final class DistributedMvCommand extends AbstractFileSystemCommand {
     Thread thread = JobGrpcClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
     thread.start();
     try {
-      JobGrpcClientUtils.run(new MigrateConfig(srcPath.getPath(), dstPath.getPath(), null, true),
-          3, mFsContext.getConf());
+      JobGrpcClientUtils.run(new MigrateConfig(srcPath.getPath(), dstPath.getPath(), null, true,
+          true), 3, mFsContext.getConf());
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       return -1;

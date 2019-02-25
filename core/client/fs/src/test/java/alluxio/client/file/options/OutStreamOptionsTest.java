@@ -95,9 +95,9 @@ public class OutStreamOptionsTest {
     // ALLUXIO CS ADD
     org.powermock.api.mockito.PowerMockito.mockStatic(alluxio.util.SecurityUtils.class);
     org.powermock.api.mockito.PowerMockito.when(
-        alluxio.util.SecurityUtils.getOwnerFromLoginModule()).thenReturn("test_user");
+        alluxio.util.SecurityUtils.getOwnerFromLoginModule(mConf)).thenReturn("test_user");
     org.powermock.api.mockito.PowerMockito.when(
-        alluxio.util.SecurityUtils.getGroupFromLoginModule()).thenReturn("test_group");
+        alluxio.util.SecurityUtils.getGroupFromLoginModule(mConf)).thenReturn("test_group");
     // ALLUXIO CS END
 
     OutStreamOptions options = OutStreamOptions.defaults(mConf);
@@ -140,7 +140,7 @@ public class OutStreamOptionsTest {
     WriteType writeType = WriteType.NONE;
     // ALLUXIO CS ADD
     alluxio.proto.security.EncryptionProto.Meta meta =
-        alluxio.client.util.EncryptionMetaTestUtils.create();
+        alluxio.client.util.EncryptionMetaTestUtils.create(mConf);
     // ALLUXIO CS END
 
     OutStreamOptions options = OutStreamOptions.defaults(mConf);

@@ -13,6 +13,7 @@ package alluxio.server.fork;
 
 import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
+import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.MountPOptions;
 import alluxio.grpc.WritePType;
@@ -54,7 +55,7 @@ public class ForkUnderFileSystemIntegrationTest {
   public void before() throws Exception {
     mUfsPathA = mUfsFolderA.getRoot().getAbsolutePath();
     mUfsPathB = mUfsFolderB.getRoot().getAbsolutePath();
-    mFileSystem = FileSystem.Factory.get();
+    mFileSystem = FileSystem.Factory.get(ServerConfiguration.global());
   }
 
   @Test

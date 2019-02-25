@@ -145,7 +145,7 @@ public class AlluxioProperties {
       }
       // ALLUXIO CS ADD
       // Skip immutable keys unless it is the default value
-      if (source != Source.DEFAULT && alluxio.PropertyKey.IMMUTABLE_KEYS.contains(propertyKey)) {
+      if (source != Source.DEFAULT && PropertyKey.IMMUTABLE_KEYS.contains(propertyKey)) {
         continue;
       }
       // ALLUXIO CS END
@@ -194,7 +194,7 @@ public class AlluxioProperties {
     Set<PropertyKey> keySet = new HashSet<>(PropertyKey.defaultKeys());
     keySet.addAll(mUserProps.keySet());
     // ALLUXIO CS ADD
-    keySet.removeAll(alluxio.PropertyKey.IMMUTABLE_KEYS);
+    keySet.removeAll(PropertyKey.IMMUTABLE_KEYS);
     // ALLUXIO CS END
     return keySet;
   }

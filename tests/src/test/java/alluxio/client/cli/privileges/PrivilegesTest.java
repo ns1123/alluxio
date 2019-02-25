@@ -14,11 +14,13 @@ package alluxio.client.cli.privileges;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
-import alluxio.PropertyKey;
+import alluxio.ClientContext;
 import alluxio.cli.privileges.Privileges;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
-import alluxio.master.MasterClientConfig;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
+import alluxio.master.MasterClientContext;
 import alluxio.security.group.GroupMappingService;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.LocalAlluxioClusterResource;
@@ -68,7 +70,7 @@ public class PrivilegesTest extends BaseIntegrationTest {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     System.setOut(new PrintStream(output));
     try {
-      new Privileges().run(args);
+      new Privileges(ServerConfiguration.global()).run(args);
     } finally {
       System.setOut(System.out);
     }
@@ -83,7 +85,8 @@ public class PrivilegesTest extends BaseIntegrationTest {
    */
   protected void grantPrivileges(String group, Privilege... privileges) throws Exception {
     PrivilegeMasterClient client =
-        PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
+        PrivilegeMasterClient.Factory.create(MasterClientContext
+                .newBuilder(ClientContext.create(ServerConfiguration.global())).build());
     client.grantPrivileges(group, Arrays.asList(privileges), GrantPrivilegesOptions.defaults());
   }
 

@@ -3554,8 +3554,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
 
   static {
     IMMUTABLE_KEYS = com.google.common.collect.ImmutableSet.of(
-        PropertyKey.KEY_VALUE_ENABLED,
-        PropertyKey.KEY_VALUE_PARTITION_SIZE_BYTES_MAX,
         PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER);
   }
   // ALLUXIO CS END

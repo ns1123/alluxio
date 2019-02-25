@@ -15,16 +15,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import alluxio.Configuration;
+import alluxio.ClientContext;
 import alluxio.LoginUserRule;
-import alluxio.PropertyKey;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GetGroupPrivilegesOptions;
 import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
-import alluxio.master.MasterClientConfig;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
+import alluxio.master.MasterClientContext;
 import alluxio.security.group.GroupMappingService;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.LocalAlluxioClusterResource;
@@ -67,7 +68,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
           PrivilegesServiceIntegrationTest.TestGroupsMapping.class.getName())
       .build();
 
-  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER);
+  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER, ServerConfiguration.global());
 
   // LocalAlluxioClusterResource resets the login user, so the login user rule must be used inside
   // the cluster rule.
@@ -79,8 +80,8 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
 
   @Before
   public void before() throws Exception {
-    mSupergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    mSupergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       refreshPrivilegeClient();
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.FREE, Privilege.TTL),
           GrantPrivilegesOptions.defaults());
@@ -90,7 +91,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
 
   @Test
   public void superUserHasAllPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       refreshPrivilegeClient();
       List<Privilege> superUserPrivileges =
           mPrivilegeClient.getUserPrivileges(SUPER_USER, GetUserPrivilegesOptions.defaults());
@@ -101,7 +102,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
 
   @Test
   public void superGroupHasAllPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       refreshPrivilegeClient();
       List<Privilege> superUserPrivileges =
           mPrivilegeClient.getGroupPrivileges(mSupergroup, GetGroupPrivilegesOptions.defaults());
@@ -112,7 +113,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
 
   @Test
   public void superUserCanGetAllPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       refreshPrivilegeClient();
       Map<String, List<Privilege>> allPrivileges = mPrivilegeClient
           .getGroupToPrivilegesMapping(GetGroupToPrivilegesMappingOptions.defaults());
@@ -130,7 +131,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
 
   @Test
   public void superUserCanGetAnyGroupPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       refreshPrivilegeClient();
       List<Privilege> testGroupPrivileges =
           mPrivilegeClient.getGroupPrivileges(TEST_GROUP, GetGroupPrivilegesOptions.defaults());
@@ -177,7 +178,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
 
   @Test
   public void superUserCanGrantPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       refreshPrivilegeClient();
       List<Privilege> newPrivileges = mPrivilegeClient.grantPrivileges(TEST_GROUP,
           Arrays.asList(Privilege.PIN), GrantPrivilegesOptions.defaults());
@@ -188,7 +189,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
 
   @Test
   public void superUserCanRevokePrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       refreshPrivilegeClient();
       List<Privilege> newPrivileges = mPrivilegeClient.revokePrivileges(TEST_GROUP,
           Arrays.asList(Privilege.FREE), RevokePrivilegesOptions.defaults());
@@ -203,7 +204,8 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
    * for the new user.
    */
   private void refreshPrivilegeClient() throws Exception {
-    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
+    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientContext
+            .newBuilder(ClientContext.create(ServerConfiguration.global())).build());
   }
 
   /**
@@ -223,7 +225,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
           groups.add(TEST_GROUP);
           break;
         case SUPER_USER:
-          groups.add(Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP));
+          groups.add(ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP));
           break;
         default:
           // don't add any groups.

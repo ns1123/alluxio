@@ -13,10 +13,9 @@ package alluxio.server.auth;
 
 import static org.junit.Assert.assertTrue;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
-import alluxio.client.file.FileSystemContext;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.conf.Source;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
@@ -65,7 +64,9 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
 
   private MultiMasterLocalAlluxioCluster mMultiMasterLocalAlluxioCluster = null;
 
-  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
+  private static final String HOSTNAME =
+      NetworkAddressUtils.getLocalHostName(
+          ServerConfiguration.getInt(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
   private static final String UNIFIED_INSTANCE = "instance";
 
   private static MiniKdc sKdc;
@@ -92,7 +93,7 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
     // Create a principal in miniKDC, and generate the keytab file for it.
     sKdc.createPrincipal(sServerKeytab, "alluxio/" + UNIFIED_INSTANCE);
 
-    Configuration.merge(ImmutableMap.<PropertyKey, Object>builder()
+    ServerConfiguration.merge(ImmutableMap.<PropertyKey, Object>builder()
         .put(PropertyKey.MASTER_HOSTNAME, HOSTNAME)
         .put(PropertyKey.WORKER_HOSTNAME, HOSTNAME)
         .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
@@ -134,19 +135,19 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
     mMultiMasterLocalAlluxioCluster =
         new MultiMasterLocalAlluxioCluster(MASTERS);
     mMultiMasterLocalAlluxioCluster.initConfiguration();
-    Configuration.set(PropertyKey.WORKER_MEMORY_SIZE, WORKER_CAPACITY_BYTES);
-    Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE);
-    Configuration.set(PropertyKey.MASTER_JOURNAL_TAILER_SHUTDOWN_QUIET_WAIT_TIME_MS, 100);
-    Configuration.set(PropertyKey.MASTER_JOURNAL_CHECKPOINT_PERIOD_ENTRIES, 2);
-    Configuration.set(PropertyKey.MASTER_JOURNAL_LOG_SIZE_BYTES_MAX, 32);
+    ServerConfiguration.set(PropertyKey.WORKER_MEMORY_SIZE, WORKER_CAPACITY_BYTES);
+    ServerConfiguration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE);
+    ServerConfiguration.set(PropertyKey.MASTER_JOURNAL_TAILER_SHUTDOWN_QUIET_WAIT_TIME_MS, 100);
+    ServerConfiguration.set(PropertyKey.MASTER_JOURNAL_CHECKPOINT_PERIOD_ENTRIES, 2);
+    ServerConfiguration.set(PropertyKey.MASTER_JOURNAL_LOG_SIZE_BYTES_MAX, 32);
     initKrb();
     mMultiMasterLocalAlluxioCluster.start();
   }
 
   @Test
   public void getDelegationTokensFault() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
     UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
     UserGroupInformation.setLoginUser(tokenUGI);
     Credentials creds = new Credentials();
@@ -170,8 +171,8 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // kills leaders one by one and uses delegation token after each fail over
@@ -181,7 +182,6 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
 
         // gets a new client
         mMultiMasterLocalAlluxioCluster.getLocalAlluxioMaster().clearClients();
-        FileSystemContext.clearCache();
         fs = mMultiMasterLocalAlluxioCluster.getClient();
         alluxio.hadoop.FileSystem newHdfs = new alluxio.hadoop.FileSystem(fs);
 

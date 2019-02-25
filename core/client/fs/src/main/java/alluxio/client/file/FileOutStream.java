@@ -60,7 +60,12 @@ public class FileOutStream extends AbstractOutStream {
   private final long mBlockSize;
   private final AlluxioStorageType mAlluxioStorageType;
   private final UnderStorageType mUnderStorageType;
-  private final FileSystemContext mContext;
+  // ALLUXIO CS REPLACE
+  // private final FileSystemContext mContext;
+  // ALLUXIO CS WITH
+  // TODO(zac) port this to AOS
+  protected final FileSystemContext mContext;
+  // ALLUXIO CS END
   private final AlluxioBlockStore mBlockStore;
   /** Stream to the file in the under storage, null if not writing to the under storage. */
   private final UnderFileSystemFileOutStream mUnderStorageOutputStream;

@@ -11,6 +11,7 @@
 
 package alluxio.underfs.mock;
 
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.underfs.UnderFileSystemFactory;
@@ -31,7 +32,8 @@ public class MockUnderFileSystemFactory implements UnderFileSystemFactory {
   public MockUnderFileSystemFactory() {}
 
   @Override
-  public UnderFileSystem create(String path, UnderFileSystemConfiguration ufsConf) {
+  public UnderFileSystem create(String path, UnderFileSystemConfiguration ufsConf,
+      AlluxioConfiguration conf) {
     Preconditions.checkArgument(path != null, "path may not be null");
     return new MockUnderFileSystem(ufsConf);
   }

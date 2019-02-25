@@ -209,13 +209,13 @@ public final class DefaultBlockMaster extends CoreMaster implements BlockMaster 
    * Whether the capability feature used to authorize the Alluxio data path is enabled.
    */
   private final boolean mCapabilityEnabled =
-      Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+      ServerConfiguration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
 
   private final long mCapabilityLifetimeMs =
-      Configuration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS);
+      ServerConfiguration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS);
 
   private final long mCapabilityKeyLifetimeMs =
-      Configuration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS);
+      ServerConfiguration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS);
 
   private alluxio.master.security.capability.CapabilityKeyManager mCapabilityKeyManager = null;
   // ALLUXIO CS END

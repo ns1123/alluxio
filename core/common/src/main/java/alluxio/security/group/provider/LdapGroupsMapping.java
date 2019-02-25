@@ -11,8 +11,8 @@
 
 package alluxio.security.group.provider;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.exception.ExceptionMessage;
 import alluxio.retry.CountingRetry;
 import alluxio.security.group.GroupMappingService;
@@ -49,13 +49,19 @@ public final class LdapGroupsMapping implements GroupMappingService {
   private static final String SSL_KEYSTORE_KEY = "javax.net.ssl.keyStore";
   private static final String SSL_KEYSTORE_PASSWORD_KEY = "javax.net.ssl.keyStorePassword";
 
+  private final AlluxioConfiguration mConf;
+
   private DirContext mDirContext;
 
   /**
    * Constructs a new {@link LdapGroupsMapping}.
    * If the internal {@link DirContext} fails to be initialized, runtime error happens.
+   *
+   * @param conf Alluxio configuration
    */
-  public LdapGroupsMapping() {}
+  public LdapGroupsMapping(AlluxioConfiguration conf) {
+    mConf = conf;
+  }
 
   @Override
   public List<String> getGroups(String user) throws IOException {
@@ -96,16 +102,16 @@ public final class LdapGroupsMapping implements GroupMappingService {
     SearchControls searchControls = new SearchControls();
     searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
     searchControls.setTimeLimit(
-        Configuration.getInt(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT));
+        mConf.getInt(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT));
     // Limit the attributes returned to only those required to speed up the search.
     searchControls.setReturningAttributes(new String[]{
-        Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME)
+        mConf.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME)
     });
     // Get user's distinguished name from the LDAP server.
-    String searchBase = Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BASE);
+    String searchBase = mConf.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BASE);
     LOG.debug("LDAP search base = " + searchBase);
     String userQuery =
-        Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER);
+        mConf.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER);
     LOG.debug("user query = " + userQuery);
     NamingEnumeration<SearchResult> results = mDirContext.search(searchBase, userQuery,
         new Object[]{user}, searchControls);
@@ -113,8 +119,8 @@ public final class LdapGroupsMapping implements GroupMappingService {
       String userDistinguishedName = results.nextElement().getNameInNamespace();
       LOG.debug("user DN = " + userDistinguishedName);
       String groupQuery = String.format("(&%s(%s={0}))",
-          Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP),
-          Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER));
+          mConf.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP),
+          mConf.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER));
       LOG.debug("group query = " + groupQuery);
       // Search for the user's groups.
       NamingEnumeration<SearchResult> groupResults =
@@ -123,7 +129,7 @@ public final class LdapGroupsMapping implements GroupMappingService {
       while (groupResults.hasMoreElements()) {
         SearchResult groupResult = groupResults.nextElement();
         Attribute groupName = groupResult.getAttributes().get(
-            Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME));
+            mConf.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME));
         groups.add(groupName.get().toString());
       }
     }
@@ -142,13 +148,13 @@ public final class LdapGroupsMapping implements GroupMappingService {
     // Use LDAP context.
     env.put(Context.INITIAL_CONTEXT_FACTORY, com.sun.jndi.ldap.LdapCtxFactory.class.getName());
     // Set LDAP server URL.
-    env.put(Context.PROVIDER_URL, Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_URL));
+    env.put(Context.PROVIDER_URL, mConf.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_URL));
     // Set SSL configurations.
-    if (Configuration.isSet(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL)
-        && Configuration.getBoolean(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL)) {
+    if (mConf.isSet(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL)
+        && mConf.getBoolean(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL)) {
       env.put(Context.SECURITY_PROTOCOL, SSL);
       System.setProperty(SSL_KEYSTORE_KEY,
-          Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE));
+          mConf.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE));
       System.setProperty(SSL_KEYSTORE_PASSWORD_KEY, getPassword(
           PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD,
           PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE));
@@ -156,7 +162,7 @@ public final class LdapGroupsMapping implements GroupMappingService {
     // Set LDAP authentication configurations.
     env.put(Context.SECURITY_AUTHENTICATION, SIMPLE_AUTHENTICATION);
     env.put(Context.SECURITY_PRINCIPAL,
-        Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BIND_USER));
+        mConf.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BIND_USER));
     env.put(Context.SECURITY_CREDENTIALS, getPassword(
         PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD,
         PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE));
@@ -164,7 +170,7 @@ public final class LdapGroupsMapping implements GroupMappingService {
   }
 
   /**
-   * Gets the password from the configuration.
+   * Gets the password from the mConf.
    *
    * @param passwordKey key for the value of the password
    * @param passwordFileKey key for the value of the password file
@@ -174,15 +180,15 @@ public final class LdapGroupsMapping implements GroupMappingService {
   String getPassword(PropertyKey passwordKey, PropertyKey passwordFileKey)
       throws IOException {
     // Get the password if it is directly configured.
-    if (Configuration.isSet(passwordKey)) {
-      String password = Configuration.get(passwordKey);
+    if (mConf.isSet(passwordKey)) {
+      String password = mConf.get(passwordKey);
       return password;
     }
 
     String passwordFile = "";
-    if (Configuration.isSet(passwordFileKey)) {
+    if (mConf.isSet(passwordFileKey)) {
       // Read from the file containing the password.
-      passwordFile = Configuration.get(passwordFileKey);
+      passwordFile = mConf.get(passwordFileKey);
     }
     if (passwordFile.isEmpty()) {
       return "";

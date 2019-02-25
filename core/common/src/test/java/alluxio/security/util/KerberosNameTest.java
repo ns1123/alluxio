@@ -11,6 +11,9 @@
 
 package alluxio.security.util;
 
+import alluxio.ConfigurationTestUtils;
+import alluxio.conf.PropertyKey;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,6 +29,9 @@ public final class KerberosNameTest {
       + "RULE:[2:$1;$2](^.*;admin$)s/;admin$//\n"
       + "RULE:[2:$2](root)\n"
       + "DEFAULT";
+
+  private static final String AUTH_TO_LOCAL =
+      ConfigurationTestUtils.defaults().get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL);
 
   /**
    * The exception expected to be thrown.
@@ -104,14 +110,14 @@ public final class KerberosNameTest {
 
   private void testTranslation(String from, String to) throws Exception {
     KerberosName kerberosName = new KerberosName(from);
-    String shortName = kerberosName.getShortName();
+    String shortName = kerberosName.getShortName(AUTH_TO_LOCAL);
     Assert.assertEquals("Translated to wrong short name", to, shortName);
   }
 
   private void failTranslation(String from) {
     KerberosName kerberosName = new KerberosName(from);
     try {
-      kerberosName.getShortName();
+      kerberosName.getShortName(AUTH_TO_LOCAL);
       Assert.fail("Get short name for " + from + " should fail.");
     } catch (Exception e) {
       // expected

@@ -132,7 +132,7 @@ public class DefaultPermissionChecker implements PermissionChecker {
 
   protected boolean isSuperUser() {
     try {
-      String user = AuthenticatedClientUser.getClientUser();
+      String user = AuthenticatedClientUser.getClientUser(ServerConfiguration.global());
       List<String> groups = getGroups(user);
       return isPrivilegedUser(user, groups);
     } catch (AccessControlException e) {

@@ -13,7 +13,8 @@ package alluxio.master.privilege;
 
 import alluxio.AuthenticatedUserRule;
 import alluxio.ConfigurationRule;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.PermissionDeniedException;
 import alluxio.security.group.GroupMappingService;
@@ -41,7 +42,8 @@ public final class PrivilegeCheckerTest {
   private static final String TEST_GROUP = "testgroup";
 
   @Rule
-  public AuthenticatedUserRule mAuthUser = new AuthenticatedUserRule(TEST_USER);
+  public AuthenticatedUserRule mAuthUser = new AuthenticatedUserRule(TEST_USER,
+      ServerConfiguration.global());
 
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
@@ -50,7 +52,7 @@ public final class PrivilegeCheckerTest {
   public ConfigurationRule mConfig = new ConfigurationRule(ImmutableMap.of(
       PropertyKey.SECURITY_PRIVILEGES_ENABLED, "true",
       PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
-      PrivilegeCheckerTest.TestGroupsMapping.class.getName()));
+      PrivilegeCheckerTest.TestGroupsMapping.class.getName()), ServerConfiguration.global());
 
   @Test
   public void checkPass() throws Exception {
@@ -100,7 +102,8 @@ public final class PrivilegeCheckerTest {
         new SimplePrivilegeMaster(ImmutableMap.<String, Set<Privilege>>of());
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
     try (Closeable c =
-        new ConfigurationRule(PropertyKey.SECURITY_PRIVILEGES_ENABLED, "false").toResource()) {
+        new ConfigurationRule(PropertyKey.SECURITY_PRIVILEGES_ENABLED, "false",
+            ServerConfiguration.global()).toResource()) {
       checker.check("otheruser", Privilege.TTL);
     }
   }
@@ -111,7 +114,8 @@ public final class PrivilegeCheckerTest {
         new SimplePrivilegeMaster(ImmutableMap.<String, Set<Privilege>>of());
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
     try (Closeable c =
-        new ConfigurationRule(PropertyKey.SECURITY_AUTHENTICATION_TYPE, "NOSASL").toResource()) {
+        new ConfigurationRule(PropertyKey.SECURITY_AUTHENTICATION_TYPE, "NOSASL",
+            ServerConfiguration.global()).toResource()) {
       checker.check(Privilege.TTL);
     }
   }

@@ -11,8 +11,8 @@
 
 package alluxio.util.network;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,21 +40,22 @@ public final class SSLUtils {
   private SSLUtils() {}
 
   /**
+   * @param conf Alluxio configuration
    * @return SSLContext for the server side of an SSL connection
    */
-  public static SSLContext createServerSSLContext() throws IOException {
-    if (!Configuration.isSet(PropertyKey.NETWORK_TLS_KEYSTORE_PATH)) {
+  public static SSLContext createServerSSLContext(AlluxioConfiguration conf) throws IOException {
+    if (!conf.isSet(PropertyKey.NETWORK_TLS_KEYSTORE_PATH)) {
       throw new IOException("Failed to create server SSLContext. Config must be set: "
           + PropertyKey.NETWORK_TLS_KEYSTORE_PATH.getName());
     }
-    if (!Configuration.isSet(PropertyKey.NETWORK_TLS_KEYSTORE_KEY_PASSWORD)) {
+    if (!conf.isSet(PropertyKey.NETWORK_TLS_KEYSTORE_KEY_PASSWORD)) {
       throw new IOException("Failed to create server SSLContext. Config must be set: "
           + PropertyKey.NETWORK_TLS_KEYSTORE_KEY_PASSWORD.getName());
     }
-    String keystore = Configuration.get(PropertyKey.NETWORK_TLS_KEYSTORE_PATH);
+    String keystore = conf.get(PropertyKey.NETWORK_TLS_KEYSTORE_PATH);
     String storePassword =
-        Configuration.getOrDefault(PropertyKey.NETWORK_TLS_KEYSTORE_PASSWORD, null);
-    String keyPassword = Configuration.get(PropertyKey.NETWORK_TLS_KEYSTORE_KEY_PASSWORD);
+        conf.getOrDefault(PropertyKey.NETWORK_TLS_KEYSTORE_PASSWORD, null);
+    String keyPassword = conf.get(PropertyKey.NETWORK_TLS_KEYSTORE_KEY_PASSWORD);
 
     try (InputStream inputStream = new FileInputStream(keystore)) {
       SSLContext ctx = SSLContext.getInstance(PROTOCOL);
@@ -71,16 +72,17 @@ public final class SSLUtils {
   }
 
   /**
+   * @param conf Alluxio configuration
    * @return SSLContext for the client side of an SSL connection
    */
-  public static SSLContext createClientSSLContext() throws IOException {
-    if (!Configuration.isSet(PropertyKey.NETWORK_TLS_TRUSTSTORE_PATH)) {
+  public static SSLContext createClientSSLContext(AlluxioConfiguration conf) throws IOException {
+    if (!conf.isSet(PropertyKey.NETWORK_TLS_TRUSTSTORE_PATH)) {
       throw new IOException("Failed to create client SSLContext. Config must be set: "
           + PropertyKey.NETWORK_TLS_TRUSTSTORE_PATH);
     }
-    String truststore = Configuration.get(PropertyKey.NETWORK_TLS_TRUSTSTORE_PATH);
+    String truststore = conf.get(PropertyKey.NETWORK_TLS_TRUSTSTORE_PATH);
     String trustPassword =
-        Configuration.getOrDefault(PropertyKey.NETWORK_TLS_TRUSTSTORE_PASSWORD, null);
+        conf.getOrDefault(PropertyKey.NETWORK_TLS_TRUSTSTORE_PASSWORD, null);
 
     try (InputStream inputStream = new FileInputStream(truststore)) {
       SSLContext ctx = SSLContext.getInstance(PROTOCOL);

@@ -11,9 +11,7 @@
 
 package alluxio.client.file;
 
-import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
@@ -26,6 +24,8 @@ import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.security.CryptoUtils;
 import alluxio.client.util.ClientTestUtils;
 import alluxio.client.util.EncryptionMetaTestUtils;
+import alluxio.conf.InstancedConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.io.BufferUtils;
@@ -81,6 +81,8 @@ public final class CryptoFileInStreamTest {
   private EncryptionProto.Meta mMeta;
   private CryptoFileInStream mTestStream;
 
+  private InstancedConfiguration mConf = ConfigurationTestUtils.defaults();
+
   private long getBlockLength(int streamId) {
     return streamId == mNumStreams - 1 ? mFileFooterLength : mPhysicalBlockLength;
   }
@@ -95,14 +97,14 @@ public final class CryptoFileInStreamTest {
       byte[] combined = new byte[(int) mPhysicalBlockLength];
       byte[] plaintext = BufferUtils.getIncreasingByteArray(
           (int) (streamId * mLogicalBlockLength), (int) mLogicalBlockLength - 1);
-      ByteBuf ciphertext = CryptoUtils.encryptChunks(mMeta, Unpooled.wrappedBuffer(plaintext));
+      ByteBuf ciphertext = CryptoUtils.encryptChunks(mMeta, Unpooled.wrappedBuffer(plaintext), mConf);
       ciphertext.readBytes(combined, 0, ciphertext.readableBytes());
       combined[(int) mPhysicalBlockLength - 1] = fileFooter[fileFooter.length - 1];
       return combined;
     } else {
       byte[] plaintext = BufferUtils.getIncreasingByteArray(
           (int) (streamId * mLogicalBlockLength), (int) mLogicalBlockLength);
-      ByteBuf ciphertext = CryptoUtils.encryptChunks(mMeta, Unpooled.wrappedBuffer(plaintext));
+      ByteBuf ciphertext = CryptoUtils.encryptChunks(mMeta, Unpooled.wrappedBuffer(plaintext), mConf);
       return ciphertext.array();
     }
   }
@@ -113,8 +115,8 @@ public final class CryptoFileInStreamTest {
   @Before
   public void before() throws Exception {
     // Set logical block size to be 4 full chunks size.
-    Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "256KB");
-    mMeta = EncryptionMetaTestUtils.create();
+    mConf.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "256KB");
+    mMeta = EncryptionMetaTestUtils.create(mConf);
     // One full blocks, one partial block + 1st part of footer, and the 2nd part of footer in the
     // last physical block.
     mNumStreams = 3;
@@ -125,7 +127,7 @@ public final class CryptoFileInStreamTest {
     mPhysicalFileLength = mMeta.getPhysicalBlockSize() * (mNumStreams - 1) - 1 + mFileFooterLength;
     mInfo = new FileInfo().setBlockSizeBytes(mPhysicalBlockLength).setLength(mPhysicalFileLength);
 
-    ClientTestUtils.setSmallBufferSizes();
+    ClientTestUtils.setSmallBufferSizes(mConf);
 
     mContext = PowerMockito.mock(FileSystemContext.class);
     PowerMockito.when(mContext.getLocalWorker()).thenReturn(new WorkerNetAddress());
@@ -165,7 +167,7 @@ public final class CryptoFileInStreamTest {
     mInfo.setBlockIds(blockIds);
     mStatus = new URIStatus(mInfo);
 
-    InStreamOptions options = new InStreamOptions(mStatus)
+    InStreamOptions options = new InStreamOptions(mStatus, mConf)
         .setEncrypted(true)
         .setEncryptionMeta(mMeta);
     mTestStream = new CryptoFileInStream(mStatus, options, mContext);
@@ -173,8 +175,8 @@ public final class CryptoFileInStreamTest {
 
   @After
   public void after() {
-    ConfigurationTestUtils.resetConfiguration();
-    ClientTestUtils.resetClient();
+    mConf = ConfigurationTestUtils.defaults();
+    ClientTestUtils.resetClient(mConf);
   }
 
   @Test
@@ -362,7 +364,7 @@ public final class CryptoFileInStreamTest {
   @Test
   public void missingLocationPolicy() {
     try {
-      mTestStream = new CryptoFileInStream(mStatus, new InStreamOptions(mStatus), mContext);
+      mTestStream = new CryptoFileInStream(mStatus, new InStreamOptions(mStatus, mConf), mContext);
     } catch (NullPointerException e) {
       Assert.assertEquals(PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED.toString(),
           e.getMessage());

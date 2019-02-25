@@ -123,7 +123,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
       Map<String, String> options = ufsToOptions.get(ufs);
       LOG.debug("provider={} ufs={} options={}", provider, ufs, options);
       ufses.put(provider, new ImmutablePair<>(ufs, UnderFileSystem.Factory
-          .create(ufs, UnderFileSystemConfiguration.defaults().setMountSpecificConf(options))));
+          .create(ufs, UnderFileSystemConfiguration.defaults().createMountSpecificConf(options))));
     }
 
     mUnderFileSystems = ImmutableMap.copyOf(ufses);

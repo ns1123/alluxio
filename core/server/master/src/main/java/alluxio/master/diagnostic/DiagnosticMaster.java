@@ -11,11 +11,11 @@
 
 package alluxio.master.diagnostic;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.Server;
 import alluxio.clock.SystemClock;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.GrpcService;
 import alluxio.grpc.ServiceType;
 import alluxio.heartbeat.HeartbeatContext;
@@ -78,7 +78,7 @@ public final class DiagnosticMaster extends AbstractNonJournaledMaster {
     super(masterContext, new SystemClock(), ExecutorServiceFactories
         .cachedThreadPool(Constants.DIAGNOSTIC_MASTER_NAME));
     registry.add(DiagnosticMaster.class, this);
-    mIntervalMs = Configuration.getMs(PropertyKey.DIAGNOSTIC_LOG_INTERVAL_MS);
+    mIntervalMs = ServerConfiguration.getMs(PropertyKey.DIAGNOSTIC_LOG_INTERVAL_MS);
   }
 
   /**
@@ -108,7 +108,7 @@ public final class DiagnosticMaster extends AbstractNonJournaledMaster {
     LOG.info("Starting {}", getName());
     mDiagnosticService = getExecutorService().submit(
         new HeartbeatThread(HeartbeatContext.MASTER_DIAGNOSTIC, new DiagnosticExecutor(mMasterProcess),
-            mIntervalMs));
+            mIntervalMs, ServerConfiguration.global()));
     LOG.info("{} is started", getName());
   }
 
@@ -156,7 +156,7 @@ public final class DiagnosticMaster extends AbstractNonJournaledMaster {
           DIAGNOSTIC_LOG.info("Diagnostic information not ready.");
           return;
         }
-        if (Configuration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL,
+        if (ServerConfiguration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL,
             DiagnosticLogLevel.class) == DiagnosticLogLevel.OBFUSCATED) {
           info = CallHomeUtils.obfuscateDiagnostics(info);
         }

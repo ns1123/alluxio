@@ -12,9 +12,9 @@
 package alluxio.master.callhome;
 
 import alluxio.CallHomeConstants;
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
@@ -39,7 +39,7 @@ public final class CallHomeMasterFactory implements MasterFactory {
   @Override
   public boolean isEnabled() {
     return Boolean.parseBoolean(CallHomeConstants.CALL_HOME_ENABLED)
-        && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED);
+        && ServerConfiguration.getBoolean(PropertyKey.CALL_HOME_ENABLED);
   }
 
   @Override

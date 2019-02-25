@@ -50,7 +50,6 @@ import alluxio.wire.WorkerNetAddress;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jline.internal.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -498,12 +497,14 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
 
     AlluxioProperties alluxioProps = ConfigurationUtils.defaults();
     AlluxioConfiguration alluxioConf = mergeConfigurations(uriConfProperties, conf, alluxioProps);
-    // ALLUXIO CS ADD
+    // ALLUXIO CS REPLACE
+    // Subject subject = getHadoopSubject();
+    // ALLUXIO CS WITH
     // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
     // to authenticate with master.
     alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+    Subject subject = getHadoopSubject(alluxioConf);
     // ALLUXIO CS END
-    Subject subject = getHadoopSubject();
     if (subject != null) {
       LOG.debug("Using Hadoop subject: {}", subject);
     } else {
@@ -579,9 +580,9 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   }
   // ALLUXIO CS ADD
 
-  private String buildTokenService(URI uri) {
-    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
-        || alluxio.util.ConfigurationUtils.getMasterRpcAddresses(Configuration.global()).size() > 1) {
+  private String buildTokenService(URI uri, AlluxioConfiguration conf) {
+    if (conf.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
+        || ConfigurationUtils.getMasterRpcAddresses(conf).size() > 1) {
       // builds token service name for logic alluxio service uri (HA)
       return uri.toString();
     }
@@ -595,21 +596,34 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
    * @return the hadoop subject if exists, null if not exist
    */
   @Nullable
-  private Subject getHadoopSubject() {
+  // ALLUXIO CS REPLACE
+  // private Subject getHadoopSubject() {
+  //   try {
+  //     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+  //     String username = ugi.getShortUserName();
+  //     if (username != null && !username.isEmpty()) {
+  //       User user = new User(ugi.getShortUserName());
+  //        HashSet<Principal> principals = new HashSet<>();
+  //        principals.add(user);
+  //        return new Subject(false, principals, new HashSet<>(), new HashSet<>());
+  //     }
+  //     return null;
+  //   } catch (IOException e) {
+  //     return null;
+  //   }
+  // }
+  // ALLUXIO CS WITH
+  // TODO(zac) Find a way to not use CS REPLACE on the whole method
+  private Subject getHadoopSubject(AlluxioConfiguration conf) {
     try {
       UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
       String username = ugi.getShortUserName();
       if (username != null && !username.isEmpty()) {
         User user = new User(ugi.getShortUserName());
-        // ALLUXIO CS REPLACE
-        // HashSet<Principal> principals = new HashSet<>();
-        // principals.add(user);
-        // return new Subject(false, principals, new HashSet<>(), new HashSet<>());
-        // ALLUXIO CS WITH
         Subject subject = null;
         LOG.debug("Hadoop UGI: {} hasKerberos: {}", ugi, ugi.hasKerberosCredentials());
         if (ugi.hasKerberosCredentials()
-            && Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
+            && conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
             alluxio.security.authentication.AuthType.class)
             == alluxio.security.authentication.AuthType.KERBEROS) {
           java.security.AccessControlContext context = java.security.AccessController.getContext();
@@ -622,13 +636,13 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
         java.util.Set<Principal> principals = subject.getPrincipals();
         principals.add(user);
         return subject;
-        // ALLUXIO CS END
       }
       return null;
     } catch (IOException e) {
       return null;
     }
   }
+  // ALLUXIO CS END
 
   /**
    * @deprecated in 1.6.0, directly infer the value from {@link PropertyKey#ZOOKEEPER_ENABLED}
@@ -772,7 +786,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   // ALLUXIO CS ADD
   @Override
   public String getCanonicalServiceName() {
-    return buildTokenService(getUri());
+    return buildTokenService(getUri(), mFsContext.getConf());
   }
 
   @Override
@@ -797,8 +811,10 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
     LOG.debug("getDelegationToken, got Alluxio token {}", token.toString());
     // converts Alluxio token to HDFS token
-    AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId());
-    org.apache.hadoop.io.Text tokenService = new org.apache.hadoop.io.Text(buildTokenService(mUri));
+    AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId(),
+        mFsContext.getConf());
+    org.apache.hadoop.io.Text tokenService = new org.apache.hadoop.io.Text(buildTokenService(mUri,
+        mFsContext.getConf()));
     org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> hadoopToken =
         new org.apache.hadoop.security.token.Token<>(id.getBytes(), token.getPassword(),
             id.getKind(), tokenService);

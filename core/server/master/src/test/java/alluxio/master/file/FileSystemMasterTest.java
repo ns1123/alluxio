@@ -213,7 +213,7 @@ public final class FileSystemMasterTest {
     // ALLUXIO CS REPLACE
     // mNestedFileContext = CreateFileContext.defaults(
     //     CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB).setRecursive(true));
-    // ALLUXIO CS WITH c1daabcbd9a604557d7ca3d05d3d8a63f95d2885
+    // ALLUXIO CS WITH
     mNestedFileContext = CreateFileContext.defaults(
         CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB).setRecursive(true)
     .setMode(new alluxio.security.authorization.Mode((short) 0666).toProto()));

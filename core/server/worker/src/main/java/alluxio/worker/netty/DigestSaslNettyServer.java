@@ -11,6 +11,7 @@
 
 package alluxio.worker.netty;
 
+import alluxio.conf.ServerConfiguration;
 import alluxio.security.MasterKey;
 import alluxio.security.util.KerberosUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -44,9 +45,9 @@ public class DigestSaslNettyServer {
       final List<MasterKey> activeMasterKeys) throws SaslException {
     mChannel = channel;
 
-    final String hostname =
-        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC);
-    final String serviceName = KerberosUtils.getKerberosServiceName();
+    final String hostname = NetworkAddressUtils
+        .getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, ServerConfiguration.global());
+    final String serviceName = KerberosUtils.getKerberosServiceName(ServerConfiguration.global());
     Preconditions.checkNotNull(hostname);
 
     mSaslServer = Sasl.createSaslServer(KerberosUtils.DIGEST_MECHANISM_NAME, serviceName, hostname,

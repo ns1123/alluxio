@@ -11,6 +11,7 @@
 
 package alluxio.network.netty;
 
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.proto.security.CapabilityProto;
 import alluxio.security.util.KerberosUtils;
 import alluxio.util.proto.ProtoUtils;
@@ -41,10 +42,11 @@ public class DigestSaslNettyClient {
    *
    * @param capability the capability object for authentication
    * @param serverHostname the server hostname to authenticate with
+   * @param conf Alluxio configuration
    * @throws SaslException if failed to create a Sasl netty client
    */
-  public DigestSaslNettyClient(final CapabilityProto.Capability capability, final String serverHostname)
-      throws SaslException {
+  public DigestSaslNettyClient(final CapabilityProto.Capability capability,
+      final String serverHostname, AlluxioConfiguration conf) throws SaslException {
     Preconditions.checkNotNull(capability);
     mCapability = capability;
 
@@ -56,7 +58,7 @@ public class DigestSaslNettyClient {
     byte[] protoAuthenticator = ProtoUtils.getAuthenticator(mCapability);
     String strAuthenticatorEnc = new String(Base64.encodeBase64(protoAuthenticator, false), Charsets.UTF_8);
 
-    final String serviceName = KerberosUtils.getKerberosServiceName();
+    final String serviceName = KerberosUtils.getKerberosServiceName(conf);
     final CallbackHandler ch =
         new KerberosUtils.SaslDigestClientCallbackHandler(strContentEnc, strAuthenticatorEnc);
 

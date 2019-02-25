@@ -11,8 +11,10 @@
 
 package alluxio.client;
 
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.client.util.EncryptionMetaTestUtils;
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.proto.ProtoUtils;
@@ -76,6 +78,8 @@ public final class LayoutUtilsTest {
       .setEncodedMetaSize(mFileMetadata.getSerializedSize())
       .setCryptoKey(mKey)
       .build();
+
+  private AlluxioConfiguration mConf = ConfigurationTestUtils.defaults();
 
   @Test
   public void toOffset() throws Exception {
@@ -420,7 +424,7 @@ public final class LayoutUtilsTest {
 
   @Test
   public void encodeAndDecodeWithFactoryCreatedMeta() throws Exception {
-    EncryptionProto.Meta expected = EncryptionMetaTestUtils.create();
+    EncryptionProto.Meta expected = EncryptionMetaTestUtils.create(mConf);
     byte[] encodedFooter = LayoutUtils.encodeFooter(expected);
     FileFooter.FileMetadata fileMetadata = LayoutUtils.decodeFooter(encodedFooter);
     Assert.assertEquals(expected,

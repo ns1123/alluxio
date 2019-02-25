@@ -14,7 +14,7 @@ package alluxio.cli.fs.command;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.cli.CommandUtils;
-import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.job.JobGrpcClientUtils;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.status.InvalidArgumentException;
@@ -32,10 +32,10 @@ import java.io.IOException;
 public final class DistributedCpCommand extends AbstractFileSystemCommand {
 
   /**
-   * @param fs the filesystem of Alluxio
+   * @param fsContext the filesystem context of Alluxio
    */
-  public DistributedCpCommand(FileSystem fs) {
-    super(fs);
+  public DistributedCpCommand(FileSystemContext fsContext) {
+    super(fsContext);
   }
 
   @Override
@@ -56,7 +56,8 @@ public final class DistributedCpCommand extends AbstractFileSystemCommand {
     Thread thread = JobGrpcClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
     thread.start();
     try {
-      JobGrpcClientUtils.run(new MigrateConfig(srcPath.getPath(), dstPath.getPath(), null, true, false), 3);
+      JobGrpcClientUtils.run(new MigrateConfig(srcPath.getPath(), dstPath.getPath(), null, true,
+          false), 3, mFsContext.getConf());
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       return -1;

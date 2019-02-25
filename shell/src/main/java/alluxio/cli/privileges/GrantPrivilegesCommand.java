@@ -11,9 +11,11 @@
 
 package alluxio.cli.privileges;
 
+import alluxio.ClientContext;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
-import alluxio.master.MasterClientConfig;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.master.MasterClientContext;
 import alluxio.wire.Privilege;
 
 import com.beust.jcommander.Parameter;
@@ -37,10 +39,14 @@ public final class GrantPrivilegesCommand implements Callable<String> {
       required = true)
   private List<String> mPrivileges;
 
+  private final AlluxioConfiguration mConf;
+
   /**
-   * No-arg constructor for use with JCommander.
+   * @param conf Alluxio configuration
    */
-  public GrantPrivilegesCommand() {}
+  public GrantPrivilegesCommand(AlluxioConfiguration conf) {
+    mConf = conf;
+  }
 
   /**
    * Runs the grant privileges command.
@@ -67,8 +73,8 @@ public final class GrantPrivilegesCommand implements Callable<String> {
         }
       }
     }
-    PrivilegeMasterClient client =
-        PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
+    PrivilegeMasterClient client = PrivilegeMasterClient.Factory
+        .create(MasterClientContext.newBuilder(ClientContext.create(mConf)).build());
     List<Privilege> newPrivileges =
         client.grantPrivileges(mGroup, privileges, GrantPrivilegesOptions.defaults());
     return ListPrivilegesCommand.formatPrivileges(mGroup, newPrivileges);

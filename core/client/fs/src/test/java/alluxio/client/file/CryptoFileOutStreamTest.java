@@ -17,11 +17,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.LoginUserRule;
-import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
 import alluxio.client.WriteType;
 import alluxio.client.block.AlluxioBlockStore;
@@ -31,6 +29,8 @@ import alluxio.client.block.stream.UnderFileSystemFileOutStream;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.util.ClientTestUtils;
 import alluxio.client.util.EncryptionMetaTestUtils;
+import alluxio.conf.InstancedConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.exception.PreconditionMessage;
 import alluxio.grpc.GetStatusPOptions;
 import alluxio.proto.security.EncryptionProto;
@@ -66,8 +66,10 @@ import java.util.Map;
     UnderFileSystemFileOutStream.class})
 @PowerMockIgnore("javax.crypto.*")
 public final class CryptoFileOutStreamTest {
+  private InstancedConfiguration mConf = ConfigurationTestUtils.defaults();
+
   @Rule
-  public LoginUserRule mLoginUser = new LoginUserRule("Test");
+  public LoginUserRule mLoginUser = new LoginUserRule("Test", mConf);
 
   private static final AlluxioURI FILE_NAME = new AlluxioURI("/encrypted_file");
 
@@ -89,11 +91,11 @@ public final class CryptoFileOutStreamTest {
   @Before
   public void before() throws Exception {
     // Set logical block size to be 4 full chunks size.
-    Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "256KB");
+    mConf.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "256KB");
     GroupMappingServiceTestUtils.resetCache();
-    ClientTestUtils.setSmallBufferSizes();
+    ClientTestUtils.setSmallBufferSizes(mConf);
 
-    mMeta = EncryptionMetaTestUtils.create();
+    mMeta = EncryptionMetaTestUtils.create(mConf);
     mBlockLength = mMeta.getPhysicalBlockSize();
     // PowerMock enums and final classes
     mFileSystemContext = PowerMockito.mock(FileSystemContext.class);
@@ -107,6 +109,7 @@ public final class CryptoFileOutStreamTest {
         .thenReturn(new DummyCloseableResource<>(mFileSystemMasterClient));
     when(mFileSystemMasterClient.getStatus(any(AlluxioURI.class), any(GetStatusPOptions.class)))
         .thenReturn(new URIStatus(new FileInfo()));
+    when(mFileSystemContext.getConf()).thenReturn(mConf);
 
     // Return sequentially increasing numbers for new block ids
     when(mFileSystemMasterClient.getNewBlockIdForFile(FILE_NAME))
@@ -148,7 +151,7 @@ public final class CryptoFileOutStreamTest {
             any(WorkerNetAddress.class), any(OutStreamOptions.class))).thenReturn(
         mUnderStorageOutputStream);
 
-    OutStreamOptions options = OutStreamOptions.defaults()
+    OutStreamOptions options = OutStreamOptions.defaults(mConf)
         .setBlockSizeBytes(mMeta.getPhysicalBlockSize())
         .setWriteType(WriteType.CACHE_THROUGH).setUfsPath(FILE_NAME.getPath())
         .setEncrypted(true).setEncryptionMeta(mMeta);
@@ -157,8 +160,8 @@ public final class CryptoFileOutStreamTest {
 
   @After
   public void after() {
-    ConfigurationTestUtils.resetConfiguration();
-    ClientTestUtils.resetClient();
+    mConf = ConfigurationTestUtils.defaults();
+    ClientTestUtils.resetClient(mConf);
   }
 
   @Test

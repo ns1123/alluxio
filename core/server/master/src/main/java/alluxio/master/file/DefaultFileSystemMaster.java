@@ -3750,7 +3750,8 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       alluxio.proto.security.CapabilityProto.Content content =
           alluxio.proto.security.CapabilityProto.Content.newBuilder()
               .setAccessMode(mPermissionChecker.getPermission(inodePath, requestedMode).ordinal())
-              .setUser(alluxio.security.authentication.AuthenticatedClientUser.getClientUser())
+              .setUser(alluxio.security.authentication.AuthenticatedClientUser
+                  .getClientUser(ServerConfiguration.global()))
               .setExpirationTimeMs(
                   alluxio.util.CommonUtils.getCurrentMs() + mBlockMaster.getCapabilityLifeTimeMs())
               .setFileId(fileInfo.getFileId()).build();
@@ -3902,17 +3903,21 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
       getDelegationToken(String renewer)
       throws AccessControlException, UnavailableException {
-    String authMethod = alluxio.security.authentication.AuthenticatedClientUser.getAuthMethod();
+    String authMethod = alluxio.security.authentication.AuthenticatedClientUser
+            .getAuthMethod(ServerConfiguration.global());
     if (!java.util.Objects.equals(alluxio.security.util.KerberosUtils.GSSAPI_MECHANISM_NAME, authMethod)) {
       throw new AccessControlException(String.format("Permission denied for authentication method %s."
           + " Delegation token can only be acquired with Kerberos authentication.", authMethod));
     }
-    String owner = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
-    String realUser = alluxio.security.authentication.AuthenticatedClientUser.getConnectionUser();
+    String owner = alluxio.security.authentication.AuthenticatedClientUser
+        .getClientUser(ServerConfiguration.global());
+    String realUser = alluxio.security.authentication.AuthenticatedClientUser
+        .getConnectionUser(ServerConfiguration.global());
     try (JournalContext context = createJournalContext()) {
       synchronized (mDelegationTokenManager) {
         alluxio.security.authentication.DelegationTokenIdentifier dtId =
-            new alluxio.security.authentication.DelegationTokenIdentifier(owner, renewer, realUser);
+            new alluxio.security.authentication.DelegationTokenIdentifier(owner, renewer,
+                realUser, ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
         alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token
             = mDelegationTokenManager.getDelegationToken(dtId);
         long renewTime = mDelegationTokenManager.getDelegationTokenRenewTime(dtId);
@@ -3931,12 +3936,14 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
           token)
       throws AccessControlException, UnavailableException {
-    String authMethod = alluxio.security.authentication.AuthenticatedClientUser.getAuthMethod();
+    String authMethod = alluxio.security.authentication.AuthenticatedClientUser
+        .getAuthMethod(ServerConfiguration.global());
     if (!java.util.Objects.equals(alluxio.security.util.KerberosUtils.GSSAPI_MECHANISM_NAME, authMethod)) {
       throw new AccessControlException(String.format("Permission denied for authentication method %s."
           + " Delegation token can only be renewed with Kerberos authentication.", authMethod));
     }
-    String renewer = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+    String renewer = alluxio.security.authentication.AuthenticatedClientUser
+        .getClientUser(ServerConfiguration.global());
     try (JournalContext context = createJournalContext()) {
       synchronized (mDelegationTokenManager) {
         long expirationTimeMs = mDelegationTokenManager.renewDelegationToken(token, renewer);
@@ -3955,7 +3962,8 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
           token)
       throws AccessControlException, UnavailableException {
-    String canceller = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+    String canceller = alluxio.security.authentication.AuthenticatedClientUser
+        .getClientUser(ServerConfiguration.global());
     try (JournalContext context = createJournalContext()) {
       synchronized (mDelegationTokenManager) {
         mDelegationTokenManager.cancelDelegationToken(token, canceller);
@@ -3969,7 +3977,8 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
 
   private void addDelegationTokenFromEntry(File.GetDelegationTokenEntry entry) throws IOException {
     mDelegationTokenManager.addDelegationToken(
-        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()),
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
+            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
         entry.getRenewTime());
   }
 
@@ -3983,12 +3992,14 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
 
   private void removeDelegationTokenFromEntry(File.RemoveDelegationTokenEntry entry) throws IOException {
     mDelegationTokenManager.updateDelegationTokenRemoval(
-        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()));
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
+            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)));
   }
 
   private void renewDelegationTokenFromEntry(File.RenewDelegationTokenEntry entry) throws IOException {
     mDelegationTokenManager.updateDelegationTokenRenewal(
-        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()),
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
+            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
         entry.getExpirationTimeMs());
   }
 

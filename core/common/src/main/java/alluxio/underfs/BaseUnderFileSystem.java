@@ -76,11 +76,11 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
     mUri = Preconditions.checkNotNull(uri, "uri");
     // ALLUXIO CS ADD
     if (alluxio.util.CommonUtils.isAlluxioServer()) {
-      mUser = alluxio.util.SecurityUtils.getOwnerFromGrpcClient();
-      mGroup = alluxio.util.SecurityUtils.getGroupFromGrpcClient();
+      mUser = alluxio.util.SecurityUtils.getOwnerFromGrpcClient(alluxioConf);
+      mGroup = alluxio.util.SecurityUtils.getGroupFromGrpcClient(alluxioConf);
     } else {
-      mUser = alluxio.util.SecurityUtils.getOwnerFromLoginModule();
-      mGroup = alluxio.util.SecurityUtils.getGroupFromLoginModule();
+      mUser = alluxio.util.SecurityUtils.getOwnerFromLoginModule(alluxioConf);
+      mGroup = alluxio.util.SecurityUtils.getGroupFromLoginModule(alluxioConf);
     }
     // ALLUXIO CS END
     mUfsConf = Preconditions.checkNotNull(ufsConf, "ufsConf");

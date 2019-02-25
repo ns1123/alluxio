@@ -12,20 +12,20 @@
 package alluxio.server.privileges;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
+import alluxio.ClientContext;
 import alluxio.LoginUserRule;
-import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
-import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemTestUtils;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.ExceptionMessage;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.FileSystemMasterCommonPOptions;
 import alluxio.grpc.SetAttributePOptions;
 import alluxio.grpc.WritePType;
-import alluxio.master.MasterClientConfig;
+import alluxio.master.MasterClientContext;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
 import alluxio.testutils.BaseIntegrationTest;
@@ -66,7 +66,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
               FileSystemPrivilegesIntegrationTest.TestGroupsMapping.class.getName())
           .build();
 
-  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER);
+  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER, ServerConfiguration.global());
 
   // LocalAlluxioClusterResource resets the login user, so the login user rule must be used inside
   // the cluster rule.
@@ -78,8 +78,9 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
 
   @Before
   public void before() throws Exception {
-    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientContext.newBuilder(
+        ClientContext.create(ServerConfiguration.global())).build());
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       refreshFileSystemClient();
       FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE,
           CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
@@ -92,7 +93,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
   @Test
   public void freeWithPrivilege() throws Exception {
     // Become superuser to modify privileges.
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.FREE),
           GrantPrivilegesOptions.defaults());
     }
@@ -108,7 +109,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
   @Test
   public void pinWithPrivilege() throws Exception {
     // Become superuser to modify privileges.
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN),
           GrantPrivilegesOptions.defaults());
     }
@@ -125,7 +126,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
   @Test
   public void unpinWithPrivilege() throws Exception {
     // Become superuser to modify privileges and pin.
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN),
           GrantPrivilegesOptions.defaults());
       refreshFileSystemClient();
@@ -139,7 +140,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
   @Test
   public void unpinWithoutPrivilege() throws Exception {
     // Become superuser to pin.
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       refreshFileSystemClient();
       mFileSystem.setAttribute(TEST_FILE,
           SetAttributePOptions.newBuilder().setPinned(true).build());
@@ -152,7 +153,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
   @Test
   public void setReplicationWithPrivilege() throws Exception {
     // Become superuser to modify privileges.
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.REPLICATION),
           GrantPrivilegesOptions.defaults());
     }
@@ -171,7 +172,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
   @Test
   public void setTtlWithPrivilege() throws Exception {
     // Become superuser to modify privileges.
-    try (Closeable u = new LoginUserRule(SUPER_USER).toResource()) {
+    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
       mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.TTL),
           GrantPrivilegesOptions.defaults());
     }
@@ -193,7 +194,6 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
    */
   private void refreshFileSystemClient() throws Exception {
     // Need to reset the pool in case we have a cached client for a different login user.
-    FileSystemContext.get().reset(Configuration.global());
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }
 
@@ -214,7 +214,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
           groups.add(TEST_GROUP);
           break;
         case SUPER_USER:
-          groups.add(Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP));
+          groups.add(ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP));
           break;
         default:
           // don't add any groups.

@@ -63,8 +63,7 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     map.put(PropertyKey.WORKER_WEB_PORT, "0");
     // ALLUXIO CS ADD
     // Set rack locality to be strict.
-    map.put(
-        alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK),
+    map.put(alluxio.conf.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK),
         "true");
     // ALLUXIO CS END
 
@@ -136,7 +135,7 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     // Rack locality is configured to be strict, so when no rack matches we should fail.
     {
       Whitebox.setInternalState(TieredIdentityFactory.class, "sInstance",
-          TieredIdentityFactory.fromString("node=node3,rack=rack3"));
+          TieredIdentityFactory.fromString("node=node3,rack=rack3", ServerConfiguration.global()));
       try {
         FileSystemTestUtils.createByteFile(fs, "/file3", WritePType.MUST_CACHE, 10);
         org.junit.Assert.fail("Expected an exception to be thrown");

@@ -57,7 +57,8 @@ public final class AlluxioSecondaryMaster implements Process {
       // Create masters.
       MasterUtils.createMasters(mRegistry, CoreMasterContext.newBuilder()
           // ALLUXIO CS ADD
-          .setDelegationTokenManager(new alluxio.security.authentication.DelegationTokenManager())
+          .setDelegationTokenManager(new alluxio.security.authentication.DelegationTokenManager(
+              ServerConfiguration.global()))
           // ALLUXIO CS END
           .setJournalSystem(mJournalSystem)
           .setSafeModeManager(mSafeModeManager)

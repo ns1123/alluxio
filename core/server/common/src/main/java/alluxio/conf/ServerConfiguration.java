@@ -109,11 +109,6 @@ public final class ServerConfiguration {
    * @param source the source of the the properties (e.g., system property, default and etc)
    */
   public static void set(PropertyKey key, Object value, Source source) {
-    // ALLUXIO CS ADD
-    Preconditions.checkArgument(
-        getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key),
-        String.format("changing the value of key %s is not supported", key));
-    // ALLUXIO CS END
     sConf.set(key, value, source);
   }
 
@@ -123,11 +118,6 @@ public final class ServerConfiguration {
    * @param key the key to unset
    */
   public static void unset(PropertyKey key) {
-    // ALLUXIO CS ADD
-    Preconditions.checkArgument(
-        getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key),
-        String.format("changing the value of key %s is not supported", key));
-    // ALLUXIO CS END
     sConf.unset(key);
   }
 

@@ -11,9 +11,9 @@
 
 package alluxio.master.privilege;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.RpcUtils;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.status.FailedPreconditionException;
 import alluxio.exception.status.PermissionDeniedException;
@@ -61,7 +61,7 @@ public final class PrivilegeMasterClientServiceHandler
   PrivilegeMasterClientServiceHandler(PrivilegeMaster privilegeMaster) {
     Preconditions.checkNotNull(privilegeMaster);
     mPrivilegeMaster = privilegeMaster;
-    mSupergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    mSupergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
   }
 
   @Override
@@ -70,7 +70,8 @@ public final class PrivilegeMasterClientServiceHandler
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<GetGroupPrivilegesPResponse>) () -> {
       String group = request.getGroup();
       checkPrivilegesEnabled();
-      if (!inSupergroup(AuthenticatedClientUser.getClientUser()) && !inGroup(group)) {
+      if (!inSupergroup(AuthenticatedClientUser.getClientUser(ServerConfiguration.global()))
+          && !inGroup(group)) {
         throw new PermissionDeniedException(String.format(
             "Only members of group '%s' and members of the supergroup '%s' can list privileges for "
                 + "group '%s'",
@@ -88,7 +89,8 @@ public final class PrivilegeMasterClientServiceHandler
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<GetUserPrivilegesPResponse>) () -> {
       String user = request.getUser();
       checkPrivilegesEnabled();
-      if (!inSupergroup(AuthenticatedClientUser.getClientUser()) && !isCurrentUser(user)) {
+      if (!inSupergroup(AuthenticatedClientUser.getClientUser(ServerConfiguration.global()))
+          && !isCurrentUser(user)) {
         throw new PermissionDeniedException(String.format(
             "Only user '%s' and members of the supergroup '%s' can list privileges for user '%s'",
             user, mSupergroup, user));
@@ -105,7 +107,7 @@ public final class PrivilegeMasterClientServiceHandler
     RpcUtils.call(LOG,
         (RpcUtils.RpcCallableThrowsIOException<GetGroupToPrivilegesMappingPResponse>) () -> {
           checkPrivilegesEnabled();
-          if (!inSupergroup(AuthenticatedClientUser.getClientUser())) {
+          if (!inSupergroup(AuthenticatedClientUser.getClientUser(ServerConfiguration.global()))) {
             throw new PermissionDeniedException(String.format(
                 "Only members of the supergroup '%s' can list all privileges", mSupergroup));
           }
@@ -125,7 +127,7 @@ public final class PrivilegeMasterClientServiceHandler
       StreamObserver<GrantPrivilegesPResponse> responseObserver) {
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<GrantPrivilegesPResponse>) () -> {
       checkPrivilegesEnabled();
-      if (inSupergroup(AuthenticatedClientUser.getClientUser())) {
+      if (inSupergroup(AuthenticatedClientUser.getClientUser(ServerConfiguration.global()))) {
         return GrantPrivilegesPResponse.newBuilder()
             .addAllPrivileges(
                 ClosedSourceGrpcUtils.toProto(mPrivilegeMaster.updatePrivileges(request.getGroup(),
@@ -142,7 +144,7 @@ public final class PrivilegeMasterClientServiceHandler
       StreamObserver<RevokePrivilegesPResponse> responseObserver) {
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<RevokePrivilegesPResponse>) () -> {
       checkPrivilegesEnabled();
-      if (inSupergroup(AuthenticatedClientUser.getClientUser())) {
+      if (inSupergroup(AuthenticatedClientUser.getClientUser(ServerConfiguration.global()))) {
         return RevokePrivilegesPResponse.newBuilder()
             .addAllPrivileges(
                 ClosedSourceGrpcUtils.toProto(mPrivilegeMaster.updatePrivileges(request.getGroup(),
@@ -160,13 +162,13 @@ public final class PrivilegeMasterClientServiceHandler
    * @throws FailedPreconditionException if privileges are not enabled
    */
   private void checkPrivilegesEnabled() throws FailedPreconditionException {
-    if (!Configuration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
+    if (!ServerConfiguration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
       throw new FailedPreconditionException(String.format(
           "Privilege controls are disabled. To enable them, set %s=true in master "
               + "configuration", PropertyKey.SECURITY_PRIVILEGES_ENABLED));
     }
-    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class).equals(
-        AuthType.NOSASL)) {
+    if (ServerConfiguration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+        .equals(AuthType.NOSASL)) {
       throw new FailedPreconditionException(String.format(
           "Privilege controls are disabled because authentication is disabled by %s=%s",
           PropertyKey.SECURITY_AUTHENTICATION_TYPE.toString(), AuthType.NOSASL.toString()));
@@ -180,7 +182,7 @@ public final class PrivilegeMasterClientServiceHandler
    * @return whether the current authenticated user is in the supergroup
    */
   private boolean inSupergroup(String user) throws AccessControlException, IOException {
-    return CommonUtils.getGroups(user).contains(mSupergroup);
+    return CommonUtils.getGroups(user, ServerConfiguration.global()).contains(mSupergroup);
   }
 
   /**
@@ -188,7 +190,7 @@ public final class PrivilegeMasterClientServiceHandler
    * @return whether the given user is the authenticated client user
    */
   private boolean isCurrentUser(String user) throws AccessControlException {
-    return user.equals(AuthenticatedClientUser.getClientUser());
+    return user.equals(AuthenticatedClientUser.getClientUser(ServerConfiguration.global()));
   }
 
   /**
@@ -196,6 +198,9 @@ public final class PrivilegeMasterClientServiceHandler
    * @return whether the current authenticated client user is in the given group
    */
   private boolean inGroup(String group) throws AccessControlException, IOException {
-    return CommonUtils.getGroups(AuthenticatedClientUser.getClientUser()).contains(group);
+    return CommonUtils.getGroups(
+            AuthenticatedClientUser.getClientUser(ServerConfiguration.global()),
+            ServerConfiguration.global())
+        .contains(group);
   }
 }

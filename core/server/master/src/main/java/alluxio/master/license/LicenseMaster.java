@@ -11,13 +11,13 @@
 
 package alluxio.master.license;
 
-import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.ProjectConstants;
-import alluxio.PropertyKey;
 import alluxio.Server;
 import alluxio.clock.SystemClock;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.GrpcService;
@@ -143,7 +143,8 @@ public class LicenseMaster extends AbstractMaster {
     mLicenseCheckService = getExecutorService().submit(
         new HeartbeatThread(HeartbeatContext.MASTER_LICENSE_CHECK,
             new LicenseCheckExecutor(mBlockMaster, this),
-            Long.parseLong(LicenseConstants.LICENSE_CHECK_PERIOD_MS)));
+            Long.parseLong(LicenseConstants.LICENSE_CHECK_PERIOD_MS),
+            ServerConfiguration.global()));
     LOG.info("{} is started", getName());
   }
 
@@ -220,7 +221,7 @@ public class LicenseMaster extends AbstractMaster {
      * @return a license (if the license file exists and can be parsed) or null
      */
     private License readLicense() {
-      String licenseFilePath = Configuration.get(PropertyKey.LICENSE_FILE);
+      String licenseFilePath = ServerConfiguration.get(PropertyKey.LICENSE_FILE);
       License license;
       try {
         ObjectMapper mapper = new ObjectMapper();

@@ -14,8 +14,8 @@ package alluxio.security.authorization.hadoop;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.InvalidPathException;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.master.file.AccessControlEnforcer;
@@ -218,14 +218,14 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
         throws alluxio.exception.AccessControlException {
       String fsOwner;
       try {
-        fsOwner = LoginUser.getServerUser().getName();
+        fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
       } catch (UnauthenticatedException e) {
         throw new IllegalStateException("Failed to obtain login user.", e);
       }
       String superGroup =
-          Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+          ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
       UserGroupInformation callerUgi = new AlluxioUserGroupInformation(user, groups,
-          Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE));
+          ServerConfiguration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE));
       byte[][] pathByNameArr;
       try {
         pathByNameArr = Arrays.stream(PathUtils.getPathComponents(path))

@@ -11,6 +11,8 @@
 
 package alluxio.hadoop;
 
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.security.authentication.DelegationTokenIdentifier;
 
 import com.google.common.base.Objects;
@@ -30,20 +32,25 @@ import java.io.IOException;
 public class AlluxioDelegationTokenIdentifier extends AbstractDelegationTokenIdentifier {
   public static final Text ALLUXIO_DELEGATION_KIND = new Text("ALLUXIO_DELEGATION_TOKEN");
   private DelegationTokenIdentifier mAlluxioTokenId;
+  private final AlluxioConfiguration mConf;
 
   /**
    * Default constructor for used with service loader.
+   *
+   * @param conf Alluxio configuration
    */
-  public AlluxioDelegationTokenIdentifier() {
-    // default initialization for deserializing from data later
+  public AlluxioDelegationTokenIdentifier(AlluxioConfiguration conf) {
+    mConf = conf;
   }
 
   /**
    * Creates an HDFS delegation token identifier based on Alluxio delegation token identifier.
    *
    * @param alluxioTokenId the Alluxio delegation token identifier
+   * @param conf Alluxio configuration
    */
-  public AlluxioDelegationTokenIdentifier(DelegationTokenIdentifier alluxioTokenId) {
+  public AlluxioDelegationTokenIdentifier(DelegationTokenIdentifier alluxioTokenId,
+      AlluxioConfiguration conf) {
     super(new Text(Preconditions.checkNotNull(alluxioTokenId, "alluxioTokenId").getOwner()),
         new Text(alluxioTokenId.getRenewer()),
         new Text(alluxioTokenId.getRealUser()));
@@ -55,6 +62,7 @@ public class AlluxioDelegationTokenIdentifier extends AbstractDelegationTokenIde
     // somehow, it will take 68 years to overflow if one token is generated per second.
     setMasterKeyId((int) mAlluxioTokenId.getMasterKeyId());
     setSequenceNumber((int) mAlluxioTokenId.getSequenceNumber());
+    mConf = conf;
   }
 
   /**
@@ -95,7 +103,8 @@ public class AlluxioDelegationTokenIdentifier extends AbstractDelegationTokenIde
   public void readFields(DataInput in) throws IOException {
     super.readFields(in);
     byte[] buffer = WritableUtils.readCompressedByteArray(in);
-    mAlluxioTokenId = DelegationTokenIdentifier.fromByteArray(buffer);
+    mAlluxioTokenId = DelegationTokenIdentifier.fromByteArray(buffer,
+        mConf.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
   }
 
   @Override

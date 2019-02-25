@@ -11,10 +11,9 @@
 
 package alluxio.server.auth.netty;
 
-import alluxio.Configuration;
 import alluxio.ConfigurationRule;
-import alluxio.ConfigurationTestUtils;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
@@ -46,7 +45,8 @@ import java.io.IOException;
 // TODO(ggezer) EE-SEC implement for gRPC kerberos.
 @Ignore
 public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
-  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
+  private static final String HOSTNAME = NetworkAddressUtils
+      .getLocalHostName(ServerConfiguration.getInt(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
   private static final String UNIFIED_INSTANCE = "instance";
 
   //private NettyDataServer mNettyDataServer;
@@ -63,7 +63,8 @@ public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
 
   @Rule
   public ConfigurationRule mRule = new ConfigurationRule(ImmutableMap.of(
-      PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD, "0sec"));
+      PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD, "0sec"),
+      ServerConfiguration.global());
 
   @BeforeClass
   public static void beforeClass() throws Exception {
@@ -90,15 +91,15 @@ public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
   public void before() {
     LoginUserTestUtils.resetLoginUser();
     // Set server-side and client-side Kerberos configuration for Netty authentication.
-    Configuration.set(PropertyKey.TEST_MODE, "true");
-    Configuration.set(PropertyKey.MASTER_HOSTNAME, HOSTNAME);
-    Configuration.set(PropertyKey.WORKER_HOSTNAME, HOSTNAME);
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME, UNIFIED_INSTANCE);
+    ServerConfiguration.set(PropertyKey.TEST_MODE, "true");
+    ServerConfiguration.set(PropertyKey.MASTER_HOSTNAME, HOSTNAME);
+    ServerConfiguration.set(PropertyKey.WORKER_HOSTNAME, HOSTNAME);
+    ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    ServerConfiguration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_UNIFIED_INSTANCE_NAME, UNIFIED_INSTANCE);
 
     // Note: mock workers here to bypass thrift authentication and directly test netty data path.
     // Otherwise invalid Kerberos login would first fail on the thrift protocol.
@@ -114,21 +115,21 @@ public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
   public void after() throws Exception {
     cleanUpTicketCache();
     //mNettyDataServer.close();
-    ConfigurationTestUtils.resetConfiguration();
+    ServerConfiguration.reset();
   }
 
   @Test
   public void validKerberosCredential() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     createChannel();
   }
 
   @Test
   public void invalidClientPrincipal() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     try {
       createChannel();
@@ -140,8 +141,8 @@ public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
 
   @Test
   public void invalidClientKeytab() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
         sServerKeytab.getPath().concat("invalidsuffix"));
 
     try {

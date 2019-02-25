@@ -103,28 +103,28 @@ private static final long serialVersionUID = 0L;
             bitField0_ |= 0x00000020;
             break;
           }
-          case 8002: {
-            alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
-            if (((bitField0_ & 0x00000040) == 0x00000040)) {
-              subBuilder = capability_.toBuilder();
-            }
-            capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom(capability_);
-              capability_ = subBuilder.buildPartial();
-            }
-            bitField0_ |= 0x00000040;
-            break;
-          }
-          case 8010: {
+          case 58: {
             alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder subBuilder = null;
-            if (((bitField0_ & 0x00000080) == 0x00000080)) {
+            if (((bitField0_ & 0x00000040) == 0x00000040)) {
               subBuilder = createUfsBlockOptions_.toBuilder();
             }
             createUfsBlockOptions_ = input.readMessage(alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.PARSER, extensionRegistry);
             if (subBuilder != null) {
               subBuilder.mergeFrom(createUfsBlockOptions_);
               createUfsBlockOptions_ = subBuilder.buildPartial();
+            }
+            bitField0_ |= 0x00000040;
+            break;
+          }
+          case 8002: {
+            alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
+            if (((bitField0_ & 0x00000080) == 0x00000080)) {
+              subBuilder = capability_.toBuilder();
+            }
+            capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
+            if (subBuilder != null) {
+              subBuilder.mergeFrom(capability_);
+              capability_ = subBuilder.buildPartial();
             }
             bitField0_ |= 0x00000080;
             break;
@@ -279,25 +279,42 @@ private static final long serialVersionUID = 0L;
     return createUfsFileOptions_ == null ? alluxio.proto.dataserver.Protocol.CreateUfsFileOptions.getDefaultInstance() : createUfsFileOptions_;
   }
 
+  public static final int CREATE_UFS_BLOCK_OPTIONS_FIELD_NUMBER = 7;
+  private alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions createUfsBlockOptions_;
+  /**
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+   */
+  public boolean hasCreateUfsBlockOptions() {
+    return ((bitField0_ & 0x00000040) == 0x00000040);
+  }
+  /**
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+   */
+  public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions() {
+    return createUfsBlockOptions_ == null ? alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance() : createUfsBlockOptions_;
+  }
+  /**
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+   */
+  public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder() {
+    return createUfsBlockOptions_ == null ? alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance() : createUfsBlockOptions_;
+  }
+
   public static final int CAPABILITY_FIELD_NUMBER = 1000;
   private alluxio.proto.security.CapabilityProto.Capability capability_;
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
    */
   public boolean hasCapability() {
-    return ((bitField0_ & 0x00000040) == 0x00000040);
+    return ((bitField0_ & 0x00000080) == 0x00000080);
   }
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
@@ -307,48 +324,13 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
-   * ALLUXIO CS REPLACE
-   * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-   * ALLUXIO CS WITH
+   * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
    */
   public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
     return capability_ == null ? alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance() : capability_;
-  }
-
-  public static final int CREATE_UFS_BLOCK_OPTIONS_FIELD_NUMBER = 1001;
-  private alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions createUfsBlockOptions_;
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-   */
-  public boolean hasCreateUfsBlockOptions() {
-    return ((bitField0_ & 0x00000080) == 0x00000080);
-  }
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-   */
-  public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions() {
-    return createUfsBlockOptions_ == null ? alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance() : createUfsBlockOptions_;
-  }
-  /**
-   * <pre>
-   * ALLUXIO CS END
-   * </pre>
-   *
-   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-   */
-  public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder() {
-    return createUfsBlockOptions_ == null ? alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance() : createUfsBlockOptions_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -382,10 +364,10 @@ private static final long serialVersionUID = 0L;
       output.writeMessage(6, getCreateUfsFileOptions());
     }
     if (((bitField0_ & 0x00000040) == 0x00000040)) {
-      output.writeMessage(1000, getCapability());
+      output.writeMessage(7, getCreateUfsBlockOptions());
     }
     if (((bitField0_ & 0x00000080) == 0x00000080)) {
-      output.writeMessage(1001, getCreateUfsBlockOptions());
+      output.writeMessage(1000, getCapability());
     }
     unknownFields.writeTo(output);
   }
@@ -421,11 +403,11 @@ private static final long serialVersionUID = 0L;
     }
     if (((bitField0_ & 0x00000040) == 0x00000040)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(1000, getCapability());
+        .computeMessageSize(7, getCreateUfsBlockOptions());
     }
     if (((bitField0_ & 0x00000080) == 0x00000080)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(1001, getCreateUfsBlockOptions());
+        .computeMessageSize(1000, getCapability());
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -472,15 +454,15 @@ private static final long serialVersionUID = 0L;
       result = result && getCreateUfsFileOptions()
           .equals(other.getCreateUfsFileOptions());
     }
-    result = result && (hasCapability() == other.hasCapability());
-    if (hasCapability()) {
-      result = result && getCapability()
-          .equals(other.getCapability());
-    }
     result = result && (hasCreateUfsBlockOptions() == other.hasCreateUfsBlockOptions());
     if (hasCreateUfsBlockOptions()) {
       result = result && getCreateUfsBlockOptions()
           .equals(other.getCreateUfsBlockOptions());
+    }
+    result = result && (hasCapability() == other.hasCapability());
+    if (hasCapability()) {
+      result = result && getCapability()
+          .equals(other.getCapability());
     }
     result = result && unknownFields.equals(other.unknownFields);
     return result;
@@ -520,13 +502,13 @@ private static final long serialVersionUID = 0L;
       hash = (37 * hash) + CREATE_UFS_FILE_OPTIONS_FIELD_NUMBER;
       hash = (53 * hash) + getCreateUfsFileOptions().hashCode();
     }
-    if (hasCapability()) {
-      hash = (37 * hash) + CAPABILITY_FIELD_NUMBER;
-      hash = (53 * hash) + getCapability().hashCode();
-    }
     if (hasCreateUfsBlockOptions()) {
       hash = (37 * hash) + CREATE_UFS_BLOCK_OPTIONS_FIELD_NUMBER;
       hash = (53 * hash) + getCreateUfsBlockOptions().hashCode();
+    }
+    if (hasCapability()) {
+      hash = (37 * hash) + CAPABILITY_FIELD_NUMBER;
+      hash = (53 * hash) + getCapability().hashCode();
     }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
@@ -659,8 +641,8 @@ private static final long serialVersionUID = 0L;
       if (com.google.protobuf.GeneratedMessageV3
               .alwaysUseFieldBuilders) {
         getCreateUfsFileOptionsFieldBuilder();
-        getCapabilityFieldBuilder();
         getCreateUfsBlockOptionsFieldBuilder();
+        getCapabilityFieldBuilder();
       }
     }
     public Builder clear() {
@@ -681,16 +663,16 @@ private static final long serialVersionUID = 0L;
         createUfsFileOptionsBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000020);
-      if (capabilityBuilder_ == null) {
-        capability_ = null;
-      } else {
-        capabilityBuilder_.clear();
-      }
-      bitField0_ = (bitField0_ & ~0x00000040);
       if (createUfsBlockOptionsBuilder_ == null) {
         createUfsBlockOptions_ = null;
       } else {
         createUfsBlockOptionsBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000040);
+      if (capabilityBuilder_ == null) {
+        capability_ = null;
+      } else {
+        capabilityBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000080);
       return this;
@@ -748,18 +730,18 @@ private static final long serialVersionUID = 0L;
       if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
         to_bitField0_ |= 0x00000040;
       }
-      if (capabilityBuilder_ == null) {
-        result.capability_ = capability_;
-      } else {
-        result.capability_ = capabilityBuilder_.build();
-      }
-      if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
-        to_bitField0_ |= 0x00000080;
-      }
       if (createUfsBlockOptionsBuilder_ == null) {
         result.createUfsBlockOptions_ = createUfsBlockOptions_;
       } else {
         result.createUfsBlockOptions_ = createUfsBlockOptionsBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        to_bitField0_ |= 0x00000080;
+      }
+      if (capabilityBuilder_ == null) {
+        result.capability_ = capability_;
+      } else {
+        result.capability_ = capabilityBuilder_.build();
       }
       result.bitField0_ = to_bitField0_;
       onBuilt();
@@ -821,11 +803,11 @@ private static final long serialVersionUID = 0L;
       if (other.hasCreateUfsFileOptions()) {
         mergeCreateUfsFileOptions(other.getCreateUfsFileOptions());
       }
-      if (other.hasCapability()) {
-        mergeCapability(other.getCapability());
-      }
       if (other.hasCreateUfsBlockOptions()) {
         mergeCreateUfsBlockOptions(other.getCreateUfsBlockOptions());
+      }
+      if (other.hasCapability()) {
+        mergeCapability(other.getCapability());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -1205,26 +1187,140 @@ private static final long serialVersionUID = 0L;
       return createUfsFileOptionsBuilder_;
     }
 
+    private alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions createUfsBlockOptions_ = null;
+    private com.google.protobuf.SingleFieldBuilderV3<
+        alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder> createUfsBlockOptionsBuilder_;
+    /**
+     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+     */
+    public boolean hasCreateUfsBlockOptions() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+     */
+    public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions() {
+      if (createUfsBlockOptionsBuilder_ == null) {
+        return createUfsBlockOptions_ == null ? alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance() : createUfsBlockOptions_;
+      } else {
+        return createUfsBlockOptionsBuilder_.getMessage();
+      }
+    }
+    /**
+     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+     */
+    public Builder setCreateUfsBlockOptions(alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions value) {
+      if (createUfsBlockOptionsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        createUfsBlockOptions_ = value;
+        onChanged();
+      } else {
+        createUfsBlockOptionsBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000040;
+      return this;
+    }
+    /**
+     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+     */
+    public Builder setCreateUfsBlockOptions(
+        alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder builderForValue) {
+      if (createUfsBlockOptionsBuilder_ == null) {
+        createUfsBlockOptions_ = builderForValue.build();
+        onChanged();
+      } else {
+        createUfsBlockOptionsBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000040;
+      return this;
+    }
+    /**
+     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+     */
+    public Builder mergeCreateUfsBlockOptions(alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions value) {
+      if (createUfsBlockOptionsBuilder_ == null) {
+        if (((bitField0_ & 0x00000040) == 0x00000040) &&
+            createUfsBlockOptions_ != null &&
+            createUfsBlockOptions_ != alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance()) {
+          createUfsBlockOptions_ =
+            alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.newBuilder(createUfsBlockOptions_).mergeFrom(value).buildPartial();
+        } else {
+          createUfsBlockOptions_ = value;
+        }
+        onChanged();
+      } else {
+        createUfsBlockOptionsBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000040;
+      return this;
+    }
+    /**
+     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+     */
+    public Builder clearCreateUfsBlockOptions() {
+      if (createUfsBlockOptionsBuilder_ == null) {
+        createUfsBlockOptions_ = null;
+        onChanged();
+      } else {
+        createUfsBlockOptionsBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000040);
+      return this;
+    }
+    /**
+     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+     */
+    public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder getCreateUfsBlockOptionsBuilder() {
+      bitField0_ |= 0x00000040;
+      onChanged();
+      return getCreateUfsBlockOptionsFieldBuilder().getBuilder();
+    }
+    /**
+     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+     */
+    public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder() {
+      if (createUfsBlockOptionsBuilder_ != null) {
+        return createUfsBlockOptionsBuilder_.getMessageOrBuilder();
+      } else {
+        return createUfsBlockOptions_ == null ?
+            alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance() : createUfsBlockOptions_;
+      }
+    }
+    /**
+     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+     */
+    private com.google.protobuf.SingleFieldBuilderV3<
+        alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder> 
+        getCreateUfsBlockOptionsFieldBuilder() {
+      if (createUfsBlockOptionsBuilder_ == null) {
+        createUfsBlockOptionsBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder>(
+                getCreateUfsBlockOptions(),
+                getParentForChildren(),
+                isClean());
+        createUfsBlockOptions_ = null;
+      }
+      return createUfsBlockOptionsBuilder_;
+    }
+
     private alluxio.proto.security.CapabilityProto.Capability capability_ = null;
     private com.google.protobuf.SingleFieldBuilderV3<
         alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      */
     public boolean hasCapability() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
@@ -1238,9 +1334,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
@@ -1255,14 +1349,12 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       return this;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
@@ -1275,21 +1367,19 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       return this;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      */
     public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
       if (capabilityBuilder_ == null) {
-        if (((bitField0_ & 0x00000040) == 0x00000040) &&
+        if (((bitField0_ & 0x00000080) == 0x00000080) &&
             capability_ != null &&
             capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
           capability_ =
@@ -1301,14 +1391,12 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       return this;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
@@ -1320,28 +1408,24 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000040);
+      bitField0_ = (bitField0_ & ~0x00000080);
       return this;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      */
     public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       onChanged();
       return getCapabilityFieldBuilder().getBuilder();
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
@@ -1356,9 +1440,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * ALLUXIO CS REPLACE
-     * optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
-     * ALLUXIO CS WITH
+     * ALLUXIO CS ADD
      * </pre>
      *
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
@@ -1375,160 +1457,6 @@ private static final long serialVersionUID = 0L;
         capability_ = null;
       }
       return capabilityBuilder_;
-    }
-
-    private alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions createUfsBlockOptions_ = null;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder> createUfsBlockOptionsBuilder_;
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-     */
-    public boolean hasCreateUfsBlockOptions() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-     */
-    public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions getCreateUfsBlockOptions() {
-      if (createUfsBlockOptionsBuilder_ == null) {
-        return createUfsBlockOptions_ == null ? alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance() : createUfsBlockOptions_;
-      } else {
-        return createUfsBlockOptionsBuilder_.getMessage();
-      }
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-     */
-    public Builder setCreateUfsBlockOptions(alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions value) {
-      if (createUfsBlockOptionsBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        createUfsBlockOptions_ = value;
-        onChanged();
-      } else {
-        createUfsBlockOptionsBuilder_.setMessage(value);
-      }
-      bitField0_ |= 0x00000080;
-      return this;
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-     */
-    public Builder setCreateUfsBlockOptions(
-        alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder builderForValue) {
-      if (createUfsBlockOptionsBuilder_ == null) {
-        createUfsBlockOptions_ = builderForValue.build();
-        onChanged();
-      } else {
-        createUfsBlockOptionsBuilder_.setMessage(builderForValue.build());
-      }
-      bitField0_ |= 0x00000080;
-      return this;
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-     */
-    public Builder mergeCreateUfsBlockOptions(alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions value) {
-      if (createUfsBlockOptionsBuilder_ == null) {
-        if (((bitField0_ & 0x00000080) == 0x00000080) &&
-            createUfsBlockOptions_ != null &&
-            createUfsBlockOptions_ != alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance()) {
-          createUfsBlockOptions_ =
-            alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.newBuilder(createUfsBlockOptions_).mergeFrom(value).buildPartial();
-        } else {
-          createUfsBlockOptions_ = value;
-        }
-        onChanged();
-      } else {
-        createUfsBlockOptionsBuilder_.mergeFrom(value);
-      }
-      bitField0_ |= 0x00000080;
-      return this;
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-     */
-    public Builder clearCreateUfsBlockOptions() {
-      if (createUfsBlockOptionsBuilder_ == null) {
-        createUfsBlockOptions_ = null;
-        onChanged();
-      } else {
-        createUfsBlockOptionsBuilder_.clear();
-      }
-      bitField0_ = (bitField0_ & ~0x00000080);
-      return this;
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-     */
-    public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder getCreateUfsBlockOptionsBuilder() {
-      bitField0_ |= 0x00000080;
-      onChanged();
-      return getCreateUfsBlockOptionsFieldBuilder().getBuilder();
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-     */
-    public alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder() {
-      if (createUfsBlockOptionsBuilder_ != null) {
-        return createUfsBlockOptionsBuilder_.getMessageOrBuilder();
-      } else {
-        return createUfsBlockOptions_ == null ?
-            alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.getDefaultInstance() : createUfsBlockOptions_;
-      }
-    }
-    /**
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
-     *
-     * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 1001;</code>
-     */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder> 
-        getCreateUfsBlockOptionsFieldBuilder() {
-      if (createUfsBlockOptionsBuilder_ == null) {
-        createUfsBlockOptionsBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptions.Builder, alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder>(
-                getCreateUfsBlockOptions(),
-                getParentForChildren(),
-                isClean());
-        createUfsBlockOptions_ = null;
-      }
-      return createUfsBlockOptionsBuilder_;
     }
     public final Builder setUnknownFields(
         final com.google.protobuf.UnknownFieldSet unknownFields) {

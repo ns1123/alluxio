@@ -98,14 +98,13 @@ public final class LocalFirstPolicyTest {
     WorkerNetAddress chosen;
     // local rack
     policy = LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=node1,rack=rack2",
-        sConf), sConf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP));
+        sConf), sConf);
     chosen = policy.getWorkerForNextBlock(workers, Constants.GB);
     assertEquals("rack2", chosen.getTieredIdentity().getTier(1).getValue());
 
     // local node
     policy = LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=node4,rack=rack3",
-        sConf),
-        sConf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP));
+        sConf), sConf);
     chosen = policy.getWorkerForNextBlock(workers, Constants.GB);
     assertEquals("node4", chosen.getTieredIdentity().getTier(0).getValue());
   }
@@ -114,12 +113,14 @@ public final class LocalFirstPolicyTest {
   @Test
   public void respectStrictLocality() throws Exception {
     try (java.io.Closeable c = new alluxio.ConfigurationRule(
-        alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(Constants.LOCALITY_RACK), "true")
+        alluxio.conf.PropertyKey.Template.LOCALITY_TIER_STRICT.format(Constants.LOCALITY_RACK),
+        "true", sConf)
             .toResource()) {
       List<BlockWorkerInfo> workers = new ArrayList<>();
       workers.add(worker(Constants.GB, "node", "rack"));
       LocalFirstPolicy policy =
-          LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=other,rack=other"));
+          LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=other,rack=other",
+              sConf), sConf);
       WorkerNetAddress chosen = policy.getWorkerForNextBlock(workers, Constants.GB);
       // Rack locality is set to strict, and no rack matches.
       Assert.assertNull(chosen);
@@ -136,7 +137,7 @@ public final class LocalFirstPolicyTest {
     workers.add(worker(Constants.GB, "node4", "rack3"));
     LocalFirstPolicy policy =
         LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=node2,rack=rack3", sConf),
-            sConf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP));
+            sConf);
     WorkerNetAddress chosen = policy.getWorkerForNextBlock(workers, Constants.GB);
     assertEquals(workers.get(2).getNetAddress(), chosen);
   }
@@ -146,10 +147,10 @@ public final class LocalFirstPolicyTest {
     new EqualsTester()
         .addEqualityGroup(
             LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=x,rack=y", sConf),
-                sConf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP)))
+                sConf))
         .addEqualityGroup(
             LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=x,rack=z", sConf),
-                sConf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP)))
+                sConf))
         .testEquals();
   }
 

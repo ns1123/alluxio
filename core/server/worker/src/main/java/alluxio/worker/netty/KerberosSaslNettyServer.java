@@ -11,6 +11,7 @@
 
 package alluxio.worker.netty;
 
+import alluxio.conf.ServerConfiguration;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -46,24 +47,27 @@ public class KerberosSaslNettyServer {
    */
   public KerberosSaslNettyServer(final Channel channel) throws SaslException {
     try {
-      mSubject = LoginUser.getServerLoginSubject();
+      mSubject = LoginUser.getServerLoginSubject(ServerConfiguration.global());
     } catch (IOException e) {
       throw new SaslException("IOException ", e);
     }
 
     try {
       final String hostname =
-          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC);
-      final String serviceName = KerberosUtils.getKerberosServiceName();
+          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC,
+              ServerConfiguration.global());
+      final String serviceName = KerberosUtils.getKerberosServiceName(ServerConfiguration.global());
       Preconditions.checkNotNull(hostname);
-      String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName();
+      String unifiedInstanceName =
+          KerberosUtils.maybeGetKerberosUnifiedInstanceName(ServerConfiguration.global());
       final String instanceName = unifiedInstanceName != null ? unifiedInstanceName : hostname;
       mSaslServer = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslServer>() {
         public SaslServer run() {
           try {
             return Sasl.createSaslServer(KerberosUtils.GSSAPI_MECHANISM_NAME, serviceName,
                 instanceName, KerberosUtils.SASL_PROPERTIES,
-                new KerberosUtils.NettyGssSaslCallbackHandler(channel));
+                new KerberosUtils.NettyGssSaslCallbackHandler(ServerConfiguration.global(),
+                    channel));
           } catch (Exception e) {
             LOG.error("Subject failed to create Sasl client. ", e);
             return null;

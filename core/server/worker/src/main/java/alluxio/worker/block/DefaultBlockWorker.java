@@ -530,7 +530,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
    * If capability is enabled, waits for the capability key to be ready.
    */
   public void waitForCapabilityKeyReady() {
-    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+    if (ServerConfiguration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
       try {
         alluxio.util.CommonUtils.waitFor("worker capability key",
             () -> mCapabilityCache.getCapabilityKey().getEncodedKey() != null);

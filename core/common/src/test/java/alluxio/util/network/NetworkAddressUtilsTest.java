@@ -68,9 +68,6 @@ public class NetworkAddressUtilsTest {
     String localHostName = NetworkAddressUtils.getLocalHostName(resolveTimeout);
     InetSocketAddress masterAddress;
 
-    // ALLUXIO CS ADD
-    Configuration.set(PropertyKey.MASTER_HOSTNAME, localHostName);
-    // ALLUXIO CS END
     // all default
     masterAddress = NetworkAddressUtils.getConnectAddress(service, mConfiguration);
     assertEquals(new InetSocketAddress(localHostName, service.getDefaultPort()),
@@ -221,7 +218,7 @@ public class NetworkAddressUtilsTest {
         break;
       // ALLUXIO CS ADD
       case WORKER_SECURE_RPC:
-        Configuration.set(PropertyKey.WORKER_SECURE_RPC_PORT, "20000");
+        mConfiguration.set(PropertyKey.WORKER_SECURE_RPC_PORT, "20000");
         break;
       // ALLUXIO CS END
       default:
