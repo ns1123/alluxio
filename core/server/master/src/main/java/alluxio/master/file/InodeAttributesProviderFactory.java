@@ -11,6 +11,7 @@
 
 package alluxio.master.file;
 
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.extensions.ExtensionFactory;
 import alluxio.underfs.UnderFileSystemConfiguration;
 
@@ -29,13 +30,16 @@ public interface InodeAttributesProviderFactory
    *
    * @param path file path
    * @param conf optional configuration object for the provider, may be null
+   * @param alluxioConf Alluxio configuration
    * @return the provider
    */
-  InodeAttributesProvider create(String path, @Nullable UnderFileSystemConfiguration conf);
+  InodeAttributesProvider create(String path, @Nullable UnderFileSystemConfiguration conf,
+      AlluxioConfiguration alluxioConf);
 
   /**
    * Gets whether this factory supports the given path and thus whether calling the
-   * {@link #create(String, UnderFileSystemConfiguration)} can succeed for this path.
+   * {@link #create(String, UnderFileSystemConfiguration, AlluxioConfiguration)} can succeed for
+   * this path.
    *
    * @param path file path
    * @param conf optional configuration object for the provider, may be null

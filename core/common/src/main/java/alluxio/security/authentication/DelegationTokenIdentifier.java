@@ -37,11 +37,13 @@ public class DelegationTokenIdentifier implements TokenIdentifier {
    * @param renewer Kerberos principal of user who can renew the token. If null is given, the token
    *                will not be renewable.
    * @param realUser user who actually connected to the service
+   * @param kerberosAuthToLocal kerberos auth_to_local rules
    */
-  public DelegationTokenIdentifier(String owner, String renewer, String realUser) {
+  public DelegationTokenIdentifier(String owner, String renewer, String realUser,
+      String kerberosAuthToLocal) {
     mOwner = owner;
     try {
-      mRenewer = renewer == null ? null : new KerberosName(renewer).getShortName();
+      mRenewer = renewer == null ? null : new KerberosName(renewer).getShortName(kerberosAuthToLocal);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -54,14 +56,16 @@ public class DelegationTokenIdentifier implements TokenIdentifier {
    * @param renewer Kerberos principal of user who can renew the token. If null is given, the token
    *                will not be renewable.
    * @param realUser user who actually connected to the service
+   * @param kerberosAuthToLocal kerberos auth_to_local rules
    * @param issueDate epoch time when the token is issued
    * @param maxDate epoch time when the token can be renewed until
    * @param sequenceNumber a unique identifier for the token
    * @param masterKeyId id of the master key
    */
-  public DelegationTokenIdentifier(String owner, String renewer, String realUser, long issueDate,
-      long maxDate, long sequenceNumber, long masterKeyId) {
-    this(owner, renewer, realUser);
+  public DelegationTokenIdentifier(String owner, String renewer, String realUser,
+      String kerberosAuthToLocal, long issueDate, long maxDate, long sequenceNumber,
+      long masterKeyId) {
+    this(owner, renewer, realUser, kerberosAuthToLocal);
     setIssueDate(issueDate);
     setMaxDate(maxDate);
     setSequenceNumber(sequenceNumber);
@@ -217,22 +221,27 @@ public class DelegationTokenIdentifier implements TokenIdentifier {
    * Converts a proto instance to the actual delegation token identifier.
    *
    * @param proto the proto delegation token identifier
+   * @param kerberosAuthToLocal the kerberos auth_to_local rules to use constructing the token
    * @return the delegation token identifier
    */
-  public static DelegationTokenIdentifier fromProto(DelegationTokenProto.DelegationTokenIdentifier proto) {
-    return new DelegationTokenIdentifier(proto.getOwner(), proto.getRenewer(), proto.getRealUser(),
-        proto.getIssueDate(), proto.getMaxDate(), proto.getSequenceNumber(), proto.getMasterKeyId());
+  public static DelegationTokenIdentifier fromProto(
+      DelegationTokenProto.DelegationTokenIdentifier proto, String kerberosAuthToLocal) {
+    return new DelegationTokenIdentifier(proto.getOwner(), proto.getRenewer(),
+        proto.getRealUser(), kerberosAuthToLocal, proto.getIssueDate(), proto.getMaxDate(),
+        proto.getSequenceNumber(), proto.getMasterKeyId());
   }
 
   /**
    * Deserializes data from byte array.
    *
    * @param data data to be deserialized
+   * @param kerberosAuthToLocal the kerberos auth_to_local rules to use constructing the token
    * @return the delegation token identifier represented by the data
    * @throws IOException
    */
-  public static DelegationTokenIdentifier fromByteArray(byte[] data) throws IOException {
-    return fromProto(DelegationTokenProto.DelegationTokenIdentifier.parseFrom(data));
+  public static DelegationTokenIdentifier fromByteArray(byte[] data, String kerberosAuthToLocal)
+      throws IOException {
+    return fromProto(DelegationTokenProto.DelegationTokenIdentifier.parseFrom(data), kerberosAuthToLocal);
   }
 }
 

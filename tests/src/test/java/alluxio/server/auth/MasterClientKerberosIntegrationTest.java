@@ -12,10 +12,9 @@
 package alluxio.server.auth;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
-import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemMasterClient;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.CreateFilePOptions;
@@ -24,7 +23,7 @@ import alluxio.hadoop.AlluxioDelegationTokenIdentifier;
 import alluxio.hadoop.FileSystem;
 import alluxio.hadoop.HadoopKerberosLoginProvider;
 import alluxio.master.LocalAlluxioCluster;
-import alluxio.master.MasterClientConfig;
+import alluxio.master.MasterClientContext;
 import alluxio.security.LoginUser;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
@@ -64,7 +63,8 @@ import java.security.PrivilegedExceptionAction;
 // TODO(ggezer) EE-SEC reactivate after gRPC kerberos.
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
 public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTest {
-  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
+  private static final String HOSTNAME = NetworkAddressUtils
+      .getLocalHostName(ServerConfiguration.getInt(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
   private static final String UNIFIED_INSTANCE = "instance";
 
   private static MiniKdc sKdc;
@@ -133,12 +133,13 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
    */
   @Test
   public void kerberosAuthenticationOpenCloseTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     String filename = "/kerberos-file1";
     FileSystemMasterClient masterClient =
-          FileSystemMasterClient.Factory.create(MasterClientConfig.defaults());
+          FileSystemMasterClient.Factory.create(MasterClientContext.newBuilder(
+              MasterClientContext.create(ServerConfiguration.global())).build());
     Assert.assertFalse(masterClient.isConnected());
     masterClient.connect();
     Assert.assertTrue(masterClient.isConnected());
@@ -154,11 +155,12 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
    */
   @Test
   public void kerberosAuthenticationIsolatedClassLoader() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     FileSystemMasterClient masterClient =
-          FileSystemMasterClient.Factory.create(MasterClientConfig.defaults());
+          FileSystemMasterClient.Factory.create(MasterClientContext.newBuilder(
+              MasterClientContext.create(ServerConfiguration.global())).build());
     Assert.assertFalse(masterClient.isConnected());
 
     // Get the current context class loader to retrieve the classpath URLs.
@@ -183,13 +185,14 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
   @Test
   public void kerberosAuthenticationWithWrongPrincipalTest() throws Exception {
     // Invalid client principal.
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     boolean isConnected;
     try {
       FileSystemMasterClient masterClient =
-          FileSystemMasterClient.Factory.create(MasterClientConfig.defaults());
+          FileSystemMasterClient.Factory.create(MasterClientContext.newBuilder(
+              MasterClientContext.create(ServerConfiguration.global())).build());
       masterClient.connect();
       isConnected = masterClient.isConnected();
     } catch (UnauthenticatedException e) {
@@ -203,15 +206,16 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
    */
   @Test
   public void kerberosAuthenticationWithWrongKeytabTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     // Wrong keytab file which does not contain the actual client principal credentials.
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
         sServerKeytab.getPath() + "invalidsuffix");
 
     boolean isConnected;
     try {
       FileSystemMasterClient masterClient =
-          FileSystemMasterClient.Factory.create(MasterClientConfig.defaults());
+          FileSystemMasterClient.Factory.create(MasterClientContext.newBuilder(
+              MasterClientContext.create(ServerConfiguration.global())).build());
       masterClient.connect();
       isConnected = masterClient.isConnected();
     } catch (UnauthenticatedException e) {
@@ -225,8 +229,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
    */
   @Test
   public void kerberosAuthenticationWithDelegationTokenTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
     UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
     UserGroupInformation.setLoginUser(tokenUGI);
     Credentials creds = new Credentials();
@@ -244,13 +248,12 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      FileSystemContext.clearCache();
       fs = sLocalAlluxioClusterResource.get().getClient();
       FileSystem newHdfs = new FileSystem(fs);
 
@@ -272,8 +275,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
    */
   @Test
   public void kerberosAuthenticationWithWrongDelegationTokenTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
     UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
     UserGroupInformation.setLoginUser(tokenUGI);
     Credentials creds = new Credentials();
@@ -297,13 +300,12 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       tokenUGI.addCredentials(invalidCreds);
 
       // accesses master using delegation token
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      FileSystemContext.clearCache();
       fs = sLocalAlluxioClusterResource.get().getClient();
       FileSystem newHdfs = new FileSystem(fs);
 
@@ -324,8 +326,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
    */
   @Test
   public void delegationTokenRenewalTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
     UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
     UserGroupInformation.setLoginUser(tokenUGI);
     Credentials creds = new Credentials();
@@ -354,13 +356,12 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      FileSystemContext.clearCache();
       fs = sLocalAlluxioClusterResource.get().getClient();
       FileSystem newHdfs = new FileSystem(fs);
 
@@ -382,8 +383,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
    */
   @Test
   public void delegationTokenCancellationTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
     UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
     UserGroupInformation.setLoginUser(tokenUGI);
     Credentials creds = new Credentials();
@@ -405,13 +406,12 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      FileSystemContext.clearCache();
       fs = sLocalAlluxioClusterResource.get().getClient();
       FileSystem newHdfs = new FileSystem(fs);
 
@@ -431,7 +431,6 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
     try {
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      FileSystemContext.clearCache();
       alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
       FileSystem newHdfs = new FileSystem(fs);
@@ -452,8 +451,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
   @Test
   public void journalGetDelegationToken() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
     UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
     UserGroupInformation.setLoginUser(tokenUGI);
     Credentials creds = new Credentials();
@@ -475,13 +474,12 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       cluster.startMasters();
 
       // accesses master using delegation token
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      FileSystemContext.clearCache();
       fs = sLocalAlluxioClusterResource.get().getClient();
       FileSystem newHdfs = new FileSystem(fs);
 
@@ -500,8 +498,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
   @Test
   public void journalRenewDelegationToken() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
     UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
     UserGroupInformation.setLoginUser(tokenUGI);
     Credentials creds = new Credentials();
@@ -529,13 +527,12 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       cluster.startMasters();
 
       // accesses master using delegation token
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      FileSystemContext.clearCache();
       fs = sLocalAlluxioClusterResource.get().getClient();
       FileSystem newHdfs = new FileSystem(fs);
 
@@ -554,8 +551,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
   @Test
   public void journalCancelDelegationToken() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
     UserGroupInformation tokenUGI = UserGroupInformation.createRemoteUser("alluxio");
     UserGroupInformation.setLoginUser(tokenUGI);
     Credentials creds = new Credentials();
@@ -583,13 +580,12 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       cluster.startMasters();
 
       // accesses master using delegation token
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-      Configuration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      FileSystemContext.clearCache();
       fs = sLocalAlluxioClusterResource.get().getClient();
       FileSystem newHdfs = new FileSystem(fs);
 

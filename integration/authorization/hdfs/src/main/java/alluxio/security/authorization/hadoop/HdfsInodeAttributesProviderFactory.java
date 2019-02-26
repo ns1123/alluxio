@@ -11,8 +11,9 @@
 
 package alluxio.security.authorization.hadoop;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.file.meta.MountTable;
 import alluxio.security.authorization.AuthorizationPluginConstants;
 import alluxio.master.file.InodeAttributesProvider;
@@ -30,16 +31,18 @@ import javax.annotation.Nullable;
  * HDFS {@link INodeAttributeProvider}.
  */
 public final class HdfsInodeAttributesProviderFactory implements InodeAttributesProviderFactory {
-  private static final Logger LOG = LoggerFactory.getLogger(HdfsInodeAttributesProviderFactory.class);
+  private static final Logger LOG =
+      LoggerFactory.getLogger(HdfsInodeAttributesProviderFactory.class);
 
   @Override
-  public InodeAttributesProvider create(String path, @Nullable UnderFileSystemConfiguration conf) {
+  public InodeAttributesProvider create(String path, @Nullable UnderFileSystemConfiguration conf,
+      AlluxioConfiguration alluxioConf) {
     return new HdfsInodeAttributesProvider(conf);
   }
 
   @Override
   public boolean supportsPath(String path, @Nullable UnderFileSystemConfiguration conf) {
-    boolean isHdfs = Configuration.getList(PropertyKey.UNDERFS_HDFS_PREFIXES, ",").stream()
+    boolean isHdfs = ServerConfiguration.getList(PropertyKey.UNDERFS_HDFS_PREFIXES, ",").stream()
         .anyMatch(prefix -> path.startsWith(prefix));
     if (conf != null && AuthorizationPluginConstants.AUTH_VERSION.equalsIgnoreCase(
         conf.get(PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME))

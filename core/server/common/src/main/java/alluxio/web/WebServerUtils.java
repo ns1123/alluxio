@@ -11,8 +11,8 @@
 
 package alluxio.web;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -34,7 +34,7 @@ public final class WebServerUtils {
    * @return whether login and authentication is enabled
    */
   public static boolean isLoginEnabled() {
-    return Configuration.getBoolean(PropertyKey.WEB_LOGIN_ENABLED);
+    return ServerConfiguration.getBoolean(PropertyKey.WEB_LOGIN_ENABLED);
   }
 
   /**
@@ -44,8 +44,8 @@ public final class WebServerUtils {
    */
   public static void addLoginServlet(WebAppContext context) {
     // Generate a mapping from username to password.
-    String username = Configuration.get(PropertyKey.WEB_LOGIN_USERNAME);
-    String password = Configuration.get(PropertyKey.WEB_LOGIN_PASSWORD);
+    String username = ServerConfiguration.get(PropertyKey.WEB_LOGIN_USERNAME);
+    String password = ServerConfiguration.get(PropertyKey.WEB_LOGIN_PASSWORD);
     Map<String, String> userPasswords = new HashMap<>();
     userPasswords.put(username, password);
 

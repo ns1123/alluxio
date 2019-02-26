@@ -15,6 +15,7 @@ import alluxio.CallHomeConstants;
 import alluxio.Constants;
 import alluxio.Server;
 import alluxio.clock.SystemClock;
+import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.GrpcService;
 import alluxio.grpc.ServiceType;
 import alluxio.heartbeat.HeartbeatContext;
@@ -117,7 +118,7 @@ public final class CallHomeMaster extends AbstractNonJournaledMaster {
     LOG.info("Starting {}", getName());
     mCallHomeService = getExecutorService().submit(
         new HeartbeatThread(HeartbeatContext.MASTER_CALL_HOME, new CallHomeExecutor(mMasterProcess),
-            Long.parseLong(CallHomeConstants.CALL_HOME_PERIOD_MS)));
+            Long.parseLong(CallHomeConstants.CALL_HOME_PERIOD_MS), ServerConfiguration.global()));
     LOG.info("{} is started", getName());
   }
 

@@ -11,8 +11,10 @@
 
 package alluxio.client.security;
 
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.client.util.EncryptionMetaTestUtils;
+import alluxio.conf.InstancedConfiguration;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.proto.ProtoUtils;
 
@@ -38,6 +40,8 @@ public class CryptoUtilsTest {
           .setGenerationId("generationBytes"), TEST_SECRET_KEY.getBytes()),
       TEST_IV.getBytes()).build();
 
+  protected InstancedConfiguration mConf = ConfigurationTestUtils.defaults();
+
   @Test
   public void basic() throws Exception {
     final String[] testcases = {
@@ -51,9 +55,9 @@ public class CryptoUtilsTest {
 
     for (final String plaintext : testcases) {
       byte[] ciphertext = new byte[plaintext.length() + AES_GCM_AUTH_TAG_LENGTH];
-      CryptoUtils.encrypt(mKey, plaintext.getBytes(), 0, plaintext.length(), ciphertext, 0);
+      CryptoUtils.encrypt(mKey, plaintext.getBytes(), 0, plaintext.length(), ciphertext, 0, mConf);
       byte[] decrypted = new byte[plaintext.length()];
-      CryptoUtils.decrypt(mKey, ciphertext, 0, ciphertext.length, decrypted, 0);
+      CryptoUtils.decrypt(mKey, ciphertext, 0, ciphertext.length, decrypted, 0, mConf);
       Assert.assertEquals(plaintext.getBytes().length, ciphertext.length - AES_GCM_AUTH_TAG_LENGTH);
       Assert.assertEquals(plaintext, new String(decrypted));
     }
@@ -67,12 +71,12 @@ public class CryptoUtilsTest {
         new String(new char[64 * Constants.KB]).replace('\0', 'a'),
         new String(new char[4 * Constants.MB]).replace('\0', 'b'),
     };
-    EncryptionProto.Meta meta = EncryptionMetaTestUtils.create();
+    EncryptionProto.Meta meta = EncryptionMetaTestUtils.create(mConf);
 
     for (final String plaintext : testcases) {
       ByteBuf ciphertext = CryptoUtils.encryptChunks(
-          meta, Unpooled.wrappedBuffer(plaintext.getBytes()));
-      ByteBuf decrypted = CryptoUtils.decryptChunks(meta, ciphertext);
+          meta, Unpooled.wrappedBuffer(plaintext.getBytes()), mConf);
+      ByteBuf decrypted = CryptoUtils.decryptChunks(meta, ciphertext, mConf);
       Assert.assertEquals(plaintext.getBytes().length, decrypted.readableBytes());
       Assert.assertEquals(plaintext, new String(decrypted.array()));
     }

@@ -11,7 +11,7 @@
 
 package alluxio.server.auth;
 
-import alluxio.ConfigurationTestUtils;
+import alluxio.conf.ServerConfiguration;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.login.LoginModuleConfiguration;
 import alluxio.security.minikdc.MiniKdc;
@@ -81,7 +81,7 @@ public final class KerberosLoginModuleTest extends BaseIntegrationTest {
   }
 
   public void after() throws Exception {
-    ConfigurationTestUtils.resetConfiguration();
+    ServerConfiguration.reset();
     LoginUserTestUtils.resetLoginUser();
   }
 

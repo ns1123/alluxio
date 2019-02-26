@@ -15,6 +15,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import alluxio.ConfigurationTestUtils;
+import alluxio.conf.InstancedConfiguration;
+
 import org.junit.Test;
 
 import java.util.Set;
@@ -32,6 +35,8 @@ public final class UserTest {
   public alluxio.security.util.KerberosNameRule mKerberosNameRule =
       new alluxio.security.util.KerberosNameRule(alluxio.Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL,
           TEST_REALM);
+
+  private InstancedConfiguration mConfiguration = ConfigurationTestUtils.defaults();
   // ALLUXIO CS END
 
   /**
@@ -84,7 +89,7 @@ public final class UserTest {
   public void emptySubjectTest() {
     try {
       Subject subject = new Subject();
-      User user = new User(subject);
+      User user = new User(subject, mConfiguration);
       org.junit.Assert.fail("creating User from an empty subject should fail");
     } catch (Exception e) {
       // Expected
@@ -92,8 +97,8 @@ public final class UserTest {
   }
 
   /**
-   * Tests for {@link User#User(Subject)}, {@link User#getSubject()} and
-   * {@link User#equals(Object)} in KERBEROS mode.
+   * Tests for {@link User#User(Subject, alluxio.conf.AlluxioConfiguration)},
+   * {@link User#getSubject()} and {@link User#equals(Object)} in KERBEROS mode.
    */
   @Test
   public void kerberosSubjectTest() throws Exception {
@@ -103,7 +108,7 @@ public final class UserTest {
     // One principal in subject.
     subject.getPrincipals().add(
         new javax.security.auth.kerberos.KerberosPrincipal("foo/admin@" + TEST_REALM));
-    User user = new User(subject);
+    User user = new User(subject, mConfiguration);
     org.junit.Assert.assertNotNull(user.getSubject());
     assertEquals("[foo/admin@EXAMPLE.COM]",
         user.getSubject().getPrincipals(
@@ -117,7 +122,7 @@ public final class UserTest {
     // Two principal in subject, for now User only takes the first principal as the user name.
     subject.getPrincipals().add(
         new javax.security.auth.kerberos.KerberosPrincipal("bar/admin@" + TEST_REALM));
-    user = new User(subject);
+    user = new User(subject, mConfiguration);
     org.junit.Assert.assertNotNull(user.getSubject());
     assertEquals(String.format("[foo/admin@%s, bar/admin@%s]", TEST_REALM, TEST_REALM),
         user.getSubject().getPrincipals(

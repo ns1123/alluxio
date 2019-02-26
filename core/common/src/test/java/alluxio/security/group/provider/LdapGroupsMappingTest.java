@@ -11,8 +11,9 @@
 
 package alluxio.security.group.provider;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.ConfigurationTestUtils;
+import alluxio.conf.InstancedConfiguration;
+import alluxio.conf.PropertyKey;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -61,6 +62,8 @@ public final class LdapGroupsMappingTest {
   private NamingEnumeration mMockUserNamingEnum;
   private NamingEnumeration mMockGroupNamingEnum;
 
+  private InstancedConfiguration mConf = ConfigurationTestUtils.defaults();
+
   @Rule
   public TemporaryFolder mTestFolder = new TemporaryFolder();
 
@@ -69,13 +72,14 @@ public final class LdapGroupsMappingTest {
 
   @Before
   public void before() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BASE, "DC=test,DC=com");
+    mConf = ConfigurationTestUtils.defaults();
+    mConf.set(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BASE, "DC=test,DC=com");
     // TODO(cc): This should be called automatically by the junit framework before the @Before
     // method, but it's not called, investigate why.
     mTestFolder.create();
 
     mMockDirContext = Mockito.mock(DirContext.class);
-    mMockMapping = PowerMockito.spy(new LdapGroupsMapping());
+    mMockMapping = PowerMockito.spy(new LdapGroupsMapping(mConf));
     mMockUserNamingEnum = Mockito.mock(NamingEnumeration.class);
     mMockGroupNamingEnum = Mockito.mock(NamingEnumeration.class);
 
@@ -160,15 +164,15 @@ public final class LdapGroupsMappingTest {
     final String expectedPassword = "password";
 
     // Tests getting password from the property value directly.
-    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD, expectedPassword);
-    LdapGroupsMapping mapping = new LdapGroupsMapping();
+    mConf.set(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD, expectedPassword);
+    LdapGroupsMapping mapping = new LdapGroupsMapping(mConf);
     String password = mapping.getPassword(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD,
         PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE);
     Assert.assertEquals(expectedPassword, password);
 
     // Tests the case where no password or password file is set.
-    Configuration.unset(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD);
-    Configuration.unset(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE);
+    mConf.unset(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD);
+    mConf.unset(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE);
     password = mapping.getPassword(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD,
         PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE);
     Assert.assertEquals("", password);
@@ -180,7 +184,7 @@ public final class LdapGroupsMappingTest {
     writer.close();
 
     // Tests getting password from the password file.
-    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE,
+    mConf.set(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE,
         passwordFile.getAbsolutePath());
     password = mapping.getPassword(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD,
         PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE);

@@ -11,6 +11,10 @@
 
 package alluxio.cli.privileges;
 
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.InstancedConfiguration;
+import alluxio.util.ConfigurationUtils;
+
 import com.beust.jcommander.JCommander;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
@@ -34,17 +38,20 @@ public final class Privileges {
    * @param args command-line arguments
    */
   public static void main(String[] args) {
-    System.exit(new Privileges().run(args));
+    System.exit(
+        new Privileges(new InstancedConfiguration(ConfigurationUtils.defaults())).run(args));
   }
 
   /**
    * Constructs a new privileges command.
+   *
+   * @param conf Alluxio configuration
    */
-  public Privileges() {
+  public Privileges(AlluxioConfiguration conf) {
     mCommands = ImmutableMap.of(
-        "list", new ListPrivilegesCommand(),
-        "grant", new GrantPrivilegesCommand(),
-        "revoke", new RevokePrivilegesCommand());
+        "list", new ListPrivilegesCommand(conf),
+        "grant", new GrantPrivilegesCommand(conf),
+        "revoke", new RevokePrivilegesCommand(conf));
   }
 
   /**

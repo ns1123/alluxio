@@ -14,17 +14,17 @@ package alluxio.hadoop;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-import alluxio.AlluxioConfiguration;
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioProperties;
+import alluxio.conf.InstancedConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
-import alluxio.conf.InstancedConfiguration;
 import alluxio.conf.Source;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
@@ -35,7 +35,6 @@ import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.SetAttributePOptions;
-import alluxio.master.MasterInquireClient.ConnectDetails;
 import alluxio.master.MasterInquireClient.Factory;
 import alluxio.security.User;
 import alluxio.security.authorization.Mode;
@@ -44,6 +43,7 @@ import alluxio.uri.MultiMasterAuthority;
 import alluxio.uri.SingleMasterAuthority;
 import alluxio.uri.UnknownAuthority;
 import alluxio.uri.ZookeeperAuthority;
+import alluxio.util.ConfigurationUtils;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerNetAddress;
 
@@ -72,9 +72,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.security.auth.Subject;
 
@@ -95,14 +95,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   // ALLUXIO CS END
   // Always tell Hadoop that we have 3x replication.
   private static final int BLOCK_REPLICATION_CONSTANT = 3;
-  /** Lock for initializing the contexts, currently only one set of contexts is supported. */
-  private static final Object INIT_LOCK = new Object();
 
   /** Flag for if the contexts have been initialized. */
-  @GuardedBy("INIT_LOCK")
-  private static volatile boolean sInitialized = false;
+  private final AtomicBoolean mInitialized = new AtomicBoolean(false);
 
-  private FileSystemContext mContext = null;
+  protected FileSystemContext mFsContext = null;
   private FileSystem mFileSystem = null;
 
   private URI mUri = null;
@@ -119,7 +116,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
   AbstractFileSystem(FileSystem fileSystem) {
     mFileSystem = fileSystem;
-    sInitialized = true;
+    mInitialized.set(true);
   }
 
   /**
@@ -154,8 +151,8 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     // org.apache.hadoop.fs.FileSystem.close may check the existence of certain temp files before
     // closing
     super.close();
-    if (mContext != null) {
-      mContext.close();
+    if (mFsContext != null) {
+      mFsContext.close();
     }
   }
 
@@ -276,7 +273,8 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
 
   @Override
   public long getDefaultBlockSize() {
-    return Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+    return mFsContext.getConf()
+        .getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
   }
 
   @Nullable
@@ -309,7 +307,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
                 location -> finalWorkerHosts.get(HostAndPort.fromString(location).getHost()))
                 .filter(Objects::nonNull).collect(toList());
           }
-          if (locations.isEmpty() && Configuration
+          if (locations.isEmpty() && mFsContext.getConf()
               .getBoolean(PropertyKey.USER_UFS_BLOCK_LOCATION_ALL_FALLBACK_ENABLED)) {
             // Case 2: Fallback to add all workers to locations so some apps (Impala) won't panic.
             locations.addAll(getHostToWorkerMap().values());
@@ -333,7 +331,8 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
 
   @Override
   public short getDefaultReplication() {
-    return (short) Math.max(1, Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN));
+    return (short) Math.max(1, mFsContext.getConf()
+        .getInt(PropertyKey.USER_FILE_REPLICATION_MIN));
   }
 
   @Override
@@ -464,18 +463,18 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   /**
    * {@inheritDoc}
    *
-   * Sets up a lazy connection to Alluxio through mFileSystem. This method will override and
-   * invalidate the current contexts. This must be called before client operations in order to
-   * guarantee the integrity of the contexts, meaning users should not alternate between using the
-   * Hadoop compatible API and native Alluxio API in the same process.
+   * Sets up a lazy connection to Alluxio through mFileSystem and mFsContext. This must be
+   * called before client operations in order to guarantee the integrity of the
+   * {@link FileSystemContext}.
    *
-   * If hadoop file system cache is enabled, this method should only be called when switching user.
+   * If it is called twice on the same object an exception will be thrown.
    */
-  @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
   @Override
   public void initialize(URI uri, org.apache.hadoop.conf.Configuration conf) throws IOException {
     Preconditions.checkArgument(uri.getScheme().equals(getScheme()),
         PreconditionMessage.URI_SCHEME_MISMATCH.toString(), uri.getScheme(), getScheme());
+    Preconditions.checkArgument(mInitialized.compareAndSet(false, true), "Cannot invoke "
+        + "initialize() more than once");
     super.initialize(uri, conf);
     LOG.debug("initialize({}, {}). Connecting to Alluxio", uri, conf);
     HadoopUtils.addSwiftCredentials(conf);
@@ -489,61 +488,59 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
 
     Authority auth = Authority.fromString(uri.getAuthority());
     if (auth instanceof UnknownAuthority) {
-      // TODO(zac): In Alluxio 2.0 this warning will be upgraded to an exception
-      LOG.warn("Authority \"{}\" is unknown. The client will not be configured with this"
-          + " authority. The authority connection details will be loaded from your client"
-          + " configuration.",
-          auth);
-      mAlluxioHeader = getScheme() + ":///";
+      throw new IOException(String.format("Authority \"%s\" is unknown. The client can not be "
+              + "configured with the authority from %s", auth, uri));
     }
 
     mUri = URI.create(mAlluxioHeader);
-
     Map<String, Object> uriConfProperties = getConfigurationFromUri(uri);
 
-    synchronized (INIT_LOCK) {
-      if (sInitialized) {
-        if (!connectDetailsMatch(uriConfProperties, conf)) {
-          LOG.warn(ExceptionMessage.DIFFERENT_CONNECTION_DETAILS.getMessage(
-              FileSystemContext.get().getMasterInquireClient().getConnectDetails()));
-          initializeInternal(uriConfProperties, conf);
-        }
-      } else {
-        initializeInternal(uriConfProperties, conf);
-      }
-      // Must happen inside the lock so that the global filesystem context isn't changed by a
-      // concurrent call to initialize.
-      updateFileSystemAndContext();
-      sInitialized = true;
-    }
-  }
-
-  /**
-   * Initializes the default contexts if the connection details specified in the URI + hadoop conf
-   * is different from the default one.
-   *
-   * @param uriConfProperties the configuration properties from the input uri
-   * @param conf the hadoop conf
-   */
-  void initializeInternal(Map<String, Object> uriConfProperties,
-      org.apache.hadoop.conf.Configuration conf) throws IOException {
-    // ALLUXIO CS ADD
+    AlluxioProperties alluxioProps = ConfigurationUtils.defaults();
+    AlluxioConfiguration alluxioConf = mergeConfigurations(uriConfProperties, conf, alluxioProps);
+    // ALLUXIO CS REPLACE
+    // Subject subject = getHadoopSubject();
+    // ALLUXIO CS WITH
     // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
     // to authenticate with master.
     alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
+    Subject subject = getHadoopSubject(alluxioConf);
     // ALLUXIO CS END
-    // Load Alluxio configuration if any and merge to the one in Alluxio file system. These
-    // modifications to ClientContext are global, affecting all Alluxio clients in this JVM.
-    // We assume here that all clients use the same configuration.
-    HadoopConfigurationUtils.mergeHadoopConfiguration(conf, Configuration.global());
+    if (subject != null) {
+      LOG.debug("Using Hadoop subject: {}", subject);
+    } else {
+      LOG.debug("No Hadoop subject. Using FileSystem Context without subject.");
+    }
 
-    // Connection details in the URI has the highest priority
-    Configuration.global().merge(uriConfProperties, Source.RUNTIME);
-
-    // This must be reset to pick up the change to the master address.
     LOG.info("Initializing filesystem context with connect details {}",
-        Factory.getConnectDetails(Configuration.global()));
-    FileSystemContext.get().reset(Configuration.global());
+        Factory.getConnectDetails(alluxioConf));
+    // TODO(zac): Is it possible to cache the FileSystemContext?
+    mFsContext = FileSystemContext.create(subject, alluxioConf);
+
+    // Sets the file system.
+    //
+    // Must happen inside the lock so that the filesystem context isn't changed by a
+    // concurrent call to initialize.
+    mFileSystem = FileSystem.Factory.get(mFsContext);
+  }
+
+  /**
+   * Merges the URI configuration with the Hadoop and Alluxio configuration, returning an
+   * {@link AlluxioConfiguration} with all properties merged into one object.
+   *
+   * @param uriConfProperties the configuration properties from the input uri
+   * @param conf the hadoop conf
+   * @param alluxioProps Alluxio configuration properties
+   */
+  private AlluxioConfiguration mergeConfigurations(Map<String, Object> uriConfProperties,
+      org.apache.hadoop.conf.Configuration conf, AlluxioProperties alluxioProps)
+      throws IOException {
+    // take the URI properties, hadoop configuration, and given Alluxio configuration and merge
+    // all three into a single object.
+    InstancedConfiguration newConf = HadoopConfigurationUtils.mergeHadoopConfiguration(conf,
+        alluxioProps);
+    // Connection details in the URI has the highest priority
+    newConf.merge(uriConfProperties, Source.RUNTIME);
+    return newConf;
   }
 
   /**
@@ -581,36 +578,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
     return alluxioConfProperties;
   }
-
-  /**
-   * Checks whether the connect details from the uri + hadoop conf + global Alluxio conf are the
-   * same as the connect details currently being used by {@link FileSystemContext}.
-   *
-   * @param uriConfProperties the configuration properties from the input URI
-   * @param conf a hadoop conf
-   * @return whether the details match
-   */
-  private boolean connectDetailsMatch(Map<String, Object> uriConfProperties,
-      org.apache.hadoop.conf.Configuration conf) {
-    AlluxioConfiguration alluxioConf = new InstancedConfiguration(Configuration.global());
-
-    // Merge hadoop configuration into Alluxio configuration
-    HadoopConfigurationUtils.mergeHadoopConfiguration(conf, alluxioConf);
-
-    // Merge connection details in URI into Alluxio configuration
-    alluxioConf.merge(uriConfProperties, Source.RUNTIME);
-
-    ConnectDetails newDetails = Factory.getConnectDetails(alluxioConf);
-    ConnectDetails oldDetails = FileSystemContext.get()
-        .getMasterInquireClient().getConnectDetails();
-
-    return newDetails.equals(oldDetails);
-  }
-
   // ALLUXIO CS ADD
-  private String buildTokenService(URI uri) {
-    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
-        || alluxio.util.ConfigurationUtils.getMasterRpcAddresses(Configuration.global()).size() > 1) {
+
+  private String buildTokenService(URI uri, AlluxioConfiguration conf) {
+    if (conf.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
+        || ConfigurationUtils.getMasterRpcAddresses(conf).size() > 1) {
       // builds token service name for logic alluxio service uri (HA)
       return uri.toString();
     }
@@ -618,63 +590,40 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     // builds token service name for single master address.
     return org.apache.hadoop.security.SecurityUtil.buildTokenService(uri).toString();
   }
-
   // ALLUXIO CS END
-  /**
-   * Sets the file system and context. Contexts with the same subject are shared among file systems
-   * to reduce resource usage such as the metrics heartbeat.
-   */
-  private void updateFileSystemAndContext() {
-    Subject subject = getHadoopSubject();
-    if (subject != null) {
-      LOG.debug("Using Hadoop subject: {}", subject);
-      mContext = FileSystemContext.get(subject);
-      // ALLUXIO CS ADD
-      try {
-        UserGroupInformation user = UserGroupInformation.getCurrentUser();
-        if (!user.getTokens().isEmpty()) {
-          String tokenService = buildTokenService(mUri);
-          List<String> masters = mContext.getMasterInquireClient().getMasterRpcAddresses().stream()
-              .map(addr ->
-                  HostAndPort.fromParts(addr.getAddress().getHostAddress(), addr.getPort()).toString())
-              .collect(toList());
-          LOG.debug("Checking Alluxio delegation token for {} on service {}", subject, tokenService);
-          if (HadoopKerberosLoginProvider.populateAlluxioTokens(user, subject, tokenService, masters)) {
-            // update context after subject is populated with token
-            mContext = FileSystemContext.get(subject);
-          }
-        }
-      } catch (IOException e) {
-        LOG.warn("unable to populate Alluxio tokens.", e);
-      }
-      // ALLUXIO CS END
-      mFileSystem = FileSystem.Factory.get(mContext);
-    } else {
-      LOG.debug("No Hadoop subject. Using FileSystem Context without subject.");
-      mContext = FileSystemContext.get();
-      mFileSystem = FileSystem.Factory.get(mContext);
-    }
-  }
 
   /**
    * @return the hadoop subject if exists, null if not exist
    */
   @Nullable
-  private Subject getHadoopSubject() {
+  // ALLUXIO CS REPLACE
+  // private Subject getHadoopSubject() {
+  //   try {
+  //     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+  //     String username = ugi.getShortUserName();
+  //     if (username != null && !username.isEmpty()) {
+  //       User user = new User(ugi.getShortUserName());
+  //        HashSet<Principal> principals = new HashSet<>();
+  //        principals.add(user);
+  //        return new Subject(false, principals, new HashSet<>(), new HashSet<>());
+  //     }
+  //     return null;
+  //   } catch (IOException e) {
+  //     return null;
+  //   }
+  // }
+  // ALLUXIO CS WITH
+  // TODO(zac) Find a way to not use CS REPLACE on the whole method
+  private Subject getHadoopSubject(AlluxioConfiguration conf) {
     try {
       UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
       String username = ugi.getShortUserName();
       if (username != null && !username.isEmpty()) {
         User user = new User(ugi.getShortUserName());
-        // ALLUXIO CS REPLACE
-        // HashSet<Principal> principals = new HashSet<>();
-        // principals.add(user);
-        // return new Subject(false, principals, new HashSet<>(), new HashSet<>());
-        // ALLUXIO CS WITH
         Subject subject = null;
         LOG.debug("Hadoop UGI: {} hasKerberos: {}", ugi, ugi.hasKerberosCredentials());
         if (ugi.hasKerberosCredentials()
-            && Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
+            && conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
             alluxio.security.authentication.AuthType.class)
             == alluxio.security.authentication.AuthType.KERBEROS) {
           java.security.AccessControlContext context = java.security.AccessController.getContext();
@@ -687,13 +636,13 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
         java.util.Set<Principal> principals = subject.getPrincipals();
         principals.add(user);
         return subject;
-        // ALLUXIO CS END
       }
       return null;
     } catch (IOException e) {
       return null;
     }
   }
+  // ALLUXIO CS END
 
   /**
    * @deprecated in 1.6.0, directly infer the value from {@link PropertyKey#ZOOKEEPER_ENABLED}
@@ -778,7 +727,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
 
     AlluxioURI uri = new AlluxioURI(HadoopUtils.getPathWithoutScheme(path));
-    return new FSDataInputStream(new HdfsFileInputStream(mContext, uri, mStatistics));
+    return new FSDataInputStream(new HdfsFileInputStream(mFileSystem, uri, mStatistics));
   }
 
   @Override
@@ -837,7 +786,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   // ALLUXIO CS ADD
   @Override
   public String getCanonicalServiceName() {
-    return buildTokenService(getUri());
+    return buildTokenService(getUri(), mFsContext.getConf());
   }
 
   @Override
@@ -862,8 +811,10 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
     LOG.debug("getDelegationToken, got Alluxio token {}", token.toString());
     // converts Alluxio token to HDFS token
-    AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId());
-    org.apache.hadoop.io.Text tokenService = new org.apache.hadoop.io.Text(buildTokenService(mUri));
+    AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId(),
+        mFsContext.getConf());
+    org.apache.hadoop.io.Text tokenService = new org.apache.hadoop.io.Text(buildTokenService(mUri,
+        mFsContext.getConf()));
     org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> hadoopToken =
         new org.apache.hadoop.security.token.Token<>(id.getBytes(), token.getPassword(),
             id.getKind(), tokenService);
@@ -927,7 +878,8 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   }
 
   private Map<String, WorkerNetAddress> getHostToWorkerMap() throws IOException {
-    List<BlockWorkerInfo> workers = AlluxioBlockStore.create(mContext).getEligibleWorkers();
+    List<BlockWorkerInfo> workers =
+        AlluxioBlockStore.create(mFsContext).getEligibleWorkers();
     return workers.stream().collect(
         toMap(worker -> worker.getNetAddress().getHost(), BlockWorkerInfo::getNetAddress,
             (worker1, worker2) -> worker1));

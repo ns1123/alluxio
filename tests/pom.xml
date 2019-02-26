@@ -186,16 +186,6 @@
       <artifactId>alluxio-core-server-worker</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-keyvalue-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-keyvalue-server</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>

@@ -11,6 +11,8 @@
 
 package alluxio.worker.netty;
 
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.proto.security.CapabilityProto;
@@ -23,9 +25,9 @@ import io.netty.channel.ChannelHandlerContext;
  * Netty data server related utils.
  */
 public final class Utils {
-  private static final boolean CAPABILITY_ENABLED = alluxio.Configuration
-      .getBoolean(alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
-      && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+  private static final boolean CAPABILITY_ENABLED = ServerConfiguration
+      .getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+      && ServerConfiguration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE)
       .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
 
   /**

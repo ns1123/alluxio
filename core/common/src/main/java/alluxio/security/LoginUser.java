@@ -11,8 +11,8 @@
 
 package alluxio.security;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
@@ -62,23 +62,28 @@ public final class LoginUser {
    * runs Alluxio client. When Alluxio client gets a user by this method and connects to Alluxio
    * service, this user represents the client and is maintained in service.
    *
+   * Note that until if the authentication type or login user changes between the first
+   * invocation of this method that it is possible the cached user won't respect the updated
+   * configuration properties.
+   *
+   * @param conf Alluxio's current configuration
    * @return the login user
    */
-  public static User get() throws UnauthenticatedException {
+  public static User get(AlluxioConfiguration conf) throws UnauthenticatedException {
     // ALLUXIO CS REPLACE
     // if (sLoginUser == null) {
     //   synchronized (LoginUser.class) {
     //     if (sLoginUser == null) {
-    //       sLoginUser = login();
+    //       sLoginUser = login(conf);
     //     }
     //   }
     // }
     // return sLoginUser;
     // ALLUXIO CS WITH
     if (alluxio.util.CommonUtils.isAlluxioServer()) {
-      return getServerUser();
+      return getServerUser(conf);
     } else {
-      return getClientUser();
+      return getClientUser(conf);
     }
     // ALLUXIO CS END
   }
@@ -89,10 +94,11 @@ public final class LoginUser {
    * config params. Client-side Kerberos principal and keytab files can be empty because client
    * login can be from either keytab files or kinit ticket cache on client machine.
    *
+   * @param conf Alluxio configuration
    * @return the login user
    */
-  public static User getClientUser() throws UnauthenticatedException {
-    User user = getUserWithConf(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
+  public static User getClientUser(AlluxioConfiguration conf) throws UnauthenticatedException {
+    User user = getUserWithConf(conf, PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
     if (LOG.isDebugEnabled()) {
       LOG.debug("getClientUser: user = {}, subject = {} ", user, user.getSubject());
@@ -105,10 +111,11 @@ public final class LoginUser {
    * config params. Server-side Kerberos principal and keytab files must be set correctly because
    * Alluxio servers must login from Keytab files.
    *
+   * @param conf Alluxio configuration
    * @return the login user
    */
-  public static User getServerUser() throws UnauthenticatedException {
-    User user = getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
+  public static User getServerUser(AlluxioConfiguration conf) throws UnauthenticatedException {
+    User user = getUserWithConf(conf, PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     if (LOG.isDebugEnabled()) {
       LOG.debug("getServerUser: user = {}, subject = {} ", user, user.getSubject());
@@ -127,21 +134,22 @@ public final class LoginUser {
   }
 
   /**
-   * Helper function for {@link LoginUser#getClientUser()} and
-   * {@link LoginUser#getServerUser()}.
+   * Helper function for {@link LoginUser#getClientUser(AlluxioConfiguration)} and
+   * {@link LoginUser#getServerUser(AlluxioConfiguration)}.
    *
    * @param principalKey conf key of Kerberos principal for the login user
    * @param keytabKey conf key of Kerberos keytab file path for the login user
    * @return the login user
    */
-  private static User getUserWithConf(PropertyKey principalKey, PropertyKey keytabKey)
+  private static User getUserWithConf(AlluxioConfiguration conf, PropertyKey principalKey,
+      PropertyKey keytabKey)
       throws UnauthenticatedException {
-    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+    if (conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       if (sLoginUser == null) {
         synchronized (LoginUser.class) {
           if (sLoginUser == null) {
-            sLoginUser = login();
+            sLoginUser = login(conf);
           }
         }
       }
@@ -150,17 +158,19 @@ public final class LoginUser {
 
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
-        if (sLoginUser == null) {
-          if (Configuration.isSet(principalKey)) {
-            Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
-                Configuration.get(principalKey));
-          }
-          if (Configuration.isSet(keytabKey)) {
-            Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
-                Configuration.get(keytabKey));
-          }
-          sLoginUser = login();
-        }
+        // TODO(gene) LoginUser is removed in a near release. Code below requires major fixes to
+        //  work post-singleton. Leaving commented will likely break functionality.
+//        if (sLoginUser == null) {
+//          if (conf.isSet(principalKey)) {
+//            conf.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
+//                conf.get(principalKey));
+//          }
+//          if (conf.isSet(keytabKey)) {
+//            conf.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
+//                conf.get(keytabKey));
+//          }
+//        }
+        sLoginUser = login(conf);
       }
     }
     return sLoginUser;
@@ -172,9 +182,8 @@ public final class LoginUser {
    *
    * @return the login user
    */
-  private static User login() throws UnauthenticatedException {
-    AuthType authType =
-        Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+  private static User login(AlluxioConfiguration conf) throws UnauthenticatedException {
+    AuthType authType = conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     checkSecurityEnabled(authType);
     Subject subject = new Subject();
 
@@ -183,10 +192,10 @@ public final class LoginUser {
       if (authType.equals(AuthType.KERBEROS)) {
         // Get Kerberos principal and keytab file from conf.
         String principal =
-            Configuration.isSet(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL)
-                ? Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL) : "";
-        String keytab = Configuration.isSet(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)
-            ? Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE) : "";
+            conf.isSet(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL)
+                ? conf.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL) : "";
+        String keytab = conf.isSet(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)
+            ? conf.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE) : "";
         LOG.debug("Login principal: {} keytab: {}", principal, keytab);
 
         if (!principal.isEmpty()) {
@@ -197,7 +206,7 @@ public final class LoginUser {
         }
 
         if (Boolean.getBoolean("sun.security.jgss.native")) {
-          jgssLogin(subject);
+          jgssLogin(subject, conf);
         } else if (principal.isEmpty() && sExternalLoginProvider != null
             && sExternalLoginProvider.hasKerberosCredentials()) {
           LOG.debug("Using external login provider");
@@ -206,14 +215,14 @@ public final class LoginUser {
         } else {
           LOG.debug("Using Java kerberos login");
           // Use Java Kerberos library to login
-          sLoginContext = jaasLogin(authType, principal, keytab, subject);
+          sLoginContext = jaasLogin(authType, principal, keytab, subject, conf);
           sPrincipal = principal;
           sKeytab = keytab;
         }
         LOG.debug("login subject for Kerberos: {}", subject);
 
         try {
-          return new User(subject);
+          return new User(subject, conf);
         } catch (java.io.IOException e) {
           throw new UnauthenticatedException(e);
         }
@@ -223,7 +232,7 @@ public final class LoginUser {
       // class loader to dynamically instantiate login modules. This enables
       // Subject#getPrincipals to use reflection to search for User.class instances.
       LoginContext loginContext = createLoginContext(authType, subject, User.class.getClassLoader(),
-          new LoginModuleConfiguration());
+          new LoginModuleConfiguration(), conf);
       loginContext.login();
     } catch (LoginException e) {
       throw new UnauthenticatedException("Failed to login: " + e.getMessage(), e);
@@ -250,7 +259,7 @@ public final class LoginUser {
   }
   // ALLUXIO CS ADD
 
-  private static void jgssLogin(Subject subject)
+  private static void jgssLogin(Subject subject, AlluxioConfiguration conf)
       throws LoginException {
     LOG.debug("Using native library (sun.security.jgss.native)");
     // Use MIT native Kerberos library
@@ -269,15 +278,15 @@ public final class LoginUser {
 
     // server principal and keytab properties are not required with JGSS.
     String principal =
-        Configuration.getOrDefault(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, "");
-    String keytab = Configuration.getOrDefault(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, "");
+        conf.getOrDefault(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, "");
+    String keytab = conf.getOrDefault(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, "");
     try {
       org.ietf.jgss.GSSCredential cred =
           alluxio.security.util.KerberosUtils.getCredentialFromJGSS();
       subject.getPrivateCredentials().add(cred);
     } catch (org.ietf.jgss.GSSException e) {
       if ((!alluxio.util.CommonUtils.isAlluxioServer())
-          && Configuration.getBoolean(
+          && conf.getBoolean(
               PropertyKey.SECURITY_KERBEROS_CLIENT_TICKETCACHE_LOGIN_ENABLED)) {
         // attempts to obtain a valid Kerberos ticket by using kinit command
         try {
@@ -329,10 +338,12 @@ public final class LoginUser {
    *
    * This method retrieves the previous {@link LoginContext} used by {@link #sLoginUser},
    * logs out, and performs login again.
+   *
+   * @param conf Alluxio configuration
    */
-  public static synchronized void relogin() throws UnauthenticatedException {
+  public static synchronized void relogin(AlluxioConfiguration conf) throws UnauthenticatedException {
     AuthType authType =
-        Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+        conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     if (sLoginUser == null) {
       return;
     }
@@ -344,7 +355,7 @@ public final class LoginUser {
     }
     if (Boolean.getBoolean("sun.security.jgss.native")) {
       try {
-        jgssLogin(subject);
+        jgssLogin(subject, conf);
       } catch (LoginException e) {
         String msg = String.format("Failed to relogin user %s using jgss.",
             sLoginUser.getName());
@@ -382,7 +393,7 @@ public final class LoginUser {
       }
     }
     try {
-      sLoginContext = jaasLogin(authType, sPrincipal, sKeytab, subject);
+      sLoginContext = jaasLogin(authType, sPrincipal, sKeytab, subject, conf);
     } catch (LoginException e) {
       String msg = String.format("Failed to login for %s: %s",
           sLoginUser.getName(), e.getMessage());
@@ -427,10 +438,10 @@ public final class LoginUser {
   // ALLUXIO CS ADD
 
   private static LoginContext jaasLogin(AuthType authType, String principal, String keytab,
-      Subject subject) throws LoginException {
+      Subject subject, AlluxioConfiguration conf) throws LoginException {
     LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
     LoginContext loginContext = createLoginContext(authType, subject,
-        javax.security.auth.kerberos.KerberosPrincipal.class.getClassLoader(), loginConf);
+        javax.security.auth.kerberos.KerberosPrincipal.class.getClassLoader(), loginConf, conf);
     try {
       loginContext.login();
     } catch (LoginException e) {
@@ -462,28 +473,30 @@ public final class LoginUser {
    * Gets the client login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
    * returns null.
    *
+   * @param conf Alluxio configuration
    * @return login Subject if AuthType is KERBEROS, otherwise null
    */
-  public static Subject getClientLoginSubject() throws UnauthenticatedException {
-    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+  public static Subject getClientLoginSubject(AlluxioConfiguration conf) throws UnauthenticatedException {
+    if (conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;
     }
-    return getClientUser().getSubject();
+    return getClientUser(conf).getSubject();
   }
 
   /**
    * Gets the server login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
    * returns null.
    *
+   * @param conf Alluxio configuration
    * @return login Subject if AuthType is KERBEROS, otherwise null
    */
-  public static Subject getServerLoginSubject() throws UnauthenticatedException {
-    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+  public static Subject getServerLoginSubject(AlluxioConfiguration conf) throws UnauthenticatedException {
+    if (conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;
     }
-    return getServerUser().getSubject();
+    return getServerUser(conf).getSubject();
   }
 
   private static javax.security.auth.kerberos.KerberosTicket getTGT() {
@@ -502,15 +515,18 @@ public final class LoginUser {
    * @param subject the {@link Subject} to use
    * @param classLoader the {@link ClassLoader} to use
    * @param configuration the {@link javax.security.auth.login.Configuration} to use
+   * @param alluxioConf Alluxio configuration
+   * @param alluxioConf Alluxio configuration
    * @return the new {@link LoginContext} instance
    * @throws LoginException if LoginContext cannot be created
    */
   private static LoginContext createLoginContext(AuthType authType, Subject subject,
-      ClassLoader classLoader, javax.security.auth.login.Configuration configuration)
+      ClassLoader classLoader, javax.security.auth.login.Configuration configuration,
+      AlluxioConfiguration alluxioConf)
       throws LoginException {
     CallbackHandler callbackHandler = null;
     if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
-      callbackHandler = new AppLoginModule.AppCallbackHandler();
+      callbackHandler = new AppLoginModule.AppCallbackHandler(alluxioConf);
     }
 
     ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();

@@ -11,11 +11,11 @@
 
 package alluxio.client.util;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.client.EncryptionMetaFactory;
 import alluxio.client.LayoutUtils;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.proto.ProtoUtils;
 
@@ -25,8 +25,6 @@ import java.io.IOException;
  * Testing utils for {@link EncryptionProto.Meta}.
  */
 public class EncryptionMetaTestUtils {
-  private static final EncryptionProto.Meta PARTIAL_META =
-      initializePartialMeta();
 
   private static final EncryptionProto.CryptoKey TESTING_CRYPTO_KEY =
       ProtoUtils.setIv(
@@ -43,23 +41,23 @@ public class EncryptionMetaTestUtils {
    *
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create() throws IOException {
+  public static EncryptionProto.Meta create(AlluxioConfiguration conf) throws IOException {
     // Use a dummy testing crypto key for invalid encryption id.
     return EncryptionMetaFactory.create(
         Constants.INVALID_ENCRYPTION_ID, Constants.INVALID_ENCRYPTION_ID,
         LayoutUtils.toPhysicalBlockLength(
-            PARTIAL_META, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)),
-        TESTING_CRYPTO_KEY);
+            initializePartialMeta(conf), conf.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)),
+        TESTING_CRYPTO_KEY, conf);
   }
 
-  private static EncryptionProto.Meta initializePartialMeta() {
-    long blockHeaderSize = Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
-    long blockFooterSize = Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
-    long chunkSize = Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
+  private static EncryptionProto.Meta initializePartialMeta(AlluxioConfiguration conf) {
+    long blockHeaderSize = conf.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
+    long blockFooterSize = conf.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
+    long chunkSize = conf.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
     long chunkHeaderSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
+        conf.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
     long chunkFooterSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
+        conf.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
 
     return EncryptionProto.Meta.newBuilder()
         .setBlockHeaderSize(blockHeaderSize)

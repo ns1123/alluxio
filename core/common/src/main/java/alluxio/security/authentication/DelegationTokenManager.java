@@ -11,9 +11,9 @@
 
 package alluxio.security.authentication;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.collections.ConcurrentHashSet;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.exception.AccessControlException;
 import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
@@ -69,11 +69,13 @@ public class DelegationTokenManager extends MasterKeyManager {
 
   /**
    * Creates a new {@link DelegationTokenManager} based on configuration.
+   *
+   * @param conf Alluxio configuration
    */
-  public DelegationTokenManager() {
-    this(Configuration.getMs(PropertyKey.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS),
-        Configuration.getMs(PropertyKey.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS),
-        Configuration.getMs(PropertyKey.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS));
+  public DelegationTokenManager(AlluxioConfiguration conf) {
+    this(conf.getMs(PropertyKey.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS),
+        conf.getMs(PropertyKey.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_LIFETIME_MS),
+        conf.getMs(PropertyKey.SECURITY_AUTHENTICATION_DELEGATION_TOKEN_RENEW_INTERVAL_MS));
   }
 
   /**

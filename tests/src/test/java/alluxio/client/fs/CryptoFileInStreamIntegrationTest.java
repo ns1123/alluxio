@@ -12,12 +12,12 @@
 package alluxio.client.fs;
 
 import alluxio.AlluxioURI;
-import alluxio.PropertyKey;
 import alluxio.client.file.CryptoFileInStream;
 import alluxio.client.file.CryptoFileOutStream;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
+import alluxio.conf.PropertyKey;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.ListStatusPOptions;

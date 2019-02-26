@@ -16,7 +16,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.file.InodeAttributesProvider;
 import alluxio.master.file.meta.MountTable;
 import alluxio.security.authorization.AuthorizationPluginConstants;
@@ -35,13 +36,13 @@ public class HdfsInodeAttributesProviderFactoryTest {
     HdfsInodeAttributesProviderFactory factory =
         new HdfsInodeAttributesProviderFactory();
     UnderFileSystemConfiguration conf = UnderFileSystemConfiguration.defaults()
-        .setMountSpecificConf(ImmutableMap.of(
+        .createMountSpecificConf(ImmutableMap.of(
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME.getName(),
             AuthorizationPluginConstants.AUTH_VERSION,
             DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,
             DummyHdfsProvider.class.getName()));
     UnderFileSystemConfiguration invalidConf = UnderFileSystemConfiguration.defaults()
-        .setMountSpecificConf(ImmutableMap.of(
+        .createMountSpecificConf(ImmutableMap.of(
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME.getName(),
             "invalid-1.0",
             DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,
@@ -51,7 +52,8 @@ public class HdfsInodeAttributesProviderFactoryTest {
     assertFalse(factory.supportsPath("hdfs://localhost/test/path", invalidConf));
     assertFalse(factory.supportsPath("hdfs://localhost/test/path", null));
     assertFalse(factory.supportsPath("s3a://bucket/test/path", conf));
-    InodeAttributesProvider provider = factory.create("hdfs://localhost/test/path", conf);
+    InodeAttributesProvider provider = factory.create("hdfs://localhost/test/path", conf,
+        ServerConfiguration.global());
     assertNotNull(provider);
   }
 }

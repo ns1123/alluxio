@@ -14,6 +14,7 @@ package alluxio.client.file;
 import alluxio.AbstractMasterClient;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
+import alluxio.conf.PropertyKey;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.grpc.CancelDelegationTokenPRequest;
 import alluxio.grpc.CheckConsistencyPOptions;
@@ -59,7 +60,7 @@ import alluxio.grpc.UnmountPOptions;
 import alluxio.grpc.UnmountPRequest;
 import alluxio.grpc.UpdateUfsModePOptions;
 import alluxio.grpc.UpdateUfsModePRequest;
-import alluxio.master.MasterClientConfig;
+import alluxio.master.MasterClientContext;
 // ALLUXIO CS ADD
 import alluxio.security.authentication.DelegationTokenIdentifier;
 // ALLUXIO CS END
@@ -91,7 +92,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
    *
    * @param conf master client configuration
    */
-  public RetryHandlingFileSystemMasterClient(MasterClientConfig conf) {
+  public RetryHandlingFileSystemMasterClient(MasterClientContext conf) {
     super(conf);
   }
 
@@ -185,7 +186,8 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
           .getDelegationToken(GetDelegationTokenPRequest.newBuilder().setRenewer(renewer).build());
       return new alluxio.security.authentication.Token<>(
           alluxio.security.authentication.DelegationTokenIdentifier
-              .fromProto(response.getToken().getIdentifier()),
+              .fromProto(response.getToken().getIdentifier(),
+                  mContext.getConf().get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
           response.getToken().getPassword().toByteArray());
     }, "GetDelegationToken");
   }

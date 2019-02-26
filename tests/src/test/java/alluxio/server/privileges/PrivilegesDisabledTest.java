@@ -15,14 +15,16 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import alluxio.PropertyKey;
+import alluxio.ClientContext;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GetGroupPrivilegesOptions;
 import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
-import alluxio.master.MasterClientConfig;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
+import alluxio.master.MasterClientContext;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.wire.Privilege;
@@ -45,7 +47,9 @@ public final class PrivilegesDisabledTest extends BaseIntegrationTest {
 
   @Before
   public void before() {
-    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
+    mPrivilegeClient =
+        PrivilegeMasterClient.Factory.create(MasterClientContext.newBuilder(ClientContext.create(
+            ServerConfiguration.global())).build());
   }
 
   @Test

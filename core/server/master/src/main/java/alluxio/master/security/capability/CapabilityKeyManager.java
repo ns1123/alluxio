@@ -11,9 +11,9 @@
 
 package alluxio.master.security.capability;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.status.UnavailableException;
 import alluxio.master.block.BlockMaster;
 import alluxio.retry.RetryPolicy;
@@ -220,8 +220,8 @@ public class CapabilityKeyManager extends MasterKeyManager {
    * @return a list of workers (with retries)
    */
   private List<WorkerInfo> getWorkerInfoList() {
-    long wait =
-        Configuration.getMs(PropertyKey.MASTER_WORKER_CONNECT_WAIT_TIME) + 10 * Constants.SECOND_MS;
+    long wait = ServerConfiguration
+        .getMs(PropertyKey.MASTER_WORKER_CONNECT_WAIT_TIME) + 10 * Constants.SECOND_MS;
     RetryPolicy retry = new TimeoutRetry(wait, Constants.SECOND_MS);
     while (retry.attempt()) {
       try {

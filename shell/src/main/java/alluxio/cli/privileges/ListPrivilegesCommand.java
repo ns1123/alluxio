@@ -11,11 +11,13 @@
 
 package alluxio.cli.privileges;
 
+import alluxio.ClientContext;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GetGroupPrivilegesOptions;
 import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
-import alluxio.master.MasterClientConfig;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.master.MasterClientContext;
 import alluxio.wire.Privilege;
 
 import com.beust.jcommander.Parameter;
@@ -43,10 +45,14 @@ public final class ListPrivilegesCommand implements Callable<String> {
           + "for all groups will be printed")
   private String mUser;
 
+  private final AlluxioConfiguration mConf;
+
   /**
-   * No-arg constructor for use with JCommander.
+   * @param conf Alluxio configuration
    */
-  public ListPrivilegesCommand() {}
+  public ListPrivilegesCommand(AlluxioConfiguration conf) {
+    mConf = conf;
+  }
 
   /**
    * Runs the list privileges command. Groups and privileges are printed in alphabetical order.
@@ -55,8 +61,8 @@ public final class ListPrivilegesCommand implements Callable<String> {
    * @throws Exception if the command fails
    */
   public String call() throws Exception {
-    PrivilegeMasterClient client =
-        PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
+    PrivilegeMasterClient client = PrivilegeMasterClient.Factory
+        .create(MasterClientContext.newBuilder(ClientContext.create(mConf)).build());
 
     if (mGroup != null && mUser != null) {
       throw new IllegalArgumentException("Cannot specify both user and group");

@@ -11,8 +11,8 @@
 
 package alluxio.master.privilege;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.PermissionDeniedException;
@@ -48,12 +48,12 @@ public class PrivilegeChecker {
    */
   public void check(Privilege privilege)
       throws PermissionDeniedException, UnauthenticatedException {
-    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+    if (ServerConfiguration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         .equals(AuthType.NOSASL)) {
       return;
     }
     try {
-      check(AuthenticatedClientUser.getClientUser(), privilege);
+      check(AuthenticatedClientUser.getClientUser(ServerConfiguration.global()), privilege);
     } catch (AccessControlException e) {
       throw new UnauthenticatedException("Failed to get the authenticated client user", e);
     }
@@ -64,12 +64,12 @@ public class PrivilegeChecker {
    * @param privilege the privilege to check
    */
   public void check(String user, Privilege privilege) throws PermissionDeniedException {
-    if (!Configuration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
+    if (!ServerConfiguration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
       return;
     }
     List<String> groups;
     try {
-      groups = CommonUtils.getGroups(user);
+      groups = CommonUtils.getGroups(user, ServerConfiguration.global());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

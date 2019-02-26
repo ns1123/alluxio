@@ -11,6 +11,7 @@
 
 package alluxio.master.security.capability;
 
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.block.BlockMaster;
 import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
@@ -44,6 +45,8 @@ public class CapabilityKeyManagerTest {
 
   @Test
   public void keyRotation() throws Exception {
+    // Resetting before test pre-loads configuration so it doesn't interfere with timing
+    ServerConfiguration.reset();
     BlockMaster blockMaster = Mockito.mock(BlockMaster.class);
     Mockito.when(blockMaster.getWorkerInfoList()).thenReturn(new ArrayList<WorkerInfo>() {});
     CapabilityKeyManager manager = new CapabilityKeyManager(KEY_LIFETIME_MS, blockMaster);

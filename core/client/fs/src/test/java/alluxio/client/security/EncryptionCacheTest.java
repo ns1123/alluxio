@@ -11,7 +11,9 @@
 
 package alluxio.client.security;
 
+import alluxio.ConfigurationTestUtils;
 import alluxio.client.util.EncryptionMetaTestUtils;
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.proto.security.EncryptionProto;
 
 import org.junit.Assert;
@@ -31,12 +33,14 @@ public final class EncryptionCacheTest {
       + LOGICAL_BLOCK_SIZE / CHUNK_SIZE * (CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE);
   private static final long ENCRYPTION_ID = 111111L;
 
+  private AlluxioConfiguration mConf = ConfigurationTestUtils.defaults();
+
   @Test
   public void basic() throws Exception {
     EncryptionCache cache = new EncryptionCache();
 
     long fileId = 5L;
-    EncryptionProto.Meta expected = EncryptionMetaTestUtils.create();
+    EncryptionProto.Meta expected = EncryptionMetaTestUtils.create(mConf);
     cache.put(fileId, expected);
 
     EncryptionProto.Meta actual = cache.get(fileId);
@@ -49,7 +53,7 @@ public final class EncryptionCacheTest {
     EncryptionCache cache = new EncryptionCache();
 
     long fileId = 5L;
-    EncryptionProto.Meta expected = EncryptionMetaTestUtils.create();
+    EncryptionProto.Meta expected = EncryptionMetaTestUtils.create(mConf);
     cache.put(fileId, expected);
 
     EncryptionProto.Meta actual = cache.get(fileId);

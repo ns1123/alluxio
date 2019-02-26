@@ -12,6 +12,7 @@
 package alluxio.underfs.fork;
 
 import alluxio.AlluxioURI;
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.underfs.UnderFileSystemFactory;
@@ -35,7 +36,8 @@ public class ForkUnderFileSystemFactory implements UnderFileSystemFactory {
   public ForkUnderFileSystemFactory() {}
 
   @Override
-  public UnderFileSystem create(String path, UnderFileSystemConfiguration ufsConf) {
+  public UnderFileSystem create(String path, UnderFileSystemConfiguration ufsConf,
+      AlluxioConfiguration alluxioConf) {
     Preconditions.checkArgument(path != null, "path may not be null");
     AlluxioURI uri = new AlluxioURI(path);
     Preconditions.checkArgument(uri.getAuthority() != null, "authority may not be null");

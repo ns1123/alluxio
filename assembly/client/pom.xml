@@ -46,16 +46,6 @@
       <artifactId>alluxio-examples</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-keyvalue-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-keyvalue-hadoop</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>

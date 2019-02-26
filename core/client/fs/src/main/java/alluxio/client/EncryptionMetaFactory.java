@@ -11,9 +11,9 @@
 
 package alluxio.client;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.client.security.CryptoUtils;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
@@ -23,19 +23,16 @@ import java.io.IOException;
  * Factory to create {@link EncryptionProto.Meta}.
  */
 public final class EncryptionMetaFactory {
-  private static final FileFooter.FileMetadata PARTIAL_FILE_METADATA =
-      initializePartialFileMetadata();
-  private static final EncryptionProto.Meta PARTIAL_META =
-      initializePartialMeta();
 
   /**
    * Creates a new {@link EncryptionProto.Meta} from the configuration, only for layout purpose.
    * Encryption id and crypto key are not set.
    *
+   * @param conf Alluxio configuration
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta createLayout() throws IOException {
-    return PARTIAL_META;
+  public static EncryptionProto.Meta createLayout(AlluxioConfiguration conf) throws IOException {
+    return initializePartialMeta(conf);
   }
 
   /**
@@ -44,13 +41,16 @@ public final class EncryptionMetaFactory {
    * @param fileId the file id
    * @param encryptionId the encryption id
    * @param physicalBlockSize the physical block size
+   * @param conf Alluxio configuration
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create(long fileId, long encryptionId, long physicalBlockSize)
+  public static EncryptionProto.Meta create(long fileId, long encryptionId,
+      long physicalBlockSize, AlluxioConfiguration conf)
       throws IOException {
     EncryptionProto.CryptoKey cryptoKey = CryptoUtils.getCryptoKey(
-        Configuration.get(PropertyKey.SECURITY_KMS_ENDPOINT), true, String.valueOf(encryptionId));
-    return create(fileId, encryptionId, physicalBlockSize, cryptoKey);
+        conf.get(PropertyKey.SECURITY_KMS_PROVIDER), conf.get(PropertyKey.SECURITY_KMS_ENDPOINT),
+        true, String.valueOf(encryptionId));
+    return create(fileId, encryptionId, physicalBlockSize, cryptoKey, conf);
   }
 
   /**
@@ -60,32 +60,35 @@ public final class EncryptionMetaFactory {
    * @param encryptionId the encryption id
    * @param physicalBlockSize the physical block size
    * @param cryptoKey the crypto key
+   * @param conf Alluxio configuration
    * @return the encryption meta
    */
   public static EncryptionProto.Meta create(
-      long fileId, long encryptionId, long physicalBlockSize, EncryptionProto.CryptoKey cryptoKey)
-      throws IOException {
-    long logicalBlockSize = LayoutUtils.toLogicalBlockLength(PARTIAL_META, physicalBlockSize);
-    return PARTIAL_META.toBuilder()
+      long fileId, long encryptionId, long physicalBlockSize, EncryptionProto.CryptoKey cryptoKey,
+      AlluxioConfiguration conf) throws IOException {
+    EncryptionProto.Meta partialMeta = initializePartialMeta(conf);
+    long logicalBlockSize = LayoutUtils.toLogicalBlockLength(partialMeta,
+        physicalBlockSize);
+    return partialMeta.toBuilder()
         .setEncryptionId(encryptionId)
         .setFileId(fileId)
         .setLogicalBlockSize(logicalBlockSize)
         .setPhysicalBlockSize(physicalBlockSize)
         .setEncodedMetaSize(
-            PARTIAL_FILE_METADATA.toBuilder().setEncryptionId(encryptionId)
+            initializePartialFileMetadata(conf).toBuilder().setEncryptionId(encryptionId)
                 .setPhysicalBlockSize(physicalBlockSize).build().getSerializedSize())
         .setCryptoKey(cryptoKey)
         .build();
   }
 
-  private static FileFooter.FileMetadata initializePartialFileMetadata() {
-    long blockHeaderSize = Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
-    long blockFooterSize = Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
-    long chunkSize = Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
+  private static FileFooter.FileMetadata initializePartialFileMetadata(AlluxioConfiguration alluxioConf) {
+    long blockHeaderSize = alluxioConf.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
+    long blockFooterSize = alluxioConf.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
+    long chunkSize = alluxioConf.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
     long chunkHeaderSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
+        alluxioConf.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
     long chunkFooterSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
+        alluxioConf.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
 
     return FileFooter.FileMetadata.newBuilder()
         .setBlockHeaderSize(blockHeaderSize)
@@ -96,14 +99,14 @@ public final class EncryptionMetaFactory {
         .buildPartial();
   }
 
-  private static EncryptionProto.Meta initializePartialMeta() {
-    long blockHeaderSize = Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
-    long blockFooterSize = Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
-    long chunkSize = Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
+  private static EncryptionProto.Meta initializePartialMeta(AlluxioConfiguration alluxioConf) {
+    long blockHeaderSize = alluxioConf.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
+    long blockFooterSize = alluxioConf.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
+    long chunkSize = alluxioConf.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
     long chunkHeaderSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
+        alluxioConf.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
     long chunkFooterSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
+        alluxioConf.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
 
     return EncryptionProto.Meta.newBuilder()
         .setBlockHeaderSize(blockHeaderSize)

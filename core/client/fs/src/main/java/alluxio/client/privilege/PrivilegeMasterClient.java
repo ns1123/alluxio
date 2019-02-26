@@ -17,7 +17,7 @@ import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
-import alluxio.master.MasterClientConfig;
+import alluxio.master.MasterClientContext;
 import alluxio.wire.Privilege;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public interface PrivilegeMasterClient extends Client {
      * @param conf master client configuration
      * @return a new {@link PrivilegeMasterClient} instance
      */
-    public static PrivilegeMasterClient create(MasterClientConfig conf) {
+    public static PrivilegeMasterClient create(MasterClientContext conf) {
       return new RetryHandlingPrivilegeMasterClient(conf);
     }
   }

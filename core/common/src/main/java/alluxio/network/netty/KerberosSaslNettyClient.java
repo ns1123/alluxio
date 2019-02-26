@@ -11,6 +11,7 @@
 
 package alluxio.network.netty;
 
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.SaslParticipantProviderUtils;
 import alluxio.security.util.KerberosUtils;
@@ -45,24 +46,26 @@ public class KerberosSaslNettyClient {
    *
    * @param clientSubject the client subject (can be null)
    * @param serverHostname the server hostname to authenticate with
+   * @param conf Alluxio configuration
    * @throws SaslException if failed to create a Sasl netty client
    */
-  public KerberosSaslNettyClient(final Subject clientSubject, final String serverHostname)
-      throws SaslException {
+  public KerberosSaslNettyClient(final Subject clientSubject, final String serverHostname,
+      AlluxioConfiguration conf) throws SaslException {
     try {
-      mSubject = LoginUser.getClientLoginSubject();
+      mSubject = LoginUser.getClientLoginSubject(conf);
     } catch (IOException e) {
       throw new SaslException("Failed to get client login subject", e);
     }
 
-    final String serviceName = KerberosUtils.getKerberosServiceName();
+    final String serviceName = KerberosUtils.getKerberosServiceName(conf);
     final CallbackHandler ch = new SaslClientCallbackHandler();
 
-    String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName();
+    String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName(conf);
     final String instanceName = unifiedInstanceName != null ? unifiedInstanceName : serverHostname;
 
     // Determine the impersonation user
-    String impersonationUser = SaslParticipantProviderUtils.getImpersonationUser(clientSubject);
+    String impersonationUser =
+        SaslParticipantProviderUtils.getImpersonationUser(clientSubject, conf);
 
     try {
       mSaslClient = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslClient>() {

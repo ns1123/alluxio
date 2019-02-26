@@ -11,8 +11,7 @@
 
 package alluxio.security.kms;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
 import alluxio.proto.security.EncryptionProto;
 
 import org.slf4j.Logger;
@@ -77,11 +76,10 @@ public interface KmsClient {
      *    {@link PropertyKey#SECURITY_KMS_PROVIDER} or if no {@link KmsClient} could successfully be
      *    created
      */
-    public static KmsClient create() throws IOException {
-      String provider = Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER);
+    public static KmsClient create(String kmsProvider) throws IOException {
       List<Throwable> errors = new ArrayList<>();
       for (KmsClientFactory factory : FACTORIES) {
-        if (factory.supportsProvider(provider)) {
+        if (factory.supportsProvider(kmsProvider)) {
           try {
             return factory.create();
           } catch (IOException e) {
@@ -92,7 +90,7 @@ public interface KmsClient {
       }
       StringBuilder errorStr = new StringBuilder();
       errorStr.append("All eligible KmsClientFactory service providers were unable to create an "
-          + "instance for provider ").append(provider).append('\n');
+          + "instance for provider ").append(kmsProvider).append('\n');
       for (Throwable e : errors) {
         errorStr.append(e).append('\n');
       }

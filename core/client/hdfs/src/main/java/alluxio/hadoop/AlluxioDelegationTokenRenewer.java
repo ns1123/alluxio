@@ -12,6 +12,7 @@
 package alluxio.hadoop;
 
 import alluxio.Constants;
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.util.ConfigurationUtils;
 
 import com.google.common.base.Preconditions;
@@ -83,8 +84,9 @@ public class AlluxioDelegationTokenRenewer extends TokenRenewer {
     String serviceName = token.getService().toString();
     String authority = serviceName;
     if (serviceName.startsWith(Constants.HEADER) || serviceName.startsWith(Constants.HEADER_FT)) {
-      HadoopConfigurationUtils.mergeHadoopConfiguration(conf, alluxio.Configuration.global());
-      if (!ConfigurationUtils.masterHostConfigured()) {
+      AlluxioConfiguration mergedConf =
+          HadoopConfigurationUtils.mergeHadoopConfiguration(conf, ConfigurationUtils.defaults());
+      if (!ConfigurationUtils.masterHostConfigured(mergedConf)) {
         // The token is for Alluxio in HA mode but we don't have enough information to determine
         // master address.
         throw new IOException(String.format("Cannot determine master addresses for managing token %s",

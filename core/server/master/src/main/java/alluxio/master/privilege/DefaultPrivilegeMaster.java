@@ -11,10 +11,10 @@
 
 package alluxio.master.privilege;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.clock.SystemClock;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.GrpcService;
@@ -68,7 +68,7 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
         .cachedThreadPool(Constants.PRIVILEGE_MASTER_NAME));
     mGroupPrivilegesLock = new ReentrantLock();
     mGroupPrivileges = new ConcurrentHashMap<>();
-    mSupergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
+    mSupergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
   }
 
   @Override

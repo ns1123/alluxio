@@ -11,8 +11,8 @@
 
 package alluxio.master.file;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.extensions.ClassLoaderContext;
 import alluxio.extensions.ExtensionFactoryRegistry;
 import alluxio.extensions.ExtensionsClassLoader;
@@ -57,15 +57,16 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
    * @return the provider
    */
   public InodeAttributesProvider createMasterProvider() {
-    if (Configuration.isSet(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME)) {
+    if (ServerConfiguration.isSet(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME)) {
       try {
         String pluginName =
-            Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME);
+            ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_NAME);
         String pluginPaths =
-            Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_PATHS);
+            ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PLUGIN_PATHS);
         LOG.info("Initializing Alluxio master authorization plugin: " + pluginName);
-        UnderFileSystemConfiguration ufsConf = UnderFileSystemConfiguration.defaults();
-        ufsConf.setMountSpecificConf(ImmutableMap.of(
+        UnderFileSystemConfiguration ufsConf =
+            UnderFileSystemConfiguration.defaults(ServerConfiguration.global());
+        ufsConf = ufsConf.createMountSpecificConf(ImmutableMap.of(
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME.getName(), pluginName,
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_PATHS.getName(), pluginPaths
         ));
@@ -86,7 +87,7 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
    */
   public InodeAttributesProvider create(String path, UnderFileSystemConfiguration ufsConf) {
     List<InodeAttributesProviderFactory> factories =
-        mExtensionFactory.findAll(path, ufsConf);
+        mExtensionFactory.findAll(path, ufsConf, ServerConfiguration.global());
     if (factories.isEmpty()) {
       throw new IllegalArgumentException(
           String.format("No InodeAttributesProviderFactory found for: %s", path));
@@ -114,7 +115,8 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
         }
         LOG.debug("Attempt to create InodeAttributesProvider for path {} by factory", path,
             factory);
-        InodeAttributesProvider provider = factory.create(path, ufsConf);
+        InodeAttributesProvider provider = factory.create(path, ufsConf,
+            ServerConfiguration.global());
         provider.start();
         return provider;
       } catch (Throwable e) {

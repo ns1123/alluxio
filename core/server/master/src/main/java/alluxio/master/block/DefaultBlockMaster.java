@@ -11,10 +11,10 @@
 
 package alluxio.master.block;
 
-import alluxio.Configuration;
+import alluxio.conf.ServerConfiguration;
 import alluxio.Constants;
 import alluxio.MasterStorageTierAssoc;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
 import alluxio.Server;
 import alluxio.StorageTierAssoc;
 import alluxio.client.block.options.GetWorkerReportOptions;
@@ -209,13 +209,13 @@ public final class DefaultBlockMaster extends CoreMaster implements BlockMaster 
    * Whether the capability feature used to authorize the Alluxio data path is enabled.
    */
   private final boolean mCapabilityEnabled =
-      Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+      ServerConfiguration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
 
   private final long mCapabilityLifetimeMs =
-      Configuration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS);
+      ServerConfiguration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS);
 
   private final long mCapabilityKeyLifetimeMs =
-      Configuration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS);
+      ServerConfiguration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS);
 
   private alluxio.master.security.capability.CapabilityKeyManager mCapabilityKeyManager = null;
   // ALLUXIO CS END
@@ -330,7 +330,8 @@ public final class DefaultBlockMaster extends CoreMaster implements BlockMaster 
     if (isLeader) {
       mLostWorkerDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_WORKER_DETECTION, new LostWorkerDetectionHeartbeatExecutor(),
-          (int) Configuration.getMs(PropertyKey.MASTER_WORKER_HEARTBEAT_INTERVAL)));
+          (int) ServerConfiguration.getMs(PropertyKey.MASTER_WORKER_HEARTBEAT_INTERVAL),
+          ServerConfiguration.global()));
     }
     // ALLUXIO CS ADD
     if (mCapabilityEnabled) {
@@ -1067,7 +1068,7 @@ public final class DefaultBlockMaster extends CoreMaster implements BlockMaster 
 
     @Override
     public void heartbeat() {
-      long masterWorkerTimeoutMs = Configuration.getMs(PropertyKey.MASTER_WORKER_TIMEOUT_MS);
+      long masterWorkerTimeoutMs = ServerConfiguration.getMs(PropertyKey.MASTER_WORKER_TIMEOUT_MS);
       for (MasterWorkerInfo worker : mWorkers) {
         synchronized (worker) {
           final long lastUpdate = mClock.millis() - worker.getLastUpdatedTimeMs();

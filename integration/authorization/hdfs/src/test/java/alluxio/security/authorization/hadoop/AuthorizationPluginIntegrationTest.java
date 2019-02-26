@@ -16,11 +16,11 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_INODE_ATTRIBUTES
 import alluxio.AlluxioTestDirectory;
 import alluxio.AlluxioURI;
 import alluxio.AuthenticatedUserRule;
-import alluxio.Configuration;
 import alluxio.ConfigurationRule;
 import alluxio.Constants;
 import alluxio.LoginUserRule;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.conf.Source;
 import alluxio.exception.AccessControlException;
 import alluxio.grpc.RegisterWorkerPOptions;
@@ -83,10 +83,11 @@ public final class AuthorizationPluginIntegrationTest {
   public ExpectedException mThrown = ExpectedException.none();
 
   @Rule
-  public AuthenticatedUserRule mAuthenticatedUser = new AuthenticatedUserRule(TEST_USER);
+  public AuthenticatedUserRule mAuthenticatedUser = new AuthenticatedUserRule(TEST_USER,
+      ServerConfiguration.global());
 
   @Rule
-  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER);
+  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER, ServerConfiguration.global());
 
   @Rule
   public ConfigurationRule mConfigurationRule = new ConfigurationRule(new HashMap() {
@@ -98,7 +99,7 @@ public final class AuthorizationPluginIntegrationTest {
           .createTemporaryDirectory("FileSystemMasterTest").getAbsolutePath());
       put(PropertyKey.SECURITY_AUTHORIZATION_PLUGINS_ENABLED, "true");
     }
-  });
+  }, ServerConfiguration.global());
 
   @ClassRule
   public static ManuallyScheduleHeartbeat sManuallySchedule = new ManuallyScheduleHeartbeat(
@@ -113,10 +114,10 @@ public final class AuthorizationPluginIntegrationTest {
    */
   @Before
   public void before() throws Exception {
-    Configuration.merge(ImmutableMap.of(DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,
+    ServerConfiguration.merge(ImmutableMap.of(DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,
         DummyHdfsProvider.class.getName()), Source.RUNTIME);
     GroupMappingServiceTestUtils.resetCache();
-    mUnderFS = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
+    mUnderFS = ServerConfiguration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
     mJournalFolder = mTestFolder.newFolder().getAbsolutePath();
     startServices();
   }
@@ -145,7 +146,7 @@ public final class AuthorizationPluginIntegrationTest {
     mFileSystemMaster.listStatus(new AlluxioURI("/" + noAccessDir),
         ListStatusContext.defaults());
     mThrown.expect(AccessControlException.class);
-    try (Closeable r = new AuthenticatedUserRule("test_guest").toResource()) {
+    try (Closeable r = new AuthenticatedUserRule("test_guest", ServerConfiguration.global()).toResource()) {
       mFileSystemMaster.listStatus(new AlluxioURI("/" + noAccessDir),
           ListStatusContext.defaults());
     }
@@ -163,7 +164,7 @@ public final class AuthorizationPluginIntegrationTest {
     mFileSystemMaster.listStatus(new AlluxioURI("/" + noAccessDir),
         ListStatusContext.defaults());
     mThrown.expect(AccessControlException.class);
-    try (Closeable r = new AuthenticatedUserRule("test_guest").toResource()) {
+    try (Closeable r = new AuthenticatedUserRule("test_guest", ServerConfiguration.global()).toResource()) {
       mFileSystemMaster.listStatus(new AlluxioURI("/" + childDir),
           ListStatusContext.defaults());
     }

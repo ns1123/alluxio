@@ -11,10 +11,10 @@
 
 package alluxio.master.diagnostic;
 
-import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LicenseConstants;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.Master;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterFactory;
@@ -39,7 +39,7 @@ public final class DiagnosticMasterFactory implements MasterFactory {
 
   @Override
   public boolean isEnabled() {
-    return Configuration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL,
+    return ServerConfiguration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL,
         DiagnosticLogLevel.class) != DiagnosticLogLevel.NONE
         && Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED);
   }
@@ -55,7 +55,7 @@ public final class DiagnosticMasterFactory implements MasterFactory {
       return null;
     }
     LOG.info("Creating {} with diagnostic log level {}", DiagnosticMaster.class.getName(),
-        Configuration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL, DiagnosticLogLevel.class));
+        ServerConfiguration.getEnum(PropertyKey.DIAGNOSTIC_LOG_LEVEL, DiagnosticLogLevel.class));
     return new DiagnosticMaster(registry, context);
   }
 }

@@ -18,6 +18,8 @@ import static org.mockito.Mockito.when;
 import alluxio.Constants;
 import alluxio.MasterStorageTierAssoc;
 import alluxio.RuntimeConstants;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.MasterProcess;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
@@ -46,7 +48,8 @@ public final class CallHomeUtilsTest {
     // Create mock classes
     MasterProcess mockMasterProcess = Mockito.mock(MasterProcess.class);
     when(mockMasterProcess.getStartTimeMs()).thenReturn(System.currentTimeMillis());
-    String masterHostname = NetworkAddressUtils.getLocalHostName();
+    String masterHostname = NetworkAddressUtils.getLocalHostName(
+        (int) ServerConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
     InetSocketAddress masterAddress = new InetSocketAddress(masterHostname, 19998);
     when(mockMasterProcess.getRpcAddress()).thenReturn(masterAddress);
 

@@ -46,7 +46,7 @@ public class ForkUnderFileSystemTest {
     properties.put("alluxio-fork.B.ufs", uriB);
     properties.put("alluxio-fork.B.option.bar", "2");
     UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://test",
-        UnderFileSystemConfiguration.defaults().setMountSpecificConf(properties));
+        UnderFileSystemConfiguration.defaults().createMountSpecificConf(properties));
     UnderFileSystem nestedUfs = Whitebox.getInternalState(ufs, "mUnderFileSystem");
     ImmutableMap<String, Pair<String, UnderFileSystem>> ufses =
         Whitebox.getInternalState(nestedUfs, "mUnderFileSystems");
@@ -78,7 +78,7 @@ public class ForkUnderFileSystemTest {
     properties.put("alluxio-fork.C.ufs", uriC);
     properties.put("alluxio-fork.C.option.property", "Z");
     UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://test",
-        UnderFileSystemConfiguration.defaults().setMountSpecificConf(properties));
+        UnderFileSystemConfiguration.defaults().createMountSpecificConf(properties));
     UnderFileSystem nestedUfs = Whitebox.getInternalState(ufs, "mUnderFileSystem");
     ImmutableMap<String, Pair<String, UnderFileSystem>> ufses =
         Whitebox.getInternalState(nestedUfs, "mUnderFileSystems");
@@ -104,7 +104,7 @@ public class ForkUnderFileSystemTest {
     properties.put("alluxio-fork.B.ufs", uriB);
     properties.put("alluxio-fork.A.ufs", uriA);
     UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://test",
-        UnderFileSystemConfiguration.defaults().setMountSpecificConf(properties));
+        UnderFileSystemConfiguration.defaults().createMountSpecificConf(properties));
     Map<String, UfsMode> physicalUfsState = new Hashtable<>();
     // Check default
     Assert.assertEquals(UfsMode.READ_WRITE, ufs.getOperationMode(physicalUfsState));

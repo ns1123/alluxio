@@ -12,6 +12,7 @@
 package alluxio.client.security;
 
 import alluxio.client.LayoutUtils;
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.security.kms.KmsClient;
 
@@ -33,14 +34,15 @@ public final class CryptoUtils {
   /**
    * Gets a {@link EncryptionProto.CryptoKey} from the specified kms and input key.
    *
-   * @param kms the KMS endpoint
+   * @param kmsProvider the KMS provider
+   * @param kmsEndpoint the KMS endpoint
    * @param encrypt whether to encrypt or decrypt
    * @param inputKey the input key of the KMS calls
    * @return the fetched crypto key for encryption or decryption
    */
-  public static EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
-      throws IOException {
-    return KmsClient.Factory.create().getCryptoKey(kms, encrypt, inputKey);
+  public static EncryptionProto.CryptoKey getCryptoKey(String kmsProvider, String kmsEndpoint,
+      boolean encrypt, String inputKey) throws IOException {
+    return KmsClient.Factory.create(kmsProvider).getCryptoKey(kmsEndpoint, encrypt, inputKey);
   }
 
   /**
@@ -53,13 +55,14 @@ public final class CryptoUtils {
    * @param inputLen the input length to encrypt
    * @param ciphertext the encrypted ciphertext to write to
    * @param outputOffset the offset in ciphertext where the result is stored
+   * @param conf Alluxio configuration
    * @return the number of bytes stored in ciphertext
    */
   public static int encrypt(
       EncryptionProto.CryptoKey cryptoKey, byte[] plaintext, int inputOffset, int inputLen,
-      byte[] ciphertext, int outputOffset) {
+      byte[] ciphertext, int outputOffset, AlluxioConfiguration conf) {
     try {
-      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, cryptoKey);
+      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, cryptoKey, conf);
       return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
@@ -71,9 +74,11 @@ public final class CryptoUtils {
    *
    * @param meta the encryption meta with chunk layout sizes
    * @param input the input plaintext in a ByteBuf
+   * @param conf Alluxio configuration
    * @return the encrypted content in a ByteBuf
    */
-  public static ByteBuf encryptChunks(EncryptionProto.Meta meta, ByteBuf input) {
+  public static ByteBuf encryptChunks(EncryptionProto.Meta meta, ByteBuf input,
+      AlluxioConfiguration conf) {
     EncryptionProto.CryptoKey cryptoKey = meta.getCryptoKey();
     final int chunkSize = (int) meta.getChunkSize();
     final int chunkFooterSize = (int) meta.getChunkFooterSize();
@@ -88,7 +93,7 @@ public final class CryptoUtils {
         int logicalLeft = logicalTotalLen - logicalPos;
         int logicalChunkLen = Math.min(chunkSize, logicalLeft);
         input.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
-        Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, cryptoKey);
+        Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, cryptoKey, conf);
         int physicalChunkLen =
             cipher.doFinal(plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
         Preconditions.checkState(physicalChunkLen == logicalChunkLen + chunkFooterSize);
@@ -112,13 +117,14 @@ public final class CryptoUtils {
    * @param inputLen the input length to decrypt
    * @param plaintext the decrypted plaintext to write to
    * @param outputOffset the offset in plaintext where the result is stored
+   * @param conf Alluxio configuration
    * @return the number of bytes stored in plaintext
    */
   public static int decrypt(
       EncryptionProto.CryptoKey cryptoKey, byte[] ciphertext, int inputOffset, int inputLen,
-      byte[] plaintext, int outputOffset) {
+      byte[] plaintext, int outputOffset, AlluxioConfiguration conf) {
     try {
-      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, cryptoKey);
+      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, cryptoKey, conf);
       return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
@@ -130,9 +136,11 @@ public final class CryptoUtils {
    *
    * @param meta the encryption meta with chunk layout sizes
    * @param input the input ciphertext in a DataBuffer
+   * @param conf Alluxio configuration
    * @return the decrypted content in a byte array
    */
-  public static ByteBuf decryptChunks(EncryptionProto.Meta meta, ByteBuf input) {
+  public static ByteBuf decryptChunks(EncryptionProto.Meta meta, ByteBuf input,
+      AlluxioConfiguration conf) {
     EncryptionProto.CryptoKey cryptoKey = meta.getCryptoKey();
     final int chunkFooterSize = (int) meta.getChunkFooterSize();
     final int physicalChunkSize =
@@ -152,7 +160,7 @@ public final class CryptoUtils {
         input.readBytes(cipherChunk, 0 /* dest chunk */, physicalChunkLen /* len */);
         // Decryption always stops at the chunk boundary, with either a full chunk or the last
         // chunk till the end of the block.
-        Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, cryptoKey);
+        Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, cryptoKey, conf);
         int logicalChunkLen =
             cipher.doFinal(cipherChunk, 0, physicalChunkLen, plaintext, logicalPos);
         Preconditions.checkState(logicalChunkLen + chunkFooterSize == physicalChunkLen);

@@ -11,9 +11,11 @@
 
 package alluxio.cli.privileges;
 
+import alluxio.ClientContext;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
-import alluxio.master.MasterClientConfig;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.master.MasterClientContext;
 import alluxio.wire.Privilege;
 
 import com.beust.jcommander.Parameter;
@@ -37,10 +39,14 @@ public final class RevokePrivilegesCommand implements Callable<String> {
       required = true)
   private List<String> mPrivileges;
 
+  private final AlluxioConfiguration mConf;
+
   /**
-   * No-arg constructor for use with JCommander.
+   * @param conf Alluxio configuration
    */
-  public RevokePrivilegesCommand() {}
+  public RevokePrivilegesCommand(AlluxioConfiguration conf) {
+    mConf = conf;
+  }
 
   /**
    * Runs the revoke privileges command.
@@ -66,9 +72,8 @@ public final class RevokePrivilegesCommand implements Callable<String> {
         }
       }
     }
-
-    PrivilegeMasterClient client =
-        PrivilegeMasterClient.Factory.create(MasterClientConfig.defaults());
+    PrivilegeMasterClient client = PrivilegeMasterClient.Factory
+        .create(MasterClientContext.newBuilder(ClientContext.create(mConf)).build());
     List<Privilege> newPrivileges =
         client.revokePrivileges(mGroup, privileges, RevokePrivilegesOptions.defaults());
     return ListPrivilegesCommand.formatPrivileges(mGroup, newPrivileges);

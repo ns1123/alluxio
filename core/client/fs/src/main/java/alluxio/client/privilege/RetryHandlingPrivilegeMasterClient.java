@@ -27,7 +27,7 @@ import alluxio.grpc.PrivilegeList;
 import alluxio.grpc.PrivilegeMasterClientServiceGrpc;
 import alluxio.grpc.RevokePrivilegesPRequest;
 import alluxio.grpc.ServiceType;
-import alluxio.master.MasterClientConfig;
+import alluxio.master.MasterClientContext;
 import alluxio.wire.ClosedSourceGrpcUtils;
 import alluxio.wire.Privilege;
 
@@ -52,7 +52,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
    *
    * @param conf master client configuration
    */
-  public  RetryHandlingPrivilegeMasterClient(MasterClientConfig conf) {
+  public  RetryHandlingPrivilegeMasterClient(MasterClientContext conf) {
     super(conf);
   }
 

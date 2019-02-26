@@ -13,10 +13,10 @@ package alluxio.client.file;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.annotation.PublicApi;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
+import alluxio.conf.PropertyKey;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.exception.ExceptionMessage;
@@ -71,23 +71,23 @@ import javax.annotation.concurrent.ThreadSafe;
 public class BaseFileSystem implements FileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(BaseFileSystem.class);
 
-  protected final FileSystemContext mFileSystemContext;
+  protected final FileSystemContext mFsContext;
 
   /**
-   * @param context file system context
+   * @param context the {@link FileSystemContext} to use in this client
    * @return a {@link BaseFileSystem}
    */
-  public static BaseFileSystem get(FileSystemContext context) {
+  public static BaseFileSystem create(FileSystemContext context) {
     return new BaseFileSystem(context);
   }
 
   /**
    * Constructs a new base file system.
    *
-   * @param context file system context
+   * @param fsContext file system context
    */
-  protected BaseFileSystem(FileSystemContext context) {
-    mFileSystemContext = context;
+  protected BaseFileSystem(FileSystemContext fsContext) {
+    mFsContext = fsContext;
   }
 
   @Override
@@ -100,7 +100,7 @@ public class BaseFileSystem implements FileSystem {
   public void createDirectory(AlluxioURI path, CreateDirectoryPOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.createDirectory(path, options);
       LOG.debug("Created directory {}, options: {}", path.getPath(), options);
@@ -113,7 +113,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -127,18 +127,19 @@ public class BaseFileSystem implements FileSystem {
   public FileOutStream createFile(AlluxioURI path, CreateFilePOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     URIStatus status;
     try {
       // ALLUXIO CS ADD
       long requestedBlockSizeBytes = options.getBlockSizeBytes();
       if (!options.hasBlockSizeBytes()) {
         requestedBlockSizeBytes =
-            alluxio.Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+            mFsContext.getConf().getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
       }
-      if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
+      if (mFsContext.getConf().getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
-            alluxio.client.EncryptionMetaFactory.createLayout(), requestedBlockSizeBytes);
+            alluxio.client.EncryptionMetaFactory.createLayout(mFsContext.getConf()),
+            requestedBlockSizeBytes);
         options = options.toBuilder().setBlockSizeBytes(physicalBlockSize).build();
       }
       // ALLUXIO CS END
@@ -162,16 +163,17 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
 
-    OutStreamOptions outStreamOptions = new OutStreamOptions(options);
+    OutStreamOptions outStreamOptions =
+        new OutStreamOptions(options, mFsContext.getConf());
     outStreamOptions.setUfsPath(status.getUfsPath());
     outStreamOptions.setMountId(status.getMountId());
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       outStreamOptions.setCapabilityFetcher(
-          new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
+          new alluxio.client.security.CapabilityFetcher(mFsContext, status.getPath(),
               status.getCapability()));
     }
     outStreamOptions.setEncrypted(status.isEncrypted());
@@ -179,19 +181,20 @@ public class BaseFileSystem implements FileSystem {
       // Encryption meta is always initialized during file creation and write.
       alluxio.proto.security.EncryptionProto.Meta meta =
           alluxio.client.EncryptionMetaFactory.create(status.getFileId(),
-              status.getFileId() /* encryption id */, options.getBlockSizeBytes());
+              status.getFileId() /* encryption id */, options.getBlockSizeBytes(),
+              mFsContext.getConf());
       outStreamOptions.setEncryptionMeta(meta);
-      mFileSystemContext.putEncryptionMeta(status.getFileId(), meta);
+      mFsContext.putEncryptionMeta(status.getFileId(), meta);
     }
     // ALLUXIO CS END
     outStreamOptions.setAcl(status.getAcl());
     try {
       // ALLUXIO CS ADD
       if (outStreamOptions.isEncrypted()) {
-        return new CryptoFileOutStream(path, outStreamOptions, mFileSystemContext);
+        return new CryptoFileOutStream(path, outStreamOptions, mFsContext);
       }
       // ALLUXIO CS END
-      return new FileOutStream(path, outStreamOptions, mFileSystemContext);
+      return new FileOutStream(path, outStreamOptions, mFsContext);
     } catch (Exception e) {
       delete(path);
       throw e;
@@ -208,7 +211,7 @@ public class BaseFileSystem implements FileSystem {
   public void delete(AlluxioURI path, DeletePOptions options)
       throws DirectoryNotEmptyException, FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.delete(path, options);
       LOG.debug("Deleted {}, options: {}", path.getPath(), options);
@@ -222,7 +225,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -236,7 +239,7 @@ public class BaseFileSystem implements FileSystem {
   public boolean exists(AlluxioURI path, ExistsPOptions options)
       throws InvalidPathException, IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       // TODO(calvin): Make this more efficient
       masterClient.getStatus(path, GrpcUtils.toGetStatusOptions(options));
@@ -252,7 +255,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -266,7 +269,7 @@ public class BaseFileSystem implements FileSystem {
   public void free(AlluxioURI path, FreePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.free(path, options);
       LOG.debug("Freed {}, options: {}", path.getPath(), options);
@@ -277,7 +280,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -287,7 +290,7 @@ public class BaseFileSystem implements FileSystem {
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
       getDelegationToken(String renewer)
       throws IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token =
           masterClient.getDelegationToken(renewer);
@@ -298,7 +301,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -306,7 +309,7 @@ public class BaseFileSystem implements FileSystem {
   public long renewDelegationToken(
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
       throws IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       long expirationTime =
           masterClient.renewDelegationToken(token);
@@ -317,7 +320,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -325,7 +328,7 @@ public class BaseFileSystem implements FileSystem {
   public void cancelDelegationToken(
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
       throws IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.cancelDelegationToken(token);
       LOG.debug("Cancel delegation token {}", token);
@@ -334,7 +337,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -349,7 +352,7 @@ public class BaseFileSystem implements FileSystem {
   public URIStatus getStatus(AlluxioURI path, GetStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       // ALLUXIO CS REPLACE
       // return masterClient.getStatus(path, options);
@@ -357,7 +360,7 @@ public class BaseFileSystem implements FileSystem {
       URIStatus physicalStatus = getStatusInternal(masterClient, path, options);
       if (physicalStatus.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
-            mFileSystemContext.getEncryptionMeta(physicalStatus.getFileId());
+            mFsContext.getEncryptionMeta(physicalStatus.getFileId());
         return new URIStatus(
             alluxio.client.LayoutUtils.convertFileInfoToLogical(physicalStatus.toFileInfo(), meta));
       }
@@ -370,7 +373,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
   // ALLUXIO CS ADD
@@ -396,7 +399,7 @@ public class BaseFileSystem implements FileSystem {
   public List<URIStatus> listStatus(AlluxioURI path, ListStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     // TODO(calvin): Fix the exception handling in the master
     try {
       // ALLUXIO CS REPLACE
@@ -411,7 +414,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
   // ALLUXIO CS ADD
@@ -449,12 +452,12 @@ public class BaseFileSystem implements FileSystem {
     long fileId = status.getFileId();
     // Criteria to find the encryption metadata:
     // 1. Lookup in the client cache
-    alluxio.proto.security.EncryptionProto.Meta meta = mFileSystemContext.getEncryptionMeta(fileId);
+    alluxio.proto.security.EncryptionProto.Meta meta = mFsContext.getEncryptionMeta(fileId);
     if (meta == null) {
       // 2. Read from file footer with unencrypted fileInStream. It will locate to the
       // UFS physical offset if the footer is not in Alluxio memory.
       meta = getEncryptionMetaFromFooter(status);
-      mFileSystemContext.putEncryptionMeta(fileId, meta);
+      mFsContext.putEncryptionMeta(fileId, meta);
     }
     return meta;
   }
@@ -462,16 +465,17 @@ public class BaseFileSystem implements FileSystem {
   private alluxio.proto.security.EncryptionProto.Meta getEncryptionMetaFromFooter(URIStatus status)
       throws IOException {
     long fileId = status.getFileId();
-    InStreamOptions inStreamOptions = new InStreamOptions(status).setEncrypted(false);
+    InStreamOptions inStreamOptions = new InStreamOptions(status, mFsContext.getConf())
+        .setEncrypted(false);
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
-          new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
+          new alluxio.client.security.CapabilityFetcher(mFsContext, status.getPath(),
               status.getCapability()));
     }
     final int footerMaxSize = alluxio.client.LayoutUtils.getFooterMaxSize();
     byte[] footerBytes = new byte[footerMaxSize];
     try (
-        FileInStream fileInStream = new FileInStream(status, inStreamOptions, mFileSystemContext)) {
+        FileInStream fileInStream = new FileInStream(status, inStreamOptions, mFsContext)) {
       if (status.getLength() > footerMaxSize) {
         fileInStream.seek(status.getLength() - footerMaxSize);
       }
@@ -482,7 +486,8 @@ public class BaseFileSystem implements FileSystem {
     alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey;
     try {
       cryptoKey = alluxio.client.security.CryptoUtils.getCryptoKey(
-          alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_KMS_ENDPOINT),
+          mFsContext.getConf().get(PropertyKey.SECURITY_KMS_PROVIDER),
+          mFsContext.getConf().get(PropertyKey.SECURITY_KMS_ENDPOINT),
           false, String.valueOf(fileMetadata.getEncryptionId()));
     } catch (IOException e) {
       // Allow null crypto key for getStatus and listStatus because one user might not have
@@ -517,7 +522,7 @@ public class BaseFileSystem implements FileSystem {
   public void loadMetadata(AlluxioURI path, LoadMetadataPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
 //    checkUri(path);
-//    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+//    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
 //    try {
 //      masterClient.loadMetadata(path, options);
 //      LOG.debug("Loaded metadata {}, options: {}", path.getPath(), options);
@@ -528,7 +533,7 @@ public class BaseFileSystem implements FileSystem {
 //    } catch (AlluxioStatusException e) {
 //      throw e.toAlluxioException();
 //    } finally {
-//      mFileSystemContext.releaseMasterClient(masterClient);
+//      mFsContext.releaseMasterClient(masterClient);
 //    }
   }
 
@@ -542,7 +547,7 @@ public class BaseFileSystem implements FileSystem {
   public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath, MountPOptions options)
       throws IOException, AlluxioException {
     checkUri(alluxioPath);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       // TODO(calvin): Make this fail on the master side
       masterClient.mount(alluxioPath, ufsPath, options);
@@ -552,13 +557,13 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
   @Override
   public Map<String, MountPointInfo> getMountTable() throws IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       return masterClient.getMountTable();
     } catch (UnavailableException e) {
@@ -566,13 +571,13 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
   @Override
   public List<SyncPointInfo> getSyncPathList() throws IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       return masterClient.getSyncPathList();
     } catch (UnavailableException e) {
@@ -580,7 +585,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -597,7 +602,7 @@ public class BaseFileSystem implements FileSystem {
     // ALLUXIO CS REPLACE
     // URIStatus status = getStatus(path);
     // ALLUXIO CS WITH
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     URIStatus status;
     try {
       status = getStatusInternal(masterClient, path, GetStatusPOptions.getDefaultInstance());
@@ -608,25 +613,26 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
     // ALLUXIO CS END
     if (status.isFolder()) {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
     }
-    InStreamOptions inStreamOptions = new InStreamOptions(status, options);
+    InStreamOptions inStreamOptions = new InStreamOptions(status, options,
+        mFsContext.getConf());
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
-          new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
+          new alluxio.client.security.CapabilityFetcher(mFsContext, status.getPath(),
               status.getCapability()));
     }
     if (!options.getSkipTransformation()) {
       inStreamOptions.setEncrypted(status.isEncrypted());
       if (status.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
-            mFileSystemContext.getEncryptionMeta(status.getFileId());
+            mFsContext.getEncryptionMeta(status.getFileId());
         if (meta == null || !meta.hasCryptoKey()) {
           // Retry getting the crypto key if the cached meta does not have a valid crypto key.
           meta = getEncryptionMetaFromFooter(status);
@@ -635,16 +641,16 @@ public class BaseFileSystem implements FileSystem {
                 "Can not open an encrypted file because the client can not get the crypto key.");
           }
           // Update the meta in cache with the new crypto key set.
-          mFileSystemContext.putEncryptionMeta(status.getFileId(), meta);
+          mFsContext.putEncryptionMeta(status.getFileId(), meta);
         }
         inStreamOptions.setEncryptionMeta(meta);
       }
       if (inStreamOptions.isEncrypted()) {
-        return CryptoFileInStream.create(status, inStreamOptions, mFileSystemContext);
+        return CryptoFileInStream.create(status, inStreamOptions, mFsContext);
       }
     }
     // ALLUXIO CS END
-    return new FileInStream(status, inStreamOptions, mFileSystemContext);
+    return new FileInStream(status, inStreamOptions, mFsContext);
   }
 
   @Override
@@ -658,7 +664,7 @@ public class BaseFileSystem implements FileSystem {
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(src);
     checkUri(dst);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       // TODO(calvin): Update this code on the master side.
       masterClient.rename(src, dst, options);
@@ -670,7 +676,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -684,7 +690,7 @@ public class BaseFileSystem implements FileSystem {
   public void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries,
       SetAclPOptions options) throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.setAcl(path, action, entries, options);
       LOG.debug("Set ACL for {}, entries: {} options: {}", path.getPath(), entries, options);
@@ -695,7 +701,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -709,7 +715,7 @@ public class BaseFileSystem implements FileSystem {
   public void setAttribute(AlluxioURI path, SetAttributePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.setAttribute(path, options);
       LOG.debug("Set attributes for {}, options: {}", path.getPath(), options);
@@ -720,7 +726,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -732,7 +738,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void startSync(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.startSync(path);
       LOG.debug("Start syncing for {}", path.getPath());
@@ -743,7 +749,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -754,7 +760,7 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public void stopSync(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.stopSync(path);
       LOG.debug("Stop syncing for {}", path.getPath());
@@ -765,7 +771,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -778,7 +784,7 @@ public class BaseFileSystem implements FileSystem {
   public void unmount(AlluxioURI path, UnmountPOptions options)
       throws IOException, AlluxioException {
     checkUri(path);
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.unmount(path);
       LOG.debug("Unmounted {}, options: {}", path.getPath(), options);
@@ -787,7 +793,7 @@ public class BaseFileSystem implements FileSystem {
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
     } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+      mFsContext.releaseMasterClient(masterClient);
     }
   }
 
@@ -795,7 +801,7 @@ public class BaseFileSystem implements FileSystem {
    * Checks an {@link AlluxioURI} for scheme and authority information. Warn the user and throw an
    * exception if necessary.
    */
-  private static void checkUri(AlluxioURI uri) {
+  private void checkUri(AlluxioURI uri) {
     if (uri.hasScheme()) {
       String warnMsg = "The URI scheme \"{}\" is ignored and not required in URIs passed to"
           + " the Alluxio Filesystem client.";
@@ -820,7 +826,9 @@ public class BaseFileSystem implements FileSystem {
       /* Even if we choose to log the warning, check if the Configuration host matches what the
        * user passes. If not, throw an exception letting the user know they don't match.
        */
-      Authority configured = MasterInquireClient.Factory.create().getConnectDetails().toAuthority();
+      Authority configured =
+          MasterInquireClient.Factory.create(mFsContext.getConf())
+              .getConnectDetails().toAuthority();
       if (!configured.equals(uri.getAuthority())) {
         throw new IllegalArgumentException(
             String.format("The URI authority %s does not match the configured " + "value of %s.",

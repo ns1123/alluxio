@@ -11,8 +11,8 @@
 
 package alluxio.master.journal.ufs;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.ServerConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.exception.InvalidJournalEntryException;
 import alluxio.exception.JournalClosedException;
 import alluxio.exception.status.UnavailableException;
@@ -111,7 +111,7 @@ public class UfsJournal implements Journal {
    */
   protected static UnderFileSystemConfiguration getJournalUfsConf() {
     Map<String, String> ufsConf =
-        Configuration.getNestedProperties(PropertyKey.MASTER_JOURNAL_UFS_OPTION);
+        ServerConfiguration.getNestedProperties(PropertyKey.MASTER_JOURNAL_UFS_OPTION);
     // ALLUXIO CS ADD
     if (!ufsConf.containsKey(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName())) {
       // Do not use impersonation for the journal UFS.
@@ -120,7 +120,8 @@ public class UfsJournal implements Journal {
       ufsConf.put(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED.getName(), "false");
     }
     // ALLUXIO CS END
-    return UnderFileSystemConfiguration.defaults().setMountSpecificConf(ufsConf);
+    return UnderFileSystemConfiguration.defaults(ServerConfiguration.global())
+               .createMountSpecificConf(ufsConf);
   }
 
   /**
@@ -284,7 +285,7 @@ public class UfsJournal implements Journal {
       return false;
     }
     // Search for the format file.
-    String formatFilePrefix = Configuration.get(PropertyKey.MASTER_FORMAT_FILE_PREFIX);
+    String formatFilePrefix = ServerConfiguration.get(PropertyKey.MASTER_FORMAT_FILE_PREFIX);
     for (UfsStatus file : files) {
       if (file.getName().startsWith(formatFilePrefix)) {
         return true;
@@ -314,7 +315,7 @@ public class UfsJournal implements Journal {
 
     // Create a breadcrumb that indicates that the journal folder has been formatted.
     UnderFileSystemUtils.touch(mUfs, URIUtils.appendPathOrDie(location,
-        Configuration.get(PropertyKey.MASTER_FORMAT_FILE_PREFIX) + System.currentTimeMillis())
+        ServerConfiguration.get(PropertyKey.MASTER_FORMAT_FILE_PREFIX) + System.currentTimeMillis())
         .toString());
   }
 

@@ -12,8 +12,8 @@
 package alluxio.job.migrate;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.conf.ServerConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
@@ -105,26 +105,26 @@ import java.util.concurrent.ConcurrentMap;
 public final class MigrateDefinition
     extends AbstractVoidJobDefinition<MigrateConfig, ArrayList<MigrateCommand>> {
   private static final Logger LOG = LoggerFactory.getLogger(MigrateDefinition.class);
-  private final FileSystemContext mFileSystemContext;
   private final FileSystem mFileSystem;
+  private final FileSystemContext mFsContext;
   private final Random mRandom = new Random();
 
   /**
    * Constructs a new {@link MigrateDefinition}.
    */
   public MigrateDefinition() {
-    mFileSystemContext = FileSystemContext.get();
-    mFileSystem = BaseFileSystem.get(FileSystemContext.get());
+    mFsContext = FileSystemContext.create(ServerConfiguration.global());
+    mFileSystem = BaseFileSystem.create(mFsContext);
   }
 
   /**
    * Constructs a new {@link MigrateDefinition} with FileSystem context and instance.
    *
-   * @param context file system context
-   * @param fileSystem file system client
+   * @param fsContext the {@link FileSystemContext} used by the {@link FileSystem}
+   * @param fileSystem the {@link FileSystem} client
    */
-  public MigrateDefinition(FileSystemContext context, FileSystem fileSystem) {
-    mFileSystemContext = context;
+  public MigrateDefinition(FileSystemContext fsContext, FileSystem fileSystem) {
+    mFsContext = fsContext;
     mFileSystem = fileSystem;
   }
 
@@ -189,7 +189,7 @@ public final class MigrateDefinition
       hostnameToWorker.put(workerInfo.getAddress().getHost(), workerInfo);
     }
     List<BlockWorkerInfo> alluxioWorkerInfoList =
-        AlluxioBlockStore.create(mFileSystemContext).getAllWorkers();
+        AlluxioBlockStore.create(mFsContext).getAllWorkers();
     // Assign each file to the worker with the most block locality.
     for (URIStatus status : allPathStatuses) {
       if (status.isFolder()) {
@@ -289,7 +289,7 @@ public final class MigrateDefinition
   public SerializableVoid runTask(MigrateConfig config, ArrayList<MigrateCommand> commands,
                                   JobWorkerContext jobWorkerContext) throws Exception {
     WriteType writeType = config.getWriteType() == null
-        ? Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class)
+        ? ServerConfiguration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class)
         : WriteType.valueOf(config.getWriteType());
     for (MigrateCommand command : commands) {
       migrate(command, writeType.toProto(), config.isDeleteSource(), mFileSystem);

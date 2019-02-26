@@ -17,9 +17,10 @@ import alluxio.AlluxioTestDirectory;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Process;
-import alluxio.PropertyKey;
+import alluxio.conf.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemTestUtils;
+import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.WritePType;
 import alluxio.master.AlluxioMasterProcess;
 import alluxio.master.MasterProcess;
@@ -48,11 +49,13 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
   private ExecutorService mExecutor;
 
   @Rule
-  public ConfigurationRule mConf = new ConfigurationRule(conf());
+  public ConfigurationRule mConf = new ConfigurationRule(conf(), ServerConfiguration.global());
 
   private static Map<PropertyKey, String> conf() {
-    Map<PropertyKey, String> map = ConfigurationTestUtils.testConfigurationDefaults(
-        NetworkAddressUtils.getLocalHostName(),
+    Map<PropertyKey, String> map =
+        ConfigurationTestUtils.testConfigurationDefaults(ServerConfiguration.global(),
+        NetworkAddressUtils.getLocalHostName(
+            (int) ServerConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS)),
         AlluxioTestDirectory.createTemporaryDirectory("tiered_identity_test").getAbsolutePath());
     map.put(PropertyKey.MASTER_RPC_PORT, "0");
     map.put(PropertyKey.MASTER_WEB_PORT, "0");
@@ -60,8 +63,7 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     map.put(PropertyKey.WORKER_WEB_PORT, "0");
     // ALLUXIO CS ADD
     // Set rack locality to be strict.
-    map.put(
-        alluxio.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK),
+    map.put(alluxio.conf.PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK),
         "true");
     // ALLUXIO CS END
 
@@ -82,9 +84,11 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
   public void test() throws Exception {
     MasterProcess master = AlluxioMasterProcess.Factory.create();
     WorkerProcess worker1 = AlluxioWorkerProcess.Factory
-        .create(TieredIdentityFactory.fromString("node=node1,rack=rack1"));
+        .create(TieredIdentityFactory.fromString("node=node1,rack=rack1",
+            ServerConfiguration.global()));
     WorkerProcess worker2 = AlluxioWorkerProcess.Factory
-        .create(TieredIdentityFactory.fromString("node=node2,rack=rack2"));
+        .create(TieredIdentityFactory.fromString("node=node2,rack=rack2",
+            ServerConfiguration.global()));
 
     runProcess(mExecutor, master);
     runProcess(mExecutor, worker1);
@@ -94,12 +98,13 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     TestUtils.waitForReady(worker1);
     TestUtils.waitForReady(worker2);
 
-    FileSystem fs = FileSystem.Factory.get();
+    FileSystem fs = FileSystem.Factory.get(ServerConfiguration.global());
 
     // Write to the worker in node1
     {
       Whitebox.setInternalState(TieredIdentityFactory.class, "sInstance",
-          TieredIdentityFactory.fromString("node=node1,rack=rack1"));
+          TieredIdentityFactory.fromString("node=node1,rack=rack1",
+              ServerConfiguration.global()));
       try {
         FileSystemTestUtils.createByteFile(fs, "/file1", WritePType.MUST_CACHE, 100);
       } finally {
@@ -114,7 +119,8 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     // Write to the worker in rack2
     {
       Whitebox.setInternalState(TieredIdentityFactory.class, "sInstance",
-          TieredIdentityFactory.fromString("node=node3,rack=rack2"));
+          TieredIdentityFactory.fromString("node=node3,rack=rack2",
+              ServerConfiguration.global()));
       try {
         FileSystemTestUtils.createByteFile(fs, "/file2", WritePType.MUST_CACHE, 10);
       } finally {
@@ -129,7 +135,7 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     // Rack locality is configured to be strict, so when no rack matches we should fail.
     {
       Whitebox.setInternalState(TieredIdentityFactory.class, "sInstance",
-          TieredIdentityFactory.fromString("node=node3,rack=rack3"));
+          TieredIdentityFactory.fromString("node=node3,rack=rack3", ServerConfiguration.global()));
       try {
         FileSystemTestUtils.createByteFile(fs, "/file3", WritePType.MUST_CACHE, 10);
         org.junit.Assert.fail("Expected an exception to be thrown");

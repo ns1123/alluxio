@@ -11,9 +11,7 @@
 
 package alluxio.security.util;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +53,11 @@ public final class KerberosName {
   /**
    * Gets the rules. If rules are not yet configured, initialize the rules.
    *
+   * @param kerberosAuthToLocal the translation rules from users' principals users to operating
+   *                            system users
    * @return the list of configured rules
    */
-  private static List<Rule> getRules() {
+  private static List<Rule> getRules(String kerberosAuthToLocal) {
     if (sDefaultRealm == null) {
       synchronized (KerberosName.class) {
         if (sDefaultRealm == null) {
@@ -68,8 +68,7 @@ public final class KerberosName {
             LOG.debug("krb5 configuration can not be found. Setting default realm to empty.");
             sDefaultRealm = "";
           }
-          String rulesString = Configuration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL);
-          setRules(rulesString);
+          setRules(kerberosAuthToLocal);
         }
       }
     }
@@ -181,10 +180,12 @@ public final class KerberosName {
    * Each rule in the rule set is processed in order. In other words, when a match is found,
    * the processing stops and returns the generated translation.
    *
+   * @param kerberosAuthToLocal the translation rules from users' principals users to operating
+   *                            system users
    * @return the short name
    * @throws IOException if failed to get the short name
    */
-  public String getShortName() throws IOException {
+  public String getShortName(String kerberosAuthToLocal) throws IOException {
     String[] params;
     if (mHostName == null) {
       if (mRealm == null) {
@@ -195,7 +196,7 @@ public final class KerberosName {
     } else {
       params = new String[]{mRealm, mServiceName, mHostName};
     }
-    List<Rule> rules = getRules();
+    List<Rule> rules = getRules(kerberosAuthToLocal);
     if (rules != null) {
       for (Rule r : rules) {
         String retval = r.apply(params);

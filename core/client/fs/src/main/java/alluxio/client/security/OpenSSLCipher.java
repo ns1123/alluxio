@@ -11,9 +11,7 @@
 
 package alluxio.client.security;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.JNIUtils;
 
@@ -22,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Cipher using OpenSSL libcrypto with JNI.
@@ -32,30 +31,33 @@ public final class OpenSSLCipher implements Cipher {
   private static final Logger LOG = LoggerFactory.getLogger(OpenSSLCipher.class);
   private static final String AES_GCM_NOPADDING = Constants.AES_GCM_NOPADDING;
 
+  private static final ConcurrentHashMap<String, Boolean> LOADED_LIBS = new ConcurrentHashMap<>();
+
   private EncryptionProto.CryptoKey mCryptoKey;
   private OpMode mMode;
-
-  static {
-    String libDir = Configuration.get(PropertyKey.NATIVE_LIBRARY_PATH);
-    String name = System.mapLibraryName(Constants.NATIVE_ALLUXIO_LIB_NAME);
-    String libFile = Paths.get(libDir, name).toString();
-    try {
-      JNIUtils.load(LOG, libFile);
-      LOG.info("The native ssl library was loaded: {}", libFile);
-    } catch (Throwable t) {
-      LOG.error("Failed to load native ssl library: {}", libFile, t);
-      throw t;
-    }
-  }
 
   /**
    * Creates a new {@link OpenSSLCipher}.
    *
    * @param mode the operation mode
    * @param cryptoKey the cipher parameters
+   * @param nativeLibraryPath Alluxio configuration
    */
-  public OpenSSLCipher(OpMode mode, EncryptionProto.CryptoKey cryptoKey)
+  public OpenSSLCipher(OpMode mode, EncryptionProto.CryptoKey cryptoKey, String nativeLibraryPath)
       throws GeneralSecurityException {
+    LOADED_LIBS.computeIfAbsent(nativeLibraryPath, libPath -> {
+      String name = System.mapLibraryName(Constants.NATIVE_ALLUXIO_LIB_NAME);
+      String libFile = Paths.get(nativeLibraryPath, name).toString();
+      try {
+        JNIUtils.load(LOG, libFile);
+        LOG.info("The native ssl library was loaded: {}", libFile);
+      } catch (Throwable t) {
+        LOG.error("Failed to load native ssl library: {}", libFile, t);
+        throw t;
+      }
+      return true;
+    });
+
     String cipherName = cryptoKey.getCipher();
     // This is special handling for TS KMS, because it returns the cipher name : id-aes128-GCM
     if (cipherName.contains("aes128-GCM") || cipherName.contains("aes256-GCM")) {
