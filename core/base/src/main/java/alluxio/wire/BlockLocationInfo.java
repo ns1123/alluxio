@@ -12,6 +12,8 @@
 package alluxio.wire;
 
 import alluxio.annotation.PublicApi;
+import alluxio.grpc.FileBlockInfo;
+import alluxio.grpc.WorkerNetAddress;
 
 import java.util.List;
 

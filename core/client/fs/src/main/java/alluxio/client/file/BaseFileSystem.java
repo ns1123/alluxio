@@ -21,13 +21,8 @@ import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
-<<<<<<< HEAD
-import alluxio.conf.PropertyKey;
-||||||| merged common ancestors
-=======
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
->>>>>>> upstream-os/master
 import alluxio.exception.AlluxioException;
 import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.exception.ExceptionMessage;
@@ -195,39 +190,20 @@ public class BaseFileSystem implements FileSystem {
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     URIStatus status;
     try {
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       long requestedBlockSizeBytes = options.getBlockSizeBytes();
       if (!options.hasBlockSizeBytes()) {
         requestedBlockSizeBytes =
-            mFsContext.getConf().getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+                mFsContext.getConf().getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
       }
       if (mFsContext.getConf().getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
-            alluxio.client.EncryptionMetaFactory.createLayout(mFsContext.getConf()),
-            requestedBlockSizeBytes);
+                alluxio.client.EncryptionMetaFactory.createLayout(mFsContext.getConf()),
+                requestedBlockSizeBytes);
         options = options.toBuilder().setBlockSizeBytes(physicalBlockSize).build();
       }
       // ALLUXIO CS END
-      masterClient.createFile(path, options);
-      // Do not sync before this getStatus, since the UFS file is expected to not exist.
-      GetStatusPOptions gsOptions =
-          GetStatusPOptions.newBuilder()
-                  .setLoadMetadataType(LoadMetadataPType.NEVER)
-                  // ALLUXIO CS ADD
-                  .setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE.toProto())
-                  // ALLUXIO CS END
-                  .build();
-      status = masterClient.getStatus(path, gsOptions);
-||||||| merged common ancestors
-      masterClient.createFile(path, options);
-      // Do not sync before this getStatus, since the UFS file is expected to not exist.
-      GetStatusPOptions gsOptions =
-          GetStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.NEVER).build();
-      status = masterClient.getStatus(path, gsOptions);
-=======
       status = masterClient.createFile(path, options);
->>>>>>> upstream-os/master
       LOG.debug("Created file {}, options: {}", path.getPath(), options);
     } catch (AlreadyExistsException e) {
       throw new FileAlreadyExistsException(e.getMessage());
@@ -449,7 +425,8 @@ public class BaseFileSystem implements FileSystem {
           Collections.shuffle(locations);
         }
       }
-      blockLocations.add(new BlockLocationInfo(fileBlockInfo, locations));
+      blockLocations.add(new BlockLocationInfo(GrpcUtils.toProto(fileBlockInfo),
+          locations.stream().map(GrpcUtils::toProto).collect(toList())));
     }
     return blockLocations;
   }
@@ -756,7 +733,8 @@ public class BaseFileSystem implements FileSystem {
   public FileInStream openFile(AlluxioURI path, OpenFilePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-<<<<<<< HEAD
+    options = FileSystemOptions.openFileDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     // ALLUXIO CS REPLACE
     // URIStatus status = getStatus(path);
     // ALLUXIO CS WITH
@@ -774,13 +752,6 @@ public class BaseFileSystem implements FileSystem {
       mFsContext.releaseMasterClient(masterClient);
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-    URIStatus status = getStatus(path);
-=======
-    options = FileSystemOptions.openFileDefaults(mFsContext.getConf())
-        .toBuilder().mergeFrom(options).build();
-    URIStatus status = getStatus(path);
->>>>>>> upstream-os/master
     if (status.isFolder()) {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));

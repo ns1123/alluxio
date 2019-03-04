@@ -118,23 +118,8 @@ public final class BaseFileSystemTest {
   public void createFile() throws Exception {
     URIStatus status = new URIStatus(new FileInfo());
     AlluxioURI file = new AlluxioURI("/file");
-<<<<<<< HEAD
-    GetStatusPOptions getStatusOptions =
-        GetStatusPOptions.newBuilder()
-            .setLoadMetadataType(LoadMetadataPType.NEVER)
-            // ALLUXIO CS ADD
-            .setAccessMode(alluxio.security.authorization.Mode.Bits.WRITE.toProto())
-            // ALLUXIO CS END
-            .build();
-    when(mFileSystemMasterClient.getStatus(file, getStatusOptions)).thenReturn(status);
-||||||| merged common ancestors
-    GetStatusPOptions getStatusOptions =
-        GetStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.NEVER).build();
-    when(mFileSystemMasterClient.getStatus(file, getStatusOptions)).thenReturn(status);
-=======
     when(mFileSystemMasterClient.createFile(any(AlluxioURI.class), any(CreateFilePOptions.class)))
         .thenReturn(status);
->>>>>>> upstream-os/master
     FileOutStream out = mFileSystem.createFile(file, CreateFilePOptions.getDefaultInstance());
     verify(mFileSystemMasterClient).createFile(file, FileSystemOptions.createFileDefaults(mConf)
             .toBuilder().mergeFrom(CreateFilePOptions.getDefaultInstance()).build());

@@ -31,13 +31,7 @@ import alluxio.grpc.DeletePRequest;
 import alluxio.grpc.FileSystemMasterClientServiceGrpc;
 import alluxio.grpc.FreePOptions;
 import alluxio.grpc.FreePRequest;
-<<<<<<< HEAD
-import alluxio.grpc.GetDelegationTokenPRequest;
-import alluxio.grpc.GetDelegationTokenPResponse;
-||||||| merged common ancestors
-=======
 import alluxio.grpc.GetFilePathPRequest;
->>>>>>> upstream-os/master
 import alluxio.grpc.GetMountTablePRequest;
 import alluxio.grpc.GetNewBlockIdForFilePOptions;
 import alluxio.grpc.GetNewBlockIdForFilePRequest;
@@ -51,12 +45,7 @@ import alluxio.grpc.MountPOptions;
 import alluxio.grpc.MountPRequest;
 import alluxio.grpc.RenamePOptions;
 import alluxio.grpc.RenamePRequest;
-<<<<<<< HEAD
-import alluxio.grpc.RenewDelegationTokenPRequest;
-||||||| merged common ancestors
-=======
 import alluxio.grpc.ScheduleAsyncPersistencePOptions;
->>>>>>> upstream-os/master
 import alluxio.grpc.ScheduleAsyncPersistencePRequest;
 import alluxio.grpc.ServiceType;
 import alluxio.grpc.SetAclAction;
@@ -201,12 +190,12 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   public alluxio.security.authentication.Token<DelegationTokenIdentifier> getDelegationToken(
       String renewer) throws AlluxioStatusException {
     return retryRPC(() -> {
-      GetDelegationTokenPResponse response = mClient
-          .getDelegationToken(GetDelegationTokenPRequest.newBuilder().setRenewer(renewer).build());
+      alluxio.grpc.GetDelegationTokenPResponse response = mClient.getDelegationToken(
+          alluxio.grpc.GetDelegationTokenPRequest.newBuilder().setRenewer(renewer).build());
       return new alluxio.security.authentication.Token<>(
-          alluxio.security.authentication.DelegationTokenIdentifier
-              .fromProto(response.getToken().getIdentifier(),
-                  mContext.getConf().get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+          alluxio.security.authentication.DelegationTokenIdentifier.fromProto(
+              response.getToken().getIdentifier(),
+              mContext.getConf().get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
           response.getToken().getPassword().toByteArray());
     }, "GetDelegationToken");
   }
@@ -216,7 +205,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
       alluxio.security.authentication.Token<DelegationTokenIdentifier> token)
       throws AlluxioStatusException {
     return retryRPC(() -> mClient
-        .renewDelegationToken(RenewDelegationTokenPRequest.newBuilder()
+        .renewDelegationToken(alluxio.grpc.RenewDelegationTokenPRequest.newBuilder()
             .setToken(DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
                 .setPassword(ByteString.copyFrom(token.getPassword())))
             .build())
