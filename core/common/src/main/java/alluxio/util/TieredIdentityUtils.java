@@ -82,20 +82,9 @@ public final class TieredIdentityUtils {
    *
    * @param tieredIdentity the tiered identity
    * @param identities the tiered identities to compare to
-<<<<<<< HEAD
-   * @param conf Alluxio configuration
-   * @return the identity closest to this one; or Optional.empty if none of the identities match
-   *         within a strict tier. If none of the identities match and no strict tiers are defined,
-   *         the first identity is returned
-||||||| merged common ancestors
-   * @param resolveIpAddress whether or not to resolve IP addresses for node locality
-   * @return the identity closest to this one. If none of the identities match, the first identity
-   *         is returned
-=======
    * @param conf Alluxio configuration
    * @return the identity closest to this one. If none of the identities match, the first identity
    *         is returned
->>>>>>> upstream-os/master
    */
   // ALLUXIO CS END
   public static Optional<TieredIdentity> nearest(TieredIdentity tieredIdentity,
@@ -106,15 +95,8 @@ public final class TieredIdentityUtils {
     for (TieredIdentity.LocalityTier tier : tieredIdentity.getTiers()) {
       for (TieredIdentity identity : identities) {
         for (TieredIdentity.LocalityTier otherTier : identity.getTiers()) {
-<<<<<<< HEAD
-          if (tier != null && matches(tier, otherTier,
-              conf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP))) {
-||||||| merged common ancestors
-          if (tier != null && matches(tier, otherTier, resolveIpAddress)) {
-=======
           if (tier != null
               && matches(tier, otherTier, conf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP))) {
->>>>>>> upstream-os/master
             return Optional.of(identity);
           }
         }
