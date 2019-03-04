@@ -12,8 +12,8 @@
 package alluxio.master.journal.ufs;
 
 import alluxio.Constants;
+import alluxio.master.Master;
 import alluxio.master.journal.AbstractJournalSystem;
-import alluxio.master.journal.JournalEntryStateMachine;
 import alluxio.retry.ExponentialTimeBoundedRetry;
 import alluxio.retry.RetryPolicy;
 import alluxio.util.CommonUtils;
@@ -61,7 +61,7 @@ public class UfsJournalSystem extends AbstractJournalSystem {
   }
 
   @Override
-  public UfsJournal createJournal(JournalEntryStateMachine master) {
+  public UfsJournal createJournal(Master master) {
     UfsJournal journal =
         new UfsJournal(URIUtils.appendPathOrDie(mBase, master.getName()), master, mQuietTimeMs);
     mJournals.put(master.getName(), journal);
@@ -78,7 +78,7 @@ public class UfsJournalSystem extends AbstractJournalSystem {
       });
     }
     try {
-      CommonUtils.invokeAll(callables, 1 * Constants.HOUR_MS);
+      CommonUtils.invokeAll(callables, 365 * Constants.DAY_MS);
     } catch (TimeoutException | ExecutionException e) {
       throw new RuntimeException(e);
     }

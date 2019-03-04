@@ -143,7 +143,8 @@ public final class AlluxioWorkerRestServiceHandler {
         (WorkerProcess) context.getAttribute(WorkerWebServer.ALLUXIO_WORKER_SERVLET_RESOURCE_KEY);
     mBlockWorker = mWorkerProcess.getWorker(BlockWorker.class);
     mStoreMeta = mWorkerProcess.getWorker(BlockWorker.class).getStoreMeta();
-    mFsClient = FileSystem.Factory.get(ServerConfiguration.global());
+    mFsClient =
+        (FileSystem) context.getAttribute(WorkerWebServer.ALLUXIO_FILESYSTEM_CLIENT_RESOURCE_KEY);
   }
 
   /**
@@ -278,7 +279,8 @@ public final class AlluxioWorkerRestServiceHandler {
         // Display file block info
         try {
           URIStatus status = mFsClient.getStatus(new AlluxioURI(requestPath));
-          UIFileInfo uiFileInfo = new UIFileInfo(status);
+          UIFileInfo uiFileInfo = new UIFileInfo(status, ServerConfiguration.global(),
+              new WorkerStorageTierAssoc().getOrderedStorageAliases());
           for (long blockId : status.getBlockIds()) {
             if (mBlockWorker.hasBlockMeta(blockId)) {
               BlockMeta blockMeta = mBlockWorker.getVolatileBlockMeta(blockId);
@@ -313,9 +315,7 @@ public final class AlluxioWorkerRestServiceHandler {
       BlockStoreMeta storeMeta = mBlockWorker.getStoreMetaFull();
       for (List<Long> blockIds : storeMeta.getBlockList().values()) {
         for (long blockId : blockIds) {
-          long fileId = BlockId
-              .createBlockId(BlockId.getContainerId(blockId), BlockId.getMaxSequenceNumber());
-          unsortedFileIds.add(fileId);
+          unsortedFileIds.add(BlockId.getFileId(blockId));
         }
       }
       List<Long> fileIds = new ArrayList<>(unsortedFileIds);
@@ -326,14 +326,16 @@ public final class AlluxioWorkerRestServiceHandler {
       try {
         int offset = Integer.parseInt(requestOffset);
         int limit = Integer.parseInt(requestLimit);
-        limit = limit > fileIds.size() ? fileIds.size() : limit;
+        limit = offset == 0 && limit > fileIds.size() ? fileIds.size() : limit;
+        limit = offset * limit > fileIds.size() ? fileIds.size() % offset : limit;
         int sum = Math.addExact(offset, limit);
         List<Long> subFileIds = fileIds.subList(offset, sum);
         List<UIFileInfo> uiFileInfos = new ArrayList<>(subFileIds.size());
         for (long fileId : subFileIds) {
           try {
             URIStatus status = new URIStatus(mBlockWorker.getFileInfo(fileId));
-            UIFileInfo uiFileInfo = new UIFileInfo(status);
+            UIFileInfo uiFileInfo = new UIFileInfo(status, ServerConfiguration.global(),
+                new WorkerStorageTierAssoc().getOrderedStorageAliases());
             for (long blockId : status.getBlockIds()) {
               if (mBlockWorker.hasBlockMeta(blockId)) {
                 BlockMeta blockMeta = mBlockWorker.getVolatileBlockMeta(blockId);
@@ -471,7 +473,8 @@ public final class AlluxioWorkerRestServiceHandler {
             fileInfos.add(new UIFileInfo(
                 new UIFileInfo.LocalFileInfo(logFileName, logFileName, logFile.length(),
                     UIFileInfo.LocalFileInfo.EMPTY_CREATION_TIME, logFile.lastModified(),
-                    logFile.isDirectory())));
+                    logFile.isDirectory()), ServerConfiguration.global(),
+                new WorkerStorageTierAssoc().getOrderedStorageAliases()));
           }
         }
         Collections.sort(fileInfos, UIFileInfo.PATH_STRING_COMPARE);
@@ -480,7 +483,8 @@ public final class AlluxioWorkerRestServiceHandler {
         try {
           int offset = Integer.parseInt(requestOffset);
           int limit = Integer.parseInt(requestLimit);
-          limit = limit > fileInfos.size() ? fileInfos.size() : limit;
+          limit = offset == 0 && limit > fileInfos.size() ? fileInfos.size() : limit;
+          limit = offset * limit > fileInfos.size() ? fileInfos.size() % offset : limit;
           int sum = Math.addExact(offset, limit);
           fileInfos = fileInfos.subList(offset, sum);
           response.setFileInfos(fileInfos);
@@ -589,8 +593,8 @@ public final class AlluxioWorkerRestServiceHandler {
   @ReturnType("java.lang.String")
   @Deprecated
   public Response getRpcAddress() {
-    return RestUtils.call(() -> mWorkerProcess.getRpcAddress().toString(),
-        ServerConfiguration.global());
+    return RestUtils
+        .call(() -> mWorkerProcess.getRpcAddress().toString(), ServerConfiguration.global());
   }
 
   /**
@@ -745,8 +749,8 @@ public final class AlluxioWorkerRestServiceHandler {
   }
 
   private Map<String, String> getConfigurationInternal(boolean raw) {
-    return new TreeMap<>(ServerConfiguration.toMap(
-        ConfigurationValueOptions.defaults().useDisplayValue(true).useRawValue(raw)));
+    return new TreeMap<>(ServerConfiguration
+        .toMap(ConfigurationValueOptions.defaults().useDisplayValue(true).useRawValue(raw)));
   }
 
   private Map<String, Long> getMetricsInternal() {

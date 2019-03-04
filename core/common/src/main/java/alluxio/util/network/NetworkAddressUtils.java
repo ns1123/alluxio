@@ -13,8 +13,8 @@ package alluxio.util.network;
 
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
+import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.UnauthenticatedException;
-import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.GetServiceVersionPRequest;
 import alluxio.grpc.GrpcChannel;
 import alluxio.grpc.GrpcChannelBuilder;
@@ -536,7 +536,7 @@ public final class NetworkAddressUtils {
   /**
    * Resolves a given hostname by a canonical hostname. When a hostname alias (e.g., those specified
    * in /etc/hosts) is given, the alias may not be resolvable on other hosts in a cluster unless the
-   * same alias is defined there. In this situation, loadufs would break.
+   * same alias is defined there.
    *
    * @param hostname the input hostname, which could be an alias
    * @return the canonical form of the hostname, or null if it is null or empty
@@ -665,7 +665,7 @@ public final class NetworkAddressUtils {
    */
   public static void pingService(InetSocketAddress address, alluxio.grpc.ServiceType serviceType,
       AlluxioConfiguration conf)
-      throws UnauthenticatedException, UnavailableException {
+      throws AlluxioStatusException {
     Preconditions.checkNotNull(address, "address");
     Preconditions.checkNotNull(serviceType, "serviceType");
     GrpcChannel channel = GrpcChannelBuilder.newBuilder(address, conf).build();

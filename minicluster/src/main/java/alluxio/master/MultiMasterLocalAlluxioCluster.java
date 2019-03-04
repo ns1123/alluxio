@@ -12,11 +12,13 @@
 package alluxio.master;
 
 import alluxio.AlluxioTestDirectory;
-import alluxio.conf.ServerConfiguration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
-import alluxio.conf.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
+import alluxio.master.journal.JournalType;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.DeleteOptions;
 import alluxio.util.CommonUtils;
@@ -28,8 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -73,6 +77,24 @@ public final class MultiMasterLocalAlluxioCluster extends AbstractLocalAlluxioCl
   }
 
   @Override
+  public void initConfiguration() throws IOException {
+    setAlluxioWorkDirectory();
+    setHostname();
+    for (Map.Entry<PropertyKey, String> entry : ConfigurationTestUtils
+        .testConfigurationDefaults(ServerConfiguration.global(), mHostname, mWorkDirectory)
+        .entrySet()) {
+      ServerConfiguration.set(entry.getKey(), entry.getValue());
+    }
+    ServerConfiguration.set(PropertyKey.MASTER_RPC_PORT, 0);
+    ServerConfiguration.set(PropertyKey.TEST_MODE, true);
+    ServerConfiguration.set(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.UFS);
+    ServerConfiguration.set(PropertyKey.MASTER_WEB_PORT, 0);
+    ServerConfiguration.set(PropertyKey.PROXY_WEB_PORT, 0);
+    ServerConfiguration.set(PropertyKey.WORKER_RPC_PORT, 0);
+    ServerConfiguration.set(PropertyKey.WORKER_WEB_PORT, 0);
+  }
+
+  @Override
   public synchronized FileSystem getClient() throws IOException {
     return getLocalAlluxioMaster().getClient();
   }
@@ -110,6 +132,17 @@ public final class MultiMasterLocalAlluxioCluster extends AbstractLocalAlluxioCl
       }
     }
     return -1;
+  }
+
+  /**
+   * @return the master addresses
+   */
+  public List<InetSocketAddress> getMasterAddresses() {
+    List<InetSocketAddress> addrs = new ArrayList<>();
+    for (int i = 0; i < mNumOfMasters; i++) {
+      addrs.add(mMasters.get(i).getAddress());
+    }
+    return addrs;
   }
 
   /**
@@ -195,6 +228,7 @@ public final class MultiMasterLocalAlluxioCluster extends AbstractLocalAlluxioCl
       mMasters.add(master);
       // Each master should generate a new port for binding
       ServerConfiguration.set(PropertyKey.MASTER_RPC_PORT, "0");
+      ServerConfiguration.set(PropertyKey.MASTER_WEB_PORT, "0");
     }
 
     // Create the UFS directory after LocalAlluxioMaster construction, because LocalAlluxioMaster

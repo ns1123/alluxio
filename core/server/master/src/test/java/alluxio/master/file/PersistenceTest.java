@@ -14,10 +14,10 @@ package alluxio.master.file;
 import static org.mockito.Matchers.any;
 
 import alluxio.AlluxioURI;
-import alluxio.conf.ServerConfiguration;
 import alluxio.Constants;
-import alluxio.conf.PropertyKey;
 import alluxio.client.job.JobMasterClient;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
@@ -35,15 +35,16 @@ import alluxio.master.MasterRegistry;
 import alluxio.master.MasterTestUtils;
 import alluxio.master.SafeModeManager;
 import alluxio.master.block.BlockMasterFactory;
-import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.contexts.CompleteFileContext;
 import alluxio.master.file.contexts.CreateDirectoryContext;
 import alluxio.master.file.contexts.CreateFileContext;
 import alluxio.master.file.contexts.DeleteContext;
 import alluxio.master.file.contexts.GetStatusContext;
 import alluxio.master.file.contexts.RenameContext;
+import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalTestUtils;
+import alluxio.master.journal.JournalType;
 import alluxio.master.metrics.MetricsMasterFactory;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
@@ -98,6 +99,7 @@ public final class PersistenceTest {
     TemporaryFolder tmpFolder = new TemporaryFolder();
     tmpFolder.create();
     File ufsRoot = tmpFolder.newFolder();
+    ServerConfiguration.set(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.UFS);
     ServerConfiguration.set(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, ufsRoot.getAbsolutePath());
     ServerConfiguration.set(PropertyKey.MASTER_PERSISTENCE_INITIAL_INTERVAL_MS, 0);
     ServerConfiguration.set(PropertyKey.MASTER_PERSISTENCE_MAX_INTERVAL_MS, 1000);
@@ -144,13 +146,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_CONTEXT);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Mock the job service interaction.
     Random random = new Random();
@@ -223,13 +221,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_CONTEXT);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Mock the job service interaction.
     Random random = new Random();
@@ -266,13 +260,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_CONTEXT);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Mock the job service interaction.
     Random random = new Random();
@@ -323,10 +313,10 @@ public final class PersistenceTest {
     mFileSystemMaster.createDirectory(alluxioDirSrc,
         CreateDirectoryContext.defaults().setPersisted(true));
     AlluxioURI alluxioFileSrc = new AlluxioURI("/src/in_alluxio");
-    long fileId = mFileSystemMaster.createFile(alluxioFileSrc,
+    FileInfo info = mFileSystemMaster.createFile(alluxioFileSrc,
         CreateFileContext.defaults().setPersisted(false));
-    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(),
-        mFileSystemMaster.getFileInfo(fileId).getPersistenceState());
+    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), info.getPersistenceState());
+    mFileSystemMaster.completeFile(alluxioFileSrc, CompleteFileContext.defaults());
 
     // Schedule the async persistence, checking the internal state.
     mFileSystemMaster.scheduleAsyncPersistence(alluxioFileSrc);
@@ -359,7 +349,7 @@ public final class PersistenceTest {
     // Create the temporary UFS file.
     {
       Map<Long, PersistJob> persistJobs = getPersistJobs();
-      PersistJob job = persistJobs.get(fileId);
+      PersistJob job = persistJobs.get(info.getFileId());
       UnderFileSystem ufs = UnderFileSystem.Factory.create(job.getTempUfsPath(),
           ServerConfiguration.global());
       UnderFileSystemUtils.touch(ufs, job.getTempUfsPath());
@@ -373,7 +363,7 @@ public final class PersistenceTest {
 
     // Delete the src directory recursively.
     mFileSystemMaster.delete(alluxioDirSrc,
-        DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+        DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
 
     // Execute the persistence checker heartbeat, checking the internal state. This should
     // re-schedule the persist task as tempUfsPath is deleted.
@@ -401,13 +391,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_CONTEXT);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Simulate restart.
     stopServices();
@@ -426,13 +412,9 @@ public final class PersistenceTest {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile, GET_STATUS_CONTEXT);
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Repeatedly schedule the async persistence, checking the internal state.
-    {
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-      mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      checkPersistenceRequested(testFile);
-    }
+    // schedule the async persistence, checking the internal state.
+    mFileSystemMaster.scheduleAsyncPersistence(testFile);
+    checkPersistenceRequested(testFile);
 
     // Mock the job service interaction.
     Random random = new Random();
@@ -460,7 +442,7 @@ public final class PersistenceTest {
     String group = SecurityUtils.getGroupFromGrpcClient(ServerConfiguration.global());
     mFileSystemMaster.createFile(path,
         CreateFileContext
-            .defaults(
+            .mergeFrom(
                 CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto()))
             .setOwner(owner).setGroup(group));
     mFileSystemMaster.completeFile(path, CompleteFileContext.defaults());

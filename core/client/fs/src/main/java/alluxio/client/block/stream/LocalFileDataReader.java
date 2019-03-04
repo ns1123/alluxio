@@ -21,10 +21,11 @@ import alluxio.grpc.OpenLocalBlockResponse;
 import alluxio.metrics.ClientMetrics;
 import alluxio.metrics.MetricsSystem;
 import alluxio.network.protocol.databuffer.DataBuffer;
-import alluxio.network.protocol.databuffer.DataByteBuffer;
+import alluxio.network.protocol.databuffer.NioDataBuffer;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.io.LocalFileBlockReader;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
@@ -66,7 +67,7 @@ public final class LocalFileDataReader implements DataReader {
       return null;
     }
     ByteBuffer buffer = mReader.read(mPos, Math.min(mChunkSize, mEnd - mPos));
-    DataBuffer dataBuffer = new DataByteBuffer(buffer, buffer.remaining());
+    DataBuffer dataBuffer = new NioDataBuffer(buffer, buffer.remaining());
     mPos += dataBuffer.getLength();
     MetricsSystem.counter(ClientMetrics.BYTES_READ_LOCAL).inc(dataBuffer.getLength());
     MetricsSystem.meter(ClientMetrics.BYTES_READ_LOCAL_THROUGHPUT).mark(dataBuffer.getLength());
@@ -149,7 +150,10 @@ public final class LocalFileDataReader implements DataReader {
       // ALLUXIO CS END
       try {
         mStream = new GrpcBlockingStream<>(mBlockWorker::openLocalBlock, mReadBufferSize,
-            address.toString());
+            MoreObjects.toStringHelper(LocalFileDataReader.class)
+                .add("request", request)
+                .add("address", address)
+                .toString());
         mStream.send(request, mDataTimeoutMs);
         OpenLocalBlockResponse response = mStream.receive(mDataTimeoutMs);
         Preconditions.checkState(response.hasPath());

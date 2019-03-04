@@ -65,6 +65,7 @@ public class TieredIdentityTest {
             mConfiguration).get());
     assertSame(id1, TieredIdentityUtils
         .nearest(TieredIdentityFactory.fromString("node=D,rack=rack3", mConfiguration), identities,
+<<<<<<< HEAD
             mConfiguration).get());
     // ALLUXIO CS ADD
     try (java.io.Closeable c = new alluxio.ConfigurationRule(
@@ -76,6 +77,11 @@ public class TieredIdentityTest {
               identities, mConfiguration).isPresent());
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+            resolveIp).get());
+=======
+            mConfiguration).get());
+>>>>>>> upstream-os/master
   }
 
   @Test

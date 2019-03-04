@@ -11,8 +11,8 @@
 
 package alluxio.master;
 
-import alluxio.conf.ServerConfiguration;
 import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.JobWorkerProcess;
@@ -34,7 +34,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class LocalAlluxioJobCluster {
   private static final Logger LOG = LoggerFactory.getLogger(LocalAlluxioJobCluster.class);
 
-  private JobMasterProcess mMaster;
+  private AlluxioJobMasterProcess mMaster;
   private JobWorkerProcess mWorker;
 
   private Map<PropertyKey, String> mConfiguration = new HashMap<>();
@@ -47,7 +47,7 @@ public final class LocalAlluxioJobCluster {
   /**
    * Creates a new instance of {@link LocalAlluxioJobCluster}.
    */
-  public LocalAlluxioJobCluster() {}
+  public LocalAlluxioJobCluster() { }
 
   /**
    * Starts both master and a worker using the configurations in test conf respectively.
@@ -79,7 +79,7 @@ public final class LocalAlluxioJobCluster {
   /**
    * @return the job master
    */
-  public JobMasterProcess getMaster() {
+  public AlluxioJobMasterProcess getMaster() {
     return mMaster;
   }
 
@@ -124,8 +124,6 @@ public final class LocalAlluxioJobCluster {
 
     ServerConfiguration.set(PropertyKey.JOB_MASTER_BIND_HOST, mHostname);
     ServerConfiguration.set(PropertyKey.JOB_MASTER_HOSTNAME, mHostname);
-    ServerConfiguration.set(PropertyKey.JOB_MASTER_RPC_PORT, Integer.toString(0));
-    ServerConfiguration.set(PropertyKey.JOB_MASTER_WEB_PORT, Integer.toString(0));
     ServerConfiguration.set(PropertyKey.JOB_MASTER_WEB_BIND_HOST, mHostname);
     ServerConfiguration.set(PropertyKey.JOB_WORKER_BIND_HOST, mHostname);
     ServerConfiguration.set(PropertyKey.JOB_WORKER_RPC_PORT, Integer.toString(0));
@@ -154,7 +152,8 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startMaster() throws IOException, ConnectionFailedException {
-    mMaster = JobMasterProcess.Factory.create();
+    mMaster = AlluxioJobMasterProcess.Factory.create();
+
     ServerConfiguration
         .set(PropertyKey.JOB_MASTER_RPC_PORT, String.valueOf(mMaster.getRpcAddress().getPort()));
     Runnable runMaster = new Runnable() {

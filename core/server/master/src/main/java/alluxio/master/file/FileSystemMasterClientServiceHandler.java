@@ -38,8 +38,14 @@ import alluxio.grpc.FileSystemMasterClientServiceGrpc;
 import alluxio.grpc.FreePOptions;
 import alluxio.grpc.FreePRequest;
 import alluxio.grpc.FreePResponse;
+<<<<<<< HEAD
 import alluxio.grpc.GetDelegationTokenPRequest;
 import alluxio.grpc.GetDelegationTokenPResponse;
+||||||| merged common ancestors
+=======
+import alluxio.grpc.GetFilePathPRequest;
+import alluxio.grpc.GetFilePathPResponse;
+>>>>>>> upstream-os/master
 import alluxio.grpc.GetMountTablePRequest;
 import alluxio.grpc.GetMountTablePResponse;
 import alluxio.grpc.GetNewBlockIdForFilePOptions;
@@ -141,7 +147,7 @@ public final class FileSystemMasterClientServiceHandler
     RpcUtils.call(LOG,
         (RpcUtils.RpcCallableThrowsIOException<CheckConsistencyPResponse>) () -> {
           List<AlluxioURI> inconsistentUris = mFileSystemMaster.checkConsistency(
-              new AlluxioURI(path), CheckConsistencyContext.defaults(options.toBuilder()));
+              new AlluxioURI(path), CheckConsistencyContext.create(options.toBuilder()));
           List<String> uris = new ArrayList<>(inconsistentUris.size());
           for (AlluxioURI uri : inconsistentUris) {
             uris.add(uri.getPath());
@@ -157,7 +163,7 @@ public final class FileSystemMasterClientServiceHandler
     CompleteFilePOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<CompleteFilePResponse>) () -> {
       mFileSystemMaster.completeFile(new AlluxioURI(path),
-          CompleteFileContext.defaults(options.toBuilder()));
+          CompleteFileContext.create(options.toBuilder()));
       return CompleteFilePResponse.newBuilder().build();
     }, "CompleteFile", "path=%s, options=%s", responseObserver, path, options);
   }
@@ -170,7 +176,7 @@ public final class FileSystemMasterClientServiceHandler
     RpcUtils.call(LOG,
         (RpcUtils.RpcCallableThrowsIOException<CreateDirectoryPResponse>) () -> {
           mFileSystemMaster.createDirectory(new AlluxioURI(path),
-              CreateDirectoryContext.defaults(options.toBuilder()));
+              CreateDirectoryContext.create(options.toBuilder()));
           return CreateDirectoryPResponse.newBuilder().build();
         }, "CreateDirectory", "path=%s, options=%s", responseObserver, path, options);
   }
@@ -180,11 +186,11 @@ public final class FileSystemMasterClientServiceHandler
       StreamObserver<CreateFilePResponse> responseObserver) {
     String path = request.getPath();
     CreateFilePOptions options = request.getOptions();
-    RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<CreateFilePResponse>) () -> {
-      mFileSystemMaster.createFile(new AlluxioURI(path),
-          CreateFileContext.defaults(options.toBuilder()));
-      return CreateFilePResponse.newBuilder().build();
-    }, "CreateFile", "path=%s, options=%s", responseObserver, path, options);
+    RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<CreateFilePResponse>)
+        () -> CreateFilePResponse.newBuilder().setFileInfo(GrpcUtils.toProto(
+            mFileSystemMaster.createFile(new AlluxioURI(path),
+                CreateFileContext.create(options.toBuilder())))).build(),
+        "CreateFile", "path=%s, options=%s", responseObserver, path, options);
   }
 
   @Override
@@ -192,7 +198,7 @@ public final class FileSystemMasterClientServiceHandler
     String path = request.getPath();
     FreePOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<FreePResponse>) () -> {
-      mFileSystemMaster.free(new AlluxioURI(path), FreeContext.defaults(options.toBuilder()));
+      mFileSystemMaster.free(new AlluxioURI(path), FreeContext.create(options.toBuilder()));
       return FreePResponse.newBuilder().build();
     }, "Free", "path=%s, options=%s", responseObserver, path, options);
   }
@@ -210,6 +216,7 @@ public final class FileSystemMasterClientServiceHandler
   // ALLUXIO CS ADD
 
   @Override
+<<<<<<< HEAD
   public void getDelegationToken(GetDelegationTokenPRequest request,
       StreamObserver<GetDelegationTokenPResponse> responseObserver) {
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<GetDelegationTokenPResponse>) () -> {
@@ -257,6 +264,21 @@ public final class FileSystemMasterClientServiceHandler
 
   // ALLUXIO CS END
   @Override
+||||||| merged common ancestors
+=======
+  public void getFilePath(GetFilePathPRequest request,
+      StreamObserver<GetFilePathPResponse> responseObserver) {
+    long fileId = request.getFileId();
+    RpcUtils.call(LOG,
+        (RpcUtils.RpcCallableThrowsIOException<GetFilePathPResponse>) () -> GetFilePathPResponse
+            .newBuilder()
+            .setPath(mFileSystemMaster.getPath(fileId).toString())
+            .build(),
+        "GetFilePath", true, "id=%s", responseObserver, fileId);
+  }
+
+  @Override
+>>>>>>> upstream-os/master
   public void getStatus(GetStatusPRequest request,
       StreamObserver<GetStatusPResponse> responseObserver) {
     String path = request.getPath();
@@ -265,7 +287,7 @@ public final class FileSystemMasterClientServiceHandler
         (RpcUtils.RpcCallableThrowsIOException<GetStatusPResponse>) () -> GetStatusPResponse
             .newBuilder()
             .setFileInfo(GrpcUtils.toProto(mFileSystemMaster.getFileInfo(new AlluxioURI(path),
-                GetStatusContext.defaults(options.toBuilder()))))
+                GetStatusContext.create(options.toBuilder()))))
             .build(),
         "GetStatus", true, "path=%s, options=%s", responseObserver, path, options);
   }
@@ -278,7 +300,7 @@ public final class FileSystemMasterClientServiceHandler
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<ListStatusPResponse>) () -> {
       List<FileInfo> result = new ArrayList<>();
       for (alluxio.wire.FileInfo fileInfo : mFileSystemMaster.listStatus(new AlluxioURI(path),
-          ListStatusContext.defaults(options.toBuilder()))) {
+          ListStatusContext.create(options.toBuilder()))) {
         result.add(GrpcUtils.toProto(fileInfo));
       }
       return ListStatusPResponse.newBuilder().addAllFileInfos(result).build();
@@ -292,7 +314,7 @@ public final class FileSystemMasterClientServiceHandler
     MountPOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<MountPResponse>) () -> {
       mFileSystemMaster.mount(new AlluxioURI(alluxioPath), new AlluxioURI(ufsPath),
-          MountContext.defaults(options.toBuilder()));
+          MountContext.create(options.toBuilder()));
       return MountPResponse.newBuilder().build();
     }, "Mount", "alluxioPath=%s, ufsPath=%s, options=%s", responseObserver, alluxioPath, ufsPath,
         options);
@@ -327,7 +349,7 @@ public final class FileSystemMasterClientServiceHandler
     String path = request.getPath();
     DeletePOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<DeletePResponse>) () -> {
-      mFileSystemMaster.delete(new AlluxioURI(path), DeleteContext.defaults(options.toBuilder()));
+      mFileSystemMaster.delete(new AlluxioURI(path), DeleteContext.create(options.toBuilder()));
       return DeletePResponse.newBuilder().build();
     }, "Remove", "path=%s, options=%s", responseObserver, path, options);
   }
@@ -339,7 +361,7 @@ public final class FileSystemMasterClientServiceHandler
     RenamePOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<RenamePResponse>) () -> {
       mFileSystemMaster.rename(new AlluxioURI(srcPath), new AlluxioURI(dstPath),
-          RenameContext.defaults(options.toBuilder()));
+          RenameContext.create(options.toBuilder()));
       return RenamePResponse.newBuilder().build();
     }, "Rename", "srcPath=%s, dstPath=%s, options=%s", responseObserver, srcPath, dstPath, options);
   }
@@ -431,7 +453,7 @@ public final class FileSystemMasterClientServiceHandler
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<SetAclPResponse>) () -> {
       mFileSystemMaster.setAcl(new AlluxioURI(alluxioPath), aclAction,
           aclList.stream().map(GrpcUtils::fromProto).collect(Collectors.toList()),
-          SetAclContext.defaults(options.toBuilder()));
+          SetAclContext.create(options.toBuilder()));
       return SetAclPResponse.newBuilder().build();
     }, "setAcl", "alluxioPath=%s, setAclAction=%s, aclEntries=%s, options=%s", responseObserver,
         alluxioPath, aclAction.name(), aclList, options);

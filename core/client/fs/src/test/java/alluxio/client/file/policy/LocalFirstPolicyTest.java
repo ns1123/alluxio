@@ -104,7 +104,15 @@ public final class LocalFirstPolicyTest {
 
     // local node
     policy = LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=node4,rack=rack3",
+<<<<<<< HEAD
         sConf), sConf);
+||||||| merged common ancestors
+        sConf),
+        sConf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP));
+=======
+        sConf),
+        sConf);
+>>>>>>> upstream-os/master
     chosen = policy.getWorkerForNextBlock(workers, Constants.GB);
     assertEquals("node4", chosen.getTieredIdentity().getTier(0).getValue());
   }

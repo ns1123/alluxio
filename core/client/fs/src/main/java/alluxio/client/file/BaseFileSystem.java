@@ -11,12 +11,23 @@
 
 package alluxio.client.file;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.annotation.PublicApi;
+import alluxio.client.block.AlluxioBlockStore;
+import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
+<<<<<<< HEAD
 import alluxio.conf.PropertyKey;
+||||||| merged common ancestors
+=======
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
+>>>>>>> upstream-os/master
 import alluxio.exception.AlluxioException;
 import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.exception.ExceptionMessage;
@@ -38,10 +49,10 @@ import alluxio.grpc.GetStatusPOptions;
 import alluxio.grpc.GrpcUtils;
 import alluxio.grpc.ListStatusPOptions;
 import alluxio.grpc.LoadMetadataPOptions;
-import alluxio.grpc.LoadMetadataPType;
 import alluxio.grpc.MountPOptions;
 import alluxio.grpc.OpenFilePOptions;
 import alluxio.grpc.RenamePOptions;
+import alluxio.grpc.ScheduleAsyncPersistencePOptions;
 import alluxio.grpc.SetAclAction;
 import alluxio.grpc.SetAclPOptions;
 import alluxio.grpc.SetAttributePOptions;
@@ -49,15 +60,25 @@ import alluxio.grpc.UnmountPOptions;
 import alluxio.master.MasterInquireClient;
 import alluxio.security.authorization.AclEntry;
 import alluxio.uri.Authority;
+import alluxio.util.FileSystemOptions;
+import alluxio.wire.BlockLocation;
+import alluxio.wire.BlockLocationInfo;
+import alluxio.wire.FileBlockInfo;
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.SyncPointInfo;
+import alluxio.wire.WorkerNetAddress;
 
+import com.google.common.base.Preconditions;
+import com.google.common.net.HostAndPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -72,13 +93,27 @@ public class BaseFileSystem implements FileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(BaseFileSystem.class);
 
   protected final FileSystemContext mFsContext;
+  protected final AlluxioBlockStore mBlockStore;
+  protected final boolean mCachingEnabled;
+
+  private volatile boolean mClosed = false;
 
   /**
-   * @param context the {@link FileSystemContext} to use in this client
+   * @param context the {@link FileSystemContext} to use for client operations
    * @return a {@link BaseFileSystem}
    */
   public static BaseFileSystem create(FileSystemContext context) {
-    return new BaseFileSystem(context);
+    return new BaseFileSystem(context, false);
+  }
+
+  /**
+   * @param context the {@link FileSystemContext} to use for client operations
+   * @param cachingEnabled whether or not this FileSystem should remove itself from the
+   *                       {@link Factory} cache when closed
+   * @return a {@link BaseFileSystem}
+   */
+  public static BaseFileSystem create(FileSystemContext context, boolean cachingEnabled) {
+    return new BaseFileSystem(context, cachingEnabled);
   }
 
   /**
@@ -86,8 +121,34 @@ public class BaseFileSystem implements FileSystem {
    *
    * @param fsContext file system context
    */
-  protected BaseFileSystem(FileSystemContext fsContext) {
+  protected BaseFileSystem(FileSystemContext fsContext, boolean cachingEnabled) {
     mFsContext = fsContext;
+    mBlockStore = AlluxioBlockStore.create(fsContext);
+    mCachingEnabled = cachingEnabled;
+  }
+
+  /**
+   * Shuts down the FileSystem. Closes all thread pools and resources used to perform operations. If
+   * any operations are called after closing the context the behavior is undefined.
+   *
+   * @throws IOException
+   */
+  @Override
+  public synchronized void close() throws IOException {
+    // TODO(zac) Determine the behavior when closing the context during operations.
+    if (!mClosed) {
+      mClosed = true;
+      if (mCachingEnabled) {
+        Factory.FILESYSTEM_CACHE.remove(new FileSystemKey(mFsContext.getClientContext()));
+      }
+      mFsContext.close();
+    }
+  }
+
+  @Override
+  public boolean isClosed() {
+    // Doesn't require locking because mClosed is volatile and marked first upon close
+    return mClosed;
   }
 
   @Override
@@ -100,6 +161,8 @@ public class BaseFileSystem implements FileSystem {
   public void createDirectory(AlluxioURI path, CreateDirectoryPOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     checkUri(path);
+    options = FileSystemOptions.createDirectoryDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.createDirectory(path, options);
@@ -127,9 +190,12 @@ public class BaseFileSystem implements FileSystem {
   public FileOutStream createFile(AlluxioURI path, CreateFilePOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     checkUri(path);
+    options = FileSystemOptions.createFileDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     URIStatus status;
     try {
+<<<<<<< HEAD
       // ALLUXIO CS ADD
       long requestedBlockSizeBytes = options.getBlockSizeBytes();
       if (!options.hasBlockSizeBytes()) {
@@ -153,6 +219,15 @@ public class BaseFileSystem implements FileSystem {
                   // ALLUXIO CS END
                   .build();
       status = masterClient.getStatus(path, gsOptions);
+||||||| merged common ancestors
+      masterClient.createFile(path, options);
+      // Do not sync before this getStatus, since the UFS file is expected to not exist.
+      GetStatusPOptions gsOptions =
+          GetStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.NEVER).build();
+      status = masterClient.getStatus(path, gsOptions);
+=======
+      status = masterClient.createFile(path, options);
+>>>>>>> upstream-os/master
       LOG.debug("Created file {}, options: {}", path.getPath(), options);
     } catch (AlreadyExistsException e) {
       throw new FileAlreadyExistsException(e.getMessage());
@@ -211,6 +286,8 @@ public class BaseFileSystem implements FileSystem {
   public void delete(AlluxioURI path, DeletePOptions options)
       throws DirectoryNotEmptyException, FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
+    options = FileSystemOptions.deleteDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.delete(path, options);
@@ -239,6 +316,8 @@ public class BaseFileSystem implements FileSystem {
   public boolean exists(AlluxioURI path, ExistsPOptions options)
       throws InvalidPathException, IOException, AlluxioException {
     checkUri(path);
+    options = FileSystemOptions.existsDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       // TODO(calvin): Make this more efficient
@@ -269,6 +348,8 @@ public class BaseFileSystem implements FileSystem {
   public void free(AlluxioURI path, FreePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
+    options = FileSystemOptions.freeDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.free(path, options);
@@ -343,6 +424,49 @@ public class BaseFileSystem implements FileSystem {
 
   // ALLUXIO CS END
   @Override
+  public List<BlockLocationInfo> getBlockLocations(AlluxioURI path)
+      throws IOException, AlluxioException {
+    // Don't need to checkUri here because we call other client operations
+    List<FileBlockInfo> blocks = getStatus(path).getFileBlockInfos();
+    List<BlockLocationInfo> blockLocations = new ArrayList<>();
+    for (FileBlockInfo fileBlockInfo : blocks) {
+      // add the existing in-Alluxio block locations
+      List<WorkerNetAddress> locations = fileBlockInfo.getBlockInfo().getLocations()
+          .stream().map(BlockLocation::getWorkerAddress).collect(toList());
+      if (locations.isEmpty()) { // No in-Alluxio location
+        if (!fileBlockInfo.getUfsLocations().isEmpty()) {
+          // Case 1: Fallback to use under file system locations with co-located workers.
+          // This maps UFS locations to a worker which is co-located.
+          Map<String, WorkerNetAddress> finalWorkerHosts = getHostWorkerMap();
+          locations = fileBlockInfo.getUfsLocations().stream().map(
+              location -> finalWorkerHosts.get(HostAndPort.fromString(location).getHost()))
+                .filter(Objects::nonNull).collect(toList());
+        }
+        if (locations.isEmpty() && mFsContext.getConf()
+            .getBoolean(PropertyKey.USER_UFS_BLOCK_LOCATION_ALL_FALLBACK_ENABLED)) {
+          // Case 2: Fallback to add all workers to locations so some apps (Impala) won't panic.
+          locations.addAll(getHostWorkerMap().values());
+          Collections.shuffle(locations);
+        }
+      }
+      blockLocations.add(new BlockLocationInfo(fileBlockInfo, locations));
+    }
+    return blockLocations;
+  }
+
+  private Map<String, WorkerNetAddress> getHostWorkerMap() throws IOException {
+    List<BlockWorkerInfo> workers = mBlockStore.getEligibleWorkers();
+    return workers.stream().collect(
+        toMap(worker -> worker.getNetAddress().getHost(), BlockWorkerInfo::getNetAddress,
+            (worker1, worker2) -> worker1));
+  }
+
+  @Override
+  public AlluxioConfiguration getConf() {
+    return mFsContext.getConf();
+  }
+
+  @Override
   public URIStatus getStatus(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
     return getStatus(path, GetStatusPOptions.getDefaultInstance());
@@ -352,6 +476,8 @@ public class BaseFileSystem implements FileSystem {
   public URIStatus getStatus(AlluxioURI path, GetStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
+    options = FileSystemOptions.getStatusDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       // ALLUXIO CS REPLACE
@@ -399,6 +525,8 @@ public class BaseFileSystem implements FileSystem {
   public List<URIStatus> listStatus(AlluxioURI path, ListStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
+    options = FileSystemOptions.listStatusDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     // TODO(calvin): Fix the exception handling in the master
     try {
@@ -522,6 +650,8 @@ public class BaseFileSystem implements FileSystem {
   public void loadMetadata(AlluxioURI path, LoadMetadataPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
 //    checkUri(path);
+//    options = FileSystemOptions.loadMetadataDefaults(mFsContext.getConf())
+//         .toBuilder().mergeFrom(options).build();
 //    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
 //    try {
 //      masterClient.loadMetadata(path, options);
@@ -547,6 +677,8 @@ public class BaseFileSystem implements FileSystem {
   public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath, MountPOptions options)
       throws IOException, AlluxioException {
     checkUri(alluxioPath);
+    options = FileSystemOptions.mountDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       // TODO(calvin): Make this fail on the master side
@@ -590,6 +722,31 @@ public class BaseFileSystem implements FileSystem {
   }
 
   @Override
+  public void persist(final AlluxioURI path)
+    throws FileDoesNotExistException, IOException, AlluxioException {
+    persist(path, ScheduleAsyncPersistencePOptions.getDefaultInstance());
+  }
+
+  @Override
+  public void persist(final AlluxioURI path, ScheduleAsyncPersistencePOptions options)
+    throws FileDoesNotExistException, IOException, AlluxioException {
+    checkUri(path);
+    options = FileSystemOptions.scheduleAsyncPersistDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
+    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
+    try {
+      masterClient.scheduleAsyncPersist(path, options);
+      LOG.debug("Scheduled persist for {}, options: {}", path.getPath(), options);
+    } catch (NotFoundException e) {
+      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
+    } catch (AlluxioStatusException e) {
+      throw e.toAlluxioException();
+    } finally {
+      mFsContext.releaseMasterClient(masterClient);
+    }
+  }
+
+  @Override
   public FileInStream openFile(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
     return openFile(path, OpenFilePOptions.getDefaultInstance());
@@ -599,6 +756,7 @@ public class BaseFileSystem implements FileSystem {
   public FileInStream openFile(AlluxioURI path, OpenFilePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // URIStatus status = getStatus(path);
     // ALLUXIO CS WITH
@@ -616,6 +774,13 @@ public class BaseFileSystem implements FileSystem {
       mFsContext.releaseMasterClient(masterClient);
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+    URIStatus status = getStatus(path);
+=======
+    options = FileSystemOptions.openFileDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
+    URIStatus status = getStatus(path);
+>>>>>>> upstream-os/master
     if (status.isFolder()) {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
@@ -664,6 +829,8 @@ public class BaseFileSystem implements FileSystem {
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(src);
     checkUri(dst);
+    options = FileSystemOptions.renameDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       // TODO(calvin): Update this code on the master side.
@@ -690,6 +857,8 @@ public class BaseFileSystem implements FileSystem {
   public void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries,
       SetAclPOptions options) throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
+    options = FileSystemOptions.setAclDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.setAcl(path, action, entries, options);
@@ -784,6 +953,8 @@ public class BaseFileSystem implements FileSystem {
   public void unmount(AlluxioURI path, UnmountPOptions options)
       throws IOException, AlluxioException {
     checkUri(path);
+    options = FileSystemOptions.unmountDefaults(mFsContext.getConf())
+        .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
       masterClient.unmount(path);
@@ -802,6 +973,7 @@ public class BaseFileSystem implements FileSystem {
    * exception if necessary.
    */
   private void checkUri(AlluxioURI uri) {
+    Preconditions.checkNotNull(uri, "uri");
     if (uri.hasScheme()) {
       String warnMsg = "The URI scheme \"{}\" is ignored and not required in URIs passed to"
           + " the Alluxio Filesystem client.";

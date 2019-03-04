@@ -26,6 +26,7 @@ import alluxio.grpc.GetStatusPOptions;
 import alluxio.grpc.ListStatusPOptions;
 import alluxio.grpc.MountPOptions;
 import alluxio.grpc.RenamePOptions;
+import alluxio.grpc.ScheduleAsyncPersistencePOptions;
 import alluxio.grpc.SetAclAction;
 import alluxio.grpc.SetAclPOptions;
 import alluxio.grpc.SetAttributePOptions;
@@ -88,8 +89,9 @@ public interface FileSystemMasterClient extends Client {
    * @param path the file path
    * @param options method options
    * @throws AlreadyExistsException if the file already exists
+   * @return the uri status of the newly created file
    */
-  void createFile(AlluxioURI path, CreateFilePOptions options) throws AlluxioStatusException;
+  URIStatus createFile(AlluxioURI path, CreateFilePOptions options) throws AlluxioStatusException;
 
   /**
    * Marks a file as completed.
@@ -115,6 +117,12 @@ public interface FileSystemMasterClient extends Client {
    * @throws NotFoundException if the path does not exist
    */
   void free(AlluxioURI path, FreePOptions options) throws AlluxioStatusException;
+
+  /**
+   * @param fileId a file id
+   * @return the file path for the given file id
+   */
+  String getFilePath(long fileId) throws AlluxioStatusException;
 
   /**
    * @param path the file path
@@ -253,8 +261,10 @@ public interface FileSystemMasterClient extends Client {
    * Schedules the async persistence of the given file.
    *
    * @param path the file path
+   * @param options options to use when scheduling the persist
    */
-  void scheduleAsyncPersist(AlluxioURI path) throws AlluxioStatusException;
+  void scheduleAsyncPersist(AlluxioURI path, ScheduleAsyncPersistencePOptions options)
+      throws AlluxioStatusException;
 
   /**
    * Unmounts the given Alluxio path.

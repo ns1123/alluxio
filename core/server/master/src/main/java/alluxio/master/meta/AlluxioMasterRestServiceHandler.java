@@ -34,7 +34,7 @@ import alluxio.grpc.ListStatusPOptions;
 import alluxio.grpc.LoadMetadataPType;
 import alluxio.grpc.OpenFilePOptions;
 import alluxio.grpc.ReadPType;
-import alluxio.master.MasterProcess;
+import alluxio.master.AlluxioMasterProcess;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.DefaultBlockMaster;
 import alluxio.master.file.FileSystemMaster;
@@ -53,6 +53,7 @@ import alluxio.util.FormatUtils;
 import alluxio.util.LogUtils;
 import alluxio.util.SecurityUtils;
 import alluxio.util.io.PathUtils;
+import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.webui.NodeInfo;
 import alluxio.util.webui.StorageTierInfo;
 import alluxio.util.webui.UIFileBlockInfo;
@@ -97,6 +98,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -167,7 +169,7 @@ public final class AlluxioMasterRestServiceHandler {
   public static final String GET_WORKER_COUNT = "worker_count";
   public static final String GET_WORKER_INFO_LIST = "worker_info_list";
 
-  private final MasterProcess mMasterProcess;
+  private final AlluxioMasterProcess mMasterProcess;
   private final BlockMaster mBlockMaster;
   private final FileSystemMaster mFileSystemMaster;
   private final MetaMaster mMetaMaster;
@@ -180,12 +182,13 @@ public final class AlluxioMasterRestServiceHandler {
    */
   public AlluxioMasterRestServiceHandler(@Context ServletContext context) {
     // Poor man's dependency injection through the Jersey application scope.
-    mMasterProcess =
-        (MasterProcess) context.getAttribute(MasterWebServer.ALLUXIO_MASTER_SERVLET_RESOURCE_KEY);
+    mMasterProcess = (AlluxioMasterProcess) context
+        .getAttribute(MasterWebServer.ALLUXIO_MASTER_SERVLET_RESOURCE_KEY);
     mBlockMaster = mMasterProcess.getMaster(BlockMaster.class);
     mFileSystemMaster = mMasterProcess.getMaster(FileSystemMaster.class);
     mMetaMaster = mMasterProcess.getMaster(MetaMaster.class);
-    mFsClient = FileSystem.Factory.get(ServerConfiguration.global());
+    mFsClient =
+        (FileSystem) context.getAttribute(MasterWebServer.ALLUXIO_FILESYSTEM_CLIENT_RESOURCE_KEY);
   }
 
   /**
@@ -233,12 +236,21 @@ public final class AlluxioMasterRestServiceHandler {
     return RestUtils.call(() -> {
       MasterWebUIInit response = new MasterWebUIInit();
 
+      String proxyHostname = NetworkAddressUtils
+          .getConnectHost(NetworkAddressUtils.ServiceType.PROXY_WEB, ServerConfiguration.global());
+      int proxyPort = ServerConfiguration.getInt(PropertyKey.PROXY_WEB_PORT);
+      Map<String, String> proxyDowloadFileApiUrl = new HashMap<>();
+      proxyDowloadFileApiUrl
+          .put("prefix", "http://" + proxyHostname + ":" + proxyPort + "/api/v1/paths/");
+      proxyDowloadFileApiUrl.put("suffix", "/download-file/");
+
       response.setDebug(ServerConfiguration.getBoolean(PropertyKey.DEBUG))
           .setWebFileInfoEnabled(ServerConfiguration.getBoolean(PropertyKey.WEB_FILE_INFO_ENABLED))
           .setSecurityAuthorizationPermissionEnabled(
               ServerConfiguration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED))
           .setWorkerPort(ServerConfiguration.getInt(PropertyKey.WORKER_WEB_PORT))
-          .setRefreshInterval(ServerConfiguration.getInt(PropertyKey.WEBUI_REFRESH_INTERVAL_MS));
+          .setRefreshInterval(ServerConfiguration.getInt(PropertyKey.WEBUI_REFRESH_INTERVAL_MS))
+          .setProxyDownloadFileApiUrl(proxyDowloadFileApiUrl);
 
       return response;
     }, ServerConfiguration.global());
@@ -364,6 +376,7 @@ public final class AlluxioMasterRestServiceHandler {
       if (!ServerConfiguration.getBoolean(PropertyKey.WEB_FILE_INFO_ENABLED)) {
         return response;
       }
+
       if (SecurityUtils.isSecurityEnabled(ServerConfiguration.global())
           && AuthenticatedClientUser.get(ServerConfiguration.global()) == null) {
         AuthenticatedClientUser.set(LoginUser.get(ServerConfiguration.global()).getName());
@@ -382,7 +395,8 @@ public final class AlluxioMasterRestServiceHandler {
       try {
         long fileId = mFileSystemMaster.getFileId(currentPath);
         FileInfo fileInfo = mFileSystemMaster.getFileInfo(fileId);
-        UIFileInfo currentFileInfo = new UIFileInfo(fileInfo);
+        UIFileInfo currentFileInfo = new UIFileInfo(fileInfo, ServerConfiguration.global(),
+            new MasterStorageTierAssoc().getOrderedStorageAliases());
         if (currentFileInfo.getAbsolutePath() == null) {
           throw new FileDoesNotExistException(currentPath.toString());
         }
@@ -445,7 +459,7 @@ public final class AlluxioMasterRestServiceHandler {
             List<UIFileBlockInfo> uiBlockInfo = new ArrayList<>();
             for (FileBlockInfo fileBlockInfo : mFileSystemMaster
                 .getFileBlockInfoList(absolutePath)) {
-              uiBlockInfo.add(new UIFileBlockInfo(fileBlockInfo));
+              uiBlockInfo.add(new UIFileBlockInfo(fileBlockInfo, ServerConfiguration.global()));
             }
             response.setFileBlocks(uiBlockInfo).setFileData(fileData)
                 .setHighestTierAlias(mBlockMaster.getGlobalStorageTierAssoc().getAlias(0));
@@ -462,17 +476,21 @@ public final class AlluxioMasterRestServiceHandler {
           String[] splitPath = PathUtils.getPathComponents(currentPath.toString());
           UIFileInfo[] pathInfos = new UIFileInfo[splitPath.length - 1];
           fileId = mFileSystemMaster.getFileId(currentPath);
-          pathInfos[0] = new UIFileInfo(mFileSystemMaster.getFileInfo(fileId));
+          pathInfos[0] =
+              new UIFileInfo(mFileSystemMaster.getFileInfo(fileId), ServerConfiguration.global(),
+                  new MasterStorageTierAssoc().getOrderedStorageAliases());
           AlluxioURI breadcrumb = new AlluxioURI(AlluxioURI.SEPARATOR);
           for (int i = 1; i < splitPath.length - 1; i++) {
             breadcrumb = breadcrumb.join(splitPath[i]);
             fileId = mFileSystemMaster.getFileId(breadcrumb);
-            pathInfos[i] = new UIFileInfo(mFileSystemMaster.getFileInfo(fileId));
+            pathInfos[i] =
+                new UIFileInfo(mFileSystemMaster.getFileInfo(fileId), ServerConfiguration.global(),
+                    new MasterStorageTierAssoc().getOrderedStorageAliases());
           }
           response.setPathInfos(pathInfos);
         }
 
-        filesInfo = mFileSystemMaster.listStatus(currentPath, ListStatusContext.defaults(
+        filesInfo = mFileSystemMaster.listStatus(currentPath, ListStatusContext.mergeFrom(
             ListStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.ALWAYS)));
       } catch (FileDoesNotExistException e) {
         response.setInvalidPathError("Error: Invalid Path " + e.getMessage());
@@ -495,7 +513,8 @@ public final class AlluxioMasterRestServiceHandler {
 
       List<UIFileInfo> fileInfos = new ArrayList<>(filesInfo.size());
       for (FileInfo fileInfo : filesInfo) {
-        UIFileInfo toAdd = new UIFileInfo(fileInfo);
+        UIFileInfo toAdd = new UIFileInfo(fileInfo, ServerConfiguration.global(),
+            new MasterStorageTierAssoc().getOrderedStorageAliases());
         try {
           if (!toAdd.getIsDirectory() && fileInfo.getLength() > 0) {
             FileBlockInfo blockInfo =
@@ -531,7 +550,8 @@ public final class AlluxioMasterRestServiceHandler {
       try {
         int offset = Integer.parseInt(requestOffset);
         int limit = Integer.parseInt(requestLimit);
-        limit = limit > fileInfos.size() ? fileInfos.size() : limit;
+        limit = offset == 0 && limit > fileInfos.size() ? fileInfos.size() : limit;
+        limit = offset * limit > fileInfos.size() ? fileInfos.size() % offset : limit;
         int sum = Math.addExact(offset, limit);
         fileInfos = fileInfos.subList(offset, sum);
         response.setFileInfos(fileInfos);
@@ -587,7 +607,8 @@ public final class AlluxioMasterRestServiceHandler {
           long fileId = mFileSystemMaster.getFileId(file);
           FileInfo fileInfo = mFileSystemMaster.getFileInfo(fileId);
           if (fileInfo != null && fileInfo.getInAlluxioPercentage() == 100) {
-            fileInfos.add(new UIFileInfo(fileInfo));
+            fileInfos.add(new UIFileInfo(fileInfo, ServerConfiguration.global(),
+                new MasterStorageTierAssoc().getOrderedStorageAliases()));
           }
         } catch (FileDoesNotExistException e) {
           response.setFatalError("Error: File does not exist " + e.getLocalizedMessage());
@@ -603,7 +624,8 @@ public final class AlluxioMasterRestServiceHandler {
       try {
         int offset = Integer.parseInt(requestOffset);
         int limit = Integer.parseInt(requestLimit);
-        limit = limit > fileInfos.size() ? fileInfos.size() : limit;
+        limit = offset == 0 && limit > fileInfos.size() ? fileInfos.size() : limit;
+        limit = offset * limit > fileInfos.size() ? fileInfos.size() % offset : limit;
         int sum = Math.addExact(offset, limit);
         fileInfos = fileInfos.subList(offset, sum);
         response.setFileInfos(fileInfos);
@@ -667,7 +689,8 @@ public final class AlluxioMasterRestServiceHandler {
             fileInfos.add(new UIFileInfo(
                 new UIFileInfo.LocalFileInfo(logFileName, logFileName, logFile.length(),
                     UIFileInfo.LocalFileInfo.EMPTY_CREATION_TIME, logFile.lastModified(),
-                    logFile.isDirectory())));
+                    logFile.isDirectory()), ServerConfiguration.global(),
+                new MasterStorageTierAssoc().getOrderedStorageAliases()));
           }
         }
         Collections.sort(fileInfos, UIFileInfo.PATH_STRING_COMPARE);
@@ -676,7 +699,8 @@ public final class AlluxioMasterRestServiceHandler {
         try {
           int offset = Integer.parseInt(requestOffset);
           int limit = Integer.parseInt(requestLimit);
-          limit = limit > fileInfos.size() ? fileInfos.size() : limit;
+          limit = offset == 0 && limit > fileInfos.size() ? fileInfos.size() : limit;
+          limit = offset * limit > fileInfos.size() ? fileInfos.size() % offset : limit;
           int sum = Math.addExact(offset, limit);
           fileInfos = fileInfos.subList(offset, sum);
           response.setFileInfos(fileInfos);
@@ -985,6 +1009,8 @@ public final class AlluxioMasterRestServiceHandler {
 
       response.setOperationMetrics(operations).setRpcInvocationMetrics(rpcInvocationsUpdated);
 
+      response.setTimeSeriesMetrics(mFileSystemMaster.getTimeSeries());
+
       return response;
     }, ServerConfiguration.global());
   }
@@ -1028,8 +1054,8 @@ public final class AlluxioMasterRestServiceHandler {
   @ReturnType("java.lang.String")
   @Deprecated
   public Response getRpcAddress() {
-    return RestUtils.call(() -> mMasterProcess.getRpcAddress().toString(),
-        ServerConfiguration.global());
+    return RestUtils
+        .call(() -> mMasterProcess.getRpcAddress().toString(), ServerConfiguration.global());
   }
 
   /**
@@ -1233,7 +1259,7 @@ public final class AlluxioMasterRestServiceHandler {
   @ReturnType("java.lang.Integer")
   @Deprecated
   public Response getWorkerCount() {
-    return RestUtils.call(()->mBlockMaster.getWorkerCount(), ServerConfiguration.global());
+    return RestUtils.call(() -> mBlockMaster.getWorkerCount(), ServerConfiguration.global());
   }
 
   /**
@@ -1247,7 +1273,7 @@ public final class AlluxioMasterRestServiceHandler {
   @ReturnType("java.util.List<alluxio.wire.WorkerInfo>")
   @Deprecated
   public Response getWorkerInfoList() {
-    return RestUtils.call(()-> mBlockMaster.getWorkerInfoList(), ServerConfiguration.global());
+    return RestUtils.call(() -> mBlockMaster.getWorkerInfoList(), ServerConfiguration.global());
   }
 
   private Capacity getCapacityInternal() {

@@ -13,7 +13,6 @@ package alluxio.master;
 
 import alluxio.AlluxioTestDirectory;
 import alluxio.conf.ServerConfiguration;
-import alluxio.ConfigurationTestUtils;
 import alluxio.conf.PropertyKey;
 import alluxio.cli.Format;
 import alluxio.client.file.FileSystem;
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Random;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -256,6 +254,7 @@ public abstract class AbstractLocalAlluxioCluster {
   /**
    * Creates a default {@link ServerConfiguration} for testing.
    */
+<<<<<<< HEAD
   public void initConfiguration() throws IOException {
     setAlluxioWorkDirectory();
     setHostname();
@@ -276,6 +275,27 @@ public abstract class AbstractLocalAlluxioCluster {
     ServerConfiguration.set(PropertyKey.WORKER_SECURE_RPC_PORT, 0);
     // ALLUXIO CS END
   }
+||||||| merged common ancestors
+  public void initConfiguration() throws IOException {
+    setAlluxioWorkDirectory();
+    setHostname();
+
+    for (Entry<PropertyKey, String> entry : ConfigurationTestUtils
+        .testConfigurationDefaults(ServerConfiguration.global(), mHostname, mWorkDirectory)
+        .entrySet()) {
+      ServerConfiguration.set(entry.getKey(), entry.getValue());
+    }
+
+    ServerConfiguration.set(PropertyKey.MASTER_RPC_PORT, 0);
+    ServerConfiguration.set(PropertyKey.TEST_MODE, true);
+    ServerConfiguration.set(PropertyKey.MASTER_WEB_PORT, 0);
+    ServerConfiguration.set(PropertyKey.PROXY_WEB_PORT, 0);
+    ServerConfiguration.set(PropertyKey.WORKER_RPC_PORT, 0);
+    ServerConfiguration.set(PropertyKey.WORKER_WEB_PORT, 0);
+  }
+=======
+  public abstract void initConfiguration() throws IOException;
+>>>>>>> upstream-os/master
 
   /**
    * Returns a {@link FileSystem} client.

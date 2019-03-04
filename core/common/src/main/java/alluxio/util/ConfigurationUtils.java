@@ -28,13 +28,13 @@ import alluxio.grpc.ConfigProperty;
 import alluxio.grpc.GetConfigurationPOptions;
 import alluxio.grpc.GrpcChannel;
 import alluxio.grpc.GrpcChannelBuilder;
-import alluxio.grpc.GrpcExceptionUtils;
+import alluxio.grpc.GrpcUtils;
 import alluxio.grpc.MetaMasterConfigurationServiceGrpc;
 import alluxio.grpc.Scope;
-import alluxio.grpc.GrpcUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -224,6 +224,23 @@ public final class ConfigurationUtils {
   }
 
   /**
+   * Checks that the given property key is a ratio from 0.0 and 1.0, throwing an exception if it is
+   * not.
+   *
+   * @param conf the configuration for looking up the property key
+   * @param key the property key
+   * @return the property value
+   */
+  public static float checkRatio(AlluxioConfiguration conf, PropertyKey key) {
+    float value = conf.getFloat(key);
+    Preconditions.checkState(value <= 1.0, "Property %s must not exceed 1, but it is set to %s",
+        key.getName(), value);
+    Preconditions.checkState(value >= 0.0, "Property %s must be non-negative, but it is set to %s",
+        key.getName(), value);
+    return value;
+  }
+
+  /**
    * @param conf the configuration to use
    * @return whether the configuration describes how to find the master host, either through
    *         explicit configuration or through zookeeper
@@ -233,6 +250,14 @@ public final class ConfigurationUtils {
         && conf.isSet(PropertyKey.ZOOKEEPER_ADDRESS);
     return conf.isSet(PropertyKey.MASTER_HOSTNAME) || usingZk
         || getMasterRpcAddresses(conf).size() > 1;
+  }
+
+  /**
+   * @param conf the configuration use
+   * @return whether the configuration specifies to run in ha mode
+   */
+  public static boolean isHaMode(AlluxioConfiguration conf) {
+    return conf.getBoolean(PropertyKey.ZOOKEEPER_ENABLED) || getMasterRpcAddresses(conf).size() > 1;
   }
 
   /**
@@ -382,7 +407,7 @@ public final class ConfigurationUtils {
           client.getConfiguration(GetConfigurationPOptions.newBuilder().setRawValue(true).build())
               .getConfigsList();
     } catch (io.grpc.StatusRuntimeException e) {
-      AlluxioStatusException ase = GrpcExceptionUtils.fromGrpcStatusException(e);
+      AlluxioStatusException ase = AlluxioStatusException.fromStatusRuntimeException(e);
       LOG.warn("Failed to handshake with master {} : {}", address, ase.getMessage());
       throw new UnavailableException(String.format(
           "Failed to handshake with master %s to load cluster default configuration values",

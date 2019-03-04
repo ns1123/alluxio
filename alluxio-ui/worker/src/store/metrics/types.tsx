@@ -18,9 +18,14 @@ export interface IMetrics {
   workerCapacityUsedPercentage: number;
   operationMetrics: {
     [key: string]: ICounter;
-  },
+  };
   rpcInvocationMetrics: {
-    [key:string]: ICounter;
+    [key: string]: ICounter;
+  },
+  timeSeriesMetrics: {
+    [key: string]: {
+      [key: string]: number;
+    }
   }
 }
 

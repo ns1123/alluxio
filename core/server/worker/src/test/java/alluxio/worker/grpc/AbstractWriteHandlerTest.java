@@ -13,6 +13,8 @@ package alluxio.worker.grpc;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import alluxio.Constants;
@@ -21,7 +23,7 @@ import alluxio.grpc.RequestType;
 import alluxio.grpc.WriteRequestCommand;
 import alluxio.grpc.WriteResponse;
 import alluxio.network.protocol.databuffer.DataBuffer;
-import alluxio.network.protocol.databuffer.DataByteArrayChannel;
+import alluxio.network.protocol.databuffer.ByteArrayDataBuffer;
 import alluxio.util.io.BufferUtils;
 
 import com.google.protobuf.ByteString;
@@ -97,6 +99,26 @@ public abstract class AbstractWriteHandlerTest {
     // Our current implementation does not really abort the file when the write is cancelled.
     // The client issues another request to block worker to abort it.
     checkWriteData(checksum, len);
+  }
+
+  @Test
+  public void cancelIgnoreError() throws Exception {
+    long len = 0;
+    long checksum = 0;
+    mWriteHandler.write(newWriteRequestCommand(0));
+    for (int i = 0; i < 1; i++) {
+      DataBuffer dataBuffer = newDataBuffer(CHUNK_SIZE);
+      checksum += getChecksum(dataBuffer);
+      mWriteHandler.write(newWriteRequest(dataBuffer));
+      len += CHUNK_SIZE;
+    }
+    // Cancel.
+    mWriteHandler.onCancel();
+    mWriteHandler.onError(Status.CANCELLED.asRuntimeException());
+
+    checkComplete(mResponseObserver);
+    checkWriteData(checksum, len);
+    verify(mResponseObserver, never()).onError(any(Throwable.class));
   }
 
   @Test
@@ -220,7 +242,7 @@ public abstract class AbstractWriteHandlerTest {
       byte value = (byte) (RANDOM.nextInt() % Byte.MAX_VALUE);
       buf[i] = value;
     }
-    return new DataByteArrayChannel(buf, 0, len);
+    return new ByteArrayDataBuffer(buf, 0, len);
   }
 
   /**

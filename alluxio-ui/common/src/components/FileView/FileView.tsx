@@ -11,17 +11,20 @@
 
 import {faCheckSquare, faSquare} from '@fortawesome/free-regular-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {History, LocationState} from 'history';
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {Button, ButtonGroup, Form, FormGroup, Input, Label} from 'reactstrap';
 
 import {IFileInfo} from '../../constants';
+import {disableFormSubmit} from '../../utilities';
 
 export interface IFileViewProps {
   allowDownload?: boolean;
   beginInputHandler: (event: React.MouseEvent<HTMLButtonElement>) => void;
   end?: string
   endInputHandler: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  history: History<LocationState>;
   lastFetched: {
     end?: string;
     limit?: string;
@@ -45,28 +48,18 @@ export interface IFileViewProps {
     'invalidPathError': string;
     'ntotalFile': number;
     'viewingOffset': number;
+  },
+  proxyDownloadApiUrl?: {
+    'prefix': string,
+    'suffix': string
   }
 }
 
 export class FileView extends React.PureComponent<IFileViewProps> {
-  constructor(props: IFileViewProps) {
-    super(props);
-  }
-
   public render(): JSX.Element {
     const {
-      allowDownload,
-      beginInputHandler,
-      end,
-      endInputHandler,
-      lastFetched,
-      offset,
-      offsetInputHandler,
-      path,
-      queryStringPrefix,
-      queryStringSuffix,
-      textAreaHeight,
-      viewData
+      beginInputHandler, end, endInputHandler, lastFetched, offset, offsetInputHandler, path, queryStringPrefix,
+      queryStringSuffix, textAreaHeight, viewData, history
     } = this.props;
 
     return (
@@ -75,19 +68,20 @@ export class FileView extends React.PureComponent<IFileViewProps> {
           {viewData.currentDirectory ? viewData.currentDirectory.absolutePath : viewData.currentPath}: <small>First 5KB
           from {viewData.viewingOffset} in ASCII</small>
         </h5>
-        <Form className="mb-3 viewData-file-form" id="viewDataFileForm" inline={true}>
+        <Form className="mb-3 viewData-file-form" id="viewDataFileForm" inline={true} onSubmit={disableFormSubmit}>
           <FormGroup className="mb-2 mr-sm-2 w-100">
             <Input className="w-100" type="textarea" value={viewData.fileData} style={{height: textAreaHeight}}
                    readOnly={true}/>
           </FormGroup>
         </Form>
         <hr/>
-        <Form className="mb-3 viewData-file-settings-form" id="viewDataFileSettingsForm" inline={true}>
+        <Form className="mb-3 viewData-file-settings-form" id="viewDataFileSettingsForm" inline={true}
+              onSubmit={disableFormSubmit}>
           <FormGroup className="col-5">
             <Label for="viewDataFileOffset" className="mr-sm-2">Display from byte offset</Label>
-            <Input className="col-3" type="text" id="viewDataFileOffset" placeholder="Enter an offset"
-                   value={offset || '0'}
-                   onChange={offsetInputHandler}/>
+            <Input className="col-3" type="number" id="viewDataFileOffset" placeholder="Enter an offset"
+                   value={offset} onChange={offsetInputHandler}
+                   onKeyUp={this.createInputEnterHandler(history, () => `${queryStringPrefix}?path=${path}${queryStringSuffix}`)}/>
           </FormGroup>
           <FormGroup className="col-5">
             <Label for="viewDataFileEnd" className="mr-sm-2">Relative to</Label>
@@ -101,16 +95,42 @@ export class FileView extends React.PureComponent<IFileViewProps> {
             </ButtonGroup>
           </FormGroup>
           <FormGroup className="col-2">
-            <Button tag={Link} to={`${queryStringPrefix}?path=${path}${queryStringSuffix}`} color="primary"
-                    disabled={offset === lastFetched.offset && end === lastFetched.end}>Go</Button>
+            <Button tag={Link} to={`${queryStringPrefix}?path=${path}${queryStringSuffix}`} color="secondary"
+                    disabled={offset !== '' && offset === lastFetched.offset && end === lastFetched.end}>Go</Button>
           </FormGroup>
-          {allowDownload && <FormGroup className="col-4">
-            <a href={`${process.env.REACT_APP_API_DOWNLOAD}?path=${encodeURIComponent(path || '')}`}>
-              Download
-            </a>
-          </FormGroup>}
+          {this.renderDownloadLink()}
         </Form>
       </React.Fragment>
     );
+  }
+
+  private createInputEnterHandler(history: History<LocationState>, stateValueCallback: (value: string) => string | undefined) {
+    return (event: React.KeyboardEvent<HTMLInputElement>) => {
+      const value = event.key;
+      if (event.key === 'Enter') {
+        const newPath = stateValueCallback(value);
+        if (newPath) {
+          if (history) {
+            history.push(newPath);
+          }
+        }
+      }
+    };
+  }
+
+  private renderDownloadLink() {
+    const {allowDownload, path, proxyDownloadApiUrl} = this.props;
+
+    if (allowDownload && proxyDownloadApiUrl && path) {
+      return (
+        <FormGroup className="col-4 mt-2">
+          <a href={`${proxyDownloadApiUrl.prefix}${encodeURIComponent(path)}${proxyDownloadApiUrl.suffix}`}>
+            Download via Alluxio Proxy
+          </a>
+        </FormGroup>
+      );
+    }
+
+    return null;
   }
 }

@@ -12,11 +12,11 @@
 package alluxio.master;
 
 import alluxio.AlluxioTestDirectory;
-import alluxio.conf.ServerConfiguration;
 import alluxio.Constants;
-import alluxio.conf.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.journal.JournalType;
 import alluxio.util.io.FileUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -51,13 +51,13 @@ public final class LocalAlluxioMaster {
 
   private final ClientPool mClientPool = new ClientPool(mClientSupplier);
 
-  private MasterProcess mMasterProcess;
+  private AlluxioMasterProcess mMasterProcess;
   private Thread mMasterThread;
 
   private AlluxioSecondaryMaster mSecondaryMaster;
   private Thread mSecondaryMasterThread;
 
-  private LocalAlluxioMaster() throws IOException {
+  private LocalAlluxioMaster() {
     mHostname = NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC,
         ServerConfiguration.global());
     mJournalFolder = ServerConfiguration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
@@ -92,7 +92,7 @@ public final class LocalAlluxioMaster {
    * Starts the master.
    */
   public void start() {
-    mMasterProcess = MasterProcess.Factory.create();
+    mMasterProcess = AlluxioMasterProcess.Factory.create();
     Runnable runMaster = new Runnable() {
       @Override
       public void run() {
@@ -155,7 +155,6 @@ public final class LocalAlluxioMaster {
       mSecondaryMaster.stop();
       while (mSecondaryMasterThread.isAlive()) {
         LOG.info("Stopping thread {}.", mSecondaryMasterThread.getName());
-        mSecondaryMasterThread.interrupt();
         mSecondaryMasterThread.join(1000);
       }
       mSecondaryMasterThread = null;
@@ -191,7 +190,7 @@ public final class LocalAlluxioMaster {
   /**
    * @return the internal {@link MasterProcess}
    */
-  public MasterProcess getMasterProcess() {
+  public AlluxioMasterProcess getMasterProcess() {
     return mMasterProcess;
   }
 

@@ -26,6 +26,7 @@ import alluxio.grpc.WriteResponse;
 
 import io.grpc.stub.StreamObserver;
 import io.grpc.StatusRuntimeException;
+import io.netty.channel.EventLoopGroup;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -51,9 +52,9 @@ public interface BlockWorkerClient extends Closeable {
      * @return a new {@link BlockWorkerClient}
      */
     public static BlockWorkerClient create(@Nullable Subject subject, SocketAddress address,
-        AlluxioConfiguration alluxioConf)
+        AlluxioConfiguration alluxioConf, EventLoopGroup workerGroup)
         throws IOException {
-      return new DefaultBlockWorkerClient(subject, address, alluxioConf);
+      return new DefaultBlockWorkerClient(subject, address, alluxioConf, workerGroup);
     }
   }
 
@@ -61,6 +62,11 @@ public interface BlockWorkerClient extends Closeable {
    * @return whether the client is shutdown
    */
   boolean isShutdown();
+
+  /**
+   * @return whether the client is healthy
+   */
+  boolean isHealthy();
 
   /**
    * Writes a block to the worker asynchronously. The caller should pass in a response observer

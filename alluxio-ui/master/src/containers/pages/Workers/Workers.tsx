@@ -15,6 +15,7 @@ import {connect} from 'react-redux';
 import {Alert, Progress, Table} from 'reactstrap';
 import {Dispatch} from 'redux';
 
+import {LoadingMessage} from '@alluxio/common-ui/src/components';
 import {INodeInfo} from '../../../constants';
 import {IApplicationState} from '../../../store';
 import {fetchRequest} from '../../../store/workers/actions';
@@ -49,13 +50,21 @@ export class Workers extends React.Component<AllProps> {
   }
 
   public render() {
-    const {initData, initErrors, workersErrors, workersData} = this.props;
+    const {initData, initErrors, initLoading, workersErrors, workersLoading, workersData} = this.props;
 
     if (initErrors || workersErrors) {
       return (
         <Alert color="danger">
           Unable to reach the api endpoint for this page.
         </Alert>
+      );
+    }
+
+    if (initLoading || workersLoading) {
+      return (
+        <div className="h-100 w-100 workers-page">
+          <LoadingMessage/>
+        </div>
       );
     }
 
@@ -97,10 +106,10 @@ export class Workers extends React.Component<AllProps> {
                     <td>{nodeInfo.capacity}</td>
                     <td>{nodeInfo.usedMemory}</td>
                     <td>
-                      <Progress multi={true}>
-                        <Progress bar={true} color="success"
+                      <Progress className="h-50 mt-1" multi={true}>
+                        <Progress bar={true} color="dark"
                                   value={`${nodeInfo.freeSpacePercent}`}>{nodeInfo.freeSpacePercent}% Free</Progress>
-                        <Progress bar={true} color="danger"
+                        <Progress bar={true} color="secondary"
                                   value={`${nodeInfo.usedSpacePercent}`}>{nodeInfo.usedSpacePercent}% Used</Progress>
                       </Progress>
                     </td>
@@ -112,7 +121,7 @@ export class Workers extends React.Component<AllProps> {
           </div>
           <div className="row">
             <div className="col-12">
-              <h5>Alluxio Configuration</h5>
+              <h5>Lost Workers</h5>
               <Table hover={true}>
                 <thead>
                 <tr>

@@ -13,8 +13,7 @@ package alluxio.grpc;
 
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
-import alluxio.exception.status.UnauthenticatedException;
-import alluxio.exception.status.UnavailableException;
+import alluxio.exception.status.AlluxioStatusException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.ChannelAuthenticator;
 import io.grpc.Channel;
@@ -23,6 +22,7 @@ import io.netty.channel.EventLoopGroup;
 
 import javax.security.auth.Subject;
 import java.net.SocketAddress;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,11 +49,14 @@ public final class GrpcChannelBuilder {
   protected AlluxioConfiguration mConfiguration;
 
   private GrpcChannelBuilder(SocketAddress address, AlluxioConfiguration conf) {
-    mChannelKey = GrpcManagedChannelPool.ChannelKey.create();
+    mConfiguration = conf;
+    mChannelKey = GrpcManagedChannelPool.ChannelKey.create(conf);
+    // Set default overrides for the channel.
     mChannelKey.setAddress(address).usePlaintext();
+    mChannelKey.setMaxInboundMessageSize(
+        (int) mConfiguration.getBytes(PropertyKey.USER_NETWORK_MAX_INBOUND_MESSAGE_SIZE));
     mUseSubject = true;
     mAuthenticateChannel = true;
-    mConfiguration = conf;
   }
 
   /**
@@ -190,9 +193,11 @@ public final class GrpcChannelBuilder {
    *
    * @return the built {@link GrpcChannel}
    */
-  public GrpcChannel build() throws UnauthenticatedException, UnavailableException {
+  public GrpcChannel build() throws AlluxioStatusException {
     ManagedChannel underlyingChannel =
-        GrpcManagedChannelPool.INSTANCE().acquireManagedChannel(mChannelKey);
+        GrpcManagedChannelPool.INSTANCE().acquireManagedChannel(mChannelKey,
+            mConfiguration.getMs(PropertyKey.NETWORK_CONNECTION_HEALTH_CHECK_TIMEOUT_MS),
+            mConfiguration.getMs(PropertyKey.MASTER_GRPC_CHANNEL_SHUTDOWN_TIMEOUT));
     try {
       Channel clientChannel = underlyingChannel;
 
@@ -204,16 +209,19 @@ public final class GrpcChannelBuilder {
         } else {
           channelAuthenticator =
               new ChannelAuthenticator(mUserName, mPassword, mImpersonationUser,
-                  mConfiguration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class));
+                  mConfiguration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class),
+                  mConfiguration.getMs(PropertyKey.MASTER_GRPC_CHANNEL_AUTH_TIMEOUT));
         }
         // Get an authenticated wrapper channel over given managed channel.
         clientChannel = channelAuthenticator.authenticate(underlyingChannel, mConfiguration);
       }
       // Create the channel after authentication with the target.
-      return new GrpcChannel(mChannelKey, clientChannel);
+      return new GrpcChannel(mChannelKey, clientChannel,
+          mConfiguration.getMs(PropertyKey.MASTER_GRPC_CHANNEL_SHUTDOWN_TIMEOUT));
     } catch (Exception exc) {
       // Release the managed channel to the pool before throwing.
-      GrpcManagedChannelPool.INSTANCE().releaseManagedChannel(mChannelKey);
+      GrpcManagedChannelPool.INSTANCE().releaseManagedChannel(mChannelKey,
+          mConfiguration.getMs(PropertyKey.MASTER_GRPC_CHANNEL_SHUTDOWN_TIMEOUT));
       throw exc;
     }
   }

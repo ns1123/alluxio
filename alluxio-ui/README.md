@@ -17,8 +17,7 @@ We use [NVM](https://github.com/creationix/nvm) to have multiple versions on nod
 1. Install NVM: `brew install nvm`
 1. From the `alluxio-ui` directory:
     1. Install Node using NVM. `nvm install`
-    1. Install Lerna globally: `npm install -g lerna`
-    1. Install UI module dependencies: `lerna bootstrap`
+    1. Install UI module dependencies: `npm run bootstrap`
 
 NOTE: Please ensure you are running the correct version of Node before building packages. The expected version can be found both in the [package.json](package.json) file and in the [.nvmrc](.nvmrc) file.
 
@@ -26,7 +25,7 @@ NOTE: Please ensure you are running the correct version of Node before building 
 
 This can be done in two ways:
 
-1. Let lerna build everything: `lerna run build`
+1. Let lerna build everything: `npm run build`
 1. Build everything independently:
     1. common-ui: `cd alluxio-ui/common-ui && npm run build`
     1. master-ui: `cd alluxio-ui/master-ui && npm run build`
@@ -36,7 +35,7 @@ This can be done in two ways:
 
 This can be done in two ways:
 
-1. Let lerna test everything: `lerna run test-ci`
+1. Let lerna test everything: `npm run test-ci`
 1. Test everything independently:
     1. common-ui: `cd alluxio-ui/common-ui && npm run test`
     1. master-ui: `cd alluxio-ui/master-ui && npm run test`
@@ -48,7 +47,7 @@ NOTE: `test-ci` is meant to run tests once and quit (for continuous integration)
 
 This can be done in two ways:
 
-1. Let lerna generate coverage for everything: `lerna run coverage-ci`
+1. Let lerna generate coverage for everything: `npm run coverage-ci`
 1. Generate coverage for everything independently:
     1. common-ui: `cd alluxio-ui/common-ui && npm run coverage`
     1. master-ui: `cd alluxio-ui/master-ui && npm run coverage`
@@ -61,7 +60,7 @@ NOTE: `coverage-ci` is meant to run tests once and quit (for continuous integrat
 1. Follow the prerequisite instructions above.
 1. Enable CORS for the alluxio RESTful api endpoints by setting `alluxio.webui.enable.cors=true` in `conf/alluxio-site.properties`
 1. Start a development server in one of the following ways:
-    1. For all packages: `lerna run start --parallel --stream`
+    1. For all packages: `npm run start`
     1. For each package independently:
         1. common-ui: `cd alluxio-ui/common-ui && npm run start`
         1. master-ui: `cd alluxio-ui/master-ui && npm run start`
@@ -77,7 +76,7 @@ NOTE: `coverage-ci` is meant to run tests once and quit (for continuous integrat
     This will continuously run your tests and will show you when tests pass or fail as you work.
 
 1. (Optionally) Run a test coverage report in one of the following ways:
-    1. For all packages: `lerna run coverage-ci`
+    1. For all packages: `npm run coverage-ci`
     1. For each package independently:
         1. common-ui: `cd alluxio-ui/common-ui && npm run coverage`
         1. master-ui: `cd alluxio-ui/master-ui && npm run coverage`
@@ -85,3 +84,19 @@ NOTE: `coverage-ci` is meant to run tests once and quit (for continuous integrat
 
     This will also generate a coverage report within each package: `common/coverage/lcov-report/index.html`, `master/coverage/lcov-report/index.html`, `worker/coverage/lcov-report/index.html`. You may also run `coverage-ci` instead of `coverage` in this step if you would like this to execute only once.
 
+#### Shrinkwrapping dependencies
+
+It is sometimes necessary to bump package dependency versions for various reasons:
+
+- Fix vulnerabilities found after an audit.
+- Leverage functionality added to a dependency at a later version than the current import.
+- Restructure architecture after a paradigm shift.
+- Other reasons.
+
+NOTE: Any dependencies that are shared across packages should use identical versions, otherwise lerna will complain about a dependency hoisting error. Please keep shared imported dependency versions synchronized.
+
+Once a dependency changes, it is important to verify any functionality that could be affected by the change. This can be done via unit testing, system testing, and/or old fashioned QA testing.
+
+In order to keep the UI consistent for production builds we shrinkwrap our dependecies using npm-shrinkwrap so that our package versions stay consistent across builds. Shrinkwrapping locks dependency versions so that updates to underlying UI libraries don't affect our build.
+
+Once changes are tested and things work as planned, please run `npm shrinkwrap && lerna exec npm shrinkwrap` to lock package dependency versions.

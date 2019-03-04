@@ -11,10 +11,10 @@
 
 package alluxio.master;
 
-import alluxio.conf.ServerConfiguration;
 import alluxio.Constants;
 import alluxio.ProcessUtils;
 import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.PrimarySelector.State;
 import alluxio.master.journal.JournalSystem;
 import alluxio.util.CommonUtils;

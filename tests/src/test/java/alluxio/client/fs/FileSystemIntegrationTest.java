@@ -11,7 +11,9 @@
 
 package alluxio.client.fs;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
 import alluxio.conf.ServerConfiguration;
@@ -29,6 +31,8 @@ import alluxio.exception.InvalidPathException;
 import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.DeletePOptions;
+import alluxio.grpc.FileSystemMasterCommonPOptions;
+import alluxio.grpc.SetAttributePOptions;
 import alluxio.grpc.WritePType;
 import alluxio.master.LocalAlluxioCluster;
 import alluxio.testutils.BaseIntegrationTest;
@@ -38,6 +42,7 @@ import alluxio.util.CommonUtils;
 import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.util.io.PathUtils;
+import alluxio.wire.BlockLocationInfo;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,6 +51,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Integration tests for Alluxio Client (reuse the {@link LocalAlluxioCluster}).
@@ -294,6 +300,59 @@ public final class FileSystemIntegrationTest extends BaseIntegrationTest {
     }
   }
 
+  @Test
+  public void getBlockLocations() throws Exception {
+
+    // Test not in alluxio
+    AlluxioURI testFile = new AlluxioURI("/test1");
+    FileSystemTestUtils.createByteFile(mFileSystem, testFile, CreateFilePOptions.newBuilder()
+        .setWriteType(WritePType.THROUGH).setBlockSizeBytes(4).build(), 100);
+    List<BlockLocationInfo> locations = mFileSystem.getBlockLocations(testFile);
+    assertEquals("should have 25 blocks", 25, locations.size());
+    long lastOffset = -1;
+    for (BlockLocationInfo location : locations) {
+      assertEquals("block " + location.getBlockInfo() + " should have single worker",
+          1, location.getLocations().size());
+      assertTrue("block " + location.getBlockInfo() + " should have offset larger than "
+              + lastOffset, location.getBlockInfo().getOffset() > lastOffset);
+      lastOffset = location.getBlockInfo().getOffset();
+    }
+
+    // Test in alluxio
+    testFile = new AlluxioURI("/test2");
+    FileSystemTestUtils.createByteFile(mFileSystem, testFile, CreateFilePOptions.newBuilder()
+            .setWriteType(WritePType.CACHE_THROUGH).setBlockSizeBytes(100).build(), 500);
+    locations = mFileSystem.getBlockLocations(testFile);
+    assertEquals("Should have 5 blocks", 5, locations.size());
+    lastOffset = -1;
+    for (BlockLocationInfo location : locations) {
+      assertEquals("block " + location.getBlockInfo() + " should have single worker",
+          1, location.getLocations().size());
+      assertTrue("block " + location.getBlockInfo() + " should have offset larger than "
+          + lastOffset, location.getBlockInfo().getOffset() > lastOffset);
+      lastOffset = location.getBlockInfo().getOffset();
+    }
+  }
+
+  @Test
+  public void testMultiSetAttribute() throws Exception {
+    AlluxioURI testFile = new AlluxioURI("/test1");
+    FileSystemTestUtils.createByteFile(mFileSystem, testFile, WritePType.MUST_CACHE, 512);
+    long expectedTtl = ServerConfiguration.getMs(PropertyKey.USER_FILE_CREATE_TTL);
+    URIStatus stat = mFileSystem.getStatus(testFile);
+    assertEquals("TTL should be same", expectedTtl, stat.getTtl());
+    long newTtl = 14402478;
+    mFileSystem.setAttribute(testFile,
+        SetAttributePOptions.newBuilder().setCommonOptions(
+            FileSystemMasterCommonPOptions.newBuilder().setTtl(newTtl).build()).build());
+    stat = mFileSystem.getStatus(testFile);
+    assertEquals("TTL should be same", newTtl, stat.getTtl());
+    mFileSystem.setAttribute(testFile,
+        SetAttributePOptions.newBuilder().setOwner("testOwner").build());
+    stat = mFileSystem.getStatus(testFile);
+    assertEquals("TTL should be same", newTtl, stat.getTtl());
+  }
+
 // Test exception cases for all FileSystem RPCs
 
   @Test
@@ -413,5 +472,11 @@ public final class FileSystemIntegrationTest extends BaseIntegrationTest {
   public void setAttributeNonexistingPath() throws Exception {
     mThrown.expect(FileDoesNotExistException.class);
     mFileSystem.setAttribute(new AlluxioURI("/path"));
+  }
+
+  @Test
+  public void getBlockLocationNonExistingPath() throws Exception {
+    mThrown.expect(FileDoesNotExistException.class);
+    mFileSystem.getBlockLocations(new AlluxioURI("/path"));
   }
 }

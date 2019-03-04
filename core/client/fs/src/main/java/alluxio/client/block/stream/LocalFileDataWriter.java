@@ -22,6 +22,7 @@ import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.io.LocalFileBlockWriter;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
 import io.netty.buffer.ByteBuf;
@@ -70,14 +71,20 @@ public final class LocalFileDataWriter implements DataWriter {
     AlluxioConfiguration conf = context.getConf();
     long chunkSize = conf.getBytes(PropertyKey.USER_LOCAL_WRITER_CHUNK_SIZE_BYTES);
 
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       chunkSize =
           alluxio.client.LayoutUtils.toPhysicalChunksLength(options.getEncryptionMeta(), chunkSize);
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
+>>>>>>> upstream-os/master
     Closer closer = Closer.create();
     try {
+<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
       // ALLUXIO CS WITH
@@ -90,6 +97,10 @@ public final class LocalFileDataWriter implements DataWriter {
       }
       // ALLUXIO CS END
 
+||||||| merged common ancestors
+      final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
+=======
+>>>>>>> upstream-os/master
       closer.register(new Closeable() {
         @Override
         public void close() throws IOException {
@@ -117,7 +128,10 @@ public final class LocalFileDataWriter implements DataWriter {
 
       GrpcBlockingStream<CreateLocalBlockRequest, CreateLocalBlockResponse> stream =
           new GrpcBlockingStream<>(blockWorker::createLocalBlock, writerBufferSizeMessages,
-              address.toString());
+              MoreObjects.toStringHelper(LocalFileDataWriter.class)
+                  .add("request", createRequest)
+                  .add("address", address)
+                  .toString());
       stream.send(createRequest, dataTimeout);
       CreateLocalBlockResponse response = stream.receive(dataTimeout);
       Preconditions.checkState(response != null && response.hasPath());

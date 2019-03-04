@@ -38,17 +38,41 @@ public class MigrateConfig implements JobConfig {
   /**
    * @param source the source path
    * @param dst the destination path
+<<<<<<< HEAD:job/common/src/main/java/alluxio/job/migrate/MigrateConfig.java
    * @param writeType the Alluxio write type with which to write the migrated file; a null value means
    *        to use the default write type from the Alluxio configuration
+||||||| merged common ancestors
+   * @param writeType the Alluxio write type with which to write the moved file; a null value means
+   *        to use the default write type from the Alluxio configuration
+=======
+   * @param writeType the Alluxio write type with which to write the migrated file; a null value
+   *        means to use the default write type from the Alluxio configuration
+>>>>>>> upstream-os/master:job/common/src/main/java/alluxio/job/migrate/MigrateConfig.java
    * @param overwrite whether an existing file should be overwritten; if the source and destination
    *        are directories, the contents of the directories will be merged with common files
    *        overwritten by the source
+<<<<<<< HEAD:job/common/src/main/java/alluxio/job/migrate/MigrateConfig.java
    * @param deleteSource whether to delete the source file or the entire source directory
+||||||| merged common ancestors
+=======
+   * @param deleteSource whether to delete the source path after migration
+>>>>>>> upstream-os/master:job/common/src/main/java/alluxio/job/migrate/MigrateConfig.java
    */
+<<<<<<< HEAD:job/common/src/main/java/alluxio/job/migrate/MigrateConfig.java
   public MigrateConfig(@JsonProperty("source") String source, @JsonProperty("destination") String dst,
                        @JsonProperty("writeType") String writeType,
                        @JsonProperty("overwrite") boolean overwrite,
                        @JsonProperty("deleteSource") boolean deleteSource) {
+||||||| merged common ancestors
+  public MoveConfig(@JsonProperty("source") String source, @JsonProperty("destination") String dst,
+      @JsonProperty("writeType") String writeType, @JsonProperty("overwrite") boolean overwrite) {
+=======
+  public MigrateConfig(@JsonProperty("source") String source,
+                       @JsonProperty("destination") String dst,
+                       @JsonProperty("writeType") String writeType,
+                       @JsonProperty("overwrite") boolean overwrite,
+                       @JsonProperty("deleteSource") boolean deleteSource) {
+>>>>>>> upstream-os/master:job/common/src/main/java/alluxio/job/migrate/MigrateConfig.java
     mSource = Preconditions.checkNotNull(source, "source must be set");
     mDestination = Preconditions.checkNotNull(dst, "destination must be set");
     mWriteType = writeType;
@@ -84,6 +108,7 @@ public class MigrateConfig implements JobConfig {
     return mOverwrite;
   }
 
+<<<<<<< HEAD:job/common/src/main/java/alluxio/job/migrate/MigrateConfig.java
   /**
    * @return whether to delete the source file or the entire source directory
    */
@@ -91,6 +116,16 @@ public class MigrateConfig implements JobConfig {
     return mDeleteSource;
   }
 
+||||||| merged common ancestors
+=======
+  /**
+   * @return whether to delete the source path after migration
+   */
+  public boolean isDeleteSource() {
+    return mDeleteSource;
+  }
+
+>>>>>>> upstream-os/master:job/common/src/main/java/alluxio/job/migrate/MigrateConfig.java
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
