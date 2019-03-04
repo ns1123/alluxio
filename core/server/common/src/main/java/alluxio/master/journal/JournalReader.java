@@ -52,7 +52,13 @@ public interface JournalReader extends Closeable {
    * @return the next sequence number
    */
   long getNextSequenceNumber();
-<<<<<<< HEAD
+
+  /**
+   * Advances the reader to the next element.
+   *
+   * @return the next element, see {@link State}
+   */
+  State advance() throws IOException;
   // ALLUXIO CS ADD
 
   /**
@@ -67,15 +73,6 @@ public interface JournalReader extends Closeable {
    */
   default void notifyResetState() { }
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-
-  /**
-   * Advances the reader to the next element.
-   *
-   * @return the next element, see {@link State}
-   */
-  State advance() throws IOException;
 
   /**
    * States that the reader can be after calling {@link #advance()}.
@@ -96,5 +93,4 @@ public interface JournalReader extends Closeable {
      */
     DONE
   }
->>>>>>> upstream-os/master
 }

@@ -138,35 +138,18 @@ public final class UfsJournalCheckpointThread extends Thread {
     while (true) {
       JournalEntry entry = null;
       try {
-<<<<<<< HEAD
-        entry = mJournalReader.read();
-        if (entry != null) {
-          // ALLUXIO CS ADD
-          if (mJournalReader.shouldResetState()) {
-            mMaster.resetState();
-            mJournalReader.notifyResetState();
-          }
-          // ALLUXIO CS END
-          mMaster.processJournalEntry(entry);
-          if (quietPeriodWaited) {
-            LOG.info("Quiet period interrupted by new journal entry");
-            quietPeriodWaited = false;
-          }
-||||||| merged common ancestors
-        entry = mJournalReader.read();
-        if (entry != null) {
-          mMaster.processJournalEntry(entry);
-          if (quietPeriodWaited) {
-            LOG.info("Quiet period interrupted by new journal entry");
-            quietPeriodWaited = false;
-          }
-=======
         switch (mJournalReader.advance()) {
           case CHECKPOINT:
             mMaster.restoreFromCheckpoint(mJournalReader.getCheckpoint());
             break;
           case LOG:
             entry = mJournalReader.getEntry();
+            // ALLUXIO CS ADD
+            if (mJournalReader.shouldResetState()) {
+              mMaster.resetState();
+              mJournalReader.notifyResetState();
+            }
+            // ALLUXIO CS END
             mMaster.processJournalEntry(entry);
             if (quietPeriodWaited) {
               LOG.info("Quiet period interrupted by new journal entry");
@@ -175,7 +158,6 @@ public final class UfsJournalCheckpointThread extends Thread {
             break;
           default:
             break;
->>>>>>> upstream-os/master
         }
       } catch (IOException e) {
         LOG.warn("{}: Failed to read or process the journal entry with error {}.",
