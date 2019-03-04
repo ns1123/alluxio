@@ -2202,42 +2202,6 @@ public final class FileSystemMasterClientServiceGrpc {
   private static final int METHODID_CREATE_DIRECTORY = 2;
   private static final int METHODID_CREATE_FILE = 3;
   private static final int METHODID_FREE = 4;
-<<<<<<< HEAD
-  private static final int METHODID_GET_MOUNT_TABLE = 5;
-  private static final int METHODID_GET_SYNC_PATH_LIST = 6;
-  private static final int METHODID_GET_NEW_BLOCK_ID_FOR_FILE = 7;
-  private static final int METHODID_GET_STATUS = 8;
-  private static final int METHODID_LIST_STATUS = 9;
-  private static final int METHODID_MOUNT = 10;
-  private static final int METHODID_REMOVE = 11;
-  private static final int METHODID_RENAME = 12;
-  private static final int METHODID_SCHEDULE_ASYNC_PERSISTENCE = 13;
-  private static final int METHODID_SET_ACL = 14;
-  private static final int METHODID_SET_ATTRIBUTE = 15;
-  private static final int METHODID_START_SYNC = 16;
-  private static final int METHODID_STOP_SYNC = 17;
-  private static final int METHODID_UNMOUNT = 18;
-  private static final int METHODID_UPDATE_UFS_MODE = 19;
-  private static final int METHODID_GET_DELEGATION_TOKEN = 20;
-  private static final int METHODID_RENEW_DELEGATION_TOKEN = 21;
-  private static final int METHODID_CANCEL_DELEGATION_TOKEN = 22;
-||||||| merged common ancestors
-  private static final int METHODID_GET_MOUNT_TABLE = 5;
-  private static final int METHODID_GET_SYNC_PATH_LIST = 6;
-  private static final int METHODID_GET_NEW_BLOCK_ID_FOR_FILE = 7;
-  private static final int METHODID_GET_STATUS = 8;
-  private static final int METHODID_LIST_STATUS = 9;
-  private static final int METHODID_MOUNT = 10;
-  private static final int METHODID_REMOVE = 11;
-  private static final int METHODID_RENAME = 12;
-  private static final int METHODID_SCHEDULE_ASYNC_PERSISTENCE = 13;
-  private static final int METHODID_SET_ACL = 14;
-  private static final int METHODID_SET_ATTRIBUTE = 15;
-  private static final int METHODID_START_SYNC = 16;
-  private static final int METHODID_STOP_SYNC = 17;
-  private static final int METHODID_UNMOUNT = 18;
-  private static final int METHODID_UPDATE_UFS_MODE = 19;
-=======
   private static final int METHODID_GET_FILE_PATH = 5;
   private static final int METHODID_GET_MOUNT_TABLE = 6;
   private static final int METHODID_GET_SYNC_PATH_LIST = 7;
@@ -2254,7 +2218,9 @@ public final class FileSystemMasterClientServiceGrpc {
   private static final int METHODID_STOP_SYNC = 18;
   private static final int METHODID_UNMOUNT = 19;
   private static final int METHODID_UPDATE_UFS_MODE = 20;
->>>>>>> upstream-os/master
+  private static final int METHODID_GET_DELEGATION_TOKEN = 21;
+  private static final int METHODID_RENEW_DELEGATION_TOKEN = 22;
+  private static final int METHODID_CANCEL_DELEGATION_TOKEN = 23;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
