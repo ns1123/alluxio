@@ -133,6 +133,9 @@ public final class LocalAlluxioCluster extends AbstractLocalAlluxioCluster {
     ServerConfiguration.set(PropertyKey.PROXY_WEB_PORT, 0);
     ServerConfiguration.set(PropertyKey.WORKER_RPC_PORT, 0);
     ServerConfiguration.set(PropertyKey.WORKER_WEB_PORT, 0);
+    // ALLUXIO CS ADD
+    ServerConfiguration.set(PropertyKey.WORKER_SECURE_RPC_PORT, 0);
+    // ALLUXIO CS END
   }
 
   @Override
