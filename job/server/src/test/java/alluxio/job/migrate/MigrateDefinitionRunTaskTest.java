@@ -159,15 +159,8 @@ public final class MigrateDefinitionRunTaskTest {
     when(mMockFileSystem.listStatus(new AlluxioURI(TEST_DIR)))
         .thenReturn(Lists.newArrayList(new URIStatus(new FileInfo())));
     runTask(TEST_DIR, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionRunTaskTest.java
-    verify(mMockFileSystem, never()).delete(eq(new AlluxioURI(TEST_DIR)), any(DeletePOptions.class));
-||||||| merged common ancestors
-    verify(mMockFileSystem, times(0)).delete(eq(new AlluxioURI(TEST_DIR)),
-        any(DeletePOptions.class));
-=======
     verify(mMockFileSystem, never()).delete(eq(new AlluxioURI(TEST_DIR)),
         any(DeletePOptions.class));
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionRunTaskTest.java
   }
 
   /**

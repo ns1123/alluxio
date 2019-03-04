@@ -147,18 +147,8 @@ public final class MigrateDefinitionSelectExecutorsTest {
     createDirectory("/src");
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
-    assignMigrates("/src", "/dst/src");
-    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src")),
-        any(CreateDirectoryPOptions.class));
-||||||| merged common ancestors
-    assignMoves("/src", "/dst/src");
-    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src")),
-        any(CreateDirectoryPOptions.class));
-=======
     assignMigrates("/src", "/dst/src");
     verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src")));
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
   }
 
   @Test
@@ -168,18 +158,8 @@ public final class MigrateDefinitionSelectExecutorsTest {
     setChildren("/src", nested);
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
-    assignMigrates("/src", "/dst/src");
-    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src/nested")),
-        Matchers.eq(CreateDirectoryPOptions.getDefaultInstance()));
-||||||| merged common ancestors
-    assignMoves("/src", "/dst/src");
-    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src/nested")),
-        Matchers.eq(CreateDirectoryPOptions.getDefaultInstance()));
-=======
     assignMigrates("/src", "/dst/src");
     verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src/nested")));
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
   }
 
   @Test
@@ -224,16 +204,8 @@ public final class MigrateDefinitionSelectExecutorsTest {
     try {
       assignMigratesFail("/src", "/dst/src");
     } catch (Exception e) {
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
-      Assert.assertEquals(ExceptionMessage.MIGRATE_TO_FILE_AS_DIRECTORY.getMessage("/dst/src", "/dst"),
-          e.getMessage());
-||||||| merged common ancestors
-      Assert.assertEquals(ExceptionMessage.MOVE_TO_FILE_AS_DIRECTORY.getMessage("/dst/src", "/dst"),
-          e.getMessage());
-=======
       Assert.assertEquals(ExceptionMessage.MIGRATE_TO_FILE_AS_DIRECTORY.getMessage("/dst/src",
           "/dst"), e.getMessage());
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
     }
   }
 
@@ -269,14 +241,8 @@ public final class MigrateDefinitionSelectExecutorsTest {
     try {
       assignMigratesFail("/src", "/dst");
     } catch (FileAlreadyExistsException e) {
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
-      Assert.assertEquals(ExceptionMessage.MIGRATE_NEED_OVERWRITE.getMessage("/dst"), e.getMessage());
-||||||| merged common ancestors
-      Assert.assertEquals(ExceptionMessage.MOVE_NEED_OVERWRITE.getMessage("/dst"), e.getMessage());
-=======
       Assert.assertEquals(ExceptionMessage.MIGRATE_NEED_OVERWRITE.getMessage("/dst"),
           e.getMessage());
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
     }
   }
 
@@ -288,14 +254,8 @@ public final class MigrateDefinitionSelectExecutorsTest {
     try {
       assignMigratesFail("/src", "/dst");
     } catch (FileAlreadyExistsException e) {
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
-      Assert.assertEquals(ExceptionMessage.MIGRATE_NEED_OVERWRITE.getMessage("/dst"), e.getMessage());
-||||||| merged common ancestors
-      Assert.assertEquals(ExceptionMessage.MOVE_NEED_OVERWRITE.getMessage("/dst"), e.getMessage());
-=======
       Assert.assertEquals(ExceptionMessage.MIGRATE_NEED_OVERWRITE.getMessage("/dst"),
           e.getMessage());
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
     }
   }
 
@@ -349,66 +309,30 @@ public final class MigrateDefinitionSelectExecutorsTest {
     createFileWithBlocksOnWorkers("/src", 0);
     setPathToNotExist("/dst");
 
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
-    Map<WorkerInfo, ArrayList<MigrateCommand>> assignments =
-        new MigrateDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(
-            new MigrateConfig("/src", "/dst", "THROUGH", true, false), ImmutableList.of(JOB_WORKER_3),
-            new JobMasterContext(1, mMockUfsManager));
-||||||| merged common ancestors
-    Map<WorkerInfo, ArrayList<MoveCommand>> assignments =
-        new MoveDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(
-            new MoveConfig("/src", "/dst", "THROUGH", true), ImmutableList.of(JOB_WORKER_3),
-            new JobMasterContext(1, mMockUfsManager));
-=======
     Map<WorkerInfo, ArrayList<MigrateCommand>> assignments =
         new MigrateDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(
             new MigrateConfig("/src", "/dst", "THROUGH", true, false),
             ImmutableList.of(JOB_WORKER_3), new JobMasterContext(1, mMockUfsManager));
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
 
     Assert.assertEquals(ImmutableMap.of(JOB_WORKER_3,
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
-        new ArrayList<MigrateCommand>(Arrays.asList(new MigrateCommand("/src", "/dst")))), assignments);
-||||||| merged common ancestors
-        new ArrayList<MoveCommand>(Arrays.asList(new MoveCommand("/src", "/dst")))), assignments);
-=======
         new ArrayList<>(Arrays.asList(new MigrateCommand("/src", "/dst")))), assignments);
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
   }
 
   /**
    * Runs selectExecutors for the migrate from source to destination.
    */
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
-  private Map<WorkerInfo, ArrayList<MigrateCommand>> assignMigrates(String source, String destination)
-      throws Exception {
-    return assignMigrates(new MigrateConfig(source, destination, "THROUGH", false, false));
-||||||| merged common ancestors
-  private Map<WorkerInfo, ArrayList<MoveCommand>> assignMoves(String source, String destination)
-      throws Exception {
-    return assignMoves(new MoveConfig(source, destination, "THROUGH", false));
-=======
   private Map<WorkerInfo, ArrayList<MigrateCommand>> assignMigrates(String source,
       String destination) throws Exception {
     return assignMigrates(new MigrateConfig(source, destination, "THROUGH", false, false));
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
   }
 
   /**
    * Runs selectExecutors for the migrate from source to destination with the given writeType and
    * overwrite value.
    */
-<<<<<<< HEAD:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
-  private Map<WorkerInfo, ArrayList<MigrateCommand>> assignMigrates(MigrateConfig config) throws Exception {
-    return new MigrateDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
-||||||| merged common ancestors
-  private Map<WorkerInfo, ArrayList<MoveCommand>> assignMoves(MoveConfig config) throws Exception {
-    return new MoveDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
-=======
   private Map<WorkerInfo, ArrayList<MigrateCommand>> assignMigrates(MigrateConfig config)
       throws Exception {
     return new MigrateDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
->>>>>>> upstream-os/master:job/server/src/test/java/alluxio/job/migrate/MigrateDefinitionSelectExecutorsTest.java
         JOB_WORKERS, new JobMasterContext(1, mMockUfsManager));
   }
 
