@@ -17,7 +17,9 @@ import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
+import alluxio.master.file.meta.MutableInode;
 import alluxio.proto.journal.Journal;
+import alluxio.proto.meta.InodeMeta;
 import alluxio.security.authorization.AclAction;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.security.authorization.Mode;
@@ -73,9 +75,8 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
   // representing a path. It will call the original checkInodeList if the external
   // AccessControlEnforcer cannot determine the permission.
   @Override
-  protected void checkInodeList(String user, List<String> groups,
-      Mode.Bits bits, String path, List<InodeView> inodeList, boolean checkIsOwner)
-      throws AccessControlException {
+  protected void checkInodeList(String user, List<String> groups, Mode.Bits bits, String path,
+      List<InodeView> inodeList, boolean checkIsOwner) throws AccessControlException {
     List<InodeAttributes> attributesList;
     List<String> pathComponents = new ArrayList<>();
     attributesList = new ArrayList<>();
@@ -187,7 +188,7 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
     }
   }
 
-  private class InodeWithOverridenAttributes extends Inode<InodeWithOverridenAttributes> {
+  private class InodeWithOverridenAttributes extends MutableInode<InodeWithOverridenAttributes> {
     private final InodeView mInode;
     private final InodeAttributes mAttributes;
 
@@ -206,6 +207,11 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
     @Override
     public alluxio.wire.FileInfo generateClientFileInfo(String path) {
       return mInode.generateClientFileInfo(path);
+    }
+
+    @Override
+    public InodeMeta.Inode toProto() {
+      return super.toProtoBuilder().build();
     }
 
     @Override

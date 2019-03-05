@@ -15,11 +15,12 @@ import alluxio.AlluxioURI;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidPathException;
 import alluxio.extensions.ClassLoaderContext;
-import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.MountTable;
+import alluxio.master.file.meta.MutableInode;
 import alluxio.proto.journal.Journal;
+import alluxio.proto.meta.InodeMeta;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.security.authorization.Mode;
 import alluxio.util.io.PathUtils;
@@ -329,7 +330,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
 
   // Represents an Inode not in Alluxio with some attributes populated from Alluxio Inode.
   // It's permission will be 777 if a base inode is not given.
-  private class PassThroughInode extends Inode<PassThroughInode> implements InodeAttributes  {
+  private class PassThroughInode extends MutableInode<PassThroughInode> implements InodeAttributes  {
     private static final long STUB_INODE_ID = -1;
 
     public PassThroughInode(String name) {
@@ -374,6 +375,11 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
     @Override
     public FileInfo generateClientFileInfo(String path) {
       return null;
+    }
+
+    @Override
+    public InodeMeta.Inode toProto() {
+      return super.toProtoBuilder().build();
     }
 
     @Override

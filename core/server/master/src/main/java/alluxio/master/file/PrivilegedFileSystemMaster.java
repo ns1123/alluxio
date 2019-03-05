@@ -50,9 +50,11 @@ import alluxio.master.file.contexts.SetAttributeContext;
 import alluxio.master.file.contexts.WorkerHeartbeatContext;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.PersistenceState;
+import alluxio.master.journal.CheckpointName;
 import alluxio.master.journal.JournalContext;
 import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.master.privilege.PrivilegeMaster;
+import alluxio.metrics.TimeSeries;
 import alluxio.proto.journal.Journal;
 import alluxio.security.authentication.ClientIpAddressInjector;
 import alluxio.security.authorization.AclEntry;
@@ -137,8 +139,8 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public void processJournalEntry(Journal.JournalEntry entry) throws IOException {
-    mFileSystemMaster.processJournalEntry(entry);
+  public boolean processJournalEntry(Journal.JournalEntry entry) {
+    return mFileSystemMaster.processJournalEntry(entry);
   }
 
   @Override
@@ -162,7 +164,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public long createFile(AlluxioURI path, CreateFileContext context)
+  public FileInfo createFile(AlluxioURI path, CreateFileContext context)
       throws AccessControlException, InvalidPathException, FileAlreadyExistsException,
       BlockInfoException, IOException, FileDoesNotExistException {
     if (context.getOptions().getReplicationMin() > 0) {
@@ -281,8 +283,8 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public int getNumberOfPaths() {
-    return mFileSystemMaster.getNumberOfPaths();
+  public long estimateNumberOfPaths() {
+    return mFileSystemMaster.estimateNumberOfPaths();
   }
 
   @Override
@@ -395,7 +397,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
     return mFileSystemMaster.getWorkerInfoList();
   }
 
-  // ALLUXIO CS ADD
   @Override
   public
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
@@ -420,7 +421,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
     mFileSystemMaster.cancelDelegationToken(delegationToken);
   }
 
-  // ALLUXIO CS END
   @Override
   public List<SyncPointInfo> getSyncPathList() throws UnavailableException, AccessControlException {
     return mFileSystemMaster.getSyncPathList();
@@ -450,6 +450,11 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
+  public List<TimeSeries> getTimeSeries() {
+    return mFileSystemMaster.getTimeSeries();
+  }
+
+  @Override
   public void updateUfsMode(AlluxioURI ufsPath, UfsMode ufsMode) throws InvalidPathException,
       InvalidArgumentException, UnavailableException, AccessControlException {
     mFileSystemMaster.updateUfsMode(ufsPath, ufsMode);
@@ -463,5 +468,10 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public JournalContext createJournalContext() throws UnavailableException {
     return mFileSystemMaster.createJournalContext();
+  }
+
+  @Override
+  public CheckpointName getCheckpointName() {
+    return CheckpointName.PRIVILEGED_FILE_SYSTEM_MASTER;
   }
 }

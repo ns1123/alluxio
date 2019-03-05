@@ -21,6 +21,7 @@ import alluxio.grpc.GrpcService;
 import alluxio.grpc.ServiceType;
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
+import alluxio.master.journal.CheckpointName;
 import alluxio.master.journal.JournalContext;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
@@ -85,15 +86,15 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
   }
 
   @Override
-  public void processJournalEntry(alluxio.proto.journal.Journal.JournalEntry entry)
-      throws IOException {
+  public boolean processJournalEntry(alluxio.proto.journal.Journal.JournalEntry entry) {
     if (entry.hasPrivilegeUpdate()) {
       PrivilegeUpdateEntry update = entry.getPrivilegeUpdate();
       updatePrivilegesInternal(update.getGroup(), update.getGrant(),
           PrivilegeUtils.fromProto(update.getPrivilegeList()));
     } else {
-      throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
+      return false;
     }
+    return true;
   }
 
   @Override
@@ -208,5 +209,10 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
         groupPrivileges.removeAll(privileges);
       }
     }
+  }
+
+  @Override
+  public CheckpointName getCheckpointName() {
+    return CheckpointName.PRIVILEGE_MASTER;
   }
 }

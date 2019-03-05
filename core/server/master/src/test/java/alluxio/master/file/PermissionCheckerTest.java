@@ -32,6 +32,7 @@ import alluxio.master.file.meta.InodeDirectoryIdGenerator;
 import alluxio.master.file.meta.InodeLockManager;
 import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.InodeTree.LockPattern;
+import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.meta.MutableInode;
@@ -447,7 +448,7 @@ public final class PermissionCheckerTest {
     try (LockedInodePath inodePath = sTree.lockInodePath(
         new AlluxioURI(TEST_DIR_FILE_URI), InodeTree.LockPattern.READ)) {
       mPermissionChecker.checkPermission(Mode.Bits.READ, inodePath);
-      List<InodeView> inodes = inodePath.getInodeList();
+      List<InodeView> inodes = (List<InodeView>) (List<?>) inodePath.getInodeList();
       org.mockito.Mockito.verify(ace).checkPermission(TEST_USER_1.getUser(),
           Lists.newArrayList(TEST_USER_1.getGroup()), Mode.Bits.READ, TEST_DIR_FILE_URI,
           inodes, inodes.stream()
