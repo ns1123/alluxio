@@ -79,6 +79,15 @@ public class AlluxioJobMasterProcess extends MasterProcess {
     }
   }
 
+  @Override
+  public <T extends Master> T getMaster(Class<T> clazz) {
+    if (clazz == JobMaster.class) {
+      return (T) mJobMaster;
+    } else {
+      throw new RuntimeException(String.format("Could not found the master: %s", clazz));
+    }
+  }
+
   /**
    * @return the {@link JobMaster} for this process
    */

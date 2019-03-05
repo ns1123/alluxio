@@ -21,12 +21,13 @@ import alluxio.grpc.ServiceType;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.master.AbstractNonJournaledMaster;
+import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterProcess;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
+import alluxio.master.journal.NoopJournaled;
 import alluxio.master.license.License;
 import alluxio.master.license.LicenseMaster;
 import alluxio.util.executor.ExecutorServiceFactories;
@@ -61,7 +62,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * backend.
  */
 @ThreadSafe
-public final class CallHomeMaster extends AbstractNonJournaledMaster {
+public final class CallHomeMaster extends AbstractMaster implements NoopJournaled {
   private static final Logger LOG = LoggerFactory.getLogger(CallHomeMaster.class);
   private static final Set<Class<? extends Server>> DEPS =
       ImmutableSet.of(BlockMaster.class, LicenseMaster.class, FileSystemMaster.class);

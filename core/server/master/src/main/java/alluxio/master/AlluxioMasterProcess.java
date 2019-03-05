@@ -96,71 +96,10 @@ public class AlluxioMasterProcess extends MasterProcess {
     mRpcConnectAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC,
         ServerConfiguration.global());
     try {
-<<<<<<< HEAD
-      // Extract the port from the generated socket.
-      // When running tests, it is fine to use port '0' so the system will figure out what port to
-      // use (any random free port).
-      // In a production or any real deployment setup, port '0' should not be used as it will make
-      // deployment more complicated.
-      if (!ServerConfiguration.getBoolean(PropertyKey.TEST_MODE)) {
-        Preconditions.checkState(ServerConfiguration.getInt(PropertyKey.MASTER_RPC_PORT) > 0,
-            this + " rpc port is only allowed to be zero in test mode.");
-        Preconditions.checkState(ServerConfiguration.getInt(PropertyKey.MASTER_WEB_PORT) > 0,
-            this + " web port is only allowed to be zero in test mode.");
-      }
-
       // ALLUXIO CS ADD
       mDelegationTokenManager =
-          new alluxio.security.authentication.DelegationTokenManager(ServerConfiguration.global());
+              new alluxio.security.authentication.DelegationTokenManager(ServerConfiguration.global());
       // ALLUXIO CS END
-
-      // Random port binding.
-      InetSocketAddress configuredBindAddress =
-          NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC, ServerConfiguration.global());
-      if (configuredBindAddress.getPort() == 0) {
-        mBindSocket = new ServerSocket(0);
-        mPort = mBindSocket.getLocalPort();
-        ServerConfiguration.set(PropertyKey.MASTER_RPC_PORT, Integer.toString(mPort));
-      } else {
-        mPort = configuredBindAddress.getPort();
-      }
-
-      mRpcBindAddress = NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC,
-          ServerConfiguration.global());
-      mRpcConnectAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC,
-          ServerConfiguration.global());
-
-||||||| merged common ancestors
-      // Extract the port from the generated socket.
-      // When running tests, it is fine to use port '0' so the system will figure out what port to
-      // use (any random free port).
-      // In a production or any real deployment setup, port '0' should not be used as it will make
-      // deployment more complicated.
-      if (!ServerConfiguration.getBoolean(PropertyKey.TEST_MODE)) {
-        Preconditions.checkState(ServerConfiguration.getInt(PropertyKey.MASTER_RPC_PORT) > 0,
-            this + " rpc port is only allowed to be zero in test mode.");
-        Preconditions.checkState(ServerConfiguration.getInt(PropertyKey.MASTER_WEB_PORT) > 0,
-            this + " web port is only allowed to be zero in test mode.");
-      }
-
-      // Random port binding.
-      InetSocketAddress configuredBindAddress =
-          NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC, ServerConfiguration.global());
-      if (configuredBindAddress.getPort() == 0) {
-        mBindSocket = new ServerSocket(0);
-        mPort = mBindSocket.getLocalPort();
-        ServerConfiguration.set(PropertyKey.MASTER_RPC_PORT, Integer.toString(mPort));
-      } else {
-        mPort = configuredBindAddress.getPort();
-      }
-
-      mRpcBindAddress = NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC,
-          ServerConfiguration.global());
-      mRpcConnectAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC,
-          ServerConfiguration.global());
-
-=======
->>>>>>> upstream-os/master
       if (!mJournalSystem.isFormatted()) {
         throw new RuntimeException(
             String.format("Journal %s has not been formatted!", mJournalSystem));
@@ -173,15 +112,11 @@ public class AlluxioMasterProcess extends MasterProcess {
           .setJournalSystem(mJournalSystem)
           .setSafeModeManager(mSafeModeManager)
           .setBackupManager(mBackupManager)
-<<<<<<< HEAD
           // ALLUXIO CS ADD
           .setDelegationTokenManager(mDelegationTokenManager)
           // ALLUXIO CS END
-||||||| merged common ancestors
-=======
           .setBlockStoreFactory(MasterUtils.getBlockStoreFactory())
           .setInodeStoreFactory(MasterUtils.getInodeStoreFactory())
->>>>>>> upstream-os/master
           .setStartTimeMs(mStartTimeMs)
           .setPort(NetworkAddressUtils
               .getPort(ServiceType.MASTER_RPC, ServerConfiguration.global()))
@@ -205,13 +140,7 @@ public class AlluxioMasterProcess extends MasterProcess {
     }
   }
 
-  /**
-   * Gets the registered class from the master registry.
-   *
-   * @param clazz the class of the master to get
-   * @param <T> the type of the master to get
-   * @return the given master
-   */
+  @Override
   public <T extends Master> T getMaster(Class<T> clazz) {
     return mRegistry.get(clazz);
   }
