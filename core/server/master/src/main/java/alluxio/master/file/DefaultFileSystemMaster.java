@@ -506,52 +506,11 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
   }
 
   @Override
-<<<<<<< HEAD
-  public void processJournalEntry(JournalEntry entry) throws IOException {
-    if (mDirectoryIdGenerator.replayJournalEntryFromJournal(entry)
-        || mInodeTree.replayJournalEntryFromJournal(entry)
-        || mMountTable.replayJournalEntryFromJournal(entry)
-        || mUfsManager.replayJournalEntryFromJournal(entry)
-        || mSyncManager.replayJournalEntryFromJournal(entry)) {
-      return;
-    } else {
-      // ALLUXIO CS REPLACE
-      // throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
-      // ALLUXIO CS WITH
-      // TODO(feng): refactor journaling into DelegationTokenManager.
-      if (entry.hasGetDelegationToken()) {
-        addDelegationTokenFromEntry(entry.getGetDelegationToken());
-      } else if (entry.hasUpdateMasterKey()) {
-        try {
-          addMasterKeyFromEntry(entry.getUpdateMasterKey());
-        } catch (java.security.InvalidKeyException | java.security.NoSuchAlgorithmException e) {
-          throw new RuntimeException(e);
-        }
-      } else if (entry.hasRemoveDelegationToken()) {
-        removeDelegationTokenFromEntry(entry.getRemoveDelegationToken());
-      } else if (entry.hasRenewDelegationToken()) {
-        renewDelegationTokenFromEntry(entry.getRenewDelegationToken());
-      } else {
-        throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
-      }
-      // ALLUXIO CS END
-||||||| merged common ancestors
-  public void processJournalEntry(JournalEntry entry) throws IOException {
-    if (mDirectoryIdGenerator.replayJournalEntryFromJournal(entry)
-        || mInodeTree.replayJournalEntryFromJournal(entry)
-        || mMountTable.replayJournalEntryFromJournal(entry)
-        || mUfsManager.replayJournalEntryFromJournal(entry)
-        || mSyncManager.replayJournalEntryFromJournal(entry)) {
-      return;
-    } else {
-      throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
-=======
   public boolean processJournalEntry(JournalEntry entry) {
     for (Journaled journaled : mJournaledComponents) {
       if (journaled.processJournalEntry(entry)) {
         return true;
       }
->>>>>>> upstream-os/master
     }
     return false;
   }
@@ -562,18 +521,6 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
   }
 
   @Override
-<<<<<<< HEAD
-  public void resetState() {
-    mInodeTree.reset();
-    mMountTable.reset();
-    // ALLUXIO CS ADD
-    mDelegationTokenManager.reset();
-    // ALLUXIO CS END
-||||||| merged common ancestors
-  public void resetState() {
-    mInodeTree.reset();
-    mMountTable.reset();
-=======
   public CheckpointName getCheckpointName() {
     return CheckpointName.FILE_SYSTEM_MASTER;
   }
@@ -586,39 +533,13 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
   @Override
   public void restoreFromCheckpoint(InputStream input) throws IOException {
     JournalUtils.restoreFromCheckpoint(input, mJournaledComponents);
->>>>>>> upstream-os/master
   }
 
   @Override
   public Iterator<JournalEntry> getJournalEntryIterator() {
-<<<<<<< HEAD
-    return Iterators.concat(mInodeTree.getJournalEntryIterator(),
-        mDirectoryIdGenerator.getJournalEntryIterator(),
-        // The mount table should be written to the checkpoint after the inodes are written, so that
-        // when replaying the checkpoint, the inodes exist before mount entries. Replaying a mount
-        // entry traverses the inode tree.
-        // ALLUXIO CS ADD
-        mDelegationTokenEventListener.getJournalEntryIterator(),
-        // ALLUXIO CS END
-        mMountTable.getJournalEntryIterator(),
-        mUfsManager.getJournalEntryIterator(),
-        mSyncManager.getJournalEntryIterator()
-    );
-||||||| merged common ancestors
-    return Iterators.concat(mInodeTree.getJournalEntryIterator(),
-        mDirectoryIdGenerator.getJournalEntryIterator(),
-        // The mount table should be written to the checkpoint after the inodes are written, so that
-        // when replaying the checkpoint, the inodes exist before mount entries. Replaying a mount
-        // entry traverses the inode tree.
-        mMountTable.getJournalEntryIterator(),
-        mUfsManager.getJournalEntryIterator(),
-        mSyncManager.getJournalEntryIterator()
-    );
-=======
     List<Iterator<JournalEntry>> componentIters = StreamUtils
         .map(JournalEntryIterable::getJournalEntryIterator, mJournaledComponents);
     return Iterators.concat(componentIters.iterator());
->>>>>>> upstream-os/master
   }
 
   @Override

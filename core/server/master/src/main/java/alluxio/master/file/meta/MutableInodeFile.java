@@ -51,6 +51,9 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
   private int mReplicationMax;
   private int mReplicationMin;
   private String mTempUfsPath;
+  // ALLUXIO CS ADD
+  private boolean mEncrypted;
+  // ALLUXIO CS END
 
   /**
    * Creates a new instance of {@link MutableInodeFile}.
@@ -70,6 +73,9 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
     mTempUfsPath = Constants.PERSISTENCE_INVALID_UFS_PATH;
+    // ALLUXIO CS ADD
+    mEncrypted = false;
+    // ALLUXIO CS END
   }
 
   @Override
@@ -106,6 +112,9 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
     ret.setReplicationMin(getReplicationMin());
     ret.setUfsFingerprint(getUfsFingerprint());
     ret.setAcl(mAcl);
+    // ALLUXIO CS ADD
+    ret.setEncrypted(isEncrypted());
+    // ALLUXIO CS END
     return ret;
   }
 
@@ -331,6 +340,22 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
       setBlockIds(entry.getSetBlocksList());
     }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @param encrypted the encrypted flag value to use
+   * @return the updated object
+   */
+  public MutableInodeFile setEncrypted(boolean encrypted) {
+    mEncrypted = encrypted;
+    return getThis();
+  }
+
+  @Override
+  public boolean isEncrypted() {
+    return mEncrypted;
+  }
+  // ALLUXIO CS END
 
   @Override
   public String toString() {

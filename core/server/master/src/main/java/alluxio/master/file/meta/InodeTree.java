@@ -759,8 +759,8 @@ public class InodeTree implements DelegatingJournaled {
       CreateFileContext fileContext = (CreateFileContext) context;
       MutableInodeFile newFile = MutableInodeFile.create(mContainerIdGenerator.getNewContainerId(),
           currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileContext);
-<<<<<<< HEAD
       // ALLUXIO CS ADD
+
       if (currentInodeDirectory.isPinned()) {
         // Create a file inside of a pinned directory, if its min replication inferred from its
         // CreateFileOptions is zero (default value), we bump it to one to reflect its state of
@@ -776,10 +776,6 @@ public class InodeTree implements DelegatingJournaled {
       }
       // ALLUXIO CS END
 
-||||||| merged common ancestors
-
-=======
->>>>>>> upstream-os/master
       // if the parent has a default ACL, copy that default ACL ANDed with the umask as the new
       // file's access ACL.
       // If it is a metadata load operation, do not consider the umask.

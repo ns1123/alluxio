@@ -11,12 +11,7 @@
 
 package alluxio.master.file.contexts;
 
-<<<<<<< HEAD
-import alluxio.conf.PropertyKey;
-||||||| merged common ancestors
-=======
 import alluxio.conf.ServerConfiguration;
->>>>>>> upstream-os/master
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.util.FileSystemOptions;
 
@@ -42,8 +37,8 @@ public class CreateFileContext
     super(optionsBuilder);
     mCacheable = false;
     // ALLUXIO CS ADD
-    mEncrypted =
-        alluxio.conf.ServerConfiguration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
+    mEncrypted = alluxio.conf.ServerConfiguration
+        .getBoolean(alluxio.conf.PropertyKey.SECURITY_ENCRYPTION_ENABLED);
     // ALLUXIO CS END
   }
 
