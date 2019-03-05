@@ -49,14 +49,14 @@ public final class PrivilegeMasterTest {
 
   /** Rule to create a new temporary folder during each test. */
   @ClassRule
-  public static TemporaryFolder mTestFolder = new TemporaryFolder();
+  public static TemporaryFolder sTestFolder = new TemporaryFolder();
 
   @BeforeClass
   public static void before() throws Exception {
     // To make sure Raft cluster and connect address match.
     ServerConfiguration.set(PropertyKey.MASTER_HOSTNAME, "localhost");
     sRegistry = new MasterRegistry();
-    sJournalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
+    sJournalSystem = JournalTestUtils.createJournalSystem(sTestFolder);
     sMaster = new PrivilegeMasterFactory().create(sRegistry,
         MasterTestUtils.testMasterContext(sJournalSystem));
 
