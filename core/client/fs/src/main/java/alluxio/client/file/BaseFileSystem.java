@@ -425,8 +425,7 @@ public class BaseFileSystem implements FileSystem {
           Collections.shuffle(locations);
         }
       }
-      blockLocations.add(new BlockLocationInfo(GrpcUtils.toProto(fileBlockInfo),
-          locations.stream().map(GrpcUtils::toProto).collect(toList())));
+      blockLocations.add(new BlockLocationInfo(fileBlockInfo, locations));
     }
     return blockLocations;
   }

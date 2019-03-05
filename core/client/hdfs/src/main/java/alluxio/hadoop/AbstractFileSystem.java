@@ -765,7 +765,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   // ALLUXIO CS ADD
   @Override
   public String getCanonicalServiceName() {
-    return buildTokenService(getUri(), mFsContext.getConf());
+    return buildTokenService(getUri(), mFileSystem.getConf());
   }
 
   @Override
@@ -790,10 +790,10 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
     LOG.debug("getDelegationToken, got Alluxio token {}", token.toString());
     // converts Alluxio token to HDFS token
-    AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId(),
-        mFsContext.getConf());
-    org.apache.hadoop.io.Text tokenService = new org.apache.hadoop.io.Text(buildTokenService(mUri,
-        mFsContext.getConf()));
+    AlluxioDelegationTokenIdentifier id =
+        new AlluxioDelegationTokenIdentifier(token.getId(), mFileSystem.getConf());
+    org.apache.hadoop.io.Text tokenService =
+        new org.apache.hadoop.io.Text(buildTokenService(mUri, mFileSystem.getConf()));
     org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> hadoopToken =
         new org.apache.hadoop.security.token.Token<>(id.getBytes(), token.getPassword(),
             id.getKind(), tokenService);
