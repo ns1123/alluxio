@@ -15,7 +15,6 @@ import alluxio.Constants;
 import alluxio.clock.SystemClock;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
-import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.GrpcService;
 import alluxio.grpc.ServiceType;

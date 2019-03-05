@@ -183,8 +183,8 @@ public final class ExtensionInodeAttributesProviderTest {
     BlockContainerIdGenerator containerIdGenerator = new BlockContainerIdGenerator();
     InodeStore inodeStore = new HeapInodeStore(
         new InodeStore.InodeStoreArgs(inodeLockManager, ServerConfiguration.global()));
-    mTree =
-        new InodeTree(inodeStore, containerIdGenerator, new InodeDirectoryIdGenerator(containerIdGenerator), mMountTable, inodeLockManager);
+    mTree = new InodeTree(inodeStore, containerIdGenerator,
+        new InodeDirectoryIdGenerator(containerIdGenerator), mMountTable, inodeLockManager);
     mTree.initializeRoot(TEST_USER_ADMIN.getUser(), TEST_USER_ADMIN.getGroup(), TEST_NORMAL_MODE,
         NoopJournalContext.INSTANCE);
 

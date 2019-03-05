@@ -76,7 +76,7 @@ public class DefaultPermissionChecker implements PermissionChecker {
     // collects existing inodes info on the path. Note that, not all the components of the path have
     // corresponding inodes.
     List<InodeView> inodeList = (List<InodeView>) (List<?>) inodePath.getInodeList();
-    
+
     // collects user and groups
     String user = AuthenticatedClientUser.getClientUser(ServerConfiguration.global());
     List<String> groups = getGroups(user);
