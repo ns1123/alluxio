@@ -1439,7 +1439,13 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       }
       createFileInternal(rpcContext, inodePath, context);
       auditContext.setSrcInode(inodePath.getInode()).setSucceeded(true);
-      return getFileInfoInternal(inodePath);
+      // ALLUXIO CS REPLACE
+      //return getFileInfoInternal(inodePath);
+      // ALLUXIO CS WITH
+      FileInfo fileInfo = getFileInfoInternal(inodePath);
+      populateCapability(fileInfo, inodePath, Mode.Bits.READ);
+      return fileInfo;
+      // ALLUXIO CS END
     }
   }
 
