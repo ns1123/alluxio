@@ -740,7 +740,8 @@ public class BaseFileSystem implements FileSystem {
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     URIStatus status;
     try {
-      status = getStatusInternal(masterClient, path, GetStatusPOptions.getDefaultInstance());
+      status = getStatusInternal(masterClient, path,
+          FileSystemOptions.getStatusDefaults(mFsContext.getConf()));
     } catch (NotFoundException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } catch (UnavailableException e) {
