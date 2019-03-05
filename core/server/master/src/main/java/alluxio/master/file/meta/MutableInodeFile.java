@@ -447,6 +447,9 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
         .setGroup(context.getGroup())
         .setMode(context.getMode().toShort())
         .setAcl(context.getAcl())
+        // ALLUXIO CS ADD
+        .setEncrypted(context.isEncrypted())
+        // ALLUXIO CS END
         .setPersistenceState(context.isPersisted() ? PersistenceState.PERSISTED
             : PersistenceState.NOT_PERSISTED);
   }
