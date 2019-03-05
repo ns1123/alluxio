@@ -14,7 +14,12 @@ package alluxio.security.authentication;
 import alluxio.collections.ConcurrentHashSet;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
+import alluxio.master.journal.CheckpointName;
+import alluxio.master.journal.Journaled;
+import alluxio.proto.journal.File;
+import alluxio.proto.journal.Journal;
 import alluxio.security.MasterKey;
 import alluxio.util.CommonUtils;
 
@@ -38,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The class that manages delegation tokens on Alluxio master.
  */
-public class DelegationTokenManager extends MasterKeyManager {
+public class DelegationTokenManager extends MasterKeyManager implements Journaled {
   private static final Logger LOG = LoggerFactory.getLogger(DelegationTokenManager.class);
 
   /** The maximum amount of time a delegation token. */
@@ -375,6 +380,68 @@ public class DelegationTokenManager extends MasterKeyManager {
    */
   public Map<Long, MasterKey> getMasterKeys() {
     return ImmutableMap.copyOf(mMasterKeys);
+  }
+
+  private void addDelegationTokenFromEntry(File.GetDelegationTokenEntry entry) {
+    addDelegationToken(
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
+            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+        entry.getRenewTime());
+  }
+
+  private void addMasterKeyFromEntry(File.UpdateMasterKeyEntry entry)
+      throws java.security.InvalidKeyException, java.security.NoSuchAlgorithmException {
+    File.MasterKey key = entry.getMasterKey();
+    addMasterKey(new alluxio.security.MasterKey(key.getKeyId(), key.getExpirationTimeMs(),
+        key.getEncodedKey().toByteArray()));
+  }
+
+  private void removeDelegationTokenFromEntry(File.RemoveDelegationTokenEntry entry) {
+    updateDelegationTokenRemoval(
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
+            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)));
+  }
+
+  private void renewDelegationTokenFromEntry(File.RenewDelegationTokenEntry entry) {
+    updateDelegationTokenRenewal(
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
+            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+        entry.getExpirationTimeMs());
+  }
+
+  @Override
+  public boolean processJournalEntry(Journal.JournalEntry entry) {
+    if (entry.hasGetDelegationToken()) {
+      addDelegationTokenFromEntry(entry.getGetDelegationToken());
+    } else if (entry.hasUpdateMasterKey()) {
+      try {
+        addMasterKeyFromEntry(entry.getUpdateMasterKey());
+      } catch (java.security.InvalidKeyException | java.security.NoSuchAlgorithmException e) {
+        throw new RuntimeException(e);
+      }
+    } else if (entry.hasRemoveDelegationToken()) {
+      removeDelegationTokenFromEntry(entry.getRemoveDelegationToken());
+    } else if (entry.hasRenewDelegationToken()) {
+      renewDelegationTokenFromEntry(entry.getRenewDelegationToken());
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public void resetState() {
+    reset();
+  }
+
+  @Override
+  public CheckpointName getCheckpointName() {
+    return null;
+  }
+
+  @Override
+  public Iterator<Journal.JournalEntry> getJournalEntryIterator() {
+    return null;
   }
 
   /**

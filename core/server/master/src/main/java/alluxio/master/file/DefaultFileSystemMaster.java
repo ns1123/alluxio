@@ -3998,34 +3998,6 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
     }
   }
 
-  private void addDelegationTokenFromEntry(File.GetDelegationTokenEntry entry) throws IOException {
-    mDelegationTokenManager.addDelegationToken(
-        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
-            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
-        entry.getRenewTime());
-  }
-
-  private void addMasterKeyFromEntry(File.UpdateMasterKeyEntry entry)
-      throws java.security.InvalidKeyException, java.security.NoSuchAlgorithmException {
-    File.MasterKey key = entry.getMasterKey();
-    mDelegationTokenManager.addMasterKey(
-        new alluxio.security.MasterKey(key.getKeyId(), key.getExpirationTimeMs(),
-            key.getEncodedKey().toByteArray()));
-  }
-
-  private void removeDelegationTokenFromEntry(File.RemoveDelegationTokenEntry entry) throws IOException {
-    mDelegationTokenManager.updateDelegationTokenRemoval(
-        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
-            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)));
-  }
-
-  private void renewDelegationTokenFromEntry(File.RenewDelegationTokenEntry entry) throws IOException {
-    mDelegationTokenManager.updateDelegationTokenRenewal(
-        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
-            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
-        entry.getExpirationTimeMs());
-  }
-
   private class DelegationTokenManagerEventListener
       implements alluxio.security.authentication.DelegationTokenManager.EventListener,
       alluxio.master.journal.JournalEntryIterable {
