@@ -65,7 +65,7 @@ public class ChannelAuthenticator {
   /** Internal ID used to identify the channel that is being authenticated. */
   protected UUID mChannelId;
 
-  private boolean mSecurityEnabled;
+  private boolean mAuthenticationEnabled;
 
   /**
    * Creates {@link ChannelAuthenticator} instance.
@@ -78,7 +78,7 @@ public class ChannelAuthenticator {
     mChannelId = UUID.randomUUID();
     mParentSubject = subject;
     mAuthType = conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
-    mSecurityEnabled = SecurityUtils.isSecurityEnabled(conf);
+    mAuthenticationEnabled = SecurityUtils.isAuthenticationEnabled(conf);
     mGrpcAuthTimeoutMs = conf.getMs(PropertyKey.MASTER_GRPC_CHANNEL_AUTH_TIMEOUT);
   }
 
@@ -130,7 +130,7 @@ public class ChannelAuthenticator {
    * @return the list of interceptors that are required for configured authentication
    */
   private List<ClientInterceptor> getInterceptors(SaslClient saslClient) {
-    if (!mSecurityEnabled) {
+    if (!mAuthenticationEnabled) {
       return Collections.emptyList();
     }
     List<ClientInterceptor> interceptorsList = new ArrayList<>();
