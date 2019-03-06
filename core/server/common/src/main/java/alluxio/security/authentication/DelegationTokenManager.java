@@ -28,6 +28,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -441,7 +442,35 @@ public class DelegationTokenManager extends MasterKeyManager implements Journale
 
   @Override
   public Iterator<Journal.JournalEntry> getJournalEntryIterator() {
-    return null;
+    return Iterators.concat(
+        getJournalEntryIteratorFor(getMasterKeys().entrySet().iterator(),
+            entry -> Journal.JournalEntry.newBuilder()
+                .setUpdateMasterKey(File.UpdateMasterKeyEntry.newBuilder()
+                    .setMasterKey(File.MasterKey.newBuilder().setKeyId(entry.getValue().getKeyId())
+                        .setExpirationTimeMs(entry.getValue().getExpirationTimeMs())
+                        .setEncodedKey(alluxio.util.proto.ProtoUtils
+                            .copyFrom(entry.getValue().getEncodedKey()))))
+                .build()),
+        getJournalEntryIteratorFor(getTokens().entrySet().iterator(), entry -> Journal.JournalEntry
+            .newBuilder()
+            .setGetDelegationToken(File.GetDelegationTokenEntry.newBuilder()
+                .setTokenId(entry.getKey().toProto()).setRenewTime(entry.getValue().getRenewDate()))
+            .build()));
+  }
+
+  private <T> Iterator<Journal.JournalEntry> getJournalEntryIteratorFor(Iterator<T> iterator,
+      java.util.function.Function<T, Journal.JournalEntry> entryFunc) {
+    return new Iterator<Journal.JournalEntry>() {
+      @Override
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+
+      @Override
+      public Journal.JournalEntry next() {
+        return entryFunc.apply(iterator.next());
+      }
+    };
   }
 
   /**
