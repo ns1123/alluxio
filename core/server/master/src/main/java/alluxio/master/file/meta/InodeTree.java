@@ -622,7 +622,7 @@ public class InodeTree implements JournalEntryIterable {
           try {
             // Successfully added the child, while holding the write lock.
             dir.setPinned(currentInodeDirectory.isPinned());
-<<<<<<< HEAD
+            inheritOwnerAndGroupIfEmpty(dir, currentInodeDirectory);
 
             // if the parent has default ACL, copy that default ACL as the new directory's default
             // and access acl, ANDed with the umask
@@ -637,10 +637,6 @@ public class InodeTree implements JournalEntryIterable {
               dir.setInternalAcl(pair.getFirst());
               dir.setDefaultACL(pair.getSecond());
             }
-||||||| merged common ancestors
-=======
-            inheritOwnerAndGroupIfEmpty(dir, currentInodeDirectory);
->>>>>>> aos/branch-1.8
             if (options.isPersisted()) {
               // Do not journal the persist entry, since a creation entry will be journaled instead.
               syncPersistDirectory(RpcContext.NOOP, dir);
