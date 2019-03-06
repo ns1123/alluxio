@@ -436,7 +436,7 @@ public class DelegationTokenManager extends MasterKeyManager implements Journale
 
   @Override
   public CheckpointName getCheckpointName() {
-    return null;
+    return CheckpointName.DELEGATION_TOKEN_MANAGER;
   }
 
   @Override

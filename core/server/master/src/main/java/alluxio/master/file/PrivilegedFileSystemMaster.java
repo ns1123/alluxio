@@ -472,6 +472,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
 
   @Override
   public CheckpointName getCheckpointName() {
-    return CheckpointName.PRIVILEGED_FILE_SYSTEM_MASTER;
+    return CheckpointName.FILE_SYSTEM_MASTER;
   }
 }

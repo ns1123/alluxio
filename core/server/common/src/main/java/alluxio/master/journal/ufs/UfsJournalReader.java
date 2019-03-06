@@ -59,10 +59,6 @@ public final class UfsJournalReader implements JournalReader {
 
   /** Whether the reader is closed. */
   private boolean mClosed;
-  // ALLUXIO CS ADD
-  /** Whether the state machine should be reset. */
-  private boolean mShouldResetState = false;
-  // ALLUXIO CS END
 
   /** The next checkpoint to install. */
   private InputStream mCheckpointStream;
@@ -208,18 +204,6 @@ public final class UfsJournalReader implements JournalReader {
     }
   }
 
-  // ALLUXIO CS ADD
-  @Override
-  public boolean shouldResetState() {
-    return mShouldResetState;
-  }
-
-  @Override
-  public void notifyResetState() {
-    mShouldResetState = false;
-  }
-
-  // ALLUXIO CS END
   /**
    * Updates the journal input stream by closing the current journal input stream if it is done and
    * opening a new one.
@@ -267,9 +251,6 @@ public final class UfsJournalReader implements JournalReader {
 
     if (!mFilesToProcess.isEmpty()) {
       mInputStream = new JournalInputStream(mFilesToProcess.poll());
-      // ALLUXIO CS ADD
-      mShouldResetState = mInputStream.mFile.isCheckpoint();
-      // ALLUXIO CS END
     }
   }
 

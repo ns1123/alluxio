@@ -391,7 +391,7 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
 
     @Override
     public InodeMeta.Inode toProto() {
-      return super.toProtoBuilder().build();
+      throw new UnsupportedOperationException("HdfsAlluxioInode can't be acquired as proto");
     }
 
     @Override

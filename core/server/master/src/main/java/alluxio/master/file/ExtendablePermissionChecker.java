@@ -211,7 +211,8 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
 
     @Override
     public InodeMeta.Inode toProto() {
-      return super.toProtoBuilder().build();
+      throw new UnsupportedOperationException(
+          "InodeWithOverridenAttributes can't be acquired as proto");
     }
 
     @Override
