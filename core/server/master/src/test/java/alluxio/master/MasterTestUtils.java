@@ -12,7 +12,9 @@
 package alluxio.master;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import alluxio.master.journal.CheckpointName;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.noop.NoopJournalSystem;
 import alluxio.master.metastore.heap.HeapBlockStore;
@@ -37,7 +39,9 @@ public final class MasterTestUtils {
   public static CoreMasterContext testMasterContext(JournalSystem journalSystem) {
     return CoreMasterContext.newBuilder()
         // ALLUXIO CS ADD
-        .setDelegationTokenManager(mock(alluxio.security.authentication.DelegationTokenManager.class))
+        .setDelegationTokenManager(when(
+            mock(alluxio.security.authentication.DelegationTokenManager.class).getCheckpointName())
+                .thenReturn(CheckpointName.DELEGATION_TOKEN_MANAGER).getMock())
         // ALLUXIO CS END
         .setJournalSystem(journalSystem)
         .setSafeModeManager(new TestSafeModeManager())
