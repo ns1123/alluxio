@@ -461,8 +461,8 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
     mTimeSeriesStore = new TimeSeriesStore();
     // The mount table should come after the inode tree because restoring the mount table requires
     // that the inode tree is already restored.
-    mJournaledComponents =
-        Arrays.asList(mInodeTree, mDirectoryIdGenerator, mMountTable, mUfsManager, mSyncManager);
+    mJournaledComponents = Arrays.asList(mInodeTree, mDirectoryIdGenerator, mMountTable,
+        mUfsManager, mSyncManager, mDelegationTokenManager);
 
     resetState();
     Metrics.registerGauges(this, mUfsManager);
