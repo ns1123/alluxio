@@ -283,8 +283,8 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public long estimateNumberOfPaths() {
-    return mFileSystemMaster.estimateNumberOfPaths();
+  public long getInodeCount() {
+    return mFileSystemMaster.getInodeCount();
   }
 
   @Override
