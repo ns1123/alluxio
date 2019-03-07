@@ -15,6 +15,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.master.MasterRegistry;
 import alluxio.master.MasterTestUtils;
 import alluxio.master.journal.JournalSystem;
@@ -41,6 +43,7 @@ import java.util.Set;
  * Unit tests for {@link PrivilegeMaster}.
  */
 public final class PrivilegeMasterTest {
+  private JournalSystem mJournalSystem;
   private PrivilegeMaster mMaster;
   private MasterRegistry mRegistry;
 
@@ -51,17 +54,19 @@ public final class PrivilegeMasterTest {
   @Before
   public void before() throws Exception {
     mRegistry = new MasterRegistry();
-    JournalSystem journalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
+    // To make sure Raft cluster and connect address match.
+    ServerConfiguration.set(PropertyKey.MASTER_HOSTNAME, "localhost");
+    mJournalSystem = JournalTestUtils.createJournalSystem(mTestFolder);
     mMaster = new PrivilegeMasterFactory().create(mRegistry,
-        MasterTestUtils.testMasterContext(journalSystem));
-    mRegistry.add(PrivilegeMaster.class, mMaster);
-    journalSystem.start();
-    journalSystem.gainPrimacy();
+        MasterTestUtils.testMasterContext(mJournalSystem));
+    mJournalSystem.start();
+    mJournalSystem.gainPrimacy();
     mRegistry.start(true);
   }
 
   @After
   public void after() throws Exception {
+    mJournalSystem.stop();
     mRegistry.stop();
   }
 

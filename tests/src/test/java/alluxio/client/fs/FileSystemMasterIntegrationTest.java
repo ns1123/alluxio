@@ -17,14 +17,14 @@ import static org.junit.Assume.assumeFalse;
 import alluxio.AlluxioURI;
 import alluxio.AuthenticatedUserRule;
 import alluxio.ClientContext;
-import alluxio.conf.AlluxioConfiguration;
-import alluxio.conf.ServerConfiguration;
 import alluxio.Constants;
-import alluxio.conf.PropertyKey;
-import alluxio.conf.PropertyKey.Name;
 import alluxio.client.block.BlockMasterClient;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemTestUtils;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.PropertyKey.Name;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.exception.ExceptionMessage;
@@ -43,6 +43,7 @@ import alluxio.grpc.GetStatusPOptions;
 import alluxio.grpc.ListStatusPOptions;
 import alluxio.grpc.LoadMetadataPType;
 import alluxio.grpc.SetAttributePOptions;
+import alluxio.grpc.TtlAction;
 import alluxio.grpc.WritePType;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
@@ -51,7 +52,6 @@ import alluxio.master.MasterClientContext;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
-import alluxio.master.file.meta.TtlIntervalRule;
 import alluxio.master.file.contexts.CompleteFileContext;
 import alluxio.master.file.contexts.CreateDirectoryContext;
 import alluxio.master.file.contexts.CreateFileContext;
@@ -62,6 +62,7 @@ import alluxio.master.file.contexts.ListStatusContext;
 import alluxio.master.file.contexts.MountContext;
 import alluxio.master.file.contexts.RenameContext;
 import alluxio.master.file.contexts.SetAttributeContext;
+import alluxio.master.file.meta.TtlIntervalRule;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
 import alluxio.testutils.BaseIntegrationTest;
@@ -79,7 +80,6 @@ import alluxio.util.WaitForOptions;
 import alluxio.util.io.FileUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.FileInfo;
-import alluxio.grpc.TtlAction;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -101,6 +101,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -191,10 +192,9 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
    */
   @Test
   public void clientFileInfoEmptyFile() throws Exception {
-    long fileId = mFsMaster.createFile(new AlluxioURI("/testFile"), CreateFileContext.defaults());
-    FileInfo fileInfo = mFsMaster.getFileInfo(fileId);
+    FileInfo fileInfo =
+        mFsMaster.createFile(new AlluxioURI("/testFile"), CreateFileContext.defaults());
     Assert.assertEquals("testFile", fileInfo.getName());
-    Assert.assertEquals(fileId, fileInfo.getFileId());
     Assert.assertEquals(0, fileInfo.getLength());
     Assert.assertTrue(fileInfo.isCacheable());
     assertFalse(fileInfo.isCompleted());
@@ -333,7 +333,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
   public void createFilePerf() throws Exception {
     for (int k = 0; k < 200; k++) {
       CreateDirectoryContext context = CreateDirectoryContext
-          .defaults(CreateDirectoryPOptions.newBuilder().setRecursive(true));
+          .mergeFrom(CreateDirectoryPOptions.newBuilder().setRecursive(true));
       mFsMaster.createDirectory(
           new AlluxioURI("/testFile").join(Constants.MASTER_COLUMN_FILE_PREFIX + k).join("0"),
           context);
@@ -363,18 +363,18 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     Files.createDirectory(Paths.get(ufs, "testFolder", "ufsOnlyDir"));
     try {
       mFsMaster.delete(new AlluxioURI("/testFolder"), DeleteContext
-          .defaults(DeletePOptions.newBuilder().setUnchecked(false).setRecursive(true)));
+          .mergeFrom(DeletePOptions.newBuilder().setUnchecked(false).setRecursive(true)));
       Assert.fail("Expected deleting an out of sync directory to fail");
     } catch (IOException e) {
       // Expected
     }
     // Make sure the root folder still exists in Alluxio space.
     mFsMaster.listStatus(new AlluxioURI("/testFolder"), ListStatusContext
-        .defaults(ListStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.NEVER)));
+        .mergeFrom(ListStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.NEVER)));
     // The child was in sync, so it should be deleted both from Alluxio and the UFS.
     mThrown.expect(FileDoesNotExistException.class);
     mFsMaster.listStatus(new AlluxioURI("/testFolder/child"), ListStatusContext
-        .defaults(ListStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.ALWAYS)));
+        .mergeFrom(ListStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.ALWAYS)));
   }
 
   @Test
@@ -382,17 +382,17 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryContext.defaults());
     mFsMaster.createDirectory(new AlluxioURI("/testFolder/testFolder2"),
         CreateDirectoryContext.defaults());
-    long fileId =
-        mFsMaster.createFile(new AlluxioURI("/testFolder/testFile"), CreateFileContext.defaults());
+    long fileId = mFsMaster.createFile(new AlluxioURI("/testFolder/testFile"),
+        CreateFileContext.defaults()).getFileId();
     long fileId2 = mFsMaster.createFile(new AlluxioURI("/testFolder/testFolder2/testFile2"),
-        CreateFileContext.defaults());
+        CreateFileContext.defaults()).getFileId();
     Assert.assertEquals(1, mFsMaster.getFileId(new AlluxioURI("/testFolder")));
     Assert.assertEquals(2, mFsMaster.getFileId(new AlluxioURI("/testFolder/testFolder2")));
     Assert.assertEquals(fileId, mFsMaster.getFileId(new AlluxioURI("/testFolder/testFile")));
     Assert.assertEquals(fileId2,
         mFsMaster.getFileId(new AlluxioURI("/testFolder/testFolder2/testFile2")));
     mFsMaster.delete(new AlluxioURI("/testFolder"),
-        DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+        DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
     Assert.assertEquals(IdUtils.INVALID_FILE_ID,
         mFsMaster.getFileId(new AlluxioURI("/testFolder/testFolder2/testFile2")));
   }
@@ -402,10 +402,10 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryContext.defaults());
     mFsMaster.createDirectory(new AlluxioURI("/testFolder/testFolder2"),
         CreateDirectoryContext.defaults());
-    long fileId =
-        mFsMaster.createFile(new AlluxioURI("/testFolder/testFile"), CreateFileContext.defaults());
+    long fileId = mFsMaster.createFile(new AlluxioURI("/testFolder/testFile"),
+        CreateFileContext.defaults()).getFileId();
     long fileId2 = mFsMaster.createFile(new AlluxioURI("/testFolder/testFolder2/testFile2"),
-        CreateFileContext.defaults());
+        CreateFileContext.defaults()).getFileId();
     Assert.assertEquals(1, mFsMaster.getFileId(new AlluxioURI("/testFolder")));
     Assert.assertEquals(2, mFsMaster.getFileId(new AlluxioURI("/testFolder/testFolder2")));
     Assert.assertEquals(fileId, mFsMaster.getFileId(new AlluxioURI("/testFolder/testFile")));
@@ -430,12 +430,12 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
   @Test
   public void deleteDirectoryWithFiles() throws Exception {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryContext.defaults());
-    long fileId =
-        mFsMaster.createFile(new AlluxioURI("/testFolder/testFile"), CreateFileContext.defaults());
+    long fileId = mFsMaster.createFile(new AlluxioURI("/testFolder/testFile"),
+        CreateFileContext.defaults()).getFileId();
     Assert.assertEquals(1, mFsMaster.getFileId(new AlluxioURI("/testFolder")));
     Assert.assertEquals(fileId, mFsMaster.getFileId(new AlluxioURI("/testFolder/testFile")));
     mFsMaster.delete(new AlluxioURI("/testFolder"),
-        DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+        DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
     Assert.assertEquals(IdUtils.INVALID_FILE_ID,
         mFsMaster.getFileId(new AlluxioURI("/testFolder")));
   }
@@ -443,8 +443,8 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
   @Test
   public void deleteDirectoryWithFilesTest2() throws Exception {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryContext.defaults());
-    long fileId =
-        mFsMaster.createFile(new AlluxioURI("/testFolder/testFile"), CreateFileContext.defaults());
+    long fileId = mFsMaster.createFile(new AlluxioURI("/testFolder/testFile"),
+        CreateFileContext.defaults()).getFileId();
     Assert.assertEquals(1, mFsMaster.getFileId(new AlluxioURI("/testFolder")));
     Assert.assertEquals(fileId, mFsMaster.getFileId(new AlluxioURI("/testFolder/testFile")));
     try {
@@ -464,7 +464,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryContext.defaults());
     Assert.assertEquals(1, mFsMaster.getFileId(new AlluxioURI("/testFolder")));
     mFsMaster.delete(new AlluxioURI("/testFolder"),
-        DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+        DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
     Assert.assertEquals(IdUtils.INVALID_FILE_ID,
         mFsMaster.getFileId(new AlluxioURI("/testFolder")));
   }
@@ -480,7 +480,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder/inAlluxio1/inAlluxio2"),
         CreateDirectoryContext.defaults().setPersisted(true));
     mFsMaster.delete(new AlluxioURI("/testFolder"),
-        DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+        DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
     Assert.assertEquals(IdUtils.INVALID_FILE_ID,
         mFsMaster.getFileId(new AlluxioURI("/testFolder")));
   }
@@ -513,10 +513,11 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void deleteFile() throws Exception {
-    long fileId = mFsMaster.createFile(new AlluxioURI("/testFile"), CreateFileContext.defaults());
+    long fileId =
+        mFsMaster.createFile(new AlluxioURI("/testFile"), CreateFileContext.defaults()).getFileId();
     Assert.assertEquals(fileId, mFsMaster.getFileId(new AlluxioURI("/testFile")));
     mFsMaster.delete(new AlluxioURI("/testFile"),
-        DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+        DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
     Assert.assertEquals(IdUtils.INVALID_FILE_ID, mFsMaster.getFileId(new AlluxioURI("/testFile")));
   }
 
@@ -525,7 +526,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     mThrown.expect(InvalidPathException.class);
     mThrown.expectMessage(ExceptionMessage.DELETE_ROOT_DIRECTORY.getMessage());
     mFsMaster.delete(new AlluxioURI("/"),
-        DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+        DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
   }
 
   @Test
@@ -538,10 +539,11 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void lastModificationTimeCompleteFile() throws Exception {
-    long fileId = mFsMaster.createFile(new AlluxioURI("/testFile"), CreateFileContext.defaults());
+    long fileId =
+        mFsMaster.createFile(new AlluxioURI("/testFile"), CreateFileContext.defaults()).getFileId();
     long opTimeMs = TEST_TIME_MS;
     mFsMaster.completeFile(new AlluxioURI("/testFile"), CompleteFileContext
-        .defaults(CompleteFilePOptions.newBuilder().setUfsLength(0)).setOperationTimeMs(opTimeMs));
+        .mergeFrom(CompleteFilePOptions.newBuilder().setUfsLength(0)).setOperationTimeMs(opTimeMs));
     FileInfo fileInfo = mFsMaster.getFileInfo(fileId);
     Assert.assertEquals(opTimeMs, fileInfo.getLastModificationTimeMs());
   }
@@ -567,7 +569,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     long modificationTimeBeforeDelete = mFsMaster.getFileInfo(folderId).getLastModificationTimeMs();
     CommonUtils.sleepMs(2);
     mFsMaster.delete(new AlluxioURI("/testFolder/testFile"),
-        DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+        DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
     long modificationTimeAfterDelete = mFsMaster.getFileInfo(folderId).getLastModificationTimeMs();
     Assert.assertTrue(modificationTimeBeforeDelete < modificationTimeAfterDelete);
   }
@@ -586,7 +588,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
   @Test
   public void listFiles() throws Exception {
     CreateFileContext options =
-        CreateFileContext.defaults(CreateFilePOptions.newBuilder().setBlockSizeBytes(64));
+        CreateFileContext.mergeFrom(CreateFilePOptions.newBuilder().setBlockSizeBytes(64));
 
     HashSet<Long> ids = new HashSet<>();
     HashSet<Long> dirIds = new HashSet<>();
@@ -595,7 +597,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
       mFsMaster.createDirectory(dir, CreateDirectoryContext.defaults());
       dirIds.add(mFsMaster.getFileId(dir));
       for (int j = 0; j < 10; j++) {
-        ids.add(mFsMaster.createFile(dir.join("j" + j), options));
+        ids.add(mFsMaster.createFile(dir.join("j" + j), options).getFileId());
       }
     }
     HashSet<Long> listedIds = new HashSet<>();
@@ -617,7 +619,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
   @Test
   public void listStatus() throws Exception {
     CreateFileContext options =
-        CreateFileContext.defaults(CreateFilePOptions.newBuilder().setBlockSizeBytes(64));
+        CreateFileContext.mergeFrom(CreateFilePOptions.newBuilder().setBlockSizeBytes(64));
 
     for (int i = 0; i < 10; i++) {
       mFsMaster.createDirectory(new AlluxioURI("/i" + i), CreateDirectoryContext.defaults());
@@ -669,9 +671,9 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
   @Test
   public void renameToDeeper() throws Exception {
     CreateFileContext createFileOptions =
-        CreateFileContext.defaults(CreateFilePOptions.newBuilder().setRecursive(true));
+        CreateFileContext.mergeFrom(CreateFilePOptions.newBuilder().setRecursive(true));
     CreateDirectoryContext createDirectoryContext = CreateDirectoryContext
-        .defaults(CreateDirectoryPOptions.newBuilder().setRecursive(true));
+        .mergeFrom(CreateDirectoryPOptions.newBuilder().setRecursive(true));
     mThrown.expect(InvalidPathException.class);
     mFsMaster.createDirectory(new AlluxioURI("/testDir1/testDir2"), createDirectoryContext);
     mFsMaster.createFile(new AlluxioURI("/testDir1/testDir2/testDir3/testFile3"),
@@ -685,7 +687,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryContext.defaults());
     long ttl = 100;
     CreateFileContext context = CreateFileContext
-        .defaults(CreateFilePOptions.newBuilder().setCommonOptions(FileSystemMasterCommonPOptions
+        .mergeFrom(CreateFilePOptions.newBuilder().setCommonOptions(FileSystemMasterCommonPOptions
             .newBuilder().setTtl(ttl).setTtlAction(alluxio.grpc.TtlAction.FREE)));
     mFsMaster.createFile(new AlluxioURI("/testFolder/testFile"), context);
     FileInfo folderInfo =
@@ -698,9 +700,10 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
   public void ttlExpiredCreateFile() throws Exception {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryContext.defaults());
     long ttl = 1;
-    CreateFileContext context = CreateFileContext.defaults(CreateFilePOptions.newBuilder()
+    CreateFileContext context = CreateFileContext.mergeFrom(CreateFilePOptions.newBuilder()
         .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder().setTtl(ttl)));
-    long fileId = mFsMaster.createFile(new AlluxioURI("/testFolder/testFile1"), context);
+    long fileId =
+        mFsMaster.createFile(new AlluxioURI("/testFolder/testFile1"), context).getFileId();
     FileInfo folderInfo =
         mFsMaster.getFileInfo(mFsMaster.getFileId(new AlluxioURI("/testFolder/testFile1")));
     Assert.assertEquals(fileId, folderInfo.getFileId());
@@ -717,10 +720,11 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryContext.defaults());
     long ttl = 1;
     CreateFileContext context = CreateFileContext
-        .defaults(CreateFilePOptions.newBuilder().setCommonOptions(FileSystemMasterCommonPOptions
+        .mergeFrom(CreateFilePOptions.newBuilder().setCommonOptions(FileSystemMasterCommonPOptions
             .newBuilder().setTtl(ttl).setTtlAction(alluxio.grpc.TtlAction.FREE)))
         .setPersisted(true);
-    long fileId = mFsMaster.createFile(new AlluxioURI("/testFolder/testFile1"), context);
+    long fileId =
+        mFsMaster.createFile(new AlluxioURI("/testFolder/testFile1"), context).getFileId();
     FileInfo folderInfo =
         mFsMaster.getFileInfo(mFsMaster.getFileId(new AlluxioURI("/testFolder/testFile1")));
     Assert.assertEquals(fileId, folderInfo.getFileId());
@@ -742,7 +746,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     AlluxioURI dstPath = new AlluxioURI("/testFolder/testFile2");
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryContext.defaults());
     long ttl = 1;
-    CreateFileContext context = CreateFileContext.defaults(CreateFilePOptions.newBuilder()
+    CreateFileContext context = CreateFileContext.mergeFrom(CreateFilePOptions.newBuilder()
         .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder().setTtl(ttl)));
     mFsMaster.createFile(srcPath, context);
     mFsMaster.rename(srcPath, dstPath, RenameContext.defaults().setOperationTimeMs(TEST_TIME_MS));
@@ -777,6 +781,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
       for (Future<?> future : futures) {
         future.get();
       }
+      Assert.assertEquals(countPaths(), mFsMaster.getInodeCount());
 
       // Stop Alluxio.
       mLocalAlluxioClusterResource.get().stopFS();
@@ -788,6 +793,23 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     }
   }
 
+  private long countPaths() throws Exception {
+    long count = 1;
+    Stack<AlluxioURI> dirs = new Stack();
+    dirs.push(new AlluxioURI("/"));
+    while (!dirs.isEmpty()) {
+      AlluxioURI uri = dirs.pop();
+      for (FileInfo child : mFsMaster.listStatus(uri, ListStatusContext.defaults())) {
+        count++;
+        AlluxioURI childUri = new AlluxioURI(PathUtils.concatPath(uri, child.getName()));
+        if (mFsMaster.getFileInfo(childUri, GetStatusContext.defaults()).isFolder()) {
+          dirs.push(childUri);
+        }
+      }
+    }
+    return count;
+  }
+
   @Test
   public void syncReplay() throws Exception {
     AlluxioURI root = new AlluxioURI("/");
@@ -796,12 +818,12 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     // Create a persisted Alluxio file (but no ufs file).
     mFsMaster.createFile(alluxioFile, CreateFileContext.defaults().setPersisted(true));
     mFsMaster.completeFile(alluxioFile,
-        CompleteFileContext.defaults(CompleteFilePOptions.newBuilder().setUfsLength(0))
+        CompleteFileContext.mergeFrom(CompleteFilePOptions.newBuilder().setUfsLength(0))
             .setOperationTimeMs(TEST_TIME_MS));
 
     // List what is in Alluxio, without syncing.
     List<FileInfo> files = mFsMaster.listStatus(root,
-        ListStatusContext.defaults(ListStatusPOptions.newBuilder()
+        ListStatusContext.mergeFrom(ListStatusPOptions.newBuilder()
             .setLoadMetadataType(LoadMetadataPType.NEVER)
             .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder().setSyncIntervalMs(-1))));
     Assert.assertEquals(1, files.size());
@@ -814,7 +836,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
     // List with syncing, which will remove alluxio only path, and add ufs only paths.
     files = mFsMaster.listStatus(root,
-        ListStatusContext.defaults(ListStatusPOptions.newBuilder()
+        ListStatusContext.mergeFrom(ListStatusPOptions.newBuilder()
             .setLoadMetadataType(LoadMetadataPType.NEVER)
             .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder().setSyncIntervalMs(0))));
     Assert.assertEquals(2, files.size());
@@ -830,7 +852,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
     // List what is in Alluxio, without syncing. Should match the last state.
     files = fsMaster.listStatus(root,
-        ListStatusContext.defaults(ListStatusPOptions.newBuilder()
+        ListStatusContext.mergeFrom(ListStatusPOptions.newBuilder()
             .setLoadMetadataType(LoadMetadataPType.NEVER)
             .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder().setSyncIntervalMs(-1))));
     Assert.assertEquals(2, files.size());
@@ -855,7 +877,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
     // List dir with syncing
     FileInfo info = mFsMaster.getFileInfo(dir,
-        GetStatusContext.defaults(GetStatusPOptions.newBuilder()
+        GetStatusContext.mergeFrom(GetStatusPOptions.newBuilder()
             .setLoadMetadataType(LoadMetadataPType.NEVER).setCommonOptions(
                 FileSystemMasterCommonPOptions.newBuilder().setSyncIntervalMs(0).build())));
     Assert.assertNotNull(info);
@@ -868,7 +890,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
     // List dir with syncing, should update the mode
     info = mFsMaster.getFileInfo(dir,
-        GetStatusContext.defaults(GetStatusPOptions.newBuilder()
+        GetStatusContext.mergeFrom(GetStatusPOptions.newBuilder()
             .setLoadMetadataType(LoadMetadataPType.NEVER).setCommonOptions(
                 FileSystemMasterCommonPOptions.newBuilder().setSyncIntervalMs(0).build())));
     Assert.assertNotNull(info);
@@ -885,7 +907,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
     // List what is in Alluxio, without syncing.
     info = fsMaster.getFileInfo(dir,
-        GetStatusContext.defaults(GetStatusPOptions.newBuilder()
+        GetStatusContext.mergeFrom(GetStatusPOptions.newBuilder()
             .setLoadMetadataType(LoadMetadataPType.NEVER).setCommonOptions(
                 FileSystemMasterCommonPOptions.newBuilder().setSyncIntervalMs(-1).build())));
     Assert.assertNotNull(info);
@@ -930,7 +952,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     // Create a persisted Alluxio file (but no ufs file).
     try {
       mFsMaster.createFile(alluxioFile, CreateFileContext
-          .defaults(CreateFilePOptions.newBuilder().setRecursive(true)).setPersisted(true));
+          .mergeFrom(CreateFilePOptions.newBuilder().setRecursive(true)).setPersisted(true));
       Assert.fail("persisted create should fail, when UFS is unavailable");
     } catch (Exception e) {
       // expected, ignore
@@ -953,7 +975,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     try {
       // should not exist
       mFsMaster.delete(new AlluxioURI("/mnt/dir1/"),
-          DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+          DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
       Assert.fail("cannot delete non-existing directory, when UFS is unavailable");
     } catch (Exception e) {
       // expected, ignore
@@ -1076,7 +1098,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
     mThrown.expect(FailedPreconditionException.class);
     mFsMaster.delete(alluxioDirectory,
-        DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+        DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
 
     // Check Alluxio entries exist after failed delete
     long dirId = mFsMaster.getFileId(alluxioDirectory);
@@ -1128,12 +1150,12 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
         UfsMode.READ_ONLY);
     long opTimeMs = TEST_TIME_MS;
     mFsMaster.completeFile(alluxioFile, CompleteFileContext
-        .defaults(CompleteFilePOptions.newBuilder().setUfsLength(0))
+        .mergeFrom(CompleteFilePOptions.newBuilder().setUfsLength(0))
         .setOperationTimeMs(opTimeMs));
 
     mThrown.expect(AccessControlException.class);
     mFsMaster.setAttribute(alluxioFile, SetAttributeContext
-        .defaults(SetAttributePOptions.newBuilder().setMode(new Mode((short) 0777).toProto())));
+        .mergeFrom(SetAttributePOptions.newBuilder().setMode(new Mode((short) 0777).toProto())));
   }
 
   @Test
@@ -1167,7 +1189,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     AlluxioURI path = new AlluxioURI(Paths.get("/d1", "d2", "d3", "d4").toString());
 
     mFsMaster.createDirectory(path,
-        CreateDirectoryContext.defaults(CreateDirectoryPOptions.newBuilder().setRecursive(true)
+        CreateDirectoryContext.mergeFrom(CreateDirectoryPOptions.newBuilder().setRecursive(true)
             .setMode(new Mode((short) 0755).toProto())).setPersisted(true));
 
     long fileId = mFsMaster.getFileId(new AlluxioURI("/d1"));
@@ -1192,7 +1214,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     AlluxioURI path = new AlluxioURI(Paths.get("/d1", "d2", "d3").toString());
 
     mFsMaster.listStatus(path, ListStatusContext
-        .defaults(ListStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.ONCE)));
+        .mergeFrom(ListStatusPOptions.newBuilder().setLoadMetadataType(LoadMetadataPType.ONCE)));
 
     long fileId = mFsMaster.getFileId(new AlluxioURI("/d1"));
     FileInfo fileInfo = mFsMaster.getFileInfo(fileId);
@@ -1214,7 +1236,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     AlluxioURI path = new AlluxioURI(Paths.get("/d1", "d2", "d3", "d4").toString());
     String ufsPath = Paths.get(ufs, "d1", "d2", "d3", "d4").toString();
     mFsMaster.createDirectory(path,
-        CreateDirectoryContext.defaults(CreateDirectoryPOptions.newBuilder().setRecursive(true)
+        CreateDirectoryContext.mergeFrom(CreateDirectoryPOptions.newBuilder().setRecursive(true)
             .setMode(new Mode((short) 0700).toProto())).setPersisted(true));
     long fileId = mFsMaster.getFileId(path);
     FileInfo fileInfo = mFsMaster.getFileInfo(fileId);
@@ -1242,7 +1264,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
     // this should fail
     mFsMaster.createDirectory(path,
-        CreateDirectoryContext.defaults(CreateDirectoryPOptions.newBuilder().setRecursive(true)
+        CreateDirectoryContext.mergeFrom(CreateDirectoryPOptions.newBuilder().setRecursive(true)
             .setMode(new Mode((short) 0755).toProto())).setPersisted(true));
   }
 
@@ -1310,7 +1332,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
     AlluxioURI parentPath = new AlluxioURI("/" + parentName);
     AlluxioURI path = new AlluxioURI("/" + Paths.get(parentName, childName));
     mFsMaster.createDirectory(path,
-        CreateDirectoryContext.defaults(CreateDirectoryPOptions.newBuilder().setRecursive(true)
+        CreateDirectoryContext.mergeFrom(CreateDirectoryPOptions.newBuilder().setRecursive(true)
             .setMode(new Mode((short) 0700).toProto())).setPersisted(true));
     long fileId = mFsMaster.getFileId(path);
 
@@ -1388,7 +1410,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
       if (depth < 1) {
         return;
       } else if (depth == 1) {
-        long fileId = mFsMaster.createFile(path, mCreateFileContext);
+        long fileId = mFsMaster.createFile(path, mCreateFileContext).getFileId();
         Assert.assertEquals(fileId, mFsMaster.getFileId(path));
         // verify the user permission for file
         FileInfo fileInfo = mFsMaster.getFileInfo(fileId);
@@ -1458,7 +1480,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
     private void doFree(AlluxioURI path) throws Exception {
       mFsMaster.free(path,
-          FreeContext.defaults(FreePOptions.newBuilder().setForced(true).setRecursive(true)));
+          FreeContext.mergeFrom(FreePOptions.newBuilder().setForced(true).setRecursive(true)));
       Assert.assertNotEquals(IdUtils.INVALID_FILE_ID, mFsMaster.getFileId(path));
     }
 
@@ -1533,7 +1555,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
 
     private void doDelete(AlluxioURI path) throws Exception {
       mFsMaster.delete(path,
-          DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+          DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
       Assert.assertEquals(IdUtils.INVALID_FILE_ID, mFsMaster.getFileId(path));
     }
 
@@ -1633,7 +1655,7 @@ public class FileSystemMasterIntegrationTest extends BaseIntegrationTest {
         long fileId = mFsMaster.getFileId(srcPath);
         try {
           CreateDirectoryContext context = CreateDirectoryContext
-              .defaults(CreateDirectoryPOptions.newBuilder().setRecursive(true));
+              .mergeFrom(CreateDirectoryPOptions.newBuilder().setRecursive(true));
           mFsMaster.createDirectory(dstPath.getParent(), context);
         } catch (FileAlreadyExistsException | InvalidPathException e) {
           // FileAlreadyExistsException: This is an acceptable exception to get, since we

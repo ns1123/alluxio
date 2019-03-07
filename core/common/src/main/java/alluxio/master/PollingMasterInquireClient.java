@@ -14,18 +14,20 @@ package alluxio.master;
 import static java.util.stream.Collectors.joining;
 
 import alluxio.conf.AlluxioConfiguration;
-import alluxio.exception.status.UnauthenticatedException;
+import alluxio.conf.PropertyKey;
+import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.UnavailableException;
-import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.grpc.GetServiceVersionPRequest;
 import alluxio.grpc.GrpcChannel;
 import alluxio.grpc.GrpcChannelBuilder;
 import alluxio.grpc.ServiceType;
 import alluxio.grpc.ServiceVersionClientServiceGrpc;
+import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
 import alluxio.uri.Authority;
 import alluxio.uri.MultiMasterAuthority;
 
+import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,20 +99,26 @@ public class PollingMasterInquireClient implements MasterInquireClient {
       } catch (UnavailableException e) {
         LOG.debug("Failed to connect to {}", address);
         continue;
-      } catch (UnauthenticatedException e) {
+      } catch (AlluxioStatusException e) {
         throw new RuntimeException(e);
       }
     }
     return null;
   }
 
-  private void pingMetaService(InetSocketAddress address)
-      throws UnauthenticatedException, UnavailableException {
+  private void pingMetaService(InetSocketAddress address) throws AlluxioStatusException {
     GrpcChannel channel = GrpcChannelBuilder.newBuilder(address, mConfiguration).build();
     ServiceVersionClientServiceGrpc.ServiceVersionClientServiceBlockingStub versionClient =
         ServiceVersionClientServiceGrpc.newBlockingStub(channel);
-    versionClient.getServiceVersion(GetServiceVersionPRequest.newBuilder()
-        .setServiceType(ServiceType.META_MASTER_CLIENT_SERVICE).build());
+    ServiceType serviceType
+        = address.getPort() == mConfiguration.getInt(PropertyKey.JOB_MASTER_RPC_PORT)
+        ? ServiceType.JOB_MASTER_CLIENT_SERVICE : ServiceType.META_MASTER_CLIENT_SERVICE;
+    try {
+      versionClient.getServiceVersion(GetServiceVersionPRequest.newBuilder()
+          .setServiceType(serviceType).build());
+    } catch (StatusRuntimeException e) {
+      throw AlluxioStatusException.fromThrowable(e);
+    }
     channel.shutdown();
   }
 

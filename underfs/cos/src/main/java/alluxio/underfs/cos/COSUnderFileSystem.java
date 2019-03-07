@@ -237,6 +237,7 @@ public class COSUnderFileSystem extends ObjectUnderFileSystem {
     @Override
     public ObjectListingChunk getNextChunk() throws IOException {
       if (mResult.isTruncated()) {
+        mRequest.setMarker(mResult.getNextMarker());
         ObjectListing nextResult = mClient.listObjects(mRequest);
         if (nextResult != null) {
           return new COSObjectListingChunk(mRequest, nextResult);
@@ -303,7 +304,7 @@ public class COSUnderFileSystem extends ObjectUnderFileSystem {
   protected InputStream openObject(String key, OpenOptions options) throws IOException {
     try {
       return new COSInputStream(mBucketNameInternal, key, mClient, options.getOffset(),
-          mAlluxioConf.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT));
+          mAlluxioConf.getBytes(PropertyKey.UNDERFS_OBJECT_STORE_MULTI_RANGE_CHUNK_SIZE));
     } catch (CosClientException e) {
       throw new IOException(e.getMessage());
     }

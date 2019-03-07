@@ -2,6 +2,7 @@ syntax = "proto2";
 
 package alluxio.proto.journal;
 
+import "grpc/common.proto";
 import "proto/shared/acl.proto";
 
 // ALLUXIO CS ADD
@@ -73,7 +74,6 @@ message DeleteFileEntry {
 message DeleteMountPointEntry {
   optional string alluxio_path = 1;
 }
-
 
 // Creates a new block for a file inode.
 // next available id: 2

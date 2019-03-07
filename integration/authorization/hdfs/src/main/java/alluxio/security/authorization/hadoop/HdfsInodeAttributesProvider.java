@@ -23,7 +23,9 @@ import alluxio.master.file.InodeAttributesProvider;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeView;
+import alluxio.master.file.meta.MutableInode;
 import alluxio.proto.journal.Journal;
+import alluxio.proto.meta.InodeMeta;
 import alluxio.security.LoginUser;
 import alluxio.security.authorization.AuthorizationPluginConstants;
 import alluxio.security.authorization.DefaultAccessControlList;
@@ -358,7 +360,7 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
    * It is used when HDFS authorization plugin is calling Alluxio permission checker to fallback to
    * default permission checking logic.
    */
-  private class HdfsAlluxioInode extends Inode<HdfsAlluxioInode> {
+  private class HdfsAlluxioInode extends MutableInode<HdfsAlluxioInode> {
     public HdfsAlluxioInode(INode hdfsINode) {
       super(Preconditions.checkNotNull(hdfsINode, "hdfsINode").getId(), hdfsINode.isDirectory());
       setName(hdfsINode.getLocalName());
@@ -385,6 +387,11 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
     public FileInfo generateClientFileInfo(String path) {
       throw new UnsupportedOperationException(
           "HdfsAlluxioInode should not be used for client RPC calls.");
+    }
+
+    @Override
+    public InodeMeta.Inode toProto() {
+      throw new UnsupportedOperationException("HdfsAlluxioInode can't be acquired as proto");
     }
 
     @Override

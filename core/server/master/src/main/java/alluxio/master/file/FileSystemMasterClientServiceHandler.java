@@ -15,8 +15,6 @@ import alluxio.AlluxioURI;
 import alluxio.RpcUtils;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
-import alluxio.grpc.CancelDelegationTokenPRequest;
-import alluxio.grpc.CancelDelegationTokenPResponse;
 import alluxio.grpc.CheckConsistencyPOptions;
 import alluxio.grpc.CheckConsistencyPRequest;
 import alluxio.grpc.CheckConsistencyPResponse;
@@ -29,7 +27,6 @@ import alluxio.grpc.CreateDirectoryPResponse;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.CreateFilePRequest;
 import alluxio.grpc.CreateFilePResponse;
-import alluxio.grpc.DelegationToken;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.DeletePRequest;
 import alluxio.grpc.DeletePResponse;
@@ -38,8 +35,8 @@ import alluxio.grpc.FileSystemMasterClientServiceGrpc;
 import alluxio.grpc.FreePOptions;
 import alluxio.grpc.FreePRequest;
 import alluxio.grpc.FreePResponse;
-import alluxio.grpc.GetDelegationTokenPRequest;
-import alluxio.grpc.GetDelegationTokenPResponse;
+import alluxio.grpc.GetFilePathPRequest;
+import alluxio.grpc.GetFilePathPResponse;
 import alluxio.grpc.GetMountTablePRequest;
 import alluxio.grpc.GetMountTablePResponse;
 import alluxio.grpc.GetNewBlockIdForFilePOptions;
@@ -60,8 +57,6 @@ import alluxio.grpc.PAclEntry;
 import alluxio.grpc.RenamePOptions;
 import alluxio.grpc.RenamePRequest;
 import alluxio.grpc.RenamePResponse;
-import alluxio.grpc.RenewDelegationTokenPRequest;
-import alluxio.grpc.RenewDelegationTokenPResponse;
 import alluxio.grpc.ScheduleAsyncPersistencePOptions;
 import alluxio.grpc.ScheduleAsyncPersistencePRequest;
 import alluxio.grpc.ScheduleAsyncPersistencePResponse;
@@ -141,7 +136,7 @@ public final class FileSystemMasterClientServiceHandler
     RpcUtils.call(LOG,
         (RpcUtils.RpcCallableThrowsIOException<CheckConsistencyPResponse>) () -> {
           List<AlluxioURI> inconsistentUris = mFileSystemMaster.checkConsistency(
-              new AlluxioURI(path), CheckConsistencyContext.defaults(options.toBuilder()));
+              new AlluxioURI(path), CheckConsistencyContext.create(options.toBuilder()));
           List<String> uris = new ArrayList<>(inconsistentUris.size());
           for (AlluxioURI uri : inconsistentUris) {
             uris.add(uri.getPath());
@@ -157,7 +152,7 @@ public final class FileSystemMasterClientServiceHandler
     CompleteFilePOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<CompleteFilePResponse>) () -> {
       mFileSystemMaster.completeFile(new AlluxioURI(path),
-          CompleteFileContext.defaults(options.toBuilder()));
+          CompleteFileContext.create(options.toBuilder()));
       return CompleteFilePResponse.newBuilder().build();
     }, "CompleteFile", "path=%s, options=%s", responseObserver, path, options);
   }
@@ -170,7 +165,7 @@ public final class FileSystemMasterClientServiceHandler
     RpcUtils.call(LOG,
         (RpcUtils.RpcCallableThrowsIOException<CreateDirectoryPResponse>) () -> {
           mFileSystemMaster.createDirectory(new AlluxioURI(path),
-              CreateDirectoryContext.defaults(options.toBuilder()));
+              CreateDirectoryContext.create(options.toBuilder()));
           return CreateDirectoryPResponse.newBuilder().build();
         }, "CreateDirectory", "path=%s, options=%s", responseObserver, path, options);
   }
@@ -180,11 +175,11 @@ public final class FileSystemMasterClientServiceHandler
       StreamObserver<CreateFilePResponse> responseObserver) {
     String path = request.getPath();
     CreateFilePOptions options = request.getOptions();
-    RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<CreateFilePResponse>) () -> {
-      mFileSystemMaster.createFile(new AlluxioURI(path),
-          CreateFileContext.defaults(options.toBuilder()));
-      return CreateFilePResponse.newBuilder().build();
-    }, "CreateFile", "path=%s, options=%s", responseObserver, path, options);
+    RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<CreateFilePResponse>)
+        () -> CreateFilePResponse.newBuilder().setFileInfo(GrpcUtils.toProto(
+            mFileSystemMaster.createFile(new AlluxioURI(path),
+                CreateFileContext.create(options.toBuilder())))).build(),
+        "CreateFile", "path=%s, options=%s", responseObserver, path, options);
   }
 
   @Override
@@ -192,7 +187,7 @@ public final class FileSystemMasterClientServiceHandler
     String path = request.getPath();
     FreePOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<FreePResponse>) () -> {
-      mFileSystemMaster.free(new AlluxioURI(path), FreeContext.defaults(options.toBuilder()));
+      mFileSystemMaster.free(new AlluxioURI(path), FreeContext.create(options.toBuilder()));
       return FreePResponse.newBuilder().build();
     }, "Free", "path=%s, options=%s", responseObserver, path, options);
   }
@@ -210,52 +205,67 @@ public final class FileSystemMasterClientServiceHandler
   // ALLUXIO CS ADD
 
   @Override
-  public void getDelegationToken(GetDelegationTokenPRequest request,
-      StreamObserver<GetDelegationTokenPResponse> responseObserver) {
-    RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<GetDelegationTokenPResponse>) () -> {
-      alluxio.security.authentication.Token<DelegationTokenIdentifier> token =
-          mFileSystemMaster.getDelegationToken(request.getRenewer());
-      return GetDelegationTokenPResponse.newBuilder()
-          .setToken(DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
-              .setPassword(ByteString.copyFrom(token.getPassword())))
-          .build();
-    }, "GetDelegationToken", "request=%s", responseObserver, request);
+  public void getDelegationToken(alluxio.grpc.GetDelegationTokenPRequest request,
+      StreamObserver<alluxio.grpc.GetDelegationTokenPResponse> responseObserver) {
+    RpcUtils.call(LOG,
+        (RpcUtils.RpcCallableThrowsIOException<alluxio.grpc.GetDelegationTokenPResponse>) () -> {
+          alluxio.security.authentication.Token<DelegationTokenIdentifier> token =
+              mFileSystemMaster.getDelegationToken(request.getRenewer());
+          return alluxio.grpc.GetDelegationTokenPResponse.newBuilder()
+              .setToken(
+                  alluxio.grpc.DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
+                      .setPassword(ByteString.copyFrom(token.getPassword())))
+              .build();
+        }, "GetDelegationToken", "request=%s", responseObserver, request);
   }
 
   @Override
-  public void renewDelegationToken(RenewDelegationTokenPRequest request,
-      StreamObserver<RenewDelegationTokenPResponse> responseObserver) {
+  public void renewDelegationToken(alluxio.grpc.RenewDelegationTokenPRequest request,
+      StreamObserver<alluxio.grpc.RenewDelegationTokenPResponse> responseObserver) {
     RpcUtils.call(LOG,
-        (RpcUtils.RpcCallableThrowsIOException<RenewDelegationTokenPResponse>) () -> {
+        (RpcUtils.RpcCallableThrowsIOException<alluxio.grpc.RenewDelegationTokenPResponse>) () -> {
           alluxio.security.authentication.Token<DelegationTokenIdentifier> delegationToken =
               new alluxio.security.authentication.Token<>(
-                  alluxio.security.authentication.DelegationTokenIdentifier
-                      .fromProto(request.getToken().getIdentifier(),
-                          ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+                  alluxio.security.authentication.DelegationTokenIdentifier.fromProto(
+                      request.getToken().getIdentifier(),
+                      ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
                   request.getToken().getPassword().toByteArray());
           long expirationTimeMs = mFileSystemMaster.renewDelegationToken(delegationToken);
-          return RenewDelegationTokenPResponse.newBuilder().setExpirationTimeMs(expirationTimeMs)
-              .build();
+          return alluxio.grpc.RenewDelegationTokenPResponse.newBuilder()
+              .setExpirationTimeMs(expirationTimeMs).build();
         }, "RenewDelegationToken", "request=%s", responseObserver, request);
   }
 
   @Override
-  public void cancelDelegationToken(CancelDelegationTokenPRequest request,
-      StreamObserver<CancelDelegationTokenPResponse> responseObserver) {
+  public void cancelDelegationToken(alluxio.grpc.CancelDelegationTokenPRequest request,
+      StreamObserver<alluxio.grpc.CancelDelegationTokenPResponse> responseObserver) {
     RpcUtils.call(LOG,
-        (RpcUtils.RpcCallableThrowsIOException<CancelDelegationTokenPResponse>) () -> {
+        (RpcUtils.RpcCallableThrowsIOException<alluxio.grpc.CancelDelegationTokenPResponse>) () -> {
           alluxio.security.authentication.Token<DelegationTokenIdentifier> delegationToken =
               new alluxio.security.authentication.Token<>(
-                  alluxio.security.authentication.DelegationTokenIdentifier
-                      .fromProto(request.getToken().getIdentifier(),
-                          ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+                  alluxio.security.authentication.DelegationTokenIdentifier.fromProto(
+                      request.getToken().getIdentifier(),
+                      ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
                   request.getToken().getPassword().toByteArray());
           mFileSystemMaster.cancelDelegationToken(delegationToken);
-          return CancelDelegationTokenPResponse.getDefaultInstance();
+          return alluxio.grpc.CancelDelegationTokenPResponse.getDefaultInstance();
         }, "CancelDelegationToken", "request=%s", responseObserver, request);
   }
 
   // ALLUXIO CS END
+
+  @Override
+  public void getFilePath(GetFilePathPRequest request,
+      StreamObserver<GetFilePathPResponse> responseObserver) {
+    long fileId = request.getFileId();
+    RpcUtils.call(LOG,
+        (RpcUtils.RpcCallableThrowsIOException<GetFilePathPResponse>) () -> GetFilePathPResponse
+            .newBuilder()
+            .setPath(mFileSystemMaster.getPath(fileId).toString())
+            .build(),
+        "GetFilePath", true, "id=%s", responseObserver, fileId);
+  }
+
   @Override
   public void getStatus(GetStatusPRequest request,
       StreamObserver<GetStatusPResponse> responseObserver) {
@@ -265,7 +275,7 @@ public final class FileSystemMasterClientServiceHandler
         (RpcUtils.RpcCallableThrowsIOException<GetStatusPResponse>) () -> GetStatusPResponse
             .newBuilder()
             .setFileInfo(GrpcUtils.toProto(mFileSystemMaster.getFileInfo(new AlluxioURI(path),
-                GetStatusContext.defaults(options.toBuilder()))))
+                GetStatusContext.create(options.toBuilder()))))
             .build(),
         "GetStatus", true, "path=%s, options=%s", responseObserver, path, options);
   }
@@ -278,7 +288,7 @@ public final class FileSystemMasterClientServiceHandler
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<ListStatusPResponse>) () -> {
       List<FileInfo> result = new ArrayList<>();
       for (alluxio.wire.FileInfo fileInfo : mFileSystemMaster.listStatus(new AlluxioURI(path),
-          ListStatusContext.defaults(options.toBuilder()))) {
+          ListStatusContext.create(options.toBuilder()))) {
         result.add(GrpcUtils.toProto(fileInfo));
       }
       return ListStatusPResponse.newBuilder().addAllFileInfos(result).build();
@@ -292,7 +302,7 @@ public final class FileSystemMasterClientServiceHandler
     MountPOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<MountPResponse>) () -> {
       mFileSystemMaster.mount(new AlluxioURI(alluxioPath), new AlluxioURI(ufsPath),
-          MountContext.defaults(options.toBuilder()));
+          MountContext.create(options.toBuilder()));
       return MountPResponse.newBuilder().build();
     }, "Mount", "alluxioPath=%s, ufsPath=%s, options=%s", responseObserver, alluxioPath, ufsPath,
         options);
@@ -327,7 +337,7 @@ public final class FileSystemMasterClientServiceHandler
     String path = request.getPath();
     DeletePOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<DeletePResponse>) () -> {
-      mFileSystemMaster.delete(new AlluxioURI(path), DeleteContext.defaults(options.toBuilder()));
+      mFileSystemMaster.delete(new AlluxioURI(path), DeleteContext.create(options.toBuilder()));
       return DeletePResponse.newBuilder().build();
     }, "Remove", "path=%s, options=%s", responseObserver, path, options);
   }
@@ -339,7 +349,7 @@ public final class FileSystemMasterClientServiceHandler
     RenamePOptions options = request.getOptions();
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<RenamePResponse>) () -> {
       mFileSystemMaster.rename(new AlluxioURI(srcPath), new AlluxioURI(dstPath),
-          RenameContext.defaults(options.toBuilder()));
+          RenameContext.create(options.toBuilder()));
       return RenamePResponse.newBuilder().build();
     }, "Rename", "srcPath=%s, dstPath=%s, options=%s", responseObserver, srcPath, dstPath, options);
   }
@@ -431,7 +441,7 @@ public final class FileSystemMasterClientServiceHandler
     RpcUtils.call(LOG, (RpcUtils.RpcCallableThrowsIOException<SetAclPResponse>) () -> {
       mFileSystemMaster.setAcl(new AlluxioURI(alluxioPath), aclAction,
           aclList.stream().map(GrpcUtils::fromProto).collect(Collectors.toList()),
-          SetAclContext.defaults(options.toBuilder()));
+          SetAclContext.create(options.toBuilder()));
       return SetAclPResponse.newBuilder().build();
     }, "setAcl", "alluxioPath=%s, setAclAction=%s, aclEntries=%s, options=%s", responseObserver,
         alluxioPath, aclAction.name(), aclList, options);

@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -224,12 +226,12 @@ public final class LsCommand extends AbstractFileSystemCommand {
   private void ls(AlluxioURI path, boolean recursive, boolean forceLoadMetadata, boolean dirAsFile,
                   boolean hSize, boolean pinnedOnly, String sortField, boolean reverse)
       throws AlluxioException, IOException {
+    URIStatus pathStatus = mFileSystem.getStatus(path);
     if (dirAsFile) {
-      URIStatus status = mFileSystem.getStatus(path);
-      if (pinnedOnly && !status.isPinned()) {
+      if (pinnedOnly && !pathStatus.isPinned()) {
         return;
       }
-      printLsString(status, hSize);
+      printLsString(pathStatus, hSize);
       return;
     }
 
@@ -238,7 +240,21 @@ public final class LsCommand extends AbstractFileSystemCommand {
       optionsBuilder.setLoadMetadataType(LoadMetadataPType.ALWAYS);
     }
     optionsBuilder.setRecursive(recursive);
+
+    // If list status takes too long, print the message
+    Timer timer = new Timer();
+    if (pathStatus.isFolder()) {
+      timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+          System.out.printf("Getting directory status of %s files or sub-directories "
+              + "may take a while.", pathStatus.getLength());
+        }
+      }, 10000);
+    }
     List<URIStatus> statuses = mFileSystem.listStatus(path, optionsBuilder.build());
+    timer.cancel();
+
     List<URIStatus> sorted = sortByFieldAndOrder(statuses, sortField, reverse);
     for (URIStatus status : sorted) {
       if (!pinnedOnly || status.isPinned()) {

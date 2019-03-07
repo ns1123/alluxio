@@ -11,6 +11,7 @@
 
 package alluxio.web;
 
+import alluxio.client.file.FileSystem;
 import alluxio.conf.ServerConfiguration;
 import alluxio.Constants;
 import alluxio.conf.PropertyKey;
@@ -43,6 +44,10 @@ public final class WorkerWebServer extends WebServer {
   private static final Logger LOG = LoggerFactory.getLogger(WorkerWebServer.class);
 
   public static final String ALLUXIO_WORKER_SERVLET_RESOURCE_KEY = "Alluxio Worker";
+  public static final String ALLUXIO_FILESYSTEM_CLIENT_RESOURCE_KEY =
+      "Alluxio Worker FileSystem Client";
+
+  private FileSystem mFileSystem;
 
   /**
    * Creates a new instance of {@link WorkerWebServer}.
@@ -60,6 +65,8 @@ public final class WorkerWebServer extends WebServer {
     // REST configuration
     ResourceConfig config = new ResourceConfig().packages("alluxio.worker", "alluxio.worker.block")
         .register(JacksonProtobufObjectMapperProvider.class);
+    mFileSystem = FileSystem.Factory.create(ServerConfiguration.global());
+
     // Override the init method to inject a reference to AlluxioWorker into the servlet context.
     // ServletContext may not be modified until after super.init() is called.
     ServletContainer servlet = new ServletContainer(config) {
@@ -69,6 +76,7 @@ public final class WorkerWebServer extends WebServer {
       public void init() throws ServletException {
         super.init();
         getServletContext().setAttribute(ALLUXIO_WORKER_SERVLET_RESOURCE_KEY, workerProcess);
+        getServletContext().setAttribute(ALLUXIO_FILESYSTEM_CLIENT_RESOURCE_KEY, mFileSystem);
       }
     };
 
@@ -92,5 +100,11 @@ public final class WorkerWebServer extends WebServer {
     } catch (MalformedURLException e) {
       LOG.error("ERROR: resource path is malformed", e);
     }
+  }
+
+  @Override
+  public void stop() throws Exception {
+    mFileSystem.close();
+    super.stop();
   }
 }

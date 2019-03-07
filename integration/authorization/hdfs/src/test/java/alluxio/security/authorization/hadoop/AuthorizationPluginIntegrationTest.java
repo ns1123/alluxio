@@ -98,6 +98,8 @@ public final class AuthorizationPluginIntegrationTest {
       put(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, AlluxioTestDirectory
           .createTemporaryDirectory("FileSystemMasterTest").getAbsolutePath());
       put(PropertyKey.SECURITY_AUTHORIZATION_PLUGINS_ENABLED, "true");
+      // To make sure Raft cluster and connect address match.
+      put(PropertyKey.MASTER_HOSTNAME, "localhost");
     }
   }, ServerConfiguration.global());
 

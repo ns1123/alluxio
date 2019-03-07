@@ -11,20 +11,17 @@
 
 package alluxio.client.fs;
 
-import static org.junit.Assert.fail;
-
 import alluxio.AlluxioURI;
-import alluxio.conf.PropertyKey;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
+import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.OpenFilePOptions;
 import alluxio.grpc.ReadPType;
 import alluxio.master.LocalAlluxioJobCluster;
-import alluxio.network.PortUtils;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.underfs.UnderFileSystem;
@@ -36,7 +33,6 @@ import org.junit.Before;
 import org.junit.Rule;
 
 import java.io.InputStream;
-import java.util.Map;
 
 /**
  * Abstract classes for all integration tests of {@link FileOutStream}.
@@ -49,8 +45,6 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
   protected LocalAlluxioJobCluster mLocalAlluxioJobCluster;
   protected static final int BLOCK_SIZE_BYTES = 1000;
 
-  private Map<PropertyKey, Integer> mPortMapping;
-
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       buildLocalAlluxioClusterResource();
@@ -60,22 +54,21 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
   @Before
   public void before() throws Exception {
     mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
-    if (mPortMapping == null) {
-      fail("You must initialize a port mapping for this test in order for the cluster to start "
-          + "properly");
-    }
-    mPortMapping.entrySet().forEach((Map.Entry<PropertyKey, Integer> e) -> {
-      mLocalAlluxioJobCluster.setProperty(e.getKey(), e.getValue().toString());
-    });
     mLocalAlluxioJobCluster.start();
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }
 
   @After
   public void after() throws Exception {
-    mLocalAlluxioJobCluster.stop();
+    if (mLocalAlluxioJobCluster != null) {
+      mLocalAlluxioJobCluster.stop();
+    }
   }
 
+  /**
+   * Override this method in a test in order to customize the {@link LocalAlluxioClusterResource}.
+   * @param resource an AlluxioClusterResource builder
+   */
   protected void customizeClusterResource(LocalAlluxioClusterResource.Builder resource) {
     resource.setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
         .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
@@ -83,14 +76,8 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
   }
 
   private LocalAlluxioClusterResource buildLocalAlluxioClusterResource() {
-    mPortMapping = PortUtils.createPortMapping();
-
     LocalAlluxioClusterResource.Builder resource = new LocalAlluxioClusterResource.Builder();
     customizeClusterResource(resource);
-
-    mPortMapping.entrySet().forEach((Map.Entry<PropertyKey, Integer> e) -> {
-      resource.setProperty(e.getKey(), e.getValue());
-    });
     return resource.build();
   }
 

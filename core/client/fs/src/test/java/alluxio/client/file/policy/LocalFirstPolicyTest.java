@@ -104,7 +104,8 @@ public final class LocalFirstPolicyTest {
 
     // local node
     policy = LocalFirstPolicy.create(TieredIdentityFactory.fromString("node=node4,rack=rack3",
-        sConf), sConf);
+        sConf),
+        sConf);
     chosen = policy.getWorkerForNextBlock(workers, Constants.GB);
     assertEquals("node4", chosen.getTieredIdentity().getTier(0).getValue());
   }

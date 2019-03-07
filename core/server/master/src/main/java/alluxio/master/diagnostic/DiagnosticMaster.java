@@ -21,7 +21,7 @@ import alluxio.grpc.ServiceType;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.master.AbstractNonJournaledMaster;
+import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterProcess;
 import alluxio.master.MasterRegistry;
@@ -29,6 +29,7 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.callhome.CallHomeInfo;
 import alluxio.master.callhome.CallHomeUtils;
 import alluxio.master.file.FileSystemMaster;
+import alluxio.master.journal.NoopJournaled;
 import alluxio.master.license.LicenseMaster;
 import alluxio.util.executor.ExecutorServiceFactories;
 
@@ -53,7 +54,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * This service periodically collects diagnostic information and stores it to a log.
  */
 @ThreadSafe
-public final class DiagnosticMaster extends AbstractNonJournaledMaster {
+public final class DiagnosticMaster extends AbstractMaster implements NoopJournaled {
   private static final Logger LOG = LoggerFactory.getLogger(DiagnosticMaster.class);
   private static final Set<Class<? extends Server>> DEPS =
       ImmutableSet.of(BlockMaster.class, LicenseMaster.class, FileSystemMaster.class);

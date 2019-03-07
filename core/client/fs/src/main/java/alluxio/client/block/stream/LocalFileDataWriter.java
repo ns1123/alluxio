@@ -22,6 +22,7 @@ import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.io.LocalFileBlockWriter;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
 import io.netty.buffer.ByteBuf;
@@ -89,7 +90,6 @@ public final class LocalFileDataWriter implements DataWriter {
         blockWorker = context.acquireBlockWorkerClient(address);
       }
       // ALLUXIO CS END
-
       closer.register(new Closeable() {
         @Override
         public void close() throws IOException {
@@ -117,7 +117,10 @@ public final class LocalFileDataWriter implements DataWriter {
 
       GrpcBlockingStream<CreateLocalBlockRequest, CreateLocalBlockResponse> stream =
           new GrpcBlockingStream<>(blockWorker::createLocalBlock, writerBufferSizeMessages,
-              address.toString());
+              MoreObjects.toStringHelper(LocalFileDataWriter.class)
+                  .add("request", createRequest)
+                  .add("address", address)
+                  .toString());
       stream.send(createRequest, dataTimeout);
       CreateLocalBlockResponse response = stream.receive(dataTimeout);
       Preconditions.checkState(response != null && response.hasPath());

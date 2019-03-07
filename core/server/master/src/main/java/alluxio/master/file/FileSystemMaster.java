@@ -25,10 +25,8 @@ import alluxio.exception.InvalidPathException;
 import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.UnavailableException;
+import alluxio.grpc.SetAclAction;
 import alluxio.master.Master;
-import alluxio.wire.SyncPointInfo;
-import alluxio.master.file.meta.FileSystemMasterView;
-import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.contexts.CheckConsistencyContext;
 import alluxio.master.file.contexts.CompleteFileContext;
 import alluxio.master.file.contexts.CreateDirectoryContext;
@@ -43,14 +41,17 @@ import alluxio.master.file.contexts.RenameContext;
 import alluxio.master.file.contexts.SetAclContext;
 import alluxio.master.file.contexts.SetAttributeContext;
 import alluxio.master.file.contexts.WorkerHeartbeatContext;
+import alluxio.master.file.meta.FileSystemMasterView;
+import alluxio.master.file.meta.PersistenceState;
+import alluxio.metrics.TimeSeries;
 import alluxio.security.authorization.AclEntry;
-import alluxio.wire.FileSystemCommand;
-import alluxio.grpc.SetAclAction;
-import alluxio.wire.UfsInfo;
 import alluxio.underfs.UfsMode;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
+import alluxio.wire.FileSystemCommand;
 import alluxio.wire.MountPointInfo;
+import alluxio.wire.SyncPointInfo;
+import alluxio.wire.UfsInfo;
 import alluxio.wire.WorkerInfo;
 
 import java.io.IOException;
@@ -188,7 +189,7 @@ public interface FileSystemMaster extends Master {
    *
    * @param path the file to create
    * @param context the method context
-   * @return the id of the created file
+   * @return the file info of the created file
    * @throws InvalidPathException if an invalid path is encountered
    * @throws FileAlreadyExistsException if the file already exists
    * @throws BlockInfoException if an invalid block information is encountered
@@ -196,7 +197,7 @@ public interface FileSystemMaster extends Master {
    * @throws FileDoesNotExistException if the parent of the path does not exist and the recursive
    *         option is false
    */
-  long createFile(AlluxioURI path, CreateFileContext context)
+  FileInfo createFile(AlluxioURI path, CreateFileContext context)
       throws AccessControlException, InvalidPathException, FileAlreadyExistsException,
       BlockInfoException, IOException, FileDoesNotExistException;
 
@@ -231,7 +232,7 @@ public interface FileSystemMaster extends Master {
   /**
    * @return the number of files and directories
    */
-  int getNumberOfPaths();
+  long getInodeCount();
 
   /**
    * @return the number of pinned files and directories
@@ -583,4 +584,9 @@ public interface FileSystemMaster extends Master {
    * @return true if successfully recorded in the journal
    */
   boolean recordActiveSyncTxid(long txId, long mountId);
+
+  /**
+   * @return the time series data stored by the master
+   */
+  List<TimeSeries> getTimeSeries();
 }

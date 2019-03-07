@@ -10,7 +10,6 @@
  */
 
 import React from 'react';
-import {LoadingMessage} from './components';
 
 export class App extends React.Component {
   public render() {

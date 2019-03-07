@@ -11,9 +11,9 @@
 
 package alluxio.master.file.contexts;
 
-import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.CreateFilePOptions;
-import alluxio.master.file.FileSystemMasterOptions;
+import alluxio.util.FileSystemOptions;
 
 import com.google.common.base.MoreObjects;
 
@@ -37,9 +37,17 @@ public class CreateFileContext
     super(optionsBuilder);
     mCacheable = false;
     // ALLUXIO CS ADD
-    mEncrypted =
-        alluxio.conf.ServerConfiguration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED);
+    mEncrypted = alluxio.conf.ServerConfiguration
+        .getBoolean(alluxio.conf.PropertyKey.SECURITY_ENCRYPTION_ENABLED);
     // ALLUXIO CS END
+  }
+
+  /**
+   * @param optionsBuilder Builder for proto {@link CreateFilePOptions}
+   * @return the instance of {@link CreateFileContext} with given options
+   */
+  public static CreateFileContext create(CreateFilePOptions.Builder optionsBuilder) {
+    return new CreateFileContext(optionsBuilder);
   }
 
   /**
@@ -48,8 +56,9 @@ public class CreateFileContext
    * @param optionsBuilder Builder for proto {@link CreateFilePOptions} to embed
    * @return the instance of {@link CreateFileContext} with default values for master
    */
-  public static CreateFileContext defaults(CreateFilePOptions.Builder optionsBuilder) {
-    CreateFilePOptions masterOptions = FileSystemMasterOptions.createFileDefaults();
+  public static CreateFileContext mergeFrom(CreateFilePOptions.Builder optionsBuilder) {
+    CreateFilePOptions masterOptions =
+        FileSystemOptions.createFileDefaults(ServerConfiguration.global());
     CreateFilePOptions.Builder mergedOptionsBuilder =
         masterOptions.toBuilder().mergeFrom(optionsBuilder.build());
     return new CreateFileContext(mergedOptionsBuilder);
@@ -59,8 +68,7 @@ public class CreateFileContext
    * @return the instance of {@link CreateFileContext} with default values for master
    */
   public static CreateFileContext defaults() {
-    CreateFilePOptions masterOptions = FileSystemMasterOptions.createFileDefaults();
-    return new CreateFileContext(masterOptions.toBuilder());
+    return create(FileSystemOptions.createFileDefaults(ServerConfiguration.global()).toBuilder());
   }
 
   protected CreateFileContext getThis() {

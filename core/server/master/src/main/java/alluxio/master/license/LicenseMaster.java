@@ -18,7 +18,6 @@ import alluxio.Server;
 import alluxio.clock.SystemClock;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
-import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.GrpcService;
 import alluxio.grpc.ServiceType;
@@ -29,6 +28,7 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.journal.CheckpointName;
 import alluxio.master.journal.JournalContext;
 import alluxio.proto.journal.Journal;
 import alluxio.util.CommonUtils;
@@ -116,15 +116,15 @@ public class LicenseMaster extends AbstractMaster {
   }
 
   @Override
-  public void processJournalEntry(alluxio.proto.journal.Journal.JournalEntry entry)
-      throws IOException {
+  public boolean processJournalEntry(alluxio.proto.journal.Journal.JournalEntry entry) {
     if (entry.hasLicenseCheck()) {
       long timeMs = entry.getLicenseCheck().getTimeMs();
       mLicenseCheck.setLastCheck(timeMs);
       mLicenseCheck.setLastCheckSuccess(timeMs);
     } else {
-      throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
+      return false;
     }
+    return true;
   }
 
   @Override
@@ -192,6 +192,11 @@ public class LicenseMaster extends AbstractMaster {
       mLicenseCheck.setLastCheckSuccess(time);
       journalContext.append(mLicenseCheck.toJournalEntry());
     }
+  }
+
+  @Override
+  public CheckpointName getCheckpointName() {
+    return CheckpointName.LICENSE_MASTER;
   }
 
   /**

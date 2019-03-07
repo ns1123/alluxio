@@ -165,7 +165,7 @@ public class DefaultAuthenticationServer
 
   @Override
   public List<ServerInterceptor> getInterceptors() {
-    if (!SecurityUtils.isSecurityEnabled(mConfiguration)) {
+    if (!SecurityUtils.isAuthenticationEnabled(mConfiguration)) {
       return Collections.emptyList();
     }
     List<ServerInterceptor> interceptorsList = new ArrayList<>(2);

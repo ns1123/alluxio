@@ -19,6 +19,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.collections.ConcurrentHashSet;
 import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.CreateFilePOptions;
+import alluxio.grpc.FileSystemMasterCommonPOptions;
 import alluxio.grpc.SetAttributePOptions;
 import alluxio.grpc.TtlAction;
 import alluxio.grpc.WritePType;
@@ -83,7 +84,7 @@ public class ConcurrentFileSystemMasterSetTtlTest extends BaseIntegrationTest {
 
   @Before
   public void before() {
-    mFileSystem = FileSystem.Factory.get(ServerConfiguration.global());
+    mFileSystem = FileSystem.Factory.create(ServerConfiguration.global());
   }
 
   @Test
@@ -133,7 +134,9 @@ public class ConcurrentFileSystemMasterSetTtlTest extends BaseIntegrationTest {
             AuthenticatedClientUser.set(TEST_USER);
             barrier.await();
             mFileSystem.setAttribute(paths[iteration], SetAttributePOptions.newBuilder()
-                .setTtl(ttls[iteration]).setTtlAction(TtlAction.DELETE).build());
+                .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder()
+                    .setTtl(ttls[iteration]).setTtlAction(TtlAction.DELETE))
+                .build());
           } catch (Exception e) {
             throw new RuntimeException(e);
           }

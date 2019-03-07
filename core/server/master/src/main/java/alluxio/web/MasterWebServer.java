@@ -12,10 +12,10 @@
 package alluxio.web;
 
 import alluxio.Constants;
+import alluxio.client.file.FileSystem;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
-import alluxio.master.MasterProcess;
-import alluxio.master.file.FileSystemMaster;
+import alluxio.master.AlluxioMasterProcess;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Preconditions;
@@ -43,6 +43,10 @@ public final class MasterWebServer extends WebServer {
   private static final Logger LOG = LoggerFactory.getLogger(MasterWebServer.class);
 
   public static final String ALLUXIO_MASTER_SERVLET_RESOURCE_KEY = "Alluxio Master";
+  public static final String ALLUXIO_FILESYSTEM_CLIENT_RESOURCE_KEY =
+      "Alluxio Master FileSystem client";
+
+  private final FileSystem mFileSystem;
 
   /**
    * Creates a new instance of {@link MasterWebServer}.
@@ -52,17 +56,14 @@ public final class MasterWebServer extends WebServer {
    * @param masterProcess the Alluxio master process
    */
   public MasterWebServer(String serviceName, InetSocketAddress address,
-      final MasterProcess masterProcess) {
+      final AlluxioMasterProcess masterProcess) {
     super(serviceName, address);
     Preconditions.checkNotNull(masterProcess, "Alluxio master cannot be null");
-    mServletContextHandler
-        .addServlet(new ServletHolder(// TODO(william): migrate this into a REST api endpoint
-                new WebInterfaceDownloadServlet(masterProcess.getMaster(FileSystemMaster.class))),
-            "/download");
     // REST configuration
     ResourceConfig config = new ResourceConfig()
         .packages("alluxio.master", "alluxio.master.block", "alluxio.master.file")
         .register(JacksonProtobufObjectMapperProvider.class);
+    mFileSystem = FileSystem.Factory.create(ServerConfiguration.global());
     // Override the init method to inject a reference to AlluxioMaster into the servlet context.
     // ServletContext may not be modified until after super.init() is called.
     ServletContainer servlet = new ServletContainer(config) {
@@ -72,6 +73,7 @@ public final class MasterWebServer extends WebServer {
       public void init() throws ServletException {
         super.init();
         getServletContext().setAttribute(ALLUXIO_MASTER_SERVLET_RESOURCE_KEY, masterProcess);
+        getServletContext().setAttribute(ALLUXIO_FILESYSTEM_CLIENT_RESOURCE_KEY, mFileSystem);
       }
     };
 
@@ -95,5 +97,11 @@ public final class MasterWebServer extends WebServer {
     } catch (MalformedURLException e) {
       LOG.error("ERROR: resource path is malformed", e);
     }
+  }
+
+  @Override
+  public void stop() throws Exception {
+    mFileSystem.close();
+    super.stop();
   }
 }

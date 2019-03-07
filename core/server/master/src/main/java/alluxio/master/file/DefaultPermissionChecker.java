@@ -17,6 +17,7 @@ import alluxio.exception.AccessControlException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.InvalidPathException;
 import alluxio.exception.PreconditionMessage;
+import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
@@ -74,7 +75,7 @@ public class DefaultPermissionChecker implements PermissionChecker {
 
     // collects existing inodes info on the path. Note that, not all the components of the path have
     // corresponding inodes.
-    List<InodeView> inodeList = inodePath.getInodeList();
+    List<InodeView> inodeList = (List<InodeView>) (List<?>) inodePath.getInodeList();
 
     // collects user and groups
     String user = AuthenticatedClientUser.getClientUser(ServerConfiguration.global());
@@ -95,7 +96,7 @@ public class DefaultPermissionChecker implements PermissionChecker {
     }
 
     // collects inodes info on the path
-    List<InodeView> inodeList = inodePath.getInodeList();
+    List<InodeView> inodeList = (List<InodeView>) (List<?>) inodePath.getInodeList();
 
     // collects user and groups
     String user = AuthenticatedClientUser.getClientUser(ServerConfiguration.global());
@@ -110,7 +111,7 @@ public class DefaultPermissionChecker implements PermissionChecker {
       return Mode.Bits.NONE;
     }
     // collects inodes info on the path
-    List<InodeView> inodeList = inodePath.getInodeList();
+    List<Inode> inodeList = inodePath.getInodeList();
 
     // collects user and groups
     try {
@@ -183,7 +184,7 @@ public class DefaultPermissionChecker implements PermissionChecker {
   private void checkOwner(LockedInodePath inodePath)
       throws AccessControlException, InvalidPathException {
     // collects inodes info on the path
-    List<InodeView> inodeList = inodePath.getInodeList();
+    List<InodeView> inodeList = (List<InodeView>) (List<?>) inodePath.getInodeList();
 
     // collects user and groups
     String user = AuthenticatedClientUser.getClientUser(ServerConfiguration.global());
@@ -225,11 +226,11 @@ public class DefaultPermissionChecker implements PermissionChecker {
    * @param checkIsOwner indicates whether to check the user is the owner of the path
    * @throws AccessControlException if permission checking fails
    */
-  protected void checkInodeList(String user, List<String> groups, Mode.Bits bits,
-      String path, List<InodeView> inodeList, boolean checkIsOwner) throws AccessControlException {
+  protected void checkInodeList(String user, List<String> groups, Mode.Bits bits, String path,
+      List<InodeView> inodeList, boolean checkIsOwner) throws AccessControlException {
     int size = inodeList.size();
-    Preconditions
-        .checkArgument(size > 0, PreconditionMessage.EMPTY_FILE_INFO_LIST_FOR_PERMISSION_CHECK);
+    Preconditions.checkArgument(size > 0,
+        PreconditionMessage.EMPTY_FILE_INFO_LIST_FOR_PERMISSION_CHECK);
 
     // bypass checking permission for super user or super group of Alluxio file system.
     if (isPrivilegedUser(user, groups)) {
@@ -285,10 +286,10 @@ public class DefaultPermissionChecker implements PermissionChecker {
    * @return the permission
    */
   private Mode.Bits getPermissionInternal(String user, List<String> groups, String path,
-      List<InodeView> inodeList) {
+      List<Inode> inodeList) {
     int size = inodeList.size();
-    Preconditions
-        .checkArgument(size > 0, PreconditionMessage.EMPTY_FILE_INFO_LIST_FOR_PERMISSION_CHECK);
+    Preconditions.checkArgument(size > 0,
+        PreconditionMessage.EMPTY_FILE_INFO_LIST_FOR_PERMISSION_CHECK);
 
     // bypass checking permission for super user or super group of Alluxio file system.
     if (isPrivilegedUser(user, groups)) {
@@ -304,7 +305,7 @@ public class DefaultPermissionChecker implements PermissionChecker {
       }
     }
 
-    InodeView inode = inodeList.get(inodeList.size() - 1);
+    Inode inode = inodeList.get(inodeList.size() - 1);
     if (inode == null) {
       return Mode.Bits.NONE;
     }

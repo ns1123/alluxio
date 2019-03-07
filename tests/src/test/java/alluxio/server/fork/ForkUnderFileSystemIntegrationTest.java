@@ -55,7 +55,7 @@ public class ForkUnderFileSystemIntegrationTest {
   public void before() throws Exception {
     mUfsPathA = mUfsFolderA.getRoot().getAbsolutePath();
     mUfsPathB = mUfsFolderB.getRoot().getAbsolutePath();
-    mFileSystem = FileSystem.Factory.get(ServerConfiguration.global());
+    mFileSystem = FileSystem.Factory.create(ServerConfiguration.global());
   }
 
   @Test

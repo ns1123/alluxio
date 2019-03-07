@@ -11,8 +11,12 @@
 
 package alluxio.master;
 
+import alluxio.ConfigurationTestUtils;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
+import alluxio.master.journal.JournalType;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.WorkerProcess;
 
@@ -20,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -47,7 +52,7 @@ public final class LocalAlluxioCluster extends AbstractLocalAlluxioCluster {
    * Runs a test Alluxio cluster with a single Alluxio worker.
    */
   public LocalAlluxioCluster() {
-    super(1);
+    this(1);
   }
 
   /**
@@ -112,6 +117,25 @@ public final class LocalAlluxioCluster extends AbstractLocalAlluxioCluster {
    */
   public WorkerNetAddress getWorkerAddress() {
     return getWorkerProcess().getAddress();
+  }
+
+  @Override
+  public void initConfiguration() throws IOException {
+    setAlluxioWorkDirectory();
+    setHostname();
+    for (Map.Entry<PropertyKey, String> entry : ConfigurationTestUtils
+        .testConfigurationDefaults(ServerConfiguration.global(), mHostname, mWorkDirectory)
+        .entrySet()) {
+      ServerConfiguration.set(entry.getKey(), entry.getValue());
+    }
+    ServerConfiguration.set(PropertyKey.TEST_MODE, true);
+    ServerConfiguration.set(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.UFS);
+    ServerConfiguration.set(PropertyKey.PROXY_WEB_PORT, 0);
+    ServerConfiguration.set(PropertyKey.WORKER_RPC_PORT, 0);
+    ServerConfiguration.set(PropertyKey.WORKER_WEB_PORT, 0);
+    // ALLUXIO CS ADD
+    ServerConfiguration.set(PropertyKey.WORKER_SECURE_RPC_PORT, 0);
+    // ALLUXIO CS END
   }
 
   @Override

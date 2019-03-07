@@ -83,9 +83,8 @@ public final class TieredIdentityUtils {
    * @param tieredIdentity the tiered identity
    * @param identities the tiered identities to compare to
    * @param conf Alluxio configuration
-   * @return the identity closest to this one; or Optional.empty if none of the identities match
-   *         within a strict tier. If none of the identities match and no strict tiers are defined,
-   *         the first identity is returned
+   * @return the identity closest to this one. If none of the identities match, the first identity
+   *         is returned
    */
   // ALLUXIO CS END
   public static Optional<TieredIdentity> nearest(TieredIdentity tieredIdentity,
@@ -96,8 +95,8 @@ public final class TieredIdentityUtils {
     for (TieredIdentity.LocalityTier tier : tieredIdentity.getTiers()) {
       for (TieredIdentity identity : identities) {
         for (TieredIdentity.LocalityTier otherTier : identity.getTiers()) {
-          if (tier != null && matches(tier, otherTier,
-              conf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP))) {
+          if (tier != null
+              && matches(tier, otherTier, conf.getBoolean(PropertyKey.LOCALITY_COMPARE_NODE_IP))) {
             return Optional.of(identity);
           }
         }

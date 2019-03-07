@@ -33,10 +33,7 @@ import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidPathException;
 import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
-import alluxio.master.MasterRegistry;
-import alluxio.master.MasterTestUtils;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.block.BlockMasterFactory;
+import alluxio.master.block.BlockContainerIdGenerator;
 import alluxio.master.file.contexts.CreateDirectoryContext;
 import alluxio.master.file.contexts.CreateFileContext;
 import alluxio.master.file.contexts.CreatePathContext;
@@ -44,17 +41,16 @@ import alluxio.master.file.contexts.MountContext;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
+import alluxio.master.file.meta.InodeLockManager;
 import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.InodeTree.LockPattern;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.meta.options.MountInfo;
-import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.NoopJournalContext;
-import alluxio.master.journal.noop.NoopJournalSystem;
-import alluxio.master.metrics.MetricsMaster;
-import alluxio.master.metrics.MetricsMasterFactory;
+import alluxio.master.metastore.InodeStore;
+import alluxio.master.metastore.heap.HeapInodeStore;
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
@@ -104,13 +100,8 @@ public final class ExtensionInodeAttributesProviderTest {
   private static CreateFileContext sFileContext;
   private static CreateDirectoryContext sDirectoryContext;
 
-  private static MasterRegistry sRegistry;
-  private static MetricsMaster sMetricsMaster;
-
   @ClassRule
   public static TemporaryFolder sTestFolder = new TemporaryFolder();
-  private static BlockMaster sBlockMaster;
-  private static InodeDirectoryIdGenerator sDirectoryIdGenerator;
 
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
@@ -155,23 +146,12 @@ public final class ExtensionInodeAttributesProviderTest {
   @BeforeClass
   public static void beforeClass() throws Exception {
     sFileContext = CreateFileContext
-        .defaults(CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB)
+        .mergeFrom(CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB)
             .setMode(TEST_NORMAL_MODE.toProto()).setRecursive(true))
         .setOwner(TEST_USER.getUser()).setGroup(TEST_USER.getGroup());
-    sDirectoryContext = CreateDirectoryContext.defaults(
+    sDirectoryContext = CreateDirectoryContext.mergeFrom(
         CreateDirectoryPOptions.newBuilder().setMode(TEST_NORMAL_MODE.toProto()).setRecursive(true))
         .setOwner(TEST_USER.getUser()).setGroup(TEST_USER.getGroup());
-
-    sRegistry = new MasterRegistry();
-    JournalSystem journalSystem = new NoopJournalSystem();
-    sMetricsMaster = new MetricsMasterFactory()
-        .create(sRegistry, MasterTestUtils.testMasterContext(journalSystem));
-    sRegistry.add(MetricsMaster.class, sMetricsMaster);
-    sBlockMaster = new BlockMasterFactory()
-        .create(sRegistry,  MasterTestUtils.testMasterContext(journalSystem));
-    sDirectoryIdGenerator = new InodeDirectoryIdGenerator(sBlockMaster);
-
-    sRegistry.start(true);
 
     GroupMappingServiceTestUtils.resetCache();
     ServerConfiguration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
@@ -183,7 +163,6 @@ public final class ExtensionInodeAttributesProviderTest {
 
   @AfterClass
   public static void afterClass() throws Exception {
-    sRegistry.stop();
     AuthenticatedClientUser.remove();
     ServerConfiguration.reset();
   }
@@ -200,7 +179,12 @@ public final class ExtensionInodeAttributesProviderTest {
         new MountInfo(new AlluxioURI(MountTable.ROOT), new AlluxioURI(ROOT_UFS_URI),
             IdUtils.ROOT_MOUNT_ID, MountContext.defaults().getOptions().build()));
     // setup an InodeTree
-    mTree = new InodeTree(sBlockMaster, sDirectoryIdGenerator, mMountTable);
+    InodeLockManager inodeLockManager = new InodeLockManager();
+    BlockContainerIdGenerator containerIdGenerator = new BlockContainerIdGenerator();
+    InodeStore inodeStore = new HeapInodeStore(
+        new InodeStore.InodeStoreArgs(inodeLockManager, ServerConfiguration.global()));
+    mTree = new InodeTree(inodeStore, containerIdGenerator,
+        new InodeDirectoryIdGenerator(containerIdGenerator), mMountTable, inodeLockManager);
     mTree.initializeRoot(TEST_USER_ADMIN.getUser(), TEST_USER_ADMIN.getGroup(), TEST_NORMAL_MODE,
         NoopJournalContext.INSTANCE);
 
@@ -249,16 +233,10 @@ public final class ExtensionInodeAttributesProviderTest {
    * @param path path to construct the {@link AlluxioURI} from
    * @param context method context for creating a file
    */
-  private void createAndSetPermission(String path, CreatePathContext context)
-      throws Exception {
-    try (
-        LockedInodePath inodePath = mTree
-            .lockInodePath(new AlluxioURI(path), LockPattern.WRITE_EDGE)) {
-      InodeTree.CreatePathResult result = mTree.createPath(RpcContext.NOOP, inodePath, context);
-      Inode<?> inode = (Inode<?>) result.getCreated().get(result.getCreated().size() - 1);
-      inode.setOwner(context.getOwner());
-      inode.setGroup(context.getGroup());
-      inode.setMode(context.getMode().toShort());
+  private void createAndSetPermission(String path, CreatePathContext context) throws Exception {
+    try (LockedInodePath inodePath =
+        mTree.lockInodePath(new AlluxioURI(path), LockPattern.WRITE_EDGE)) {
+      mTree.createPath(RpcContext.NOOP, inodePath, context);
     }
   }
 
@@ -267,7 +245,7 @@ public final class ExtensionInodeAttributesProviderTest {
     AuthenticatedClientUser.set(user.getUser());
     try (LockedInodePath inodePath = mTree
         .lockInodePath(new AlluxioURI(path), InodeTree.LockPattern.READ)) {
-      List<InodeView> inodes = inodePath.getInodeList();
+      List<InodeView> inodes = (List<InodeView>) (List<?>) inodePath.getInodeList();
       List<InodeAttributes> attributes = inodes.stream().map(x -> (InodeAttributes)
           new ExtendablePermissionChecker.DefaultInodeAttributes(x)).collect(Collectors.toList());
       mExternalEnforcer.checkPermission(user.getUser(), Collections.singletonList(user.getGroup()),
@@ -626,11 +604,11 @@ public final class ExtensionInodeAttributesProviderTest {
     ArgumentCaptor<List> attrArg = ArgumentCaptor.forClass(List.class);
     verify(mDefaultEnforcer).checkPermission(eq(TEST_USER.getUser()),
         eq(Collections.singletonList(TEST_USER.getGroup())), eq(Mode.Bits.READ),
-        eq(rootUfsFile), nodesArg.<List<Inode<?>>>capture(), attrArg.<List<Inode<?>>>capture(),
+        eq(rootUfsFile), nodesArg.<List<Inode>>capture(), attrArg.<List<Inode>>capture(),
         eq(false));
-    List<Inode<?>> inodes = nodesArg.<List<Inode<?>>>getValue();
+    List<InodeView> inodes = nodesArg.<List<Inode>>getValue();
     List<InodeAttributes> attrs = attrArg.<List<InodeAttributes>>getValue();
-    verifyInodeList(ROOT_UFS_URI, rootUfsFile, inodes, Inode::getName, Inode::getMode);
+    verifyInodeList(ROOT_UFS_URI, rootUfsFile, inodes, InodeView::getName, InodeView::getMode);
     verifyInodeList(ROOT_UFS_URI, rootUfsFile, attrs, InodeAttributes::getName,
         InodeAttributes::getMode);
   }
@@ -652,21 +630,21 @@ public final class ExtensionInodeAttributesProviderTest {
     // default enforcer checks root mount permission because the mock UFS enforcer called it
     verify(mDefaultEnforcer).checkPermission(eq(TEST_USER.getUser()),
         eq(Collections.singletonList(TEST_USER.getGroup())), eq(Mode.Bits.EXECUTE),
-        eq(rootUfsPath), nodesArg.<List<Inode<?>>>capture(), attrArg.<List<Inode<?>>>capture(), eq(false));
-    List<Inode<?>> inodes = nodesArg.<List<Inode<?>>>getValue();
+        eq(rootUfsPath), nodesArg.<List<Inode>>capture(), attrArg.<List<Inode>>capture(), eq(false));
+    List<InodeView> inodes = nodesArg.<List<Inode>>getValue();
     List<InodeAttributes> attrs = attrArg.<List<InodeAttributes>>getValue();
-    verifyInodeList(ROOT_UFS_URI, rootUfsPath, inodes, Inode::getName, Inode::getMode);
+    verifyInodeList(ROOT_UFS_URI, rootUfsPath, inodes, InodeView::getName, InodeView::getMode);
     verifyInodeList(ROOT_UFS_URI, rootUfsPath, attrs, InodeAttributes::getName,
         InodeAttributes::getMode);
     // default enforcer also checks nested mount UFS path because nested mount plugin is not enabled
     verify(mDefaultEnforcer).checkPermission(eq(TEST_USER.getUser()),
         eq(Collections.singletonList(TEST_USER.getGroup())), eq(Mode.Bits.READ),
-        eq(TEST_DIR_FILE_NESTED_MOUNT), nodesArg.<List<Inode<?>>>capture(), attrArg.<List<Inode<?>>>capture(),
+        eq(TEST_DIR_FILE_NESTED_MOUNT), nodesArg.<List<Inode>>capture(), attrArg.<List<Inode>>capture(),
         eq(false));
-    inodes = nodesArg.<List<Inode<?>>>getValue();
+    inodes = nodesArg.<List<Inode>>getValue();
     attrs = attrArg.<List<InodeAttributes>>getValue();
     verifyInodeList(TEST_DIR_NESTED_MOUNT, TEST_DIR_FILE_NESTED_MOUNT, inodes,
-        Inode::getName, Inode::getMode);
+        InodeView::getName, InodeView::getMode);
     verifyInodeList(TEST_DIR_NESTED_MOUNT, TEST_DIR_FILE_NESTED_MOUNT, attrs,
         InodeAttributes::getName, InodeAttributes::getMode);
   }
@@ -688,19 +666,19 @@ public final class ExtensionInodeAttributesProviderTest {
     // default enforcer checks root mount permission because root mount plugin is not enabled
     verify(mDefaultEnforcer).checkPermission(eq(TEST_USER.getUser()),
         eq(Collections.singletonList(TEST_USER.getGroup())), eq(Mode.Bits.EXECUTE),
-        eq(TEST_DIR_URI), nodesArg.<List<Inode<?>>>capture(), attrArg.<List<Inode<?>>>capture(), eq(false));
-    List<Inode<?>> inodes = nodesArg.<List<Inode<?>>>getValue();
+        eq(TEST_DIR_URI), nodesArg.<List<Inode>>capture(), attrArg.<List<Inode>>capture(), eq(false));
+    List<InodeView> inodes = nodesArg.<List<InodeView>>getValue();
     List<InodeAttributes> attrs = attrArg.<List<InodeAttributes>>getValue();
-    verifyInodeList("/", TEST_DIR_URI, inodes, Inode::getName, Inode::getMode);
+    verifyInodeList("/", TEST_DIR_URI, inodes, InodeView::getName, InodeView::getMode);
     verifyInodeList("/", TEST_DIR_URI, attrs, InodeAttributes::getName,
         InodeAttributes::getMode);
     // default enforcer also checks nested mount UFS path because the mock UFS enforcer called it
     verify(mDefaultEnforcer).checkPermission(eq(TEST_USER.getUser()),
         eq(Collections.singletonList(TEST_USER.getGroup())), eq(Mode.Bits.READ), eq(nestedUfsFile),
-        nodesArg.<List<Inode<?>>>capture(), attrArg.<List<Inode<?>>>capture(), eq(false));
-    inodes = nodesArg.<List<Inode<?>>>getValue();
+        nodesArg.<List<InodeView>>capture(), attrArg.<List<InodeView>>capture(), eq(false));
+    inodes = nodesArg.<List<InodeView>>getValue();
     attrs = attrArg.<List<InodeAttributes>>getValue();
-    verifyInodeList(NESTED_UFS_URI, nestedUfsFile, inodes, Inode::getName, Inode::getMode);
+    verifyInodeList(NESTED_UFS_URI, nestedUfsFile, inodes, InodeView::getName, InodeView::getMode);
     verifyInodeList(NESTED_UFS_URI, nestedUfsFile, attrs, InodeAttributes::getName,
         InodeAttributes::getMode);
   }

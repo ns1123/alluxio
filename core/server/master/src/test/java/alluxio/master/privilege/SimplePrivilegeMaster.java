@@ -14,8 +14,9 @@ package alluxio.master.privilege;
 import alluxio.clock.SystemClock;
 import alluxio.grpc.GrpcService;
 import alluxio.grpc.ServiceType;
-import alluxio.master.AbstractNonJournaledMaster;
+import alluxio.master.AbstractMaster;
 import alluxio.master.MasterTestUtils;
+import alluxio.master.journal.NoopJournaled;
 import alluxio.util.executor.ExecutorServiceFactory;
 import alluxio.wire.Privilege;
 
@@ -30,8 +31,8 @@ import java.util.Set;
 /**
  * A privilege checker controlled by a privileges map defined at construction.
  */
-public final class SimplePrivilegeMaster extends AbstractNonJournaledMaster
-    implements PrivilegeMaster {
+public final class SimplePrivilegeMaster extends AbstractMaster
+    implements NoopJournaled, PrivilegeMaster {
   private final Map<String, Set<Privilege>> mGroupToPrivilegeMap;
 
   SimplePrivilegeMaster(Map<String, Set<Privilege>> groupToPrivilegeMap) {

@@ -18,7 +18,7 @@ FROM openjdk:8-jdk-alpine
 ARG ALLUXIO_TARBALL=alluxio-enterprise-1.8.1.tar.gz
 # ALLUXIO CS END
 
-RUN apk add --update bash && \
+RUN apk add --update bash libc6-compat && \
     rm -rf /var/cache/apk/*
 
 ADD ${ALLUXIO_TARBALL} /opt/

@@ -17,13 +17,12 @@ import alluxio.AlluxioTestDirectory;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Process;
-import alluxio.conf.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemTestUtils;
+import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.WritePType;
 import alluxio.master.AlluxioMasterProcess;
-import alluxio.master.MasterProcess;
 import alluxio.master.TestUtils;
 import alluxio.network.TieredIdentityFactory;
 import alluxio.testutils.BaseIntegrationTest;
@@ -57,8 +56,6 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
         NetworkAddressUtils.getLocalHostName(
             (int) ServerConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS)),
         AlluxioTestDirectory.createTemporaryDirectory("tiered_identity_test").getAbsolutePath());
-    map.put(PropertyKey.MASTER_RPC_PORT, "0");
-    map.put(PropertyKey.MASTER_WEB_PORT, "0");
     map.put(PropertyKey.WORKER_RPC_PORT, "0");
     map.put(PropertyKey.WORKER_WEB_PORT, "0");
     // ALLUXIO CS ADD
@@ -82,7 +79,7 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void test() throws Exception {
-    MasterProcess master = AlluxioMasterProcess.Factory.create();
+    AlluxioMasterProcess master = AlluxioMasterProcess.Factory.create();
     WorkerProcess worker1 = AlluxioWorkerProcess.Factory
         .create(TieredIdentityFactory.fromString("node=node1,rack=rack1",
             ServerConfiguration.global()));
@@ -98,7 +95,7 @@ public class LocalFirstPolicyIntegrationTest extends BaseIntegrationTest {
     TestUtils.waitForReady(worker1);
     TestUtils.waitForReady(worker2);
 
-    FileSystem fs = FileSystem.Factory.get(ServerConfiguration.global());
+    FileSystem fs = FileSystem.Factory.create(ServerConfiguration.global());
 
     // Write to the worker in node1
     {

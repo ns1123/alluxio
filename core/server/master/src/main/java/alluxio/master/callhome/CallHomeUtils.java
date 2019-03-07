@@ -100,7 +100,7 @@ public final class CallHomeUtils {
     info.setStorageTiers(tiers.toArray(new CallHomeInfo.StorageTier[tiers.size()]));
     // Set file system master info
     info.setMasterAddress(masterProcess.getRpcAddress().toString());
-    info.setNumberOfPaths(fsMaster.getNumberOfPaths());
+    info.setNumberOfPaths((int) fsMaster.getInodeCount());
     info.setMACAddress(getMACAddress(masterProcess));
 
     CallHomeInfo.LicenseInfo licenseInfo = new CallHomeInfo.LicenseInfo();

@@ -79,35 +79,45 @@ export class App extends React.Component<AllProps> {
 
     if (!init && loading) {
       return (
-        <LoadingMessage/>
+        <div className="App">
+          <LoadingMessage/>
+        </div>
       );
     }
 
     return (
       <ConnectedRouter history={history}>
-        <div className="App pt-5 pb-4">
-          <div className="container-fluid sticky-top header-wrapper">
+        <div className="App h-100">
+          <div className="w-100 sticky-top header-wrapper">
             <Header history={history} data={headerNavigationData}
                     callbackParameters={{masterHostname: init.masterHostname, masterPort: init.masterPort}}
                     autoRefreshCallback={this.setAutoRefresh}/>
           </div>
-          <div className="pages container-fluid mt-3">
+          <div className="w-100 pt-5 mt-3 pb-4 mb-2">
             <Switch>
               <Route exact={true} path="/" render={this.redirectToOverview}/>
               <Route path="/overview" exact={true} component={Overview}/>
               <Route path="/blockInfo" exact={true} component={BlockInfo}/>
-              <Route path="/logs" exact={true} component={Logs}/>
+              <Route path="/logs" exact={true} render={this.renderView(Logs, {history})}/>
               <Route path="/metrics" exact={true} component={Metrics}/>
               <Route render={this.redirectToOverview}/>
             </Switch>
           </div>
-          <div className="container-fluid footer-wrapper">
+          <div className="w-100 footer-wrapper">
             <Footer data={footerNavigationData}
                     callbackParameters={{masterHostname: init.masterHostname, masterPort: init.masterPort}}/>
           </div>
         </div>
       </ConnectedRouter>
     );
+  }
+
+  private renderView(Container: typeof React.Component, props: any) {
+    return (routerProps: RouteComponentProps<any, StaticContext, any>) => {
+      return (
+        <Container {...routerProps} {...props}/>
+      );
+    }
   }
 
   private redirectToOverview(routerProps: RouteComponentProps<any, StaticContext, any>) {

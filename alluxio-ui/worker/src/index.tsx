@@ -21,14 +21,11 @@ import configureStore from './configureStore';
 import {App} from './containers';
 import {initialState} from './store';
 
-// Order matters for the following files, so disable alphabetization
-// tslint:disable:ordered-imports
 import 'source-sans-pro/source-sans-pro.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/css/bootstrap-grid.min.css';
-import 'bootstrap/dist/css/bootstrap-reboot.min.css';
+import 'source-serif-pro/source-serif-pro.css';
+import 'source-code-pro/source-code-pro.css';
+
 import './index.css';
-// tslint:enable:ordered-imports
 
 const history = createBrowserHistory();
 history.listen((loc: Location, action: Action) => {

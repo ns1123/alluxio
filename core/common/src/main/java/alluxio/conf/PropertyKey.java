@@ -27,7 +27,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.sun.management.OperatingSystemMXBean;
-import com.sun.management.UnixOperatingSystemMXBean;
 
 import java.lang.annotation.Annotation;
 import java.lang.management.ManagementFactory;
@@ -574,6 +573,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
+  public static final PropertyKey UNDERFS_GCS_DIRECTORY_SUFFIX =
+      new Builder(Name.UNDERFS_GCS_DIRECTORY_SUFFIX)
+          .setDefaultValue("/")
+          .setDescription("Directories are represented in GCS as zero-byte objects named with "
+              + "the specified suffix.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.SERVER)
+          .build();
   public static final PropertyKey UNDERFS_GCS_OWNER_ID_TO_USERNAME_MAPPING =
       new Builder(Name.UNDERFS_GCS_OWNER_ID_TO_USERNAME_MAPPING)
           .setDescription("Optionally, specify a preset gcs owner id to Alluxio username "
@@ -617,6 +624,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "because locality is impossible. This will improve performance. The default "
               + "value is false.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.SERVER)
+          .build();
+  public static final PropertyKey UNDERFS_OBJECT_STORE_MULTI_RANGE_CHUNK_SIZE =
+      new Builder(Name.UNDERFS_OBJECT_STORE_MULTI_RANGE_CHUNK_SIZE)
+          .setDefaultValue(String.format("${%s}", Name.USER_BLOCK_SIZE_BYTES_DEFAULT))
+          .setDescription("Default chunk size for ranged reads from multi-range object input "
+              + "streams.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.SERVER)
           .build();
   public static final PropertyKey UNDERFS_OBJECT_STORE_SERVICE_THREADS =
@@ -769,6 +784,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("The duration to wait for metadata consistency from the under "
               + "storage. This is only used by internal Alluxio operations which should be "
               + "successful, but may appear unsuccessful due to eventual consistency.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.SERVER)
+          .build();
+  public static final PropertyKey UNDERFS_S3A_DEFAULT_MODE =
+      new Builder(Name.UNDERFS_S3A_DEFAULT_MODE)
+          .setDefaultValue("0700")
+          .setDescription("Mode (in octal notation) for S3 objects if mode cannot be discovered.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.SERVER)
           .build();
@@ -1170,10 +1192,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_ADDRESSES =
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_ADDRESSES)
-          .setDescription("A comma-separated list of journal addresses for all masters in the "
-              + "cluster. The format is 'hostname1:port1,hostname2:port2,...'. Required when using "
-              + "the embedded journal")
-          .setDefaultValue(String.format("localhost:${%s}", Name.MASTER_EMBEDDED_JOURNAL_PORT))
+          .setDescription(String.format("A comma-separated list of journal addresses for all "
+              + "masters in the cluster. The format is 'hostname1:port1,hostname2:port2,...'. When "
+              + "left unset, Alluxio uses ${%s}:${%s} by default", Name.MASTER_HOSTNAME,
+              Name.MASTER_EMBEDDED_JOURNAL_PORT))
+          // We intentionally don't set a default value here. That way, we can use isSet() to check
+          // whether the user explicitly set these addresses. If they did, we determine job master
+          // embedded journal addresses using the same hostnames the user set here. Otherwise, we
+          // use jobMasterHostname:jobMasterEmbeddedJournalPort by default.
           .build();
   public static final PropertyKey MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT =
       new Builder(Name.MASTER_EMBEDDED_JOURNAL_ELECTION_TIMEOUT)
@@ -1233,6 +1259,78 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
+  public static final PropertyKey MASTER_METASTORE =
+      new Builder(Name.MASTER_METASTORE)
+          .setDefaultValue("HEAP")
+          .setDescription("The type of metastore to use, either HEAP or ROCKS. The heap metastore "
+              + "keeps all metadata on-heap, while the rocks metastore stores some metadata on "
+              + "heap and some metadata on disk. The rocks metastore has the advantage of being "
+              + "able to support a large namespace (1 billion plus files) without needing a "
+              + "massive heap size.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_METASTORE_DIR =
+      new Builder(Name.MASTER_METASTORE_DIR)
+          .setDefaultValue(String.format("${%s}/metastore", Name.WORK_DIR))
+          .setDescription("The metastore work directory. Only some metastores need disk.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_METASTORE_INODE_CACHE_EVICT_BATCH_SIZE =
+      new Builder(Name.MASTER_METASTORE_INODE_CACHE_EVICT_BATCH_SIZE)
+          // TODO(andrew): benchmark different batch sizes to improve the default and provide a
+          // tuning guideline
+          .setDefaultValue("1000")
+          .setDescription("The batch size for evicting entries from the inode cache.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_METASTORE_INODE_CACHE_HIGH_WATER_MARK_RATIO =
+      new Builder(Name.MASTER_METASTORE_INODE_CACHE_HIGH_WATER_MARK_RATIO)
+          .setDefaultValue("0.85")
+          .setDescription("The high water mark for the inode cache, as a ratio from high water "
+              + "mark to total cache size. If this is 0.85 and the max size is 10 million, the "
+              + "high water mark value is 8.5 million. When the cache reaches the high "
+              + "water mark, the eviction process will evict down to the low water mark.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_METASTORE_INODE_CACHE_LOW_WATER_MARK_RATIO =
+      new Builder(Name.MASTER_METASTORE_INODE_CACHE_LOW_WATER_MARK_RATIO)
+          .setDefaultValue("0.8")
+          .setDescription("The low water mark for the inode cache, as a ratio from low water mark "
+              + "to total cache size. If this is 0.8 and the max size is 10 million, the low "
+              + "water mark value is 8 million. When the cache reaches the high "
+              + "water mark, the eviction process will evict down to the low water mark.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_METASTORE_INODE_CACHE_MAX_SIZE =
+      new Builder(Name.MASTER_METASTORE_INODE_CACHE_MAX_SIZE)
+          .setDefaultValue("10000000")
+          .setDescription("The number of inodes to cache on-heap. "
+              + "This only applies to off-heap metastores, e.g. ROCKS. Set this to 0 to disable "
+              + "the on-heap inode cache")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_METASTORE_INODE_INHERIT_OWNER_AND_GROUP =
+      new Builder(Name.MASTER_METASTORE_INODE_INHERIT_OWNER_AND_GROUP)
+          .setDefaultValue("true")
+          .setDescription("Whether to inherit the owner/group from the parent when creating a new "
+              + "inode path if empty")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_METRICS_TIME_SERIES_INTERVAL =
+      new Builder(Name.MASTER_METRICS_TIME_SERIES_INTERVAL)
+          .setDefaultValue("5min")
+          .setDescription("Interval for which the master records metrics information. This affects "
+              + "the granularity of the metrics graphed in the UI.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
   public static final PropertyKey MASTER_WORKER_HEARTBEAT_INTERVAL =
       new Builder(Name.MASTER_WORKER_HEARTBEAT_INTERVAL)
           .setAlias(new String[]{"alluxio.master.heartbeat.interval.ms",
@@ -1263,7 +1361,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey MASTER_LOCKCACHE_MAXSIZE =
       new Builder(Name.MASTER_LOCKCACHE_MAXSIZE)
-          .setDefaultValue(10000)
+          .setDefaultValue(100000)
           .setDescription("Maximum inodelock cache size")
           .setScope(Scope.MASTER)
           .build();
@@ -1317,7 +1415,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey MASTER_JOURNAL_TYPE =
       new Builder(Name.MASTER_JOURNAL_TYPE)
-          .setDefaultValue("UFS")
+          .setDefaultValue("EMBEDDED")
           .setDescription("The type of journal to use. Valid options are UFS (store journal in "
               + "UFS), EMBEDDED (use a journal embedded in the masters), and NOOP (do not use a "
               + "journal)")
@@ -1501,6 +1599,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
+  public static final PropertyKey MASTER_GRPC_CHANNEL_AUTH_TIMEOUT =
+      new Builder(Name.MASTER_GRPC_CHANNEL_AUTH_TIMEOUT)
+          .setDefaultValue("30sec")
+          .setDescription("Maximum time to wait for gRPC channel to attempt to receive an "
+              + "authentication response.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
   public static final PropertyKey MASTER_GRPC_CHANNEL_SHUTDOWN_TIMEOUT =
       new Builder(Name.MASTER_GRPC_CHANNEL_SHUTDOWN_TIMEOUT)
           .setDefaultValue("60sec")
@@ -1597,6 +1703,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
+  public static final PropertyKey MASTER_ACTIVE_UFS_SYNC_THREAD_POOL_SIZE =
+      new Builder(Name.MASTER_ACTIVE_UFS_SYNC_THREAD_POOL_SIZE)
+          .setDefaultValue("3")
+          .setDescription("Max number of threads used to perform active sync")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.MASTER)
+          .build();
   public static final PropertyKey MASTER_ACTIVE_UFS_POLL_TIMEOUT =
       new Builder(Name.MASTER_ACTIVE_UFS_SYNC_POLL_TIMEOUT)
           .setDefaultValue("10sec")
@@ -1627,9 +1740,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.MASTER_UFS_PATH_CACHE_CAPACITY)
           .setDefaultValue(100000)
           .setDescription("The capacity of the UFS path cache. This cache is used to "
-              + "approximate the `Once` metadata load behavior (see "
+              + "approximate the `ONCE` metadata load behavior (see "
               + "`alluxio.user.file.metadata.load.type`). Larger caches will consume more "
-              + "memory, but will better approximate the `Once` behavior.")
+              + "memory, but will better approximate the `ONCE` behavior.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
@@ -1640,7 +1753,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "paths for the UFS path cache. Greater number of threads will decrease the "
               + "amount of staleness in the async cache, but may impact performance. If this "
               + "is set to 0, the cache will be disabled, and "
-              + "`alluxio.user.file.metadata.load.type=Once` will behave like `Always`.")
+              + "`alluxio.user.file.metadata.load.type=ONCE` will behave like `ALWAYS`.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
@@ -1679,34 +1792,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "This property determines the wait time.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
-          .build();
+              .build();
   public static final PropertyKey MASTER_WORKER_THREADS_MAX =
       new Builder(Name.MASTER_WORKER_THREADS_MAX)
-          .setDefaultSupplier(() -> {
-            try {
-              java.lang.management.OperatingSystemMXBean os =
-                  ManagementFactory.getOperatingSystemMXBean();
-              if (os instanceof UnixOperatingSystemMXBean) {
-                return Math.min(32768, Math.max(2048,
-                    ((UnixOperatingSystemMXBean) os).getMaxFileDescriptorCount() / 3));
-              }
-            } catch (Exception e) {
-              // Set lower limit
-            }
-            return 2048;
-          }, "A third of the max file descriptors limit, if b/w 2048 and 32768")
+          .setDefaultValue(512)
           .setDescription("The maximum number of incoming RPC requests to master that can be "
               + "handled. This value is used to configure maximum number of threads in gRPC "
               + "thread pool with master.")
-          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
-          .setScope(Scope.MASTER)
-          .build();
-  public static final PropertyKey MASTER_WORKER_THREADS_MIN =
-      new Builder(Name.MASTER_WORKER_THREADS_MIN)
-          .setDefaultValue(512)
-          .setDescription("The minimum number of threads used to handle incoming RPC requests "
-              + "to master. This value is used to configure minimum number of threads in "
-              + "gRPC thread pool with master.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
@@ -1979,9 +2071,16 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey WORKER_NETWORK_KEEPALIVE_TIMEOUT_MS =
       new Builder(Name.WORKER_NETWORK_KEEPALIVE_TIMEOUT_MS)
-          .setDefaultValue("10sec")
+          .setDefaultValue("30sec")
           .setDescription("The maximum time for a data server (for block reads and block writes) "
               + "to wait for a keepalive response before closing the connection.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.WORKER)
+          .build();
+  public static final PropertyKey WORKER_NETWORK_MAX_INBOUND_MESSAGE_SIZE =
+      new Builder(Name.WORKER_NETWORK_MAX_INBOUND_MESSAGE_SIZE)
+          .setDefaultValue("4MB")
+          .setDescription("The max inbound message size used by worker gRPC connections.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.WORKER)
           .build();
@@ -2046,6 +2145,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue("15sec")
           .setDescription("Maximum amount of time to wait until the worker gRPC server "
               + "is shutdown (regardless of the quiet period).")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.WORKER)
+          .build();
+  public static final PropertyKey WORKER_NETWORK_ZEROCOPY_ENABLED =
+      new Builder(Name.WORKER_NETWORK_ZEROCOPY_ENABLED)
+          .setDefaultValue(true)
+          .setDescription("Whether zero copy is enabled on worker when processing data streams.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.WORKER)
           .build();
@@ -2597,12 +2703,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_FILE_METADATA_LOAD_TYPE =
       new Builder(Name.USER_FILE_METADATA_LOAD_TYPE)
-          .setDefaultValue("Once")
+          .setDefaultValue("ONCE")
           .setDescription("The behavior of loading metadata from UFS. When information about "
               + "a path is requested and the path does not exist in Alluxio, metadata can be "
-              + "loaded from the UFS. Valid options are `Always`, `Never`, and `Once`. "
-              + "`Always` will always access UFS to see if the path exists in the UFS. "
-              + "`Never` will never consult the UFS. `Once` will access the UFS the \"first\" "
+              + "loaded from the UFS. Valid options are `ALWAYS`, `NEVER`, and `ONCE`. "
+              + "`ALWAYS` will always access UFS to see if the path exists in the UFS. "
+              + "`NEVER` will never consult the UFS. `ONCE` will access the UFS the \"first\" "
               + "time (according to a cache), but not after that. This parameter is ignored if a "
               + "metadata sync is performed, via the parameter "
               + "\"alluxio.user.file.metadata.sync.interval\"")
@@ -2806,7 +2912,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_NETWORK_KEEPALIVE_TIME_MS =
       new Builder(Name.USER_NETWORK_KEEPALIVE_TIME_MS)
-          .setDefaultValue(Integer.MAX_VALUE)
+          .setDefaultValue(Long.MAX_VALUE)
           .setDescription("The amount of time for a gRPC client (for block reads and block writes) "
               + "to wait for a response before pinging the server to see if it is still alive.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
@@ -2822,7 +2928,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_NETWORK_MAX_INBOUND_MESSAGE_SIZE =
       new Builder(Name.USER_NETWORK_MAX_INBOUND_MESSAGE_SIZE)
-          .setDefaultValue("4MB")
+          .setDefaultValue("100MB")
           .setDescription("The max inbound message size used by user gRPC connections.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
@@ -2887,6 +2993,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.USER_NETWORK_WRITER_FLUSH_TIMEOUT)
           .setDefaultValue("30min")
           .setDescription("The timeout to wait for flush to finish in a data writer.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.CLIENT)
+          .build();
+  public static final PropertyKey USER_NETWORK_ZEROCOPY_ENABLED =
+      new Builder(Name.USER_NETWORK_ZEROCOPY_ENABLED)
+          .setDefaultValue(true)
+          .setDescription("Whether zero copy is enabled on client when processing data streams.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
           .build();
@@ -3607,10 +3720,10 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       new Builder(Name.JOB_MASTER_RPC_ADDRESSES).build();
   public static final PropertyKey JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES =
       new Builder(Name.JOB_MASTER_EMBEDDED_JOURNAL_ADDRESSES)
-          .setDescription("A comma-separated list of journal addresses for all job masters in the "
-              + "cluster. The format is 'hostname1:port1,hostname2:port2,...'. Defaults to the "
-              + "journal addresses set for the Alluxio masters, but with the job master embedded "
-              + "journal port.")
+          .setDescription(String.format("A comma-separated list of journal addresses for all job "
+              + "masters in the cluster. The format is 'hostname1:port1,hostname2:port2,...'. "
+              + "Defaults to the journal addresses set for the Alluxio masters (%s), but with the "
+              + "job master embedded journal port.", Name.MASTER_EMBEDDED_JOURNAL_ADDRESSES))
           .build();
   public static final PropertyKey JOB_MASTER_EMBEDDED_JOURNAL_PORT =
       new Builder(Name.JOB_MASTER_EMBEDDED_JOURNAL_PORT)
@@ -3758,6 +3871,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String UNDERFS_CLEANUP_ENABLED = "alluxio.underfs.cleanup.enabled";
     public static final String UNDERFS_CLEANUP_INTERVAL = "alluxio.underfs.cleanup.interval";
     public static final String UNDERFS_LISTING_LENGTH = "alluxio.underfs.listing.length";
+    public static final String UNDERFS_GCS_DIRECTORY_SUFFIX =
+        "alluxio.underfs.gcs.directory.suffix";
     public static final String UNDERFS_GCS_OWNER_ID_TO_USERNAME_MAPPING =
         "alluxio.underfs.gcs.owner.id.to.username.mapping";
     public static final String UNDERFS_HDFS_CONFIGURATION = "alluxio.underfs.hdfs.configuration";
@@ -3775,6 +3890,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.underfs.object.store.service.threads";
     public static final String UNDERFS_OBJECT_STORE_MOUNT_SHARED_PUBLICLY =
         "alluxio.underfs.object.store.mount.shared.publicly";
+    public static final String UNDERFS_OBJECT_STORE_MULTI_RANGE_CHUNK_SIZE =
+        "alluxio.underfs.object.store.multi.range.chunk.size";
     public static final String UNDERFS_OBJECT_STORE_READ_RETRY_BASE_SLEEP_MS =
         "alluxio.underfs.object.store.read.retry.base.sleep";
     public static final String UNDERFS_OBJECT_STORE_READ_RETRY_MAX_NUM =
@@ -3790,6 +3907,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.underfs.s3a.bulk.delete.enabled";
     public static final String UNDERFS_S3A_CONSISTENCY_TIMEOUT_MS =
         "alluxio.underfs.s3a.consistency.timeout";
+    public static final String UNDERFS_S3A_DEFAULT_MODE = "alluxio.underfs.s3a.default.mode";
     public static final String UNDERFS_S3A_DIRECTORY_SUFFIX =
         "alluxio.underfs.s3a.directory.suffix";
     public static final String UNDERFS_S3A_INHERIT_ACL = "alluxio.underfs.s3a.inherit_acl";
@@ -3930,8 +4048,22 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_EMBEDDED_JOURNAL_STORAGE_LEVEL =
         "alluxio.master.embedded.journal.storage.level";
     public static final String MASTER_KEYTAB_KEY_FILE = "alluxio.master.keytab.file";
+    public static final String MASTER_METASTORE = "alluxio.master.metastore";
+    public static final String MASTER_METASTORE_DIR = "alluxio.master.metastore.dir";
+    public static final String MASTER_METASTORE_INODE_CACHE_EVICT_BATCH_SIZE =
+        "alluxio.master.metastore.inode.cache.evict.batch.size";
+    public static final String MASTER_METASTORE_INODE_CACHE_HIGH_WATER_MARK_RATIO =
+        "alluxio.master.metastore.inode.cache.high.water.mark.ratio";
+    public static final String MASTER_METASTORE_INODE_CACHE_LOW_WATER_MARK_RATIO =
+        "alluxio.master.metastore.inode.cache.low.water.mark.ratio";
+    public static final String MASTER_METASTORE_INODE_CACHE_MAX_SIZE =
+        "alluxio.master.metastore.inode.cache.max.size";
+    public static final String MASTER_METASTORE_INODE_INHERIT_OWNER_AND_GROUP =
+        "alluxio.master.metastore.inode.inherit.owner.and.group";
     public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
         "alluxio.master.persistence.checker.interval.ms";
+    public static final String MASTER_METRICS_TIME_SERIES_INTERVAL =
+        "alluxio.master.metrics.time.series.interval";
     public static final String MASTER_PERSISTENCE_INITIAL_INTERVAL_MS =
         "alluxio.master.persistence.initial.interval.ms";
     public static final String MASTER_PERSISTENCE_INITIAL_WAIT_TIME_MS =
@@ -3963,6 +4095,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.startup.block.integrity.check.enabled";
     public static final String MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
         "alluxio.master.startup.consistency.check.enabled";
+    public static final String MASTER_GRPC_CHANNEL_AUTH_TIMEOUT =
+        "alluxio.master.grpc.channel.auth.timeout";
     public static final String MASTER_GRPC_CHANNEL_SHUTDOWN_TIMEOUT =
             "alluxio.master.grpc.channel.shutdown.timeout";
     public static final String MASTER_GRPC_SERVER_SHUTDOWN_TIMEOUT =
@@ -3985,6 +4119,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.activesync.interval";
     public static final String MASTER_ACTIVE_UFS_SYNC_MAX_ACTIVITY =
         "alluxio.master.activesync.maxactivity";
+    public static final String MASTER_ACTIVE_UFS_SYNC_THREAD_POOL_SIZE =
+        "alluxio.master.activesync.threadpoolsize";
     public static final String MASTER_ACTIVE_UFS_SYNC_POLL_TIMEOUT =
         "alluxio.master.activesync.polltimeout";
     public static final String MASTER_ACTIVE_UFS_SYNC_EVENT_RATE_INTERVAL =
@@ -4006,7 +4142,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_WORKER_CONNECT_WAIT_TIME =
         "alluxio.master.worker.connect.wait.time";
     public static final String MASTER_WORKER_THREADS_MAX = "alluxio.master.worker.threads.max";
-    public static final String MASTER_WORKER_THREADS_MIN = "alluxio.master.worker.threads.min";
     public static final String MASTER_WORKER_TIMEOUT_MS = "alluxio.master.worker.timeout";
     public static final String MASTER_JOURNAL_CHECKPOINT_PERIOD_ENTRIES =
         "alluxio.master.journal.checkpoint.period.entries";
@@ -4070,6 +4205,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.worker.network.keepalive.time";
     public static final String WORKER_NETWORK_KEEPALIVE_TIMEOUT_MS =
         "alluxio.worker.network.keepalive.timeout";
+    public static final String WORKER_NETWORK_MAX_INBOUND_MESSAGE_SIZE =
+        "alluxio.worker.network.max.inbound.message.size";
     public static final String WORKER_NETWORK_NETTY_BOSS_THREADS =
         "alluxio.worker.network.netty.boss.threads";
     public static final String WORKER_NETWORK_NETTY_CHANNEL =
@@ -4086,6 +4223,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.worker.network.reader.max.chunk.size.bytes";
     public static final String WORKER_NETWORK_SHUTDOWN_TIMEOUT =
         "alluxio.worker.network.shutdown.timeout";
+    public static final String WORKER_NETWORK_ZEROCOPY_ENABLED =
+        "alluxio.worker.network.zerocopy.enabled";
     public static final String WORKER_BLOCK_MASTER_CLIENT_POOL_SIZE =
         "alluxio.worker.block.master.client.pool.size";
     public static final String WORKER_PRINCIPAL = "alluxio.worker.principal";
@@ -4261,6 +4400,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.user.network.writer.close.timeout";
     public static final String USER_NETWORK_WRITER_FLUSH_TIMEOUT =
         "alluxio.user.network.writer.flush.timeout";
+    public static final String USER_NETWORK_ZEROCOPY_ENABLED =
+        "alluxio.user.network.zerocopy.enabled";
     public static final String USER_RPC_RETRY_BASE_SLEEP_MS =
         "alluxio.user.rpc.retry.base.sleep";
     public static final String USER_RPC_RETRY_MAX_DURATION =

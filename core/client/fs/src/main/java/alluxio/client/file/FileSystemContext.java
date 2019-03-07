@@ -32,6 +32,7 @@ import alluxio.util.IdUtils;
 import alluxio.security.authentication.SaslParticipantProviderUtils;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.ThreadUtils;
+import alluxio.util.network.NettyUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
@@ -41,6 +42,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import io.netty.channel.EventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -124,6 +127,7 @@ public final class FileSystemContext implements Closeable {
 
   private final ClientContext mClientContext;
   private final String mAppId;
+  private final EventLoopGroup mWorkerGroup;
 
   /**
    * Creates a {@link FileSystemContext} with a null subject.
@@ -161,7 +165,6 @@ public final class FileSystemContext implements Closeable {
    * @return the {@link alluxio.client.file.FileSystemContext}
    */
   public static FileSystemContext create(ClientContext clientContext) {
-    Preconditions.checkNotNull(clientContext);
     FileSystemContext ctx = new FileSystemContext(clientContext);
     ctx.init(MasterInquireClient.Factory.create(clientContext.getConf()));
     return ctx;
@@ -201,6 +204,7 @@ public final class FileSystemContext implements Closeable {
    * @param ctx the parent subject, set to null if not present
    */
   private FileSystemContext(ClientContext ctx) {
+    Preconditions.checkNotNull(ctx, "ctx");
     mClientContext = ctx;
     mExecutorService = Executors.newFixedThreadPool(1,
         ThreadFactoryUtils.build("metrics-master-heartbeat-%d", true));
@@ -211,6 +215,10 @@ public final class FileSystemContext implements Closeable {
     LOG.info("Created filesystem context with id {}. This ID will be used for identifying info "
             + "from the client, such as metrics. It can be set manually through the {} property",
         mAppId, PropertyKey.Name.USER_APP_ID);
+
+    mWorkerGroup = NettyUtils.createEventLoop(NettyUtils.getUserChannel(ctx.getConf()),
+        ctx.getConf().getInt(PropertyKey.USER_NETWORK_NETTY_WORKER_THREADS),
+        String.format("alluxio-client-nettyPool-%s-%%d", mAppId), true);
   }
 
   /**
@@ -261,6 +269,14 @@ public final class FileSystemContext implements Closeable {
    */
   public synchronized void close() throws IOException {
     if (!mClosed.get()) {
+      // Setting closed should be the first thing we do because if any of the close operations
+      // fail we'll only have a half-closed object and performing any more operations or closing
+      // again on a half-closed object can possibly result in more errors (i.e. NPE). Setting
+      // closed first is also recommended by the JDK that in implementations of #close() that
+      // developers should first mark their resources as closed prior to any exceptions being
+      // thrown.
+      mClosed.set(true);
+      mWorkerGroup.shutdownGracefully(1L, 10L, TimeUnit.SECONDS);
       mFileSystemMasterClientPool.close();
       mFileSystemMasterClientPool = null;
       mBlockMasterClientPool.close();
@@ -283,7 +299,6 @@ public final class FileSystemContext implements Closeable {
       }
       mLocalWorkerInitialized = false;
       mLocalWorker = null;
-      mClosed.set(true);
     } else {
       LOG.warn("Attempted to close FileSystemContext with app ID {} which has already been closed"
           + " or not initialized.", mAppId);
@@ -401,7 +416,7 @@ public final class FileSystemContext implements Closeable {
         SaslParticipantProviderUtils.getImpersonationUser(mClientContext.getSubject(), getConf()));
     return mBlockWorkerClientPool.computeIfAbsent(key, k ->
         new BlockWorkerClientPool(mClientContext.getSubject(), address,
-        getConf().getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE), getConf())
+        getConf().getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE), getConf(), mWorkerGroup)
     ).acquire();
   }
 

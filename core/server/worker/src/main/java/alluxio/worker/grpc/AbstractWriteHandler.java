@@ -14,17 +14,18 @@ package alluxio.worker.grpc;
 import alluxio.client.block.stream.GrpcDataWriter;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.InvalidArgumentException;
-import alluxio.grpc.GrpcExceptionUtils;
 import alluxio.grpc.WriteRequest;
 import alluxio.grpc.WriteRequestCommand;
 import alluxio.grpc.WriteResponse;
+import alluxio.util.LogUtils;
 
-import com.google.protobuf.ByteString;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Meter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-
+import com.google.protobuf.ByteString;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +81,7 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
   public void write(WriteRequest writeRequest) {
     try {
       if (mContext == null) {
+        LOG.debug("Received write request {}.", writeRequest);
         mContext = createRequestContext(writeRequest);
       } else {
         Preconditions.checkState(!mContext.isDoneUnsafe(),
@@ -102,6 +104,8 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
         writeData(data);
       }
     } catch (Exception e) {
+      LogUtils.warnWithException(LOG, "Exception occurred while processing write request {}.",
+          writeRequest, e);
       abort(new Error(AlluxioStatusException.fromThrowable(e), true));
     }
   }
@@ -115,6 +119,8 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
       completeRequest(mContext);
       replySuccess();
     } catch (Exception e) {
+      LogUtils.warnWithException(LOG, "Exception occurred while completing write request {}.",
+          mContext.getRequest(), e);
       Throwables.throwIfUnchecked(e);
       abort(new Error(AlluxioStatusException.fromCheckedException(e), true));
     }
@@ -128,6 +134,8 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
       cancelRequest(mContext);
       replyCancel();
     } catch (Exception e) {
+      LogUtils.warnWithException(LOG, "Exception occurred while cancelling write request {}.",
+          mContext.getRequest(), e);
       Throwables.throwIfUnchecked(e);
       abort(new Error(AlluxioStatusException.fromCheckedException(e), true));
     }
@@ -139,7 +147,12 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
    * @param cause the exception
    */
   public void onError(Throwable cause) {
-    LOG.error("Exception thrown while handling write request {}:",
+    if (cause instanceof StatusRuntimeException
+        && ((StatusRuntimeException) cause).getStatus().getCode() == Status.Code.CANCELLED) {
+      // Cancellation is already handled.
+      return;
+    }
+    LogUtils.warnWithException(LOG, "Exception thrown while handling write request {}",
         mContext == null ? "unknown" : mContext.getRequest(), cause);
     abort(new Error(AlluxioStatusException.fromThrowable(cause), false));
   }
@@ -322,7 +335,7 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
   private void replyError() {
     Error error = Preconditions.checkNotNull(mContext.getError());
     if (error.isNotifyClient()) {
-      mResponseObserver.onError(GrpcExceptionUtils.toGrpcStatusException(error.getCause()));
+      mResponseObserver.onError(error.getCause().toGrpcStatusException());
     }
   }
 

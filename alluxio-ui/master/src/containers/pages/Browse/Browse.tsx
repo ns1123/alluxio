@@ -12,25 +12,35 @@
 import {faFile, faFolder} from '@fortawesome/free-regular-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {AxiosResponse} from 'axios';
+import {History, LocationState} from 'history';
 import React from 'react';
 import {connect} from 'react-redux';
 import {Link} from 'react-router-dom';
 import {Alert, Button, Form, FormGroup, Input, Label, Table} from 'reactstrap';
 import {Dispatch} from 'redux';
 
-import {FileView, Paginator} from '@alluxio/common-ui/src/components';
+import {FileView, LoadingMessage, Paginator} from '@alluxio/common-ui/src/components';
 import {IFileBlockInfo, IFileInfo} from '@alluxio/common-ui/src/constants';
-import {getDebouncedFunction, parseQuerystring} from '@alluxio/common-ui/src/utilities';
+import {
+  disableFormSubmit,
+  getDebouncedFunction,
+  parseQuerystring,
+  renderFileNameLink
+} from '@alluxio/common-ui/src/utilities';
 import {IApplicationState} from '../../../store';
 import {fetchRequest} from '../../../store/browse/actions';
 import {IBrowse} from '../../../store/browse/types';
+import {IInit} from '../../../store/init/types';
 
 import './Browse.css';
 
 interface IPropsFromState {
-  data: IBrowse;
-  errors?: AxiosResponse;
-  loading: boolean;
+  browseData: IBrowse;
+  browseErrors?: AxiosResponse;
+  browseLoading: boolean;
+  initData: IInit;
+  initErrors?: AxiosResponse;
+  initLoading: boolean;
   location: {
     search: string;
   };
@@ -55,7 +65,11 @@ interface IBrowseState {
   textAreaHeight?: number;
 }
 
-export type AllProps = IPropsFromState & IPropsFromDispatch;
+interface IBrowseProps {
+  history: History<LocationState>;
+}
+
+export type AllProps = IPropsFromState & IPropsFromDispatch & IBrowseProps;
 
 export class Browse extends React.Component<AllProps, IBrowseState> {
   private readonly textAreaResizeMs = 100;
@@ -64,7 +78,8 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
   constructor(props: AllProps) {
     super(props);
 
-    const {path, offset, limit, end} = parseQuerystring(this.props.location.search);
+    let {path, offset, limit, end} = parseQuerystring(this.props.location.search);
+    offset = offset || '0';
     this.state = {end, limit, offset, path: path || '/', lastFetched: {}};
   }
 
@@ -96,23 +111,31 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
   }
 
   public render() {
-    const {errors, data} = this.props;
+    const {browseErrors, browseData, browseLoading, initData, initLoading, initErrors} = this.props;
     let queryStringSuffix = Object.entries(this.state)
       .filter((obj: any[]) => ['offset', 'limit', 'end'].includes(obj[0]) && obj[1] != undefined)
       .map((obj: any) => `${obj[0]}=${obj[1]}`).join('&');
     queryStringSuffix = queryStringSuffix ? '&' + queryStringSuffix : queryStringSuffix;
 
-    if (errors || data.accessControlException || data.fatalError || data.fileDoesNotExistException ||
-      data.invalidPathError || data.invalidPathException) {
+    if (initErrors || browseErrors || browseData && (browseData.accessControlException || browseData.fatalError ||
+      browseData.fileDoesNotExistException || browseData.invalidPathError || browseData.invalidPathException)) {
       return (
         <Alert color="danger">
-          {errors && <div>Unable to reach the api endpoint for this page.</div>}
-          {data.accessControlException && <div>{data.accessControlException}</div>}
-          {data.fatalError && <div>{data.fatalError}</div>}
-          {data.fileDoesNotExistException && <div>{data.fileDoesNotExistException}</div>}
-          {data.invalidPathError && <div>{data.invalidPathError}</div>}
-          {data.invalidPathException && <div>{data.invalidPathException}</div>}
+          {browseErrors && <div>Unable to reach the api endpoint for this page.</div>}
+          {browseData.accessControlException && <div>{browseData.accessControlException}</div>}
+          {browseData.fatalError && <div>{browseData.fatalError}</div>}
+          {browseData.fileDoesNotExistException && <div>{browseData.fileDoesNotExistException}</div>}
+          {browseData.invalidPathError && <div>{browseData.invalidPathError}</div>}
+          {browseData.invalidPathException && <div>{browseData.invalidPathException}</div>}
         </Alert>
+      );
+    }
+
+    if (initLoading || browseLoading) {
+      return (
+        <div className="browse-page">
+          <LoadingMessage/>
+        </div>
       );
     }
 
@@ -121,8 +144,8 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
         <div className="container-fluid">
           <div className="row">
             <div className="col-12">
-              {!data.currentDirectory.isDirectory && this.renderFileView(data, queryStringSuffix)}
-              {data.currentDirectory.isDirectory && this.renderDirectoryListing(data, queryStringSuffix)}
+              {!browseData.currentDirectory.isDirectory && this.renderFileView(browseData, queryStringSuffix, initData)}
+              {browseData.currentDirectory.isDirectory && this.renderDirectoryListing(initData, browseData, queryStringSuffix)}
             </div>
           </div>
         </div>
@@ -130,30 +153,31 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
     );
   }
 
-  private renderFileView(browse: IBrowse, queryStringSuffix: string) {
+  private renderFileView(browseData: IBrowse, queryStringSuffix: string, initData: IInit) {
     const {textAreaHeight, path, offset, end, lastFetched} = this.state;
-    const offsetInputHandler = this.createInputHandler('offset', value => value).bind(this);
+    const {history} = this.props;
+    const offsetInputHandler = this.createInputChangeHandler('offset', value => value).bind(this);
     const beginInputHandler = this.createButtonHandler('end', value => undefined).bind(this);
     const endInputHandler = this.createButtonHandler('end', value => '1').bind(this);
     return (
       <React.Fragment>
         <FileView allowDownload={true} beginInputHandler={beginInputHandler} end={end} endInputHandler={endInputHandler}
-                  lastFetched={lastFetched} offset={offset} offsetInputHandler={offsetInputHandler} path={path}
+                  lastFetched={lastFetched} offset={offset || '0'} offsetInputHandler={offsetInputHandler} path={path}
                   queryStringPrefix="/browse" queryStringSuffix={queryStringSuffix} textAreaHeight={textAreaHeight}
-                  viewData={browse}/>
+                  viewData={browseData} history={history} proxyDownloadApiUrl={initData.proxyDownloadFileApiUrl}/>
         <hr/>
-        <h6>Detailed blocks information (block capacity is {browse.blockSizeBytes} Bytes):</h6>
+        <h6>Detailed blocks information (block capacity is {browseData.blockSizeBytes} Bytes):</h6>
         <Table hover={true}>
           <thead>
           <tr>
             <th>ID</th>
             <th>Size (Byte)</th>
-            <th>In {browse.highestTierAlias}</th>
+            <th>In {browseData.highestTierAlias}</th>
             <th>Locations</th>
           </tr>
           </thead>
           <tbody>
-          {browse.fileBlocks.map((fileBlock: IFileBlockInfo) => (
+          {browseData.fileBlocks.map((fileBlock: IFileBlockInfo) => (
             <tr key={fileBlock.id}>
               <td>{fileBlock.id}</td>
               <td>{fileBlock.blockLength}</td>
@@ -173,13 +197,15 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
     );
   }
 
-  private renderDirectoryListing(browse: IBrowse, queryStringSuffix: string) {
+  private renderDirectoryListing(initData: IInit, browseData: IBrowse, queryStringSuffix: string) {
     const {path, lastFetched, offset, limit} = this.state;
-    const fileInfos = browse.fileInfos;
-    const pathInputHandler = this.createInputHandler('path', value => value).bind(this);
+    const {history} = this.props;
+    const fileInfos = browseData.fileInfos;
+    const pathInputHandler = this.createInputChangeHandler('path', value => value).bind(this);
     return (
       <React.Fragment>
-        <Form className="mb-3 browse-directory-form" id="browseDirectoryForm" inline={true}>
+        <Form className="mb-3 browse-directory-form" id="browseDirectoryForm" inline={true}
+              onSubmit={disableFormSubmit}>
           <FormGroup className="mb-2 mr-sm-2">
             <Button tag={Link} to={`/browse?path=/${queryStringSuffix}`} color="secondary"
                     outline={true} disabled={'/' === lastFetched.path}>Root</Button>
@@ -187,10 +213,11 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
           <FormGroup className="mb-2 mr-sm-2">
             <Label for="browsePath" className="mr-sm-2">Path</Label>
             <Input type="text" id="browsePath" placeholder="Enter a Path" value={path || '/'}
-                   onChange={pathInputHandler}/>
+                   onChange={pathInputHandler}
+                   onKeyUp={this.createInputEnterHandler(history, () => `/browse?path=${path}${queryStringSuffix}`)}/>
           </FormGroup>
           <FormGroup className="mb-2 mr-sm-2">
-            <Button tag={Link} to={`/browse?path=${path}${queryStringSuffix}`} color="primary"
+            <Button tag={Link} to={`/browse?path=${path}${queryStringSuffix}`} color="secondary"
                     disabled={path === lastFetched.path}>Go</Button>
           </FormGroup>
         </Form>
@@ -198,15 +225,30 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
           <thead>
           <tr>
             <th/>
+            {/* Icon placeholder */}
             <th>File Name</th>
+            <th>Size</th>
             <th>Block Size</th>
             <th>In-Alluxio</th>
-            <th>Mode</th>
-            <th>Owner</th>
-            <th>Group</th>
+            {browseData.showPermissions && (
+              <React.Fragment>
+                <th>Mode</th>
+                <th>Owner</th>
+                <th>Group</th>
+              </React.Fragment>
+            )}
             <th>Persistence State</th>
             <th>Pin</th>
             <th>Creation Time</th>
+            <th>Modification Time</th>
+            {initData.debug && (
+              <React.Fragment>
+                <th>[D]DepID</th>
+                <th>[D]INumber</th>
+                <th>[D]UnderfsPath</th>
+                <th>[D]File Locations</th>
+              </React.Fragment>
+            )}
           </tr>
           </thead>
           <tbody>
@@ -214,38 +256,45 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
             <tr key={fileInfo.absolutePath}>
               <td><FontAwesomeIcon icon={fileInfo.isDirectory ? faFolder : faFile}/></td>
               <td>
-                {this.renderFileNameLink(fileInfo.absolutePath, queryStringSuffix)}
+                {renderFileNameLink.call(this, fileInfo.absolutePath, `/browse?path=${fileInfo.absolutePath}`)}
               </td>
               <td>{fileInfo.size}</td>
-              <td>{fileInfo.inAlluxio ? 'YES' : 'NO'}</td>
-              <td>{fileInfo.mode}</td>
-              <td>{fileInfo.owner}</td>
-              <td>{fileInfo.group}</td>
+              <td>{fileInfo.blockSizeBytes}</td>
+              <td>{fileInfo.inAlluxioPercentage}%</td>
+              {browseData.showPermissions && (
+                <React.Fragment>
+                  <td>
+                    <pre className="mb-0"><code>{fileInfo.mode}</code></pre>
+                  </td>
+                  <td>{fileInfo.owner}</td>
+                  <td>{fileInfo.group}</td>
+                </React.Fragment>
+              )}
               <td>{fileInfo.persistenceState}</td>
-              <td>{fileInfo.pinned}</td>
+              <td>{fileInfo.pinned ? 'YES' : 'NO'}</td>
               <td>{fileInfo.creationTime}</td>
+              <td>{fileInfo.modificationTime}</td>
+              {initData.debug && (
+                <React.Fragment>
+                  <td>{fileInfo.id}</td>
+                  <td>
+                    {fileInfo.fileLocations.map((location: string) => <div key={location}>location</div>)}
+                  </td>
+                  <td>{fileInfo.absolutePath}</td>
+                  <td>
+                    {fileInfo.fileLocations.map((location: string) => (
+                      <div key={location}>{location}</div>
+                    ))}
+                  </td>
+                </React.Fragment>
+              )}
             </tr>
           ))}
           </tbody>
         </Table>
-        <Paginator baseUrl={'/browse'} path={path} total={browse.ntotalFile} offset={offset} limit={limit}/>
+        <Paginator baseUrl={'/browse'} path={path} total={browseData.ntotalFile} offset={offset} limit={limit}/>
       </React.Fragment>
     )
-  }
-
-  private renderFileNameLink(filePath: string, queryStringSuffix: string) {
-    const {lastFetched} = this.state;
-    if (filePath === lastFetched.path) {
-      return (
-        filePath
-      );
-    }
-
-    return (
-      <Link to={`/browse?path=${filePath}${queryStringSuffix}`}>
-        {filePath}
-      </Link>
-    );
   }
 
   private fetchData(path?: string, offset?: string, limit?: string, end?: string) {
@@ -253,10 +302,24 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
     this.props.fetchRequest(path, offset, limit, end);
   }
 
-  private createInputHandler(stateKey: string, stateValueCallback: (value: string) => string | undefined) {
+  private createInputChangeHandler(stateKey: string, stateValueCallback: (value: string) => string | undefined) {
     return (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       this.setState({...this.state, [stateKey]: stateValueCallback(value)});
+    };
+  }
+
+  private createInputEnterHandler(history: History<LocationState>, stateValueCallback: (value: string) => string | undefined) {
+    return (event: React.KeyboardEvent<HTMLInputElement>) => {
+      const value = event.key;
+      if (event.key === 'Enter') {
+        const newPath = stateValueCallback(value);
+        if (newPath) {
+          if (history) {
+            history.push(newPath);
+          }
+        }
+      }
     };
   }
 
@@ -271,10 +334,13 @@ export class Browse extends React.Component<AllProps, IBrowseState> {
   }
 }
 
-const mapStateToProps = ({browse, refresh}: IApplicationState) => ({
-  data: browse.data,
-  errors: browse.errors,
-  loading: browse.loading,
+const mapStateToProps = ({browse, init, refresh}: IApplicationState) => ({
+  browseData: browse.data,
+  browseErrors: browse.errors,
+  browseLoading: browse.loading,
+  initData: init.data,
+  initErrors: init.errors,
+  initLoading: init.loading,
   refresh: refresh.data
 });
 

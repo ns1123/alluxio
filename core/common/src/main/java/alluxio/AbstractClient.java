@@ -31,7 +31,6 @@ import alluxio.retry.RetryUtils;
 import alluxio.security.LoginUser;
 import alluxio.grpc.GrpcChannel;
 import alluxio.util.SecurityUtils;
-import alluxio.grpc.GrpcExceptionUtils;
 
 import com.codahale.metrics.Timer;
 import com.google.common.base.Preconditions;
@@ -357,7 +356,7 @@ public abstract class AbstractClient implements Client {
       try {
         return rpc.call();
       } catch (StatusRuntimeException e) {
-        AlluxioStatusException se = GrpcExceptionUtils.fromGrpcStatusException(e);
+        AlluxioStatusException se = AlluxioStatusException.fromStatusRuntimeException(e);
         if (se.getStatus() == Status.UNAVAILABLE
             || se.getStatus() == Status.CANCELED
             || se.getStatus() == Status.UNAUTHENTICATED) {

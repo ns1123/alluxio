@@ -20,7 +20,6 @@ import alluxio.security.MasterKey;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authentication.DelegationTokenIdentifier;
-import alluxio.security.authentication.DelegationTokenManager;
 import alluxio.security.authentication.ImpersonationAuthenticator;
 import alluxio.security.authentication.Token;
 import alluxio.util.CommonUtils;
@@ -43,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -511,64 +509,6 @@ public final class KerberosUtils {
         LOG.error("Cannot obtain password", e);
         return new char[0];
       }
-    }
-  }
-
-  /**
-   * The delegation token sasl callback for the thrift servers.
-   */
-  public static class ThriftDelegationTokenServerCallbackHandler
-      extends SaslDigestServerCallbackHandler {
-    private final Runnable mCallback;
-    private final DelegationTokenManager mTokenManager;
-
-    private final AlluxioConfiguration mConf;
-
-    /**
-     * Creates a {@link ThriftDelegationTokenServerCallbackHandler} instance.
-     *
-     * @param conf Alluxio configuration
-     * @param manager delegation token manager
-     * @param callback the callback runs after the connection is authenticated
-     */
-    public ThriftDelegationTokenServerCallbackHandler(AlluxioConfiguration conf, Runnable callback,
-        DelegationTokenManager manager) {
-      mCallback = callback;
-      mTokenManager = manager;
-      mConf = conf;
-    }
-
-    @Override
-    protected void authorize(AuthorizeCallback ac) throws IOException {
-      DelegationTokenIdentifier id = getDelegationTokenIdentifier(ac.getAuthorizationID());
-      String authorizationId = id.getOwner();
-      String authenticationId = id.getRealUser();
-      ac.setAuthorized(true);
-      ac.setAuthorizedID(authorizationId);
-      updateThriftRpcUsers(authorizationId, authenticationId, DIGEST_MECHANISM_NAME, mConf);
-      mCallback.run();
-    }
-
-    @Override
-    protected char[] getPassword(String name) {
-      try {
-        DelegationTokenIdentifier id = getDelegationTokenIdentifier(name);
-        byte[] password = mTokenManager.retrievePassword(id);
-        if (password == null) {
-          LOG.debug("Token not found for id: {}", id);
-          return new char[0];
-        }
-        return new String(Base64.encodeBase64(password),
-            StandardCharsets.UTF_8).toCharArray();
-      } catch (IOException e) {
-        LOG.error("Cannot decode password", e);
-        return new char[0];
-      }
-    }
-
-    private DelegationTokenIdentifier getDelegationTokenIdentifier(String name) throws IOException {
-      return DelegationTokenIdentifier.fromByteArray(Base64.decodeBase64(name.getBytes()),
-          mConf.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
     }
   }
 

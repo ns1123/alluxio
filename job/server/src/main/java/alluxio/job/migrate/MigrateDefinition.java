@@ -12,8 +12,6 @@
 package alluxio.job.migrate;
 
 import alluxio.AlluxioURI;
-import alluxio.conf.ServerConfiguration;
-import alluxio.conf.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
@@ -23,10 +21,11 @@ import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.WritePType;
@@ -62,12 +61,12 @@ import java.util.concurrent.ConcurrentMap;
  * directories, and the overwrite configuration option must be set. If the destination does not
  * exist, its parent must be a directory and the destination will be created by the migrate command.
  *
- * If migrating a directory to an existing directory causes files to conflict, the migrated files will
- * replace the existing files.
+ * If migrating a directory to an existing directory causes files to conflict, the migrated files
+ * will replace the existing files.
  *
- * Unlike Unix {@code mv} or {@code cp}, the source will not be nested inside the destination when the
- * destination is a directory. This makes it so that the migrate job is idempotent when the overwrite
- * flag is set.
+ * Unlike Unix {@code mv} or {@code cp}, the source will not be nested inside the destination when
+ * the destination is a directory. This makes it so that the migrate job is idempotent when the
+ * overwrite flag is set.
  *
  * Suppose we have this directory structure, where a to e are directories and f1 to f3 are files:
  *
@@ -131,7 +130,8 @@ public final class MigrateDefinition
   private void checkMigrateValid(MigrateConfig config) throws Exception {
     AlluxioURI source = new AlluxioURI(config.getSource());
     AlluxioURI destination = new AlluxioURI(config.getDestination());
-    // The source cannot be a prefix of the destination - that would be migrating a path inside itself.
+    // The source cannot be a prefix of the destination -
+    // that would be migrating a path inside itself.
     if (PathUtils.hasPrefix(destination.toString(), source.toString())) {
       throw new RuntimeException(ExceptionMessage.MIGRATE_CANNOT_BE_TO_SUBDIRECTORY.getMessage(
           source, config.getDestination()));
@@ -168,8 +168,8 @@ public final class MigrateDefinition
   /**
    * {@inheritDoc}
    *
-   * Assigns each worker to migrate whichever files it has the most blocks for. If no worker has blocks
-   * for a file, a random worker is chosen.
+   * Assigns each worker to migrate whichever files it has the most blocks for.
+   * If no worker has blocks for a file, a random worker is chosen.
    */
   @Override
   public Map<WorkerInfo, ArrayList<MigrateCommand>> selectExecutors(MigrateConfig config,
@@ -225,7 +225,8 @@ public final class MigrateDefinition
   /**
    * Computes the path that the given path should end up at when source is migrated to destination.
    *
-   * @param path a path to migrate which must be a descendent path of the source path, e.g. /src/file
+   * @param path a path to migrate which must be a descendent path of the source path,
+   *        e.g. /src/file
    * @param source the base source path being migrated, e.g. /src
    * @param destination the path to migrate to, e.g. /dst/src
    * @return the path which file should be migrated to, e.g. /dst/src/file
@@ -243,8 +244,7 @@ public final class MigrateDefinition
    */
   private void migrateDirectory(String path, String source, String destination) throws Exception {
     String newDir = computeTargetPath(path, source, destination);
-    mFileSystem.createDirectory(new AlluxioURI(newDir),
-        CreateDirectoryPOptions.getDefaultInstance());
+    mFileSystem.createDirectory(new AlluxioURI(newDir));
   }
 
   /**

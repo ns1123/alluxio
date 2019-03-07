@@ -159,7 +159,8 @@ public final class MigrateDefinitionRunTaskTest {
     when(mMockFileSystem.listStatus(new AlluxioURI(TEST_DIR)))
         .thenReturn(Lists.newArrayList(new URIStatus(new FileInfo())));
     runTask(TEST_DIR, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
-    verify(mMockFileSystem, never()).delete(eq(new AlluxioURI(TEST_DIR)), any(DeletePOptions.class));
+    verify(mMockFileSystem, never()).delete(eq(new AlluxioURI(TEST_DIR)),
+        any(DeletePOptions.class));
   }
 
   /**

@@ -31,8 +31,7 @@ import alluxio.grpc.DeletePRequest;
 import alluxio.grpc.FileSystemMasterClientServiceGrpc;
 import alluxio.grpc.FreePOptions;
 import alluxio.grpc.FreePRequest;
-import alluxio.grpc.GetDelegationTokenPRequest;
-import alluxio.grpc.GetDelegationTokenPResponse;
+import alluxio.grpc.GetFilePathPRequest;
 import alluxio.grpc.GetMountTablePRequest;
 import alluxio.grpc.GetNewBlockIdForFilePOptions;
 import alluxio.grpc.GetNewBlockIdForFilePRequest;
@@ -46,7 +45,7 @@ import alluxio.grpc.MountPOptions;
 import alluxio.grpc.MountPRequest;
 import alluxio.grpc.RenamePOptions;
 import alluxio.grpc.RenamePRequest;
-import alluxio.grpc.RenewDelegationTokenPRequest;
+import alluxio.grpc.ScheduleAsyncPersistencePOptions;
 import alluxio.grpc.ScheduleAsyncPersistencePRequest;
 import alluxio.grpc.ServiceType;
 import alluxio.grpc.SetAclAction;
@@ -65,6 +64,7 @@ import alluxio.master.MasterClientContext;
 import alluxio.security.authentication.DelegationTokenIdentifier;
 // ALLUXIO CS END
 import alluxio.security.authorization.AclEntry;
+import alluxio.util.FileSystemOptions;
 import alluxio.wire.SyncPointInfo;
 
 import com.google.protobuf.ByteString;
@@ -141,10 +141,12 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   }
 
   @Override
-  public void createFile(final AlluxioURI path, final CreateFilePOptions options)
+  public URIStatus createFile(final AlluxioURI path, final CreateFilePOptions options)
       throws AlluxioStatusException {
-    retryRPC(() -> mClient.createFile(CreateFilePRequest.newBuilder().setPath(path.getPath())
-        .setOptions(options).build()), "CreateFile");
+    return retryRPC(
+        () -> new URIStatus(GrpcUtils.fromProto(mClient.createFile(
+            CreateFilePRequest.newBuilder().setPath(path.getPath()).setOptions(options).build())
+            .getFileInfo())), "CreateFile");
   }
 
   @Override
@@ -169,6 +171,12 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   }
 
   @Override
+  public String getFilePath(long fileId) throws AlluxioStatusException {
+    return retryRPC(() -> mClient.getFilePath(GetFilePathPRequest
+            .newBuilder().setFileId(fileId).build()).getPath(), "GetFilePath");
+  }
+
+  @Override
   public URIStatus getStatus(final AlluxioURI path, final GetStatusPOptions options)
       throws AlluxioStatusException {
     return retryRPC(() -> new URIStatus(GrpcUtils
@@ -182,12 +190,12 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   public alluxio.security.authentication.Token<DelegationTokenIdentifier> getDelegationToken(
       String renewer) throws AlluxioStatusException {
     return retryRPC(() -> {
-      GetDelegationTokenPResponse response = mClient
-          .getDelegationToken(GetDelegationTokenPRequest.newBuilder().setRenewer(renewer).build());
+      alluxio.grpc.GetDelegationTokenPResponse response = mClient.getDelegationToken(
+          alluxio.grpc.GetDelegationTokenPRequest.newBuilder().setRenewer(renewer).build());
       return new alluxio.security.authentication.Token<>(
-          alluxio.security.authentication.DelegationTokenIdentifier
-              .fromProto(response.getToken().getIdentifier(),
-                  mContext.getConf().get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+          alluxio.security.authentication.DelegationTokenIdentifier.fromProto(
+              response.getToken().getIdentifier(),
+              mContext.getConf().get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
           response.getToken().getPassword().toByteArray());
     }, "GetDelegationToken");
   }
@@ -197,7 +205,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
       alluxio.security.authentication.Token<DelegationTokenIdentifier> token)
       throws AlluxioStatusException {
     return retryRPC(() -> mClient
-        .renewDelegationToken(RenewDelegationTokenPRequest.newBuilder()
+        .renewDelegationToken(alluxio.grpc.RenewDelegationTokenPRequest.newBuilder()
             .setToken(DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
                 .setPassword(ByteString.copyFrom(token.getPassword())))
             .build())
@@ -275,7 +283,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   @Override
   public void rename(final AlluxioURI src, final AlluxioURI dst)
       throws AlluxioStatusException {
-    rename(src, dst, RenamePOptions.getDefaultInstance());
+    rename(src, dst, FileSystemOptions.renameDefaults(mContext.getConf()));
   }
 
   @Override
@@ -303,12 +311,11 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   }
 
   @Override
-  public void scheduleAsyncPersist(final AlluxioURI path)
+  public void scheduleAsyncPersist(final AlluxioURI path, ScheduleAsyncPersistencePOptions options)
       throws AlluxioStatusException {
     retryRPC(
-        () -> mClient.scheduleAsyncPersistence(
-            ScheduleAsyncPersistencePRequest.newBuilder().setPath(path.getPath()).build()),
-        "ScheduleAsyncPersist");
+        () -> mClient.scheduleAsyncPersistence(ScheduleAsyncPersistencePRequest.newBuilder()
+            .setPath(path.getPath()).setOptions(options).build()), "ScheduleAsyncPersist");
   }
 
   @Override

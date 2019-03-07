@@ -11,20 +11,19 @@
 
 package alluxio.client.block.stream;
 
-import alluxio.exception.status.UnauthenticatedException;
-import alluxio.exception.status.UnavailableException;
+import alluxio.exception.status.AlluxioStatusException;
 import alluxio.grpc.AsyncCacheRequest;
 import alluxio.grpc.AsyncCacheResponse;
 import alluxio.conf.AlluxioConfiguration;
-import alluxio.conf.InstancedConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.grpc.BlockWorkerGrpc;
 import alluxio.grpc.CreateLocalBlockRequest;
 import alluxio.grpc.CreateLocalBlockResponse;
+import alluxio.grpc.DataMessageMarshallerProvider;
 import alluxio.grpc.GrpcChannel;
 import alluxio.grpc.GrpcChannelBuilder;
-import alluxio.grpc.GrpcExceptionUtils;
 import alluxio.grpc.GrpcManagedChannelPool;
+import alluxio.grpc.DataMessageMarshaller;
 import alluxio.grpc.OpenLocalBlockRequest;
 import alluxio.grpc.OpenLocalBlockResponse;
 import alluxio.grpc.ReadRequest;
@@ -33,7 +32,7 @@ import alluxio.grpc.RemoveBlockRequest;
 import alluxio.grpc.RemoveBlockResponse;
 import alluxio.grpc.WriteRequest;
 import alluxio.grpc.WriteResponse;
-import alluxio.util.ConfigurationUtils;
+import alluxio.grpc.GrpcSerializationUtils;
 import alluxio.util.network.NettyUtils;
 
 import com.google.common.io.Closer;
@@ -57,14 +56,6 @@ public class DefaultBlockWorkerClient implements BlockWorkerClient {
   private static final Logger LOG =
       LoggerFactory.getLogger(DefaultBlockWorkerClient.class.getName());
 
-  // TODO(zac): Make this a non-singleton
-  private static final EventLoopGroup WORKER_GROUP = NettyUtils
-      .createEventLoop(
-          NettyUtils.getUserChannel(new InstancedConfiguration(ConfigurationUtils.defaults())),
-          new InstancedConfiguration(ConfigurationUtils.defaults())
-              .getInt(PropertyKey.USER_NETWORK_NETTY_WORKER_THREADS),
-          "netty-client-worker-%d", true);
-
   private GrpcChannel mStreamingChannel;
   private GrpcChannel mRpcChannel;
   private SocketAddress mAddress;
@@ -77,22 +68,24 @@ public class DefaultBlockWorkerClient implements BlockWorkerClient {
   /**
    * Creates a client instance for communicating with block worker.
    *
-   * @param subject the user subject, can be null if the user is not available
-   * @param address the address of the worker
+   * @param subject     the user subject, can be null if the user is not available
+   * @param address     the address of the worker
    * @param alluxioConf Alluxio configuration
+   * @param workerGroup The netty {@link EventLoopGroup} the channels are will utilize
    */
   public DefaultBlockWorkerClient(Subject subject, SocketAddress address,
-      AlluxioConfiguration alluxioConf) throws IOException {
+      AlluxioConfiguration alluxioConf, EventLoopGroup workerGroup) throws IOException {
     try {
       // Disables channel pooling for data streaming to achieve better throughput.
       // Channel is still reused due to client pooling.
       mStreamingChannel = buildChannel(subject, address,
-          GrpcManagedChannelPool.PoolingStrategy.DISABLED, alluxioConf);
+          GrpcManagedChannelPool.PoolingStrategy.DISABLED, alluxioConf, workerGroup);
+      mStreamingChannel.intercept(new StreamSerializationClientInterceptor());
       // Uses default pooling strategy for RPC calls for better scalability.
       mRpcChannel = buildChannel(subject, address,
-          GrpcManagedChannelPool.PoolingStrategy.DEFAULT, alluxioConf);
+          GrpcManagedChannelPool.PoolingStrategy.DEFAULT, alluxioConf, workerGroup);
     } catch (StatusRuntimeException e) {
-      throw GrpcExceptionUtils.fromGrpcStatusException(e);
+      throw AlluxioStatusException.fromStatusRuntimeException(e);
     }
     mStreamingAsyncStub = BlockWorkerGrpc.newStub(mStreamingChannel);
     mRpcBlockingStub = BlockWorkerGrpc.newBlockingStub(mRpcChannel);
@@ -104,6 +97,11 @@ public class DefaultBlockWorkerClient implements BlockWorkerClient {
   @Override
   public boolean isShutdown() {
     return mStreamingChannel.isShutdown() || mRpcChannel.isShutdown();
+  }
+
+  @Override
+  public boolean isHealthy() {
+    return !isShutdown() && mStreamingChannel.isHealthy() && mRpcChannel.isHealthy();
   }
 
   @Override
@@ -121,7 +119,18 @@ public class DefaultBlockWorkerClient implements BlockWorkerClient {
 
   @Override
   public StreamObserver<ReadRequest> readBlock(StreamObserver<ReadResponse> responseObserver) {
-    return mStreamingAsyncStub.readBlock(responseObserver);
+    if (responseObserver instanceof DataMessageMarshallerProvider) {
+      DataMessageMarshaller<ReadResponse> marshaller =
+          ((DataMessageMarshallerProvider<ReadResponse>) responseObserver).getMarshaller();
+      return mStreamingAsyncStub
+          .withOption(GrpcSerializationUtils.OVERRIDDEN_METHOD_DESCRIPTOR,
+              BlockWorkerGrpc.getReadBlockMethod().toBuilder()
+                  .setResponseMarshaller(marshaller)
+                  .build())
+          .readBlock(responseObserver);
+    } else {
+      return mStreamingAsyncStub.readBlock(responseObserver);
+    }
   }
 
   @Override
@@ -164,13 +173,16 @@ public class DefaultBlockWorkerClient implements BlockWorkerClient {
   }
 
   private GrpcChannel buildChannel(Subject subject, SocketAddress address,
-      GrpcManagedChannelPool.PoolingStrategy poolingStrategy, AlluxioConfiguration alluxioConf)
-      throws UnauthenticatedException, UnavailableException {
+      GrpcManagedChannelPool.PoolingStrategy poolingStrategy, AlluxioConfiguration alluxioConf,
+      EventLoopGroup workerGroup)
+      throws AlluxioStatusException {
     return GrpcChannelBuilder.newBuilder(address, alluxioConf).setSubject(subject)
         .setChannelType(NettyUtils
             .getClientChannelClass(!(address instanceof InetSocketAddress), alluxioConf))
         .setPoolingStrategy(poolingStrategy)
-        .setEventLoopGroup(WORKER_GROUP)
+        .setEventLoopGroup(workerGroup)
+        .setKeepAliveTime(alluxioConf.getMs(PropertyKey.USER_NETWORK_KEEPALIVE_TIME_MS),
+            TimeUnit.MILLISECONDS)
         .setKeepAliveTimeout(alluxioConf.getMs(PropertyKey.USER_NETWORK_KEEPALIVE_TIMEOUT_MS),
             TimeUnit.MILLISECONDS)
         .setMaxInboundMessageSize(

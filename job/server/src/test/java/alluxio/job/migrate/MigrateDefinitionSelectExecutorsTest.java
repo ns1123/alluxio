@@ -11,7 +11,6 @@
 
 package alluxio.job.migrate;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,7 +24,6 @@ import alluxio.client.file.URIStatus;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.job.JobMasterContext;
 import alluxio.underfs.UfsManager;
 import alluxio.wire.BlockInfo;
@@ -43,7 +41,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -151,8 +148,7 @@ public final class MigrateDefinitionSelectExecutorsTest {
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
     assignMigrates("/src", "/dst/src");
-    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src")),
-        any(CreateDirectoryPOptions.class));
+    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src")));
   }
 
   @Test
@@ -163,8 +159,7 @@ public final class MigrateDefinitionSelectExecutorsTest {
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
     assignMigrates("/src", "/dst/src");
-    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src/nested")),
-        Matchers.eq(CreateDirectoryPOptions.getDefaultInstance()));
+    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src/nested")));
   }
 
   @Test
@@ -209,8 +204,8 @@ public final class MigrateDefinitionSelectExecutorsTest {
     try {
       assignMigratesFail("/src", "/dst/src");
     } catch (Exception e) {
-      Assert.assertEquals(ExceptionMessage.MIGRATE_TO_FILE_AS_DIRECTORY.getMessage("/dst/src", "/dst"),
-          e.getMessage());
+      Assert.assertEquals(ExceptionMessage.MIGRATE_TO_FILE_AS_DIRECTORY.getMessage("/dst/src",
+          "/dst"), e.getMessage());
     }
   }
 
@@ -246,7 +241,8 @@ public final class MigrateDefinitionSelectExecutorsTest {
     try {
       assignMigratesFail("/src", "/dst");
     } catch (FileAlreadyExistsException e) {
-      Assert.assertEquals(ExceptionMessage.MIGRATE_NEED_OVERWRITE.getMessage("/dst"), e.getMessage());
+      Assert.assertEquals(ExceptionMessage.MIGRATE_NEED_OVERWRITE.getMessage("/dst"),
+          e.getMessage());
     }
   }
 
@@ -258,7 +254,8 @@ public final class MigrateDefinitionSelectExecutorsTest {
     try {
       assignMigratesFail("/src", "/dst");
     } catch (FileAlreadyExistsException e) {
-      Assert.assertEquals(ExceptionMessage.MIGRATE_NEED_OVERWRITE.getMessage("/dst"), e.getMessage());
+      Assert.assertEquals(ExceptionMessage.MIGRATE_NEED_OVERWRITE.getMessage("/dst"),
+          e.getMessage());
     }
   }
 
@@ -314,18 +311,18 @@ public final class MigrateDefinitionSelectExecutorsTest {
 
     Map<WorkerInfo, ArrayList<MigrateCommand>> assignments =
         new MigrateDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(
-            new MigrateConfig("/src", "/dst", "THROUGH", true, false), ImmutableList.of(JOB_WORKER_3),
-            new JobMasterContext(1, mMockUfsManager));
+            new MigrateConfig("/src", "/dst", "THROUGH", true, false),
+            ImmutableList.of(JOB_WORKER_3), new JobMasterContext(1, mMockUfsManager));
 
     Assert.assertEquals(ImmutableMap.of(JOB_WORKER_3,
-        new ArrayList<MigrateCommand>(Arrays.asList(new MigrateCommand("/src", "/dst")))), assignments);
+        new ArrayList<>(Arrays.asList(new MigrateCommand("/src", "/dst")))), assignments);
   }
 
   /**
    * Runs selectExecutors for the migrate from source to destination.
    */
-  private Map<WorkerInfo, ArrayList<MigrateCommand>> assignMigrates(String source, String destination)
-      throws Exception {
+  private Map<WorkerInfo, ArrayList<MigrateCommand>> assignMigrates(String source,
+      String destination) throws Exception {
     return assignMigrates(new MigrateConfig(source, destination, "THROUGH", false, false));
   }
 
@@ -333,7 +330,8 @@ public final class MigrateDefinitionSelectExecutorsTest {
    * Runs selectExecutors for the migrate from source to destination with the given writeType and
    * overwrite value.
    */
-  private Map<WorkerInfo, ArrayList<MigrateCommand>> assignMigrates(MigrateConfig config) throws Exception {
+  private Map<WorkerInfo, ArrayList<MigrateCommand>> assignMigrates(MigrateConfig config)
+      throws Exception {
     return new MigrateDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
         JOB_WORKERS, new JobMasterContext(1, mMockUfsManager));
   }

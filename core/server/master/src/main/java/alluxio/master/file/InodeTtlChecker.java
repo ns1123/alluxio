@@ -20,8 +20,8 @@ import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.InodeTree.LockPattern;
-import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.LockedInodePath;
+import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.TtlBucket;
 import alluxio.master.file.meta.TtlBucketList;
 import alluxio.master.file.contexts.DeleteContext;
@@ -61,7 +61,7 @@ final class InodeTtlChecker implements HeartbeatExecutor {
   public void heartbeat() {
     Set<TtlBucket> expiredBuckets = mTtlBuckets.getExpiredBuckets(System.currentTimeMillis());
     for (TtlBucket bucket : expiredBuckets) {
-      for (InodeView inode : bucket.getInodes()) {
+      for (Inode inode : bucket.getInodes()) {
         AlluxioURI path = null;
         try (LockedInodePath inodePath =
             mInodeTree.lockFullInodePath(inode.getId(), LockPattern.READ)) {
@@ -83,10 +83,10 @@ final class InodeTtlChecker implements HeartbeatExecutor {
                 // parent of file
                 if (inode.isDirectory()) {
                   mFileSystemMaster.free(path, FreeContext
-                      .defaults(FreePOptions.newBuilder().setForced(true).setRecursive(true)));
+                      .mergeFrom(FreePOptions.newBuilder().setForced(true).setRecursive(true)));
                 } else {
                   mFileSystemMaster.free(path,
-                      FreeContext.defaults(FreePOptions.newBuilder().setForced(true)));
+                      FreeContext.mergeFrom(FreePOptions.newBuilder().setForced(true)));
                 }
                 try (JournalContext journalContext = mFileSystemMaster.createJournalContext()) {
                   // Reset state
@@ -103,7 +103,7 @@ final class InodeTtlChecker implements HeartbeatExecutor {
                 // parent of file
                 if (inode.isDirectory()) {
                   mFileSystemMaster.delete(path,
-                      DeleteContext.defaults(DeletePOptions.newBuilder().setRecursive(true)));
+                      DeleteContext.mergeFrom(DeletePOptions.newBuilder().setRecursive(true)));
                 } else {
                   mFileSystemMaster.delete(path, DeleteContext.defaults());
                 }

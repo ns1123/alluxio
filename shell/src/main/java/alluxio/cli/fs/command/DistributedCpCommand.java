@@ -22,8 +22,9 @@ import alluxio.job.migrate.MigrateConfig;
 
 import org.apache.commons.cli.CommandLine;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Copies a file or directory specified by args.
