@@ -194,21 +194,6 @@ function formatJournal {
 }
 
 function formatMasters {
-<<<<<<< HEAD
-  # ALLUXIO CS REPLACE
-  # formatJournal "$@"
-  # ALLUXIO CS WITH
-  JOURNAL_TYPE=$(${BIN}/alluxio getConf ${ALLUXIO_MASTER_JAVA_OPTS} \
-                       alluxio.master.journal.type | awk '{print toupper($0)}')
-  if [[ ${JOURNAL_TYPE} == "EMBEDDED" ]]; then
-    ${LAUNCHER} ${BIN}/alluxio-masters.sh ${BIN}/alluxio formatJournal
-  else
-    formatJournal
-  fi
-  # ALLUXIO CS END
-||||||| merged common ancestors
-  formatJournal "$@"
-=======
   JOURNAL_TYPE=$(${BIN}/alluxio getConf ${ALLUXIO_MASTER_JAVA_OPTS} \
                        alluxio.master.journal.type | awk '{print toupper($0)}')
   if [[ ${JOURNAL_TYPE} == "EMBEDDED" ]]; then
@@ -217,7 +202,6 @@ function formatMasters {
   else
     formatJournal
   fi
->>>>>>> upstream-os/master
 }
 
 function main {
