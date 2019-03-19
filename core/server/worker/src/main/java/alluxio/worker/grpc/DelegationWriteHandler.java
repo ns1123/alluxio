@@ -11,6 +11,8 @@
 
 package alluxio.worker.grpc;
 
+import alluxio.grpc.DataMessageMarshaller;
+import alluxio.grpc.DataMessageMarshallerProvider;
 import alluxio.grpc.WriteRequest;
 import alluxio.grpc.WriteResponse;
 import alluxio.security.authentication.AuthenticatedUserInfo;
@@ -26,6 +28,7 @@ import io.grpc.stub.StreamObserver;
 public class DelegationWriteHandler implements StreamObserver<alluxio.grpc.WriteRequest> {
   private final StreamObserver<WriteResponse> mResponseObserver;
   private final WorkerProcess mWorkerProcess;
+  private final DataMessageMarshaller<WriteRequest> mMarshaller;
   private AbstractWriteHandler mWriteHandler;
   private alluxio.security.authentication.AuthenticatedUserInfo mUserInfo;
 
@@ -38,7 +41,17 @@ public class DelegationWriteHandler implements StreamObserver<alluxio.grpc.Write
       StreamObserver<WriteResponse> responseObserver, AuthenticatedUserInfo userInfo) {
     mWorkerProcess = workerProcess;
     mResponseObserver = responseObserver;
+<<<<<<< HEAD
     mUserInfo = userInfo;
+||||||| merged common ancestors
+=======
+    if (mResponseObserver instanceof DataMessageMarshallerProvider) {
+      mMarshaller = ((DataMessageMarshallerProvider<WriteRequest, WriteResponse>) mResponseObserver)
+          .getRequestMarshaller();
+    } else {
+      mMarshaller = null;
+    }
+>>>>>>> upstream-os/master
   }
 
   private AbstractWriteHandler createWriterHandler(alluxio.grpc.WriteRequest request) {
@@ -63,7 +76,11 @@ public class DelegationWriteHandler implements StreamObserver<alluxio.grpc.Write
     if (mWriteHandler == null) {
       mWriteHandler = createWriterHandler(request);
     }
-    mWriteHandler.write(request);
+    if (mMarshaller != null) {
+      mWriteHandler.writeDataMessage(request, mMarshaller.pollBuffer(request));
+    } else {
+      mWriteHandler.write(request);
+    }
   }
 
   @Override

@@ -92,8 +92,15 @@ public class UfsFallbackBlockWriteHandlerTest extends AbstractWriteHandlerTest {
         .thenReturn(new FileOutputStream(mFile, true));
 
     mResponseObserver = Mockito.mock(StreamObserver.class);
+<<<<<<< HEAD
     mWriteHandler =
         new UfsFallbackBlockWriteHandler(mBlockWorker, ufsManager, mResponseObserver, mUserInfo);
+||||||| merged common ancestors
+    mWriteHandler = new UfsFallbackBlockWriteHandler(mBlockWorker, ufsManager, mResponseObserver);
+=======
+    mWriteHandler = new UfsFallbackBlockWriteHandler(mBlockWorker, ufsManager, mResponseObserver);
+    setupResponseTrigger();
+>>>>>>> upstream-os/master
 
     // create a partial block in block store first
     mBlockStore.createBlock(TEST_SESSION_ID, TEST_BLOCK_ID,
@@ -115,6 +122,7 @@ public class UfsFallbackBlockWriteHandlerTest extends AbstractWriteHandlerTest {
     // remove the block partially created
     mBlockStore.abortBlock(TEST_SESSION_ID, TEST_BLOCK_ID);
     mWriteHandler.write(newFallbackInitRequest(PARTIAL_WRITTEN));
+    waitForResponses();
     checkErrorCode(mResponseObserver, Status.Code.NOT_FOUND);
   }
 
@@ -125,6 +133,7 @@ public class UfsFallbackBlockWriteHandlerTest extends AbstractWriteHandlerTest {
     mWriteHandler.write(newFallbackInitRequest(PARTIAL_WRITTEN));
     mWriteHandler.write(newWriteRequest(buffer));
     mWriteHandler.onCompleted();
+    waitForResponses();
     checkComplete(mResponseObserver);
     checkWriteData(checksum, PARTIAL_WRITTEN + CHUNK_SIZE);
   }

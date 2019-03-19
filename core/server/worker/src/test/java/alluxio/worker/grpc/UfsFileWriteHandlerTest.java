@@ -53,7 +53,14 @@ public final class UfsFileWriteHandlerTest extends AbstractWriteHandlerTest {
         .thenReturn(mOutputStream)
         .thenReturn(new FileOutputStream(mFile, true));
     mResponseObserver = Mockito.mock(StreamObserver.class);
+<<<<<<< HEAD
     mWriteHandler = new UfsFileWriteHandler(ufsManager, mResponseObserver, mUserInfo);
+||||||| merged common ancestors
+    mWriteHandler = new UfsFileWriteHandler(ufsManager, mResponseObserver);
+=======
+    mWriteHandler = new UfsFileWriteHandler(ufsManager, mResponseObserver);
+    setupResponseTrigger();
+>>>>>>> upstream-os/master
   }
 
   @After
@@ -67,6 +74,7 @@ public final class UfsFileWriteHandlerTest extends AbstractWriteHandlerTest {
     mWriteHandler.write(newWriteRequest(newDataBuffer(CHUNK_SIZE)));
     mOutputStream.close();
     mWriteHandler.write(newWriteRequest(newDataBuffer(CHUNK_SIZE)));
+    waitForResponses();
     checkErrorCode(mResponseObserver, Status.Code.UNKNOWN);
   }
 
