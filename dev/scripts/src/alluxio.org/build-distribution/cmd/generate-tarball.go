@@ -186,7 +186,7 @@ func buildModules(srcPath, name, ufsType, moduleFlag, version string, modules ma
 		}
 		run(fmt.Sprintf("compiling %v module %v", name, moduleName), "mvn", moduleMvnArgs...)
 		var srcJar string
-		if ufsType == "hdfs" {
+		if name == "underfs" && ufsType == "hdfs" {
 			srcJar = fmt.Sprintf("alluxio-%v-%v-%v-%v.jar", name, ufsType, versionMvnArg, version)
 		} else {
 			srcJar = fmt.Sprintf("alluxio-%v-%v-%v.jar", name, ufsType, version)
