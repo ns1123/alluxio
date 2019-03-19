@@ -14,7 +14,6 @@ package alluxio.security.authentication;
 import alluxio.collections.ConcurrentHashSet;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
-import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
 import alluxio.master.journal.CheckpointName;
 import alluxio.master.journal.Journaled;
@@ -385,8 +384,7 @@ public class DelegationTokenManager extends MasterKeyManager implements Journale
 
   private void addDelegationTokenFromEntry(File.GetDelegationTokenEntry entry) {
     addDelegationToken(
-        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
-            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()),
         entry.getRenewTime());
   }
 
@@ -399,14 +397,12 @@ public class DelegationTokenManager extends MasterKeyManager implements Journale
 
   private void removeDelegationTokenFromEntry(File.RemoveDelegationTokenEntry entry) {
     updateDelegationTokenRemoval(
-        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
-            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)));
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()));
   }
 
   private void renewDelegationTokenFromEntry(File.RenewDelegationTokenEntry entry) {
     updateDelegationTokenRenewal(
-        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId(),
-            ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+        alluxio.security.authentication.DelegationTokenIdentifier.fromProto(entry.getTokenId()),
         entry.getExpirationTimeMs());
   }
 

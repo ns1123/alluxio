@@ -12,7 +12,6 @@
 package alluxio.security.authentication;
 
 import alluxio.proto.security.DelegationTokenProto;
-import alluxio.security.util.KerberosName;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
@@ -34,38 +33,28 @@ public class DelegationTokenIdentifier implements TokenIdentifier {
   /**
    * Constructs a {@link DelegationTokenIdentifier} with user information.
    * @param owner owner of the token
-   * @param renewer Kerberos principal of user who can renew the token. If null is given, the token
-   *                will not be renewable.
+   * @param renewer user who can renew the token. If null is given, the token will not be renewable
    * @param realUser user who actually connected to the service
-   * @param kerberosAuthToLocal kerberos auth_to_local rules
    */
-  public DelegationTokenIdentifier(String owner, String renewer, String realUser,
-      String kerberosAuthToLocal) {
+  public DelegationTokenIdentifier(String owner, String renewer, String realUser) {
     mOwner = owner;
-    try {
-      mRenewer = renewer == null ? null : new KerberosName(renewer).getShortName(kerberosAuthToLocal);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    mRenewer = renewer;
     mRealUser = realUser;
   }
 
   /**
    * Constructs a {@link DelegationTokenIdentifier}.
    * @param owner owner of the token
-   * @param renewer Kerberos principal of user who can renew the token. If null is given, the token
-   *                will not be renewable.
+   * @param renewer user who can renew the token. If null is given, the token will not be renewable
    * @param realUser user who actually connected to the service
-   * @param kerberosAuthToLocal kerberos auth_to_local rules
    * @param issueDate epoch time when the token is issued
    * @param maxDate epoch time when the token can be renewed until
    * @param sequenceNumber a unique identifier for the token
    * @param masterKeyId id of the master key
    */
   public DelegationTokenIdentifier(String owner, String renewer, String realUser,
-      String kerberosAuthToLocal, long issueDate, long maxDate, long sequenceNumber,
-      long masterKeyId) {
-    this(owner, renewer, realUser, kerberosAuthToLocal);
+      long issueDate, long maxDate, long sequenceNumber, long masterKeyId) {
+    this(owner, renewer, realUser);
     setIssueDate(issueDate);
     setMaxDate(maxDate);
     setSequenceNumber(sequenceNumber);
@@ -221,13 +210,12 @@ public class DelegationTokenIdentifier implements TokenIdentifier {
    * Converts a proto instance to the actual delegation token identifier.
    *
    * @param proto the proto delegation token identifier
-   * @param kerberosAuthToLocal the kerberos auth_to_local rules to use constructing the token
    * @return the delegation token identifier
    */
   public static DelegationTokenIdentifier fromProto(
-      DelegationTokenProto.DelegationTokenIdentifier proto, String kerberosAuthToLocal) {
+      DelegationTokenProto.DelegationTokenIdentifier proto) {
     return new DelegationTokenIdentifier(proto.getOwner(), proto.getRenewer(),
-        proto.getRealUser(), kerberosAuthToLocal, proto.getIssueDate(), proto.getMaxDate(),
+        proto.getRealUser(), proto.getIssueDate(), proto.getMaxDate(),
         proto.getSequenceNumber(), proto.getMasterKeyId());
   }
 
@@ -235,13 +223,12 @@ public class DelegationTokenIdentifier implements TokenIdentifier {
    * Deserializes data from byte array.
    *
    * @param data data to be deserialized
-   * @param kerberosAuthToLocal the kerberos auth_to_local rules to use constructing the token
    * @return the delegation token identifier represented by the data
    * @throws IOException
    */
-  public static DelegationTokenIdentifier fromByteArray(byte[] data, String kerberosAuthToLocal)
+  public static DelegationTokenIdentifier fromByteArray(byte[] data)
       throws IOException {
-    return fromProto(DelegationTokenProto.DelegationTokenIdentifier.parseFrom(data), kerberosAuthToLocal);
+    return fromProto(DelegationTokenProto.DelegationTokenIdentifier.parseFrom(data));
   }
 }
 

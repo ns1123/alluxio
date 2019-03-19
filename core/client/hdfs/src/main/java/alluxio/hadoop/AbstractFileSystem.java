@@ -514,7 +514,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       LOG.debug("No Hadoop subject. Using context without subject.");
     }
     // ALLUXIO CS ADD
-    AlluxioDelegationTokenIdentifier.setConfiguration(alluxioConf);
     try {
       UserGroupInformation user = UserGroupInformation.getCurrentUser();
       if (!user.getTokens().isEmpty()) {
@@ -827,8 +826,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
     LOG.debug("getDelegationToken, got Alluxio token {}", token.toString());
     // converts Alluxio token to HDFS token
-    AlluxioDelegationTokenIdentifier id =
-        new AlluxioDelegationTokenIdentifier(token.getId(), mFileSystem.getConf());
+    AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId());
     org.apache.hadoop.io.Text tokenService =
         new org.apache.hadoop.io.Text(buildTokenService(mUri, mFileSystem.getConf()));
     org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> hadoopToken =

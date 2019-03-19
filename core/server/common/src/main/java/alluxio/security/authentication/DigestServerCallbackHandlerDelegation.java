@@ -11,8 +11,6 @@
 
 package alluxio.security.authentication;
 
-import alluxio.conf.AlluxioConfiguration;
-import alluxio.conf.PropertyKey;
 import alluxio.security.authentication.token.DigestServerCallbackHandler;
 import alluxio.security.authentication.token.TokenUtils;
 
@@ -32,7 +30,6 @@ class DigestServerCallbackHandlerDelegation extends DigestServerCallbackHandler 
 
   private final DelegationTokenManager mTokenManager;
   private final SaslServerHandler mHandler;
-  private final AlluxioConfiguration mConfiguration;
 
   /**
    * Creates a {@link DigestServerCallbackHandlerDelegation} instance.
@@ -40,10 +37,9 @@ class DigestServerCallbackHandlerDelegation extends DigestServerCallbackHandler 
    * @param manager delegation token manager
    */
   public DigestServerCallbackHandlerDelegation(SaslServerHandler handler,
-      DelegationTokenManager manager, AlluxioConfiguration conf) {
+      DelegationTokenManager manager) {
     mHandler = handler;
     mTokenManager = manager;
-    mConfiguration = conf;
   }
 
   @Override
@@ -74,7 +70,6 @@ class DigestServerCallbackHandlerDelegation extends DigestServerCallbackHandler 
   }
 
   private DelegationTokenIdentifier getDelegationTokenIdentifier(String name) throws IOException {
-    return DelegationTokenIdentifier.fromByteArray(Base64.decodeBase64(name.getBytes()),
-        mConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
+    return DelegationTokenIdentifier.fromByteArray(Base64.decodeBase64(name.getBytes()));
   }
 }

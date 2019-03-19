@@ -134,6 +134,7 @@ import alluxio.security.authorization.AclEntry;
 import alluxio.security.authorization.AclEntryType;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.security.authorization.Mode;
+import alluxio.security.util.KerberosName;
 import alluxio.underfs.Fingerprint;
 import alluxio.underfs.Fingerprint.Tag;
 import alluxio.underfs.MasterUfsManager;
@@ -3955,11 +3956,19 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
         .getClientUser(ServerConfiguration.global());
     String realUser = alluxio.security.authentication.AuthenticatedClientUser
         .getConnectionUser(ServerConfiguration.global());
+    String renewUser = null;
+    try {
+      if (renewer != null) {
+        renewUser = new KerberosName(renewer)
+            .getShortName(ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
+      }
+    } catch (IOException e) {
+      throw new AccessControlException(String.format("Invalid renewer %s", renewer), e);
+    }
     try (JournalContext context = createJournalContext()) {
       synchronized (mDelegationTokenManager) {
         alluxio.security.authentication.DelegationTokenIdentifier dtId =
-            new alluxio.security.authentication.DelegationTokenIdentifier(owner, renewer,
-                realUser, ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
+            new alluxio.security.authentication.DelegationTokenIdentifier(owner, renewUser, realUser);
         alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token
             = mDelegationTokenManager.getDelegationToken(dtId);
         long renewTime = mDelegationTokenManager.getDelegationTokenRenewTime(dtId);

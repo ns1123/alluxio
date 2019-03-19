@@ -52,8 +52,7 @@ public class MasterAuthenticationServer extends EnterpriseAuthenticationServer {
       throws SaslException, UnauthenticatedException {
     switch (authScheme) {
       case DELEGATION_TOKEN:
-        return new SaslServerHandlerDelegationToken(mHostName, mDelegationTokenManager,
-            mConfiguration);
+        return new SaslServerHandlerDelegationToken(mHostName, mDelegationTokenManager);
       default:
         return super.createSaslHandler(authScheme);
     }

@@ -13,8 +13,6 @@ package alluxio.master.file;
 
 import alluxio.AlluxioURI;
 import alluxio.RpcUtils;
-import alluxio.conf.PropertyKey;
-import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.CheckConsistencyPOptions;
 import alluxio.grpc.CheckConsistencyPRequest;
 import alluxio.grpc.CheckConsistencyPResponse;
@@ -226,9 +224,8 @@ public final class FileSystemMasterClientServiceHandler
         (RpcUtils.RpcCallableThrowsIOException<alluxio.grpc.RenewDelegationTokenPResponse>) () -> {
           alluxio.security.authentication.Token<DelegationTokenIdentifier> delegationToken =
               new alluxio.security.authentication.Token<>(
-                  alluxio.security.authentication.DelegationTokenIdentifier.fromProto(
-                      request.getToken().getIdentifier(),
-                      ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+                  alluxio.security.authentication.DelegationTokenIdentifier
+                      .fromProto(request.getToken().getIdentifier()),
                   request.getToken().getPassword().toByteArray());
           long expirationTimeMs = mFileSystemMaster.renewDelegationToken(delegationToken);
           return alluxio.grpc.RenewDelegationTokenPResponse.newBuilder()
@@ -243,9 +240,8 @@ public final class FileSystemMasterClientServiceHandler
         (RpcUtils.RpcCallableThrowsIOException<alluxio.grpc.CancelDelegationTokenPResponse>) () -> {
           alluxio.security.authentication.Token<DelegationTokenIdentifier> delegationToken =
               new alluxio.security.authentication.Token<>(
-                  alluxio.security.authentication.DelegationTokenIdentifier.fromProto(
-                      request.getToken().getIdentifier(),
-                      ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL)),
+                  alluxio.security.authentication.DelegationTokenIdentifier
+                      .fromProto(request.getToken().getIdentifier()),
                   request.getToken().getPassword().toByteArray());
           mFileSystemMaster.cancelDelegationToken(delegationToken);
           return alluxio.grpc.CancelDelegationTokenPResponse.getDefaultInstance();

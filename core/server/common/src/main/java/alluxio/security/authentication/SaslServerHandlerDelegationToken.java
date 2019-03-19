@@ -11,7 +11,6 @@
 
 package alluxio.security.authentication;
 
-import alluxio.conf.AlluxioConfiguration;
 import alluxio.security.authentication.token.TokenUtils;
 
 import javax.security.sasl.Sasl;
@@ -35,14 +34,13 @@ public class SaslServerHandlerDelegationToken implements SaslServerHandler {
    *
    * @param serverName server name
    * @param tokenManager delegation token manager
-   * @param conf Alluxio configuration
    * @throws SaslException
    */
-  public SaslServerHandlerDelegationToken(String serverName, DelegationTokenManager tokenManager,
-      AlluxioConfiguration conf) throws SaslException {
+  public SaslServerHandlerDelegationToken(String serverName, DelegationTokenManager tokenManager)
+      throws SaslException {
     mSaslServer = Sasl.createSaslServer(TokenUtils.DIGEST_MECHANISM_NAME,
         TokenUtils.TOKEN_PROTOCOL_NAME, serverName, new HashMap<String, String>(),
-        new DigestServerCallbackHandlerDelegation(this, tokenManager, conf));
+        new DigestServerCallbackHandlerDelegation(this, tokenManager));
   }
 
   @Override
