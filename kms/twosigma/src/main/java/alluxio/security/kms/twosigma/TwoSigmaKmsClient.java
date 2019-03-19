@@ -12,6 +12,7 @@
 package alluxio.security.kms.twosigma;
 
 import alluxio.Constants;
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.security.kms.KmsClient;
 
@@ -46,8 +47,8 @@ public final class TwoSigmaKmsClient implements KmsClient {
   public TwoSigmaKmsClient() {}
 
   @Override
-  public EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
-      throws IOException {
+  public EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey,
+      AlluxioConfiguration alluxioConf) throws IOException {
     String op = encrypt ? ENCRYPT_METHOD : DECRYPT_METHOD;
     Map<String, String> params = new HashMap<>();
     params.put(KEY, inputKey);

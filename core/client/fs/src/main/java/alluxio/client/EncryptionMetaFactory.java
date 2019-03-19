@@ -49,7 +49,7 @@ public final class EncryptionMetaFactory {
       throws IOException {
     EncryptionProto.CryptoKey cryptoKey = CryptoUtils.getCryptoKey(
         conf.get(PropertyKey.SECURITY_KMS_PROVIDER), conf.get(PropertyKey.SECURITY_KMS_ENDPOINT),
-        true, String.valueOf(encryptionId));
+        true, String.valueOf(encryptionId), conf);
     return create(fileId, encryptionId, physicalBlockSize, cryptoKey, conf);
   }
 

@@ -38,11 +38,12 @@ public final class CryptoUtils {
    * @param kmsEndpoint the KMS endpoint
    * @param encrypt whether to encrypt or decrypt
    * @param inputKey the input key of the KMS calls
+   * @param conf the Alluxio configuration
    * @return the fetched crypto key for encryption or decryption
    */
   public static EncryptionProto.CryptoKey getCryptoKey(String kmsProvider, String kmsEndpoint,
-      boolean encrypt, String inputKey) throws IOException {
-    return KmsClient.Factory.create(kmsProvider).getCryptoKey(kmsEndpoint, encrypt, inputKey);
+      boolean encrypt, String inputKey, AlluxioConfiguration conf) throws IOException {
+    return KmsClient.Factory.create(kmsProvider).getCryptoKey(kmsEndpoint, encrypt, inputKey, conf);
   }
 
   /**

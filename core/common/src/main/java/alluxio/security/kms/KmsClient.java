@@ -11,6 +11,7 @@
 
 package alluxio.security.kms;
 
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.proto.security.EncryptionProto;
 
@@ -33,10 +34,12 @@ public interface KmsClient {
    * @param kms the KMS endpoint
    * @param encrypt whether to encrypt or decrypt
    * @param inputKey the input key of the KMS calls
+   * @param alluxioConf the Alluxio configuration
    * @return the fetched crypto key for encryption or decryption
    * @throws IOException when failed to get the key
    */
-  EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
+  EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey,
+      AlluxioConfiguration alluxioConf)
       throws IOException;
 
   /**

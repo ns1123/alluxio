@@ -12,6 +12,7 @@
 package alluxio.security.kms.dummy;
 
 import alluxio.Constants;
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.security.kms.KmsClient;
 import alluxio.util.proto.ProtoUtils;
@@ -30,8 +31,8 @@ public class DummyKmsClient implements KmsClient {
   public DummyKmsClient() {}
 
   @Override
-  public EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
-      throws IOException {
+  public EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey,
+      AlluxioConfiguration alluxioConf) throws IOException {
     return ProtoUtils.setIv(
         ProtoUtils.setKey(
             EncryptionProto.CryptoKey.newBuilder()

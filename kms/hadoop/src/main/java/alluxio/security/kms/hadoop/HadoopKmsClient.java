@@ -12,7 +12,8 @@
 package alluxio.security.kms.hadoop;
 
 import alluxio.Constants;
-import alluxio.PropertyKey;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.kms.KmsClient;
@@ -85,12 +86,13 @@ public class HadoopKmsClient implements KmsClient {
    * @param kms the KMS endpoint in Hadoop KMS URI format like kms://{PROTO}@{HOST}:{PORT}/{PATH}
    * @param encrypt whether the key is for encryption or decryption
    * @param inputKey name of the key to be retrieved
+   * @param alluxioConf Alluxio configuration
    * @return the crypto key
    * @throws IOException when the crypto key fails to be created
    */
   @Override
-  public EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
-      throws IOException {
+  public EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey,
+      AlluxioConfiguration alluxioConf) throws IOException {
     URI kmsEndpoint;
     try {
       kmsEndpoint = new URI(kms);
@@ -98,19 +100,19 @@ public class HadoopKmsClient implements KmsClient {
       throw new IOException("Invalid hadoop KMS endpoint format", e);
     }
 
-    Configuration conf = new Configuration();
-    if (alluxio.Configuration.getBoolean(PropertyKey.SECURITY_KMS_KERBEROS_ENABLED)) {
-      String principal = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-      String keytabFile = alluxio.Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+    Configuration hadoopConf = new Configuration();
+    if (alluxioConf.getBoolean(PropertyKey.SECURITY_KMS_KERBEROS_ENABLED)) {
+      String principal = alluxioConf.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+      String keytabFile = alluxioConf.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
       if (!principal.isEmpty() && !keytabFile.isEmpty()) {
         // Login Hadoop with Alluxio client kerberos principal and keytab.
-        conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
-        UserGroupInformation.setConfiguration(conf);
+        hadoopConf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
+        UserGroupInformation.setConfiguration(hadoopConf);
         UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
       }
     }
 
-    KeyProvider keyProvider = KMSClientProvider.Factory.get(kmsEndpoint, conf);
+    KeyProvider keyProvider = KMSClientProvider.Factory.get(kmsEndpoint, hadoopConf);
     String keyName = ALLUXIO_KEY_NAME_PREFIX + inputKey;
     KeyProvider.KeyVersion keyVersion = keyProvider.getCurrentKey(keyName);
     if (keyVersion == null) {

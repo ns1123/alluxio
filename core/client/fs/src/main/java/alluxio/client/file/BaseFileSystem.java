@@ -595,7 +595,7 @@ public class BaseFileSystem implements FileSystem {
       cryptoKey = alluxio.client.security.CryptoUtils.getCryptoKey(
           mFsContext.getConf().get(PropertyKey.SECURITY_KMS_PROVIDER),
           mFsContext.getConf().get(PropertyKey.SECURITY_KMS_ENDPOINT),
-          false, String.valueOf(fileMetadata.getEncryptionId()));
+          false, String.valueOf(fileMetadata.getEncryptionId()), mFsContext.getConf());
     } catch (IOException e) {
       // Allow null crypto key for getStatus and listStatus because one user might not have
       // access to the crypto keys for the files being listed.
