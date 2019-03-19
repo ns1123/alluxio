@@ -58,15 +58,11 @@ public abstract class AbstractWriteHandlerTest {
   protected static final long TEST_MOUNT_ID = 10L;
   protected AbstractWriteHandler mWriteHandler;
   protected StreamObserver<WriteResponse> mResponseObserver;
-<<<<<<< HEAD
   protected AuthenticatedUserInfo mUserInfo = new AuthenticatedUserInfo();
-||||||| merged common ancestors
-=======
   protected List<WriteResponse> mResponses = new ArrayList<>();
   protected boolean mResponseCompleted;
   protected Throwable mError;
 
->>>>>>> upstream-os/master
   @Rule
   public ExpectedException mExpectedException = ExpectedException.none();
 

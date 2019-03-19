@@ -110,23 +110,15 @@ public class BlockWorkerImpl extends BlockWorkerGrpc.BlockWorkerImplBase {
 
   @Override
   public StreamObserver<alluxio.grpc.WriteRequest> writeBlock(
-<<<<<<< HEAD
-      final StreamObserver<WriteResponse> responseObserver) {
-    DelegationWriteHandler handler =
-        new DelegationWriteHandler(mWorkerProcess, responseObserver, getAuthenticatedUserInfo());
-||||||| merged common ancestors
-      final StreamObserver<WriteResponse> responseObserver) {
-    DelegationWriteHandler handler = new DelegationWriteHandler(mWorkerProcess, responseObserver);
-=======
       StreamObserver<WriteResponse> responseObserver) {
->>>>>>> upstream-os/master
     ServerCallStreamObserver<WriteResponse> serverResponseObserver =
         (ServerCallStreamObserver<WriteResponse>) responseObserver;
     if (ZERO_COPY_ENABLED) {
       responseObserver =
           new DataMessageServerRequestObserver<>(responseObserver, mWriteRequestMarshaller, null);
     }
-    DelegationWriteHandler handler = new DelegationWriteHandler(mWorkerProcess, responseObserver);
+    DelegationWriteHandler handler =
+        new DelegationWriteHandler(mWorkerProcess, responseObserver, getAuthenticatedUserInfo());
     serverResponseObserver.setOnCancelHandler(handler::onCancel);
     return handler;
   }

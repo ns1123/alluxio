@@ -51,14 +51,8 @@ public final class BlockWriteHandlerTest extends AbstractWriteHandlerTest {
         .thenReturn(mBlockWriter)
         .thenReturn(new LocalFileBlockWriter(mTestFolder.newFile().getPath()));
     mResponseObserver = Mockito.mock(StreamObserver.class);
-<<<<<<< HEAD
     mWriteHandler = new BlockWriteHandler(mBlockWorker, mResponseObserver, mUserInfo);
-||||||| merged common ancestors
-    mWriteHandler = new BlockWriteHandler(mBlockWorker, mResponseObserver);
-=======
-    mWriteHandler = new BlockWriteHandler(mBlockWorker, mResponseObserver);
     setupResponseTrigger();
->>>>>>> upstream-os/master
   }
 
   @Test

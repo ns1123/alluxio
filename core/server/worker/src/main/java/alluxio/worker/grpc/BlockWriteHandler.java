@@ -18,12 +18,8 @@ import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.WriteResponse;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.WorkerMetrics;
-<<<<<<< HEAD
 import alluxio.security.authentication.AuthenticatedUserInfo;
-||||||| merged common ancestors
-=======
 import alluxio.network.protocol.databuffer.DataBuffer;
->>>>>>> upstream-os/master
 import alluxio.worker.block.BlockWorker;
 
 import com.google.common.base.Preconditions;

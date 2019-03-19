@@ -41,17 +41,13 @@ public class DelegationWriteHandler implements StreamObserver<alluxio.grpc.Write
       StreamObserver<WriteResponse> responseObserver, AuthenticatedUserInfo userInfo) {
     mWorkerProcess = workerProcess;
     mResponseObserver = responseObserver;
-<<<<<<< HEAD
     mUserInfo = userInfo;
-||||||| merged common ancestors
-=======
     if (mResponseObserver instanceof DataMessageMarshallerProvider) {
       mMarshaller = ((DataMessageMarshallerProvider<WriteRequest, WriteResponse>) mResponseObserver)
           .getRequestMarshaller();
     } else {
       mMarshaller = null;
     }
->>>>>>> upstream-os/master
   }
 
   private AbstractWriteHandler createWriterHandler(alluxio.grpc.WriteRequest request) {

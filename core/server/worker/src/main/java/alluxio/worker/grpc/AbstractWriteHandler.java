@@ -19,13 +19,9 @@ import alluxio.exception.status.InvalidArgumentException;
 import alluxio.grpc.WriteRequest;
 import alluxio.grpc.WriteRequestCommand;
 import alluxio.grpc.WriteResponse;
-<<<<<<< HEAD
 import alluxio.security.authentication.AuthenticatedUserInfo;
-||||||| merged common ancestors
-=======
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.network.protocol.databuffer.NioDataBuffer;
->>>>>>> upstream-os/master
 import alluxio.util.LogUtils;
 
 import com.codahale.metrics.Counter;
@@ -93,12 +89,8 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
   AbstractWriteHandler(StreamObserver<WriteResponse> responseObserver,
       AuthenticatedUserInfo userInfo) {
     mResponseObserver = responseObserver;
-<<<<<<< HEAD
     mUserInfo = userInfo;
-||||||| merged common ancestors
-=======
     mSerializingExecutor = new SerializingExecutor(GrpcExecutors.BLOCK_WRITER_EXECUTOR);
->>>>>>> upstream-os/master
   }
 
   /**
@@ -107,46 +99,6 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
    * @param writeRequest the request from the client
    */
   public void write(WriteRequest writeRequest) {
-<<<<<<< HEAD
-    try {
-      if (mContext == null) {
-        LOG.debug("Received write request {}.", writeRequest);
-        mContext = createRequestContext(writeRequest);
-      } else {
-        Preconditions.checkState(!mContext.isDoneUnsafe(),
-            "invalid request after write request is completed.");
-      }
-      // ALLUXIO CS ADD
-      try {
-        checkAccessMode(mContext.getRequest().getId(), writeRequest.getCommand().getCapability(),
-            alluxio.security.authorization.Mode.Bits.WRITE);
-      } catch (alluxio.exception.AccessControlException
-          | alluxio.exception.InvalidCapabilityException e) {
-        mResponseObserver.onError(
-            io.grpc.Status.PERMISSION_DENIED.withDescription(e.getMessage()).asException());
-        return;
-      }
-      // ALLUXIO CS END
-      validateWriteRequest(writeRequest);
-      if (writeRequest.hasCommand()) {
-        WriteRequestCommand command = writeRequest.getCommand();
-        if (command.getFlush()) {
-          flush();
-||||||| merged common ancestors
-    try {
-      if (mContext == null) {
-        LOG.debug("Received write request {}.", writeRequest);
-        mContext = createRequestContext(writeRequest);
-      } else {
-        Preconditions.checkState(!mContext.isDoneUnsafe(),
-            "invalid request after write request is completed.");
-      }
-      validateWriteRequest(writeRequest);
-      if (writeRequest.hasCommand()) {
-        WriteRequestCommand command = writeRequest.getCommand();
-        if (command.getFlush()) {
-          flush();
-=======
     if (!tryAcquireSemaphore()) {
       return;
     }
@@ -155,7 +107,6 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
         if (mContext == null) {
           LOG.debug("Received write request {}.", writeRequest);
           mContext = createRequestContext(writeRequest);
->>>>>>> upstream-os/master
         } else {
           Preconditions.checkState(!mContext.isDoneUnsafe(),
               "invalid request after write request is completed.");
@@ -163,6 +114,17 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
         if (mContext.isDoneUnsafe() || mContext.getError() != null) {
           return;
         }
+        // ALLUXIO CS ADD
+        try {
+          checkAccessMode(mContext.getRequest().getId(), writeRequest.getCommand().getCapability(),
+                  alluxio.security.authorization.Mode.Bits.WRITE);
+        } catch (alluxio.exception.AccessControlException
+                | alluxio.exception.InvalidCapabilityException e) {
+          mResponseObserver.onError(
+                  io.grpc.Status.PERMISSION_DENIED.withDescription(e.getMessage()).asException());
+          return;
+        }
+        // ALLUXIO CS END
         validateWriteRequest(writeRequest);
         if (writeRequest.hasCommand()) {
           WriteRequestCommand command = writeRequest.getCommand();
