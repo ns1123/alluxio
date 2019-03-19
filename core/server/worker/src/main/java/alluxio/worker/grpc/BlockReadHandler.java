@@ -29,6 +29,7 @@ import alluxio.network.protocol.databuffer.NettyDataBuffer;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.retry.RetryPolicy;
 import alluxio.retry.TimeoutRetry;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.worker.block.BlockLockManager;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.UnderFileSystemBlockReader;
@@ -154,11 +155,9 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
                 mWorker.readBlockRemote(request.getSessionId(), request.getId(), lockId);
             String counterName = WorkerMetrics.BYTES_READ_ALLUXIO;
             // ALLUXIO CS ADD
-            // TODO(ggezer) EE-SEC fetch user during creation.
-            String user = null;
-            if (user != null) {
-              counterName = Metric.getMetricNameWithTags(
-                  WorkerMetrics.BYTES_READ_ALLUXIO, WorkerMetrics.TAG_USER, user);
+            if (mUserInfo.getAuthorizedUserName() != null) {
+              counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_READ_ALLUXIO,
+                  WorkerMetrics.TAG_USER, mUserInfo.getAuthorizedUserName());
             }
             // ALLUXIO CS END
             context.setBlockReader(reader);
@@ -177,10 +176,9 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
         // When the block does not exist in Alluxio but exists in UFS, try to open the UFS block.
         Protocol.OpenUfsBlockOptions openUfsBlockOptions = request.getOpenUfsBlockOptions();
         // ALLUXIO CS ADD
-        // TODO(ggezer) EE-SEC fetch user during creation.
-        String user = null;
-        if (user != null) {
-          openUfsBlockOptions = openUfsBlockOptions.toBuilder().setUser(user).build();
+        if (mUserInfo.getAuthorizedUserName() != null) {
+          openUfsBlockOptions =
+              openUfsBlockOptions.toBuilder().setUser(mUserInfo.getAuthorizedUserName()).build();
         }
         // ALLUXIO CS END
         if (mWorker.openUfsBlock(request.getSessionId(), request.getId(),
@@ -194,9 +192,10 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
             String counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_READ_UFS,
                 WorkerMetrics.TAG_UFS, ufsString);
             // ALLUXIO CS ADD
-            if (user != null) {
-              counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_READ_UFS,
-                  WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
+            if (mUserInfo.getAuthorizedUserName() != null) {
+              counterName =
+                  Metric.getMetricNameWithTags(WorkerMetrics.BYTES_READ_UFS, WorkerMetrics.TAG_UFS,
+                      ufsString, WorkerMetrics.TAG_USER, mUserInfo.getAuthorizedUserName());
             }
             // ALLUXIO CS END
             context.setBlockReader(reader);
@@ -222,26 +221,28 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
 
   /**
    * Creates an instance of {@link AbstractReadHandler}.
-   *  @param executorService the executor service to run {@link DataReader}s
+   *
+   * @param executorService the executor service to run {@link DataReader}s
    * @param blockWorker the block worker
    * @param responseObserver the response observer of the gRPC stream
+   * @param userInfo the authenticated user info
    */
   public BlockReadHandler(ExecutorService executorService, BlockWorker blockWorker,
-      StreamObserver<ReadResponse> responseObserver) {
-    super(executorService, responseObserver);
+      StreamObserver<ReadResponse> responseObserver, AuthenticatedUserInfo userInfo) {
+    super(executorService, responseObserver, userInfo);
     mWorker = blockWorker;
   }
-
   // ALLUXIO CS ADD
-  // TODO(ggezer) EE-SEC Implement for gRPC
-  //@Override
-  //protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
-  //    alluxio.proto.security.CapabilityProto.Capability capability,
-  //    alluxio.security.authorization.Mode.Bits accessMode)
-  //    throws alluxio.exception.InvalidCapabilityException,
-  //    alluxio.exception.AccessControlException {
-  //  Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
-  //}
+  @Override
+  protected void checkAccessMode(long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    alluxio.worker.security.CapabilityUtils.checkAccessMode(mWorker, mUserInfo, blockId, capability,
+        accessMode);
+  }
+
   // ALLUXIO CS END
 
   @Override

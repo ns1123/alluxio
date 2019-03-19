@@ -20,6 +20,7 @@ import alluxio.exception.InvalidWorkerStateException;
 import alluxio.grpc.GrpcExceptionUtils;
 import alluxio.grpc.OpenLocalBlockRequest;
 import alluxio.grpc.OpenLocalBlockResponse;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.util.IdUtils;
 import alluxio.util.LogUtils;
 import alluxio.worker.block.BlockLockManager;
@@ -48,17 +49,20 @@ class ShortCircuitBlockReadHandler implements StreamObserver<OpenLocalBlockReque
   /** The lock Id of the block being read. */
   private long mLockId;
   private long mSessionId;
+  private alluxio.security.authentication.AuthenticatedUserInfo mUserInfo;
 
   /**
    * Creates an instance of {@link ShortCircuitBlockReadHandler}.
    *
    * @param blockWorker the block worker
+   * @param userInfo the authenticated user info
    */
   ShortCircuitBlockReadHandler(BlockWorker blockWorker,
-      StreamObserver<OpenLocalBlockResponse> responseObserver) {
+      StreamObserver<OpenLocalBlockResponse> responseObserver, AuthenticatedUserInfo userInfo) {
     mWorker = blockWorker;
     mLockId = BlockLockManager.INVALID_LOCK_ID;
     mResponseObserver = responseObserver;
+    mUserInfo = userInfo;
   }
 
   /**
@@ -67,7 +71,16 @@ class ShortCircuitBlockReadHandler implements StreamObserver<OpenLocalBlockReque
   @Override
   public void onNext(OpenLocalBlockRequest request) {
     // ALLUXIO CS ADD
-    // TODO(ggezer) EE-SEC validate request.getCapability(). Do we need validation during close?
+    try {
+      alluxio.worker.security.CapabilityUtils.checkAccessMode(mWorker, mUserInfo,
+          request.getBlockId(), request.getCapability(),
+          alluxio.security.authorization.Mode.Bits.READ);
+    } catch (alluxio.exception.AccessControlException
+        | alluxio.exception.InvalidCapabilityException e) {
+      mResponseObserver
+          .onError(io.grpc.Status.PERMISSION_DENIED.withDescription(e.getMessage()).asException());
+      return;
+    }
     // ALLUXIO CS END
     RpcUtils.streamingRPCAndLog(LOG, new RpcUtils.StreamingRpcCallable<OpenLocalBlockResponse>() {
       @Override

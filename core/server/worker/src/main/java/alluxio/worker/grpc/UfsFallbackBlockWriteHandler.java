@@ -23,6 +23,7 @@ import alluxio.metrics.Metric;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.WorkerMetrics;
 import alluxio.proto.dataserver.Protocol;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
@@ -67,25 +68,26 @@ public final class UfsFallbackBlockWriteHandler
    * Creates an instance of {@link UfsFallbackBlockWriteHandler}.
    *
    * @param blockWorker the block worker
+   * @param userInfo the authenticated user info
    */
-  UfsFallbackBlockWriteHandler(BlockWorker blockWorker,
-      UfsManager ufsManager, StreamObserver<WriteResponse> responseObserver) {
-    super(responseObserver);
+  UfsFallbackBlockWriteHandler(BlockWorker blockWorker, UfsManager ufsManager,
+      StreamObserver<WriteResponse> responseObserver, AuthenticatedUserInfo userInfo) {
+    super(responseObserver, userInfo);
     mWorker = blockWorker;
     mUfsManager = ufsManager;
-    mBlockWriteHandler = new BlockWriteHandler(blockWorker, responseObserver);
+    mBlockWriteHandler = new BlockWriteHandler(blockWorker, responseObserver, userInfo);
+  }
+  // ALLUXIO CS ADD
+  @Override
+  protected void checkAccessMode(long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    alluxio.worker.security.CapabilityUtils.checkAccessMode(mWorker, mUserInfo, blockId, capability,
+        accessMode);
   }
 
-  // ALLUXIO CS ADD
-  // TODO(ggezer) EE-SEC Implement for gRPC.
-  //@Override
-  //protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
-  //                               alluxio.proto.security.CapabilityProto.Capability capability,
-  //                               alluxio.security.authorization.Mode.Bits accessMode)
-  //        throws alluxio.exception.InvalidCapabilityException,
-  //        alluxio.exception.AccessControlException {
-  //  Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
-  //}
   // ALLUXIO CS END
 
   @Override
@@ -240,13 +242,13 @@ public final class UfsFallbackBlockWriteHandler
     String meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
         WorkerMetrics.TAG_UFS, ufsString);
     // ALLUXIO CS ADD
-    // TODO(ggezer) EE-SEC Fetch user during creation.
-    String user = null;
-    if (user != null) {
-      counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS,
-              WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
+    if (mUserInfo.getAuthorizedUserName() != null) {
+      counterName =
+          Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS, WorkerMetrics.TAG_UFS,
+              ufsString, WorkerMetrics.TAG_USER, mUserInfo.getAuthorizedUserName());
       meterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_WRITTEN_UFS_THROUGHPUT,
-              WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER, user);
+          WorkerMetrics.TAG_UFS, ufsString, WorkerMetrics.TAG_USER,
+          mUserInfo.getAuthorizedUserName());
     }
     // ALLUXIO CS END
     context.setCounter(MetricsSystem.counter(counterName));

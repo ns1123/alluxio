@@ -17,8 +17,6 @@ import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
-import alluxio.grpc.CreateFilePOptions;
-import alluxio.grpc.GetStatusPOptions;
 import alluxio.hadoop.AlluxioDelegationTokenIdentifier;
 import alluxio.hadoop.FileSystem;
 import alluxio.hadoop.HadoopKerberosLoginProvider;
@@ -30,6 +28,7 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.LocalAlluxioClusterResource;
+import alluxio.util.FileSystemOptions;
 import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.collect.ImmutableMap;
@@ -45,7 +44,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -59,12 +57,10 @@ import java.security.PrivilegedExceptionAction;
 /**
  * Tests RPC authentication between master and its client, in Kerberos mode.
  */
-@Ignore
-// TODO(ggezer) EE-SEC reactivate after gRPC kerberos.
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
 public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTest {
-  private static final String HOSTNAME = NetworkAddressUtils
-      .getLocalHostName(ServerConfiguration.getInt(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
+  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName(
+      (int) ServerConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
   private static final String UNIFIED_INSTANCE = "instance";
 
   private static MiniKdc sKdc;
@@ -143,9 +139,10 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Assert.assertFalse(masterClient.isConnected());
     masterClient.connect();
     Assert.assertTrue(masterClient.isConnected());
-    masterClient.createFile(new AlluxioURI(filename), CreateFilePOptions.getDefaultInstance());
-    Assert.assertNotNull(
-        masterClient.getStatus(new AlluxioURI(filename), GetStatusPOptions.getDefaultInstance()));
+    masterClient.createFile(new AlluxioURI(filename),
+        FileSystemOptions.createFileDefaults(ServerConfiguration.global()));
+    Assert.assertNotNull(masterClient.getStatus(new AlluxioURI(filename),
+        FileSystemOptions.getStatusDefaults(ServerConfiguration.global())));
     masterClient.disconnect();
     masterClient.close();
   }
@@ -236,10 +233,10 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Credentials creds = new Credentials();
     boolean isConnected = true;
     try {
-      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
-      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      FileSystem hdfs = new FileSystem();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+          ServerConfiguration.global());
       // obtains delegation token
       hdfs.addDelegationTokens("yarn", creds);
 
@@ -254,11 +251,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      fs = sLocalAlluxioClusterResource.get().getClient();
-      FileSystem newHdfs = new FileSystem(fs);
+      FileSystem newHdfs = new FileSystem();
 
       tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
-        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+            ServerConfiguration.global());
         Path rootPath = new Path("/");
         FileStatus rootStat = newHdfs.getFileStatus(rootPath);
         Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
@@ -282,10 +279,10 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Credentials creds = new Credentials();
     boolean isConnected = true;
     try {
-      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
-      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      FileSystem hdfs = new FileSystem();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+          ServerConfiguration.global());
       // obtains delegation token
       hdfs.addDelegationTokens("yarn", creds);
       Assert.assertTrue(!creds.getAllTokens().isEmpty());
@@ -306,16 +303,16 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      fs = sLocalAlluxioClusterResource.get().getClient();
-      FileSystem newHdfs = new FileSystem(fs);
+      FileSystem newHdfs = new FileSystem();
 
       tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
-        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+            ServerConfiguration.global());
         Path rootPath = new Path("/");
         newHdfs.getFileStatus(rootPath);
         return null;
       });
-    } catch (UnavailableException e) {
+    } catch (UnauthenticatedException e) {
       isConnected = false;
     }
     Assert.assertFalse(isConnected);
@@ -333,10 +330,10 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Credentials creds = new Credentials();
     boolean isConnected = true;
     try {
-      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
-      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      FileSystem hdfs = new FileSystem();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+          ServerConfiguration.global());
       // obtains delegation token
       Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
       Assert.assertEquals(1, tokens.length);
@@ -362,11 +359,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      fs = sLocalAlluxioClusterResource.get().getClient();
-      FileSystem newHdfs = new FileSystem(fs);
+      FileSystem newHdfs = new FileSystem();
 
       tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
-        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+            ServerConfiguration.global());
         Path rootPath = new Path("/");
         FileStatus rootStat = newHdfs.getFileStatus(rootPath);
         Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
@@ -390,10 +387,10 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Credentials creds = new Credentials();
     boolean isConnected = true;
     try {
-      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
-      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      FileSystem hdfs = new FileSystem();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+          ServerConfiguration.global());
       // obtains delegation token
       Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
       Assert.assertEquals(1, tokens.length);
@@ -412,11 +409,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      fs = sLocalAlluxioClusterResource.get().getClient();
-      FileSystem newHdfs = new FileSystem(fs);
+      FileSystem newHdfs = new FileSystem();
 
       tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
-        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+            ServerConfiguration.global());
         Path rootPath = new Path("/");
         FileStatus rootStat = newHdfs.getFileStatus(rootPath);
         Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
@@ -431,13 +428,13 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
     try {
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      FileSystem newHdfs = new FileSystem(fs);
+      FileSystem newHdfs = new FileSystem();
 
       // accesses master using cancelled delegation token
       tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
-        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+            ServerConfiguration.global());
         Path rootPath = new Path("/");
         FileStatus rootStat = newHdfs.getFileStatus(rootPath);
         Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
@@ -458,10 +455,10 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Credentials creds = new Credentials();
     boolean isConnected = true;
     try {
-      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
-      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      FileSystem hdfs = new FileSystem();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+          ServerConfiguration.global());
       // obtains delegation token
       hdfs.addDelegationTokens("yarn", creds);
 
@@ -480,11 +477,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      fs = sLocalAlluxioClusterResource.get().getClient();
-      FileSystem newHdfs = new FileSystem(fs);
+      FileSystem newHdfs = new FileSystem();
 
       tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
-        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+            ServerConfiguration.global());
         Path rootPath = new Path("/");
         FileStatus rootStat = newHdfs.getFileStatus(rootPath);
         Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
@@ -505,10 +502,10 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Credentials creds = new Credentials();
     boolean isConnected = true;
     try {
-      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
-      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      FileSystem hdfs = new FileSystem();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+          ServerConfiguration.global());
       // obtains delegation token
       Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
       Assert.assertEquals(1, tokens.length);
@@ -533,11 +530,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      fs = sLocalAlluxioClusterResource.get().getClient();
-      FileSystem newHdfs = new FileSystem(fs);
+      FileSystem newHdfs = new FileSystem();
 
       tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
-        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+            ServerConfiguration.global());
         Path rootPath = new Path("/");
         FileStatus rootStat = newHdfs.getFileStatus(rootPath);
         Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());
@@ -558,10 +555,10 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     Credentials creds = new Credentials();
     boolean isConnected = true;
     try {
-      alluxio.client.file.FileSystem fs = sLocalAlluxioClusterResource.get().getClient();
-      org.apache.hadoop.fs.FileSystem hdfs = new FileSystem(fs);
+      FileSystem hdfs = new FileSystem();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+      hdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+          ServerConfiguration.global());
       // obtains delegation token
       Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
       Assert.assertEquals(1, tokens.length);
@@ -586,11 +583,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      fs = sLocalAlluxioClusterResource.get().getClient();
-      FileSystem newHdfs = new FileSystem(fs);
+      FileSystem newHdfs = new FileSystem();
 
       tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
-        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf);
+        newHdfs.initialize(new URI(sLocalAlluxioClusterResource.get().getMasterURI()), hdfsConf,
+            ServerConfiguration.global());
         Path rootPath = new Path("/");
         FileStatus rootStat = newHdfs.getFileStatus(rootPath);
         Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());

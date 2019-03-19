@@ -12,6 +12,7 @@
 package alluxio.security;
 
 import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.InstancedConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
@@ -158,19 +159,16 @@ public final class LoginUser {
 
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
-        // TODO(gene) LoginUser is removed in a near release. Code below requires major fixes to
-        //  work post-singleton. Leaving commented will likely break functionality.
-//        if (sLoginUser == null) {
-//          if (conf.isSet(principalKey)) {
-//            conf.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
-//                conf.get(principalKey));
-//          }
-//          if (conf.isSet(keytabKey)) {
-//            conf.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
-//                conf.get(keytabKey));
-//          }
-//        }
-        sLoginUser = login(conf);
+        if (sLoginUser == null) {
+          InstancedConfiguration updatedConf = new InstancedConfiguration(conf);
+          if (conf.isSet(principalKey)) {
+            updatedConf.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, conf.get(principalKey));
+          }
+          if (conf.isSet(keytabKey)) {
+            updatedConf.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, conf.get(keytabKey));
+          }
+          sLoginUser = login(updatedConf);
+        }
       }
     }
     return sLoginUser;

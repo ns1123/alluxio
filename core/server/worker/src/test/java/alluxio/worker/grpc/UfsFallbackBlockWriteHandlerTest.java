@@ -92,7 +92,8 @@ public class UfsFallbackBlockWriteHandlerTest extends AbstractWriteHandlerTest {
         .thenReturn(new FileOutputStream(mFile, true));
 
     mResponseObserver = Mockito.mock(StreamObserver.class);
-    mWriteHandler = new UfsFallbackBlockWriteHandler(mBlockWorker, ufsManager, mResponseObserver);
+    mWriteHandler =
+        new UfsFallbackBlockWriteHandler(mBlockWorker, ufsManager, mResponseObserver, mUserInfo);
 
     // create a partial block in block store first
     mBlockStore.createBlock(TEST_SESSION_ID, TEST_BLOCK_ID,

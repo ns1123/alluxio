@@ -37,7 +37,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
@@ -46,12 +45,10 @@ import java.io.File;
 /**
  * Integration tests on data authorization failures with Kerberos.
  */
-@Ignore
-// TODO(ggezer) EE-SEC reactivate after gRPC kerberos.
 public final class DataAuthorizationKerberosNegativeIntegrationTest extends BaseIntegrationTest {
   private static final String TMP_DIR = "/tmp";
-  private static final String HOSTNAME = NetworkAddressUtils
-      .getLocalHostName(ServerConfiguration.getInt(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
+  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName(
+      (int) ServerConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
   private static final String UNIFIED_INSTANCE = "instance";
 
   private static MiniKdc sKdc;
@@ -116,15 +113,15 @@ public final class DataAuthorizationKerberosNegativeIntegrationTest extends Base
     localAlluxioClusterResource.start();
 
     FileSystem fileSystem = localAlluxioClusterResource.get().getClient();
-    fileSystem.createDirectory(new AlluxioURI(TMP_DIR),
-        CreateDirectoryPOptions.newBuilder().setMode(Mode.createFullAccess().toProto()).build());
+    fileSystem.createDirectory(new AlluxioURI(TMP_DIR), CreateDirectoryPOptions.newBuilder()
+        .setMode(Mode.createFullAccess().toProto()).setRecursive(true).build());
 
     String uniqPath = TMP_DIR + PathUtils.uniqPath();
     AlluxioURI uri = new AlluxioURI(uniqPath);
     Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
     CreateFilePOptions options = CreateFilePOptions.newBuilder().setMode(mode.toProto())
-        .setWriteType(WritePType.MUST_CACHE).build();
+        .setWriteType(WritePType.MUST_CACHE).setRecursive(true).build();
     try (FileOutStream outStream = fileSystem.createFile(uri, options)) {
       outStream.write(1);
       Assert.fail();

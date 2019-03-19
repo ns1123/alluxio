@@ -3,6 +3,8 @@ package alluxio.grpc;
 import alluxio.collections.Pair;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.resource.LockResource;
+import alluxio.util.ConfigurationUtils;
+import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 
@@ -230,9 +232,15 @@ public class GrpcManagedChannelPool {
     if (channelKey.mEventLoopGroup.isPresent()) {
       channelBuilder.eventLoopGroup(channelKey.mEventLoopGroup.get());
     }
-    if (channelKey.mPlain) {
+    // ALLUXIO CS REPLACE
+    //channelBuilder.usePlaintext();
+    // ALLUXIO CS WITH
+    if (channelKey.mSslContext.isPresent()) {
+      channelBuilder.sslContext(channelKey.mSslContext.get());
+    } else {
       channelBuilder.usePlaintext();
     }
+    // ALLUXIO CS END
     return channelBuilder.build();
   }
 
@@ -288,7 +296,6 @@ public class GrpcManagedChannelPool {
    */
   public static class ChannelKey {
     private SocketAddress mAddress;
-    private boolean mPlain = true;
     private Optional<Pair<Long, TimeUnit>> mKeepAliveTime = Optional.empty();
     private Optional<Pair<Long, TimeUnit>> mKeepAliveTimeout = Optional.empty();
     private Optional<Integer> mMaxInboundMessageSize = Optional.empty();
@@ -296,6 +303,9 @@ public class GrpcManagedChannelPool {
     private Optional<Class<? extends io.netty.channel.Channel>> mChannelType = Optional.empty();
     private Optional<EventLoopGroup> mEventLoopGroup = Optional.empty();
     private long mPoolKey = 0;
+    // ALLUXIO CS ADD
+    private Optional<io.netty.handler.ssl.SslContext> mSslContext = Optional.empty();
+    // ALLUXIO CS END
 
     public static ChannelKey create(AlluxioConfiguration conf) {
       return new ChannelKey();
@@ -309,16 +319,6 @@ public class GrpcManagedChannelPool {
      */
     public ChannelKey setAddress(SocketAddress address) {
       mAddress = address;
-      return this;
-    }
-
-    /**
-     * Plaintext channel with no transport security.
-     *
-     * @return the modified {@link ChannelKey}
-     */
-    public ChannelKey usePlaintext() {
-      mPlain = true;
       return this;
     }
 
@@ -400,12 +400,18 @@ public class GrpcManagedChannelPool {
       }
       return this;
     }
+    // ALLUXIO CS ADD
+    public ChannelKey setSslContext(io.netty.handler.ssl.SslContext sslContext) {
+      mSslContext = Optional.of(sslContext);
+      return this;
+    }
+
+    // ALLUXIO CS END
 
     @Override
     public int hashCode() {
       return new HashCodeBuilder()
           .append(mAddress)
-          .append(mPlain)
           .append(mKeepAliveTime)
           .append(mKeepAliveTimeout)
           .append(mMaxInboundMessageSize)
@@ -415,6 +421,10 @@ public class GrpcManagedChannelPool {
               mChannelType.isPresent() ? System.identityHashCode(mChannelType.get()) : null)
           .append(
               mEventLoopGroup.isPresent() ? System.identityHashCode(mEventLoopGroup.get()) : null)
+          // ALLUXIO CS ADD
+          .append(
+              mSslContext.isPresent() ? System.identityHashCode(mSslContext.get()) : null)
+          // ALLUXIO CS END
           .toHashCode();
     }
 
@@ -423,14 +433,17 @@ public class GrpcManagedChannelPool {
       if (other instanceof ChannelKey) {
         ChannelKey otherKey = (ChannelKey) other;
         return mAddress.equals(otherKey.mAddress)
-            && mPlain == otherKey.mPlain
             && mKeepAliveTime.equals(otherKey.mKeepAliveTime)
             && mKeepAliveTimeout.equals(otherKey.mKeepAliveTimeout)
             && mFlowControlWindow.equals(otherKey.mFlowControlWindow)
             && mMaxInboundMessageSize.equals(otherKey.mMaxInboundMessageSize)
             && mChannelType.equals(otherKey.mChannelType)
             && mPoolKey == otherKey.mPoolKey
+            // ALLUXIO CS ADD
+            && mSslContext.equals(otherKey.mSslContext)
+            // ALLUXIO CS END
             && mEventLoopGroup.equals(otherKey.mEventLoopGroup);
+
       }
       return false;
     }
@@ -439,12 +452,14 @@ public class GrpcManagedChannelPool {
     public String toString() {
       return MoreObjects.toStringHelper(this)
           .add("Address", mAddress)
-          .add("IsPlain", mPlain)
           .add("KeepAliveTime", mKeepAliveTime)
           .add("KeepAliveTimeout", mKeepAliveTimeout)
           .add("FlowControlWindow", mFlowControlWindow)
           .add("ChannelType", mChannelType)
           .add("EventLoopGroup", mEventLoopGroup)
+          // ALLUXIO CS ADD
+          .add("SslContext", mSslContext)
+          // ALLUXIO CS END
           .toString();
     }
   }

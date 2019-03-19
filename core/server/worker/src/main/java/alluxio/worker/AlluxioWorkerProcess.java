@@ -76,14 +76,17 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
   private WebServer mWebServer;
   // ALLUXIO CS ADD
   /** Server for secure RPC. */
-  // TODO(ggezer) EE-SEC secure key server.
+  private alluxio.worker.security.SecureRpcServer mSecureRpcServer;
   // ALLUXIO CS END
 
   /** Used for auto binding. **/
   private ServerSocket mBindSocket;
 
-  /** The address for the rpc server. */
-  private InetSocketAddress mRpcAddress;
+  /** The bind address for the rpc server. */
+  private InetSocketAddress mRpcBindAddress;
+
+  /** The connect address for the rpc server. */
+  private InetSocketAddress mRpcConnectAddress;
 
   /** Worker start time in milliseconds. */
   private long mStartTimeMs;
@@ -139,14 +142,17 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
       } else {
         bindPort = configuredBindAddress.getPort();
       }
-      mRpcAddress = new InetSocketAddress(configuredBindAddress.getHostName(), bindPort);
+      mRpcBindAddress = new InetSocketAddress(configuredBindAddress.getHostName(), bindPort);
+      mRpcConnectAddress = NetworkAddressUtils.getConnectAddress(ServiceType.WORKER_RPC,
+          ServerConfiguration.global());
       if (mBindSocket != null) {
         // Socket opened for auto bind.
         // Close it.
         mBindSocket.close();
       }
       // Setup Data server
-      mDataServer = DataServer.Factory.create(mRpcAddress, this);
+      mDataServer =
+          DataServer.Factory.create(mRpcConnectAddress.getHostName(), mRpcBindAddress, this);
 
       // Setup domain socket data server
       if (isDomainSocketEnabled()) {
@@ -157,16 +163,19 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
               PathUtils.concatPath(domainSocketPath, UUID.randomUUID().toString());
         }
         LOG.info("Domain socket data server is enabled at {}.", domainSocketPath);
-        mDomainSocketDataServer =
-            DataServer.Factory.create(new DomainSocketAddress(domainSocketPath), this);
+        mDomainSocketDataServer = DataServer.Factory.create(mRpcConnectAddress.getHostName(),
+            new DomainSocketAddress(domainSocketPath), this);
         // Share domain socket so that clients can access it.
         FileUtils.changeLocalFileToFullPermission(domainSocketPath);
       }
       // ALLUXIO CS ADD
-      // TODO(ggezer) EE-SEC secure key server.
-      // if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-      //   // Setup Secret Key server
-      // }
+      if (ServerConfiguration.global()
+          .getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        // Setup Secret Key server. (Bind dynamically).
+        mSecureRpcServer =
+            new alluxio.worker.security.SecureRpcServer(mRpcConnectAddress.getHostName(),
+                new InetSocketAddress(mRpcBindAddress.getHostName(), 0), this);
+      }
       // ALLUXIO CS END
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -223,7 +232,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
 
   @Override
   public InetSocketAddress getRpcAddress() {
-    return mRpcAddress;
+    return mRpcBindAddress;
   }
 
   @Override
@@ -298,10 +307,10 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
       mDomainSocketDataServer = null;
     }
     // ALLUXIO CS ADD
-    // TODO(ggezer) EE-SEC close secure key server.
-    // if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-    //
-    // }
+    if (ServerConfiguration.global()
+        .getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+      mSecureRpcServer.shutdown();
+    }
     // ALLUXIO CS END
     mUfsManager.close();
     try {
@@ -340,13 +349,11 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
   public WorkerNetAddress getAddress() {
     return new WorkerNetAddress()
         // ALLUXIO CS ADD
-        // TODO(ggezer) EE-SEC secure key server.
-        //.setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort())
-        .setSecureRpcPort(0)
+        .setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort())
         // ALLUXIO CS END
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC,
             ServerConfiguration.global()))
-        .setRpcPort(mRpcAddress.getPort())
+        .setRpcPort(mRpcBindAddress.getPort())
         .setDataPort(getDataLocalPort())
         .setDomainSocketPath(getDataDomainSocketPath())
         .setWebPort(mWebServer.getLocalPort())

@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+option java_multiple_files = true;
+option java_package = "alluxio.grpc";
+option java_outer_classname = "SecureRpcServerProto";
+
+package alluxio.grpc.securerpc;
+
+import "proto/security/key.proto";
+
+message WriteSecretKeyPRequest{
+    optional alluxio.proto.security.SecretKey secretKey = 1;
+}
+message WriteSecretKeyPResponse {
+}
+
+// The Secure RPC worker service for master.
+service SecureRpcMasterService {
+    // Writes a new secret key to worker.
+    rpc WriteSecretKey (WriteSecretKeyPRequest) returns (WriteSecretKeyPResponse);
+}

@@ -87,9 +87,24 @@ public final class GrpcDataWriter implements DataWriter {
   public static GrpcDataWriter create(FileSystemContext context, WorkerNetAddress address,
       long id, long length, RequestType type, OutStreamOptions options)
       throws IOException {
-    AlluxioConfiguration conf = context.getConf();
-    long chunkSize = conf.getBytes(PropertyKey.USER_NETWORK_WRITER_CHUNK_SIZE_BYTES);
-    BlockWorkerClient grpcClient = context.acquireBlockWorkerClient(address);
+    long chunkSize = context.getConf().getBytes(PropertyKey.USER_NETWORK_WRITER_CHUNK_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      chunkSize =
+          alluxio.client.LayoutUtils.toPhysicalChunksLength(options.getEncryptionMeta(), chunkSize);
+    }
+    // ALLUXIO CS END
+    // ALLUXIO CS REPLACE
+    // BlockWorkerClient grpcClient = context.acquireBlockWorkerClient(address);
+    // ALLUXIO CS WITH
+    BlockWorkerClient grpcClient;
+    if (options.getCapabilityFetcher() != null) {
+      grpcClient = context.acquireBlockWorkerClient(address,
+          options.getCapabilityFetcher().getCapability().toProto());
+    } else {
+      grpcClient = context.acquireBlockWorkerClient(address);
+    }
+    // ALLUXIO CS END
     try {
       return new GrpcDataWriter(context, address, id, length, chunkSize, type, options,
           grpcClient);
@@ -149,6 +164,11 @@ public final class GrpcDataWriter implements DataWriter {
           .setFallback(alreadyFallback).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
     }
+    // ALLUXIO CS ADD
+    if (options.getCapabilityFetcher() != null) {
+      builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
+    }
+    // ALLUXIO CS END
     mPartialRequest = builder.buildPartial();
     mChunkSize = chunkSize;
     mClient = client;

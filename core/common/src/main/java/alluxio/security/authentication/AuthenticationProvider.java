@@ -21,6 +21,9 @@ import alluxio.security.authentication.plain.SimpleAuthenticationProvider;
 import javax.security.sasl.AuthenticationException;
 
 /**
+ *
+ * TODO(ggezer) EE-SEC Merge with SaslParticipantProvider.
+ *
  * Abstraction for an authentication provider at SASL server for
  * {@link AuthType#SIMPLE} and {@link AuthType#CUSTOM}.
  */
@@ -50,7 +53,7 @@ public interface AuthenticationProvider {
           return new CustomAuthenticationProvider(customProviderName);
         // ALLUXIO CS ADD
         case KERBEROS:
-          return new KerberosAuthenticationProvider();
+          return new alluxio.security.authentication.kerberos.KerberosAuthenticationProvider();
         // ALLUXIO CS END
         default:
           throw new AuthenticationException("Unsupported AuthType: " + authType.getAuthName());

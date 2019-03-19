@@ -296,8 +296,16 @@ public class AlluxioMasterProcess extends MasterProcess {
     try {
       stopRejectingRpcServer();
       LOG.info("Starting gRPC server on address {}", mRpcBindAddress);
-      GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(mRpcBindAddress,
-          ServerConfiguration.global());
+      // ALLUXIO CS REPLACE
+      //GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(
+      //    mRpcConnectAddress.getHostName(), mRpcBindAddress, ServerConfiguration.global());
+      // ALLUXIO CS WITH
+      GrpcServerBuilder serverBuilder =
+          GrpcServerBuilder.forAddress(mRpcConnectAddress.getHostName(), mRpcBindAddress,
+              new MasterAuthenticationServer(mRpcConnectAddress.getHostName(),
+                  mDelegationTokenManager, ServerConfiguration.global()),
+              ServerConfiguration.global());
+      // ALLUXIO CS END
 
       mRPCExecutor = Executors.newFixedThreadPool(mMaxWorkerThreads,
           ThreadFactoryUtils.build("grpc-rpc-%d", true));
@@ -309,7 +317,7 @@ public class AlluxioMasterProcess extends MasterProcess {
 
       mGrpcServer = serverBuilder.build().start();
       mSafeModeManager.notifyRpcServerStarted();
-      LOG.info("Started gRPC server on address {}", mRpcBindAddress);
+      LOG.info("Started gRPC server on address {}", mRpcConnectAddress);
 
       // Wait until the server is shut down.
       mGrpcServer.awaitTermination();

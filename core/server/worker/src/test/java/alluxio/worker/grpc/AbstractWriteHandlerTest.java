@@ -23,6 +23,7 @@ import alluxio.grpc.RequestType;
 import alluxio.grpc.WriteRequestCommand;
 import alluxio.grpc.WriteResponse;
 import alluxio.network.protocol.databuffer.DataBuffer;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.network.protocol.databuffer.ByteArrayDataBuffer;
 import alluxio.util.io.BufferUtils;
 
@@ -51,6 +52,7 @@ public abstract class AbstractWriteHandlerTest {
   protected static final long TEST_MOUNT_ID = 10L;
   protected AbstractWriteHandler mWriteHandler;
   protected StreamObserver<WriteResponse> mResponseObserver;
+  protected AuthenticatedUserInfo mUserInfo = new AuthenticatedUserInfo();
   @Rule
   public ExpectedException mExpectedException = ExpectedException.none();
 

@@ -11,6 +11,7 @@
 
 package alluxio.hadoop;
 
+import alluxio.conf.AlluxioConfiguration;
 import alluxio.security.Credentials;
 import alluxio.security.User;
 import alluxio.security.authentication.DelegationTokenIdentifier;
@@ -171,10 +172,11 @@ public class HadoopKerberosLoginProvider implements KerberosLoginProvider {
    * @param subject subject where the delegation token should be populated to
    * @param serviceName name of Alluxio service for which delegation tokens should be processed
    * @param masterAddresses addresses for masters
+   * @param alluxioConf Alluxio configuration
    * @return whether delegation token for the services are detected and populated
    */
   public static boolean populateAlluxioTokens(UserGroupInformation ugi, Subject subject,
-      String serviceName, List<String> masterAddresses)
+      String serviceName, List<String> masterAddresses, AlluxioConfiguration alluxioConf)
       throws IOException {
     LOG.debug("retrieving tokens from UGI: {}", ugi);
     Collection<Token<? extends TokenIdentifier>> tokens = ugi.getTokens();
@@ -188,6 +190,7 @@ public class HadoopKerberosLoginProvider implements KerberosLoginProvider {
     Token<AlluxioDelegationTokenIdentifier> token = SELECTOR.selectToken(new Text(serviceName), tokens);
     if (token != null) {
       LOG.debug("retrieved Alluxio token from UGI for service {}: {}", serviceName, token);
+
       DelegationTokenIdentifier id = token.decodeIdentifier().getAlluxioIdentifier();
       alluxio.security.authentication.Token<DelegationTokenIdentifier> alluxioToken =
           new alluxio.security.authentication.Token<>(id, token.getPassword());

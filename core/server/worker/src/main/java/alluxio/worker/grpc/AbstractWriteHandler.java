@@ -17,6 +17,7 @@ import alluxio.exception.status.InvalidArgumentException;
 import alluxio.grpc.WriteRequest;
 import alluxio.grpc.WriteRequestCommand;
 import alluxio.grpc.WriteResponse;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.util.LogUtils;
 
 import com.codahale.metrics.Counter;
@@ -64,13 +65,18 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
    */
   private volatile T mContext;
 
+  protected alluxio.security.authentication.AuthenticatedUserInfo mUserInfo;
+
   /**
    * Creates an instance of {@link AbstractWriteHandler}.
    *
    * @param responseObserver the response observer for the write request
+   * @param userInfo the authenticated user info
    */
-  AbstractWriteHandler(StreamObserver<WriteResponse> responseObserver) {
+  AbstractWriteHandler(StreamObserver<WriteResponse> responseObserver,
+      AuthenticatedUserInfo userInfo) {
     mResponseObserver = responseObserver;
+    mUserInfo = userInfo;
   }
 
   /**
@@ -87,6 +93,17 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
         Preconditions.checkState(!mContext.isDoneUnsafe(),
             "invalid request after write request is completed.");
       }
+      // ALLUXIO CS ADD
+      try {
+        checkAccessMode(mContext.getRequest().getId(), writeRequest.getCommand().getCapability(),
+            alluxio.security.authorization.Mode.Bits.WRITE);
+      } catch (alluxio.exception.AccessControlException
+          | alluxio.exception.InvalidCapabilityException e) {
+        mResponseObserver.onError(
+            io.grpc.Status.PERMISSION_DENIED.withDescription(e.getMessage()).asException());
+        return;
+      }
+      // ALLUXIO CS END
       validateWriteRequest(writeRequest);
       if (writeRequest.hasCommand()) {
         WriteRequestCommand command = writeRequest.getCommand();
@@ -173,52 +190,38 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
           request.getCommand().getOffset(), mContext.getPos()));
     }
   }
-
   // ALLUXIO CS ADD
-  // TODO(ggezer) Implement for gRPC.
-  ///**
-  // * Check whether the current user has the requested access to a block.
-  // *
-  // * @param ctx the netty handler context
-  // * @param blockId the block ID
-  // * @param accessMode the requested access mode
-  // * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
-  // *         because expiration)
-  // * @throws alluxio.exception.AccessControlException if permission denied
-  // */
-  //protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
-  //                               alluxio.proto.security.CapabilityProto.Capability capability,
-  //                               alluxio.security.authorization.Mode.Bits accessMode)
-  //        throws alluxio.exception.InvalidCapabilityException,
-  //        alluxio.exception.AccessControlException {
-  //  // By default, we don't check permission.
-  //}
+  /**
+   * @param userInfo {@link alluxio.security.authentication.AuthenticatedUserInfo} for the handler
+   *        to use
+   */
+  public void setAuthenticatedUserInfo(
+      alluxio.security.authentication.AuthenticatedUserInfo userInfo) {
+    mUserInfo = userInfo;
+  }
+
+  /**
+   * Check whether the current user has the requested access to a block.
+   *
+   * @param blockId the block ID
+   * @param accessMode the requested access mode
+   * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
+   *         because expiration)
+   * @throws alluxio.exception.AccessControlException if permission denied
+   */
+  protected void checkAccessMode(long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    // By default, we don't check permission.
+  }
   // ALLUXIO CS END
 
   private void writeData(ByteString buf) {
     try {
       int readableBytes = buf.size();
       mContext.setPos(mContext.getPos() + readableBytes);
-      // ALLUXIO CS ADD
-      // TODO(ggezer) EE-SEC Honor the call
-      ///**
-      // * Check whether the current user has the requested access to a block.
-      // *
-      // * @param ctx the netty handler context
-      // * @param blockId the block ID
-      // * @param accessMode the requested access mode
-      // * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
-      // *         because expiration)
-      // * @throws alluxio.exception.AccessControlException if permission denied
-      // */
-      //protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
-      //alluxio.proto.security.CapabilityProto.Capability capability,
-      //alluxio.security.authorization.Mode.Bits accessMode)
-      //throws alluxio.exception.InvalidCapabilityException,
-      //        alluxio.exception.AccessControlException {
-      //  // By default, we don't check permission.
-      //}
-      // ALLUXIO CS END
       writeBuf(mContext, mResponseObserver, buf, mContext.getPos());
       incrementMetrics(readableBytes);
     } catch (Exception e) {

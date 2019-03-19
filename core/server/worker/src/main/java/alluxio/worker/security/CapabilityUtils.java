@@ -9,32 +9,31 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.worker.netty;
+package alluxio.worker.security;
 
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.proto.security.CapabilityProto;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.security.authorization.Mode;
 import alluxio.worker.block.BlockWorker;
-
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * Netty data server related utils.
  */
-public final class Utils {
-  private static final boolean CAPABILITY_ENABLED = ServerConfiguration
-      .getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
-      && ServerConfiguration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE)
-      .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+public final class CapabilityUtils {
+  private static final boolean CAPABILITY_ENABLED =
+      ServerConfiguration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+          && ServerConfiguration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+              .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
 
   /**
    * Checks whether the user has access to the given block.
    *
    * @param blockWorker the block worker
-   * @param ctx the netty handler context
+   * @param userInfo the authenticated user info
    * @param blockId the block ID
    * @param capability the capability to update if not null
    * @param accessMode the requested access mode
@@ -42,14 +41,14 @@ public final class Utils {
    *         can retry the operation if an new Capability can be fetched.
    * @throws AccessControlException if the user does not have access to the block
    */
-  public static void checkAccessMode(BlockWorker blockWorker, ChannelHandlerContext ctx,
+  public static void checkAccessMode(BlockWorker blockWorker, AuthenticatedUserInfo userInfo,
       long blockId, CapabilityProto.Capability capability, Mode.Bits accessMode)
       throws InvalidCapabilityException, AccessControlException {
     if (!CAPABILITY_ENABLED) {
       return;
     }
     long fileId = alluxio.util.IdUtils.fileIdFromBlockId(blockId);
-    String user = ctx.channel().attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+    String user = userInfo.getAuthorizedUserName();
     blockWorker.getCapabilityCache().addCapability(capability);
     blockWorker.getCapabilityCache().checkAccess(user, fileId, accessMode);
   }
@@ -61,5 +60,5 @@ public final class Utils {
     return CAPABILITY_ENABLED;
   }
 
-  private Utils() {}  // prevent instantiation
+  private CapabilityUtils() {}  // prevent instantiation
 }

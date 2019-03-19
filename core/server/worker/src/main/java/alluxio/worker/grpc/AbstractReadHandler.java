@@ -20,6 +20,7 @@ import alluxio.grpc.DataMessage;
 import alluxio.grpc.ReadResponse;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.resource.LockResource;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.util.LogUtils;
 
 import com.codahale.metrics.Counter;
@@ -77,6 +78,8 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
 
   private final ReentrantLock mLock = new ReentrantLock();
 
+  protected alluxio.security.authentication.AuthenticatedUserInfo mUserInfo;
+
   /**
    * This is only created in the gRPC event thread when a read request is received.
    * Using "volatile" because we want any value change of this variable to be
@@ -90,48 +93,48 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
    *
    * @param executorService the executor service to run {@link DataReader}s
    * @param responseObserver the response observer of the
+   * @param userInfo the authenticated user info
    */
   AbstractReadHandler(ExecutorService executorService,
-      StreamObserver<ReadResponse> responseObserver) {
+      StreamObserver<ReadResponse> responseObserver, AuthenticatedUserInfo userInfo) {
     mDataReaderExecutor = executorService;
     mSerializingExecutor = new SerializingExecutor(executorService);
     mResponseObserver = responseObserver;
+    mUserInfo = userInfo;
   }
-
   // ALLUXIO CS ADD
-  // TODO(ggezer) EE-SEC Implement for gRPC
-  ///**
-  // * Check whether the current user has the requested access to a block.
-  // *
-  // * @param ctx the netty handler context
-  // * @param blockId the block ID
-  // * @param accessMode the requested access mode
-  // * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
-  // *         because expiration)
-  // * @throws alluxio.exception.AccessControlException if permission denied
-  // */
-  //protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
-  //                               alluxio.proto.security.CapabilityProto.Capability capability,
-  //                               alluxio.security.authorization.Mode.Bits accessMode)
-  //        throws alluxio.exception.InvalidCapabilityException,
-  //        alluxio.exception.AccessControlException {
-  //  // By default, we don't check permission.
-  //}
+
+  /**
+   * Check whether the current user has the requested access to a block.
+   *
+   * @param blockId the block ID
+   * @param accessMode the requested access mode
+   * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
+   *         because expiration)
+   * @throws alluxio.exception.AccessControlException if permission denied
+   */
+  protected void checkAccessMode(long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    // By default, we don't check permission.
+  }
   // ALLUXIO CS END
 
   @Override
   public void onNext(alluxio.grpc.ReadRequest request) {
     // ALLUXIO CS ADD
-    // TODO(ggezer) EE-SEC honor the check
-    //try {
-    //  checkAccessMode(ctx, msg.getBlockId(), msg.getCapability(),
-    //          alluxio.security.authorization.Mode.Bits.READ);
-    //} catch (alluxio.exception.AccessControlException
-    //        | alluxio.exception.InvalidCapabilityException e) {
-    //  setError(ctx.channel(),
-    //          new java.lang.Error(new alluxio.exception.status.PermissionDeniedException(e), true));
-    //  return;
-    //}
+    try {
+      checkAccessMode(request.getBlockId(), request.getCapability(),
+          alluxio.security.authorization.Mode.Bits.READ);
+    } catch (alluxio.exception.AccessControlException
+        | alluxio.exception.InvalidCapabilityException e) {
+      // TODO(ggezer) EE-SEC Use gRPC exception helpers to handle conversion (on all places).
+      mResponseObserver
+          .onError(io.grpc.Status.PERMISSION_DENIED.withDescription(e.getMessage()).asException());
+      return;
+    }
     // ALLUXIO CS END
 
     // Expected state: context equals null as this handler is new for request.

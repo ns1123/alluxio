@@ -18,6 +18,7 @@ import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.WriteResponse;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.WorkerMetrics;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.worker.block.BlockWorker;
 
 import com.google.common.base.Preconditions;
@@ -53,9 +54,11 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
    *
    * @param blockWorker the block worker
    * @param responseObserver the stream observer for the write response
+   * @param userInfo the authenticated user info
    */
-  BlockWriteHandler(BlockWorker blockWorker, StreamObserver<WriteResponse> responseObserver) {
-    super(responseObserver);
+  BlockWriteHandler(BlockWorker blockWorker, StreamObserver<WriteResponse> responseObserver,
+      AuthenticatedUserInfo userInfo) {
+    super(responseObserver, userInfo);
     mWorker = blockWorker;
   }
 
@@ -123,16 +126,16 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
     Preconditions.checkState(
         context.getBlockWriter().append(buf.asReadOnlyByteBuffer())  == sz);
   }
-
   // ALLUXIO CS ADD
-  // TODO(ggezer) EE-SEC Implement for gRPC.
-  //@Override
-  //protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
-  //                               alluxio.proto.security.CapabilityProto.Capability capability,
-  //                               alluxio.security.authorization.Mode.Bits accessMode)
-  //        throws alluxio.exception.InvalidCapabilityException,
-  //        alluxio.exception.AccessControlException {
-  //  Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
-  //}
+  @Override
+  protected void checkAccessMode(long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    alluxio.worker.security.CapabilityUtils.checkAccessMode(mWorker, mUserInfo, blockId, capability,
+        accessMode);
+  }
+
   // ALLUXIO CS END
 }

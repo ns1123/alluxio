@@ -19,6 +19,7 @@ import alluxio.exception.InvalidWorkerStateException;
 import alluxio.grpc.CreateLocalBlockRequest;
 import alluxio.grpc.CreateLocalBlockResponse;
 import alluxio.grpc.GrpcExceptionUtils;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.util.IdUtils;
 import alluxio.util.LogUtils;
 import alluxio.worker.block.BlockWorker;
@@ -52,15 +53,19 @@ class ShortCircuitBlockWriteHandler implements StreamObserver<CreateLocalBlockRe
 
   private long mSessionId = INVALID_SESSION_ID;
 
+  private alluxio.security.authentication.AuthenticatedUserInfo mUserInfo;
+
   /**
    * Creates an instance of {@link ShortCircuitBlockWriteHandler}.
    *
    * @param blockWorker the block worker
+   * @param userInfo the authenticated user info
    */
   ShortCircuitBlockWriteHandler(BlockWorker blockWorker,
-      StreamObserver<CreateLocalBlockResponse> responseObserver) {
+      StreamObserver<CreateLocalBlockResponse> responseObserver, AuthenticatedUserInfo userInfo) {
     mBlockWorker = blockWorker;
     mResponseObserver = responseObserver;
+    mUserInfo = userInfo;
   }
 
   /**
@@ -71,7 +76,16 @@ class ShortCircuitBlockWriteHandler implements StreamObserver<CreateLocalBlockRe
   @Override
   public void onNext(CreateLocalBlockRequest request) {
     // ALLUXIO CS ADD
-    // TODO(ggezer) EE-SEC validate request.getCapability(). Do we need validation during close?
+    try {
+      alluxio.worker.security.CapabilityUtils.checkAccessMode(mBlockWorker, mUserInfo,
+          request.getBlockId(), request.getCapability(),
+          alluxio.security.authorization.Mode.Bits.WRITE);
+    } catch (alluxio.exception.AccessControlException
+        | alluxio.exception.InvalidCapabilityException e) {
+      mResponseObserver
+          .onError(io.grpc.Status.PERMISSION_DENIED.withDescription(e.getMessage()).asException());
+      return;
+    }
     // ALLUXIO CS END
     final String methodName = request.getOnlyReserveSpace() ? "ReserveSpace" : "CreateBlock";
     RpcUtils.streamingRPCAndLog(LOG, new RpcUtils.StreamingRpcCallable<CreateLocalBlockResponse>() {

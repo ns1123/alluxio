@@ -178,6 +178,7 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
   private static BlockInStream createGrpcBlockInStream(FileSystemContext context,
       WorkerNetAddress address, BlockInStreamSource blockSource,
       ReadRequest readRequestPartial, long blockSize, InStreamOptions options) {
+    ReadRequest.Builder readRequestBuilder = readRequestPartial.toBuilder();
     long chunkSize = context.getConf()
         .getBytes(PropertyKey.USER_NETWORK_READER_CHUNK_SIZE_BYTES);
     // ALLUXIO CS ADD
@@ -185,9 +186,13 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
       chunkSize =
           alluxio.client.LayoutUtils.toPhysicalChunksLength(options.getEncryptionMeta(), chunkSize);
     }
+    if (options.getCapabilityFetcher() != null) {
+      readRequestBuilder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
+    }
     // ALLUXIO CS END
-    DataReader.Factory factory = new GrpcDataReader.Factory(context, address,
-        readRequestPartial.toBuilder().setChunkSize(chunkSize).buildPartial());
+    readRequestBuilder.setChunkSize(chunkSize);
+    DataReader.Factory factory =
+        new GrpcDataReader.Factory(context, address, readRequestBuilder.build());
     return new BlockInStream(factory, address, blockSource, readRequestPartial.getBlockId(),
         blockSize);
   }

@@ -20,6 +20,7 @@ import alluxio.retry.RetryPolicy;
 import alluxio.retry.TimeoutRetry;
 import alluxio.security.MasterKey;
 import alluxio.security.authentication.MasterKeyManager;
+import alluxio.security.capability.SecretKeyWriter;
 import alluxio.util.IdUtils;
 import alluxio.wire.WorkerInfo;
 
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -139,10 +141,8 @@ public class CapabilityKeyManager extends MasterKeyManager {
     MasterKey key = mNewKey == null ? mMasterKey : mNewKey;
     try {
       LOG.debug("Sending key with id {} to worker {}", key.getKeyId(), worker.getAddress());
-      // TODO(ggezer) EE-SEC Make the call on new secure gRPC server.
-      //NettySecretKeyWriter
-      //    .write(NetworkAddressUtils.getSecureRpcPortSocketAddress(worker.getAddress()), key);
-      throw new IOException("not implemented");
+      SecretKeyWriter.writeCapabilityKey(new InetSocketAddress(worker.getAddress().getHost(),
+          worker.getAddress().getSecureRpcPort()), key, ServerConfiguration.global());
     } catch (IOException e) {
       LOG.debug("Retrying to send key with id {} to worker {}, previously failed with: {}",
           key.getKeyId(), worker.getAddress(), e.getMessage());

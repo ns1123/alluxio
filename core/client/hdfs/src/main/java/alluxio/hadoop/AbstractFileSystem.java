@@ -32,6 +32,7 @@ import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.SetAttributePOptions;
+import alluxio.master.MasterInquireClient;
 import alluxio.master.MasterInquireClient.Factory;
 import alluxio.security.User;
 import alluxio.security.authorization.Mode;
@@ -454,12 +455,21 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   @Override
   public synchronized void initialize(URI uri, org.apache.hadoop.conf.Configuration conf)
       throws IOException {
+    initialize(uri, conf, null);
+  }
+
+  /**
+   * Initialize the {@link alluxio.hadoop.FileSystem}.
+   * @param uri file system Uri
+   * @param conf hadoop configuration
+   * @param alluxioConfiguration [optional] alluxio configuration
+   * @throws IOException
+   */
+  public synchronized void initialize(URI uri, org.apache.hadoop.conf.Configuration conf,
+      @Nullable AlluxioConfiguration alluxioConfiguration)
+      throws IOException {
     Preconditions.checkArgument(uri.getScheme().equals(getScheme()),
         PreconditionMessage.URI_SCHEME_MISMATCH.toString(), uri.getScheme(), getScheme());
-
-    if (mFileSystem != null) {
-      return;
-    }
 
     super.initialize(uri, conf);
     LOG.debug("initialize({}, {}). Connecting to Alluxio", uri, conf);
@@ -479,9 +489,16 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
 
     mUri = URI.create(mAlluxioHeader);
+
+    if (mFileSystem != null) {
+      return;
+    }
+
     Map<String, Object> uriConfProperties = getConfigurationFromUri(uri);
 
-    AlluxioProperties alluxioProps = ConfigurationUtils.defaults();
+    AlluxioProperties alluxioProps =
+        (alluxioConfiguration != null) ? alluxioConfiguration.copyProperties()
+            : ConfigurationUtils.defaults();
     AlluxioConfiguration alluxioConf = mergeConfigurations(uriConfProperties, conf, alluxioProps);
     // ALLUXIO CS REPLACE
     // Subject subject = getHadoopSubject();
@@ -496,6 +513,26 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     } else {
       LOG.debug("No Hadoop subject. Using context without subject.");
     }
+    // ALLUXIO CS ADD
+    AlluxioDelegationTokenIdentifier.setConfiguration(alluxioConf);
+    try {
+      UserGroupInformation user = UserGroupInformation.getCurrentUser();
+      if (!user.getTokens().isEmpty()) {
+        String tokenService = buildTokenService(mUri, alluxioConf);
+        List<String> masters = MasterInquireClient.Factory.create(alluxioConf)
+            .getMasterRpcAddresses().stream().map(addr -> HostAndPort
+                .fromParts(addr.getAddress().getHostAddress(), addr.getPort()).toString())
+            .collect(toList());
+        LOG.debug("Checking Alluxio delegation token for {} on service {}", subject, tokenService);
+        if (!HadoopKerberosLoginProvider.populateAlluxioTokens(user, subject, tokenService, masters,
+            alluxioConf)) {
+          LOG.warn("Failed to update subject with delegation tokens");
+        }
+      }
+    } catch (IOException e) {
+      LOG.warn("unable to populate Alluxio tokens.", e);
+    }
+    // ALLUXIO CS END
 
     LOG.info("Initializing filesystem with connect details {}",
         Factory.getConnectDetails(alluxioConf));

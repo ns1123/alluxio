@@ -32,16 +32,22 @@ import java.io.IOException;
 public class AlluxioDelegationTokenIdentifier extends AbstractDelegationTokenIdentifier {
   public static final Text ALLUXIO_DELEGATION_KIND = new Text("ALLUXIO_DELEGATION_TOKEN");
   private DelegationTokenIdentifier mAlluxioTokenId;
-  private final AlluxioConfiguration mConf;
+  // TODO(ggezer) EE-SEC revert this after syncing OS code with the fix.
+  private static ThreadLocal<AlluxioConfiguration> sConf = new ThreadLocal<>();
 
   /**
-   * Default constructor for used with service loader.
+   * Sets the thread-local alluxio configuration for use by readFields() method.
    *
-   * @param conf Alluxio configuration
+   * @param alluxioConf alluxio conf
    */
-  public AlluxioDelegationTokenIdentifier(AlluxioConfiguration conf) {
-    mConf = conf;
+  public static void setConfiguration(AlluxioConfiguration alluxioConf) {
+    sConf.set(alluxioConf);
   }
+
+  /**
+   * Default constructor.
+   */
+  public AlluxioDelegationTokenIdentifier() {}
 
   /**
    * Creates an HDFS delegation token identifier based on Alluxio delegation token identifier.
@@ -62,7 +68,7 @@ public class AlluxioDelegationTokenIdentifier extends AbstractDelegationTokenIde
     // somehow, it will take 68 years to overflow if one token is generated per second.
     setMasterKeyId((int) mAlluxioTokenId.getMasterKeyId());
     setSequenceNumber((int) mAlluxioTokenId.getSequenceNumber());
-    mConf = conf;
+    sConf.set(conf);
   }
 
   /**
@@ -101,10 +107,11 @@ public class AlluxioDelegationTokenIdentifier extends AbstractDelegationTokenIde
 
   @Override
   public void readFields(DataInput in) throws IOException {
+    Preconditions.checkArgument(sConf.get() != null, "No running Alluxio configuration found");
     super.readFields(in);
     byte[] buffer = WritableUtils.readCompressedByteArray(in);
     mAlluxioTokenId = DelegationTokenIdentifier.fromByteArray(buffer,
-        mConf.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
+        sConf.get().get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
   }
 
   @Override

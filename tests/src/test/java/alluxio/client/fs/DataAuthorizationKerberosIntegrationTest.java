@@ -36,7 +36,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
@@ -45,12 +44,10 @@ import java.io.File;
 /**
  * Integration tests for data authorization with Kerberos.
  */
-@Ignore
-// TODO(ggezer) EE-SEC reactivate after gRPC kerberos.
 public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrationTest {
   private static final String TMP_DIR = "/tmp";
-  private static final String HOSTNAME = NetworkAddressUtils
-      .getLocalHostName(ServerConfiguration.getInt(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
+  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName(
+      (int) ServerConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
 
   private static MiniKdc sKdc;
   private static File sWorkDir;
@@ -122,7 +119,7 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
     Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
     CreateFilePOptions options = CreateFilePOptions.newBuilder().setMode(mode.toProto())
-        .setWriteType(WritePType.MUST_CACHE).build();
+        .setWriteType(WritePType.MUST_CACHE).setRecursive(true).build();
     try (FileOutStream outStream = sFileSystem.createFile(uri, options)) {
       outStream.write(1);
     }
@@ -135,7 +132,7 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
     Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
     CreateFilePOptions options = CreateFilePOptions.newBuilder().setMode(mode.toProto())
-        .setWriteType(WritePType.MUST_CACHE).setBlockSizeBytes(8).build();
+        .setWriteType(WritePType.MUST_CACHE).setBlockSizeBytes(8).setRecursive(true).build();
     try (FileOutStream outStream = sFileSystem.createFile(uri, options)) {
       outStream.write(1);
       sLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class)
@@ -153,7 +150,7 @@ public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrat
     Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
     CreateFilePOptions options = CreateFilePOptions.newBuilder().setMode(mode.toProto())
-        .setWriteType(WritePType.MUST_CACHE).build();
+        .setWriteType(WritePType.MUST_CACHE).setRecursive(true).build();
     try (FileOutStream outStream = sFileSystem.createFile(uri, options)) {
       outStream.write(1);
     }

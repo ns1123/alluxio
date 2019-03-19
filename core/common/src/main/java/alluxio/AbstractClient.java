@@ -195,7 +195,9 @@ public abstract class AbstractClient implements Client {
     disconnect();
     Preconditions.checkState(!mClosed, "Client is closed, will not try to connect.");
 
+    AlluxioStatusException connectFailReason = null;
     RetryPolicy retryPolicy = mRetryPolicySupplier.get();
+
     while (retryPolicy.attempt()) {
       if (mClosed) {
         throw new FailedPreconditionException("Failed to connect: client has been closed");
@@ -234,6 +236,7 @@ public abstract class AbstractClient implements Client {
           // the authentication credential has expired. Relogin. This is a no-op for
           // authTypes other than KERBEROS.
           alluxio.security.LoginUser.relogin(mContext.getConf());
+          connectFailReason = (AlluxioStatusException) e;
         }
         // ALLUXIO CS END
       }
@@ -249,6 +252,11 @@ public abstract class AbstractClient implements Client {
           String.format("Failed to determine address for %s after %s attempts", getServiceName(),
               retryPolicy.getAttemptCount()));
     }
+
+    if (connectFailReason != null) {
+      throw connectFailReason;
+    }
+
     throw new UnavailableException(String.format("Failed to connect to %s @ %s after %s attempts",
         getServiceName(), mAddress, retryPolicy.getAttemptCount()));
   }

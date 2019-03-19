@@ -28,8 +28,9 @@ import alluxio.master.MasterClientContext;
 import alluxio.master.MasterInquireClient;
 import alluxio.metrics.MetricsSystem;
 import alluxio.resource.CloseableResource;
+import alluxio.security.authentication.AuthenticationUserUtils;
+import alluxio.security.capability.CapabilityToken;
 import alluxio.util.IdUtils;
-import alluxio.security.authentication.SaslParticipantProviderUtils;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.ThreadUtils;
 import alluxio.util.network.NettyUtils;
@@ -51,6 +52,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -395,8 +398,19 @@ public final class FileSystemContext implements Closeable {
   public BlockWorkerClient acquireBlockWorkerClient(final WorkerNetAddress workerNetAddress,
       final alluxio.proto.security.CapabilityProto.Capability channelCapability)
       throws IOException {
-    // TODO(ggezer) EE-SEC: use channelCapability as channel key
-    return acquireBlockWorkerClient(workerNetAddress);
+    if (getConf().get(PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())
+        && getConf().getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+      // Embed the capability into a {@link Subject} as {@link Token}.
+      java.util.Set<alluxio.security.authentication.Token> privCredentials = new HashSet<>();
+      privCredentials.add(CapabilityToken.create(channelCapability));
+      Subject capabilitySubject =
+          new Subject(true, Collections.emptySet(), Collections.emptySet(), privCredentials);
+      // Channel building logic knows how to handle subjects with embedded tokens.
+      return acquireBlockWorkerClientInternal(workerNetAddress, capabilitySubject);
+    } else {
+      return acquireBlockWorkerClientInternal(workerNetAddress, mClientContext.getSubject());
+    }
   }
   // ALLUXIO CS END
 
@@ -410,14 +424,20 @@ public final class FileSystemContext implements Closeable {
    */
   public BlockWorkerClient acquireBlockWorkerClient(final WorkerNetAddress workerNetAddress)
       throws IOException {
-    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress,
-        getConf());
+    return acquireBlockWorkerClientInternal(workerNetAddress, mClientContext.getSubject());
+  }
+
+  private BlockWorkerClient acquireBlockWorkerClientInternal(
+      final WorkerNetAddress workerNetAddress, final Subject subject) throws IOException {
+    SocketAddress address =
+        NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress, getConf());
     ClientPoolKey key = new ClientPoolKey(address,
-        SaslParticipantProviderUtils.getImpersonationUser(mClientContext.getSubject(), getConf()));
-    return mBlockWorkerClientPool.computeIfAbsent(key, k ->
-        new BlockWorkerClientPool(mClientContext.getSubject(), address,
-        getConf().getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE), getConf(), mWorkerGroup)
-    ).acquire();
+        AuthenticationUserUtils.getImpersonationUser(subject, getConf()));
+    return mBlockWorkerClientPool
+        .computeIfAbsent(key,
+            k -> new BlockWorkerClientPool(subject, address,
+                getConf().getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE), getConf(), mWorkerGroup))
+        .acquire();
   }
 
   /**
@@ -431,7 +451,7 @@ public final class FileSystemContext implements Closeable {
     SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress,
         getConf());
     ClientPoolKey key = new ClientPoolKey(address,
-        SaslParticipantProviderUtils.getImpersonationUser(mClientContext.getSubject(), getConf()));
+        AuthenticationUserUtils.getImpersonationUser(mClientContext.getSubject(), getConf()));
     if (mBlockWorkerClientPool.containsKey(key)) {
       mBlockWorkerClientPool.get(key).release(client);
     } else {

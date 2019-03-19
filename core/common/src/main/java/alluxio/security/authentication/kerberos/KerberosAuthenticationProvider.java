@@ -9,7 +9,9 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.security.authentication;
+package alluxio.security.authentication.kerberos;
+
+import alluxio.security.authentication.AuthenticationProvider;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.security.sasl.AuthenticationException;
@@ -19,7 +21,7 @@ import javax.security.sasl.AuthenticationException;
  * The real authentication is conducted via SASL GSSAPI.
  */
 @ThreadSafe
-public final class KerberosAuthenticationProvider implements AuthenticationProvider  {
+public final class KerberosAuthenticationProvider implements AuthenticationProvider {
   /**
    * Constructs a new Kerberos authentication provider.
    */
@@ -34,4 +36,3 @@ public final class KerberosAuthenticationProvider implements AuthenticationProvi
     // noop
   }
 }
-
