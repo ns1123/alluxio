@@ -42,7 +42,6 @@ import alluxio.master.file.contexts.DeleteContext;
 import alluxio.master.file.contexts.FreeContext;
 import alluxio.master.file.contexts.GetStatusContext;
 import alluxio.master.file.contexts.ListStatusContext;
-import alluxio.master.file.contexts.LoadMetadataContext;
 import alluxio.master.file.contexts.MountContext;
 import alluxio.master.file.contexts.RenameContext;
 import alluxio.master.file.contexts.SetAclContext;
@@ -350,13 +349,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public List<Long> getLostFiles() {
     return mFileSystemMaster.getLostFiles();
-  }
-
-  @Override
-  public long loadMetadata(AlluxioURI path, LoadMetadataContext context)
-      throws BlockInfoException, FileDoesNotExistException, InvalidPathException,
-      InvalidFileSizeException, FileAlreadyCompletedException, IOException, AccessControlException {
-    return mFileSystemMaster.loadMetadata(path, context);
   }
 
   @Override
