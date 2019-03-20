@@ -17,7 +17,7 @@ import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 /**
  * <pre>
- * The Secure RPC master service
+ * The Secure RPC worker service for master.
  * </pre>
  */
 @javax.annotation.Generated(
@@ -87,14 +87,14 @@ public final class SecureRpcMasterServiceGrpc {
 
   /**
    * <pre>
-   * The Secure RPC master service
+   * The Secure RPC worker service for master.
    * </pre>
    */
   public static abstract class SecureRpcMasterServiceImplBase implements io.grpc.BindableService {
 
     /**
      * <pre>
-     * Writes a new secret key to server
+     * Writes a new secret key to worker.
      * </pre>
      */
     public void writeSecretKey(alluxio.grpc.WriteSecretKeyPRequest request,
@@ -117,7 +117,7 @@ public final class SecureRpcMasterServiceGrpc {
 
   /**
    * <pre>
-   * The Secure RPC master service
+   * The Secure RPC worker service for master.
    * </pre>
    */
   public static final class SecureRpcMasterServiceStub extends io.grpc.stub.AbstractStub<SecureRpcMasterServiceStub> {
@@ -138,7 +138,7 @@ public final class SecureRpcMasterServiceGrpc {
 
     /**
      * <pre>
-     * Writes a new secret key to server
+     * Writes a new secret key to worker.
      * </pre>
      */
     public void writeSecretKey(alluxio.grpc.WriteSecretKeyPRequest request,
@@ -150,7 +150,7 @@ public final class SecureRpcMasterServiceGrpc {
 
   /**
    * <pre>
-   * The Secure RPC master service
+   * The Secure RPC worker service for master.
    * </pre>
    */
   public static final class SecureRpcMasterServiceBlockingStub extends io.grpc.stub.AbstractStub<SecureRpcMasterServiceBlockingStub> {
@@ -171,7 +171,7 @@ public final class SecureRpcMasterServiceGrpc {
 
     /**
      * <pre>
-     * Writes a new secret key to server
+     * Writes a new secret key to worker.
      * </pre>
      */
     public alluxio.grpc.WriteSecretKeyPResponse writeSecretKey(alluxio.grpc.WriteSecretKeyPRequest request) {
@@ -182,7 +182,7 @@ public final class SecureRpcMasterServiceGrpc {
 
   /**
    * <pre>
-   * The Secure RPC master service
+   * The Secure RPC worker service for master.
    * </pre>
    */
   public static final class SecureRpcMasterServiceFutureStub extends io.grpc.stub.AbstractStub<SecureRpcMasterServiceFutureStub> {
@@ -203,7 +203,7 @@ public final class SecureRpcMasterServiceGrpc {
 
     /**
      * <pre>
-     * Writes a new secret key to server
+     * Writes a new secret key to worker.
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<alluxio.grpc.WriteSecretKeyPResponse> writeSecretKey(

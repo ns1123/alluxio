@@ -19,11 +19,11 @@ import alluxio.grpc.WriteResponse;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.WorkerMetrics;
 import alluxio.security.authentication.AuthenticatedUserInfo;
+import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.worker.block.BlockWorker;
 
 import com.google.common.base.Preconditions;
 
-import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 
 import org.slf4j.Logger;
@@ -104,7 +104,7 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
 
   @Override
   protected void writeBuf(BlockWriteRequestContext context,
-      StreamObserver<WriteResponse> observer, ByteString buf, long pos) throws Exception {
+      StreamObserver<WriteResponse> observer, DataBuffer buf, long pos) throws Exception {
     Preconditions.checkState(context != null);
     WriteRequest request = context.getRequest();
     long bytesReserved = context.getBytesReserved();
@@ -122,9 +122,8 @@ public final class BlockWriteHandler extends AbstractWriteHandler<BlockWriteRequ
       context.setMeter(MetricsSystem.meter(WorkerMetrics.BYTES_WRITTEN_ALLUXIO_THROUGHPUT));
     }
     Preconditions.checkState(context.getBlockWriter() != null);
-    int sz = buf.size();
-    Preconditions.checkState(
-        context.getBlockWriter().append(buf.asReadOnlyByteBuffer())  == sz);
+    int sz = buf.readableBytes();
+    Preconditions.checkState(context.getBlockWriter().append(buf)  == sz);
   }
   // ALLUXIO CS ADD
   @Override

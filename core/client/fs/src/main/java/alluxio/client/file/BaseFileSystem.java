@@ -44,7 +44,6 @@ import alluxio.grpc.FreePOptions;
 import alluxio.grpc.GetStatusPOptions;
 import alluxio.grpc.GrpcUtils;
 import alluxio.grpc.ListStatusPOptions;
-import alluxio.grpc.LoadMetadataPOptions;
 import alluxio.grpc.MountPOptions;
 import alluxio.grpc.OpenFilePOptions;
 import alluxio.grpc.RenamePOptions;
@@ -606,45 +605,6 @@ public class BaseFileSystem implements FileSystem {
     return alluxio.client.LayoutUtils.fromFooterMetadata(fileId, fileMetadata, cryptoKey);
   }
   // ALLUXIO CS END
-
-  /**
-   * {@inheritDoc}
-   *
-   * @deprecated since version 1.1 and will be removed in version 2.0
-   */
-  @Deprecated
-  @Override
-  public void loadMetadata(AlluxioURI path)
-      throws FileDoesNotExistException, IOException, AlluxioException {
-    loadMetadata(path, LoadMetadataPOptions.getDefaultInstance());
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @deprecated since version 1.1 and will be removed in version 2.0
-   */
-  @Deprecated
-  @Override
-  public void loadMetadata(AlluxioURI path, LoadMetadataPOptions options)
-      throws FileDoesNotExistException, IOException, AlluxioException {
-//    checkUri(path);
-//    options = FileSystemOptions.loadMetadataDefaults(mFsContext.getConf())
-//         .toBuilder().mergeFrom(options).build();
-//    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-//    try {
-//      masterClient.loadMetadata(path, options);
-//      LOG.debug("Loaded metadata {}, options: {}", path.getPath(), options);
-//    } catch (NotFoundException e) {
-//      throw new FileDoesNotExistException(e.getMessage());
-//    } catch (UnavailableException e) {
-//      throw e;
-//    } catch (AlluxioStatusException e) {
-//      throw e.toAlluxioException();
-//    } finally {
-//      mFsContext.releaseMasterClient(masterClient);
-//    }
-  }
 
   @Override
   public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath)
