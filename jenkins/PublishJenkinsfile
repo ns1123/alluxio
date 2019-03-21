@@ -93,7 +93,7 @@ pipeline {
                     returnStdout: true
                 ).trim()
                 def tarballs = sh (
-                    script: "ls alluxio-*",
+                    script: "ls alluxio-enterprise-*.tar.gz",
                     returnStdout: true
                 ).trim()
                 tarballs.split().each {
