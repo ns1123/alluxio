@@ -39,18 +39,17 @@ public final class AuthenticatedClientUser {
    */
   private static ThreadLocal<User> sUserThreadLocal = new ThreadLocal<>();
 
-  // ALLUXIO CS ADD
   /**
    * A {@link ThreadLocal} variable to maintain the connection user along with a specific thread.
    */
   private static ThreadLocal<User> sConnectionUserThreadLocal = new ThreadLocal<>();
 
   /**
-   * A {@link ThreadLocal} variable to maintain the authentication method along with a specific thread.
+   * A {@link ThreadLocal} variable to maintain the authentication method along with a specific
+   * thread.
    */
   private static ThreadLocal<String> sConnectionAuthMethod = new ThreadLocal<>();
 
-  // ALLUXIO CS END
   /**
    * Creates a {@link User} and sets it to the {@link ThreadLocal} variable.
    *
@@ -69,7 +68,6 @@ public final class AuthenticatedClientUser {
     sUserThreadLocal.set(user);
   }
 
-  // ALLUXIO CS ADD
   /**
    * Creates a connection {@link User} and sets it to the {@link ThreadLocal} variable.
    *
@@ -88,7 +86,6 @@ public final class AuthenticatedClientUser {
     sConnectionAuthMethod.set(authMethod);
   }
 
-  // ALLUXIO CS END
   /**
    * Gets the {@link User} from the {@link ThreadLocal} variable.
    *
@@ -131,7 +128,6 @@ public final class AuthenticatedClientUser {
     }
   }
 
-  // ALLUXIO CS ADD
   /**
    * Gets the connection user name from the {@link ThreadLocal} variable.
    *
@@ -164,7 +160,6 @@ public final class AuthenticatedClientUser {
     return sConnectionAuthMethod.get();
   }
 
-  // ALLUXIO CS END
   /**
    * Removes the {@link User} from the {@link ThreadLocal} variable.
    */

@@ -8,8 +8,10 @@ package alluxio.grpc.file;
 
 import "grpc/common.proto";
 import "grpc/fscommon.proto";
+// ALLUXIO CS ADD
 import "proto/security/delegation_token_proto.proto";
 import "proto/security/capability_proto.proto";
+// ALLUXIO CS END
 
 enum WritePType {
   MUST_CACHE = 1;
@@ -593,8 +595,8 @@ service FileSystemMasterClientService {
    * Updates the ufs mode for a ufs path under one or more mount points.
    */
   rpc UpdateUfsMode(UpdateUfsModePRequest) returns (UpdateUfsModePResponse);
-
   // ALLUXIO CS ADD
+
   /**
    * Returns the delegation token for the client user.
    */

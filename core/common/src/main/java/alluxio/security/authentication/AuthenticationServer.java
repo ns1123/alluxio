@@ -31,21 +31,21 @@ public interface AuthenticationServer extends BindableService {
    * @param userInfo authanticated user info
    * @param saslServer server that has been used for authentication
    */
-  public void registerChannel(UUID channelId, AuthenticatedUserInfo userInfo, SaslServer saslServer);
+  void registerChannel(UUID channelId, AuthenticatedUserInfo userInfo, SaslServer saslServer);
 
   /**
    * @param channelId channel id
    * @return info of user that is authenticated with the given channel
    * @throws UnauthenticatedException if given channel is not registered
    */
-  public AuthenticatedUserInfo getUserInfoForChannel(UUID channelId) throws UnauthenticatedException;
+  AuthenticatedUserInfo getUserInfoForChannel(UUID channelId) throws UnauthenticatedException;
 
   /**
    * Unregisters given channel.
    *
    * @param channelId channel id
    */
-  public void unregisterChannel(UUID channelId);
+  void unregisterChannel(UUID channelId);
 
   /**
    * Creates server-side Sasl handler for given scheme.
@@ -55,6 +55,6 @@ public interface AuthenticationServer extends BindableService {
    * @throws SaslException
    * @throws UnauthenticatedException
    */
-  public SaslServerHandler createSaslHandler(ChannelAuthenticationScheme scheme)
+  SaslServerHandler createSaslHandler(ChannelAuthenticationScheme scheme)
       throws SaslException, UnauthenticatedException;
 }

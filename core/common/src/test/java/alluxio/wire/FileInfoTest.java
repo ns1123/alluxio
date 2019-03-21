@@ -139,11 +139,8 @@ public class FileInfoTest {
     for (int i = 0; i < numFileBlockInfos; i++) {
       fileBlocksInfos.add(FileBlockInfoTest.createRandom());
     }
-    // ALLUXIO CS ADD
     int replicationMax = random.nextInt(10);
     int replicationMin = random.nextInt(10);
-    boolean encrypted = random.nextBoolean();
-    // ALLUXIO CS END
 
     result.setBlockIds(blockIds);
     result.setBlockSizeBytes(blockSizeBytes);
@@ -162,7 +159,7 @@ public class FileInfoTest {
     result.setReplicationMax(replicationMax);
     result.setReplicationMin(replicationMin);
     // ALLUXIO CS ADD
-    result.setEncrypted(encrypted);
+    result.setEncrypted(random.nextBoolean());
     // ALLUXIO CS END
     result.setName(name);
     result.setOwner(userName);

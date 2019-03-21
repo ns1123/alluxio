@@ -15,7 +15,6 @@ import alluxio.AbstractMasterClient;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.exception.status.AlluxioStatusException;
-import alluxio.grpc.CancelDelegationTokenPRequest;
 import alluxio.grpc.CheckConsistencyPOptions;
 import alluxio.grpc.CheckConsistencyPRequest;
 import alluxio.grpc.CompleteFilePOptions;
@@ -24,7 +23,6 @@ import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateDirectoryPRequest;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.CreateFilePRequest;
-import alluxio.grpc.DelegationToken;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.DeletePRequest;
 import alluxio.grpc.FileSystemMasterClientServiceGrpc;
@@ -202,12 +200,16 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   public long renewDelegationToken(
       alluxio.security.authentication.Token<DelegationTokenIdentifier> token)
       throws AlluxioStatusException {
-    return retryRPC(() -> mClient
-        .renewDelegationToken(alluxio.grpc.RenewDelegationTokenPRequest.newBuilder()
-            .setToken(DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
-                .setPassword(ByteString.copyFrom(token.getPassword())))
-            .build())
-        .getExpirationTimeMs(), "RenewDelegationToken");
+    return retryRPC(
+        () -> mClient
+            .renewDelegationToken(
+                alluxio.grpc.RenewDelegationTokenPRequest.newBuilder()
+                    .setToken(alluxio.grpc.DelegationToken.newBuilder()
+                        .setIdentifier(token.getId().toProto())
+                        .setPassword(ByteString.copyFrom(token.getPassword())))
+                    .build())
+            .getExpirationTimeMs(),
+        "RenewDelegationToken");
   }
 
   @Override
@@ -215,9 +217,10 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
       alluxio.security.authentication.Token<DelegationTokenIdentifier> token)
       throws AlluxioStatusException {
     retryRPC(
-        () -> mClient.cancelDelegationToken(CancelDelegationTokenPRequest.newBuilder()
-            .setToken(DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
-                .setPassword(ByteString.copyFrom(token.getPassword())))
+        () -> mClient.cancelDelegationToken(alluxio.grpc.CancelDelegationTokenPRequest.newBuilder()
+            .setToken(
+                alluxio.grpc.DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
+                    .setPassword(ByteString.copyFrom(token.getPassword())))
             .build()),
         "CancelDelegationToken");
   }

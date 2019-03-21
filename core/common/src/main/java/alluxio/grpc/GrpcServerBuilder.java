@@ -15,7 +15,11 @@ import alluxio.security.authentication.AuthenticatedUserInjector;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.security.authentication.AuthenticationServer;
+// ALLUXIO CS REPLACE
+// import alluxio.security.authentication.DefaultAuthenticationServer;
+// ALLUXIO CS WITH
 import alluxio.security.authentication.EnterpriseAuthenticationServer;
+// ALLUXIO CS END
 import alluxio.util.SecurityUtils;
 
 import io.grpc.ServerInterceptor;

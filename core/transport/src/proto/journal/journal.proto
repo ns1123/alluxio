@@ -11,7 +11,6 @@ import "proto/journal/license.proto";
 import "proto/journal/privilege.proto";
 // ALLUXIO CS END
 
-
 // Wraps around all types of Alluxio journal entries.
 //
 // NOTE: Exactly one of the *Entry entries is expected to be set. Ideally we would use the 'oneof'

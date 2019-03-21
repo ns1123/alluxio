@@ -4530,7 +4530,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.security.login.impersonation.username";
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
     public static final String AUTHENTICATION_INACTIVE_CHANNEL_REAUTHENTICATE_PERIOD =
-            "alluxio.security.stale.channel.purge.interval";
+        "alluxio.security.stale.channel.purge.interval";
     // ALLUXIO CS ADD
 
     public static final String SECURITY_AUTHENTICATION_DELEGATION_TOKEN_KEY_LIFETIME_MS =

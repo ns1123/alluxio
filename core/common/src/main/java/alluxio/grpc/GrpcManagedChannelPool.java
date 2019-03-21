@@ -233,7 +233,7 @@ public class GrpcManagedChannelPool {
       channelBuilder.eventLoopGroup(channelKey.mEventLoopGroup.get());
     }
     // ALLUXIO CS REPLACE
-    //channelBuilder.usePlaintext();
+    // channelBuilder.usePlaintext();
     // ALLUXIO CS WITH
     if (channelKey.mSslContext.isPresent()) {
       channelBuilder.sslContext(channelKey.mSslContext.get());

@@ -45,7 +45,6 @@ public class MigrateConfig implements JobConfig {
    *        overwritten by the source
    * @param deleteSource whether to delete the source path after migration
    */
-
   public MigrateConfig(@JsonProperty("source") String source,
                        @JsonProperty("destination") String dst,
                        @JsonProperty("writeType") String writeType,

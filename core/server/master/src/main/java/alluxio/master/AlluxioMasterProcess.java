@@ -297,8 +297,8 @@ public class AlluxioMasterProcess extends MasterProcess {
       stopRejectingRpcServer();
       LOG.info("Starting gRPC server on address {}", mRpcBindAddress);
       // ALLUXIO CS REPLACE
-      //GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(
-      //    mRpcConnectAddress.getHostName(), mRpcBindAddress, ServerConfiguration.global());
+      // GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(
+      //     mRpcConnectAddress.getHostName(), mRpcBindAddress, ServerConfiguration.global());
       // ALLUXIO CS WITH
       GrpcServerBuilder serverBuilder =
           GrpcServerBuilder.forAddress(mRpcConnectAddress.getHostName(), mRpcBindAddress,

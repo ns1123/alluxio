@@ -15,9 +15,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import alluxio.ConfigurationTestUtils;
-import alluxio.conf.InstancedConfiguration;
-
 import org.junit.Test;
 
 import java.util.Set;
@@ -36,7 +33,8 @@ public final class UserTest {
       new alluxio.security.util.KerberosNameRule(alluxio.Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL,
           TEST_REALM);
 
-  private InstancedConfiguration mConfiguration = ConfigurationTestUtils.defaults();
+  private alluxio.conf.InstancedConfiguration mConfiguration =
+      alluxio.ConfigurationTestUtils.defaults();
   // ALLUXIO CS END
 
   /**

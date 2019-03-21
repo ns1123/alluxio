@@ -17,8 +17,6 @@ import alluxio.conf.PropertyKey;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.TieredIdentity;
 
-import com.google.common.base.Objects;
-
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Optional;
@@ -71,12 +69,12 @@ public final class TieredIdentityUtils {
 
   // ALLUXIO CS REPLACE
   // /**
-  // * @param tieredIdentity the tiered identity
-  // * @param identities the tiered identities to compare to
-  // * @param conf Alluxio configuration
-  // * @return the identity closest to this one. If none of the identities match, the first identity
-  // *         is returned
-  // */
+  //  * @param tieredIdentity the tiered identity
+  //  * @param identities the tiered identities to compare to
+  //  * @param conf Alluxio configuration
+  //  * @return the identity closest to this one. If none of the identities match, the first identity
+  //  *         is returned
+  //  */
   // ALLUXIO CS WITH
   /**
    *
@@ -127,11 +125,10 @@ public final class TieredIdentityUtils {
       if (conf.isSet(strictKey)
           && conf.getBoolean(strictKey)) {
         for (TieredIdentity.LocalityTier tier : other.getTiers()) {
-          if (Objects.equal(tier.getTierName(), t.getTierName())) {
+          if (com.google.common.base.Objects.equal(tier.getTierName(), t.getTierName())) {
             // unspecified locality != unspecified locality
-            if (tier.getValue() == null
-                || t.getValue() == null
-                || !Objects.equal(tier.getValue(), t.getValue())) {
+            if (tier.getValue() == null || t.getValue() == null
+                || !com.google.common.base.Objects.equal(tier.getValue(), t.getValue())) {
               return false;
             }
           }

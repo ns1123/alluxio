@@ -21,8 +21,6 @@ import alluxio.grpc.SaslAuthenticationServiceGrpc;
 import alluxio.grpc.SaslMessage;
 import alluxio.grpc.GrpcChannelBuilder;
 
-import com.google.common.base.Preconditions;
-import com.google.common.net.HostAndPort;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -35,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.UUID;
 
@@ -192,9 +189,11 @@ public class ChannelAuthenticator {
           return ChannelAuthenticationScheme.CUSTOM;
         // ALLUXIO CS ADD
         case KERBEROS:
-          Preconditions.checkArgument(serverAddress instanceof InetSocketAddress, String.format(
-                  "Need an Inet host for auth type: %s. Found: %s", mAuthType, serverAddress.getClass()));
-          InetSocketAddress serverInetAddress = (InetSocketAddress) serverAddress;
+          com.google.common.base.Preconditions.checkArgument(
+              serverAddress instanceof java.net.InetSocketAddress,
+              String.format("Need an Inet host for auth type: %s. Found: %s", mAuthType,
+                  serverAddress.getClass()));
+          java.net.InetSocketAddress serverInetAddress = (java.net.InetSocketAddress) serverAddress;
 
           // Check if the subject contains a capability token.
           if (subject != null) {
@@ -223,7 +222,7 @@ public class ChannelAuthenticator {
           // ALLUXIO CS END
         default:
           throw new UnauthenticatedException(String.format(
-                  "Configured authentication type is not supported: %s", mAuthType.getAuthName()));
+              "Configured authentication type is not supported: %s", mAuthType.getAuthName()));
       }
     }
 
@@ -250,29 +249,36 @@ public class ChannelAuthenticator {
           }
           // ALLUXIO CS ADD
         case KERBEROS:
-          Preconditions.checkArgument(serverAddress instanceof InetSocketAddress,
-                  String.format("Need an Inet host for auth scheme:%s. Found: %s.", authScheme,
-                          serverAddress.getClass()));
-          InetSocketAddress serverInetAddress = (InetSocketAddress) serverAddress;
+          com.google.common.base.Preconditions.checkArgument(
+              serverAddress instanceof java.net.InetSocketAddress,
+              String.format("Need an Inet host for auth scheme:%s. Found: %s.", authScheme,
+                  serverAddress.getClass()));
+          java.net.InetSocketAddress serverInetAddress = (java.net.InetSocketAddress) serverAddress;
           return new alluxio.security.authentication.kerberos.SaslClientHandlerKerberos(null,
                   serverInetAddress, mConfiguration);
         case DELEGATION_TOKEN:
-          Preconditions.checkArgument(serverAddress instanceof InetSocketAddress,
-                  String.format("Need an Inet host for auth scheme:%s. Found: %s.", authScheme,
-                          serverAddress.getClass()));
-          InetSocketAddress serverInetAddress2 = (InetSocketAddress) serverAddress;
+          com.google.common.base.Preconditions.checkArgument(
+              serverAddress instanceof java.net.InetSocketAddress,
+              String.format("Need an Inet host for auth scheme:%s. Found: %s.", authScheme,
+                  serverAddress.getClass()));
+          java.net.InetSocketAddress serverInetAddress2 =
+              (java.net.InetSocketAddress) serverAddress;
 
           alluxio.security.authentication.Token<DelegationTokenIdentifier> token =
-                  alluxio.security.util.KerberosUtils.getDelegationToken(subject,
-                          HostAndPort.fromParts(serverInetAddress2.getAddress().getHostAddress(),
-                                  serverInetAddress2.getPort()).toString());
+              alluxio.security.util.KerberosUtils.getDelegationToken(subject,
+                  com.google.common.net.HostAndPort
+                      .fromParts(serverInetAddress2.getAddress().getHostAddress(),
+                          serverInetAddress2.getPort())
+                      .toString());
           return new alluxio.security.authentication.token.SaslClientHandlerToken(token,
                   serverInetAddress2);
         case CAPABILITY_TOKEN:
-          Preconditions.checkArgument(serverAddress instanceof InetSocketAddress,
-                  String.format("Need an Inet host for auth scheme:%s. Found: %s.", authScheme,
-                          serverAddress.getClass()));
-          InetSocketAddress serverInetAddress3 = (InetSocketAddress) serverAddress;
+          com.google.common.base.Preconditions.checkArgument(
+              serverAddress instanceof java.net.InetSocketAddress,
+              String.format("Need an Inet host for auth scheme:%s. Found: %s.", authScheme,
+                  serverAddress.getClass()));
+          java.net.InetSocketAddress serverInetAddress3 =
+              (java.net.InetSocketAddress) serverAddress;
 
           // Extract capability token from subject
           alluxio.security.authentication.Token<?> capabilityToken =

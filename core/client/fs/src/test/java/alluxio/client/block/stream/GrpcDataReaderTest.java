@@ -79,12 +79,12 @@ public final class GrpcDataReaderTest {
 
     mClient = mock(BlockWorkerClient.class);
     mRequestObserver = mock(ClientCallStreamObserver.class);
-    // ALLUXIO REPLACE
-    //when(mContext.acquireBlockWorkerClient(mAddress)).thenReturn(mClient);
-    // ALLUXIO WITH
+    // ALLUXIO CS REPLACE
+    // when(mContext.acquireBlockWorkerClient(mAddress)).thenReturn(mClient);
+    // ALLUXIO CS WITH
     when(mContext.acquireBlockWorkerClient(org.mockito.Matchers.eq(mAddress),
         any(alluxio.proto.security.CapabilityProto.Capability.class))).thenReturn(mClient);
-    // ALLUXIO END
+    // ALLUXIO CS END
     PowerMockito.doNothing().when(mContext).releaseBlockWorkerClient(mAddress, mClient);
     when(mClient.readBlock(any(StreamObserver.class))).thenReturn(mRequestObserver);
     when(mRequestObserver.isReady()).thenReturn(true);

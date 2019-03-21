@@ -29,7 +29,6 @@ import alluxio.master.MasterInquireClient;
 import alluxio.metrics.MetricsSystem;
 import alluxio.resource.CloseableResource;
 import alluxio.security.authentication.AuthenticationUserUtils;
-import alluxio.security.capability.CapabilityToken;
 import alluxio.util.IdUtils;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.ThreadUtils;
@@ -52,8 +51,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -402,10 +399,11 @@ public final class FileSystemContext implements Closeable {
         .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())
         && getConf().getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
       // Embed the capability into a {@link Subject} as {@link Token}.
-      java.util.Set<alluxio.security.authentication.Token> privCredentials = new HashSet<>();
-      privCredentials.add(CapabilityToken.create(channelCapability));
-      Subject capabilitySubject =
-          new Subject(true, Collections.emptySet(), Collections.emptySet(), privCredentials);
+      java.util.Set<alluxio.security.authentication.Token> privCredentials =
+          new java.util.HashSet<>();
+      privCredentials.add(alluxio.security.capability.CapabilityToken.create(channelCapability));
+      Subject capabilitySubject = new Subject(true, java.util.Collections.emptySet(),
+          java.util.Collections.emptySet(), privCredentials);
       // Channel building logic knows how to handle subjects with embedded tokens.
       return acquireBlockWorkerClientInternal(workerNetAddress, capabilitySubject);
     } else {
@@ -433,10 +431,10 @@ public final class FileSystemContext implements Closeable {
         NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress, getConf());
     ClientPoolKey key = new ClientPoolKey(address,
         AuthenticationUserUtils.getImpersonationUser(subject, getConf()));
-    return mBlockWorkerClientPool
-        .computeIfAbsent(key,
-            k -> new BlockWorkerClientPool(subject, address,
-                getConf().getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE), getConf(), mWorkerGroup))
+    return mBlockWorkerClientPool.computeIfAbsent(key,
+        k -> new BlockWorkerClientPool(subject, address,
+            getConf().getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE), getConf(),
+            mWorkerGroup))
         .acquire();
   }
 

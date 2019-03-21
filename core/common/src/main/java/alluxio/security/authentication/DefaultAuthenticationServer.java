@@ -92,7 +92,8 @@ public class DefaultAuthenticationServer
   }
 
   @Override
-  public void registerChannel(UUID channelId, AuthenticatedUserInfo userInfo, SaslServer saslServer) {
+  public void registerChannel(UUID channelId, AuthenticatedUserInfo userInfo,
+      SaslServer saslServer) {
     LOG.debug("Registering new channel:{} for user:{}", channelId, userInfo);
     if (null != mChannels.putIfAbsent(channelId,
         new AuthenticatedChannelInfo(userInfo, saslServer))) {
@@ -104,7 +105,8 @@ public class DefaultAuthenticationServer
   }
 
   @Override
-  public AuthenticatedUserInfo getUserInfoForChannel(UUID channelId) throws UnauthenticatedException {
+  public AuthenticatedUserInfo getUserInfoForChannel(UUID channelId)
+      throws UnauthenticatedException {
     if (mChannels.containsKey(channelId)) {
       AuthenticatedChannelInfo clientInfo = mChannels.get(channelId);
       return clientInfo.getUserInfo();
@@ -195,7 +197,8 @@ public class DefaultAuthenticationServer
      * @param userInfo authenticated user info
      * @param authenticatedServer authenticated sasl server
      */
-    public AuthenticatedChannelInfo(AuthenticatedUserInfo userInfo, SaslServer authenticatedServer) {
+    public AuthenticatedChannelInfo(AuthenticatedUserInfo userInfo,
+        SaslServer authenticatedServer) {
       mUserInfo = userInfo;
       mAuthenticatedServer = authenticatedServer;
       mLastAccessTime = LocalTime.now();

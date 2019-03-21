@@ -53,6 +53,9 @@ public final class DistributedMvCommand extends AbstractFileSystemCommand {
     String[] args = cl.getArgs();
     AlluxioURI srcPath = new AlluxioURI(args[0]);
     AlluxioURI dstPath = new AlluxioURI(args[1]);
+    if (mFileSystem.exists(dstPath)) {
+      throw new RuntimeException(dstPath + " already exists");
+    }
     Thread thread = JobGrpcClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
     thread.start();
     try {

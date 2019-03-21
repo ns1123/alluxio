@@ -11,9 +11,6 @@
 
 package alluxio.security;
 
-import alluxio.conf.AlluxioConfiguration;
-import alluxio.conf.PropertyKey;
-
 import java.security.Principal;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -53,7 +50,7 @@ public final class User implements Principal {
    * @throws java.io.IOException if failed to parse Kerberos name to short name
    * @throws javax.security.auth.login.LoginException if the login failed
    */
-  public User(javax.security.auth.Subject subject, AlluxioConfiguration conf)
+  public User(javax.security.auth.Subject subject, alluxio.conf.AlluxioConfiguration conf)
       throws java.io.IOException,
       javax.security.auth.login.LoginException {
     mSubject = subject;
@@ -70,7 +67,8 @@ public final class User implements Principal {
         alluxio.security.util.KerberosName kerberosName =
             alluxio.security.util.KerberosUtils.extractKerberosNameFromSubject(subject);
         com.google.common.base.Preconditions.checkNotNull(kerberosName);
-        mName = kerberosName.getShortName(conf.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
+        mName = kerberosName
+            .getShortName(conf.get(alluxio.conf.PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
         return;
       }
       // Obtains name from Alluxio user in the subject if available.

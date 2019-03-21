@@ -22,8 +22,6 @@ import alluxio.network.ChannelType;
 import alluxio.util.network.NettyUtils;
 import alluxio.worker.DataServer;
 import alluxio.worker.WorkerProcess;
-import alluxio.worker.block.BlockWorker;
-import alluxio.worker.security.WorkerAuthenticationServer;
 
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
@@ -113,14 +111,16 @@ public final class GrpcDataServer implements DataServer {
   private GrpcServerBuilder createServerBuilder(String hostName,
       SocketAddress bindAddress, ChannelType type) {
     // ALLUXIO CS REPLACE
-    //GrpcServerBuilder builder =
-    //        GrpcServerBuilder.forAddress(hostName, bindAddress, ServerConfiguration.global());
+    // GrpcServerBuilder builder =
+    //     GrpcServerBuilder.forAddress(hostName, bindAddress, ServerConfiguration.global());
     // ALLUXIO CS WITH
-    GrpcServerBuilder builder = GrpcServerBuilder.forAddress(hostName, bindAddress,
-        new WorkerAuthenticationServer(hostName,
-            mWorkerProcess.getWorker(BlockWorker.class).getCapabilityCache(),
-            ServerConfiguration.global()),
-        ServerConfiguration.global());
+    GrpcServerBuilder builder =
+        GrpcServerBuilder.forAddress(hostName, bindAddress,
+            new alluxio.worker.security.WorkerAuthenticationServer(hostName,
+                mWorkerProcess.getWorker(alluxio.worker.block.BlockWorker.class)
+                    .getCapabilityCache(),
+                ServerConfiguration.global()),
+            ServerConfiguration.global());
     // ALLUXIO CS END
     int bossThreadCount = ServerConfiguration.getInt(PropertyKey.WORKER_NETWORK_NETTY_BOSS_THREADS);
 

@@ -32,7 +32,6 @@ import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.SetAttributePOptions;
-import alluxio.master.MasterInquireClient;
 import alluxio.master.MasterInquireClient.Factory;
 import alluxio.security.User;
 import alluxio.security.authorization.Mode;
@@ -518,7 +517,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       UserGroupInformation user = UserGroupInformation.getCurrentUser();
       if (!user.getTokens().isEmpty()) {
         String tokenService = buildTokenService(mUri, alluxioConf);
-        List<String> masters = MasterInquireClient.Factory.create(alluxioConf)
+        List<String> masters = alluxio.master.MasterInquireClient.Factory.create(alluxioConf)
             .getMasterRpcAddresses().stream().map(addr -> HostAndPort
                 .fromParts(addr.getAddress().getHostAddress(), addr.getPort()).toString())
             .collect(toList());
@@ -618,9 +617,9 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   //     String username = ugi.getShortUserName();
   //     if (username != null && !username.isEmpty()) {
   //       User user = new User(ugi.getShortUserName());
-  //        HashSet<Principal> principals = new HashSet<>();
-  //        principals.add(user);
-  //        return new Subject(false, principals, new HashSet<>(), new HashSet<>());
+  //       HashSet<Principal> principals = new HashSet<>();
+  //       principals.add(user);
+  //       return new Subject(false, principals, new HashSet<>(), new HashSet<>());
   //     }
   //     return null;
   //   } catch (IOException e) {

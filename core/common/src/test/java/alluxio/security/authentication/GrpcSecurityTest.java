@@ -20,7 +20,6 @@ import alluxio.grpc.GrpcServerBuilder;
 import alluxio.util.ConfigurationUtils;
 import alluxio.util.network.NetworkAddressUtils;
 
-import org.junit.Ignore;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +48,7 @@ public class GrpcSecurityTest {
 
   @Test
   // ALLUXIO CS ADD
-  @Ignore
+  @org.junit.Ignore
   // ALLUXIO CS END
   public void testServerUnsupportedAuthentication() {
     mThrown.expect(RuntimeException.class);

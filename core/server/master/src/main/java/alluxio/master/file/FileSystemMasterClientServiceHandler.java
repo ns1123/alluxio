@@ -96,7 +96,6 @@ import alluxio.grpc.SetAclAction;
 import alluxio.wire.SyncPointInfo;
 
 import com.google.common.base.Preconditions;
-import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,7 +211,7 @@ public final class FileSystemMasterClientServiceHandler
           return alluxio.grpc.GetDelegationTokenPResponse.newBuilder()
               .setToken(
                   alluxio.grpc.DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
-                      .setPassword(ByteString.copyFrom(token.getPassword())))
+                      .setPassword(com.google.protobuf.ByteString.copyFrom(token.getPassword())))
               .build();
         }, "GetDelegationToken", "request=%s", responseObserver, request);
   }

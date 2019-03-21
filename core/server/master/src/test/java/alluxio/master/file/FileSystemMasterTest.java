@@ -214,7 +214,7 @@ public final class FileSystemMasterTest {
     // doesn't exist by default (helps loadRootTest).
     mUnderFS = ServerConfiguration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
     // ALLUXIO CS REPLACE
-    // mNestedFileContext = CreateFileContext.defaults(
+    // mNestedFileContext = CreateFileContext.mergeFrom(
     //     CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB).setRecursive(true));
     // ALLUXIO CS WITH
     mNestedFileContext = CreateFileContext.mergeFrom(

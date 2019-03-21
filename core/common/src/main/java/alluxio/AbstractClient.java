@@ -230,15 +230,15 @@ public abstract class AbstractClient implements Client {
       } catch (IOException e) {
         LOG.warn("Failed to connect ({}) with {} @ {}: {}", retryPolicy.getAttemptCount(),
             getServiceName(), mAddress, e.getMessage());
-        // ALLUXIO CS ADD
         if (e instanceof UnauthenticatedException) {
+          // ALLUXIO CS ADD
           // If there has been a failure in opening GrpcChannel, it's possible because
           // the authentication credential has expired. Relogin. This is a no-op for
           // authTypes other than KERBEROS.
           alluxio.security.LoginUser.relogin(mContext.getConf());
+          // ALLUXIO CS END
           connectFailReason = (AlluxioStatusException) e;
         }
-        // ALLUXIO CS END
       }
     }
     // Reaching here indicates that we did not successfully connect.

@@ -12,7 +12,6 @@
 package alluxio.security;
 
 import alluxio.conf.AlluxioConfiguration;
-import alluxio.conf.InstancedConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
@@ -160,7 +159,8 @@ public final class LoginUser {
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
-          InstancedConfiguration updatedConf = new InstancedConfiguration(conf);
+          alluxio.conf.InstancedConfiguration updatedConf =
+              new alluxio.conf.InstancedConfiguration(conf);
           if (conf.isSet(principalKey)) {
             updatedConf.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, conf.get(principalKey));
           }
@@ -513,7 +513,6 @@ public final class LoginUser {
    * @param subject the {@link Subject} to use
    * @param classLoader the {@link ClassLoader} to use
    * @param configuration the {@link javax.security.auth.login.Configuration} to use
-   * @param alluxioConf Alluxio configuration
    * @param alluxioConf Alluxio configuration
    * @return the new {@link LoginContext} instance
    * @throws LoginException if LoginContext cannot be created

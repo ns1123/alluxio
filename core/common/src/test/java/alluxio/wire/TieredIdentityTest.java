@@ -19,7 +19,6 @@ import static org.junit.Assume.assumeTrue;
 
 import alluxio.ConfigurationTestUtils;
 import alluxio.conf.InstancedConfiguration;
-import alluxio.conf.PropertyKey;
 import alluxio.network.TieredIdentityFactory;
 import alluxio.util.CommonUtils;
 import alluxio.util.TieredIdentityUtils;
@@ -67,13 +66,13 @@ public class TieredIdentityTest {
         .nearest(TieredIdentityFactory.fromString("node=D,rack=rack3", mConfiguration), identities,
             mConfiguration).get());
     // ALLUXIO CS ADD
-    try (java.io.Closeable c = new alluxio.ConfigurationRule(
-        PropertyKey.Template.LOCALITY_TIER_STRICT.format(alluxio.Constants.LOCALITY_RACK),
-        "true", mConfiguration).toResource()) {
-      org.junit.Assert.assertFalse(
-          TieredIdentityUtils.nearest(
-              TieredIdentityFactory.fromString("node=D,rack=rack3", mConfiguration),
-              identities, mConfiguration).isPresent());
+    try (java.io.Closeable c =
+        new alluxio.ConfigurationRule(alluxio.conf.PropertyKey.Template.LOCALITY_TIER_STRICT
+            .format(alluxio.Constants.LOCALITY_RACK), "true", mConfiguration).toResource()) {
+      org.junit.Assert.assertFalse(TieredIdentityUtils
+          .nearest(TieredIdentityFactory.fromString("node=D,rack=rack3", mConfiguration),
+              identities, mConfiguration)
+          .isPresent());
     }
     // ALLUXIO CS END
   }

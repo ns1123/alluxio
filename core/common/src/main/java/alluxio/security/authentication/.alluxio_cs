@@ -1,5 +1,6 @@
 DelegationTokenIdentifier.java
 DelegationTokenManager.java
+EnterpriseAuthenticationServer.java
 KerberosLoginProvider.java
 MasterKeyManager.java
 Token.java

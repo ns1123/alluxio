@@ -134,7 +134,6 @@ import alluxio.security.authorization.AclEntry;
 import alluxio.security.authorization.AclEntryType;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.security.authorization.Mode;
-import alluxio.security.util.KerberosName;
 import alluxio.underfs.Fingerprint;
 import alluxio.underfs.Fingerprint.Tag;
 import alluxio.underfs.MasterUfsManager;
@@ -1451,7 +1450,7 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       createFileInternal(rpcContext, inodePath, context);
       auditContext.setSrcInode(inodePath.getInode()).setSucceeded(true);
       // ALLUXIO CS REPLACE
-      //return getFileInfoInternal(inodePath);
+      // return getFileInfoInternal(inodePath);
       // ALLUXIO CS WITH
       FileInfo fileInfo = getFileInfoInternal(inodePath);
       populateCapability(fileInfo, inodePath, Mode.Bits.READ);
@@ -3942,7 +3941,7 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
     String renewUser = null;
     try {
       if (renewer != null) {
-        renewUser = new KerberosName(renewer)
+        renewUser = new alluxio.security.util.KerberosName(renewer)
             .getShortName(ServerConfiguration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL));
       }
     } catch (IOException e) {
