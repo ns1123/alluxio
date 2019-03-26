@@ -18,12 +18,12 @@ import alluxio.security.authentication.SaslClientHandler;
 import alluxio.security.authentication.Token;
 import alluxio.security.capability.CapabilityToken;
 
+import java.util.HashMap;
+
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslClient;
 import javax.security.sasl.SaslException;
-import java.net.InetSocketAddress;
-import java.util.HashMap;
 
 /**
  * Creates {@link SaslClientHandler} instance for Delegation/Capability Tokens.
@@ -39,13 +39,13 @@ public class SaslClientHandlerToken implements SaslClientHandler {
    * Creates {@link SaslClientHandler} instance for Tokens.
    *
    * @param token a token
-   * @param serverAddress server address
+   * @param serverName server name
    * @throws UnauthenticatedException
    */
-  public SaslClientHandlerToken(Token<?> token,
-      InetSocketAddress serverAddress) throws UnauthenticatedException {
+  public SaslClientHandlerToken(Token<?> token, String serverName)
+      throws UnauthenticatedException {
     CallbackHandler cbHandler = new DigestClientCallbackHandler(token);
-    mSaslClient = createSaslClient(cbHandler, serverAddress.getAddress().getHostName());
+    mSaslClient = createSaslClient(cbHandler, serverName);
     // Only delegation/capability tokens are supported.
     if (token.getId() instanceof DelegationTokenIdentifier) {
       mAuthScheme = ChannelAuthenticationScheme.DELEGATION_TOKEN;

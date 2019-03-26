@@ -17,6 +17,7 @@ import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.grpc.ChannelAuthenticationScheme;
 import alluxio.exception.status.UnknownException;
+import alluxio.grpc.GrpcServerAddress;
 import alluxio.grpc.SaslAuthenticationServiceGrpc;
 import alluxio.grpc.SaslMessage;
 import alluxio.grpc.GrpcChannelBuilder;
@@ -108,7 +109,7 @@ public class ChannelAuthenticator {
    * @return channel that is augmented for authentication
    * @throws UnauthenticatedException
    */
-  public Channel authenticate(SocketAddress serverAddress, ManagedChannel managedChannel)
+  public Channel authenticate(GrpcServerAddress serverAddress, ManagedChannel managedChannel)
       throws AlluxioStatusException {
     LOG.debug("Channel authentication initiated. ChannelId:{}, AuthType:{}, Target:{}", mChannelId,
             mAuthType, managedChannel.authority());
@@ -121,12 +122,12 @@ public class ChannelAuthenticator {
   }
 
   private class AuthenticatedManagedChannel extends Channel implements AuthenticatedChannel {
-    private final SocketAddress mServerAddress;
+    private final GrpcServerAddress mServerAddress;
     private final ManagedChannel mManagedChannel;
     private Channel mChannel;
     private boolean mAuthenticated;
 
-    AuthenticatedManagedChannel(SocketAddress serverAddress, ManagedChannel managedChannel)
+    AuthenticatedManagedChannel(GrpcServerAddress serverAddress, ManagedChannel managedChannel)
         throws AlluxioStatusException {
       mServerAddress = serverAddress;
       mManagedChannel = managedChannel;
@@ -138,7 +139,7 @@ public class ChannelAuthenticator {
       try {
         // Determine channel authentication scheme to use.
         ChannelAuthenticationScheme authScheme =
-            getChannelAuthScheme(mParentSubject, mServerAddress);
+            getChannelAuthScheme(mParentSubject, mServerAddress.getSocketAddress());
         // Create SaslHandler for talking with target host's authentication service.
         SaslClientHandler saslClientHandler =
             createSaslClientHandler(mServerAddress, authScheme, mParentSubject);
@@ -189,12 +190,6 @@ public class ChannelAuthenticator {
           return ChannelAuthenticationScheme.CUSTOM;
         // ALLUXIO CS ADD
         case KERBEROS:
-          com.google.common.base.Preconditions.checkArgument(
-              serverAddress instanceof java.net.InetSocketAddress,
-              String.format("Need an Inet host for auth type: %s. Found: %s", mAuthType,
-                  serverAddress.getClass()));
-          java.net.InetSocketAddress serverInetAddress = (java.net.InetSocketAddress) serverAddress;
-
           // Check if the subject contains a capability token.
           if (subject != null) {
             alluxio.security.authentication.Token<?> capabilityToken =
@@ -205,20 +200,23 @@ public class ChannelAuthenticator {
             }
           }
           // Check if the subject contains a delegation token.
-          Token<DelegationTokenIdentifier> token =
-                  alluxio.security.util.KerberosUtils.getDelegationToken(subject,
-                          com.google.common.net.HostAndPort
-                                  .fromParts(serverInetAddress.getAddress().getHostAddress(),
-                                          serverInetAddress.getPort())
-                                  .toString());
-
-          if (token != null) {
-            LOG.debug("Delegation token found for subject {} and server {}: {}.", mParentSubject,
-                    serverInetAddress, token);
-            return ChannelAuthenticationScheme.DELEGATION_TOKEN;
-          } else {
-            return ChannelAuthenticationScheme.KERBEROS;
+          if (subject != null && serverAddress instanceof java.net.InetSocketAddress) {
+            java.net.InetSocketAddress serverInetAddress =
+                (java.net.InetSocketAddress) serverAddress;
+            Token<DelegationTokenIdentifier> token =
+                alluxio.security.util.KerberosUtils.getDelegationToken(subject,
+                    com.google.common.net.HostAndPort
+                        .fromParts(serverInetAddress.getAddress().getHostAddress(),
+                            serverInetAddress.getPort())
+                        .toString());
+            if (token != null) {
+              LOG.debug("Delegation token found for subject {} and server {}: {}.", mParentSubject,
+                  serverInetAddress, token);
+              return ChannelAuthenticationScheme.DELEGATION_TOKEN;
+            }
           }
+          // No token found.
+          return ChannelAuthenticationScheme.KERBEROS;
           // ALLUXIO CS END
         default:
           throw new UnauthenticatedException(String.format(
@@ -235,34 +233,29 @@ public class ChannelAuthenticator {
      * @return the created {@link SaslClientHandler} instance
      * @throws UnauthenticatedException
      */
-    private SaslClientHandler createSaslClientHandler(SocketAddress serverAddress,
+    private SaslClientHandler createSaslClientHandler(GrpcServerAddress serverAddress,
         ChannelAuthenticationScheme authScheme, Subject subject) throws UnauthenticatedException {
       switch (authScheme) {
         case SIMPLE:
         case CUSTOM:
           if (mUseSubject) {
             return new alluxio.security.authentication.plain.SaslClientHandlerPlain(mParentSubject,
-                    mConfiguration);
+                mConfiguration);
           } else {
             return new alluxio.security.authentication.plain.SaslClientHandlerPlain(mUserName,
-                    mPassword, mImpersonationUser);
+                mPassword, mImpersonationUser);
           }
-          // ALLUXIO CS ADD
+        // ALLUXIO CS ADD
         case KERBEROS:
-          com.google.common.base.Preconditions.checkArgument(
-              serverAddress instanceof java.net.InetSocketAddress,
-              String.format("Need an Inet host for auth scheme:%s. Found: %s.", authScheme,
-                  serverAddress.getClass()));
-          java.net.InetSocketAddress serverInetAddress = (java.net.InetSocketAddress) serverAddress;
           return new alluxio.security.authentication.kerberos.SaslClientHandlerKerberos(null,
-                  serverInetAddress, mConfiguration);
+              serverAddress.getHostName(), mConfiguration);
         case DELEGATION_TOKEN:
           com.google.common.base.Preconditions.checkArgument(
-              serverAddress instanceof java.net.InetSocketAddress,
+              serverAddress.getSocketAddress() instanceof java.net.InetSocketAddress,
               String.format("Need an Inet host for auth scheme:%s. Found: %s.", authScheme,
                   serverAddress.getClass()));
           java.net.InetSocketAddress serverInetAddress2 =
-              (java.net.InetSocketAddress) serverAddress;
+              (java.net.InetSocketAddress) serverAddress.getSocketAddress();
 
           alluxio.security.authentication.Token<DelegationTokenIdentifier> token =
               alluxio.security.util.KerberosUtils.getDelegationToken(subject,
@@ -271,26 +264,19 @@ public class ChannelAuthenticator {
                           serverInetAddress2.getPort())
                       .toString());
           return new alluxio.security.authentication.token.SaslClientHandlerToken(token,
-                  serverInetAddress2);
+              serverInetAddress2.getHostName());
         case CAPABILITY_TOKEN:
-          com.google.common.base.Preconditions.checkArgument(
-              serverAddress instanceof java.net.InetSocketAddress,
-              String.format("Need an Inet host for auth scheme:%s. Found: %s.", authScheme,
-                  serverAddress.getClass()));
-          java.net.InetSocketAddress serverInetAddress3 =
-              (java.net.InetSocketAddress) serverAddress;
-
           // Extract capability token from subject
           alluxio.security.authentication.Token<?> capabilityToken =
-                  alluxio.security.authentication.token.TokenUtils
-                          .getCapabilityTokenFromSubject(subject);
+              alluxio.security.authentication.token.TokenUtils
+                  .getCapabilityTokenFromSubject(subject);
 
           return new alluxio.security.authentication.token.SaslClientHandlerToken(capabilityToken,
-                  serverInetAddress3);
+              serverAddress.getHostName());
         // ALLUXIO CS END
         default:
           throw new UnauthenticatedException(
-                  String.format("Channel authentication scheme not supported: %s", authScheme.name()));
+              String.format("Channel authentication scheme not supported: %s", authScheme.name()));
       }
     }
 

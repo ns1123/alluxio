@@ -14,6 +14,7 @@ package alluxio.security.authentication;
 import alluxio.conf.InstancedConfiguration;
 import alluxio.grpc.GrpcChannelBuilder;
 import alluxio.grpc.GrpcServer;
+import alluxio.grpc.GrpcServerAddress;
 import alluxio.grpc.GrpcServerBuilder;
 import alluxio.conf.PropertyKey;
 import alluxio.security.LoginUserTestUtils;
@@ -141,11 +142,11 @@ public class GrpcKerberosSecurityTest {
     server.shutdown();
   }
 
-  private InetSocketAddress getServerConnectAddress(GrpcServer server) {
-    return new InetSocketAddress(
+  private GrpcServerAddress getServerConnectAddress(GrpcServer server) {
+    return new GrpcServerAddress(new InetSocketAddress(
         NetworkAddressUtils.getLocalHostName(
             (int) mConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS)),
-        server.getBindPort());
+        server.getBindPort()));
   }
 
   private GrpcServer createServer(AuthType authType) {

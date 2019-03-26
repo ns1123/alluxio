@@ -15,6 +15,7 @@ import alluxio.conf.AlluxioConfiguration;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.grpc.GrpcChannel;
 import alluxio.grpc.GrpcChannelBuilder;
+import alluxio.grpc.GrpcServerAddress;
 import alluxio.grpc.SecureRpcMasterServiceGrpc;
 import alluxio.grpc.WriteSecretKeyPRequest;
 import alluxio.proto.security.Key;
@@ -67,7 +68,7 @@ public class SecretKeyWriter {
   private static GrpcChannel buildSecureChannel(InetSocketAddress address,
       AlluxioConfiguration conf) throws AlluxioStatusException {
     // Create a gRPC channel with Ssl context.
-    return GrpcChannelBuilder.newBuilder(address, conf)
+    return GrpcChannelBuilder.newBuilder(new GrpcServerAddress(address), conf)
         .sslContext(SSLUtils.getSelfSignedClientSslContext()).build();
   }
 }

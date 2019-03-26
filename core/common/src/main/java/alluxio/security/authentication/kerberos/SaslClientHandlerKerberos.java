@@ -21,13 +21,13 @@ import alluxio.security.util.KerberosUtils;
 
 import com.google.common.base.Throwables;
 
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+
 import javax.security.auth.Subject;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslClient;
 import javax.security.sasl.SaslException;
-import java.net.InetSocketAddress;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 
 /**
  * Creates {@link SaslClientHandler} instance for Kerberos.
@@ -43,11 +43,11 @@ public class SaslClientHandlerKerberos implements SaslClientHandler {
    * Creates {@link SaslClientHandler} instance for Kerberos.
    *
    * @param subject client subject
-   * @param serverAddress target server address
+   * @param serverName server name
    * @param conf Alluxio configuration
    * @throws UnauthenticatedException
    */
-  public SaslClientHandlerKerberos(Subject subject, InetSocketAddress serverAddress,
+  public SaslClientHandlerKerberos(Subject subject, String serverName,
       AlluxioConfiguration conf) throws UnauthenticatedException {
     // Get the login user if given subject is null.
     if (subject == null) {
@@ -55,9 +55,9 @@ public class SaslClientHandlerKerberos implements SaslClientHandler {
     }
     mSubject = subject;
 
+    // Find instance name.
     String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName(conf);
-    final String instanceName = unifiedInstanceName != null ? unifiedInstanceName
-        : serverAddress.getAddress().getHostName();
+    final String instanceName = (unifiedInstanceName != null) ? unifiedInstanceName : serverName;
 
     // Determine the impersonation user
     String impersonationUser = AuthenticationUserUtils.getImpersonationUser(subject, conf);
