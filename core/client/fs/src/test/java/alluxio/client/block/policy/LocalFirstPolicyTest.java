@@ -120,6 +120,23 @@ public final class LocalFirstPolicyTest {
     assertEquals("node4", chosen.getTieredIdentity().getTier(0).getValue());
   }
 
+  // ALLUXIO CS ADD
+  @Test
+  public void respectStrictLocality() throws Exception {
+    try (java.io.Closeable c = new alluxio.ConfigurationRule(
+        alluxio.conf.PropertyKey.Template.LOCALITY_TIER_STRICT.format(Constants.LOCALITY_RACK),
+        "true", sConf)
+            .toResource()) {
+      List<BlockWorkerInfo> workers = new ArrayList<>();
+      workers.add(worker(Constants.GB, "node", "rack"));
+      LocalFirstPolicy policy = LocalFirstPolicy.create(sConf);
+      WorkerNetAddress chosen =
+          policy.getWorker(GetWorkerOptions.defaults().setBlockWorkerInfos(workers));
+      // Rack locality is set to strict, and no rack matches.
+      Assert.assertNull(chosen);
+    }
+  }
+  // ALLUXIO CS END
   @Test
   public void tieredLocalityEnoughSpace() throws Exception {
     List<BlockWorkerInfo> workers = new ArrayList<>();
