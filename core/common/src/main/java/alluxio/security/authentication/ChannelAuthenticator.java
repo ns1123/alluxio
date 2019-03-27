@@ -15,25 +15,12 @@ import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.UnauthenticatedException;
-import alluxio.grpc.ChannelAuthenticationScheme;
 import alluxio.exception.status.UnknownException;
-<<<<<<< HEAD
-import alluxio.grpc.GrpcServerAddress;
-||||||| merged common ancestors
-=======
 import alluxio.grpc.ChannelAuthenticationScheme;
 import alluxio.grpc.GrpcChannelBuilder;
 import alluxio.grpc.GrpcServerAddress;
->>>>>>> upstream-os/master
 import alluxio.grpc.SaslAuthenticationServiceGrpc;
 import alluxio.grpc.SaslMessage;
-<<<<<<< HEAD
-import alluxio.grpc.GrpcChannelBuilder;
-||||||| merged common ancestors
-import alluxio.util.SecurityUtils;
-import alluxio.grpc.GrpcChannelBuilder;
-=======
->>>>>>> upstream-os/master
 
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -46,18 +33,7 @@ import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-<<<<<<< HEAD
-import javax.security.auth.Subject;
 import java.net.SocketAddress;
-||||||| merged common ancestors
-import javax.security.auth.Subject;
-import javax.security.sasl.SaslClient;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-=======
-import java.net.SocketAddress;
->>>>>>> upstream-os/master
 import java.util.UUID;
 
 import javax.security.auth.Subject;
@@ -196,7 +172,6 @@ public class ChannelAuthenticator {
       }
     }
 
-<<<<<<< HEAD
     /**
      * Determines transport level authentication scheme for given subject.
      *
@@ -306,59 +281,6 @@ public class ChannelAuthenticator {
       }
     }
 
-||||||| merged common ancestors
-=======
-    /**
-     * Determines transport level authentication scheme for given subject.
-     *
-     * @param subject the subject
-     * @param serverAddress the target server address
-     * @return the channel authentication scheme to use
-     * @throws UnauthenticatedException if configured authentication type is not supported
-     */
-    private ChannelAuthenticationScheme getChannelAuthScheme(Subject subject,
-        SocketAddress serverAddress) throws UnauthenticatedException {
-      switch (mAuthType) {
-        case NOSASL:
-          return ChannelAuthenticationScheme.NOSASL;
-        case SIMPLE:
-          return ChannelAuthenticationScheme.SIMPLE;
-        case CUSTOM:
-          return ChannelAuthenticationScheme.CUSTOM;
-        default:
-          throw new UnauthenticatedException(String.format(
-                  "Configured authentication type is not supported: %s", mAuthType.getAuthName()));
-      }
-    }
-
-    /**
-     * Create SaslClient handler for authentication.
-     *
-     * @param serverAddress target server address
-     * @param authScheme authentication scheme to use
-     * @param subject the subject to use
-     * @return the created {@link SaslClientHandler} instance
-     * @throws UnauthenticatedException
-     */
-    private SaslClientHandler createSaslClientHandler(GrpcServerAddress serverAddress,
-        ChannelAuthenticationScheme authScheme, Subject subject) throws UnauthenticatedException {
-      switch (authScheme) {
-        case SIMPLE:
-        case CUSTOM:
-          if (mUseSubject) {
-            return new alluxio.security.authentication.plain.SaslClientHandlerPlain(mParentSubject,
-                    mConfiguration);
-          } else {
-            return new alluxio.security.authentication.plain.SaslClientHandlerPlain(mUserName,
-                    mPassword, mImpersonationUser);
-          }
-        default:
-          throw new UnauthenticatedException(
-              String.format("Channel authentication scheme not supported: %s", authScheme.name()));
-      }
-    }
-
->>>>>>> upstream-os/master
     @Override
     public <RequestT, ResponseT> ClientCall<RequestT, ResponseT> newCall(
         MethodDescriptor<RequestT, ResponseT> methodDescriptor, CallOptions callOptions) {
