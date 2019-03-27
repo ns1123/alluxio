@@ -296,7 +296,6 @@ public class AlluxioMasterProcess extends MasterProcess {
     try {
       stopRejectingRpcServer();
       LOG.info("Starting gRPC server on address {}", mRpcBindAddress);
-<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(
       //     mRpcConnectAddress.getHostName(), mRpcBindAddress, ServerConfiguration.global());
@@ -307,13 +306,6 @@ public class AlluxioMasterProcess extends MasterProcess {
                   mDelegationTokenManager, ServerConfiguration.global()),
               ServerConfiguration.global());
       // ALLUXIO CS END
-||||||| merged common ancestors
-      GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(mRpcBindAddress,
-          ServerConfiguration.global());
-=======
-      GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(
-          mRpcConnectAddress.getHostName(), mRpcBindAddress, ServerConfiguration.global());
->>>>>>> upstream-os/master
 
       mRPCExecutor = Executors.newFixedThreadPool(mMaxWorkerThreads,
           ThreadFactoryUtils.build("grpc-rpc-%d", true));
