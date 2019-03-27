@@ -4,8 +4,8 @@
 package alluxio.grpc;
 
 public interface WriteRequestCommandOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:alluxio.grpc.block.WriteRequestCommand)
-        com.google.protobuf.MessageOrBuilder {
+    // @@protoc_insertion_point(interface_extends:alluxio.grpc.block.WriteRequestCommand)
+    com.google.protobuf.MessageOrBuilder {
 
   /**
    * <code>optional .alluxio.grpc.block.RequestType type = 1;</code>

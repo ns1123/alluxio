@@ -144,3 +144,4 @@ public enum ChannelAuthenticationScheme
 
   // @@protoc_insertion_point(enum_scope:alluxio.grpc.sasl.ChannelAuthenticationScheme)
 }
+
