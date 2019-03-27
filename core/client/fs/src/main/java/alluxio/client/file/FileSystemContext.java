@@ -283,7 +283,6 @@ public final class FileSystemContext implements Closeable {
       mBlockMasterClientPool.close();
       mBlockMasterClientPool = null;
       mMasterInquireClient = null;
-<<<<<<< HEAD
       for (BlockWorkerClientPool pool : mBlockWorkerClientPool.values()) {
         pool.close();
       }
@@ -291,13 +290,6 @@ public final class FileSystemContext implements Closeable {
       // ALLUXIO CS ADD
       mEncryptionCache.clear();
       // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-      for (BlockWorkerClientPool pool : mBlockWorkerClientPool.values()) {
-        pool.close();
-      }
-      mBlockWorkerClientPool.clear();
->>>>>>> upstream-os/master
 
       if (mMetricsMasterClient != null) {
         ThreadUtils.shutdownAndAwaitTermination(mExecutorService,

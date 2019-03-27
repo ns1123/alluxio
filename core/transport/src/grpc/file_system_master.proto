@@ -66,20 +66,12 @@ message CompleteFilePRequest {
 message OpenFilePOptions {
   optional ReadPType readType = 1;
   optional int32 maxUfsReadConcurrency = 2;
-<<<<<<< HEAD
   optional string fileReadLocationPolicy = 3;
   optional int32 hashingNumberOfShards = 4;
   optional FileSystemMasterCommonPOptions commonOptions = 5;
   // ALLUXIO CS ADD
   optional bool skipTransformation = 1001;
   // ALLUXIO CS END
-||||||| merged common ancestors
-  optional string fileReadLocationPolicy = 3;
-  optional int32 hashingNumberOfShards = 4;
-  optional FileSystemMasterCommonPOptions commonOptions = 5;
-=======
-  optional FileSystemMasterCommonPOptions commonOptions = 3;
->>>>>>> upstream-os/master
 }
 
 message CreateDirectoryPResponse {}

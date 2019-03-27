@@ -499,7 +499,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
         (alluxioConfiguration != null) ? alluxioConfiguration.copyProperties()
             : ConfigurationUtils.defaults();
     AlluxioConfiguration alluxioConf = mergeConfigurations(uriConfProperties, conf, alluxioProps);
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // Subject subject = getHadoopSubject();
     // ALLUXIO CS WITH
@@ -508,12 +507,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
     Subject subject = getHadoopSubject(alluxioConf);
     // ALLUXIO CS END
-||||||| merged common ancestors
-
-    Subject subject = getHadoopSubject();
-=======
-    Subject subject = getHadoopSubject();
->>>>>>> upstream-os/master
     if (subject != null) {
       LOG.debug("Using Hadoop subject: {}", subject);
     } else {
