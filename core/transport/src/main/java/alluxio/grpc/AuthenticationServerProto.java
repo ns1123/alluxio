@@ -31,6 +31,7 @@ public final class AuthenticationServerProto {
       "\n\026grpc/sasl_server.proto\022\021alluxio.grpc.s" +
       "asl\"\267\001\n\013SaslMessage\0227\n\013messageType\030\001 \001(\016" +
       "2\".alluxio.grpc.sasl.SaslMessageType\022\017\n\007" +
+<<<<<<< HEAD
       "message\030\002 \001(\014\022\020\n\010clientId\030\003 \001(\t\022L\n\024authe" +
       "nticationScheme\030\004 \001(\0162..alluxio.grpc.sas" +
       "l.ChannelAuthenticationScheme*-\n\017SaslMes" +
@@ -43,6 +44,26 @@ public final class AuthenticationServerProto {
       "e\032\036.alluxio.grpc.sasl.SaslMessage(\0010\001B+\n" +
       "\014alluxio.grpcB\031AuthenticationServerProto" +
       "P\001"
+||||||| merged common ancestors
+      "message\030\002 \001(\014\022\020\n\010clientId\030\003 \001(\t\022\032\n\022authe" +
+      "nticationName\030\004 \001(\t*-\n\017SaslMessageType\022\r" +
+      "\n\tCHALLENGE\020\000\022\013\n\007SUCCESS\020\0012o\n\031SaslAuthen" +
+      "ticationService\022R\n\014authenticate\022\036.alluxi" +
+      "o.grpc.sasl.SaslMessage\032\036.alluxio.grpc.s" +
+      "asl.SaslMessage(\0010\001B+\n\014alluxio.grpcB\031Aut" +
+      "henticationServerProtoP\001"
+=======
+      "message\030\002 \001(\014\022\020\n\010clientId\030\003 \001(\t\022L\n\024authe" +
+      "nticationScheme\030\004 \001(\0162..alluxio.grpc.sas" +
+      "l.ChannelAuthenticationScheme*-\n\017SaslMes" +
+      "sageType\022\r\n\tCHALLENGE\020\000\022\013\n\007SUCCESS\020\001*A\n\033" +
+      "ChannelAuthenticationScheme\022\n\n\006NOSASL\020\000\022" +
+      "\n\n\006SIMPLE\020\001\022\n\n\006CUSTOM\020\0022o\n\031SaslAuthentic" +
+      "ationService\022R\n\014authenticate\022\036.alluxio.g" +
+      "rpc.sasl.SaslMessage\032\036.alluxio.grpc.sasl" +
+      ".SaslMessage(\0010\001B+\n\014alluxio.grpcB\031Authen" +
+      "ticationServerProtoP\001"
+>>>>>>> upstream-os/master
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

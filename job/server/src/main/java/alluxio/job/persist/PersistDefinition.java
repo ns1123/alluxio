@@ -144,6 +144,7 @@ public final class PersistDefinition
       long bytesWritten;
       try (Closer closer = Closer.create()) {
         OpenFilePOptions options =
+<<<<<<< HEAD
             OpenFilePOptions.newBuilder().setReadType(ReadPType.NO_CACHE)
                 // ALLUXIO CS ADD
                 // Disable decryption when reading from Alluxio in order to directly copy ciphertext
@@ -151,6 +152,12 @@ public final class PersistDefinition
                 .setSkipTransformation(true)
                 // ALLUXIO CS END
                 .build();
+||||||| merged common ancestors
+            OpenFilePOptions.newBuilder().setReadType(ReadPType.NO_CACHE).build();
+=======
+            OpenFilePOptions.newBuilder().setReadType(ReadPType.NO_CACHE)
+                .build();
+>>>>>>> upstream-os/master
         FileInStream in = closer.register(mFileSystem.openFile(uri, options));
         AlluxioURI dstPath = new AlluxioURI(ufsPath);
         // Create ancestor directories from top to the bottom. We cannot use recursive create

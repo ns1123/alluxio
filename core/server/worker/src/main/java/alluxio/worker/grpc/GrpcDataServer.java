@@ -108,6 +108,7 @@ public final class GrpcDataServer implements DataServer {
     LOG.info("Server started, listening on {}", bindAddress.toString());
   }
 
+<<<<<<< HEAD
   private GrpcServerBuilder createServerBuilder(String hostName,
       SocketAddress bindAddress, ChannelType type) {
     // ALLUXIO CS REPLACE
@@ -122,6 +123,15 @@ public final class GrpcDataServer implements DataServer {
                 ServerConfiguration.global()),
             ServerConfiguration.global());
     // ALLUXIO CS END
+||||||| merged common ancestors
+  private GrpcServerBuilder createServerBuilder(SocketAddress address, ChannelType type) {
+    GrpcServerBuilder builder = GrpcServerBuilder.forAddress(address, ServerConfiguration.global());
+=======
+  private GrpcServerBuilder createServerBuilder(String hostName,
+      SocketAddress bindAddress, ChannelType type) {
+    GrpcServerBuilder builder =
+        GrpcServerBuilder.forAddress(hostName, bindAddress, ServerConfiguration.global());
+>>>>>>> upstream-os/master
     int bossThreadCount = ServerConfiguration.getInt(PropertyKey.WORKER_NETWORK_NETTY_BOSS_THREADS);
 
     // If number of worker threads is 0, Netty creates (#processors * 2) threads by default.

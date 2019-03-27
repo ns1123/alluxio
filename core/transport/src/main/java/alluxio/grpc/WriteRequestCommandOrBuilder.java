@@ -94,6 +94,7 @@ public interface WriteRequestCommandOrBuilder extends
   alluxio.proto.dataserver.Protocol.CreateUfsFileOptionsOrBuilder getCreateUfsFileOptionsOrBuilder();
 
   /**
+<<<<<<< HEAD
    * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
    */
   boolean hasCreateUfsBlockOptions();
@@ -112,22 +113,51 @@ public interface WriteRequestCommandOrBuilder extends
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+||||||| merged common ancestors
+   * <pre>
+   * Cancel, close and error will be handled by standard gRPC stream APIs.
+   * </pre>
+   *
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+=======
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+>>>>>>> upstream-os/master
    */
   boolean hasCapability();
   /**
+<<<<<<< HEAD
    * <pre>
    * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+||||||| merged common ancestors
+   * <pre>
+   * Cancel, close and error will be handled by standard gRPC stream APIs.
+   * </pre>
+   *
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+=======
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+>>>>>>> upstream-os/master
    */
   alluxio.proto.security.CapabilityProto.Capability getCapability();
   /**
+<<<<<<< HEAD
    * <pre>
    * ALLUXIO CS ADD
    * </pre>
    *
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+||||||| merged common ancestors
+   * <pre>
+   * Cancel, close and error will be handled by standard gRPC stream APIs.
+   * </pre>
+   *
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+=======
+   * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
+>>>>>>> upstream-os/master
    */
   alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
 }

@@ -461,6 +461,7 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
     mTimeSeriesStore = new TimeSeriesStore();
     // The mount table should come after the inode tree because restoring the mount table requires
     // that the inode tree is already restored.
+<<<<<<< HEAD
     mJournaledComponents = new ArrayList<Journaled>() {
       {
         add(mInodeTree);
@@ -473,6 +474,20 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
     // ALLUXIO CS ADD
     mJournaledComponents.add(mDelegationTokenManager);
     // ALLUXIO CS END
+||||||| merged common ancestors
+    mJournaledComponents =
+        Arrays.asList(mInodeTree, mDirectoryIdGenerator, mMountTable, mUfsManager, mSyncManager);
+=======
+    mJournaledComponents = new ArrayList<Journaled>() {
+      {
+        add(mInodeTree);
+        add(mDirectoryIdGenerator);
+        add(mMountTable);
+        add(mUfsManager);
+        add(mSyncManager);
+      }
+    };
+>>>>>>> upstream-os/master
 
     resetState();
     Metrics.registerGauges(this, mUfsManager);

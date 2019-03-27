@@ -75,6 +75,7 @@ public final class UfsFallbackBlockWriteHandler
     super(responseObserver, userInfo);
     mWorker = blockWorker;
     mUfsManager = ufsManager;
+<<<<<<< HEAD
     mBlockWriteHandler = new BlockWriteHandler(blockWorker, responseObserver, userInfo);
   }
   // ALLUXIO CS ADD
@@ -86,6 +87,11 @@ public final class UfsFallbackBlockWriteHandler
       alluxio.exception.AccessControlException {
     alluxio.worker.security.CapabilityUtils.checkAccessMode(mWorker, mUserInfo, blockId, capability,
         accessMode);
+||||||| merged common ancestors
+    mBlockWriteHandler = new BlockWriteHandler(blockWorker, responseObserver);
+=======
+    mBlockWriteHandler = new BlockWriteHandler(blockWorker, responseObserver, userInfo);
+>>>>>>> upstream-os/master
   }
 
   // ALLUXIO CS END

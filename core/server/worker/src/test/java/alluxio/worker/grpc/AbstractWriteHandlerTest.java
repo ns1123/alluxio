@@ -26,6 +26,7 @@ import alluxio.grpc.WriteResponse;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.network.protocol.databuffer.ByteArrayDataBuffer;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.util.io.BufferUtils;

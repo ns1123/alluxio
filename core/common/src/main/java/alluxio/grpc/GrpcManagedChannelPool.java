@@ -232,6 +232,7 @@ public class GrpcManagedChannelPool {
     if (channelKey.mEventLoopGroup.isPresent()) {
       channelBuilder.eventLoopGroup(channelKey.mEventLoopGroup.get());
     }
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // channelBuilder.usePlaintext();
     // ALLUXIO CS WITH
@@ -241,6 +242,13 @@ public class GrpcManagedChannelPool {
       channelBuilder.usePlaintext();
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+    if (channelKey.mPlain) {
+      channelBuilder.usePlaintext();
+    }
+=======
+    channelBuilder.usePlaintext();
+>>>>>>> upstream-os/master
     return channelBuilder.build();
   }
 

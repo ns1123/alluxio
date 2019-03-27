@@ -11,6 +11,7 @@ enum SaslMessageType {
   SUCCESS = 1;
 }
 
+<<<<<<< HEAD
 enum ChannelAuthenticationScheme {
   NOSASL = 0;
   SIMPLE = 1;
@@ -22,6 +23,15 @@ enum ChannelAuthenticationScheme {
   // ALLUXIO CS END
 }
 
+||||||| merged common ancestors
+=======
+enum ChannelAuthenticationScheme {
+  NOSASL = 0;
+  SIMPLE = 1;
+  CUSTOM = 2;
+}
+
+>>>>>>> upstream-os/master
 message SaslMessage {
   optional SaslMessageType messageType = 1;
   optional bytes message = 2;

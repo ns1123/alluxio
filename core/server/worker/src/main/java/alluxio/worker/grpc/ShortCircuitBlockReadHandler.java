@@ -49,7 +49,12 @@ class ShortCircuitBlockReadHandler implements StreamObserver<OpenLocalBlockReque
   /** The lock Id of the block being read. */
   private long mLockId;
   private long mSessionId;
+<<<<<<< HEAD
   private alluxio.security.authentication.AuthenticatedUserInfo mUserInfo;
+||||||| merged common ancestors
+=======
+  private AuthenticatedUserInfo mUserInfo;
+>>>>>>> upstream-os/master
 
   /**
    * Creates an instance of {@link ShortCircuitBlockReadHandler}.

@@ -53,8 +53,14 @@ class ShortCircuitBlockWriteHandler implements StreamObserver<CreateLocalBlockRe
 
   private long mSessionId = INVALID_SESSION_ID;
 
+<<<<<<< HEAD
   private alluxio.security.authentication.AuthenticatedUserInfo mUserInfo;
 
+||||||| merged common ancestors
+=======
+  private AuthenticatedUserInfo mUserInfo;
+
+>>>>>>> upstream-os/master
   /**
    * Creates an instance of {@link ShortCircuitBlockWriteHandler}.
    *

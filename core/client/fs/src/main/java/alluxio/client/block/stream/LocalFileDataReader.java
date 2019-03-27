@@ -101,10 +101,15 @@ public final class LocalFileDataReader implements DataReader {
     private final long mLocalReaderChunkSize;
     private final int mReadBufferSize;
     private final GrpcBlockingStream<OpenLocalBlockRequest, OpenLocalBlockResponse> mStream;
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     private final InStreamOptions mOptions;
     // ALLUXIO CS END
 
+||||||| merged common ancestors
+=======
+
+>>>>>>> upstream-os/master
     private LocalFileBlockReader mReader;
     private final long mDataTimeoutMs;
     private boolean mClosed;

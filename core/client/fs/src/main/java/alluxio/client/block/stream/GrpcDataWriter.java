@@ -91,6 +91,7 @@ public final class GrpcDataWriter implements DataWriter {
   public static GrpcDataWriter create(FileSystemContext context, WorkerNetAddress address,
       long id, long length, RequestType type, OutStreamOptions options)
       throws IOException {
+<<<<<<< HEAD
     long chunkSize = context.getConf().getBytes(PropertyKey.USER_NETWORK_WRITER_CHUNK_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
@@ -109,6 +110,14 @@ public final class GrpcDataWriter implements DataWriter {
       grpcClient = context.acquireBlockWorkerClient(address);
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+    AlluxioConfiguration conf = context.getConf();
+    long chunkSize = conf.getBytes(PropertyKey.USER_NETWORK_WRITER_CHUNK_SIZE_BYTES);
+    BlockWorkerClient grpcClient = context.acquireBlockWorkerClient(address);
+=======
+    long chunkSize = context.getConf().getBytes(PropertyKey.USER_NETWORK_WRITER_CHUNK_SIZE_BYTES);
+    BlockWorkerClient grpcClient = context.acquireBlockWorkerClient(address);
+>>>>>>> upstream-os/master
     try {
       return new GrpcDataWriter(context, address, id, length, chunkSize, type, options,
           grpcClient);

@@ -22,7 +22,13 @@ import javax.security.sasl.SaslClient;
 import javax.security.sasl.SaslException;
 
 /**
+<<<<<<< HEAD:core/common/src/main/java/alluxio/security/authentication/DefaultSaslHandshakeClientHandler.java
  * Implementation of {@link SaslHandshakeClientHandler}.
+||||||| merged common ancestors
+ * Implementation of {@link SaslHandshakeClientHandler} for plain authentication.
+=======
+ * Default implementation of {@link SaslHandshakeClientHandler}.
+>>>>>>> upstream-os/master:core/common/src/main/java/alluxio/security/authentication/DefaultSaslHandshakeClientHandler.java
  */
 public class DefaultSaslHandshakeClientHandler implements SaslHandshakeClientHandler {
   /** Initial challenge for client to start Sasl session. */

@@ -79,6 +79,7 @@ public class AlluxioJobMasterProcess extends MasterProcess {
     }
   }
 
+<<<<<<< HEAD
   @Override
   public <T extends Master> T getMaster(Class<T> clazz) {
     if (clazz == JobMaster.class) {
@@ -88,6 +89,18 @@ public class AlluxioJobMasterProcess extends MasterProcess {
     }
   }
 
+||||||| merged common ancestors
+=======
+  @Override
+  public <T extends Master> T getMaster(Class<T> clazz) {
+    if (clazz == JobMaster.class) {
+      return (T) mJobMaster;
+    } else {
+      throw new RuntimeException(String.format("Could not find the master: %s", clazz));
+    }
+  }
+
+>>>>>>> upstream-os/master
   /**
    * @return the {@link JobMaster} for this process
    */

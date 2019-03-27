@@ -231,6 +231,7 @@ public abstract class AbstractClient implements Client {
       } catch (IOException e) {
         LOG.warn("Failed to connect ({}) with {} @ {}: {}", retryPolicy.getAttemptCount(),
             getServiceName(), mAddress, e.getMessage());
+<<<<<<< HEAD
         if (e instanceof UnauthenticatedException) {
           // ALLUXIO CS ADD
           // If there has been a failure in opening GrpcChannel, it's possible because
@@ -240,6 +241,12 @@ public abstract class AbstractClient implements Client {
           // ALLUXIO CS END
           connectFailReason = (AlluxioStatusException) e;
         }
+||||||| merged common ancestors
+=======
+        if (e instanceof UnauthenticatedException) {
+          connectFailReason = (AlluxioStatusException) e;
+        }
+>>>>>>> upstream-os/master
       }
     }
     // Reaching here indicates that we did not successfully connect.

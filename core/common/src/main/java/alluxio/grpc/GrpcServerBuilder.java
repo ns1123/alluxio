@@ -14,6 +14,7 @@ package alluxio.grpc;
 import alluxio.security.authentication.AuthenticatedUserInjector;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
+import alluxio.security.authentication.AuthenticatedUserInjector;
 import alluxio.security.authentication.AuthenticationServer;
 // ALLUXIO CS REPLACE
 // import alluxio.security.authentication.DefaultAuthenticationServer;
@@ -56,6 +57,7 @@ public final class GrpcServerBuilder {
     mAuthenticationServer = authenticationServer;
     mNettyServerBuilder = NettyServerBuilder.forAddress(address);
     mServices = new HashSet<>();
+<<<<<<< HEAD
     mConfiguration = conf;
 
     // ALLUXIO CS ADD
@@ -71,6 +73,19 @@ public final class GrpcServerBuilder {
         mAuthenticationServer = new EnterpriseAuthenticationServer(hostName, mConfiguration);
         // ALLUXIO CS END
       }
+||||||| merged common ancestors
+    mNettyServerBuilder = nettyServerBuilder;
+    if (SecurityUtils.isAuthenticationEnabled(conf)) {
+      LoggerFactory.getLogger(GrpcServerBuilder.class).warn("Authentication ENABLED");
+      mAuthenticationServer = new DefaultAuthenticationServer(conf);
+=======
+    mConfiguration = conf;
+
+    if (SecurityUtils.isAuthenticationEnabled(mConfiguration)) {
+      if (mAuthenticationServer == null) {
+        mAuthenticationServer = new DefaultAuthenticationServer(hostName, mConfiguration);
+      }
+>>>>>>> upstream-os/master
       addService(new GrpcService(mAuthenticationServer).disableAuthentication());
     }
   }

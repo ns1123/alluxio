@@ -71,14 +71,20 @@ public final class LocalFileDataWriter implements DataWriter {
     AlluxioConfiguration conf = context.getConf();
     long chunkSize = conf.getBytes(PropertyKey.USER_LOCAL_WRITER_CHUNK_SIZE_BYTES);
 
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       chunkSize =
           alluxio.client.LayoutUtils.toPhysicalChunksLength(options.getEncryptionMeta(), chunkSize);
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+    final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
+=======
+>>>>>>> upstream-os/master
     Closer closer = Closer.create();
     try {
+<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
       // ALLUXIO CS WITH
@@ -90,6 +96,10 @@ public final class LocalFileDataWriter implements DataWriter {
         blockWorker = context.acquireBlockWorkerClient(address);
       }
       // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+      final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
+>>>>>>> upstream-os/master
       closer.register(new Closeable() {
         @Override
         public void close() throws IOException {
