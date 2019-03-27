@@ -19,7 +19,6 @@ import alluxio.client.file.CryptoFileOutStream;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
-import alluxio.client.file.policy.LocalFirstPolicy;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.CreateFilePOptions;
@@ -116,10 +115,8 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
   public void writeSpecifyLocal() throws Exception {
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
     final int length = 2;
-    try (FileOutStream os = mFileSystem.createFile(filePath,
-        CreateFilePOptions.newBuilder().setWriteType(mWriteType.toProto())
-            .setFileWriteLocationPolicy(LocalFirstPolicy.class.getTypeName()).setRecursive(true)
-            .build())) {
+    try (FileOutStream os = mFileSystem.createFile(filePath, CreateFilePOptions.newBuilder()
+        .setWriteType(mWriteType.toProto()).setRecursive(true).build())) {
       Assert.assertTrue(os instanceof CryptoFileOutStream);
       os.write((byte) 0);
       os.write((byte) 1);

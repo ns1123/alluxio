@@ -362,16 +362,6 @@ public final class CryptoFileInStreamTest {
   }
 
   @Test
-  public void missingLocationPolicy() {
-    try {
-      mTestStream = new CryptoFileInStream(mStatus, new InStreamOptions(mStatus, mConf), mContext);
-    } catch (NullPointerException e) {
-      Assert.assertEquals(PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED.toString(),
-          e.getMessage());
-    }
-  }
-
-  @Test
   public void positionedRead() throws Exception {
     class TestCase {
       long mPos;
