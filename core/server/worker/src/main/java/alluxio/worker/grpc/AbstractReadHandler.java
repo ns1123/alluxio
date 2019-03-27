@@ -78,14 +78,8 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
 
   private final ReentrantLock mLock = new ReentrantLock();
 
-<<<<<<< HEAD
-  protected alluxio.security.authentication.AuthenticatedUserInfo mUserInfo;
-
-||||||| merged common ancestors
-=======
   protected AuthenticatedUserInfo mUserInfo;
 
->>>>>>> upstream-os/master
   /**
    * This is only created in the gRPC event thread when a read request is received.
    * Using "volatile" because we want any value change of this variable to be
@@ -106,7 +100,6 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
     mDataReaderExecutor = executorService;
     mSerializingExecutor = new SerializingExecutor(executorService);
     mResponseObserver = responseObserver;
-<<<<<<< HEAD
     mUserInfo = userInfo;
   }
   // ALLUXIO CS ADD
@@ -126,10 +119,6 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
       throws alluxio.exception.InvalidCapabilityException,
       alluxio.exception.AccessControlException {
     // By default, we don't check permission.
-||||||| merged common ancestors
-=======
-    mUserInfo = userInfo;
->>>>>>> upstream-os/master
   }
   // ALLUXIO CS END
 

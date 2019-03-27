@@ -227,7 +227,6 @@ public final class GrpcUtils {
             pInfo.hasDefaultAcl() ? ((DefaultAccessControlList) fromProto(pInfo.getDefaultAcl()))
                 : DefaultAccessControlList.EMPTY_DEFAULT_ACL)
         .setReplicationMax(pInfo.getReplicationMax()).setReplicationMin(pInfo.getReplicationMin());
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     alluxio.security.capability.Capability capability = null;
     if (pInfo.hasCapability()) {
@@ -241,10 +240,6 @@ public final class GrpcUtils {
     fileInfo.setEncrypted(pInfo.getEncrypted());
     // ALLUXIO CS END
     return fileInfo;
-||||||| merged common ancestors
-=======
-    return fileInfo;
->>>>>>> upstream-os/master
   }
 
   /**

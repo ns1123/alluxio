@@ -108,17 +108,12 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
         ReadRequest.newBuilder().setBlockId(blockId).setPromote(readType.isPromote());
     // Add UFS fallback options
     builder.setOpenUfsBlockOptions(options.getOpenUfsBlockOptions(blockId));
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (options.getCapabilityFetcher() != null) {
       builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
     }
     // ALLUXIO CS END
 
-||||||| merged common ancestors
-=======
-
->>>>>>> upstream-os/master
     AlluxioConfiguration alluxioConf = context.getConf();
     boolean shortCircuit = alluxioConf.getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED);
     boolean sourceSupportsDomainSocket = NettyUtils.isDomainSocketSupported(dataSource,
@@ -186,7 +181,6 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
     ReadRequest.Builder readRequestBuilder = readRequestPartial.toBuilder();
     long chunkSize = context.getConf()
         .getBytes(PropertyKey.USER_NETWORK_READER_CHUNK_SIZE_BYTES);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       chunkSize =
@@ -199,14 +193,6 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
     readRequestBuilder.setChunkSize(chunkSize);
     DataReader.Factory factory =
         new GrpcDataReader.Factory(context, address, readRequestBuilder.build());
-||||||| merged common ancestors
-    DataReader.Factory factory = new GrpcDataReader.Factory(context, address,
-        readRequestPartial.toBuilder().setChunkSize(chunkSize).buildPartial());
-=======
-    readRequestBuilder.setChunkSize(chunkSize);
-    DataReader.Factory factory =
-        new GrpcDataReader.Factory(context, address, readRequestBuilder.build());
->>>>>>> upstream-os/master
     return new BlockInStream(factory, address, blockSource, readRequestPartial.getBlockId(),
         blockSize);
   }

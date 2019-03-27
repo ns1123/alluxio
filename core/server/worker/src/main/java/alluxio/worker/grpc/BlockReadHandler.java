@@ -243,14 +243,9 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
         accessMode);
   }
 
-<<<<<<< HEAD
   // ALLUXIO CS END
 
   @Override
-||||||| merged common ancestors
-=======
-  @Override
->>>>>>> upstream-os/master
   protected BlockReadRequestContext createRequestContext(alluxio.grpc.ReadRequest request) {
     return new BlockReadRequestContext(request);
   }

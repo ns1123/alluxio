@@ -156,17 +156,11 @@ public class FileInfoTest {
     result.setLength(length);
     result.setMode(permission);
     result.setMountPoint(mountPoint);
-<<<<<<< HEAD
     result.setReplicationMax(replicationMax);
     result.setReplicationMin(replicationMin);
     // ALLUXIO CS ADD
     result.setEncrypted(random.nextBoolean());
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-    result.setReplicationMax(replicationMax);
-    result.setReplicationMin(replicationMin);
->>>>>>> upstream-os/master
     result.setName(name);
     result.setOwner(userName);
     result.setPath(path);
