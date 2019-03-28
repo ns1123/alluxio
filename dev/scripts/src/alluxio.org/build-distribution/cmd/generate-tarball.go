@@ -28,10 +28,13 @@ import (
 	// ALLUXIO CS END
 )
 
-// ALLUXIO CS ADD
-const edition = "enterprise"
-
-// ALLUXIO CS END
+const (
+	// ALLUXIO CS ADD
+	edition = "enterprise"
+	// ALLUXIO CS END
+	// The version of the hadoop client that the Alluxio client will be built for
+	defaultHadoopClient = "hadoop-2.7"
+)
 var (
 	cmdSingle = &cmdline.Command{
 		Name:   "single",
@@ -60,7 +63,7 @@ func single(_ *cmdline.Env, _ []string) error {
 	if err := checkRootFlags(); err != nil {
 		return err
 	}
-	if err := generateTarball(hadoopDistributionFlag); err != nil {
+	if err := generateTarball([]string{hadoopDistributionFlag}); err != nil {
 		return err
 	}
 	return nil
@@ -101,7 +104,7 @@ func symlink(oldname, newname string) {
 }
 
 func getCommonMvnArgs(hadoopVersion version) []string {
-	args := []string{"-am", "clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos"}
+	args := []string{"-T", "2C", "-am", "clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos"}
 	if mvnArgsFlag != "" {
 		for _, arg := range strings.Split(mvnArgsFlag, ",") {
 			args = append(args, arg)
@@ -294,8 +297,11 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 	// ALLUXIO CS END
 }
 
-func generateTarball(hadoopDistribution string) error {
-	hadoopVersion := hadoopDistributions[hadoopDistribution]
+func generateTarball(hadoopClients []string) error {
+	hadoopVersion, ok := hadoopDistributions[defaultHadoopClient]
+	if !ok {
+		return fmt.Errorf("hadoop distribution %s not recognized\n", defaultHadoopClient)
+	}
 	cwd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -393,18 +399,23 @@ func generateTarball(hadoopDistribution string) error {
 	}
 
 	addAdditionalFiles(srcPath, dstPath, hadoopVersion, version)
-	hadoopVersion, ok = hadoopDistributions[hadoopDistribution]
-	if !ok {
-		return fmt.Errorf("hadoop distribution %s not recognized\n", hadoopDistribution)
-	}
 	// ALLUXIO CS ADD
 	// This must be run at the end to avoid changing other jars depending on client
-	if hadoopVersion.hasHadoopKMS() {
-		kmsClientMvnArgs := append(mvnArgs, "-Phadoop-kms")
-		run("compiling client module with Hadoop KMS", "mvn", kmsClientMvnArgs...)
-		srcClientJar := filepath.Join(srcPath, "client", fmt.Sprintf("alluxio-%v-client.jar", version))
-		dstClientJar := filepath.Join(dstPath, "client", fmt.Sprintf("alluxio-%v-client-with-kms.jar", version))
-		run("adding Alluxio KMS client jar", "mv", srcClientJar, dstClientJar)
+	for _, hadoopClient := range hadoopClients {
+		kmsVersion, ok := hadoopDistributions[hadoopClient]
+		if !ok {
+			return fmt.Errorf("kms hadoop distribution %s not recognized\n", hadoopClient)
+		}
+		if kmsVersion.hasHadoopKMS() {
+			kmsClientMvnArgs := []string{"-pl", "core/client/runtime", "-Phadoop-kms"}
+			for _, arg := range getCommonMvnArgs(kmsVersion) {
+				kmsClientMvnArgs = append(kmsClientMvnArgs, arg)
+			}
+			run(fmt.Sprintf("compiling client module with Hadoop KMS version %s", hadoopClient), "mvn", kmsClientMvnArgs...)
+			srcClientJar := filepath.Join(srcPath, "client", fmt.Sprintf("alluxio-%v-client.jar", version))
+			dstClientJar := filepath.Join(dstPath, "client", fmt.Sprintf("alluxio-%v-client-with-kms-%s.jar", version, hadoopClient))
+			run("adding Alluxio KMS client jar", "mv", srcClientJar, dstClientJar)
+		}
 	}
 	// ALLUXIO CS END
 
