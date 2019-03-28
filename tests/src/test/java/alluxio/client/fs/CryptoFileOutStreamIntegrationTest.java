@@ -14,6 +14,7 @@ package alluxio.client.fs;
 import alluxio.AlluxioURI;
 import alluxio.client.LayoutUtils;
 import alluxio.client.WriteType;
+import alluxio.client.block.policy.LocalFirstPolicy;
 import alluxio.client.file.CryptoFileInStream;
 import alluxio.client.file.CryptoFileOutStream;
 import alluxio.client.file.FileInStream;
@@ -72,7 +73,9 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
         .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
         .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
         .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
-        .setProperty(PropertyKey.SECURITY_ENCRYPTION_ENABLED, true);
+        .setProperty(PropertyKey.SECURITY_ENCRYPTION_ENABLED, true)
+        .setProperty(PropertyKey.USER_BLOCK_WRITE_LOCATION_POLICY,
+            LocalFirstPolicy.class.getName());
   }
 
   @Test
@@ -108,24 +111,6 @@ public final class CryptoFileOutStreamIntegrationTest extends AbstractFileOutStr
       if (mWriteType.getUnderStorageType().isSyncPersist()) {
         checkEncryptedFileInUnderStorage(filePath);
       }
-    }
-  }
-
-  @Test
-  public void writeSpecifyLocal() throws Exception {
-    AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
-    final int length = 2;
-    try (FileOutStream os = mFileSystem.createFile(filePath, CreateFilePOptions.newBuilder()
-        .setWriteType(mWriteType.toProto()).setRecursive(true).build())) {
-      Assert.assertTrue(os instanceof CryptoFileOutStream);
-      os.write((byte) 0);
-      os.write((byte) 1);
-    }
-    if (mWriteType.getAlluxioStorageType().isStore()) {
-      checkEncryptedFileInAlluxio(filePath, length);
-    }
-    if (mWriteType.getUnderStorageType().isSyncPersist()) {
-      checkEncryptedFileInUnderStorage(filePath);
     }
   }
 
