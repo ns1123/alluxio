@@ -407,7 +407,7 @@ func generateTarball(hadoopClients []string) error {
 			return fmt.Errorf("kms hadoop distribution %s not recognized\n", hadoopClient)
 		}
 		if kmsVersion.hasHadoopKMS() {
-			kmsClientMvnArgs := []string{"-pl", "core/client/runtime", "-Phadoop-kms"}
+			kmsClientMvnArgs := []string{"-pl", "kms,core/client/runtime", "-Phadoop-kms"}
 			for _, arg := range getCommonMvnArgs(kmsVersion) {
 				kmsClientMvnArgs = append(kmsClientMvnArgs, arg)
 			}
