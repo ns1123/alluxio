@@ -76,8 +76,9 @@ func checkRootFlags() error {
 }
 
 func init() {
-	Root.Flags.BoolVar(&debugFlag, "debug", false, "whether to run this tool in debug mode to generate additional console output")
 	// ALLUXIO CS ADD
+	Root.Flags.StringVar(&authModulesFlag, "auth-modules", strings.Join(defaultModules(authModules), ","),
+		fmt.Sprintf("a comma-separated list of authorization modules to compile into the distribution tarball(s). Specify 'all' to build all authorization modules. Supported authorization modules: [%v]", strings.Join(validModules(authModules), ",")))
 	// Call home
 	Root.Flags.BoolVar(&callHomeFlag, "call-home", false, "whether the generated distributions should perform call home")
 	Root.Flags.StringVar(&callHomeBucketFlag, "call-home-bucket", "", "the S3 bucket the generated distribution should upload call home information to")
@@ -90,10 +91,7 @@ func init() {
 
 	Root.Flags.StringVar(&proxyURLFlag, "proxy-url", "", "the URL used for communicating with company backend")
 	// ALLUXIO CS END
+	Root.Flags.BoolVar(&debugFlag, "debug", false, "whether to run this tool in debug mode to generate additional console output")
 	Root.Flags.StringVar(&ufsModulesFlag, "ufs-modules", strings.Join(defaultModules(ufsModules), ","),
 		fmt.Sprintf("a comma-separated list of ufs modules to compile into the distribution tarball(s). Specify 'all' to build all ufs modules. Supported ufs modules: [%v]", strings.Join(validModules(ufsModules), ",")))
-	// ALLUXIO CS ADD
-	Root.Flags.StringVar(&authModulesFlag, "auth-modules", strings.Join(defaultModules(authModules), ","),
-		fmt.Sprintf("a comma-separated list of authorization modules to compile into the distribution tarball(s). Specify 'all' to build all authorization modules. Supported authorization modules: [%v]", strings.Join(validModules(authModules), ",")))
-	// ALLUXIO CS END
 }
