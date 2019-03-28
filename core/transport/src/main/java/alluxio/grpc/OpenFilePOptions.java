@@ -18,8 +18,6 @@ private static final long serialVersionUID = 0L;
   private OpenFilePOptions() {
     readType_ = 1;
     maxUfsReadConcurrency_ = 0;
-    fileReadLocationPolicy_ = "";
-    hashingNumberOfShards_ = 0;
     skipTransformation_ = false;
   }
 
@@ -71,19 +69,8 @@ private static final long serialVersionUID = 0L;
             break;
           }
           case 26: {
-            com.google.protobuf.ByteString bs = input.readBytes();
-            bitField0_ |= 0x00000004;
-            fileReadLocationPolicy_ = bs;
-            break;
-          }
-          case 32: {
-            bitField0_ |= 0x00000008;
-            hashingNumberOfShards_ = input.readInt32();
-            break;
-          }
-          case 42: {
             alluxio.grpc.FileSystemMasterCommonPOptions.Builder subBuilder = null;
-            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
               subBuilder = commonOptions_.toBuilder();
             }
             commonOptions_ = input.readMessage(alluxio.grpc.FileSystemMasterCommonPOptions.PARSER, extensionRegistry);
@@ -91,11 +78,11 @@ private static final long serialVersionUID = 0L;
               subBuilder.mergeFrom(commonOptions_);
               commonOptions_ = subBuilder.buildPartial();
             }
-            bitField0_ |= 0x00000010;
+            bitField0_ |= 0x00000004;
             break;
           }
           case 8008: {
-            bitField0_ |= 0x00000020;
+            bitField0_ |= 0x00000008;
             skipTransformation_ = input.readBool();
             break;
           }
@@ -155,79 +142,22 @@ private static final long serialVersionUID = 0L;
     return maxUfsReadConcurrency_;
   }
 
-  public static final int FILEREADLOCATIONPOLICY_FIELD_NUMBER = 3;
-  private volatile java.lang.Object fileReadLocationPolicy_;
+  public static final int COMMONOPTIONS_FIELD_NUMBER = 3;
+  private alluxio.grpc.FileSystemMasterCommonPOptions commonOptions_;
   /**
-   * <code>optional string fileReadLocationPolicy = 3;</code>
+   * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
    */
-  public boolean hasFileReadLocationPolicy() {
+  public boolean hasCommonOptions() {
     return ((bitField0_ & 0x00000004) == 0x00000004);
   }
   /**
-   * <code>optional string fileReadLocationPolicy = 3;</code>
-   */
-  public java.lang.String getFileReadLocationPolicy() {
-    java.lang.Object ref = fileReadLocationPolicy_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      if (bs.isValidUtf8()) {
-        fileReadLocationPolicy_ = s;
-      }
-      return s;
-    }
-  }
-  /**
-   * <code>optional string fileReadLocationPolicy = 3;</code>
-   */
-  public com.google.protobuf.ByteString
-      getFileReadLocationPolicyBytes() {
-    java.lang.Object ref = fileReadLocationPolicy_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      fileReadLocationPolicy_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int HASHINGNUMBEROFSHARDS_FIELD_NUMBER = 4;
-  private int hashingNumberOfShards_;
-  /**
-   * <code>optional int32 hashingNumberOfShards = 4;</code>
-   */
-  public boolean hasHashingNumberOfShards() {
-    return ((bitField0_ & 0x00000008) == 0x00000008);
-  }
-  /**
-   * <code>optional int32 hashingNumberOfShards = 4;</code>
-   */
-  public int getHashingNumberOfShards() {
-    return hashingNumberOfShards_;
-  }
-
-  public static final int COMMONOPTIONS_FIELD_NUMBER = 5;
-  private alluxio.grpc.FileSystemMasterCommonPOptions commonOptions_;
-  /**
-   * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
-   */
-  public boolean hasCommonOptions() {
-    return ((bitField0_ & 0x00000010) == 0x00000010);
-  }
-  /**
-   * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+   * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
    */
   public alluxio.grpc.FileSystemMasterCommonPOptions getCommonOptions() {
     return commonOptions_ == null ? alluxio.grpc.FileSystemMasterCommonPOptions.getDefaultInstance() : commonOptions_;
   }
   /**
-   * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+   * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
    */
   public alluxio.grpc.FileSystemMasterCommonPOptionsOrBuilder getCommonOptionsOrBuilder() {
     return commonOptions_ == null ? alluxio.grpc.FileSystemMasterCommonPOptions.getDefaultInstance() : commonOptions_;
@@ -243,7 +173,7 @@ private static final long serialVersionUID = 0L;
    * <code>optional bool skipTransformation = 1001;</code>
    */
   public boolean hasSkipTransformation() {
-    return ((bitField0_ & 0x00000020) == 0x00000020);
+    return ((bitField0_ & 0x00000008) == 0x00000008);
   }
   /**
    * <pre>
@@ -275,15 +205,9 @@ private static final long serialVersionUID = 0L;
       output.writeInt32(2, maxUfsReadConcurrency_);
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, fileReadLocationPolicy_);
+      output.writeMessage(3, getCommonOptions());
     }
     if (((bitField0_ & 0x00000008) == 0x00000008)) {
-      output.writeInt32(4, hashingNumberOfShards_);
-    }
-    if (((bitField0_ & 0x00000010) == 0x00000010)) {
-      output.writeMessage(5, getCommonOptions());
-    }
-    if (((bitField0_ & 0x00000020) == 0x00000020)) {
       output.writeBool(1001, skipTransformation_);
     }
     unknownFields.writeTo(output);
@@ -303,17 +227,10 @@ private static final long serialVersionUID = 0L;
         .computeInt32Size(2, maxUfsReadConcurrency_);
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, fileReadLocationPolicy_);
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(3, getCommonOptions());
     }
     if (((bitField0_ & 0x00000008) == 0x00000008)) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(4, hashingNumberOfShards_);
-    }
-    if (((bitField0_ & 0x00000010) == 0x00000010)) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(5, getCommonOptions());
-    }
-    if (((bitField0_ & 0x00000020) == 0x00000020)) {
       size += com.google.protobuf.CodedOutputStream
         .computeBoolSize(1001, skipTransformation_);
     }
@@ -341,16 +258,6 @@ private static final long serialVersionUID = 0L;
     if (hasMaxUfsReadConcurrency()) {
       result = result && (getMaxUfsReadConcurrency()
           == other.getMaxUfsReadConcurrency());
-    }
-    result = result && (hasFileReadLocationPolicy() == other.hasFileReadLocationPolicy());
-    if (hasFileReadLocationPolicy()) {
-      result = result && getFileReadLocationPolicy()
-          .equals(other.getFileReadLocationPolicy());
-    }
-    result = result && (hasHashingNumberOfShards() == other.hasHashingNumberOfShards());
-    if (hasHashingNumberOfShards()) {
-      result = result && (getHashingNumberOfShards()
-          == other.getHashingNumberOfShards());
     }
     result = result && (hasCommonOptions() == other.hasCommonOptions());
     if (hasCommonOptions()) {
@@ -380,14 +287,6 @@ private static final long serialVersionUID = 0L;
     if (hasMaxUfsReadConcurrency()) {
       hash = (37 * hash) + MAXUFSREADCONCURRENCY_FIELD_NUMBER;
       hash = (53 * hash) + getMaxUfsReadConcurrency();
-    }
-    if (hasFileReadLocationPolicy()) {
-      hash = (37 * hash) + FILEREADLOCATIONPOLICY_FIELD_NUMBER;
-      hash = (53 * hash) + getFileReadLocationPolicy().hashCode();
-    }
-    if (hasHashingNumberOfShards()) {
-      hash = (37 * hash) + HASHINGNUMBEROFSHARDS_FIELD_NUMBER;
-      hash = (53 * hash) + getHashingNumberOfShards();
     }
     if (hasCommonOptions()) {
       hash = (37 * hash) + COMMONOPTIONS_FIELD_NUMBER;
@@ -532,18 +431,14 @@ private static final long serialVersionUID = 0L;
       bitField0_ = (bitField0_ & ~0x00000001);
       maxUfsReadConcurrency_ = 0;
       bitField0_ = (bitField0_ & ~0x00000002);
-      fileReadLocationPolicy_ = "";
-      bitField0_ = (bitField0_ & ~0x00000004);
-      hashingNumberOfShards_ = 0;
-      bitField0_ = (bitField0_ & ~0x00000008);
       if (commonOptionsBuilder_ == null) {
         commonOptions_ = null;
       } else {
         commonOptionsBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000010);
+      bitField0_ = (bitField0_ & ~0x00000004);
       skipTransformation_ = false;
-      bitField0_ = (bitField0_ & ~0x00000020);
+      bitField0_ = (bitField0_ & ~0x00000008);
       return this;
     }
 
@@ -579,21 +474,13 @@ private static final long serialVersionUID = 0L;
       if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
         to_bitField0_ |= 0x00000004;
       }
-      result.fileReadLocationPolicy_ = fileReadLocationPolicy_;
-      if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-        to_bitField0_ |= 0x00000008;
-      }
-      result.hashingNumberOfShards_ = hashingNumberOfShards_;
-      if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-        to_bitField0_ |= 0x00000010;
-      }
       if (commonOptionsBuilder_ == null) {
         result.commonOptions_ = commonOptions_;
       } else {
         result.commonOptions_ = commonOptionsBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-        to_bitField0_ |= 0x00000020;
+      if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+        to_bitField0_ |= 0x00000008;
       }
       result.skipTransformation_ = skipTransformation_;
       result.bitField0_ = to_bitField0_;
@@ -643,14 +530,6 @@ private static final long serialVersionUID = 0L;
       }
       if (other.hasMaxUfsReadConcurrency()) {
         setMaxUfsReadConcurrency(other.getMaxUfsReadConcurrency());
-      }
-      if (other.hasFileReadLocationPolicy()) {
-        bitField0_ |= 0x00000004;
-        fileReadLocationPolicy_ = other.fileReadLocationPolicy_;
-        onChanged();
-      }
-      if (other.hasHashingNumberOfShards()) {
-        setHashingNumberOfShards(other.getHashingNumberOfShards());
       }
       if (other.hasCommonOptions()) {
         mergeCommonOptions(other.getCommonOptions());
@@ -754,125 +633,17 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private java.lang.Object fileReadLocationPolicy_ = "";
-    /**
-     * <code>optional string fileReadLocationPolicy = 3;</code>
-     */
-    public boolean hasFileReadLocationPolicy() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>optional string fileReadLocationPolicy = 3;</code>
-     */
-    public java.lang.String getFileReadLocationPolicy() {
-      java.lang.Object ref = fileReadLocationPolicy_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          fileReadLocationPolicy_ = s;
-        }
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>optional string fileReadLocationPolicy = 3;</code>
-     */
-    public com.google.protobuf.ByteString
-        getFileReadLocationPolicyBytes() {
-      java.lang.Object ref = fileReadLocationPolicy_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        fileReadLocationPolicy_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>optional string fileReadLocationPolicy = 3;</code>
-     */
-    public Builder setFileReadLocationPolicy(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
-      fileReadLocationPolicy_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>optional string fileReadLocationPolicy = 3;</code>
-     */
-    public Builder clearFileReadLocationPolicy() {
-      bitField0_ = (bitField0_ & ~0x00000004);
-      fileReadLocationPolicy_ = getDefaultInstance().getFileReadLocationPolicy();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>optional string fileReadLocationPolicy = 3;</code>
-     */
-    public Builder setFileReadLocationPolicyBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
-      fileReadLocationPolicy_ = value;
-      onChanged();
-      return this;
-    }
-
-    private int hashingNumberOfShards_ ;
-    /**
-     * <code>optional int32 hashingNumberOfShards = 4;</code>
-     */
-    public boolean hasHashingNumberOfShards() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    /**
-     * <code>optional int32 hashingNumberOfShards = 4;</code>
-     */
-    public int getHashingNumberOfShards() {
-      return hashingNumberOfShards_;
-    }
-    /**
-     * <code>optional int32 hashingNumberOfShards = 4;</code>
-     */
-    public Builder setHashingNumberOfShards(int value) {
-      bitField0_ |= 0x00000008;
-      hashingNumberOfShards_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>optional int32 hashingNumberOfShards = 4;</code>
-     */
-    public Builder clearHashingNumberOfShards() {
-      bitField0_ = (bitField0_ & ~0x00000008);
-      hashingNumberOfShards_ = 0;
-      onChanged();
-      return this;
-    }
-
     private alluxio.grpc.FileSystemMasterCommonPOptions commonOptions_ = null;
     private com.google.protobuf.SingleFieldBuilderV3<
         alluxio.grpc.FileSystemMasterCommonPOptions, alluxio.grpc.FileSystemMasterCommonPOptions.Builder, alluxio.grpc.FileSystemMasterCommonPOptionsOrBuilder> commonOptionsBuilder_;
     /**
-     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
      */
     public boolean hasCommonOptions() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
      */
     public alluxio.grpc.FileSystemMasterCommonPOptions getCommonOptions() {
       if (commonOptionsBuilder_ == null) {
@@ -882,7 +653,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
      */
     public Builder setCommonOptions(alluxio.grpc.FileSystemMasterCommonPOptions value) {
       if (commonOptionsBuilder_ == null) {
@@ -894,11 +665,11 @@ private static final long serialVersionUID = 0L;
       } else {
         commonOptionsBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000004;
       return this;
     }
     /**
-     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
      */
     public Builder setCommonOptions(
         alluxio.grpc.FileSystemMasterCommonPOptions.Builder builderForValue) {
@@ -908,15 +679,15 @@ private static final long serialVersionUID = 0L;
       } else {
         commonOptionsBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000004;
       return this;
     }
     /**
-     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
      */
     public Builder mergeCommonOptions(alluxio.grpc.FileSystemMasterCommonPOptions value) {
       if (commonOptionsBuilder_ == null) {
-        if (((bitField0_ & 0x00000010) == 0x00000010) &&
+        if (((bitField0_ & 0x00000004) == 0x00000004) &&
             commonOptions_ != null &&
             commonOptions_ != alluxio.grpc.FileSystemMasterCommonPOptions.getDefaultInstance()) {
           commonOptions_ =
@@ -928,11 +699,11 @@ private static final long serialVersionUID = 0L;
       } else {
         commonOptionsBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000004;
       return this;
     }
     /**
-     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
      */
     public Builder clearCommonOptions() {
       if (commonOptionsBuilder_ == null) {
@@ -941,19 +712,19 @@ private static final long serialVersionUID = 0L;
       } else {
         commonOptionsBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000010);
+      bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
     /**
-     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
      */
     public alluxio.grpc.FileSystemMasterCommonPOptions.Builder getCommonOptionsBuilder() {
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000004;
       onChanged();
       return getCommonOptionsFieldBuilder().getBuilder();
     }
     /**
-     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
      */
     public alluxio.grpc.FileSystemMasterCommonPOptionsOrBuilder getCommonOptionsOrBuilder() {
       if (commonOptionsBuilder_ != null) {
@@ -964,7 +735,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 5;</code>
+     * <code>optional .alluxio.grpc.file.FileSystemMasterCommonPOptions commonOptions = 3;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
         alluxio.grpc.FileSystemMasterCommonPOptions, alluxio.grpc.FileSystemMasterCommonPOptions.Builder, alluxio.grpc.FileSystemMasterCommonPOptionsOrBuilder> 
@@ -989,7 +760,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional bool skipTransformation = 1001;</code>
      */
     public boolean hasSkipTransformation() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <pre>
@@ -1009,7 +780,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional bool skipTransformation = 1001;</code>
      */
     public Builder setSkipTransformation(boolean value) {
-      bitField0_ |= 0x00000020;
+      bitField0_ |= 0x00000008;
       skipTransformation_ = value;
       onChanged();
       return this;
@@ -1022,7 +793,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional bool skipTransformation = 1001;</code>
      */
     public Builder clearSkipTransformation() {
-      bitField0_ = (bitField0_ & ~0x00000020);
+      bitField0_ = (bitField0_ & ~0x00000008);
       skipTransformation_ = false;
       onChanged();
       return this;

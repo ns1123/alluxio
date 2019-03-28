@@ -19,9 +19,9 @@ import alluxio.exception.status.InvalidArgumentException;
 import alluxio.grpc.WriteRequest;
 import alluxio.grpc.WriteRequestCommand;
 import alluxio.grpc.WriteResponse;
-import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.network.protocol.databuffer.NioDataBuffer;
+import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.util.LogUtils;
 
 import com.codahale.metrics.Counter;
@@ -78,7 +78,7 @@ abstract class AbstractWriteHandler<T extends WriteRequestContext<?>> {
    */
   private volatile T mContext;
 
-  protected alluxio.security.authentication.AuthenticatedUserInfo mUserInfo;
+  protected AuthenticatedUserInfo mUserInfo;
 
   /**
    * Creates an instance of {@link AbstractWriteHandler}.

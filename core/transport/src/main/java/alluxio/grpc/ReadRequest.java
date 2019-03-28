@@ -26,6 +26,7 @@ private static final long serialVersionUID = 0L;
     length_ = 0L;
     promote_ = false;
     chunkSize_ = 0L;
+    offsetReceived_ = 0L;
   }
 
   @java.lang.Override
@@ -97,9 +98,14 @@ private static final long serialVersionUID = 0L;
             bitField0_ |= 0x00000020;
             break;
           }
+          case 56: {
+            bitField0_ |= 0x00000040;
+            offsetReceived_ = input.readInt64();
+            break;
+          }
           case 8002: {
             alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
-            if (((bitField0_ & 0x00000040) == 0x00000040)) {
+            if (((bitField0_ & 0x00000080) == 0x00000080)) {
               subBuilder = capability_.toBuilder();
             }
             capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
@@ -107,7 +113,7 @@ private static final long serialVersionUID = 0L;
               subBuilder.mergeFrom(capability_);
               capability_ = subBuilder.buildPartial();
             }
-            bitField0_ |= 0x00000040;
+            bitField0_ |= 0x00000080;
             break;
           }
         }
@@ -251,6 +257,29 @@ private static final long serialVersionUID = 0L;
     return openUfsBlockOptions_ == null ? alluxio.proto.dataserver.Protocol.OpenUfsBlockOptions.getDefaultInstance() : openUfsBlockOptions_;
   }
 
+  public static final int OFFSET_RECEIVED_FIELD_NUMBER = 7;
+  private long offsetReceived_;
+  /**
+   * <pre>
+   * Read receipt
+   * </pre>
+   *
+   * <code>optional int64 offset_received = 7;</code>
+   */
+  public boolean hasOffsetReceived() {
+    return ((bitField0_ & 0x00000040) == 0x00000040);
+  }
+  /**
+   * <pre>
+   * Read receipt
+   * </pre>
+   *
+   * <code>optional int64 offset_received = 7;</code>
+   */
+  public long getOffsetReceived() {
+    return offsetReceived_;
+  }
+
   public static final int CAPABILITY_FIELD_NUMBER = 1000;
   private alluxio.proto.security.CapabilityProto.Capability capability_;
   /**
@@ -261,7 +290,7 @@ private static final long serialVersionUID = 0L;
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
    */
   public boolean hasCapability() {
-    return ((bitField0_ & 0x00000040) == 0x00000040);
+    return ((bitField0_ & 0x00000080) == 0x00000080);
   }
   /**
    * <pre>
@@ -315,6 +344,9 @@ private static final long serialVersionUID = 0L;
       output.writeMessage(6, getOpenUfsBlockOptions());
     }
     if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      output.writeInt64(7, offsetReceived_);
+    }
+    if (((bitField0_ & 0x00000080) == 0x00000080)) {
       output.writeMessage(1000, getCapability());
     }
     unknownFields.writeTo(output);
@@ -350,6 +382,10 @@ private static final long serialVersionUID = 0L;
         .computeMessageSize(6, getOpenUfsBlockOptions());
     }
     if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeInt64Size(7, offsetReceived_);
+    }
+    if (((bitField0_ & 0x00000080) == 0x00000080)) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(1000, getCapability());
     }
@@ -399,6 +435,11 @@ private static final long serialVersionUID = 0L;
       result = result && getOpenUfsBlockOptions()
           .equals(other.getOpenUfsBlockOptions());
     }
+    result = result && (hasOffsetReceived() == other.hasOffsetReceived());
+    if (hasOffsetReceived()) {
+      result = result && (getOffsetReceived()
+          == other.getOffsetReceived());
+    }
     result = result && (hasCapability() == other.hasCapability());
     if (hasCapability()) {
       result = result && getCapability()
@@ -443,6 +484,11 @@ private static final long serialVersionUID = 0L;
     if (hasOpenUfsBlockOptions()) {
       hash = (37 * hash) + OPEN_UFS_BLOCK_OPTIONS_FIELD_NUMBER;
       hash = (53 * hash) + getOpenUfsBlockOptions().hashCode();
+    }
+    if (hasOffsetReceived()) {
+      hash = (37 * hash) + OFFSET_RECEIVED_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getOffsetReceived());
     }
     if (hasCapability()) {
       hash = (37 * hash) + CAPABILITY_FIELD_NUMBER;
@@ -600,12 +646,14 @@ private static final long serialVersionUID = 0L;
         openUfsBlockOptionsBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000020);
+      offsetReceived_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000040);
       if (capabilityBuilder_ == null) {
         capability_ = null;
       } else {
         capabilityBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000040);
+      bitField0_ = (bitField0_ & ~0x00000080);
       return this;
     }
 
@@ -660,6 +708,10 @@ private static final long serialVersionUID = 0L;
       }
       if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
         to_bitField0_ |= 0x00000040;
+      }
+      result.offsetReceived_ = offsetReceived_;
+      if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        to_bitField0_ |= 0x00000080;
       }
       if (capabilityBuilder_ == null) {
         result.capability_ = capability_;
@@ -725,6 +777,9 @@ private static final long serialVersionUID = 0L;
       }
       if (other.hasOpenUfsBlockOptions()) {
         mergeOpenUfsBlockOptions(other.getOpenUfsBlockOptions());
+      }
+      if (other.hasOffsetReceived()) {
+        setOffsetReceived(other.getOffsetReceived());
       }
       if (other.hasCapability()) {
         mergeCapability(other.getCapability());
@@ -1087,6 +1142,54 @@ private static final long serialVersionUID = 0L;
       return openUfsBlockOptionsBuilder_;
     }
 
+    private long offsetReceived_ ;
+    /**
+     * <pre>
+     * Read receipt
+     * </pre>
+     *
+     * <code>optional int64 offset_received = 7;</code>
+     */
+    public boolean hasOffsetReceived() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <pre>
+     * Read receipt
+     * </pre>
+     *
+     * <code>optional int64 offset_received = 7;</code>
+     */
+    public long getOffsetReceived() {
+      return offsetReceived_;
+    }
+    /**
+     * <pre>
+     * Read receipt
+     * </pre>
+     *
+     * <code>optional int64 offset_received = 7;</code>
+     */
+    public Builder setOffsetReceived(long value) {
+      bitField0_ |= 0x00000040;
+      offsetReceived_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Read receipt
+     * </pre>
+     *
+     * <code>optional int64 offset_received = 7;</code>
+     */
+    public Builder clearOffsetReceived() {
+      bitField0_ = (bitField0_ & ~0x00000040);
+      offsetReceived_ = 0L;
+      onChanged();
+      return this;
+    }
+
     private alluxio.proto.security.CapabilityProto.Capability capability_ = null;
     private com.google.protobuf.SingleFieldBuilderV3<
         alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
@@ -1098,7 +1201,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      */
     public boolean hasCapability() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
      * <pre>
@@ -1131,7 +1234,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       return this;
     }
     /**
@@ -1149,7 +1252,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       return this;
     }
     /**
@@ -1161,7 +1264,7 @@ private static final long serialVersionUID = 0L;
      */
     public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
       if (capabilityBuilder_ == null) {
-        if (((bitField0_ & 0x00000040) == 0x00000040) &&
+        if (((bitField0_ & 0x00000080) == 0x00000080) &&
             capability_ != null &&
             capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
           capability_ =
@@ -1173,7 +1276,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       return this;
     }
     /**
@@ -1190,7 +1293,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000040);
+      bitField0_ = (bitField0_ & ~0x00000080);
       return this;
     }
     /**
@@ -1201,7 +1304,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      */
     public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       onChanged();
       return getCapabilityFieldBuilder().getBuilder();
     }

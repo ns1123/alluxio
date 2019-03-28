@@ -87,6 +87,23 @@ public interface ReadRequestOrBuilder extends
 
   /**
    * <pre>
+   * Read receipt
+   * </pre>
+   *
+   * <code>optional int64 offset_received = 7;</code>
+   */
+  boolean hasOffsetReceived();
+  /**
+   * <pre>
+   * Read receipt
+   * </pre>
+   *
+   * <code>optional int64 offset_received = 7;</code>
+   */
+  long getOffsetReceived();
+
+  /**
+   * <pre>
    * ALLUXIO CS ADD
    * </pre>
    *
