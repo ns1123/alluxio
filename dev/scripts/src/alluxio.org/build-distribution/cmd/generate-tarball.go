@@ -104,7 +104,7 @@ func symlink(oldname, newname string) {
 }
 
 func getCommonMvnArgs(hadoopVersion version) []string {
-	args := []string{"-T", "2C", "clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos"}
+	args := []string{"-T", "2C", "-am", "clean", "install", "-DskipTests", "-Dfindbugs.skip", "-Dmaven.javadoc.skip", "-Dcheckstyle.skip", "-Pmesos"}
 	if mvnArgsFlag != "" {
 		for _, arg := range strings.Split(mvnArgsFlag, ",") {
 			args = append(args, arg)
@@ -407,7 +407,7 @@ func generateTarball(hadoopClients []string) error {
 			return fmt.Errorf("kms hadoop distribution %s not recognized\n", hadoopClient)
 		}
 		if kmsVersion.hasHadoopKMS() {
-			kmsClientMvnArgs := []string{"-pl", "kms,core/client/runtime", "-Phadoop-kms"}
+			kmsClientMvnArgs := []string{"-pl", "core/client/runtime", "-Phadoop-kms"}
 			for _, arg := range getCommonMvnArgs(kmsVersion) {
 				kmsClientMvnArgs = append(kmsClientMvnArgs, arg)
 			}
