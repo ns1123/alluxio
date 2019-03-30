@@ -28,7 +28,6 @@ import (
 	// ALLUXIO CS END
 )
 
-<<<<<<< HEAD
 const (
 	// ALLUXIO CS ADD
 	edition = "enterprise"
@@ -36,13 +35,6 @@ const (
 	// The version of the hadoop client that the Alluxio client will be built for
 	defaultHadoopClient = "hadoop-2.7"
 )
-||||||| merged common ancestors
-=======
-const (
-	// The version of the hadoop client that the Alluxio client will be built for
-	defaultHadoopClient = "hadoop-2.7"
-)
->>>>>>> upstream-os/master
 var (
 	cmdSingle = &cmdline.Command{
 		Name:   "single",
@@ -407,7 +399,6 @@ func generateTarball(hadoopClients []string) error {
 	}
 
 	addAdditionalFiles(srcPath, dstPath, hadoopVersion, version)
-<<<<<<< HEAD
 	// ALLUXIO CS ADD
 	// This must be run at the end to avoid changing other jars depending on client
 	for _, hadoopClient := range hadoopClients {
@@ -427,13 +418,6 @@ func generateTarball(hadoopClients []string) error {
 		}
 	}
 	// ALLUXIO CS END
-||||||| merged common ancestors
-	hadoopVersion, ok = hadoopDistributions[hadoopDistribution]
-	if !ok {
-		return fmt.Errorf("hadoop distribution %s not recognized\n", hadoopDistribution)
-	}
-=======
->>>>>>> upstream-os/master
 
 	chdir(cwd)
 	run("creating the distribution tarball", "tar", "-czvf", tarball, dstDir)
