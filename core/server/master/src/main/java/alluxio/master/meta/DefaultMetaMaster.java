@@ -229,14 +229,7 @@ public final class DefaultMetaMaster extends CoreMaster implements MetaMaster, N
         mDailyBackup.start();
       }
     } else {
-      // ALLUXIO CS REPLACE
-      //  if (ConfigurationUtils.isHaMode(ServerConfiguration.global())) {
-      // ALLUXIO CS WITH
-      boolean haEnabled = ConfigurationUtils.isHaMode(ServerConfiguration.global());
-      haEnabled = haEnabled || (ServerConfiguration.getEnum(PropertyKey.MASTER_JOURNAL_TYPE,
-          alluxio.master.journal.JournalType.class) == alluxio.master.journal.JournalType.EMBEDDED);
-      // ALLUXIO CS END
-      if (haEnabled) {
+      if (ConfigurationUtils.isHaMode(ServerConfiguration.global())) {
         // Standby master should setup MetaMasterSync to communicate with the leader master
         RetryHandlingMetaMasterMasterClient metaMasterClient =
             new RetryHandlingMetaMasterMasterClient(MasterClientContext

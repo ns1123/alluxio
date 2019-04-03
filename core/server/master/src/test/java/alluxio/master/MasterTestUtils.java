@@ -40,7 +40,7 @@ public final class MasterTestUtils {
         .setDelegationTokenManager(org.mockito.Mockito
             .when(mock(alluxio.security.authentication.DelegationTokenManager.class)
                 .getCheckpointName())
-            .thenReturn(alluxio.master.journal.CheckpointName.DELEGATION_TOKEN_MANAGER).getMock())
+            .thenReturn(alluxio.master.journal.checkpoint.CheckpointName.DELEGATION_TOKEN_MANAGER).getMock())
         // ALLUXIO CS END
         .setJournalSystem(journalSystem)
         .setSafeModeManager(new TestSafeModeManager())
