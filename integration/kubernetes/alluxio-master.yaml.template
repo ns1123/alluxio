@@ -91,37 +91,17 @@ spec:
           volumeMounts:
             - name: alluxio-journal
               mountPath: /journal
-<<<<<<< HEAD
-            - name: alluxio-domain
-              mountPath: /opt/domain
 # ALLUXIO CS ADD
             - name: secret-volume
               mountPath: /secrets
 # ALLUXIO CS END
-||||||| merged common ancestors
-            - name: alluxio-domain
-              mountPath: /opt/domain
-=======
->>>>>>> OPENSOURCE/master
       restartPolicy: Always
       volumes:
         - name: alluxio-journal
           persistentVolumeClaim:
             claimName: alluxio-pv-claim
-<<<<<<< HEAD
-        - name: alluxio-domain
-          hostPath:
-            path: /tmp/domain
-            type: Directory
 # ALLUXIO CS ADD
         - name: secret-volume
           secret:
             secretName: alluxio-secret
 # ALLUXIO CS END
-||||||| merged common ancestors
-        - name: alluxio-domain
-          hostPath:
-            path: /tmp/domain
-            type: Directory
-=======
->>>>>>> OPENSOURCE/master

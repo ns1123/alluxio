@@ -39,7 +39,6 @@ echo "Executing the following command on all master nodes and logging to ${ALLUX
 
 N=0
 ZOOKEEPER_ENABLED=$(${BIN}/alluxio getConf alluxio.zookeeper.enabled)
-<<<<<<< HEAD
 # ALLUXIO CS ADD
 JOURNAL_TYPE=$(${BIN}/alluxio getConf ${ALLUXIO_MASTER_JAVA_OPTS} \
                      alluxio.master.journal.type | awk '{print toupper($0)}')
@@ -47,12 +46,7 @@ if [[ ${JOURNAL_TYPE} == "EMBEDDED" ]]; then
   ZOOKEEPER_ENABLED="true"
 fi
 # ALLUXIO CS END
-for master in $(echo ${HOSTLIST}); do
-||||||| merged common ancestors
-for master in $(echo ${HOSTLIST}); do
-=======
 for master in ${HOSTLIST[@]}; do
->>>>>>> OPENSOURCE/master
   echo "[${master}] Connecting as ${USER}..." >> ${ALLUXIO_TASK_LOG}
   if [[ ${ZOOKEEPER_ENABLED} == "true" || ${N} -eq 0 ]]; then
     nohup ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -tt ${master} ${LAUNCHER} \
