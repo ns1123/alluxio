@@ -46,7 +46,7 @@ data:
   license.json: <base64_encoded_license>
 # ALLUXIO CS END
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: alluxio-master
@@ -66,7 +66,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: alluxio-master
-          image: alluxio/alluxio:1.6.1
+          image: alluxio/alluxio:latest
           resources:
             requests:
               cpu: "0.5"
@@ -91,17 +91,24 @@ spec:
           volumeMounts:
             - name: alluxio-journal
               mountPath: /journal
+<<<<<<< HEAD
             - name: alluxio-domain
               mountPath: /opt/domain
 # ALLUXIO CS ADD
             - name: secret-volume
               mountPath: /secrets
 # ALLUXIO CS END
+||||||| merged common ancestors
+            - name: alluxio-domain
+              mountPath: /opt/domain
+=======
+>>>>>>> OPENSOURCE/master
       restartPolicy: Always
       volumes:
         - name: alluxio-journal
           persistentVolumeClaim:
             claimName: alluxio-pv-claim
+<<<<<<< HEAD
         - name: alluxio-domain
           hostPath:
             path: /tmp/domain
@@ -111,3 +118,10 @@ spec:
           secret:
             secretName: alluxio-secret
 # ALLUXIO CS END
+||||||| merged common ancestors
+        - name: alluxio-domain
+          hostPath:
+            path: /tmp/domain
+            type: Directory
+=======
+>>>>>>> OPENSOURCE/master
