@@ -64,8 +64,6 @@ import alluxio.security.authorization.AclEntry;
 import alluxio.util.FileSystemOptions;
 import alluxio.wire.SyncPointInfo;
 
-import com.google.protobuf.ByteString;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -206,7 +204,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
                 alluxio.grpc.RenewDelegationTokenPRequest.newBuilder()
                     .setToken(alluxio.grpc.DelegationToken.newBuilder()
                         .setIdentifier(token.getId().toProto())
-                        .setPassword(ByteString.copyFrom(token.getPassword())))
+                        .setPassword(com.google.protobuf.ByteString.copyFrom(token.getPassword())))
                     .build())
             .getExpirationTimeMs(),
         "RenewDelegationToken");
@@ -220,7 +218,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
         () -> mClient.cancelDelegationToken(alluxio.grpc.CancelDelegationTokenPRequest.newBuilder()
             .setToken(
                 alluxio.grpc.DelegationToken.newBuilder().setIdentifier(token.getId().toProto())
-                    .setPassword(ByteString.copyFrom(token.getPassword())))
+                    .setPassword(com.google.protobuf.ByteString.copyFrom(token.getPassword())))
             .build()),
         "CancelDelegationToken");
   }
