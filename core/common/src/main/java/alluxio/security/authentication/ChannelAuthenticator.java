@@ -221,7 +221,7 @@ public class ChannelAuthenticator {
           // ALLUXIO CS END
         default:
           throw new UnauthenticatedException(String.format(
-              "Configured authentication type is not supported: %s", mAuthType.getAuthName()));
+                  "Configured authentication type is not supported: %s", mAuthType.getAuthName()));
       }
     }
 
@@ -241,10 +241,10 @@ public class ChannelAuthenticator {
         case CUSTOM:
           if (mUseSubject) {
             return new alluxio.security.authentication.plain.SaslClientHandlerPlain(mParentSubject,
-                mConfiguration);
+                    mConfiguration);
           } else {
             return new alluxio.security.authentication.plain.SaslClientHandlerPlain(mUserName,
-                mPassword, mImpersonationUser);
+                    mPassword, mImpersonationUser);
           }
         // ALLUXIO CS ADD
         case KERBEROS:

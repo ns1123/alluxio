@@ -138,7 +138,6 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
       return;
     }
     // ALLUXIO CS END
-
     // Expected state: context equals null as this handler is new for request.
     // Otherwise, notify the client an illegal state. Note that, we reset the context before
     // validation msg as validation may require to update error in context.

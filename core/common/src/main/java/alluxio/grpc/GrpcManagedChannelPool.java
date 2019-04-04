@@ -443,7 +443,6 @@ public class GrpcManagedChannelPool {
             && mSslContext.equals(otherKey.mSslContext)
             // ALLUXIO CS END
             && mEventLoopGroup.equals(otherKey.mEventLoopGroup);
-
       }
       return false;
     }

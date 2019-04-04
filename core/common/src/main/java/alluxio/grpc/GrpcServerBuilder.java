@@ -66,7 +66,7 @@ public final class GrpcServerBuilder {
     if (SecurityUtils.isAuthenticationEnabled(mConfiguration)) {
       if (mAuthenticationServer == null) {
         // ALLUXIO CS REPLACE
-        //mAuthenticationServer = new DefaultAuthenticationServer(hostName, mConfiguration);
+        // mAuthenticationServer = new DefaultAuthenticationServer(hostName, mConfiguration);
         // ALLUXIO CS WITH
         mAuthenticationServer = new EnterpriseAuthenticationServer(hostName, mConfiguration);
         // ALLUXIO CS END
