@@ -709,7 +709,7 @@ public final class ExtensionInodeAttributesProviderTest {
 
     @Override
     public void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
-        List<InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
+        List<? extends InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
         throws AccessControlException {
       mEnforcer.checkPermission(user, groups, bits, path, inodeList, attributes, checkIsOwner);
     }

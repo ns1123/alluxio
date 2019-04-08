@@ -152,7 +152,7 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
      */
     @Override
     public void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
-        List<InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
+        List<? extends InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
         throws AccessControlException {
       // checks permission with master plugin
       if (mExternalMasterEnforcer != null) {
@@ -174,10 +174,13 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
         List<AlluxioURI> parentsUris = findMountPointParentUris(uri);
         // check permission for all nested UFS mount on the path.
         for (AlluxioURI parentUri : parentsUris) {
-          checkUfsPermission(user, groups, Mode.Bits.EXECUTE, parentUri.getPath(), inodeList,
-              attributes, false /** owner is only checked on the last inode */);
+          checkUfsPermission(user, groups, Mode.Bits.EXECUTE, parentUri.getPath(),
+              (List<InodeView>) inodeList, attributes,
+              false /** owner is only checked on the last inode */
+          );
         }
-        checkUfsPermission(user, groups, bits, path, inodeList, attributes, checkIsOwner);
+        checkUfsPermission(user, groups, bits, path, (List<InodeView>) inodeList, attributes,
+            checkIsOwner);
       } catch (InvalidPathException e) {
         LOG.error("Cannot resolve UFS path: {}", e.getMessage());
       }

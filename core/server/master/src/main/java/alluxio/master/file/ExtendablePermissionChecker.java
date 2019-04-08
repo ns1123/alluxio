@@ -58,7 +58,7 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
 
   @Override
   public void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
-      List<InodeView> inodeList, List<InodeAttributes> attributes,
+      List<? extends InodeView> inodeList, List<InodeAttributes> attributes,
       boolean checkIsOwner) throws AccessControlException {
     Preconditions.checkArgument(inodeList.size() == attributes.size(),
         "Overridden attributes count should be equal to the inode count");
@@ -76,7 +76,7 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
   // AccessControlEnforcer cannot determine the permission.
   @Override
   protected void checkInodeList(String user, List<String> groups, Mode.Bits bits, String path,
-      List<InodeView> inodeList, boolean checkIsOwner) throws AccessControlException {
+      List<? extends InodeView> inodeList, boolean checkIsOwner) throws AccessControlException {
     List<InodeAttributes> attributesList;
     List<String> pathComponents = new ArrayList<>();
     attributesList = new ArrayList<>();
