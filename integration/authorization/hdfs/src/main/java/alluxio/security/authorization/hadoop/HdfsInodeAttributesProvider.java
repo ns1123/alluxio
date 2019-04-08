@@ -216,7 +216,7 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
 
     @Override
     public void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
-        List<? extends InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
+        List<InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
         throws alluxio.exception.AccessControlException {
       String fsOwner;
       try {

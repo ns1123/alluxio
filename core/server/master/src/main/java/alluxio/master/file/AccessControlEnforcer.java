@@ -35,6 +35,6 @@ public interface AccessControlEnforcer {
    * @throws AccessControlException if permission checking fails
    */
   void checkPermission(String user, List<String> groups, Mode.Bits bits, String path,
-      List<? extends InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
+      List<InodeView> inodeList, List<InodeAttributes> attributes, boolean checkIsOwner)
       throws AccessControlException;
 }
