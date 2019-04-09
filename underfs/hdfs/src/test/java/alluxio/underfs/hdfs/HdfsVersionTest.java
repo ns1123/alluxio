@@ -74,7 +74,7 @@ public class HdfsVersionTest {
     Assert.assertEquals(HdfsVersion.HADOOP_2_8, HdfsVersion.find("hadoop-2.8"));
     Assert.assertEquals(HdfsVersion.HADOOP_2_8, HdfsVersion.find("hadoop-2.8.0"));
     Assert.assertEquals(HdfsVersion.HADOOP_2_8, HdfsVersion.find("hadoop2.8"));
-    // ALLUXIO CS START
+    // ALLUXIO CS ADD
     Assert.assertEquals(HdfsVersion.CDH_5_6, HdfsVersion.find("2.6.0-cdh5.6.0"));
     Assert.assertEquals(HdfsVersion.CDH_5_6, HdfsVersion.find("cdh-5.6"));
     Assert.assertEquals(HdfsVersion.CDH_5_6, HdfsVersion.find("cdh5.6"));
