@@ -79,6 +79,7 @@ public final class LocalFileDataWriter implements DataWriter {
     // ALLUXIO CS END
     Closer closer = Closer.create();
     try {
+<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
       // ALLUXIO CS WITH
@@ -96,6 +97,10 @@ public final class LocalFileDataWriter implements DataWriter {
           context.releaseBlockWorkerClient(address, blockWorker);
         }
       });
+=======
+      final BlockWorkerClient blockWorker = context.acquireBlockWorkerClient(address);
+      closer.register(() -> context.releaseBlockWorkerClient(address, blockWorker));
+>>>>>>> OPENSOURCE/master
       int writerBufferSizeMessages =
           conf.getInt(PropertyKey.USER_NETWORK_WRITER_BUFFER_SIZE_MESSAGES);
       long fileBufferByes = conf.getBytes(PropertyKey.USER_FILE_BUFFER_BYTES);
