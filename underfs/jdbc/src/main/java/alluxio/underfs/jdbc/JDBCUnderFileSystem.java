@@ -226,7 +226,6 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
     return getFileStatus(path);
   }
 
-
   // This call is currently only used for the web ui, where a negative value implies unknown.
   @Override
   public long getSpace(String path, SpaceType type) throws IOException {

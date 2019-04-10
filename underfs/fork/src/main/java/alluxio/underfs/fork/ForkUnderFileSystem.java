@@ -235,7 +235,8 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
-  public OutputStream createNonexistingFile(final String path, final CreateOptions options) throws IOException {
+  public OutputStream createNonexistingFile(final String path,
+      final CreateOptions options) throws IOException {
     Collection<OutputStream> streams = new ConcurrentLinkedQueue<>();
     ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Pair<String, UnderFileSystem>, Collection<OutputStream>>,
