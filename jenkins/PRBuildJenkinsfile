@@ -36,7 +36,7 @@ pipeline {
                               '-e ALLUXIO_USE_FIXED_TEST_PORTS=true ' +
                               '-w /usr/src/alluxio alluxio/alluxio-maven:0.0.2 ' +
                               'mvn -T 2C -Duser.home=/home/jenkins clean install ' + 
-                              '-Dsurefire.forkCount=12'
+                              '-Dsurefire.forkCount=6'
                     // legacy branches that contain an annotation/ directory must skip annotation check because it requires cloning a private repo
                     if (fileExists("${WORKSPACE}/annotation")) {
                         cmd += ' -Dannotation.skip'
