@@ -11,6 +11,9 @@
 
 package alluxio.security;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
+
 import org.powermock.reflect.Whitebox;
 
 /**
@@ -25,6 +28,10 @@ public final class LoginUserTestUtils {
    */
   public static void resetLoginUser() {
     synchronized (LoginUser.class) {
+      // ALLUXIO CS ADD
+      Whitebox.setInternalState(LoginUser.class, "sAuthType",
+          (alluxio.security.authentication.AuthType) null);
+      // ALLUXIO CS END
       Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
     }
   }
@@ -36,6 +43,11 @@ public final class LoginUserTestUtils {
    */
   public static void resetLoginUser(String user) {
     synchronized (LoginUser.class) {
+      // ALLUXIO CS ADD
+      Whitebox.setInternalState(LoginUser.class, "sAuthType",
+          Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
+              alluxio.security.authentication.AuthType.class));
+      // ALLUXIO CS END
       Whitebox.setInternalState(LoginUser.class, "sLoginUser", new User(user));
     }
   }

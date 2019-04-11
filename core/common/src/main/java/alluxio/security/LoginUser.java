@@ -14,6 +14,7 @@ package alluxio.security;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
+import alluxio.resource.LockResource;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
@@ -22,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.security.auth.Subject;
@@ -44,6 +47,14 @@ public final class LoginUser {
   /** User instance of the login user in Alluxio client process. */
   private static User sLoginUser;
   // ALLUXIO CS ADD
+  /**
+   * Authentication type when login.
+   * NOTE: sAuthType and sLoginUser must be updated together, if sAuthType is not null, sLoginUser
+   * shouldn't be null neither.
+   */
+  private static AuthType sAuthType;
+  /** Guards against sLoginUser and sAuthType. */
+  private static ReadWriteLock sUserAuthLock = new ReentrantReadWriteLock();
   private static LoginContext sLoginContext;
   private static String sPrincipal;
   private static String sKeytab;
@@ -136,30 +147,29 @@ public final class LoginUser {
    */
   private static User getUserWithConf(PropertyKey principalKey, PropertyKey keytabKey)
       throws UnauthenticatedException {
-    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
-        != AuthType.KERBEROS) {
-      if (sLoginUser == null) {
-        synchronized (LoginUser.class) {
-          if (sLoginUser == null) {
-            sLoginUser = login();
-          }
-        }
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
+        AuthType.class);
+    try (LockResource r = new LockResource(sUserAuthLock.readLock())) {
+      if (sAuthType == authType && sLoginUser != null) {
+        return sLoginUser;
       }
+    }
+    // Hasn't logged in before, or authentication type has changed, need to login again.
+    try (LockResource w = new LockResource(sUserAuthLock.writeLock())) {
+      if (sAuthType == authType && sLoginUser != null) {
+        // check again in case another thread has logged in again.
+        return sLoginUser;
+      }
+      sAuthType = authType;
+      if (authType == AuthType.KERBEROS) {
+        Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
+            Configuration.get(principalKey));
+        Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
+            Configuration.get(keytabKey));
+      }
+      sLoginUser = login();
       return sLoginUser;
     }
-
-    if (sLoginUser == null) {
-      synchronized (LoginUser.class) {
-        if (sLoginUser == null) {
-          Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
-              Configuration.get(principalKey));
-          Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
-              Configuration.get(keytabKey));
-          sLoginUser = login();
-        }
-      }
-    }
-    return sLoginUser;
   }
   // ALLUXIO CS END
 

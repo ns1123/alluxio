@@ -306,4 +306,24 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
     subject = LoginUser.getServerLoginSubject();
     Assert.assertNull(subject);
   }
+
+  /**
+   * Tests that we login again after changing authentication type.
+   */
+  @Test
+  public void changeAuthType() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    User simpleUser = LoginUser.get();
+    Assert.assertNotNull(simpleUser);
+    Assert.assertEquals(System.getProperty("user.name"), simpleUser.getName());
+
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sFooKeytab.getPath());
+    User kerberosUser = LoginUser.get();
+    Assert.assertNotNull(kerberosUser);
+    Assert.assertEquals("foo", kerberosUser.getName());
+    Assert.assertEquals("[foo/host@EXAMPLE.COM]",
+        kerberosUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+  }
 }
