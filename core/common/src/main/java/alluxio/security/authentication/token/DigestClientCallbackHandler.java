@@ -40,6 +40,9 @@ class DigestClientCallbackHandler implements CallbackHandler {
    */
   public DigestClientCallbackHandler(Token<?> token) {
     mUserName = buildUserName(token);
+    if (mUserName.isEmpty()) {
+      throw new IllegalArgumentException("Invalid empty user name from token");
+    }
     mUserPassword = buildPassword(token);
   }
 

@@ -82,7 +82,7 @@ public final class GrpcDataReader implements DataReader {
     // ALLUXIO CS REPLACE
     // mClient = mContext.acquireBlockWorkerClient(address);
     // ALLUXIO CS WITH
-    if (mReadRequest.getCapability() != null) {
+    if (mReadRequest.hasCapability()) {
       mClient = mContext.acquireBlockWorkerClient(address, mReadRequest.getCapability());
     } else {
       mClient = mContext.acquireBlockWorkerClient(address);

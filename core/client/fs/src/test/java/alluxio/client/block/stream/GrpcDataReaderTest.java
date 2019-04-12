@@ -82,6 +82,7 @@ public final class GrpcDataReaderTest {
     // ALLUXIO CS REPLACE
     // when(mContext.acquireBlockWorkerClient(mAddress)).thenReturn(mClient);
     // ALLUXIO CS WITH
+    when(mContext.acquireBlockWorkerClient(org.mockito.Matchers.eq(mAddress))).thenReturn(mClient);
     when(mContext.acquireBlockWorkerClient(org.mockito.Matchers.eq(mAddress),
         any(alluxio.proto.security.CapabilityProto.Capability.class))).thenReturn(mClient);
     // ALLUXIO CS END
@@ -155,6 +156,43 @@ public final class GrpcDataReaderTest {
     validateReadRequestSent(mClient, 0, Long.MAX_VALUE, true, CHUNK_SIZE);
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Authenticates without capability.
+   */
+  @Test(timeout = 1000 * 60)
+  public void authWithoutCapability() throws Exception {
+    try (DataReader reader = mFactory.create(0, Long.MAX_VALUE)) {
+      setReadResponses(mClient, 0, 0, 0);
+      verify(mContext, atLeastOnce())
+          .acquireBlockWorkerClient(org.mockito.Matchers.eq(mAddress));
+      verify(mContext, never())
+          .acquireBlockWorkerClient(org.mockito.Matchers.eq(mAddress),
+              any(alluxio.proto.security.CapabilityProto.Capability.class));
+    }
+  }
+
+  /**
+   * Authenticates without capability.
+   */
+  @Test(timeout = 1000 * 60)
+  public void authWithCapability() throws Exception {
+    ReadRequest readRequest =
+        ReadRequest.newBuilder().setBlockId(BLOCK_ID).setChunkSize(CHUNK_SIZE).setCapability(
+            alluxio.proto.security.CapabilityProto.Capability.newBuilder().setKeyId(12345L).build()
+        ).build();
+    mFactory = new GrpcDataReader.Factory(mContext, mAddress, readRequest);
+    try (DataReader reader = mFactory.create(0, Long.MAX_VALUE)) {
+      setReadResponses(mClient, 0, 0, 0);
+      verify(mContext, never())
+          .acquireBlockWorkerClient(org.mockito.Matchers.eq(mAddress));
+      verify(mContext, atLeastOnce())
+          .acquireBlockWorkerClient(org.mockito.Matchers.eq(mAddress),
+              any(alluxio.proto.security.CapabilityProto.Capability.class));
+    }
+  }
+
+  // ALLUXIO CS END
   /**
    * Creates a {@link DataReader}.
    *
