@@ -113,19 +113,11 @@ public class AlluxioMasterProcess extends MasterProcess {
           .setJournalSystem(mJournalSystem)
           .setSafeModeManager(mSafeModeManager)
           .setBackupManager(mBackupManager)
-<<<<<<< HEAD
           // ALLUXIO CS ADD
           .setDelegationTokenManager(mDelegationTokenManager)
           // ALLUXIO CS END
-          .setBlockStoreFactory(MasterUtils.getBlockStoreFactory())
-          .setInodeStoreFactory(MasterUtils.getInodeStoreFactory())
-||||||| merged common ancestors
-          .setBlockStoreFactory(MasterUtils.getBlockStoreFactory())
-          .setInodeStoreFactory(MasterUtils.getInodeStoreFactory())
-=======
           .setBlockStoreFactory(MasterUtils.getBlockStoreFactory(baseDir))
           .setInodeStoreFactory(MasterUtils.getInodeStoreFactory(baseDir))
->>>>>>> upstream-os/master
           .setStartTimeMs(mStartTimeMs)
           .setPort(NetworkAddressUtils
               .getPort(ServiceType.MASTER_RPC, ServerConfiguration.global()))
