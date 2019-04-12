@@ -11,6 +11,8 @@
 
 package alluxio.web;
 
+import alluxio.Constants;
+
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +37,7 @@ public class AuthenticationFilter implements Filter {
   private static final Pattern[] NO_AUTHENTICATION_PATH_PATTERNS = new Pattern[]{
       Pattern.compile(WebInterfaceLoginServlet.PATH),
       Pattern.compile(WebInterfaceLoginServlet.JSP_PATH),
+      Pattern.compile(Constants.REST_API_PREFIX),
       Pattern.compile(".*\\.js"),
       Pattern.compile(".*\\.css"),
       Pattern.compile(".*\\.png"),

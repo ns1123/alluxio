@@ -17,6 +17,7 @@ import alluxio.ConfigurationValueOptions;
 import alluxio.MasterStorageTierAssoc;
 import alluxio.RestUtils;
 import alluxio.RuntimeConstants;
+import alluxio.exception.status.PermissionDeniedException;
 import alluxio.master.MasterProcess;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
@@ -26,6 +27,7 @@ import alluxio.metrics.MasterMetrics;
 import alluxio.metrics.MetricsSystem;
 import alluxio.util.LogUtils;
 import alluxio.web.MasterWebServer;
+import alluxio.web.WebServerUtils;
 import alluxio.wire.AlluxioMasterInfo;
 import alluxio.wire.Capacity;
 import alluxio.wire.MountPointInfo;
@@ -73,6 +75,10 @@ public final class AlluxioMasterRestServiceHandler {
   public static final String LOG_LEVEL = "logLevel";
   public static final String LOG_ARGUMENT_NAME = "logName";
   public static final String LOG_ARGUMENT_LEVEL = "level";
+  // ALLUXIO CS ADD
+  public static final String LOG_ARGUMENT_USER = "user";
+  public static final String LOG_ARGUMENT_PASSWORD = "password";
+  // ALLUXIO CS END
 
   // the following endpoints are deprecated
   public static final String GET_RPC_ADDRESS = "rpc_address";
@@ -505,17 +511,39 @@ public final class AlluxioMasterRestServiceHandler {
     return new Capacity().setTotal(capacityBytes).setUsed(usedBytes);
   }
 
+  // ALLUXIO CS REPLACE
+  ///**
+  // * @summary set the Alluxio log information
+  // * @param logName the log's name
+  // * @param level the log level
+  // * @return the response object
+  // */
+  //@POST
+  //@Path(LOG_LEVEL)
+  //@ReturnType("alluxio.wire.LogInfo")
+  //public Response logLevel(@QueryParam(LOG_ARGUMENT_NAME) final String logName, @QueryParam
+  //    (LOG_ARGUMENT_LEVEL) final String level) {
+  //  return RestUtils.call(() -> LogUtils.setLogLevel(logName, level));
+  //}
+  // ALLUXIO CS WITH
   /**
    * @summary set the Alluxio log information
    * @param logName the log's name
    * @param level the log level
+   * @param user the username
+   * @param password the password
    * @return the response object
    */
   @POST
   @Path(LOG_LEVEL)
   @ReturnType("alluxio.wire.LogInfo")
   public Response logLevel(@QueryParam(LOG_ARGUMENT_NAME) final String logName, @QueryParam
-      (LOG_ARGUMENT_LEVEL) final String level) {
+      (LOG_ARGUMENT_LEVEL) final String level, @QueryParam(LOG_ARGUMENT_USER) final String user,
+      @QueryParam(LOG_ARGUMENT_PASSWORD) final String password) {
+    if (!WebServerUtils.canLogin(user, password)) {
+      return RestUtils.createErrorResponse(new PermissionDeniedException("Authentication failed"));
+    }
     return RestUtils.call(() -> LogUtils.setLogLevel(logName, level));
   }
+  // ALLUXIO CS END
 }

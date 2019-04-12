@@ -12,10 +12,10 @@
 package alluxio;
 
 import alluxio.exception.status.AlluxioStatusException;
-import alluxio.exception.status.Status;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.SecurityUtils;
+import alluxio.wire.RestApiErrorResponse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,7 +78,7 @@ public final class RestUtils {
    * @param object the object to respond with
    * @return the response
    */
-  private static Response createResponse(Object object) {
+  public static Response createResponse(Object object) {
     if (object instanceof Void) {
       return Response.ok().build();
     }
@@ -95,48 +95,14 @@ public final class RestUtils {
   }
 
   /**
-   * Error response when {@link RestCallable#call()} throws an exception.
-   * It will be encoded into a Json string to be returned as an error response for the REST call.
-   */
-  public static class ErrorResponse {
-    private final Status mStatus;
-    private final String mMessage;
-
-    /**
-     * Creates a new {@link ErrorResponse}.
-     *
-     * @param status the RPC call result's {@link Status}
-     * @param message the error message
-     */
-    public ErrorResponse(Status status, String message) {
-      mStatus = status;
-      mMessage = message;
-    }
-
-    /**
-     * @return the status
-     */
-    public Status getStatus() {
-      return mStatus;
-    }
-
-    /**
-     * @return the error message
-     */
-    public String getMessage() {
-      return mMessage;
-    }
-  }
-
-  /**
    * Creates an error response using the given exception.
    *
-   * @param e the exception to be converted into {@link ErrorResponse} and encoded into json
+   * @param e the exception to be converted into {@link RestApiErrorResponse} and encoded into json
    * @return the response
    */
-  private static Response createErrorResponse(Exception e) {
+  public static Response createErrorResponse(Exception e) {
     AlluxioStatusException se = AlluxioStatusException.fromThrowable(e);
-    ErrorResponse response = new ErrorResponse(se.getStatus(), se.getMessage());
+    RestApiErrorResponse response = new RestApiErrorResponse(se.getStatus(), se.getMessage());
     return Response.serverError().entity(response).build();
   }
 

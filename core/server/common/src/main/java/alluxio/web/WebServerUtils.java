@@ -37,20 +37,23 @@ public final class WebServerUtils {
     return Configuration.getBoolean(PropertyKey.WEB_LOGIN_ENABLED);
   }
 
+  private static Map<String, String> loadUserPasswords() {
+    String username = Configuration.get(PropertyKey.WEB_LOGIN_USERNAME);
+    String password = Configuration.get(PropertyKey.WEB_LOGIN_PASSWORD);
+    Map<String, String> userPasswords = new HashMap<>();
+    userPasswords.put(username, password);
+    return userPasswords;
+  }
+
+  private static final Map<String, String> USER_PASSWORDS = loadUserPasswords();
+
   /**
    * Creates a {@link WebInterfaceLoginServlet} and add it to the application context.
    *
    * @param context the application context to add the login servlet to
    */
   public static void addLoginServlet(WebAppContext context) {
-    // Generate a mapping from username to password.
-    String username = Configuration.get(PropertyKey.WEB_LOGIN_USERNAME);
-    String password = Configuration.get(PropertyKey.WEB_LOGIN_PASSWORD);
-    Map<String, String> userPasswords = new HashMap<>();
-    userPasswords.put(username, password);
-
-    // Add login servlet.
-    WebInterfaceLoginServlet loginServlet = new WebInterfaceLoginServlet(userPasswords);
+    WebInterfaceLoginServlet loginServlet = new WebInterfaceLoginServlet(USER_PASSWORDS);
     context.addServlet(new ServletHolder(loginServlet), WebInterfaceLoginServlet.PATH);
   }
 
@@ -75,5 +78,17 @@ public final class WebServerUtils {
     context.addFilter(new FilterHolder(filter), "/*",
         EnumSet.of(javax.servlet.DispatcherType.REQUEST,
             javax.servlet.DispatcherType.FORWARD, javax.servlet.DispatcherType.INCLUDE));
+  }
+
+  /**
+   * @param user username
+   * @param password password in plain text
+   * @return true if the user can login otherwise false
+   */
+  public static boolean canLogin(String user, String password) {
+    if (isLoginEnabled()) {
+      return USER_PASSWORDS.containsKey(user) && USER_PASSWORDS.get(user).equals(password);
+    }
+    return true;
   }
 }

@@ -13,6 +13,7 @@ package alluxio;
 
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.Status;
+import alluxio.wire.RestApiErrorResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
@@ -98,7 +99,7 @@ public class RestUtilsTest {
     });
     Assert.assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
         response.getStatus());
-    RestUtils.ErrorResponse errorResponse = (RestUtils.ErrorResponse) response.getEntity();
+    RestApiErrorResponse errorResponse = (RestApiErrorResponse) response.getEntity();
     Assert.assertEquals(status, errorResponse.getStatus());
     Assert.assertEquals(message, errorResponse.getMessage());
   }

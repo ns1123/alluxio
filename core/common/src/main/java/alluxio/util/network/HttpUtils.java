@@ -37,23 +37,26 @@ public final class HttpUtils {
    *
    * @param url the http url
    * @param timeout milliseconds to wait for the server to respond before giving up
-   * @param processInputStream the response body stream processor
+   * @param succeed the response body stream processor used when request succeeds
+   * @param fail the response body stream processor used when request fails
    */
   public static void post(String url, Integer timeout,
-                          IProcessInputStream processInputStream)
+                          IProcessInputStream succeed, IProcessInputStream fail)
       throws IOException {
     Preconditions.checkNotNull(timeout, "timeout");
-    Preconditions.checkNotNull(processInputStream, "processInputStream");
+    Preconditions.checkNotNull(succeed, "succeed");
+    Preconditions.checkNotNull(fail, "fail");
     PostMethod postMethod = new PostMethod(url);
     try {
       HttpClient httpClient = new HttpClient();
       httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(timeout);
       httpClient.getHttpConnectionManager().getParams().setSoTimeout(timeout);
       int statusCode = httpClient.executeMethod(postMethod);
+      InputStream inputStream = postMethod.getResponseBodyAsStream();
       if (statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_CREATED) {
-        InputStream inputStream = postMethod.getResponseBodyAsStream();
-        processInputStream.process(inputStream);
+        succeed.process(inputStream);
       } else {
+        fail.process(inputStream);
         throw new IOException("Failed to perform POST request. Status code: " + statusCode);
       }
     } finally {
@@ -71,18 +74,15 @@ public final class HttpUtils {
   public static String post(String url, Integer timeout)
       throws IOException {
     final StringBuilder contentBuffer = new StringBuilder();
-    post(url, timeout, new IProcessInputStream() {
-      @Override
-      public void process(InputStream inputStream) throws IOException {
-        try (BufferedReader br = new BufferedReader(
-            new InputStreamReader(inputStream, "UTF-8"))) {
-          String line;
-          while ((line = br.readLine()) != null) {
-            contentBuffer.append(line);
-          }
+    post(url, timeout, (InputStream body) -> {
+      try (BufferedReader br = new BufferedReader(
+        new InputStreamReader(body, "UTF-8"))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+          contentBuffer.append(line);
         }
       }
-    });
+    }, (InputStream) -> { });
     return contentBuffer.toString();
   }
 

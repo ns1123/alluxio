@@ -18,6 +18,7 @@ import alluxio.util.network.HttpUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.LogInfo;
+import alluxio.wire.RestApiErrorResponse;
 import alluxio.wire.WorkerNetAddress;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -75,10 +76,30 @@ public final class LogLevel {
           .longOpt(LEVEL_OPTION_NAME)
           .hasArg(true)
           .desc("The log level to be set.").build();
+  // ALLUXIO CS ADD
+  private static final String USER_OPTION_NAME = "user";
+  private static final Option USER_OPTION =
+      Option.builder()
+          .required(false)
+          .longOpt(USER_OPTION_NAME)
+          .hasArg(true)
+          .desc("The login user.").build();
+  private static final String PASSWORD_OPTION_NAME = "password";
+  private static final Option PASSWORD_OPTION =
+      Option.builder()
+          .required(false)
+          .longOpt(PASSWORD_OPTION_NAME)
+          .hasArg(true)
+          .desc("The login password.").build();
+  // ALLUXIO CS END
   private static final Options OPTIONS = new Options()
       .addOption(TARGET_OPTION)
       .addOption(LOG_NAME_OPTION)
-      .addOption(LEVEL_OPTION);
+      .addOption(LEVEL_OPTION)
+      // ALLUXIO CS ADD
+      .addOption(USER_OPTION)
+      .addOption(PASSWORD_OPTION);
+      // ALLUXIO CS END
 
   /**
    * Prints the help message.
@@ -104,9 +125,17 @@ public final class LogLevel {
     List<TargetInfo> targets = parseOptTarget(cmd);
     String logName = parseOptLogName(cmd);
     String level = parseOptLevel(cmd);
+    // ALLUXIO CS ADD
+    String user = cmd.getOptionValue(USER_OPTION_NAME);
+    String password = cmd.getOptionValue(PASSWORD_OPTION_NAME);
+    // ALLUXIO CS END
 
     for (TargetInfo targetInfo : targets) {
-      setLogLevel(targetInfo, logName, level);
+      // ALLUXIO CS REPLACE
+      // setLogLevel(targetInfo, logName, level);
+      // ALLUXIO CS WITH
+      setLogLevel(targetInfo, logName, level, user, password);
+      // ALLUXIO CS END
     }
   }
 
@@ -171,8 +200,13 @@ public final class LogLevel {
     return null;
   }
 
-  private static void setLogLevel(final TargetInfo targetInfo, String logName, String level)
-      throws IOException {
+  // ALLUXIO CS REPLACE
+  //private static void setLogLevel(final TargetInfo targetInfo, String logName, String level)
+  //    throws IOException {
+  // ALLUXIO CS WITH
+  private static void setLogLevel(final TargetInfo targetInfo, String logName, String level,
+      String user, String password) throws IOException {
+  // ALLUXIO CS END
     URIBuilder uriBuilder = new URIBuilder();
     uriBuilder.setScheme("http");
     uriBuilder.setHost(targetInfo.getHost());
@@ -182,14 +216,19 @@ public final class LogLevel {
     if (level != null) {
       uriBuilder.addParameter(LEVEL_OPTION_NAME, level);
     }
-    HttpUtils.post(uriBuilder.toString(), 5000, new HttpUtils.IProcessInputStream() {
-      @Override
-      public void process(InputStream inputStream) throws IOException {
+    // ALLUXIO CS ADD
+    uriBuilder.addParameter(USER_OPTION_NAME, user);
+    uriBuilder.addParameter(PASSWORD_OPTION_NAME, password);
+    // ALLUXIO CS END
+    HttpUtils.post(uriBuilder.toString(), 5000, (InputStream body) -> {
+      ObjectMapper mapper = new ObjectMapper();
+      LogInfo logInfo = mapper.readValue(body, LogInfo.class);
+      System.out.println(targetInfo.toString() + logInfo.toString());
+    }, (InputStream body) -> {
         ObjectMapper mapper = new ObjectMapper();
-        LogInfo logInfo = mapper.readValue(inputStream, LogInfo.class);
-        System.out.println(targetInfo.toString() + logInfo.toString());
-      }
-    });
+        RestApiErrorResponse error = mapper.readValue(body, RestApiErrorResponse.class);
+        System.err.println(error.getMessage());
+      });
   }
 
   /**
@@ -205,7 +244,6 @@ public final class LogLevel {
     } catch (ParseException e) {
       printHelp("Unable to parse input args: " + e.getMessage());
     } catch (IOException e) {
-      e.printStackTrace();
       System.err.println(String.format("Failed to set log level: %s", e.getMessage()));
     }
     System.exit(exitCode);
