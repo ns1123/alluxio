@@ -403,7 +403,7 @@ public final class FileSystemContext implements Closeable {
       java.util.Set<alluxio.security.authentication.Token> privCredentials =
           new java.util.HashSet<>();
       privCredentials.add(alluxio.security.capability.CapabilityToken.create(channelCapability));
-      Subject capabilitySubject = new Subject(true, java.util.Collections.emptySet(),
+      Subject capabilitySubject = new Subject(true, mClientContext.getSubject().getPrincipals(),
           java.util.Collections.emptySet(), privCredentials);
       // Channel building logic knows how to handle subjects with embedded tokens.
       return acquireBlockWorkerClientInternal(workerNetAddress, capabilitySubject);
