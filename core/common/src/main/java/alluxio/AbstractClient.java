@@ -16,7 +16,6 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.PreconditionMessage;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.FailedPreconditionException;
-import alluxio.exception.status.Status;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.GetServiceVersionPRequest;
@@ -35,6 +34,7 @@ import alluxio.util.SecurityUtils;
 
 import com.codahale.metrics.Timer;
 import com.google.common.base.Preconditions;
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,7 +197,7 @@ public abstract class AbstractClient implements Client {
     disconnect();
     Preconditions.checkState(!mClosed, "Client is closed, will not try to connect.");
 
-    AlluxioStatusException connectFailReason = null;
+    IOException lastConnectFailure = null;
     RetryPolicy retryPolicy = mRetryPolicySupplier.get();
 
     while (retryPolicy.attempt()) {
@@ -242,6 +242,7 @@ public abstract class AbstractClient implements Client {
       } catch (IOException e) {
         LOG.warn("Failed to connect ({}) with {} @ {}: {}", retryPolicy.getAttemptCount(),
             getServiceName(), mAddress, e.getMessage());
+<<<<<<< HEAD
         if (e instanceof UnauthenticatedException) {
           // ALLUXIO CS ADD
           // If there has been a failure in opening GrpcChannel, it's possible because
@@ -251,6 +252,13 @@ public abstract class AbstractClient implements Client {
           // ALLUXIO CS END
           connectFailReason = (AlluxioStatusException) e;
         }
+||||||| merged common ancestors
+        if (e instanceof UnauthenticatedException) {
+          connectFailReason = (AlluxioStatusException) e;
+        }
+=======
+        lastConnectFailure = e;
+>>>>>>> upstream-os/master
       }
     }
     // Reaching here indicates that we did not successfully connect.
@@ -265,12 +273,15 @@ public abstract class AbstractClient implements Client {
               retryPolicy.getAttemptCount()));
     }
 
-    if (connectFailReason != null) {
-      throw connectFailReason;
+    /**
+     * Throw as-is if {@link UnauthenticatedException} occurred.
+     */
+    if (lastConnectFailure instanceof UnauthenticatedException) {
+      throw (AlluxioStatusException) lastConnectFailure;
     }
 
     throw new UnavailableException(String.format("Failed to connect to %s @ %s after %s attempts",
-        getServiceName(), mAddress, retryPolicy.getAttemptCount()));
+        getServiceName(), mAddress, retryPolicy.getAttemptCount()), lastConnectFailure);
   }
 
   /**
@@ -377,9 +388,9 @@ public abstract class AbstractClient implements Client {
         return rpc.call();
       } catch (StatusRuntimeException e) {
         AlluxioStatusException se = AlluxioStatusException.fromStatusRuntimeException(e);
-        if (se.getStatus() == Status.UNAVAILABLE
-            || se.getStatus() == Status.CANCELED
-            || se.getStatus() == Status.UNAUTHENTICATED
+        if (se.getStatusCode() == Status.Code.UNAVAILABLE
+            || se.getStatusCode() == Status.Code.CANCELLED
+            || se.getStatusCode() == Status.Code.UNAUTHENTICATED
             || e.getCause() instanceof UnresolvedAddressException) {
           ex = se;
         } else {

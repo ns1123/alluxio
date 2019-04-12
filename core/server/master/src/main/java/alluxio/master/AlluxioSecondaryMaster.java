@@ -59,6 +59,7 @@ public final class AlluxioSecondaryMaster implements Process {
       mBackupManager = new BackupManager(mRegistry);
       mStartTimeMs = System.currentTimeMillis();
       mPort = ServerConfiguration.getInt(PropertyKey.MASTER_RPC_PORT);
+      String baseDir = ServerConfiguration.get(PropertyKey.SECONDARY_MASTER_METASTORE_DIR);
       // Create masters.
       MasterUtils.createMasters(mRegistry, CoreMasterContext.newBuilder()
           // ALLUXIO CS ADD
@@ -68,8 +69,8 @@ public final class AlluxioSecondaryMaster implements Process {
           .setJournalSystem(mJournalSystem)
           .setSafeModeManager(mSafeModeManager)
           .setBackupManager(mBackupManager)
-          .setBlockStoreFactory(MasterUtils.getBlockStoreFactory())
-          .setInodeStoreFactory(MasterUtils.getInodeStoreFactory())
+          .setBlockStoreFactory(MasterUtils.getBlockStoreFactory(baseDir))
+          .setInodeStoreFactory(MasterUtils.getInodeStoreFactory(baseDir))
           .setStartTimeMs(mStartTimeMs)
           .setPort(mPort)
           .build());
