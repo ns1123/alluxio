@@ -220,7 +220,6 @@ public final class FileSystemMasterTest {
     mNestedFileContext = CreateFileContext.mergeFrom(
         CreateFilePOptions.newBuilder().setBlockSizeBytes(Constants.KB).setRecursive(true)
             .setMode(new alluxio.security.authorization.Mode((short) 0666).toProto()));
-    // TODO(ggezer) Beware of missing ".setOwner(TEST_USER).setGroup("group")" during test failures.
     // ALLUXIO CS END
     mJournalFolder = mTestFolder.newFolder().getAbsolutePath();
     startServices();

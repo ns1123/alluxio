@@ -12,6 +12,8 @@
 package alluxio.worker.security;
 
 import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.ServerConfiguration;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.grpc.ChannelAuthenticationScheme;
 import alluxio.security.authentication.AuthenticatedUserInfo;
@@ -72,7 +74,10 @@ public class WorkerAuthenticationServer extends EnterpriseAuthenticationServer {
       throws SaslException, UnauthenticatedException {
     switch (authScheme) {
       case CAPABILITY_TOKEN:
-        // TODO(ggezer) EE-SEC What if the server has capability feature disabled?
+        if (!ServerConfiguration
+            .getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+          throw new UnauthenticatedException("Capability feature is disabled on server");
+        }
         return new SaslServerHandlerCapabilityToken(mHostName, mCapabilityCache);
       default:
         return super.createSaslHandler(authScheme);

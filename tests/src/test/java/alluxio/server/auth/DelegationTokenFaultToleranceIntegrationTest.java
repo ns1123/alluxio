@@ -20,6 +20,7 @@ import alluxio.conf.Source;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.hadoop.AlluxioDelegationTokenIdentifier;
+import alluxio.hadoop.FileSystem;
 import alluxio.hadoop.HadoopClientTestUtils;
 import alluxio.hadoop.HadoopKerberosLoginProvider;
 import alluxio.master.MultiMasterLocalAlluxioCluster;
@@ -43,7 +44,6 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,8 +53,6 @@ import java.io.File;
 import java.net.URI;
 import java.security.PrivilegedExceptionAction;
 
-@Ignore
-// TODO(ggezer) Reactivate after gRPC delegation token.
 public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegrationTest {
   // Fail if the cluster doesn't come up after this amount of time.
   private static final int CLUSTER_WAIT_TIMEOUT_MS = 120 * Constants.SECOND_MS;
@@ -66,7 +64,7 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
 
   private static final String HOSTNAME =
       NetworkAddressUtils.getLocalHostName(
-          ServerConfiguration.getInt(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
+          (int) ServerConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
   private static final String UNIFIED_INSTANCE = "instance";
 
   private static MiniKdc sKdc;
@@ -153,11 +151,10 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
     Credentials creds = new Credentials();
     boolean isConnected = true;
     try {
-      URI uri = new URI(Constants.HEADER + "alluxio_service/");
-      alluxio.client.file.FileSystem fs = mMultiMasterLocalAlluxioCluster.getClient();
-      org.apache.hadoop.fs.FileSystem hdfs = new alluxio.hadoop.FileSystem(fs);
+      FileSystem hdfs = new FileSystem();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      hdfs.initialize(uri, hdfsConf);
+      hdfs.initialize(new URI(mMultiMasterLocalAlluxioCluster.getLocalAlluxioMaster().getUri()),
+          hdfsConf, ServerConfiguration.global());
       // obtains delegation token
       Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
       Assert.assertEquals(1, tokens.length);
@@ -182,11 +179,12 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
 
         // gets a new client
         mMultiMasterLocalAlluxioCluster.getLocalAlluxioMaster().clearClients();
-        fs = mMultiMasterLocalAlluxioCluster.getClient();
-        alluxio.hadoop.FileSystem newHdfs = new alluxio.hadoop.FileSystem(fs);
+        FileSystem newHdfs = new FileSystem();
 
         tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
-          newHdfs.initialize(uri, hdfsConf);
+          newHdfs.initialize(
+              new URI(mMultiMasterLocalAlluxioCluster.getLocalAlluxioMaster().getUri()), hdfsConf,
+              ServerConfiguration.global());
           Path rootPath = new Path("/");
           FileStatus rootStat = newHdfs.getFileStatus(rootPath);
           Assert.assertEquals(rootStat.getPath().getName(), rootPath.getName());

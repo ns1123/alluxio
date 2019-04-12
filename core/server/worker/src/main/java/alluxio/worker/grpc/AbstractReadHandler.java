@@ -132,7 +132,6 @@ abstract class AbstractReadHandler<T extends ReadRequestContext<?>>
           alluxio.security.authorization.Mode.Bits.READ);
     } catch (alluxio.exception.AccessControlException
         | alluxio.exception.InvalidCapabilityException e) {
-      // TODO(ggezer) EE-SEC Use gRPC exception helpers to handle conversion (on all places).
       mResponseObserver
           .onError(io.grpc.Status.PERMISSION_DENIED.withDescription(e.getMessage()).asException());
       return;
