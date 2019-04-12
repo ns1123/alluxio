@@ -181,8 +181,7 @@ public final class ExtensionInodeAttributesProviderTest {
     // setup an InodeTree
     InodeLockManager inodeLockManager = new InodeLockManager();
     BlockContainerIdGenerator containerIdGenerator = new BlockContainerIdGenerator();
-    InodeStore inodeStore = new HeapInodeStore(
-        new InodeStore.InodeStoreArgs(inodeLockManager, ServerConfiguration.global()));
+    InodeStore inodeStore = new HeapInodeStore();
     mTree = new InodeTree(inodeStore, containerIdGenerator,
         new InodeDirectoryIdGenerator(containerIdGenerator), mMountTable, inodeLockManager);
     mTree.initializeRoot(TEST_USER_ADMIN.getUser(), TEST_USER_ADMIN.getGroup(), TEST_NORMAL_MODE,

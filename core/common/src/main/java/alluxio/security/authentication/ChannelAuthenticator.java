@@ -165,8 +165,8 @@ public class ChannelAuthenticator {
             mChannelId, mAuthType, mManagedChannel.authority(), exc.toString());
         LOG.warn(message);
         if (exc instanceof AlluxioStatusException) {
-          throw AlluxioStatusException.from(((AlluxioStatusException) exc).getStatus(), message,
-              exc);
+          throw AlluxioStatusException.from(
+              ((AlluxioStatusException) exc).getStatus().withDescription(message).withCause(exc));
         } else {
           throw new UnknownException(message, exc);
         }

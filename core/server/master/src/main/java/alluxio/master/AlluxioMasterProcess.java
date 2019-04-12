@@ -108,6 +108,7 @@ public class AlluxioMasterProcess extends MasterProcess {
       mRegistry = new MasterRegistry();
       mSafeModeManager = new DefaultSafeModeManager();
       mBackupManager = new BackupManager(mRegistry);
+      String baseDir = ServerConfiguration.get(PropertyKey.MASTER_METASTORE_DIR);
       MasterContext context = CoreMasterContext.newBuilder()
           .setJournalSystem(mJournalSystem)
           .setSafeModeManager(mSafeModeManager)
@@ -115,8 +116,8 @@ public class AlluxioMasterProcess extends MasterProcess {
           // ALLUXIO CS ADD
           .setDelegationTokenManager(mDelegationTokenManager)
           // ALLUXIO CS END
-          .setBlockStoreFactory(MasterUtils.getBlockStoreFactory())
-          .setInodeStoreFactory(MasterUtils.getInodeStoreFactory())
+          .setBlockStoreFactory(MasterUtils.getBlockStoreFactory(baseDir))
+          .setInodeStoreFactory(MasterUtils.getInodeStoreFactory(baseDir))
           .setStartTimeMs(mStartTimeMs)
           .setPort(NetworkAddressUtils
               .getPort(ServiceType.MASTER_RPC, ServerConfiguration.global()))
