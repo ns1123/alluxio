@@ -14,7 +14,7 @@ package alluxio.underfs.jdbc;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.conf.AlluxioConfiguration;
-import alluxio.underfs.BaseUnderFileSystem;
+import alluxio.underfs.ConsistentUnderFileSystem;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UfsStatus;
@@ -44,7 +44,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * An {@link UnderFileSystem} using JDBC connections.
  */
 @ThreadSafe
-public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
+public final class JDBCUnderFileSystem extends ConsistentUnderFileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(JDBCUnderFileSystem.class);
   // TODO(gpang): support more formats/extensions and make this a configurable parameter.
   private static final String FILE_EXTENSION = "csv";
@@ -95,37 +95,12 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   }
 
   @Override
-  public OutputStream createNonexistingFile(String path) throws IOException {
-    throw new UnsupportedOperationException("JDBCUnderFileSystem does not support creating paths.");
-  }
-
-  @Override
-  public OutputStream createNonexistingFile(String path, CreateOptions options) throws IOException {
-    throw new UnsupportedOperationException("JDBCUnderFileSystem does not support creating paths.");
-  }
-
-  @Override
   public boolean deleteDirectory(String path, DeleteOptions options) throws IOException {
     throw new UnsupportedOperationException("JDBCUnderFileSystem does not deleting paths.");
   }
 
   @Override
-  public boolean deleteExistingDirectory(String path) throws IOException {
-    throw new UnsupportedOperationException("JDBCUnderFileSystem does not deleting paths.");
-  }
-
-  @Override
-  public boolean deleteExistingDirectory(String path, DeleteOptions options) throws IOException {
-    throw new UnsupportedOperationException("JDBCUnderFileSystem does not deleting paths.");
-  }
-
-  @Override
   public boolean deleteFile(String path) throws IOException {
-    throw new UnsupportedOperationException("JDBCUnderFileSystem does not deleting paths.");
-  }
-
-  @Override
-  public boolean deleteExistingFile(String path) throws IOException {
     throw new UnsupportedOperationException("JDBCUnderFileSystem does not deleting paths.");
   }
 
@@ -221,11 +196,6 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
         Constants.DEFAULT_FILE_SYSTEM_MODE);
   }
 
-  @Override
-  public UfsFileStatus getExistingFileStatus(String path) throws IOException {
-    return getFileStatus(path);
-  }
-
   // This call is currently only used for the web ui, where a negative value implies unknown.
   @Override
   public long getSpace(String path, SpaceType type) throws IOException {
@@ -240,17 +210,7 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   }
 
   @Override
-  public UfsStatus getExistingStatus(String path) throws IOException {
-    return getStatus(path);
-  }
-
-  @Override
   public boolean isDirectory(String path) throws IOException {
-    return false;
-  }
-
-  @Override
-  public boolean isExistingDirectory(String path) throws IOException {
     return false;
   }
 
@@ -348,35 +308,15 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   }
 
   @Override
-  public InputStream openExistingFile(String path) throws IOException {
-    return openExistingFile(path, OpenOptions.defaults());
-  }
-
-  @Override
-  public InputStream openExistingFile(String path, OpenOptions options) throws IOException {
-    return open(path, options);
-  }
-
-  @Override
   public boolean renameDirectory(String src, String dst) throws IOException {
     LOG.warn("rename is not supported when using JDBCUnderFileSystem, returning false.");
     return false;
   }
 
   @Override
-  public boolean renameRenamableDirectory(String src, String dst) throws IOException {
-    return renameDirectory(src, dst);
-  }
-
-  @Override
   public boolean renameFile(String src, String dst) throws IOException {
     LOG.warn("rename is not supported when using JDBCUnderFileSystem, returning false.");
     return false;
-  }
-
-  @Override
-  public boolean renameRenamableFile(String src, String dst) throws IOException {
-    return renameFile(src, dst);
   }
 
   @Override
