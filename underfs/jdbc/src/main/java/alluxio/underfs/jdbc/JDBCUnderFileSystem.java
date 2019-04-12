@@ -14,7 +14,7 @@ package alluxio.underfs.jdbc;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.conf.AlluxioConfiguration;
-import alluxio.underfs.BaseUnderFileSystem;
+import alluxio.underfs.ConsistentUnderFileSystem;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UfsStatus;
@@ -44,7 +44,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * An {@link UnderFileSystem} using JDBC connections.
  */
 @ThreadSafe
-public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
+public final class JDBCUnderFileSystem extends ConsistentUnderFileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(JDBCUnderFileSystem.class);
   // TODO(gpang): support more formats/extensions and make this a configurable parameter.
   private static final String FILE_EXTENSION = "csv";
@@ -168,6 +168,11 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   public UfsDirectoryStatus getDirectoryStatus(String path) throws IOException {
     LOG.debug("getDirectoryStatus not supported in JDBCUnderFileSystem");
     return new UfsDirectoryStatus(path, null, null, Constants.DEFAULT_FILE_SYSTEM_MODE);
+  }
+
+  @Override
+  public UfsDirectoryStatus getExistingDirectoryStatus(String path) throws IOException {
+    return getDirectoryStatus(path);
   }
 
   // Not supported

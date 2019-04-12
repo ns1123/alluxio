@@ -74,6 +74,16 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public OutputStream createNonexistingFile(String path) throws IOException {
+    return null;
+  }
+
+  @Override
+  public OutputStream createNonexistingFile(String path, CreateOptions options) throws IOException {
+    return null;
+  }
+
+  @Override
   public boolean deleteDirectory(String path) throws IOException {
     return false;
   }
@@ -84,7 +94,22 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public boolean deleteExistingDirectory(String path) throws IOException {
+    return false;
+  }
+
+  @Override
+  public boolean deleteExistingDirectory(String path, DeleteOptions options) throws IOException {
+    return false;
+  }
+
+  @Override
   public boolean deleteFile(String path) throws IOException {
+    return false;
+  }
+
+  @Override
+  public boolean deleteExistingFile(String path) throws IOException {
     return false;
   }
 
@@ -110,6 +135,11 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public UfsDirectoryStatus getExistingDirectoryStatus(String path) throws IOException {
+    return null;
+  }
+
+  @Override
   public List<String> getFileLocations(String path) throws IOException {
     return null;
   }
@@ -121,6 +151,11 @@ public class MockUnderFileSystem implements UnderFileSystem {
 
   @Override
   public UfsFileStatus getFileStatus(String path) throws IOException {
+    return null;
+  }
+
+  @Override
+  public UfsFileStatus getExistingFileStatus(String path) throws IOException {
     return null;
   }
 
@@ -144,12 +179,22 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public UfsStatus getExistingStatus(String path) throws IOException {
+    return null;
+  }
+
+  @Override
   public String getUnderFSType() {
     return "mock";
   }
 
   @Override
   public boolean isDirectory(String path) throws IOException {
+    return false;
+  }
+
+  @Override
+  public boolean isExistingDirectory(String path) throws IOException {
     return false;
   }
 
@@ -199,12 +244,32 @@ public class MockUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
+  public InputStream openExistingFile(String path, OpenOptions options) throws IOException {
+    return null;
+  }
+
+  @Override
+  public InputStream openExistingFile(String path) throws IOException {
+    return null;
+  }
+
+  @Override
   public boolean renameDirectory(String src, String dst) throws IOException {
     return false;
   }
 
   @Override
+  public boolean renameRenamableDirectory(String src, String dst) throws IOException {
+    return false;
+  }
+
+  @Override
   public boolean renameFile(String src, String dst) throws IOException {
+    return false;
+  }
+
+  @Override
+  public boolean renameRenamableFile(String src, String dst) throws IOException {
     return false;
   }
 
