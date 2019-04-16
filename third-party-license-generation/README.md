@@ -6,7 +6,7 @@ mvn -Pthird-party-license-report license:aggregate-add-third-party
 ```
 
 The final report will be generated in the parent directory under
-target/generated-sources/license/THIRD-PARTY.txt.
+`target/generated-sources/license/THIRD-PARTY.txt`.
 
 # Detect Missing Licenses
 Inspect the final (parent pom, the other modules are expected to have missing licenses) console
