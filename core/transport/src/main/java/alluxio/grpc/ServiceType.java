@@ -59,12 +59,7 @@ public enum ServiceType
   /**
    * <code>FILE_SYSTEM_WORKER_WORKER_SERVICE = 12;</code>
    */
-<<<<<<< HEAD
-  KEY_VALUE_WORKER_SERVICE(12),
-  /**
-   * <code>UNKNOWN_SERVICE = 13;</code>
-   */
-  UNKNOWN_SERVICE(13),
+  FILE_SYSTEM_WORKER_WORKER_SERVICE(12),
   /**
    * <pre>
    * ALLUXIO CS ADD
@@ -73,15 +68,6 @@ public enum ServiceType
    * <code>PRIVILEGE_MASTER_CLIENT_SERVICE = 1001;</code>
    */
   PRIVILEGE_MASTER_CLIENT_SERVICE(1001),
-||||||| merged common ancestors
-  KEY_VALUE_WORKER_SERVICE(12),
-  /**
-   * <code>UNKNOWN_SERVICE = 13;</code>
-   */
-  UNKNOWN_SERVICE(13),
-=======
-  FILE_SYSTEM_WORKER_WORKER_SERVICE(12),
->>>>>>> OPENSOURCE/master
   ;
 
   /**
@@ -135,8 +121,7 @@ public enum ServiceType
   /**
    * <code>FILE_SYSTEM_WORKER_WORKER_SERVICE = 12;</code>
    */
-<<<<<<< HEAD
-  public static final int UNKNOWN_SERVICE_VALUE = 13;
+  public static final int FILE_SYSTEM_WORKER_WORKER_SERVICE_VALUE = 12;
   /**
    * <pre>
    * ALLUXIO CS ADD
@@ -145,11 +130,6 @@ public enum ServiceType
    * <code>PRIVILEGE_MASTER_CLIENT_SERVICE = 1001;</code>
    */
   public static final int PRIVILEGE_MASTER_CLIENT_SERVICE_VALUE = 1001;
-||||||| merged common ancestors
-  public static final int UNKNOWN_SERVICE_VALUE = 13;
-=======
-  public static final int FILE_SYSTEM_WORKER_WORKER_SERVICE_VALUE = 12;
->>>>>>> OPENSOURCE/master
 
 
   public final int getNumber() {
@@ -166,38 +146,6 @@ public enum ServiceType
 
   public static ServiceType forNumber(int value) {
     switch (value) {
-<<<<<<< HEAD
-      case 0: return FILE_SYSTEM_MASTER_CLIENT_SERVICE;
-      case 1: return FILE_SYSTEM_MASTER_WORKER_SERVICE;
-      case 2: return FILE_SYSTEM_MASTER_JOB_SERVICE;
-      case 3: return BLOCK_MASTER_CLIENT_SERVICE;
-      case 4: return BLOCK_MASTER_WORKER_SERVICE;
-      case 5: return META_MASTER_CONFIG_SERVICE;
-      case 6: return META_MASTER_CLIENT_SERVICE;
-      case 7: return META_MASTER_MASTER_SERVICE;
-      case 8: return METRICS_MASTER_CLIENT_SERVICE;
-      case 9: return JOB_MASTER_CLIENT_SERVICE;
-      case 10: return JOB_MASTER_WORKER_SERVICE;
-      case 11: return KEY_VALUE_MASTER_CLIENT_SERVICE;
-      case 12: return KEY_VALUE_WORKER_SERVICE;
-      case 13: return UNKNOWN_SERVICE;
-      case 1001: return PRIVILEGE_MASTER_CLIENT_SERVICE;
-||||||| merged common ancestors
-      case 0: return FILE_SYSTEM_MASTER_CLIENT_SERVICE;
-      case 1: return FILE_SYSTEM_MASTER_WORKER_SERVICE;
-      case 2: return FILE_SYSTEM_MASTER_JOB_SERVICE;
-      case 3: return BLOCK_MASTER_CLIENT_SERVICE;
-      case 4: return BLOCK_MASTER_WORKER_SERVICE;
-      case 5: return META_MASTER_CONFIG_SERVICE;
-      case 6: return META_MASTER_CLIENT_SERVICE;
-      case 7: return META_MASTER_MASTER_SERVICE;
-      case 8: return METRICS_MASTER_CLIENT_SERVICE;
-      case 9: return JOB_MASTER_CLIENT_SERVICE;
-      case 10: return JOB_MASTER_WORKER_SERVICE;
-      case 11: return KEY_VALUE_MASTER_CLIENT_SERVICE;
-      case 12: return KEY_VALUE_WORKER_SERVICE;
-      case 13: return UNKNOWN_SERVICE;
-=======
       case 0: return UNKNOWN_SERVICE;
       case 1: return FILE_SYSTEM_MASTER_CLIENT_SERVICE;
       case 2: return FILE_SYSTEM_MASTER_WORKER_SERVICE;
@@ -211,7 +159,7 @@ public enum ServiceType
       case 10: return JOB_MASTER_CLIENT_SERVICE;
       case 11: return JOB_MASTER_WORKER_SERVICE;
       case 12: return FILE_SYSTEM_WORKER_WORKER_SERVICE;
->>>>>>> OPENSOURCE/master
+      case 1001: return PRIVILEGE_MASTER_CLIENT_SERVICE;
       default: return null;
     }
   }
