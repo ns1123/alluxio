@@ -137,13 +137,7 @@ import alluxio.util.SecurityUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.util.executor.ExecutorServiceFactory;
 import alluxio.util.io.PathUtils;
-<<<<<<< HEAD
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.proto.ProtoUtils;
-||||||| merged common ancestors
-import alluxio.util.network.NetworkAddressUtils;
-=======
->>>>>>> OPENSOURCE/branch-1.8
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.CommonOptions;
