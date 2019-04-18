@@ -27,7 +27,6 @@ import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.OpenOptions;
 import alluxio.util.IdUtils;
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.block.io.BlockReader;
 import alluxio.worker.block.io.BlockWriter;
 import alluxio.worker.block.meta.UnderFileSystemBlockMeta;
@@ -135,11 +134,18 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    * @param offset the position within the block to start the read
    */
   private void init(long offset) throws IOException {
+<<<<<<< HEAD
     // ALLUXIO CS REMOVE
     // UnderFileSystem ufs = mUfsResource.get();
     // ufs.connectFromWorker(
     //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
     // ALLUXIO CS END
+||||||| merged common ancestors
+    UnderFileSystem ufs = mUfsResource.get();
+    ufs.connectFromWorker(
+        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+=======
+>>>>>>> OPENSOURCE/branch-1.8
     updateUnderFileSystemInputStream(offset);
     updateBlockWriter(offset);
   }
