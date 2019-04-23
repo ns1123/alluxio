@@ -91,6 +91,7 @@ public final class GrpcDataWriter implements DataWriter {
   public static GrpcDataWriter create(FileSystemContext context, WorkerNetAddress address,
       long id, long length, RequestType type, OutStreamOptions options)
       throws IOException {
+<<<<<<< HEAD
     long chunkSize = context.getConf().getBytes(PropertyKey.USER_NETWORK_WRITER_CHUNK_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
@@ -109,6 +110,11 @@ public final class GrpcDataWriter implements DataWriter {
       grpcClient = context.acquireBlockWorkerClient(address);
     }
     // ALLUXIO CS END
+=======
+    long chunkSize = context.getClusterConf().getBytes(
+        PropertyKey.USER_NETWORK_WRITER_CHUNK_SIZE_BYTES);
+    BlockWorkerClient grpcClient = context.acquireBlockWorkerClient(address);
+>>>>>>> OPENSOURCE/master
     try {
       return new GrpcDataWriter(context, address, id, length, chunkSize, type, options,
           grpcClient);
@@ -136,7 +142,7 @@ public final class GrpcDataWriter implements DataWriter {
     mContext = context;
     mAddress = address;
     mLength = length;
-    AlluxioConfiguration conf = context.getConf();
+    AlluxioConfiguration conf = context.getClusterConf();
     mDataTimeoutMs = conf.getMs(PropertyKey.USER_NETWORK_DATA_TIMEOUT_MS);
     mWriterBufferSizeMessages = conf.getInt(PropertyKey.USER_NETWORK_WRITER_BUFFER_SIZE_MESSAGES);
     mWriterCloseTimeoutMs = conf.getMs(PropertyKey.USER_NETWORK_WRITER_CLOSE_TIMEOUT_MS);

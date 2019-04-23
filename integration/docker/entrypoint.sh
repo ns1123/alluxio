@@ -21,6 +21,7 @@ function printUsage {
   echo -e " master [--no-format]    \t Start Alluxio master. If --no-format is specified, do not format"
   echo -e " worker [--no-format]    \t Start Alluxio worker. If --no-format is specified, do not format"
   echo -e " proxy                   \t Start Alluxio proxy"
+  echo -e " fuse                    \t Start Alluxio fuse"
 }
 
 if [[ $# -lt 1 ]]; then
@@ -74,6 +75,7 @@ for keyvaluepair in $(env); do
   fi
 done
 
+<<<<<<< HEAD
 if [ "$ENABLE_FUSE" = true ]; then
   integration/fuse/bin/alluxio-fuse mount /alluxio-fuse /
 fi
@@ -83,6 +85,8 @@ if [[ -n "${ALLUXIO_LICENSE_BASE64}" ]]; then
   echo "${ALLUXIO_LICENSE_BASE64}" | base64 -d > license.json
 fi
 # ALLUXIO CS END
+=======
+>>>>>>> OPENSOURCE/master
 case ${service,,} in
   master)
     if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
@@ -110,6 +114,10 @@ case ${service,,} in
     ;;
   proxy)
     integration/docker/bin/alluxio-proxy.sh
+    ;;
+  fuse)
+    integration/fuse/bin/alluxio-fuse mount -o allow_other /alluxio-fuse /
+    tail -f /opt/alluxio/logs/fuse.log
     ;;
   *)
     printUsage

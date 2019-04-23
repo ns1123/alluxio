@@ -52,6 +52,7 @@ public final class JournalEntryAssociation {
         || entry.hasBlockInfo()) {
       return Constants.BLOCK_MASTER_NAME;
     }
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (entry.hasLicenseCheck()) {
       return Constants.LICENSE_MASTER_NAME;
@@ -70,6 +71,12 @@ public final class JournalEntryAssociation {
       return Constants.FILE_SYSTEM_MASTER_NAME;
     }
     // ALLUXIO CS END
+=======
+    if (entry.hasPathProperties()
+        || entry.hasRemovePathProperties()) {
+      return Constants.META_MASTER_NAME;
+    }
+>>>>>>> OPENSOURCE/master
     throw new IllegalStateException("Unrecognized journal entry: " + entry);
   }
 
