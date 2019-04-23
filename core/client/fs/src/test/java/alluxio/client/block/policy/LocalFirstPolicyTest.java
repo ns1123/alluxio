@@ -133,7 +133,7 @@ public final class LocalFirstPolicyTest {
       WorkerNetAddress chosen =
           policy.getWorker(GetWorkerOptions.defaults().setBlockWorkerInfos(workers));
       // Rack locality is set to strict, and no rack matches.
-      Assert.assertNull(chosen);
+      org.junit.Assert.assertNull(chosen);
     }
   }
   // ALLUXIO CS END

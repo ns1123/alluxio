@@ -194,11 +194,11 @@ public class BaseFileSystem implements FileSystem {
       long requestedBlockSizeBytes = options.getBlockSizeBytes();
       if (!options.hasBlockSizeBytes()) {
         requestedBlockSizeBytes =
-                mFsContext.getConf().getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+                mFsContext.getClusterConf().getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
       }
-      if (mFsContext.getConf().getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
+      if (mFsContext.getClusterConf().getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
-                alluxio.client.EncryptionMetaFactory.createLayout(mFsContext.getConf()),
+                alluxio.client.EncryptionMetaFactory.createLayout(mFsContext.getClusterConf()),
                 requestedBlockSizeBytes);
         options = options.toBuilder().setBlockSizeBytes(physicalBlockSize).build();
       }
@@ -233,7 +233,7 @@ public class BaseFileSystem implements FileSystem {
       alluxio.proto.security.EncryptionProto.Meta meta =
           alluxio.client.EncryptionMetaFactory.create(status.getFileId(),
               status.getFileId() /* encryption id */, options.getBlockSizeBytes(),
-              mFsContext.getConf());
+              mFsContext.getClusterConf());
       outStreamOptions.setEncryptionMeta(meta);
       mFsContext.putEncryptionMeta(status.getFileId(), meta);
     }
@@ -571,7 +571,7 @@ public class BaseFileSystem implements FileSystem {
   private alluxio.proto.security.EncryptionProto.Meta getEncryptionMetaFromFooter(URIStatus status)
       throws IOException {
     long fileId = status.getFileId();
-    InStreamOptions inStreamOptions = new InStreamOptions(status, mFsContext.getConf())
+    InStreamOptions inStreamOptions = new InStreamOptions(status, mFsContext.getClusterConf())
         .setEncrypted(false);
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
@@ -592,9 +592,9 @@ public class BaseFileSystem implements FileSystem {
     alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey;
     try {
       cryptoKey = alluxio.client.security.CryptoUtils.getCryptoKey(
-          mFsContext.getConf().get(PropertyKey.SECURITY_KMS_PROVIDER),
-          mFsContext.getConf().get(PropertyKey.SECURITY_KMS_ENDPOINT),
-          false, String.valueOf(fileMetadata.getEncryptionId()), mFsContext.getConf());
+          mFsContext.getClusterConf().get(PropertyKey.SECURITY_KMS_PROVIDER),
+          mFsContext.getClusterConf().get(PropertyKey.SECURITY_KMS_ENDPOINT),
+          false, String.valueOf(fileMetadata.getEncryptionId()), mFsContext.getClusterConf());
     } catch (IOException e) {
       // Allow null crypto key for getStatus and listStatus because one user might not have
       // access to the crypto keys for the files being listed.
@@ -704,7 +704,7 @@ public class BaseFileSystem implements FileSystem {
     URIStatus status;
     try {
       status = getStatusInternal(masterClient, path,
-          FileSystemOptions.getStatusDefaults(mFsContext.getConf()));
+          FileSystemOptions.getStatusDefaults(mFsContext.getClusterConf()));
     } catch (NotFoundException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } catch (UnavailableException e) {

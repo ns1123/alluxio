@@ -409,9 +409,9 @@ public final class FileSystemContext implements Closeable {
   public BlockWorkerClient acquireBlockWorkerClient(final WorkerNetAddress workerNetAddress,
       final alluxio.proto.security.CapabilityProto.Capability channelCapability)
       throws IOException {
-    if (getConf().get(PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+    if (getClusterConf().get(PropertyKey.SECURITY_AUTHENTICATION_TYPE)
         .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())
-        && getConf().getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        && getClusterConf().getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
       // Embed the capability into a {@link Subject} as {@link Token}.
       java.util.Set<alluxio.security.authentication.Token> privCredentials =
           new java.util.HashSet<>();

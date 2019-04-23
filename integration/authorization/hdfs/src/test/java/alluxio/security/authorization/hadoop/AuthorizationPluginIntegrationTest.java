@@ -24,6 +24,7 @@ import alluxio.conf.ServerConfiguration;
 import alluxio.conf.Source;
 import alluxio.exception.AccessControlException;
 import alluxio.grpc.RegisterWorkerPOptions;
+import alluxio.grpc.StorageList;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.CoreMasterContext;
@@ -192,13 +193,15 @@ public final class AuthorizationPluginIntegrationTest {
     mBlockMaster.workerRegister(mWorkerId1, Arrays.asList("MEM", "SSD"),
         ImmutableMap.of("MEM", (long) Constants.MB, "SSD", (long) Constants.MB),
         ImmutableMap.of("MEM", (long) Constants.KB, "SSD", (long) Constants.KB),
-        new HashMap<String, List<Long>>(), RegisterWorkerPOptions.getDefaultInstance());
+        new HashMap<String, List<Long>>(), new HashMap<String, StorageList>(),
+        RegisterWorkerPOptions.getDefaultInstance());
     mWorkerId2 = mBlockMaster.getWorkerId(
         new WorkerNetAddress().setHost("remote").setRpcPort(80).setDataPort(81).setWebPort(82));
     mBlockMaster.workerRegister(mWorkerId2, Arrays.asList("MEM", "SSD"),
         ImmutableMap.of("MEM", (long) Constants.MB, "SSD", (long) Constants.MB),
         ImmutableMap.of("MEM", (long) Constants.KB, "SSD", (long) Constants.KB),
-        new HashMap<String, List<Long>>(), RegisterWorkerPOptions.getDefaultInstance());
+        new HashMap<String, List<Long>>(), new HashMap<String, StorageList>(),
+        RegisterWorkerPOptions.getDefaultInstance());
   }
 
   private void stopServices() throws Exception {

@@ -129,7 +129,7 @@ public final class CryptoFileOutStream extends FileOutStream {
     if (mCryptoBuf.readableBytes() == 0) {
       return;
     }
-    ByteBuf encryptedBuf = CryptoUtils.encryptChunks(mMeta, mCryptoBuf, mContext.getConf());
+    ByteBuf encryptedBuf = CryptoUtils.encryptChunks(mMeta, mCryptoBuf, mContext.getClusterConf());
     try {
       writeInternal(encryptedBuf, 0, encryptedBuf.readableBytes());
     } finally {
