@@ -206,12 +206,9 @@ public class AlluxioProperties {
   public Set<PropertyKey> keySet() {
     Set<PropertyKey> keySet = new HashSet<>(PropertyKey.defaultKeys());
     keySet.addAll(mUserProps.keySet());
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     keySet.removeAll(PropertyKey.IMMUTABLE_KEYS);
     // ALLUXIO CS END
-    return keySet;
-=======
     return Collections.unmodifiableSet(keySet);
   }
 
@@ -220,7 +217,6 @@ public class AlluxioProperties {
    */
   public Set<PropertyKey> userKeySet() {
     return Collections.unmodifiableSet(mUserProps.keySet());
->>>>>>> OPENSOURCE/master
   }
 
   /**

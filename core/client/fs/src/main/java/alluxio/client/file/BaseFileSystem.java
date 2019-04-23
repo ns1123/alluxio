@@ -720,8 +720,7 @@ public class BaseFileSystem implements FileSystem {
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
     }
     InStreamOptions inStreamOptions = new InStreamOptions(status, options,
-<<<<<<< HEAD
-        mFsContext.getConf());
+        mFsContext.getPathConf(path));
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
@@ -750,9 +749,6 @@ public class BaseFileSystem implements FileSystem {
       }
     }
     // ALLUXIO CS END
-=======
-        mFsContext.getPathConf(path));
->>>>>>> OPENSOURCE/master
     return new FileInStream(status, inStreamOptions, mFsContext);
   }
 

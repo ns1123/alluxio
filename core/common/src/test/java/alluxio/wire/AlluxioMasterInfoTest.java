@@ -42,26 +42,11 @@ public class AlluxioMasterInfoTest {
   }
 
   private void checkEquality(AlluxioMasterInfo a, AlluxioMasterInfo b) {
-<<<<<<< HEAD
-    Assert.assertEquals(a.getCapacity(), b.getCapacity());
-    Assert.assertEquals(a.getConfiguration(), b.getConfiguration());
-    // ALLUXIO CS ADD
-    Assert.assertEquals(a.getLicense(), b.getLicense());
-    // ALLUXIO CS END
-    Assert.assertEquals(a.getLostWorkers(), b.getLostWorkers());
-    Assert.assertEquals(a.getMetrics(), b.getMetrics());
-    Assert.assertEquals(a.getRpcAddress(), b.getRpcAddress());
-    Assert.assertEquals(a.getStartTimeMs(), b.getStartTimeMs());
-    Assert.assertEquals(a.getStartupConsistencyCheck(), b.getStartupConsistencyCheck());
-    Assert.assertEquals(a.getTierCapacity(), b.getTierCapacity());
-    Assert.assertEquals(a.getUfsCapacity(), b.getUfsCapacity());
-    Assert.assertEquals(a.getUptimeMs(), b.getUptimeMs());
-    Assert.assertEquals(a.getVersion(), b.getVersion());
-    Assert.assertEquals(a.getWorkers(), b.getWorkers());
-    Assert.assertEquals(a, b);
-=======
     assertEquals(a.getCapacity(), b.getCapacity());
     assertEquals(a.getConfiguration(), b.getConfiguration());
+    // ALLUXIO CS ADD
+    assertEquals(a.getLicense(), b.getLicense());
+    // ALLUXIO CS END
     assertEquals(a.getLostWorkers(), b.getLostWorkers());
     assertEquals(a.getMetrics(), b.getMetrics());
     assertEquals(a.getRpcAddress(), b.getRpcAddress());
@@ -73,7 +58,6 @@ public class AlluxioMasterInfoTest {
     assertEquals(a.getVersion(), b.getVersion());
     assertEquals(a.getWorkers(), b.getWorkers());
     assertEquals(a, b);
->>>>>>> OPENSOURCE/master
   }
 
   private static AlluxioMasterInfo createRandom() {

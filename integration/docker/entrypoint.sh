@@ -75,18 +75,11 @@ for keyvaluepair in $(env); do
   fi
 done
 
-<<<<<<< HEAD
-if [ "$ENABLE_FUSE" = true ]; then
-  integration/fuse/bin/alluxio-fuse mount /alluxio-fuse /
-fi
-
 # ALLUXIO CS ADD
 if [[ -n "${ALLUXIO_LICENSE_BASE64}" ]]; then
   echo "${ALLUXIO_LICENSE_BASE64}" | base64 -d > license.json
 fi
 # ALLUXIO CS END
-=======
->>>>>>> OPENSOURCE/master
 case ${service,,} in
   master)
     if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
