@@ -194,7 +194,7 @@ public class BaseFileSystem implements FileSystem {
       long requestedBlockSizeBytes = options.getBlockSizeBytes();
       if (!options.hasBlockSizeBytes()) {
         requestedBlockSizeBytes =
-                mFsContext.getClusterConf().getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+                mFsContext.getPathConf(path).getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
       }
       if (mFsContext.getClusterConf().getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
@@ -704,7 +704,7 @@ public class BaseFileSystem implements FileSystem {
     URIStatus status;
     try {
       status = getStatusInternal(masterClient, path,
-          FileSystemOptions.getStatusDefaults(mFsContext.getClusterConf()));
+          FileSystemOptions.getStatusDefaults(mFsContext.getPathConf(path)));
     } catch (NotFoundException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } catch (UnavailableException e) {
