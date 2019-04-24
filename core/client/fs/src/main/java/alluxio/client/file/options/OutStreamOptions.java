@@ -38,11 +38,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 @PublicApi
 @NotThreadSafe
 public final class OutStreamOptions {
-  private FileSystemMasterCommonPOptions mCommonOptions;
   // ALLUXIO CS ADD
   private static final org.slf4j.Logger LOG =
       org.slf4j.LoggerFactory.getLogger(OutStreamOptions.class);
   // ALLUXIO CS END
+  private FileSystemMasterCommonPOptions mCommonOptions;
   private long mBlockSizeBytes;
   private BlockLocationPolicy mLocationPolicy;
   private int mWriteTier;
