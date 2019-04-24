@@ -768,7 +768,7 @@ public final class FileSystemMasterProto {
       "PLACE\020\000\022\n\n\006MODIFY\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREMOV" +
       "E_ALL\020\003\022\022\n\016REMOVE_DEFAULT\020\004*8\n\010UfsPMode\022" +
       "\r\n\tNO_ACCESS\020\001\022\r\n\tREAD_ONLY\020\002\022\016\n\nREAD_WR" +
-      "ITE\020\0032\356\022\n\035FileSystemMasterClientService\022" +
+      "ITE\020\0032\360\022\n\035FileSystemMasterClientService\022" +
       "m\n\020CheckConsistency\022+.alluxio.grpc.file." +
       "CheckConsistencyPRequest\032,.alluxio.grpc." +
       "file.CheckConsistencyPResponse\022a\n\014Comple" +
@@ -794,59 +794,59 @@ public final class FileSystemMasterProto {
       "file.GetNewBlockIdForFilePResponse\022X\n\tGe" +
       "tStatus\022$.alluxio.grpc.file.GetStatusPRe" +
       "quest\032%.alluxio.grpc.file.GetStatusPResp" +
-      "onse\022[\n\nListStatus\022%.alluxio.grpc.file.L" +
+      "onse\022]\n\nListStatus\022%.alluxio.grpc.file.L" +
       "istStatusPRequest\032&.alluxio.grpc.file.Li" +
-      "stStatusPResponse\022L\n\005Mount\022 .alluxio.grp" +
-      "c.file.MountPRequest\032!.alluxio.grpc.file" +
-      ".MountPResponse\022O\n\006Remove\022!.alluxio.grpc" +
-      ".file.DeletePRequest\032\".alluxio.grpc.file" +
-      ".DeletePResponse\022O\n\006Rename\022!.alluxio.grp" +
-      "c.file.RenamePRequest\032\".alluxio.grpc.fil" +
-      "e.RenamePResponse\022\205\001\n\030ScheduleAsyncPersi" +
-      "stence\0223.alluxio.grpc.file.ScheduleAsync" +
-      "PersistencePRequest\0324.alluxio.grpc.file." +
-      "ScheduleAsyncPersistencePResponse\022O\n\006Set" +
-      "Acl\022!.alluxio.grpc.file.SetAclPRequest\032\"" +
-      ".alluxio.grpc.file.SetAclPResponse\022a\n\014Se" +
-      "tAttribute\022\'.alluxio.grpc.file.SetAttrib" +
-      "utePRequest\032(.alluxio.grpc.file.SetAttri" +
-      "butePResponse\022X\n\tStartSync\022$.alluxio.grp" +
-      "c.file.StartSyncPRequest\032%.alluxio.grpc." +
-      "file.StartSyncPResponse\022U\n\010StopSync\022#.al" +
-      "luxio.grpc.file.StopSyncPRequest\032$.allux" +
-      "io.grpc.file.StopSyncPResponse\022R\n\007Unmoun" +
-      "t\022\".alluxio.grpc.file.UnmountPRequest\032#." +
-      "alluxio.grpc.file.UnmountPResponse\022d\n\rUp" +
-      "dateUfsMode\022(.alluxio.grpc.file.UpdateUf" +
-      "sModePRequest\032).alluxio.grpc.file.Update" +
-      "UfsModePResponse\022s\n\022GetDelegationToken\022-" +
-      ".alluxio.grpc.file.GetDelegationTokenPRe" +
-      "quest\032..alluxio.grpc.file.GetDelegationT" +
-      "okenPResponse\022y\n\024RenewDelegationToken\022/." +
-      "alluxio.grpc.file.RenewDelegationTokenPR" +
-      "equest\0320.alluxio.grpc.file.RenewDelegati" +
-      "onTokenPResponse\022|\n\025CancelDelegationToke" +
-      "n\0220.alluxio.grpc.file.CancelDelegationTo" +
-      "kenPRequest\0321.alluxio.grpc.file.CancelDe" +
-      "legationTokenPResponse2\303\003\n\035FileSystemMas" +
-      "terWorkerService\022v\n\023FileSystemHeartbeat\022" +
-      "..alluxio.grpc.file.FileSystemHeartbeatP" +
-      "Request\032/.alluxio.grpc.file.FileSystemHe" +
-      "artbeatPResponse\022^\n\013GetFileInfo\022&.alluxi" +
-      "o.grpc.file.GetFileInfoPRequest\032\'.alluxi" +
-      "o.grpc.file.GetFileInfoPResponse\022m\n\020GetP" +
-      "innedFileIds\022+.alluxio.grpc.file.GetPinn" +
-      "edFileIdsPRequest\032,.alluxio.grpc.file.Ge" +
-      "tPinnedFileIdsPResponse\022[\n\nGetUfsInfo\022%." +
-      "alluxio.grpc.file.GetUfsInfoPRequest\032&.a" +
-      "lluxio.grpc.file.GetUfsInfoPResponse2\331\001\n" +
-      "\032FileSystemMasterJobService\022^\n\013GetFileIn" +
-      "fo\022&.alluxio.grpc.file.GetFileInfoPReque" +
-      "st\032\'.alluxio.grpc.file.GetFileInfoPRespo" +
-      "nse\022[\n\nGetUfsInfo\022%.alluxio.grpc.file.Ge" +
-      "tUfsInfoPRequest\032&.alluxio.grpc.file.Get" +
-      "UfsInfoPResponseB\'\n\014alluxio.grpcB\025FileSy" +
-      "stemMasterProtoP\001"
+      "stStatusPResponse0\001\022L\n\005Mount\022 .alluxio.g" +
+      "rpc.file.MountPRequest\032!.alluxio.grpc.fi" +
+      "le.MountPResponse\022O\n\006Remove\022!.alluxio.gr" +
+      "pc.file.DeletePRequest\032\".alluxio.grpc.fi" +
+      "le.DeletePResponse\022O\n\006Rename\022!.alluxio.g" +
+      "rpc.file.RenamePRequest\032\".alluxio.grpc.f" +
+      "ile.RenamePResponse\022\205\001\n\030ScheduleAsyncPer" +
+      "sistence\0223.alluxio.grpc.file.ScheduleAsy" +
+      "ncPersistencePRequest\0324.alluxio.grpc.fil" +
+      "e.ScheduleAsyncPersistencePResponse\022O\n\006S" +
+      "etAcl\022!.alluxio.grpc.file.SetAclPRequest" +
+      "\032\".alluxio.grpc.file.SetAclPResponse\022a\n\014" +
+      "SetAttribute\022\'.alluxio.grpc.file.SetAttr" +
+      "ibutePRequest\032(.alluxio.grpc.file.SetAtt" +
+      "ributePResponse\022X\n\tStartSync\022$.alluxio.g" +
+      "rpc.file.StartSyncPRequest\032%.alluxio.grp" +
+      "c.file.StartSyncPResponse\022U\n\010StopSync\022#." +
+      "alluxio.grpc.file.StopSyncPRequest\032$.all" +
+      "uxio.grpc.file.StopSyncPResponse\022R\n\007Unmo" +
+      "unt\022\".alluxio.grpc.file.UnmountPRequest\032" +
+      "#.alluxio.grpc.file.UnmountPResponse\022d\n\r" +
+      "UpdateUfsMode\022(.alluxio.grpc.file.Update" +
+      "UfsModePRequest\032).alluxio.grpc.file.Upda" +
+      "teUfsModePResponse\022s\n\022GetDelegationToken" +
+      "\022-.alluxio.grpc.file.GetDelegationTokenP" +
+      "Request\032..alluxio.grpc.file.GetDelegatio" +
+      "nTokenPResponse\022y\n\024RenewDelegationToken\022" +
+      "/.alluxio.grpc.file.RenewDelegationToken" +
+      "PRequest\0320.alluxio.grpc.file.RenewDelega" +
+      "tionTokenPResponse\022|\n\025CancelDelegationTo" +
+      "ken\0220.alluxio.grpc.file.CancelDelegation" +
+      "TokenPRequest\0321.alluxio.grpc.file.Cancel" +
+      "DelegationTokenPResponse2\303\003\n\035FileSystemM" +
+      "asterWorkerService\022v\n\023FileSystemHeartbea" +
+      "t\022..alluxio.grpc.file.FileSystemHeartbea" +
+      "tPRequest\032/.alluxio.grpc.file.FileSystem" +
+      "HeartbeatPResponse\022^\n\013GetFileInfo\022&.allu" +
+      "xio.grpc.file.GetFileInfoPRequest\032\'.allu" +
+      "xio.grpc.file.GetFileInfoPResponse\022m\n\020Ge" +
+      "tPinnedFileIds\022+.alluxio.grpc.file.GetPi" +
+      "nnedFileIdsPRequest\032,.alluxio.grpc.file." +
+      "GetPinnedFileIdsPResponse\022[\n\nGetUfsInfo\022" +
+      "%.alluxio.grpc.file.GetUfsInfoPRequest\032&" +
+      ".alluxio.grpc.file.GetUfsInfoPResponse2\331" +
+      "\001\n\032FileSystemMasterJobService\022^\n\013GetFile" +
+      "Info\022&.alluxio.grpc.file.GetFileInfoPReq" +
+      "uest\032\'.alluxio.grpc.file.GetFileInfoPRes" +
+      "ponse\022[\n\nGetUfsInfo\022%.alluxio.grpc.file." +
+      "GetUfsInfoPRequest\032&.alluxio.grpc.file.G" +
+      "etUfsInfoPResponseB\'\n\014alluxio.grpcB\025File" +
+      "SystemMasterProtoP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

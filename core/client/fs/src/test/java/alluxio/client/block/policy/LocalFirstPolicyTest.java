@@ -12,6 +12,7 @@
 package alluxio.client.block.policy;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
@@ -27,7 +28,6 @@ import alluxio.wire.TieredIdentity.LocalityTier;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.testing.EqualsTester;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ public final class LocalFirstPolicyTest {
         break;
       }
     }
-    Assert.assertTrue(success);
+    assertTrue(success);
   }
 
   @Test
@@ -133,7 +133,7 @@ public final class LocalFirstPolicyTest {
       WorkerNetAddress chosen =
           policy.getWorker(GetWorkerOptions.defaults().setBlockWorkerInfos(workers));
       // Rack locality is set to strict, and no rack matches.
-      Assert.assertNull(chosen);
+      org.junit.Assert.assertNull(chosen);
     }
   }
   // ALLUXIO CS END

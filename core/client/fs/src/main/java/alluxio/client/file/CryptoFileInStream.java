@@ -159,7 +159,7 @@ public final class CryptoFileInStream extends FileInStream {
       super.positionedRead(physicalChunkStart, ciphertext, 0, physicalReadLength);
       physicalChunkStart += physicalReadLength;
       ByteBuf plaintext = CryptoUtils.decryptChunks(mMeta, Unpooled.wrappedBuffer(ciphertext),
-          mContext.getConf());
+          mContext.getClusterConf());
       try {
         int offsetFromChunkStart = (int) LayoutUtils.getLogicalOffsetFromChunkStart(mMeta, tPos);
         if (offsetFromChunkStart > 0) {
@@ -249,7 +249,7 @@ public final class CryptoFileInStream extends FileInStream {
     }
     ByteBuf cipherBuf = Unpooled.wrappedBuffer(cipherChunk);
     try {
-      ByteBuf plaintext = CryptoUtils.decryptChunks(mMeta, cipherBuf, mContext.getConf());
+      ByteBuf plaintext = CryptoUtils.decryptChunks(mMeta, cipherBuf, mContext.getClusterConf());
       mLogicalChunkStart += plaintext.readableBytes();
       return plaintext;
     } finally {

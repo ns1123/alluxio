@@ -4,7 +4,7 @@
     <Or>
       <Package name="org.apache.thrift"/>
       <Package name="alluxio.grpc"/>
-      <Package name="alluxio.thrift"/>
+      <Package name="alluxio.concurrent.jsr"/>
       <Package name="alluxio.proto.journal.*"/>
       <!-- ALLUXIO CS ADD -->
       <Package name="alluxio.proto.layout.*"/>

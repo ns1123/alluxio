@@ -12,8 +12,10 @@
 package alluxio.client.hadoop;
 
 import alluxio.Constants;
+import alluxio.conf.PropertyKey;
 import alluxio.hadoop.FileSystem;
 import alluxio.master.ZkMasterInquireClient.ZkMasterConnectDetails;
+import alluxio.master.journal.JournalType;
 import alluxio.multi.process.MultiProcessCluster;
 import alluxio.multi.process.MultiProcessCluster.DeployMode;
 import alluxio.multi.process.PortCoordination;
@@ -82,7 +84,7 @@ public class FileSystemUriIntegrationTest extends BaseIntegrationTest {
         .setClusterName("MultiMastersUriFileSystemIntegrationTest")
         .setNumMasters(3)
         .setNumWorkers(1)
-        .setDeployMode(DeployMode.EMBEDDED_HA)
+        .addProperty(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.EMBEDDED.toString())
         .build();
     mCluster.start();
     // Get master rpc addresses

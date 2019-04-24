@@ -109,7 +109,7 @@ public final class CryptoFileOutStreamTest {
         .thenReturn(new DummyCloseableResource<>(mFileSystemMasterClient));
     when(mFileSystemMasterClient.getStatus(any(AlluxioURI.class), any(GetStatusPOptions.class)))
         .thenReturn(new URIStatus(new FileInfo()));
-    when(mFileSystemContext.getConf()).thenReturn(mConf);
+    when(mFileSystemContext.getClusterConf()).thenReturn(mConf);
 
     // Return sequentially increasing numbers for new block ids
     when(mFileSystemMasterClient.getNewBlockIdForFile(FILE_NAME))

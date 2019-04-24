@@ -11,15 +11,17 @@
 
 package alluxio.client.file;
 
+import alluxio.AlluxioURI;
 import alluxio.ClientContext;
-import alluxio.conf.AlluxioConfiguration;
-import alluxio.conf.PropertyKey;
 import alluxio.client.block.BlockMasterClient;
 import alluxio.client.block.BlockMasterClientPool;
 import alluxio.client.block.stream.BlockWorkerClient;
 import alluxio.client.block.stream.BlockWorkerClientPool;
 import alluxio.client.metrics.ClientMasterSync;
 import alluxio.client.metrics.MetricsMasterClient;
+import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.PropertyKey;
+import alluxio.conf.path.SpecificPathConfiguration;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.GrpcServerAddress;
@@ -314,10 +316,21 @@ public final class FileSystemContext implements Closeable {
   }
 
   /**
-   * @return the {@link AlluxioConfiguration} backing this {@link FileSystemContext}
+   * @return the cluster level configuration backing this {@link FileSystemContext}
    */
-  public AlluxioConfiguration getConf() {
+  public AlluxioConfiguration getClusterConf() {
     return mClientContext.getConf();
+  }
+
+  /**
+   * The path level configuration is a {@link SpecificPathConfiguration}.
+   *
+   * @param path the path to get the configuration for
+   * @return the path level configuration for the specific path
+   */
+  public AlluxioConfiguration getPathConf(AlluxioURI path) {
+    return new SpecificPathConfiguration(mClientContext.getConf(), mClientContext.getPathConf(),
+        path);
   }
 
   /**
@@ -396,9 +409,9 @@ public final class FileSystemContext implements Closeable {
   public BlockWorkerClient acquireBlockWorkerClient(final WorkerNetAddress workerNetAddress,
       final alluxio.proto.security.CapabilityProto.Capability channelCapability)
       throws IOException {
-    if (getConf().get(PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+    if (getClusterConf().get(PropertyKey.SECURITY_AUTHENTICATION_TYPE)
         .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())
-        && getConf().getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        && getClusterConf().getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
       // Embed the capability into a {@link Subject} as {@link Token}.
       java.util.Set<alluxio.security.authentication.Token> privCredentials =
           new java.util.HashSet<>();
@@ -429,14 +442,14 @@ public final class FileSystemContext implements Closeable {
   private BlockWorkerClient acquireBlockWorkerClientInternal(
       final WorkerNetAddress workerNetAddress, final Subject subject) throws IOException {
     SocketAddress address =
-        NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress, getConf());
+        NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress, getClusterConf());
     GrpcServerAddress serverAddress = new GrpcServerAddress(workerNetAddress.getHost(), address);
     ClientPoolKey key = new ClientPoolKey(address,
-        AuthenticationUserUtils.getImpersonationUser(subject, getConf()));
+        AuthenticationUserUtils.getImpersonationUser(subject, getClusterConf()));
     return mBlockWorkerClientPool.computeIfAbsent(key,
         k -> new BlockWorkerClientPool(subject, serverAddress,
-            getConf().getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE), getConf(),
-            mWorkerGroup))
+            getClusterConf().getInt(PropertyKey.USER_BLOCK_WORKER_CLIENT_POOL_SIZE),
+            getClusterConf(), mWorkerGroup))
         .acquire();
   }
 
@@ -449,9 +462,9 @@ public final class FileSystemContext implements Closeable {
   public void releaseBlockWorkerClient(WorkerNetAddress workerNetAddress,
       BlockWorkerClient client) {
     SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress,
-        getConf());
-    ClientPoolKey key = new ClientPoolKey(address,
-        AuthenticationUserUtils.getImpersonationUser(mClientContext.getSubject(), getConf()));
+        getClusterConf());
+    ClientPoolKey key = new ClientPoolKey(address, AuthenticationUserUtils.getImpersonationUser(
+        mClientContext.getSubject(), getClusterConf()));
     if (mBlockWorkerClientPool.containsKey(key)) {
       mBlockWorkerClientPool.get(key).release(client);
     } else {

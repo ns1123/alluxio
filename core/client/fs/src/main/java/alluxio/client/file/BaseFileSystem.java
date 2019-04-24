@@ -156,7 +156,7 @@ public class BaseFileSystem implements FileSystem {
   public void createDirectory(AlluxioURI path, CreateDirectoryPOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.createDirectoryDefaults(mFsContext.getConf())
+    options = FileSystemOptions.createDirectoryDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -185,7 +185,7 @@ public class BaseFileSystem implements FileSystem {
   public FileOutStream createFile(AlluxioURI path, CreateFilePOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.createFileDefaults(mFsContext.getConf())
+    options = FileSystemOptions.createFileDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     URIStatus status;
@@ -194,11 +194,11 @@ public class BaseFileSystem implements FileSystem {
       long requestedBlockSizeBytes = options.getBlockSizeBytes();
       if (!options.hasBlockSizeBytes()) {
         requestedBlockSizeBytes =
-                mFsContext.getConf().getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+                mFsContext.getPathConf(path).getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
       }
-      if (mFsContext.getConf().getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
+      if (mFsContext.getClusterConf().getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
-                alluxio.client.EncryptionMetaFactory.createLayout(mFsContext.getConf()),
+                alluxio.client.EncryptionMetaFactory.createLayout(mFsContext.getClusterConf()),
                 requestedBlockSizeBytes);
         options = options.toBuilder().setBlockSizeBytes(physicalBlockSize).build();
       }
@@ -218,7 +218,7 @@ public class BaseFileSystem implements FileSystem {
     }
 
     OutStreamOptions outStreamOptions =
-        new OutStreamOptions(options, mFsContext.getConf());
+        new OutStreamOptions(options, mFsContext.getPathConf(path));
     outStreamOptions.setUfsPath(status.getUfsPath());
     outStreamOptions.setMountId(status.getMountId());
     // ALLUXIO CS ADD
@@ -233,7 +233,7 @@ public class BaseFileSystem implements FileSystem {
       alluxio.proto.security.EncryptionProto.Meta meta =
           alluxio.client.EncryptionMetaFactory.create(status.getFileId(),
               status.getFileId() /* encryption id */, options.getBlockSizeBytes(),
-              mFsContext.getConf());
+              mFsContext.getClusterConf());
       outStreamOptions.setEncryptionMeta(meta);
       mFsContext.putEncryptionMeta(status.getFileId(), meta);
     }
@@ -262,7 +262,7 @@ public class BaseFileSystem implements FileSystem {
   public void delete(AlluxioURI path, DeletePOptions options)
       throws DirectoryNotEmptyException, FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.deleteDefaults(mFsContext.getConf())
+    options = FileSystemOptions.deleteDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -292,7 +292,7 @@ public class BaseFileSystem implements FileSystem {
   public boolean exists(AlluxioURI path, ExistsPOptions options)
       throws InvalidPathException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.existsDefaults(mFsContext.getConf())
+    options = FileSystemOptions.existsDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -324,7 +324,7 @@ public class BaseFileSystem implements FileSystem {
   public void free(AlluxioURI path, FreePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.freeDefaults(mFsContext.getConf())
+    options = FileSystemOptions.freeDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -418,7 +418,7 @@ public class BaseFileSystem implements FileSystem {
               location -> finalWorkerHosts.get(HostAndPort.fromString(location).getHost()))
                 .filter(Objects::nonNull).collect(toList());
         }
-        if (locations.isEmpty() && mFsContext.getConf()
+        if (locations.isEmpty() && mFsContext.getPathConf(path)
             .getBoolean(PropertyKey.USER_UFS_BLOCK_LOCATION_ALL_FALLBACK_ENABLED)) {
           // Case 2: Fallback to add all workers to locations so some apps (Impala) won't panic.
           locations.addAll(getHostWorkerMap().values());
@@ -439,7 +439,7 @@ public class BaseFileSystem implements FileSystem {
 
   @Override
   public AlluxioConfiguration getConf() {
-    return mFsContext.getConf();
+    return mFsContext.getClusterConf();
   }
 
   @Override
@@ -452,7 +452,7 @@ public class BaseFileSystem implements FileSystem {
   public URIStatus getStatus(AlluxioURI path, GetStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.getStatusDefaults(mFsContext.getConf())
+    options = FileSystemOptions.getStatusDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -503,7 +503,7 @@ public class BaseFileSystem implements FileSystem {
   public List<URIStatus> listStatus(AlluxioURI path, ListStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.listStatusDefaults(mFsContext.getConf())
+    options = FileSystemOptions.listStatusDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     // TODO(calvin): Fix the exception handling in the master
@@ -571,7 +571,7 @@ public class BaseFileSystem implements FileSystem {
   private alluxio.proto.security.EncryptionProto.Meta getEncryptionMetaFromFooter(URIStatus status)
       throws IOException {
     long fileId = status.getFileId();
-    InStreamOptions inStreamOptions = new InStreamOptions(status, mFsContext.getConf())
+    InStreamOptions inStreamOptions = new InStreamOptions(status, mFsContext.getClusterConf())
         .setEncrypted(false);
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
@@ -592,9 +592,9 @@ public class BaseFileSystem implements FileSystem {
     alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey;
     try {
       cryptoKey = alluxio.client.security.CryptoUtils.getCryptoKey(
-          mFsContext.getConf().get(PropertyKey.SECURITY_KMS_PROVIDER),
-          mFsContext.getConf().get(PropertyKey.SECURITY_KMS_ENDPOINT),
-          false, String.valueOf(fileMetadata.getEncryptionId()), mFsContext.getConf());
+          mFsContext.getClusterConf().get(PropertyKey.SECURITY_KMS_PROVIDER),
+          mFsContext.getClusterConf().get(PropertyKey.SECURITY_KMS_ENDPOINT),
+          false, String.valueOf(fileMetadata.getEncryptionId()), mFsContext.getClusterConf());
     } catch (IOException e) {
       // Allow null crypto key for getStatus and listStatus because one user might not have
       // access to the crypto keys for the files being listed.
@@ -616,7 +616,7 @@ public class BaseFileSystem implements FileSystem {
   public void mount(AlluxioURI alluxioPath, AlluxioURI ufsPath, MountPOptions options)
       throws IOException, AlluxioException {
     checkUri(alluxioPath);
-    options = FileSystemOptions.mountDefaults(mFsContext.getConf())
+    options = FileSystemOptions.mountDefaults(mFsContext.getPathConf(alluxioPath))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -670,7 +670,7 @@ public class BaseFileSystem implements FileSystem {
   public void persist(final AlluxioURI path, ScheduleAsyncPersistencePOptions options)
     throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.scheduleAsyncPersistDefaults(mFsContext.getConf())
+    options = FileSystemOptions.scheduleAsyncPersistDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -695,7 +695,7 @@ public class BaseFileSystem implements FileSystem {
   public FileInStream openFile(AlluxioURI path, OpenFilePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.openFileDefaults(mFsContext.getConf())
+    options = FileSystemOptions.openFileDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     // ALLUXIO CS REPLACE
     // URIStatus status = getStatus(path);
@@ -704,7 +704,7 @@ public class BaseFileSystem implements FileSystem {
     URIStatus status;
     try {
       status = getStatusInternal(masterClient, path,
-          FileSystemOptions.getStatusDefaults(mFsContext.getConf()));
+          FileSystemOptions.getStatusDefaults(mFsContext.getPathConf(path)));
     } catch (NotFoundException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } catch (UnavailableException e) {
@@ -720,7 +720,7 @@ public class BaseFileSystem implements FileSystem {
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
     }
     InStreamOptions inStreamOptions = new InStreamOptions(status, options,
-        mFsContext.getConf());
+        mFsContext.getPathConf(path));
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
@@ -763,7 +763,7 @@ public class BaseFileSystem implements FileSystem {
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(src);
     checkUri(dst);
-    options = FileSystemOptions.renameDefaults(mFsContext.getConf())
+    options = FileSystemOptions.renameDefaults(mFsContext.getPathConf(dst))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -791,7 +791,7 @@ public class BaseFileSystem implements FileSystem {
   public void setAcl(AlluxioURI path, SetAclAction action, List<AclEntry> entries,
       SetAclPOptions options) throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.setAclDefaults(mFsContext.getConf())
+    options = FileSystemOptions.setAclDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -887,7 +887,7 @@ public class BaseFileSystem implements FileSystem {
   public void unmount(AlluxioURI path, UnmountPOptions options)
       throws IOException, AlluxioException {
     checkUri(path);
-    options = FileSystemOptions.unmountDefaults(mFsContext.getConf())
+    options = FileSystemOptions.unmountDefaults(mFsContext.getPathConf(path))
         .toBuilder().mergeFrom(options).build();
     FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
     try {
@@ -933,7 +933,7 @@ public class BaseFileSystem implements FileSystem {
        * user passes. If not, throw an exception letting the user know they don't match.
        */
       Authority configured =
-          MasterInquireClient.Factory.create(mFsContext.getConf())
+          MasterInquireClient.Factory.create(mFsContext.getClusterConf())
               .getConnectDetails().toAuthority();
       if (!configured.equals(uri.getAuthority())) {
         throw new IllegalArgumentException(

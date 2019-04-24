@@ -114,7 +114,7 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
     }
     // ALLUXIO CS END
 
-    AlluxioConfiguration alluxioConf = context.getConf();
+    AlluxioConfiguration alluxioConf = context.getClusterConf();
     boolean shortCircuit = alluxioConf.getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED);
     boolean sourceSupportsDomainSocket = NettyUtils.isDomainSocketSupported(dataSource,
         alluxioConf);
@@ -153,7 +153,8 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
   private static BlockInStream createLocalBlockInStream(FileSystemContext context,
       WorkerNetAddress address, long blockId, long length, InStreamOptions options)
       throws IOException {
-    long chunkSize = context.getConf().getBytes(PropertyKey.USER_LOCAL_READER_CHUNK_SIZE_BYTES);
+    long chunkSize = context.getClusterConf().getBytes(
+        PropertyKey.USER_LOCAL_READER_CHUNK_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       chunkSize = alluxio.client.LayoutUtils.toPhysicalChunksLength(
@@ -179,8 +180,8 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
       WorkerNetAddress address, BlockInStreamSource blockSource,
       ReadRequest readRequestPartial, long blockSize, InStreamOptions options) {
     ReadRequest.Builder readRequestBuilder = readRequestPartial.toBuilder();
-    long chunkSize = context.getConf()
-        .getBytes(PropertyKey.USER_NETWORK_READER_CHUNK_SIZE_BYTES);
+    long chunkSize = context.getClusterConf().getBytes(
+        PropertyKey.USER_NETWORK_READER_CHUNK_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       chunkSize =
@@ -219,7 +220,7 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
     // worker.
     // ALLUXIO CS END
     long chunkSize =
-        context.getConf()
+        context.getClusterConf()
             .getBytes(PropertyKey.USER_NETWORK_READER_CHUNK_SIZE_BYTES);
     ReadRequest readRequest = ReadRequest.newBuilder().setBlockId(blockId)
         .setOpenUfsBlockOptions(ufsOptions).setChunkSize(chunkSize).buildPartial();

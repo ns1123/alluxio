@@ -52,6 +52,10 @@ public final class JournalEntryAssociation {
         || entry.hasBlockInfo()) {
       return Constants.BLOCK_MASTER_NAME;
     }
+    if (entry.hasPathProperties()
+        || entry.hasRemovePathProperties()) {
+      return Constants.META_MASTER_NAME;
+    }
     // ALLUXIO CS ADD
     if (entry.hasLicenseCheck()) {
       return Constants.LICENSE_MASTER_NAME;
