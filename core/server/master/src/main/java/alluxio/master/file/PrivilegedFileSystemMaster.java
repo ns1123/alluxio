@@ -213,11 +213,6 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public StartupConsistencyCheck getStartupConsistencyCheck() {
-    return mFileSystemMaster.getStartupConsistencyCheck();
-  }
-
-  @Override
   public long getFileId(AlluxioURI path) throws AccessControlException, UnavailableException {
     return mFileSystemMaster.getFileId(path);
   }

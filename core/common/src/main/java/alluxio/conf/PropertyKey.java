@@ -1614,22 +1614,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "if this property is true. This property is available since 1.7.1")
           .setScope(Scope.MASTER)
           .build();
-<<<<<<< HEAD
-  public static final PropertyKey MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
-      new Builder(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)
-          // ALLUXIO CS REPLACE
-          // .setDefaultValue(true)
-          // ALLUXIO CS WITH
-          .setDefaultValue(false)
-          // ALLUXIO CS END
-          .setDescription("Whether the system should be checked for consistency with the "
-              + "underlying storage on startup. During the time the check is running, Alluxio "
-              + "will be in read only mode. Enabled by default.")
-          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
-          .setScope(Scope.MASTER)
-          .build();
-=======
->>>>>>> OPENSOURCE/master
   public static final PropertyKey MASTER_GRPC_CHANNEL_AUTH_TIMEOUT =
       new Builder(Name.MASTER_GRPC_CHANNEL_AUTH_TIMEOUT)
           .setDefaultValue("30sec")

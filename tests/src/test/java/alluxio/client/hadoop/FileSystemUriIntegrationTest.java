@@ -49,7 +49,7 @@ public class FileSystemUriIntegrationTest extends BaseIntegrationTest {
         .setClusterName("ZookeeperUriFileSystemIntegrationTest")
         .setNumMasters(3)
         .setNumWorkers(2)
-        .setDeployMode(DeployMode.ZOOKEEPER_HA)
+        .addProperty(PropertyKey.MASTER_JOURNAL_TYPE, JournalType.UFS.toString())
         .build();
     mCluster.start();
     // Get the zookeeper address

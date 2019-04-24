@@ -288,20 +288,14 @@ public class AlluxioMasterInfo {
     // ALLUXIO CS REPLACE
     // return Objects
     //     .hashCode(mCapacity, mConfiguration, mLostWorkers, mMetrics, mMountPoints, mRpcAddress,
-    //         mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
+    //         mStartTimeMs, mTierCapacity, mUfsCapacity, mUptimeMs,
     //         mVersion, mWorkers);
     // ALLUXIO CS WITH
     return Objects
-<<<<<<< HEAD
         .hashCode(mCapacity, mConfiguration, mLicense, mLostWorkers, mMetrics, mMountPoints,
-            mRpcAddress, mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity,
+            mRpcAddress, mStartTimeMs, mTierCapacity, mUfsCapacity,
             mUptimeMs, mVersion, mWorkers);
     // ALLUXIO CS END
-=======
-        .hashCode(mCapacity, mConfiguration, mLostWorkers, mMetrics, mMountPoints, mRpcAddress,
-            mStartTimeMs, mTierCapacity, mUfsCapacity, mUptimeMs,
-            mVersion, mWorkers);
->>>>>>> OPENSOURCE/master
   }
 
   @Override
