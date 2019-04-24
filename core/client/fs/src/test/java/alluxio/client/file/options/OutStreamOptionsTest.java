@@ -109,8 +109,8 @@ public class OutStreamOptionsTest {
     assertEquals("test_group", options.getGroup());
     assertEquals(ModeUtils.applyFileUMask(Mode.defaults(),
         mConf.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_UMASK)), options.getMode());
-    assertEquals(Constants.NO_TTL, options.getTtl());
-    assertEquals(TtlAction.DELETE, options.getTtlAction());
+    assertEquals(Constants.NO_TTL, options.getCommonOptions().getTtl());
+    assertEquals(TtlAction.DELETE, options.getCommonOptions().getTtlAction());
     assertEquals(ufsType, options.getUnderStorageType());
     assertEquals(WriteType.CACHE_THROUGH, options.getWriteType());
     // ALLUXIO CS REMOVE
@@ -133,7 +133,8 @@ public class OutStreamOptionsTest {
     String owner = CommonUtils.randomAlphaNumString(10);
     String group = CommonUtils.randomAlphaNumString(10);
     Mode mode = new Mode((short) random.nextInt());
-    long ttl = random.nextLong();
+    int ttl = 5;
+    TtlAction ttlAction = TtlAction.FREE;
     // ALLUXIO CS REMOVE
     // int writeTier = random.nextInt();
     // ALLUXIO CS END
@@ -143,14 +144,15 @@ public class OutStreamOptionsTest {
         alluxio.client.util.EncryptionMetaTestUtils.create(mConf);
     // ALLUXIO CS END
 
+    mConf.set(PropertyKey.USER_FILE_CREATE_TTL, ttl);
+    mConf.set(PropertyKey.USER_FILE_CREATE_TTL_ACTION, ttlAction);
+
     OutStreamOptions options = OutStreamOptions.defaults(mConf);
     options.setBlockSizeBytes(blockSize);
     options.setLocationPolicy(locationPolicy);
     options.setOwner(owner);
     options.setGroup(group);
     options.setMode(mode);
-    options.setTtl(ttl);
-    options.setTtlAction(TtlAction.FREE);
     // ALLUXIO CS REMOVE
     // options.setWriteTier(writeTier);
     // ALLUXIO CS END
@@ -165,8 +167,8 @@ public class OutStreamOptionsTest {
     assertEquals(owner, options.getOwner());
     assertEquals(group, options.getGroup());
     assertEquals(mode, options.getMode());
-    assertEquals(ttl, options.getTtl());
-    assertEquals(TtlAction.FREE, options.getTtlAction());
+    assertEquals(ttl, options.getCommonOptions().getTtl());
+    assertEquals(ttlAction, options.getCommonOptions().getTtlAction());
     // ALLUXIO CS REMOVE
     // assertEquals(writeTier, options.getWriteTier());
     // ALLUXIO CS END

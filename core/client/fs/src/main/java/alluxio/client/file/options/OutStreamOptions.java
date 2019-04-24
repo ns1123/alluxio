@@ -13,16 +13,16 @@ package alluxio.client.file.options;
 
 import alluxio.client.block.policy.BlockLocationPolicy;
 import alluxio.conf.AlluxioConfiguration;
-import alluxio.Constants;
 import alluxio.conf.PropertyKey;
 import alluxio.annotation.PublicApi;
 import alluxio.client.AlluxioStorageType;
 import alluxio.client.UnderStorageType;
 import alluxio.client.WriteType;
 import alluxio.grpc.CreateFilePOptions;
-import alluxio.grpc.TtlAction;
+import alluxio.grpc.FileSystemMasterCommonPOptions;
 import alluxio.security.authorization.AccessControlList;
 import alluxio.security.authorization.Mode;
+import alluxio.util.FileSystemOptions;
 import alluxio.util.IdUtils;
 import alluxio.util.ModeUtils;
 import alluxio.util.SecurityUtils;
@@ -42,9 +42,8 @@ public final class OutStreamOptions {
   private static final org.slf4j.Logger LOG =
       org.slf4j.LoggerFactory.getLogger(OutStreamOptions.class);
   // ALLUXIO CS END
+  private FileSystemMasterCommonPOptions mCommonOptions;
   private long mBlockSizeBytes;
-  private long mTtl;
-  private TtlAction mTtlAction;
   private BlockLocationPolicy mLocationPolicy;
   private int mWriteTier;
   private WriteType mWriteType;
@@ -80,6 +79,9 @@ public final class OutStreamOptions {
    */
   public OutStreamOptions(CreateFilePOptions options, AlluxioConfiguration alluxioConf) {
     this(alluxioConf);
+    if (options.hasCommonOptions()) {
+      mCommonOptions = mCommonOptions.toBuilder().mergeFrom(options.getCommonOptions()).build();
+    }
     if (options.hasBlockSizeBytes()) {
       mBlockSizeBytes = options.getBlockSizeBytes();
     }
@@ -110,9 +112,8 @@ public final class OutStreamOptions {
   }
 
   private OutStreamOptions(AlluxioConfiguration alluxioConf) {
+    mCommonOptions = FileSystemOptions.commonDefaults(alluxioConf);
     mBlockSizeBytes = alluxioConf.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
-    mTtl = Constants.NO_TTL;
-    mTtlAction = TtlAction.DELETE;
     mLocationPolicy = BlockLocationPolicy.Factory.create(
         alluxioConf.get(PropertyKey.USER_BLOCK_WRITE_LOCATION_POLICY),
         alluxioConf);
@@ -161,18 +162,10 @@ public final class OutStreamOptions {
   }
 
   /**
-   * @return the TTL (time to live) value; it identifies duration (in milliseconds) the created file
-   *         should be kept around before it is automatically deleted
+   * @return the common options
    */
-  public long getTtl() {
-    return mTtl;
-  }
-
-  /**
-   * @return the {@link TtlAction}
-   */
-  public TtlAction getTtlAction() {
-    return mTtlAction;
+  public FileSystemMasterCommonPOptions getCommonOptions() {
+    return mCommonOptions;
   }
 
   /**
@@ -287,28 +280,6 @@ public final class OutStreamOptions {
    */
   public OutStreamOptions setBlockSizeBytes(long blockSizeBytes) {
     mBlockSizeBytes = blockSizeBytes;
-    return this;
-  }
-
-  /**
-   * Sets the time to live.
-   *
-   * @param ttl the TTL (time to live) value to use; it identifies duration (in milliseconds) the
-   *        created file should be kept around before it is automatically deleted, no matter
-   *        whether the file is pinned
-   * @return the updated options object
-   */
-  public OutStreamOptions setTtl(long ttl) {
-    mTtl = ttl;
-    return this;
-  }
-
-  /**
-   * @param ttlAction the {@link TtlAction} to use
-   * @return the updated options object
-   */
-  public OutStreamOptions setTtlAction(TtlAction ttlAction) {
-    mTtlAction = ttlAction;
     return this;
   }
 
@@ -470,13 +441,12 @@ public final class OutStreamOptions {
     OutStreamOptions that = (OutStreamOptions) o;
     return Objects.equal(mAcl, that.mAcl)
         && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
+        && Objects.equal(mCommonOptions, that.mCommonOptions)
         && Objects.equal(mGroup, that.mGroup)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
         && Objects.equal(mMode, that.mMode)
         && Objects.equal(mMountId, that.mMountId)
         && Objects.equal(mOwner, that.mOwner)
-        && Objects.equal(mTtl, that.mTtl)
-        && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
@@ -495,13 +465,12 @@ public final class OutStreamOptions {
     return Objects.hashCode(
         mAcl,
         mBlockSizeBytes,
+        mCommonOptions,
         mGroup,
         mLocationPolicy,
         mMode,
         mMountId,
         mOwner,
-        mTtl,
-        mTtlAction,
         mReplicationDurable,
         mReplicationMax,
         mReplicationMin,
@@ -521,13 +490,12 @@ public final class OutStreamOptions {
     return MoreObjects.toStringHelper(this)
         .add("acl", mAcl)
         .add("blockSizeBytes", mBlockSizeBytes)
+        .add("commonOptions", mCommonOptions)
         .add("group", mGroup)
         .add("locationPolicy", mLocationPolicy)
         .add("mode", mMode)
         .add("mountId", mMountId)
         .add("owner", mOwner)
-        .add("ttl", mTtl)
-        .add("ttlAction", mTtlAction)
         .add("ufsPath", mUfsPath)
         .add("writeTier", mWriteTier)
         .add("writeType", mWriteType)
