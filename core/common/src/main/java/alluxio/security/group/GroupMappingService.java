@@ -57,6 +57,11 @@ public interface GroupMappingService {
         synchronized (Factory.class) {
           if (sCachedGroupMapping == null) {
             LOG.debug("Creating new Groups object");
+            // ALLUXIO CS REPLACE
+            // GroupMappingService groupMappingService =
+            //     CommonUtils.createNewClassInstance(conf.<GroupMappingService>getClass(
+            //         PropertyKey.SECURITY_GROUP_MAPPING_CLASS), null, null);
+            // ALLUXIO CS WITH
             GroupMappingService groupMappingService;
             Class<GroupMappingService> cls = conf.getClass(
                 PropertyKey.SECURITY_GROUP_MAPPING_CLASS);
@@ -65,6 +70,7 @@ public interface GroupMappingService {
             } else {
               groupMappingService = CommonUtils.createNewClassInstance(cls, null, null);
             }
+            // ALLUXIO CS END
             sCachedGroupMapping = new CachedGroupMapping(groupMappingService,
                 conf.getMs(PropertyKey.SECURITY_GROUP_MAPPING_CACHE_TIMEOUT_MS));
           }

@@ -113,7 +113,6 @@ public class BlockInStream extends InputStream implements BoundedStream, Seekabl
       builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());
     }
     // ALLUXIO CS END
-
     AlluxioConfiguration alluxioConf = context.getClusterConf();
     boolean shortCircuit = alluxioConf.getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED);
     boolean sourceSupportsDomainSocket = NettyUtils.isDomainSocketSupported(dataSource,
