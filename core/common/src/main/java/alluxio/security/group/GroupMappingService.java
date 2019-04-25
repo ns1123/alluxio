@@ -14,7 +14,6 @@ package alluxio.security.group;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.annotation.PublicApi;
-import alluxio.security.group.provider.LdapGroupsMapping;
 import alluxio.util.CommonUtils;
 
 import org.slf4j.Logger;
@@ -65,8 +64,8 @@ public interface GroupMappingService {
             GroupMappingService groupMappingService;
             Class<GroupMappingService> cls = conf.getClass(
                 PropertyKey.SECURITY_GROUP_MAPPING_CLASS);
-            if (cls.equals(LdapGroupsMapping.class)) {
-              groupMappingService = new LdapGroupsMapping(conf);
+            if (cls.equals(alluxio.security.group.provider.LdapGroupsMapping.class)) {
+              groupMappingService = new alluxio.security.group.provider.LdapGroupsMapping(conf);
             } else {
               groupMappingService = CommonUtils.createNewClassInstance(cls, null, null);
             }
