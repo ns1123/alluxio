@@ -200,6 +200,7 @@ public final class GrpcChannelBuilder {
   /**
    * Set TLS context.
    *
+   * @param sslContext TLS context
    * @return a new instance of {@link GrpcChannelBuilder}
    */
   public GrpcChannelBuilder sslContext(io.netty.handler.ssl.SslContext sslContext) {

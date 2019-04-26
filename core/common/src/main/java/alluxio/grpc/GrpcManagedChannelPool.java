@@ -418,6 +418,13 @@ public class GrpcManagedChannelPool {
       return this;
     }
     // ALLUXIO CS ADD
+
+    /**
+     * Set TLS context.
+     *
+     * @param sslContext TLS context
+     * @return a new instance of {@link ChannelKey}
+     */
     public ChannelKey setSslContext(io.netty.handler.ssl.SslContext sslContext) {
       mSslContext = Optional.of(sslContext);
       return this;
