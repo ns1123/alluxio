@@ -478,7 +478,7 @@ public final class GrpcUtils {
     }
     // ALLUXIO CS ADD
     builder.setEncrypted(fileInfo.isEncrypted());
-    if(fileInfo.getCapability() != null) {
+    if (fileInfo.getCapability() != null) {
       builder.setCapability(fileInfo.getCapability().toProto());
     }
     // ALLUXIO CS END
