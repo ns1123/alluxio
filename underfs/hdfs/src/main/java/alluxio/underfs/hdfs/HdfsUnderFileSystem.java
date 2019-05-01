@@ -574,14 +574,14 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
       return;
     }
     // TODO(yanqin): support multiple Kerberized HDFSs.
-    String principal =
-        mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL);
+    String principal;
     String keytab;
-    if (principal.isEmpty()) {
+    if (!mUfsConf.isSet(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL)) {
       // If not set, fall back to kerberos server principal.
       principal = mUfsConf.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
       keytab = mUfsConf.get(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     } else {
+      principal = mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_PRINCIPAL);
       keytab = mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_KERBEROS_CLIENT_KEYTAB_FILE);
     }
     if (principal.isEmpty() || keytab.isEmpty()) {
