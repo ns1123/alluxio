@@ -16,6 +16,7 @@
 .metadata/
 .project
 .settings/
+/alluxio-ui/
 /client/
 /conf/alluxio-env.sh
 /conf/metrics.properties
@@ -35,6 +36,7 @@
 /dev/scripts/*.tar.gz
 /dev/scripts/tarballs
 /dev/scripts/workdir
+/docs/.jekyll-metadata
 /docs/_site/
 /docs/api/
 /docs/serve/
@@ -44,6 +46,7 @@
 /logs/*.log*
 /logs/*.out*
 /logs/user/*
+/underfs/hdfs/src/main/java/alluxio/UfsConstants.java
 /underFSStorage/
 /web/
 dependency-reduced-pom.xml
