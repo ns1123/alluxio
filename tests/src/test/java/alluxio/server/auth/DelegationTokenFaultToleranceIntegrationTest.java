@@ -153,7 +153,14 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
     try {
       FileSystem hdfs = new FileSystem();
       org.apache.hadoop.conf.Configuration hdfsConf = new org.apache.hadoop.conf.Configuration();
-      hdfs.initialize(new URI(mMultiMasterLocalAlluxioCluster.getLocalAlluxioMaster().getUri()),
+
+      // Set the connection properties for the client (hdfs conf)
+      hdfsConf.set(PropertyKey.Name.ZOOKEEPER_ENABLED,
+          ServerConfiguration.get(PropertyKey.ZOOKEEPER_ENABLED));
+      hdfsConf.set(PropertyKey.Name.ZOOKEEPER_ADDRESS,
+          ServerConfiguration.get(PropertyKey.ZOOKEEPER_ADDRESS));
+
+      hdfs.initialize(new URI(mMultiMasterLocalAlluxioCluster.getUri()),
           hdfsConf, ServerConfiguration.global());
       // obtains delegation token
       Token<?>[] tokens = hdfs.addDelegationTokens("alluxio", creds);
@@ -183,7 +190,7 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
 
         tokenUGI.doAs((PrivilegedExceptionAction<? extends Object>) () -> {
           newHdfs.initialize(
-              new URI(mMultiMasterLocalAlluxioCluster.getLocalAlluxioMaster().getUri()), hdfsConf,
+              new URI(mMultiMasterLocalAlluxioCluster.getUri()), hdfsConf,
               ServerConfiguration.global());
           Path rootPath = new Path("/");
           FileStatus rootStat = newHdfs.getFileStatus(rootPath);
