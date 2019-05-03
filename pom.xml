@@ -201,7 +201,6 @@
 
   <modules>
     <module>alluxio-ui</module>
-    <module>alluxio-shaded-hadoop</module>
     <module>assembly</module>
     <module>core</module>
     <module>examples</module>
@@ -213,6 +212,7 @@
     <module>kms</module>
     <module>security</module>
     <!-- ALLUXIO CS END -->
+    <module>shaded</module>
     <module>shell</module>
     <module>tests</module>
     <module>underfs</module>
