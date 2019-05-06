@@ -208,11 +208,16 @@
     <module>logserver</module>
     <module>minicluster</module>
     <module>job</module>
+<<<<<<< HEAD
     <!-- ALLUXIO CS ADD -->
     <module>kms</module>
     <module>security</module>
     <!-- ALLUXIO CS END -->
     <module>shaded</module>
+||||||| merged common ancestors
+=======
+    <module>shaded</module>
+>>>>>>> os/master
     <module>shell</module>
     <module>tests</module>
     <module>underfs</module>
