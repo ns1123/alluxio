@@ -248,30 +248,13 @@ public final class FileSystemContext implements Closeable {
         pool.close();
       }
       mBlockWorkerClientPool.clear();
-<<<<<<< HEAD
-      // ALLUXIO CS ADD
-      mEncryptionCache.clear();
-      // ALLUXIO CS END
-
-      if (mMetricsMasterClient != null) {
-        ThreadUtils.shutdownAndAwaitTermination(mExecutorService,
-            mClientContext.getConf().getMs(PropertyKey.METRICS_CONTEXT_SHUTDOWN_TIMEOUT));
-        mMetricsMasterClient.close();
-        mMetricsMasterClient = null;
-        mClientMasterSync = null;
-||||||| merged common ancestors
-
-      if (mMetricsMasterClient != null) {
-        ThreadUtils.shutdownAndAwaitTermination(mExecutorService,
-            mClientContext.getConf().getMs(PropertyKey.METRICS_CONTEXT_SHUTDOWN_TIMEOUT));
-        mMetricsMasterClient.close();
-        mMetricsMasterClient = null;
-        mClientMasterSync = null;
-=======
       if (mMetricsEnabled) {
         MetricsHeartbeatContext.removeHeartbeat(mClientContext);
->>>>>>> os/master
       }
+      // ALLUXIO CS ADD
+
+      mEncryptionCache.clear();
+      // ALLUXIO CS END
 
       mLocalWorkerInitialized = false;
       mLocalWorker = null;
