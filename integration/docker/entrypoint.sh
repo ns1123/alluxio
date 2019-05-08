@@ -61,19 +61,19 @@ alluxio_env_vars=(
 # ALLUXIO CS END
 )
 
-for keyvaluepair in $(env); do
-  # split around the "="
-  key=$(echo ${keyvaluepair} | cut -d= -f1)
-  value=$(echo ${keyvaluepair} | cut -d= -f2-)
-  if [[ "${alluxio_env_vars[*]}" =~ "${key}" ]]; then
-    echo "export ${key}=${value}" >> conf/alluxio-env.sh
-  else
-    # check if property name is valid
-    if confkey=$(bin/alluxio runClass alluxio.cli.GetConfKey ${key} 2> /dev/null); then
-      echo "${confkey}=${value}" >> conf/alluxio-site.properties
+function writeConf {
+  local IFS=$'\n' # split by line instead of space
+  for keyvaluepair in $(env); do
+    # split around the first "="
+    key=$(echo ${keyvaluepair} | cut -d= -f1)
+    value=$(echo ${keyvaluepair} | cut -d= -f2-)
+    if [[ "${alluxio_env_vars[*]}" =~ "${key}" ]]; then
+      echo "export ${key}=\"${value}\"" >> conf/alluxio-env.sh
     fi
-  fi
-done
+  done
+}
+
+writeConf
 
 # ALLUXIO CS ADD
 if [[ -n "${ALLUXIO_LICENSE_BASE64}" ]]; then
