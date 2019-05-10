@@ -89,52 +89,6 @@ public final class CommonProto {
       "o.grpc.WorkerNetAddress\022\021\n\ttierAlias\030\003 \001" +
       "(\t\"\346\001\n\006Metric\022\020\n\010instance\030\001 \001(\t\022\020\n\010hostn" +
       "ame\030\002 \001(\t\022\022\n\ninstanceId\030\003 \001(\t\022\014\n\004name\030\004 " +
-<<<<<<< HEAD
-      "\001(\t\022\r\n\005value\030\005 \001(\001\022,\n\004tags\030\006 \003(\0132\036.allux" +
-      "io.grpc.Metric.TagsEntry\032+\n\tTagsEntry\022\013\n" +
-      "\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"=\n\016ConfigP" +
-      "roperty\022\014\n\004name\030\001 \001(\t\022\016\n\006source\030\002 \001(\t\022\r\n" +
-      "\005value\030\003 \001(\t\"G\n\007Command\022.\n\013commandType\030\001" +
-      " \001(\0162\031.alluxio.grpc.CommandType\022\014\n\004data\030" +
-      "\002 \003(\003\"/\n\014LocalityTier\022\020\n\010tierName\030\001 \001(\t\022" +
-      "\r\n\005value\030\002 \001(\t\";\n\016TieredIdentity\022)\n\005tier" +
-      "s\030\001 \003(\0132\032.alluxio.grpc.LocalityTier\"+\n\nN" +
-      "etAddress\022\014\n\004host\030\001 \001(\t\022\017\n\007rpcPort\030\002 \001(\005" +
-      "\"\274\001\n\020WorkerNetAddress\022\014\n\004host\030\001 \001(\t\022\017\n\007r" +
-      "pcPort\030\002 \001(\005\022\020\n\010dataPort\030\003 \001(\005\022\017\n\007webPor" +
-      "t\030\004 \001(\005\022\030\n\020domainSocketPath\030\005 \001(\t\0224\n\016tie" +
-      "redIdentity\030\006 \001(\0132\034.alluxio.grpc.TieredI" +
-      "dentity\022\026\n\rsecureRpcPort\030\351\007 \001(\005*p\n\004Bits\022" +
-      "\010\n\004NONE\020\001\022\013\n\007EXECUTE\020\002\022\t\n\005WRITE\020\003\022\021\n\rWRI" +
-      "TE_EXECUTE\020\004\022\010\n\004READ\020\005\022\020\n\014READ_EXECUTE\020\006" +
-      "\022\016\n\nREAD_WRITE\020\007\022\007\n\003ALL\020\010*X\n\013CommandType" +
-      "\022\013\n\007Unknown\020\000\022\013\n\007Nothing\020\001\022\014\n\010Register\020\002" +
-      "\022\010\n\004Free\020\003\022\n\n\006Delete\020\004\022\013\n\007Persist\020\005*!\n\tT" +
-      "tlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001B\035\n\014alluxi" +
-      "o.grpcB\013CommonProtoP\001"
-||||||| merged common ancestors
-      "\001(\t\022\r\n\005value\030\005 \001(\001\022,\n\004tags\030\006 \003(\0132\036.allux" +
-      "io.grpc.Metric.TagsEntry\032+\n\tTagsEntry\022\013\n" +
-      "\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"=\n\016ConfigP" +
-      "roperty\022\014\n\004name\030\001 \001(\t\022\016\n\006source\030\002 \001(\t\022\r\n" +
-      "\005value\030\003 \001(\t\"G\n\007Command\022.\n\013commandType\030\001" +
-      " \001(\0162\031.alluxio.grpc.CommandType\022\014\n\004data\030" +
-      "\002 \003(\003\"/\n\014LocalityTier\022\020\n\010tierName\030\001 \001(\t\022" +
-      "\r\n\005value\030\002 \001(\t\";\n\016TieredIdentity\022)\n\005tier" +
-      "s\030\001 \003(\0132\032.alluxio.grpc.LocalityTier\"+\n\nN" +
-      "etAddress\022\014\n\004host\030\001 \001(\t\022\017\n\007rpcPort\030\002 \001(\005" +
-      "\"\244\001\n\020WorkerNetAddress\022\014\n\004host\030\001 \001(\t\022\017\n\007r" +
-      "pcPort\030\002 \001(\005\022\020\n\010dataPort\030\003 \001(\005\022\017\n\007webPor" +
-      "t\030\004 \001(\005\022\030\n\020domainSocketPath\030\005 \001(\t\0224\n\016tie" +
-      "redIdentity\030\006 \001(\0132\034.alluxio.grpc.TieredI" +
-      "dentity*p\n\004Bits\022\010\n\004NONE\020\001\022\013\n\007EXECUTE\020\002\022\t" +
-      "\n\005WRITE\020\003\022\021\n\rWRITE_EXECUTE\020\004\022\010\n\004READ\020\005\022\020" +
-      "\n\014READ_EXECUTE\020\006\022\016\n\nREAD_WRITE\020\007\022\007\n\003ALL\020" +
-      "\010*X\n\013CommandType\022\013\n\007Unknown\020\000\022\013\n\007Nothing" +
-      "\020\001\022\014\n\010Register\020\002\022\010\n\004Free\020\003\022\n\n\006Delete\020\004\022\013" +
-      "\n\007Persist\020\005*!\n\tTtlAction\022\n\n\006DELETE\020\000\022\010\n\004" +
-      "FREE\020\001B\035\n\014alluxio.grpcB\013CommonProtoP\001"
-=======
       "\001(\t\022\r\n\005value\030\005 \001(\001\022,\n\nmetricType\030\006 \002(\0162\030" +
       ".alluxio.grpc.MetricType\022,\n\004tags\030\007 \003(\0132\036" +
       ".alluxio.grpc.Metric.TagsEntry\032+\n\tTagsEn" +
@@ -146,20 +100,20 @@ public final class CommonProto {
       "\001 \001(\t\022\r\n\005value\030\002 \001(\t\";\n\016TieredIdentity\022)" +
       "\n\005tiers\030\001 \003(\0132\032.alluxio.grpc.LocalityTie" +
       "r\"+\n\nNetAddress\022\014\n\004host\030\001 \001(\t\022\017\n\007rpcPort" +
-      "\030\002 \001(\005\"\244\001\n\020WorkerNetAddress\022\014\n\004host\030\001 \001(" +
+      "\030\002 \001(\005\"\274\001\n\020WorkerNetAddress\022\014\n\004host\030\001 \001(" +
       "\t\022\017\n\007rpcPort\030\002 \001(\005\022\020\n\010dataPort\030\003 \001(\005\022\017\n\007" +
       "webPort\030\004 \001(\005\022\030\n\020domainSocketPath\030\005 \001(\t\022" +
       "4\n\016tieredIdentity\030\006 \001(\0132\034.alluxio.grpc.T" +
-      "ieredIdentity*p\n\004Bits\022\010\n\004NONE\020\001\022\013\n\007EXECU" +
-      "TE\020\002\022\t\n\005WRITE\020\003\022\021\n\rWRITE_EXECUTE\020\004\022\010\n\004RE" +
-      "AD\020\005\022\020\n\014READ_EXECUTE\020\006\022\016\n\nREAD_WRITE\020\007\022\007" +
-      "\n\003ALL\020\010*:\n\nMetricType\022\t\n\005GAUGE\020\000\022\013\n\007COUN" +
-      "TER\020\001\022\t\n\005METER\020\002\022\t\n\005TIMER\020\003*X\n\013CommandTy" +
-      "pe\022\013\n\007Unknown\020\000\022\013\n\007Nothing\020\001\022\014\n\010Register" +
-      "\020\002\022\010\n\004Free\020\003\022\n\n\006Delete\020\004\022\013\n\007Persist\020\005*!\n" +
-      "\tTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001B\035\n\014allu" +
-      "xio.grpcB\013CommonProtoP\001"
->>>>>>> OPENSOURCE/master
+      "ieredIdentity\022\026\n\rsecureRpcPort\030\351\007 \001(\005*p\n" +
+      "\004Bits\022\010\n\004NONE\020\001\022\013\n\007EXECUTE\020\002\022\t\n\005WRITE\020\003\022" +
+      "\021\n\rWRITE_EXECUTE\020\004\022\010\n\004READ\020\005\022\020\n\014READ_EXE" +
+      "CUTE\020\006\022\016\n\nREAD_WRITE\020\007\022\007\n\003ALL\020\010*:\n\nMetri" +
+      "cType\022\t\n\005GAUGE\020\000\022\013\n\007COUNTER\020\001\022\t\n\005METER\020\002" +
+      "\022\t\n\005TIMER\020\003*X\n\013CommandType\022\013\n\007Unknown\020\000\022" +
+      "\013\n\007Nothing\020\001\022\014\n\010Register\020\002\022\010\n\004Free\020\003\022\n\n\006" +
+      "Delete\020\004\022\013\n\007Persist\020\005*!\n\tTtlAction\022\n\n\006DE" +
+      "LETE\020\000\022\010\n\004FREE\020\001B\035\n\014alluxio.grpcB\013Common" +
+      "ProtoP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
