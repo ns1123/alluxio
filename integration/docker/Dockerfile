@@ -13,7 +13,7 @@
 FROM openjdk:8-jdk-alpine
 
 # ALLUXIO CS REPLACE
-# ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.8.1/alluxio-1.8.1-bin.tar.gz
+# ARG ALLUXIO_TARBALL=http://downloads.alluxio.io/downloads/files/1.8.1/alluxio-1.8.1-bin.tar.gz
 # ALLUXIO CS WITH
 ARG ALLUXIO_TARBALL=alluxio-enterprise-1.8.1.tar.gz
 # ALLUXIO CS END
