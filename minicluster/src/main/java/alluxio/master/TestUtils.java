@@ -41,9 +41,17 @@ public class TestUtils {
    * @param cluster the cluster
    */
   public static void assertAllLocksReleased(LocalAlluxioCluster cluster) {
+    // ALLUXIO CS REPLACE
+    // InodeLockManager lockManager =
+    //     (InodeLockManager) Whitebox.getInternalState(cluster.getLocalAlluxioMaster()
+    //         .getMasterProcess().getMaster(FileSystemMaster.class), "mInodeLockManager");
+    // ALLUXIO CS WITH
+    FileSystemMaster master =
+        Whitebox.getInternalState(cluster.getLocalAlluxioMaster()
+        .getMasterProcess().getMaster(FileSystemMaster.class), "mFileSystemMaster");
     InodeLockManager lockManager =
-        (InodeLockManager) Whitebox.getInternalState(cluster.getLocalAlluxioMaster()
-            .getMasterProcess().getMaster(FileSystemMaster.class), "mInodeLockManager");
+        Whitebox.getInternalState(master, "mInodeLockManager");
+    // ALLUXIO CS END
     lockManager.assertAllLocksReleased();
   }
 }
