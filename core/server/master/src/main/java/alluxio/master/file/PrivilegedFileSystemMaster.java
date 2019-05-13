@@ -272,8 +272,8 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public MountPointInfo getMountPointInfo(AlluxioURI path) throws InvalidPathException {
-    return mFileSystemMaster.getMountPointInfo(path);
+  public MountPointInfo getDisplayMountPointInfo(AlluxioURI path) throws InvalidPathException {
+    return mFileSystemMaster.getDisplayMountPointInfo(path);
   }
 
   @Override

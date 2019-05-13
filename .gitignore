@@ -68,7 +68,6 @@
 dependency-reduced-pom.xml
 target/
 tests.log*
-<<<<<<< HEAD
 # ALLUXIO CS ADD
 /annotation/
 /lib/
@@ -76,20 +75,3 @@ tests.log*
 /integration/authorization/hdfs/src/main/java/alluxio/security/authorization/AuthorizationPluginConstants.java
 # ALLUXIO CS END
 # ALLUXIO CS MODIFIED
-/alluxio-ui/**/**/build/
-/alluxio-ui/**/**/coverage/
-/alluxio-ui/**/**/dist/
-/alluxio-ui/**/**/docs-static/**/*.d.ts
-/alluxio-ui/**/**/generated/
-/alluxio-ui/**/**/lerna-debug.log
-/alluxio-ui/**/**/lib/
-/alluxio-ui/**/**/node_modules
-/alluxio-ui/**/**/npm-debug.log
-/alluxio-ui/**/**/src/**/*.css
-/alluxio-ui/**/.sass-cache/
-/alluxio-ui/**/lerna-debug.log
-/alluxio-ui/**/node
-/alluxio-ui/**/node_modules
-/alluxio-ui/**/npm-debug.log
-=======
->>>>>>> OPENSOURCE/master
