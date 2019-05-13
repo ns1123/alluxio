@@ -37,6 +37,7 @@ import alluxio.master.file.contexts.RenameContext;
 import alluxio.master.journal.JournalSystem;
 import alluxio.master.journal.JournalTestUtils;
 import alluxio.master.metrics.MetricsMasterFactory;
+import alluxio.master.privilege.PrivilegeMasterFactory;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
@@ -277,6 +278,9 @@ public final class JournalSinkTest {
 
     new MetricsMasterFactory().create(registry, masterContext);
     new BlockMasterFactory().create(registry, masterContext);
+    // ALLUXIO CS ADD
+    new PrivilegeMasterFactory().create(registry, masterContext);
+    // ALLUXIO CS END
     new FileSystemMasterFactory().create(registry, masterContext);
 
     if (sink != null) {
