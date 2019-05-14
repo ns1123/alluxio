@@ -388,6 +388,11 @@ public final class ExtensionInodeAttributesProvider implements InodeAttributesPr
     }
 
     @Override
+    public Journal.JournalEntry toJournalEntry(String path) {
+      throw new UnsupportedOperationException("PassThroughInode should not be journaled.");
+    }
+
+    @Override
     public Journal.JournalEntry toJournalEntry() {
       throw new UnsupportedOperationException("PassThroughInode should not be journaled.");
     }

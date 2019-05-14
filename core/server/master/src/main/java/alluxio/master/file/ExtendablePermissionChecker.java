@@ -221,6 +221,12 @@ public final class ExtendablePermissionChecker extends DefaultPermissionChecker
     }
 
     @Override
+    public Journal.JournalEntry toJournalEntry(String path) {
+      throw new UnsupportedOperationException(
+          "InodeWithOverridenAttributes should not be journaled.");
+    }
+
+    @Override
     public Journal.JournalEntry toJournalEntry() {
       return mInode.toJournalEntry();
     }

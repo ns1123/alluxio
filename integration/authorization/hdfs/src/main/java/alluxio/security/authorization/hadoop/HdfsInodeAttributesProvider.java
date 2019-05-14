@@ -400,6 +400,11 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
     }
 
     @Override
+    public Journal.JournalEntry toJournalEntry(String path) {
+      throw new UnsupportedOperationException("HdfsAlluxioInode should not be journaled.");
+    }
+
+    @Override
     public Journal.JournalEntry toJournalEntry() {
       throw new UnsupportedOperationException("HdfsAlluxioInode should not be journaled.");
     }
