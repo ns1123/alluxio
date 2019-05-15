@@ -10989,8 +10989,9 @@ public final class File {
      * optional int32 replication_min = 9;
      * optional int64 persist_job_id = 10;
      * optional string temp_ufs_path = 11;
+     * optional string path = 12;
      * ALLUXIO CS WITH
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      *
      * <code>optional int32 replication_max = 1001;</code>
@@ -11003,8 +11004,9 @@ public final class File {
      * optional int32 replication_min = 9;
      * optional int64 persist_job_id = 10;
      * optional string temp_ufs_path = 11;
+     * optional string path = 12;
      * ALLUXIO CS WITH
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      *
      * <code>optional int32 replication_max = 1001;</code>
@@ -11042,14 +11044,13 @@ public final class File {
      */
     com.google.protobuf.ByteString
         getTempUfsPathBytes();
-<<<<<<< HEAD
 
     /**
      * <pre>
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 12;</code>
+     * <code>optional string path = 1005;</code>
      */
     boolean hasPath();
     /**
@@ -11057,7 +11058,7 @@ public final class File {
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 12;</code>
+     * <code>optional string path = 1005;</code>
      */
     java.lang.String getPath();
     /**
@@ -11065,27 +11066,10 @@ public final class File {
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 12;</code>
+     * <code>optional string path = 1005;</code>
      */
     com.google.protobuf.ByteString
         getPathBytes();
-||||||| merged common ancestors
-=======
-
-    /**
-     * <code>optional string path = 12;</code>
-     */
-    boolean hasPath();
-    /**
-     * <code>optional string path = 12;</code>
-     */
-    java.lang.String getPath();
-    /**
-     * <code>optional string path = 12;</code>
-     */
-    com.google.protobuf.ByteString
-        getPathBytes();
->>>>>>> upstream-os/master
   }
   /**
    * <pre>
@@ -11194,12 +11178,6 @@ public final class File {
               input.popLimit(limit);
               break;
             }
-            case 98: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000200;
-              path_ = bs;
-              break;
-            }
             case 8008: {
               bitField0_ |= 0x00000020;
               replicationMax_ = input.readInt32();
@@ -11221,7 +11199,7 @@ public final class File {
               tempUfsPath_ = bs;
               break;
             }
-            case 98: {
+            case 8042: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000200;
               path_ = bs;
@@ -11373,8 +11351,9 @@ public final class File {
      * optional int32 replication_min = 9;
      * optional int64 persist_job_id = 10;
      * optional string temp_ufs_path = 11;
+     * optional string path = 12;
      * ALLUXIO CS WITH
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      *
      * <code>optional int32 replication_max = 1001;</code>
@@ -11389,8 +11368,9 @@ public final class File {
      * optional int32 replication_min = 9;
      * optional int64 persist_job_id = 10;
      * optional string temp_ufs_path = 11;
+     * optional string path = 12;
      * ALLUXIO CS WITH
-     * next available id: 1005
+     * next available id: 1006
      * </pre>
      *
      * <code>optional int32 replication_max = 1001;</code>
@@ -11471,15 +11451,14 @@ public final class File {
       }
     }
 
-<<<<<<< HEAD
-    public static final int PATH_FIELD_NUMBER = 12;
+    public static final int PATH_FIELD_NUMBER = 1005;
     private volatile java.lang.Object path_;
     /**
      * <pre>
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 12;</code>
+     * <code>optional string path = 1005;</code>
      */
     public boolean hasPath() {
       return ((bitField0_ & 0x00000200) == 0x00000200);
@@ -11489,7 +11468,7 @@ public final class File {
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 12;</code>
+     * <code>optional string path = 1005;</code>
      */
     public java.lang.String getPath() {
       java.lang.Object ref = path_;
@@ -11510,7 +11489,7 @@ public final class File {
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 12;</code>
+     * <code>optional string path = 1005;</code>
      */
     public com.google.protobuf.ByteString
         getPathBytes() {
@@ -11526,51 +11505,6 @@ public final class File {
       }
     }
 
-||||||| merged common ancestors
-=======
-    public static final int PATH_FIELD_NUMBER = 12;
-    private volatile java.lang.Object path_;
-    /**
-     * <code>optional string path = 12;</code>
-     */
-    public boolean hasPath() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
-    }
-    /**
-     * <code>optional string path = 12;</code>
-     */
-    public java.lang.String getPath() {
-      java.lang.Object ref = path_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          path_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string path = 12;</code>
-     */
-    public com.google.protobuf.ByteString
-        getPathBytes() {
-      java.lang.Object ref = path_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        path_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
->>>>>>> upstream-os/master
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -11601,9 +11535,6 @@ public final class File {
       for (int i = 0; i < setBlocks_.size(); i++) {
         output.writeInt64(7, setBlocks_.get(i));
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 12, path_);
-      }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeInt32(1001, replicationMax_);
       }
@@ -11617,7 +11548,7 @@ public final class File {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1004, tempUfsPath_);
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 12, path_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1005, path_);
       }
       unknownFields.writeTo(output);
     }
@@ -11656,9 +11587,6 @@ public final class File {
         size += dataSize;
         size += 1 * getSetBlocksList().size();
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(12, path_);
-      }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1001, replicationMax_);
@@ -11675,7 +11603,7 @@ public final class File {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1004, tempUfsPath_);
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(12, path_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1005, path_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -12406,8 +12334,9 @@ public final class File {
        * optional int32 replication_min = 9;
        * optional int64 persist_job_id = 10;
        * optional string temp_ufs_path = 11;
+       * optional string path = 12;
        * ALLUXIO CS WITH
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        *
        * <code>optional int32 replication_max = 1001;</code>
@@ -12422,8 +12351,9 @@ public final class File {
        * optional int32 replication_min = 9;
        * optional int64 persist_job_id = 10;
        * optional string temp_ufs_path = 11;
+       * optional string path = 12;
        * ALLUXIO CS WITH
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        *
        * <code>optional int32 replication_max = 1001;</code>
@@ -12438,8 +12368,9 @@ public final class File {
        * optional int32 replication_min = 9;
        * optional int64 persist_job_id = 10;
        * optional string temp_ufs_path = 11;
+       * optional string path = 12;
        * ALLUXIO CS WITH
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        *
        * <code>optional int32 replication_max = 1001;</code>
@@ -12457,8 +12388,9 @@ public final class File {
        * optional int32 replication_min = 9;
        * optional int64 persist_job_id = 10;
        * optional string temp_ufs_path = 11;
+       * optional string path = 12;
        * ALLUXIO CS WITH
-       * next available id: 1005
+       * next available id: 1006
        * </pre>
        *
        * <code>optional int32 replication_max = 1001;</code>
@@ -12609,7 +12541,6 @@ public final class File {
         onChanged();
         return this;
       }
-<<<<<<< HEAD
 
       private java.lang.Object path_ = "";
       /**
@@ -12617,7 +12548,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 12;</code>
+       * <code>optional string path = 1005;</code>
        */
       public boolean hasPath() {
         return ((bitField0_ & 0x00000400) == 0x00000400);
@@ -12627,7 +12558,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 12;</code>
+       * <code>optional string path = 1005;</code>
        */
       public java.lang.String getPath() {
         java.lang.Object ref = path_;
@@ -12648,7 +12579,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 12;</code>
+       * <code>optional string path = 1005;</code>
        */
       public com.google.protobuf.ByteString
           getPathBytes() {
@@ -12668,7 +12599,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 12;</code>
+       * <code>optional string path = 1005;</code>
        */
       public Builder setPath(
           java.lang.String value) {
@@ -12685,7 +12616,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 12;</code>
+       * <code>optional string path = 1005;</code>
        */
       public Builder clearPath() {
         bitField0_ = (bitField0_ & ~0x00000400);
@@ -12698,94 +12629,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 12;</code>
-       */
-      public Builder setPathBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000400;
-        path_ = value;
-        onChanged();
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
-      }
-||||||| merged common ancestors
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
-      }
-=======
->>>>>>> upstream-os/master
-
-      private java.lang.Object path_ = "";
-      /**
-       * <code>optional string path = 12;</code>
-       */
-      public boolean hasPath() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
-      }
-      /**
-       * <code>optional string path = 12;</code>
-       */
-      public java.lang.String getPath() {
-        java.lang.Object ref = path_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            path_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string path = 12;</code>
-       */
-      public com.google.protobuf.ByteString
-          getPathBytes() {
-        java.lang.Object ref = path_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          path_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string path = 12;</code>
-       */
-      public Builder setPath(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000400;
-        path_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string path = 12;</code>
-       */
-      public Builder clearPath() {
-        bitField0_ = (bitField0_ & ~0x00000400);
-        path_ = getDefaultInstance().getPath();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string path = 12;</code>
+       * <code>optional string path = 1005;</code>
        */
       public Builder setPathBytes(
           com.google.protobuf.ByteString value) {
@@ -16110,19 +15954,19 @@ public final class File {
     /**
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1007
+     * next available id: 1008
      * </pre>
      *
-     * <code>optional bool encrypted = 1006;</code>
+     * <code>optional bool encrypted = 1007;</code>
      */
     boolean hasEncrypted();
     /**
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1007
+     * next available id: 1008
      * </pre>
      *
-     * <code>optional bool encrypted = 1006;</code>
+     * <code>optional bool encrypted = 1007;</code>
      */
     boolean getEncrypted();
 
@@ -16178,6 +16022,7 @@ public final class File {
      * optional int64 persist_job_id = 22;
      * optional string temp_ufs_path = 23;
      * optional int32 replication_durable = 24;
+     * optional string path = 25;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -16192,6 +16037,7 @@ public final class File {
      * optional int64 persist_job_id = 22;
      * optional string temp_ufs_path = 23;
      * optional int32 replication_durable = 24;
+     * optional string path = 25;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -16239,14 +16085,13 @@ public final class File {
      * <code>optional int32 replication_durable = 1005;</code>
      */
     int getReplicationDurable();
-<<<<<<< HEAD
 
     /**
      * <pre>
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 25;</code>
+     * <code>optional string path = 1006;</code>
      */
     boolean hasPath();
     /**
@@ -16254,7 +16099,7 @@ public final class File {
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 25;</code>
+     * <code>optional string path = 1006;</code>
      */
     java.lang.String getPath();
     /**
@@ -16262,27 +16107,10 @@ public final class File {
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 25;</code>
+     * <code>optional string path = 1006;</code>
      */
     com.google.protobuf.ByteString
         getPathBytes();
-||||||| merged common ancestors
-=======
-
-    /**
-     * <code>optional string path = 25;</code>
-     */
-    boolean hasPath();
-    /**
-     * <code>optional string path = 25;</code>
-     */
-    java.lang.String getPath();
-    /**
-     * <code>optional string path = 25;</code>
-     */
-    com.google.protobuf.ByteString
-        getPathBytes();
->>>>>>> upstream-os/master
   }
   /**
    * <pre>
@@ -16489,12 +16317,6 @@ public final class File {
               bitField0_ |= 0x00040000;
               break;
             }
-            case 202: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x01000000;
-              path_ = bs;
-              break;
-            }
             case 8008: {
               bitField0_ |= 0x00080000;
               replicationMax_ = input.readInt32();
@@ -16521,21 +16343,17 @@ public final class File {
               replicationDurable_ = input.readInt32();
               break;
             }
-<<<<<<< HEAD
-            case 8048: {
+            case 8050: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x01000000;
+              path_ = bs;
+              break;
+            }
+            case 8056: {
               bitField0_ |= 0x00008000;
               encrypted_ = input.readBool();
               break;
             }
-||||||| merged common ancestors
-=======
-            case 202: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00800000;
-              path_ = bs;
-              break;
-            }
->>>>>>> upstream-os/master
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -16919,15 +16737,15 @@ public final class File {
       return mode_;
     }
 
-    public static final int ENCRYPTED_FIELD_NUMBER = 1006;
+    public static final int ENCRYPTED_FIELD_NUMBER = 1007;
     private boolean encrypted_;
     /**
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1007
+     * next available id: 1008
      * </pre>
      *
-     * <code>optional bool encrypted = 1006;</code>
+     * <code>optional bool encrypted = 1007;</code>
      */
     public boolean hasEncrypted() {
       return ((bitField0_ & 0x00008000) == 0x00008000);
@@ -16935,10 +16753,10 @@ public final class File {
     /**
      * <pre>
      * ALLUXIO CS ADD
-     * next available id: 1007
+     * next available id: 1008
      * </pre>
      *
-     * <code>optional bool encrypted = 1006;</code>
+     * <code>optional bool encrypted = 1007;</code>
      */
     public boolean getEncrypted() {
       return encrypted_;
@@ -17041,6 +16859,7 @@ public final class File {
      * optional int64 persist_job_id = 22;
      * optional string temp_ufs_path = 23;
      * optional int32 replication_durable = 24;
+     * optional string path = 25;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -17057,6 +16876,7 @@ public final class File {
      * optional int64 persist_job_id = 22;
      * optional string temp_ufs_path = 23;
      * optional int32 replication_durable = 24;
+     * optional string path = 25;
      * ALLUXIO CS WITH
      * </pre>
      *
@@ -17153,15 +16973,14 @@ public final class File {
       return replicationDurable_;
     }
 
-<<<<<<< HEAD
-    public static final int PATH_FIELD_NUMBER = 25;
+    public static final int PATH_FIELD_NUMBER = 1006;
     private volatile java.lang.Object path_;
     /**
      * <pre>
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 25;</code>
+     * <code>optional string path = 1006;</code>
      */
     public boolean hasPath() {
       return ((bitField0_ & 0x01000000) == 0x01000000);
@@ -17171,7 +16990,7 @@ public final class File {
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 25;</code>
+     * <code>optional string path = 1006;</code>
      */
     public java.lang.String getPath() {
       java.lang.Object ref = path_;
@@ -17192,7 +17011,7 @@ public final class File {
      * ALLUXIO CS END
      * </pre>
      *
-     * <code>optional string path = 25;</code>
+     * <code>optional string path = 1006;</code>
      */
     public com.google.protobuf.ByteString
         getPathBytes() {
@@ -17208,51 +17027,6 @@ public final class File {
       }
     }
 
-||||||| merged common ancestors
-=======
-    public static final int PATH_FIELD_NUMBER = 25;
-    private volatile java.lang.Object path_;
-    /**
-     * <code>optional string path = 25;</code>
-     */
-    public boolean hasPath() {
-      return ((bitField0_ & 0x00800000) == 0x00800000);
-    }
-    /**
-     * <code>optional string path = 25;</code>
-     */
-    public java.lang.String getPath() {
-      java.lang.Object ref = path_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          path_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string path = 25;</code>
-     */
-    public com.google.protobuf.ByteString
-        getPathBytes() {
-      java.lang.Object ref = path_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        path_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
->>>>>>> upstream-os/master
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -17322,9 +17096,6 @@ public final class File {
       if (((bitField0_ & 0x00040000) == 0x00040000)) {
         output.writeMessage(19, getAcl());
       }
-      if (((bitField0_ & 0x01000000) == 0x01000000)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 25, path_);
-      }
       if (((bitField0_ & 0x00080000) == 0x00080000)) {
         output.writeInt32(1001, replicationMax_);
       }
@@ -17340,11 +17111,11 @@ public final class File {
       if (((bitField0_ & 0x00800000) == 0x00800000)) {
         output.writeInt32(1005, replicationDurable_);
       }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        output.writeBool(1006, encrypted_);
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1006, path_);
       }
-      if (((bitField0_ & 0x00800000) == 0x00800000)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 25, path_);
+      if (((bitField0_ & 0x00008000) == 0x00008000)) {
+        output.writeBool(1007, encrypted_);
       }
       unknownFields.writeTo(output);
     }
@@ -17430,9 +17201,6 @@ public final class File {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(19, getAcl());
       }
-      if (((bitField0_ & 0x01000000) == 0x01000000)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(25, path_);
-      }
       if (((bitField0_ & 0x00080000) == 0x00080000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1001, replicationMax_);
@@ -17452,12 +17220,12 @@ public final class File {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1005, replicationDurable_);
       }
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1006, path_);
+      }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(1006, encrypted_);
-      }
-      if (((bitField0_ & 0x00800000) == 0x00800000)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(25, path_);
+          .computeBoolSize(1007, encrypted_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -17914,16 +17682,10 @@ public final class File {
         bitField0_ = (bitField0_ & ~0x00400000);
         tempUfsPath_ = "";
         bitField0_ = (bitField0_ & ~0x00800000);
-<<<<<<< HEAD
         replicationDurable_ = 0;
         bitField0_ = (bitField0_ & ~0x01000000);
         path_ = "";
         bitField0_ = (bitField0_ & ~0x02000000);
-||||||| merged common ancestors
-=======
-        path_ = "";
-        bitField0_ = (bitField0_ & ~0x01000000);
->>>>>>> upstream-os/master
         return this;
       }
 
@@ -18053,18 +17815,10 @@ public final class File {
           to_bitField0_ |= 0x00800000;
         }
         result.replicationDurable_ = replicationDurable_;
-<<<<<<< HEAD
         if (((from_bitField0_ & 0x02000000) == 0x02000000)) {
           to_bitField0_ |= 0x01000000;
         }
         result.path_ = path_;
-||||||| merged common ancestors
-=======
-        if (((from_bitField0_ & 0x01000000) == 0x01000000)) {
-          to_bitField0_ |= 0x00800000;
-        }
-        result.path_ = path_;
->>>>>>> upstream-os/master
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -18201,20 +17955,11 @@ public final class File {
         if (other.hasReplicationDurable()) {
           setReplicationDurable(other.getReplicationDurable());
         }
-<<<<<<< HEAD
         if (other.hasPath()) {
           bitField0_ |= 0x02000000;
           path_ = other.path_;
           onChanged();
         }
-||||||| merged common ancestors
-=======
-        if (other.hasPath()) {
-          bitField0_ |= 0x01000000;
-          path_ = other.path_;
-          onChanged();
-        }
->>>>>>> upstream-os/master
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -18969,10 +18714,10 @@ public final class File {
       /**
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1007
+       * next available id: 1008
        * </pre>
        *
-       * <code>optional bool encrypted = 1006;</code>
+       * <code>optional bool encrypted = 1007;</code>
        */
       public boolean hasEncrypted() {
         return ((bitField0_ & 0x00010000) == 0x00010000);
@@ -18980,10 +18725,10 @@ public final class File {
       /**
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1007
+       * next available id: 1008
        * </pre>
        *
-       * <code>optional bool encrypted = 1006;</code>
+       * <code>optional bool encrypted = 1007;</code>
        */
       public boolean getEncrypted() {
         return encrypted_;
@@ -18991,10 +18736,10 @@ public final class File {
       /**
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1007
+       * next available id: 1008
        * </pre>
        *
-       * <code>optional bool encrypted = 1006;</code>
+       * <code>optional bool encrypted = 1007;</code>
        */
       public Builder setEncrypted(boolean value) {
         bitField0_ |= 0x00010000;
@@ -19005,10 +18750,10 @@ public final class File {
       /**
        * <pre>
        * ALLUXIO CS ADD
-       * next available id: 1007
+       * next available id: 1008
        * </pre>
        *
-       * <code>optional bool encrypted = 1006;</code>
+       * <code>optional bool encrypted = 1007;</code>
        */
       public Builder clearEncrypted() {
         bitField0_ = (bitField0_ & ~0x00010000);
@@ -19272,6 +19017,7 @@ public final class File {
        * optional int64 persist_job_id = 22;
        * optional string temp_ufs_path = 23;
        * optional int32 replication_durable = 24;
+       * optional string path = 25;
        * ALLUXIO CS WITH
        * </pre>
        *
@@ -19288,6 +19034,7 @@ public final class File {
        * optional int64 persist_job_id = 22;
        * optional string temp_ufs_path = 23;
        * optional int32 replication_durable = 24;
+       * optional string path = 25;
        * ALLUXIO CS WITH
        * </pre>
        *
@@ -19304,6 +19051,7 @@ public final class File {
        * optional int64 persist_job_id = 22;
        * optional string temp_ufs_path = 23;
        * optional int32 replication_durable = 24;
+       * optional string path = 25;
        * ALLUXIO CS WITH
        * </pre>
        *
@@ -19323,6 +19071,7 @@ public final class File {
        * optional int64 persist_job_id = 22;
        * optional string temp_ufs_path = 23;
        * optional int32 replication_durable = 24;
+       * optional string path = 25;
        * ALLUXIO CS WITH
        * </pre>
        *
@@ -19506,7 +19255,6 @@ public final class File {
         onChanged();
         return this;
       }
-<<<<<<< HEAD
 
       private java.lang.Object path_ = "";
       /**
@@ -19514,7 +19262,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 25;</code>
+       * <code>optional string path = 1006;</code>
        */
       public boolean hasPath() {
         return ((bitField0_ & 0x02000000) == 0x02000000);
@@ -19524,7 +19272,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 25;</code>
+       * <code>optional string path = 1006;</code>
        */
       public java.lang.String getPath() {
         java.lang.Object ref = path_;
@@ -19545,7 +19293,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 25;</code>
+       * <code>optional string path = 1006;</code>
        */
       public com.google.protobuf.ByteString
           getPathBytes() {
@@ -19565,7 +19313,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 25;</code>
+       * <code>optional string path = 1006;</code>
        */
       public Builder setPath(
           java.lang.String value) {
@@ -19582,7 +19330,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 25;</code>
+       * <code>optional string path = 1006;</code>
        */
       public Builder clearPath() {
         bitField0_ = (bitField0_ & ~0x02000000);
@@ -19595,7 +19343,7 @@ public final class File {
        * ALLUXIO CS END
        * </pre>
        *
-       * <code>optional string path = 25;</code>
+       * <code>optional string path = 1006;</code>
        */
       public Builder setPathBytes(
           com.google.protobuf.ByteString value) {
@@ -19607,85 +19355,6 @@ public final class File {
         onChanged();
         return this;
       }
-||||||| merged common ancestors
-=======
-
-      private java.lang.Object path_ = "";
-      /**
-       * <code>optional string path = 25;</code>
-       */
-      public boolean hasPath() {
-        return ((bitField0_ & 0x01000000) == 0x01000000);
-      }
-      /**
-       * <code>optional string path = 25;</code>
-       */
-      public java.lang.String getPath() {
-        java.lang.Object ref = path_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            path_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string path = 25;</code>
-       */
-      public com.google.protobuf.ByteString
-          getPathBytes() {
-        java.lang.Object ref = path_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          path_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string path = 25;</code>
-       */
-      public Builder setPath(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x01000000;
-        path_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string path = 25;</code>
-       */
-      public Builder clearPath() {
-        bitField0_ = (bitField0_ & ~0x01000000);
-        path_ = getDefaultInstance().getPath();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string path = 25;</code>
-       */
-      public Builder setPathBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x01000000;
-        path_ = value;
-        onChanged();
-        return this;
-      }
->>>>>>> upstream-os/master
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
@@ -22402,41 +22071,7 @@ public final class File {
      * <code>optional string new_path = 7;</code>
      */
     com.google.protobuf.ByteString
-<<<<<<< HEAD
-        getNewNameBytes();
-
-    /**
-     * <code>optional string path = 6;</code>
-     */
-    boolean hasPath();
-    /**
-     * <code>optional string path = 6;</code>
-     */
-    java.lang.String getPath();
-    /**
-     * <code>optional string path = 6;</code>
-     */
-    com.google.protobuf.ByteString
-        getPathBytes();
-
-    /**
-     * <code>optional string new_path = 7;</code>
-     */
-    boolean hasNewPath();
-    /**
-     * <code>optional string new_path = 7;</code>
-     */
-    java.lang.String getNewPath();
-    /**
-     * <code>optional string new_path = 7;</code>
-     */
-    com.google.protobuf.ByteString
         getNewPathBytes();
-||||||| merged common ancestors
-        getNewNameBytes();
-=======
-        getNewPathBytes();
->>>>>>> upstream-os/master
   }
   /**
    * <pre>
@@ -22700,7 +22335,6 @@ public final class File {
       }
     }
 
-<<<<<<< HEAD
     public static final int PATH_FIELD_NUMBER = 6;
     private volatile java.lang.Object path_;
     /**
@@ -22708,109 +22342,6 @@ public final class File {
      */
     public boolean hasPath() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
-||||||| merged common ancestors
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-=======
-    public static final int PATH_FIELD_NUMBER = 6;
-    private volatile java.lang.Object path_;
-    /**
-     * <code>optional string path = 6;</code>
-     */
-    public boolean hasPath() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
-    }
-    /**
-     * <code>optional string path = 6;</code>
-     */
-    public java.lang.String getPath() {
-      java.lang.Object ref = path_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          path_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string path = 6;</code>
-     */
-    public com.google.protobuf.ByteString
-        getPathBytes() {
-      java.lang.Object ref = path_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        path_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int NEW_PATH_FIELD_NUMBER = 7;
-    private volatile java.lang.Object newPath_;
-    /**
-     * <code>optional string new_path = 7;</code>
-     */
-    public boolean hasNewPath() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
-    }
-    /**
-     * <code>optional string new_path = 7;</code>
-     */
-    public java.lang.String getNewPath() {
-      java.lang.Object ref = newPath_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          newPath_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string new_path = 7;</code>
-     */
-    public com.google.protobuf.ByteString
-        getNewPathBytes() {
-      java.lang.Object ref = newPath_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        newPath_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
->>>>>>> upstream-os/master
     }
     /**
      * <code>optional string path = 6;</code>
@@ -22914,12 +22445,6 @@ public final class File {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 5, newName_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, path_);
-      }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 7, newPath_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 6, path_);
@@ -27707,7 +27232,6 @@ public final class File {
      */
     long getRenewTime();
   }
-<<<<<<< HEAD
   /**
    * <pre>
    * next available id: 3
@@ -31115,311 +30639,90 @@ public final class File {
       "\n\002id\030\001 \001(\003\022\023\n\013mount_point\030\002 \001(\010\022\036\n\026direc" +
       "t_children_loaded\030\003 \001(\010\022;\n\ndefaultAcl\030\004 " +
       "\001(\0132\'.alluxio.proto.shared.AccessControl" +
-      "List\"\371\001\n\024UpdateInodeFileEntry\022\n\n\002id\030\001 \001(" +
+      "List\"\372\001\n\024UpdateInodeFileEntry\022\n\n\002id\030\001 \001(" +
       "\003\022\030\n\020block_size_bytes\030\002 \001(\003\022\016\n\006length\030\003 " +
       "\001(\003\022\021\n\tcompleted\030\004 \001(\010\022\021\n\tcacheable\030\005 \001(" +
       "\010\022\022\n\nset_blocks\030\007 \003(\003\022\030\n\017replication_max" +
       "\030\351\007 \001(\005\022\030\n\017replication_min\030\352\007 \001(\005\022\027\n\016per" +
       "sist_job_id\030\353\007 \001(\003\022\026\n\rtemp_ufs_path\030\354\007 \001" +
-      "(\t\022\014\n\004path\030\014 \001(\t\"\327\003\n\023InodeDirectoryEntry" +
-      "\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030" +
-      "\003 \001(\t\022\031\n\021persistence_state\030\004 \001(\t\022\016\n\006pinn" +
-      "ed\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001(\003\022!\n\031la" +
-      "st_modification_time_ms\030\007 \001(\003\022\r\n\005owner\030\010" +
-      " \001(\t\022\r\n\005group\030\t \001(\t\022\014\n\004mode\030\n \001(\005\022\023\n\013mou" +
-      "nt_point\030\013 \001(\010\022\036\n\026direct_children_loaded" +
-      "\030\014 \001(\010\022\013\n\003ttl\030\r \001(\003\022<\n\tttlAction\030\016 \001(\0162!" +
-      ".alluxio.proto.journal.PTtlAction:\006DELET" +
-      "E\0224\n\003acl\030\017 \001(\0132\'.alluxio.proto.shared.Ac" +
-      "cessControlList\022;\n\ndefaultAcl\030\020 \001(\0132\'.al" +
-      "luxio.proto.shared.AccessControlList\022\014\n\004" +
-      "path\030\021 \001(\t\"O\n\036InodeDirectoryIdGeneratorE" +
-      "ntry\022\024\n\014container_id\030\001 \001(\003\022\027\n\017sequence_n" +
-      "umber\030\002 \001(\003\"\360\004\n\016InodeFileEntry\022\n\n\002id\030\001 \001" +
-      "(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021p" +
-      "ersistence_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030" +
-      "\n\020creation_time_ms\030\006 \001(\003\022!\n\031last_modific" +
-      "ation_time_ms\030\007 \001(\003\022\030\n\020block_size_bytes\030" +
-      "\010 \001(\003\022\016\n\006length\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010" +
-      "\022\021\n\tcacheable\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003t" +
-      "tl\030\r \001(\003\022\r\n\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014" +
-      "\n\004mode\030\020 \001(\005\022\022\n\tencrypted\030\356\007 \001(\010\022<\n\tttlA" +
-      "ction\030\021 \001(\0162!.alluxio.proto.journal.PTtl" +
-      "Action:\006DELETE\022\027\n\017ufs_fingerprint\030\022 \001(\t\022" +
-      "4\n\003acl\030\023 \001(\0132\'.alluxio.proto.shared.Acce" +
-      "ssControlList\022\030\n\017replication_max\030\351\007 \001(\005\022" +
-      "\030\n\017replication_min\030\352\007 \001(\005\022\027\n\016persist_job" +
-      "_id\030\353\007 \001(\003\022\026\n\rtemp_ufs_path\030\354\007 \001(\t\022\034\n\023re" +
-      "plication_durable\030\355\007 \001(\005\022\014\n\004path\030\031 \001(\t\"O" +
-      "\n\036InodeLastModificationTimeEntry\022\n\n\002id\030\001" +
-      " \001(\003\022!\n\031last_modification_time_ms\030\002 \001(\003\"" +
-      "#\n\025PersistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020" +
-      "PersistFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002" +
-      " \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025Reinitializ" +
-      "eFileEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_b" +
-      "ytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001" +
-      "(\0162!.alluxio.proto.journal.PTtlAction:\006D" +
-      "ELETE\"\210\001\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst" +
-      "_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\022\025\n\rnew_p" +
-      "arent_id\030\004 \001(\003\022\020\n\010new_name\030\005 \001(\t\022\014\n\004path" +
-      "\030\006 \001(\t\022\020\n\010new_path\030\007 \001(\t\"\247\001\n\013SetAclEntry" +
-      "\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\0224\n\006acti" +
-      "on\030\003 \001(\0162$.alluxio.proto.journal.PSetAcl" +
-      "Action\022/\n\007entries\030\004 \003(\0132\036.alluxio.proto." +
-      "shared.AclEntry\022\021\n\trecursive\030\005 \001(\010\"\315\002\n\021S" +
-      "etAttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_" +
-      "ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n" +
-      "\tpersisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group" +
-      "\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlAction\030" +
-      "\t \001(\0162!.alluxio.proto.journal.PTtlAction" +
-      ":\006DELETE\022\027\n\017ufs_fingerprint\030\n \001(\t\022\030\n\017rep" +
-      "lication_max\030\353\007 \001(\005\022\030\n\017replication_min\030\354" +
-      "\007 \001(\005\022\025\n\014persistJobId\030\351\007 \001(\003\022\024\n\013tempUfsP" +
-      "ath\030\352\007 \001(\t\"b\n\022UpdateUfsModeEntry\022\017\n\007ufsP" +
-      "ath\030\001 \001(\t\022;\n\007ufsMode\030\002 \001(\0162\036.alluxio.pro" +
-      "to.journal.UfsMode:\nREAD_WRITE\"r\n\027GetDel" +
-      "egationTokenEntry\022C\n\010token_id\030\001 \001(\01321.al" +
-      "luxio.proto.security.DelegationTokenIden" +
-      "tifier\022\022\n\nrenew_time\030\002 \001(\003\"L\n\tMasterKey\022" +
-      "\016\n\006key_id\030\001 \001(\003\022\032\n\022expiration_time_ms\030\002 " +
-      "\001(\003\022\023\n\013encoded_key\030\003 \001(\014\"a\n\032RemoveDelega" +
-      "tionTokenEntry\022C\n\010token_id\030\001 \001(\01321.allux" +
-      "io.proto.security.DelegationTokenIdentif" +
-      "ier\"|\n\031RenewDelegationTokenEntry\022C\n\010toke" +
-      "n_id\030\001 \001(\01321.alluxio.proto.security.Dele" +
-      "gationTokenIdentifier\022\032\n\022expiration_time" +
-      "_ms\030\002 \001(\003\"L\n\024UpdateMasterKeyEntry\0224\n\nmas" +
-      "ter_key\030\001 \001(\0132 .alluxio.proto.journal.Ma" +
-      "sterKey*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FRE" +
-      "E\020\001*X\n\rPSetAclAction\022\013\n\007REPLACE\020\000\022\n\n\006MOD" +
-      "IFY\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016REM" +
-      "OVE_DEFAULT\020\004*7\n\007UfsMode\022\r\n\tNO_ACCESS\020\000\022" +
-      "\r\n\tREAD_ONLY\020\001\022\016\n\nREAD_WRITE\020\002"
-    };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-||||||| merged common ancestors
-  private static  com.google.protobuf.Descriptors.FileDescriptor
-      descriptor;
-  static {
-    java.lang.String[] descriptorData = {
-      "\n\030proto/journal/file.proto\022\025alluxio.prot" +
-      "o.journal\032\021grpc/common.proto\032\026proto/shar" +
-      "ed/acl.proto\"-\n\017StringPairEntry\022\013\n\003key\030\001" +
-      " \001(\t\022\r\n\005value\030\002 \001(\t\"6\n\023ActiveSyncTxIdEnt" +
-      "ry\022\020\n\010mount_id\030\001 \001(\003\022\r\n\005tx_id\030\002 \001(\003\"=\n\021A" +
-      "ddSyncPointEntry\022\026\n\016syncpoint_path\030\001 \001(\t" +
-      "\022\020\n\010mount_id\030\002 \001(\003\"@\n\024RemoveSyncPointEnt" +
-      "ry\022\026\n\016syncpoint_path\030\001 \001(\t\022\020\n\010mount_id\030\002" +
-      " \001(\003\"\254\001\n\022AddMountPointEntry\022\024\n\014alluxio_p" +
-      "ath\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022\020\n\010readOnly\030" +
-      "\003 \001(\010\022:\n\nproperties\030\004 \003(\0132&.alluxio.prot" +
-      "o.journal.StringPairEntry\022\016\n\006shared\030\005 \001(" +
-      "\010\022\020\n\010mount_id\030\006 \001(\003\"+\n\030AsyncPersistReque" +
-      "stEntry\022\017\n\007file_id\030\001 \001(\003\"o\n\021CompleteFile" +
-      "Entry\022\021\n\tblock_ids\030\001 \003(\003\022\n\n\002id\030\002 \001(\003\022\016\n\006" +
-      "length\030\003 \001(\003\022\022\n\nop_time_ms\030\004 \001(\003\022\027\n\017ufs_" +
-      "fingerprint\030\005 \001(\t\"Y\n\017DeleteFileEntry\022\n\n\002" +
-      "id\030\001 \001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\nop_time_m" +
-      "s\030\003 \001(\003\022\023\n\013alluxioOnly\030\004 \001(\010\"-\n\025DeleteMo" +
-      "untPointEntry\022\024\n\014alluxio_path\030\001 \001(\t\"\033\n\rN" +
-      "ewBlockEntry\022\n\n\002id\030\001 \001(\003\"\222\003\n\020UpdateInode" +
-      "Entry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004" +
-      "name\030\003 \001(\t\022\031\n\021persistence_state\030\004 \001(\t\022\016\n" +
-      "\006pinned\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001(\003\022" +
-      "!\n\031last_modification_time_ms\030\007 \001(\003\022#\n\033ov" +
-      "erwrite_modification_time\030\010 \001(\010\022\r\n\005owner" +
-      "\030\t \001(\t\022\r\n\005group\030\n \001(\t\022\014\n\004mode\030\013 \001(\005\022\013\n\003t" +
-      "tl\030\014 \001(\003\022<\n\tttlAction\030\r \001(\0162!.alluxio.pr" +
-      "oto.journal.PTtlAction:\006DELETE\0224\n\003acl\030\016 " +
-      "\001(\0132\'.alluxio.proto.shared.AccessControl" +
-      "List\022\027\n\017ufs_fingerprint\030\017 \001(\t\"\231\001\n\031Update" +
-      "InodeDirectoryEntry\022\n\n\002id\030\001 \001(\003\022\023\n\013mount" +
-      "_point\030\002 \001(\010\022\036\n\026direct_children_loaded\030\003" +
-      " \001(\010\022;\n\ndefaultAcl\030\004 \001(\0132\'.alluxio.proto" +
-      ".shared.AccessControlList\"\347\001\n\024UpdateInod" +
-      "eFileEntry\022\n\n\002id\030\001 \001(\003\022\030\n\020block_size_byt" +
-      "es\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\021\n\tcompleted\030\004 " +
-      "\001(\010\022\021\n\tcacheable\030\005 \001(\010\022\022\n\nset_blocks\030\007 \003" +
-      "(\003\022\027\n\017replication_max\030\010 \001(\005\022\027\n\017replicati" +
-      "on_min\030\t \001(\005\022\026\n\016persist_job_id\030\n \001(\003\022\025\n\r" +
-      "temp_ufs_path\030\013 \001(\t\"\311\003\n\023InodeDirectoryEn" +
-      "try\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004na" +
-      "me\030\003 \001(\t\022\031\n\021persistence_state\030\004 \001(\t\022\016\n\006p" +
-      "inned\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001(\003\022!\n" +
-      "\031last_modification_time_ms\030\007 \001(\003\022\r\n\005owne" +
-      "r\030\010 \001(\t\022\r\n\005group\030\t \001(\t\022\014\n\004mode\030\n \001(\005\022\023\n\013" +
-      "mount_point\030\013 \001(\010\022\036\n\026direct_children_loa" +
-      "ded\030\014 \001(\010\022\013\n\003ttl\030\r \001(\003\022<\n\tttlAction\030\016 \001(" +
-      "\0162!.alluxio.proto.journal.PTtlAction:\006DE" +
-      "LETE\0224\n\003acl\030\017 \001(\0132\'.alluxio.proto.shared" +
-      ".AccessControlList\022;\n\ndefaultAcl\030\020 \001(\0132\'" +
-      ".alluxio.proto.shared.AccessControlList\"" +
-      "O\n\036InodeDirectoryIdGeneratorEntry\022\024\n\014con" +
-      "tainer_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001(\003" +
-      "\"\311\004\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
-      "t_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_" +
-      "state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_" +
-      "time_ms\030\006 \001(\003\022!\n\031last_modification_time_" +
-      "ms\030\007 \001(\003\022\030\n\020block_size_bytes\030\010 \001(\003\022\016\n\006le" +
-      "ngth\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcacheab" +
-      "le\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n" +
-      "\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(" +
-      "\005\022<\n\tttlAction\030\021 \001(\0162!.alluxio.proto.jou" +
-      "rnal.PTtlAction:\006DELETE\022\027\n\017ufs_fingerpri" +
-      "nt\030\022 \001(\t\0224\n\003acl\030\023 \001(\0132\'.alluxio.proto.sh" +
-      "ared.AccessControlList\022\027\n\017replication_ma" +
-      "x\030\024 \001(\005\022\027\n\017replication_min\030\025 \001(\005\022\026\n\016pers" +
-      "ist_job_id\030\026 \001(\003\022\025\n\rtemp_ufs_path\030\027 \001(\t\022" +
-      "\033\n\023replication_durable\030\030 \001(\005\"O\n\036InodeLas" +
-      "tModificationTimeEntry\022\n\n\002id\030\001 \001(\003\022!\n\031la" +
-      "st_modification_time_ms\030\002 \001(\003\"#\n\025Persist" +
-      "DirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020PersistFil" +
-      "eEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003\022\022\n\nop" +
-      "_time_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFileEntry" +
-      "\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_bytes\030\002 \001(\003" +
-      "\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!.allux" +
-      "io.proto.journal.PTtlAction:\006DELETE\"h\n\013R" +
-      "enameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(\t" +
-      "\022\022\n\nop_time_ms\030\003 \001(\003\022\025\n\rnew_parent_id\030\004 " +
-      "\001(\003\022\020\n\010new_name\030\005 \001(\t\"\247\001\n\013SetAclEntry\022\n\n" +
-      "\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\0224\n\006action\030" +
-      "\003 \001(\0162$.alluxio.proto.journal.PSetAclAct" +
-      "ion\022/\n\007entries\030\004 \003(\0132\036.alluxio.proto.sha" +
-      "red.AclEntry\022\021\n\trecursive\030\005 \001(\010\"\311\002\n\021SetA" +
-      "ttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030" +
-      "\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpe" +
-      "rsisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 " +
-      "\001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlAction\030\t \001" +
-      "(\0162!.alluxio.proto.journal.PTtlAction:\006D" +
-      "ELETE\022\027\n\017ufs_fingerprint\030\n \001(\t\022\024\n\014persis" +
-      "tJobId\030\013 \001(\003\022\023\n\013tempUfsPath\030\014 \001(\t\022\027\n\017rep" +
-      "lication_max\030\r \001(\005\022\027\n\017replication_min\030\016 " +
-      "\001(\005\"b\n\022UpdateUfsModeEntry\022\017\n\007ufsPath\030\001 \001" +
-      "(\t\022;\n\007ufsMode\030\002 \001(\0162\036.alluxio.proto.jour" +
-      "nal.UfsMode:\nREAD_WRITE*\"\n\nPTtlAction\022\n\n" +
-      "\006DELETE\020\000\022\010\n\004FREE\020\001*X\n\rPSetAclAction\022\013\n\007" +
-      "REPLACE\020\000\022\n\n\006MODIFY\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREM" +
-      "OVE_ALL\020\003\022\022\n\016REMOVE_DEFAULT\020\004*7\n\007UfsMode" +
-      "\022\r\n\tNO_ACCESS\020\000\022\r\n\tREAD_ONLY\020\001\022\016\n\nREAD_W" +
-      "RITE\020\002"
-    };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-=======
-  private static  com.google.protobuf.Descriptors.FileDescriptor
-      descriptor;
-  static {
-    java.lang.String[] descriptorData = {
-      "\n\030proto/journal/file.proto\022\025alluxio.prot" +
-      "o.journal\032\021grpc/common.proto\032\026proto/shar" +
-      "ed/acl.proto\"-\n\017StringPairEntry\022\013\n\003key\030\001" +
-      " \001(\t\022\r\n\005value\030\002 \001(\t\"6\n\023ActiveSyncTxIdEnt" +
-      "ry\022\020\n\010mount_id\030\001 \001(\003\022\r\n\005tx_id\030\002 \001(\003\"=\n\021A" +
-      "ddSyncPointEntry\022\026\n\016syncpoint_path\030\001 \001(\t" +
-      "\022\020\n\010mount_id\030\002 \001(\003\"@\n\024RemoveSyncPointEnt" +
-      "ry\022\026\n\016syncpoint_path\030\001 \001(\t\022\020\n\010mount_id\030\002" +
-      " \001(\003\"\254\001\n\022AddMountPointEntry\022\024\n\014alluxio_p" +
-      "ath\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022\020\n\010readOnly\030" +
-      "\003 \001(\010\022:\n\nproperties\030\004 \003(\0132&.alluxio.prot" +
-      "o.journal.StringPairEntry\022\016\n\006shared\030\005 \001(" +
-      "\010\022\020\n\010mount_id\030\006 \001(\003\"+\n\030AsyncPersistReque" +
-      "stEntry\022\017\n\007file_id\030\001 \001(\003\"o\n\021CompleteFile" +
-      "Entry\022\021\n\tblock_ids\030\001 \003(\003\022\n\n\002id\030\002 \001(\003\022\016\n\006" +
-      "length\030\003 \001(\003\022\022\n\nop_time_ms\030\004 \001(\003\022\027\n\017ufs_" +
-      "fingerprint\030\005 \001(\t\"g\n\017DeleteFileEntry\022\n\n\002" +
-      "id\030\001 \001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\nop_time_m" +
-      "s\030\003 \001(\003\022\023\n\013alluxioOnly\030\004 \001(\010\022\014\n\004path\030\005 \001" +
-      "(\t\"-\n\025DeleteMountPointEntry\022\024\n\014alluxio_p" +
-      "ath\030\001 \001(\t\"\033\n\rNewBlockEntry\022\n\n\002id\030\001 \001(\003\"\222" +
-      "\003\n\020UpdateInodeEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
-      "t_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_" +
-      "state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_" +
-      "time_ms\030\006 \001(\003\022!\n\031last_modification_time_" +
-      "ms\030\007 \001(\003\022#\n\033overwrite_modification_time\030" +
-      "\010 \001(\010\022\r\n\005owner\030\t \001(\t\022\r\n\005group\030\n \001(\t\022\014\n\004m" +
-      "ode\030\013 \001(\005\022\013\n\003ttl\030\014 \001(\003\022<\n\tttlAction\030\r \001(" +
-      "\0162!.alluxio.proto.journal.PTtlAction:\006DE" +
-      "LETE\0224\n\003acl\030\016 \001(\0132\'.alluxio.proto.shared" +
-      ".AccessControlList\022\027\n\017ufs_fingerprint\030\017 " +
-      "\001(\t\"\231\001\n\031UpdateInodeDirectoryEntry\022\n\n\002id\030" +
-      "\001 \001(\003\022\023\n\013mount_point\030\002 \001(\010\022\036\n\026direct_chi" +
-      "ldren_loaded\030\003 \001(\010\022;\n\ndefaultAcl\030\004 \001(\0132\'" +
-      ".alluxio.proto.shared.AccessControlList\"" +
-      "\365\001\n\024UpdateInodeFileEntry\022\n\n\002id\030\001 \001(\003\022\030\n\020" +
-      "block_size_bytes\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\021" +
-      "\n\tcompleted\030\004 \001(\010\022\021\n\tcacheable\030\005 \001(\010\022\022\n\n" +
-      "set_blocks\030\007 \003(\003\022\027\n\017replication_max\030\010 \001(" +
-      "\005\022\027\n\017replication_min\030\t \001(\005\022\026\n\016persist_jo" +
-      "b_id\030\n \001(\003\022\025\n\rtemp_ufs_path\030\013 \001(\t\022\014\n\004pat" +
-      "h\030\014 \001(\t\"\327\003\n\023InodeDirectoryEntry\022\n\n\002id\030\001 " +
+      "(\t\022\r\n\004path\030\355\007 \001(\t\"\327\003\n\023InodeDirectoryEntr" +
+      "y\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name" +
+      "\030\003 \001(\t\022\031\n\021persistence_state\030\004 \001(\t\022\016\n\006pin" +
+      "ned\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 \001(\003\022!\n\031l" +
+      "ast_modification_time_ms\030\007 \001(\003\022\r\n\005owner\030" +
+      "\010 \001(\t\022\r\n\005group\030\t \001(\t\022\014\n\004mode\030\n \001(\005\022\023\n\013mo" +
+      "unt_point\030\013 \001(\010\022\036\n\026direct_children_loade" +
+      "d\030\014 \001(\010\022\013\n\003ttl\030\r \001(\003\022<\n\tttlAction\030\016 \001(\0162" +
+      "!.alluxio.proto.journal.PTtlAction:\006DELE" +
+      "TE\0224\n\003acl\030\017 \001(\0132\'.alluxio.proto.shared.A" +
+      "ccessControlList\022;\n\ndefaultAcl\030\020 \001(\0132\'.a" +
+      "lluxio.proto.shared.AccessControlList\022\014\n" +
+      "\004path\030\021 \001(\t\"O\n\036InodeDirectoryIdGenerator" +
+      "Entry\022\024\n\014container_id\030\001 \001(\003\022\027\n\017sequence_" +
+      "number\030\002 \001(\003\"\361\004\n\016InodeFileEntry\022\n\n\002id\030\001 " +
       "\001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021" +
       "persistence_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022" +
       "\030\n\020creation_time_ms\030\006 \001(\003\022!\n\031last_modifi" +
-      "cation_time_ms\030\007 \001(\003\022\r\n\005owner\030\010 \001(\t\022\r\n\005g" +
-      "roup\030\t \001(\t\022\014\n\004mode\030\n \001(\005\022\023\n\013mount_point\030" +
-      "\013 \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\022\013\n" +
-      "\003ttl\030\r \001(\003\022<\n\tttlAction\030\016 \001(\0162!.alluxio." +
-      "proto.journal.PTtlAction:\006DELETE\0224\n\003acl\030" +
-      "\017 \001(\0132\'.alluxio.proto.shared.AccessContr" +
-      "olList\022;\n\ndefaultAcl\030\020 \001(\0132\'.alluxio.pro" +
-      "to.shared.AccessControlList\022\014\n\004path\030\021 \001(" +
-      "\t\"O\n\036InodeDirectoryIdGeneratorEntry\022\024\n\014c" +
-      "ontainer_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001" +
-      "(\003\"\327\004\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tpar" +
-      "ent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistenc" +
-      "e_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creatio" +
-      "n_time_ms\030\006 \001(\003\022!\n\031last_modification_tim" +
-      "e_ms\030\007 \001(\003\022\030\n\020block_size_bytes\030\010 \001(\003\022\016\n\006" +
-      "length\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcache" +
-      "able\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022" +
-      "\r\n\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 " +
-      "\001(\005\022<\n\tttlAction\030\021 \001(\0162!.alluxio.proto.j" +
-      "ournal.PTtlAction:\006DELETE\022\027\n\017ufs_fingerp" +
-      "rint\030\022 \001(\t\0224\n\003acl\030\023 \001(\0132\'.alluxio.proto." +
-      "shared.AccessControlList\022\027\n\017replication_" +
-      "max\030\024 \001(\005\022\027\n\017replication_min\030\025 \001(\005\022\026\n\016pe" +
-      "rsist_job_id\030\026 \001(\003\022\025\n\rtemp_ufs_path\030\027 \001(" +
-      "\t\022\033\n\023replication_durable\030\030 \001(\005\022\014\n\004path\030\031" +
-      " \001(\t\"O\n\036InodeLastModificationTimeEntry\022\n" +
-      "\n\002id\030\001 \001(\003\022!\n\031last_modification_time_ms\030" +
-      "\002 \001(\003\"#\n\025PersistDirectoryEntry\022\n\n\002id\030\001 \001" +
-      "(\003\"B\n\020PersistFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006le" +
-      "ngth\030\002 \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025Reini" +
-      "tializeFileEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_" +
-      "size_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlActi" +
-      "on\030\004 \001(\0162!.alluxio.proto.journal.PTtlAct" +
-      "ion:\006DELETE\"\210\001\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022" +
-      "\020\n\010dst_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\022\025\n" +
-      "\rnew_parent_id\030\004 \001(\003\022\020\n\010new_name\030\005 \001(\t\022\014" +
-      "\n\004path\030\006 \001(\t\022\020\n\010new_path\030\007 \001(\t\"\247\001\n\013SetAc" +
-      "lEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\0224" +
-      "\n\006action\030\003 \001(\0162$.alluxio.proto.journal.P" +
-      "SetAclAction\022/\n\007entries\030\004 \003(\0132\036.alluxio." +
-      "proto.shared.AclEntry\022\021\n\trecursive\030\005 \001(\010" +
-      "\"\311\002\n\021SetAttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop" +
-      "_time_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 " +
-      "\001(\003\022\021\n\tpersisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n" +
-      "\005group\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlA" +
-      "ction\030\t \001(\0162!.alluxio.proto.journal.PTtl" +
-      "Action:\006DELETE\022\027\n\017ufs_fingerprint\030\n \001(\t\022" +
-      "\024\n\014persistJobId\030\013 \001(\003\022\023\n\013tempUfsPath\030\014 \001" +
-      "(\t\022\027\n\017replication_max\030\r \001(\005\022\027\n\017replicati" +
-      "on_min\030\016 \001(\005\"b\n\022UpdateUfsModeEntry\022\017\n\007uf" +
+      "cation_time_ms\030\007 \001(\003\022\030\n\020block_size_bytes" +
+      "\030\010 \001(\003\022\016\n\006length\030\t \001(\003\022\021\n\tcompleted\030\n \001(" +
+      "\010\022\021\n\tcacheable\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003" +
+      "ttl\030\r \001(\003\022\r\n\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022" +
+      "\014\n\004mode\030\020 \001(\005\022\022\n\tencrypted\030\357\007 \001(\010\022<\n\tttl" +
+      "Action\030\021 \001(\0162!.alluxio.proto.journal.PTt" +
+      "lAction:\006DELETE\022\027\n\017ufs_fingerprint\030\022 \001(\t" +
+      "\0224\n\003acl\030\023 \001(\0132\'.alluxio.proto.shared.Acc" +
+      "essControlList\022\030\n\017replication_max\030\351\007 \001(\005" +
+      "\022\030\n\017replication_min\030\352\007 \001(\005\022\027\n\016persist_jo" +
+      "b_id\030\353\007 \001(\003\022\026\n\rtemp_ufs_path\030\354\007 \001(\t\022\034\n\023r" +
+      "eplication_durable\030\355\007 \001(\005\022\r\n\004path\030\356\007 \001(\t" +
+      "\"O\n\036InodeLastModificationTimeEntry\022\n\n\002id" +
+      "\030\001 \001(\003\022!\n\031last_modification_time_ms\030\002 \001(" +
+      "\003\"#\n\025PersistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B" +
+      "\n\020PersistFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length" +
+      "\030\002 \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025Reinitial" +
+      "izeFileEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size" +
+      "_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004" +
+      " \001(\0162!.alluxio.proto.journal.PTtlAction:" +
+      "\006DELETE\"\210\001\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010d" +
+      "st_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\022\025\n\rnew" +
+      "_parent_id\030\004 \001(\003\022\020\n\010new_name\030\005 \001(\t\022\014\n\004pa" +
+      "th\030\006 \001(\t\022\020\n\010new_path\030\007 \001(\t\"\247\001\n\013SetAclEnt" +
+      "ry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\0224\n\006ac" +
+      "tion\030\003 \001(\0162$.alluxio.proto.journal.PSetA" +
+      "clAction\022/\n\007entries\030\004 \003(\0132\036.alluxio.prot" +
+      "o.shared.AclEntry\022\021\n\trecursive\030\005 \001(\010\"\315\002\n" +
+      "\021SetAttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_tim" +
+      "e_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022" +
+      "\021\n\tpersisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005gro" +
+      "up\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlActio" +
+      "n\030\t \001(\0162!.alluxio.proto.journal.PTtlActi" +
+      "on:\006DELETE\022\027\n\017ufs_fingerprint\030\n \001(\t\022\030\n\017r" +
+      "eplication_max\030\353\007 \001(\005\022\030\n\017replication_min" +
+      "\030\354\007 \001(\005\022\025\n\014persistJobId\030\351\007 \001(\003\022\024\n\013tempUf" +
+      "sPath\030\352\007 \001(\t\"b\n\022UpdateUfsModeEntry\022\017\n\007uf" +
       "sPath\030\001 \001(\t\022;\n\007ufsMode\030\002 \001(\0162\036.alluxio.p" +
-      "roto.journal.UfsMode:\nREAD_WRITE*\"\n\nPTtl" +
-      "Action\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001*X\n\rPSetAclA" +
-      "ction\022\013\n\007REPLACE\020\000\022\n\n\006MODIFY\020\001\022\n\n\006REMOVE" +
-      "\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016REMOVE_DEFAULT\020\004*7" +
-      "\n\007UfsMode\022\r\n\tNO_ACCESS\020\000\022\r\n\tREAD_ONLY\020\001\022" +
-      "\016\n\nREAD_WRITE\020\002"
+      "roto.journal.UfsMode:\nREAD_WRITE\"r\n\027GetD" +
+      "elegationTokenEntry\022C\n\010token_id\030\001 \001(\01321." +
+      "alluxio.proto.security.DelegationTokenId" +
+      "entifier\022\022\n\nrenew_time\030\002 \001(\003\"L\n\tMasterKe" +
+      "y\022\016\n\006key_id\030\001 \001(\003\022\032\n\022expiration_time_ms\030" +
+      "\002 \001(\003\022\023\n\013encoded_key\030\003 \001(\014\"a\n\032RemoveDele" +
+      "gationTokenEntry\022C\n\010token_id\030\001 \001(\01321.all" +
+      "uxio.proto.security.DelegationTokenIdent" +
+      "ifier\"|\n\031RenewDelegationTokenEntry\022C\n\010to" +
+      "ken_id\030\001 \001(\01321.alluxio.proto.security.De" +
+      "legationTokenIdentifier\022\032\n\022expiration_ti" +
+      "me_ms\030\002 \001(\003\"L\n\024UpdateMasterKeyEntry\0224\n\nm" +
+      "aster_key\030\001 \001(\0132 .alluxio.proto.journal." +
+      "MasterKey*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004F" +
+      "REE\020\001*X\n\rPSetAclAction\022\013\n\007REPLACE\020\000\022\n\n\006M" +
+      "ODIFY\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016R" +
+      "EMOVE_DEFAULT\020\004*7\n\007UfsMode\022\r\n\tNO_ACCESS\020" +
+      "\000\022\r\n\tREAD_ONLY\020\001\022\016\n\nREAD_WRITE\020\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
           public com.google.protobuf.ExtensionRegistry assignDescriptors(
->>>>>>> upstream-os/master
               com.google.protobuf.Descriptors.FileDescriptor root) {
             descriptor = root;
             return null;
@@ -31527,13 +30830,7 @@ public final class File {
     internal_static_alluxio_proto_journal_InodeFileEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_alluxio_proto_journal_InodeFileEntry_descriptor,
-<<<<<<< HEAD
         new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "Encrypted", "TtlAction", "UfsFingerprint", "Acl", "ReplicationMax", "ReplicationMin", "PersistJobId", "TempUfsPath", "ReplicationDurable", "Path", });
-||||||| merged common ancestors
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "TtlAction", "UfsFingerprint", "Acl", "ReplicationMax", "ReplicationMin", "PersistJobId", "TempUfsPath", "ReplicationDurable", });
-=======
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "TtlAction", "UfsFingerprint", "Acl", "ReplicationMax", "ReplicationMin", "PersistJobId", "TempUfsPath", "ReplicationDurable", "Path", });
->>>>>>> upstream-os/master
     internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_descriptor =
       getDescriptor().getMessageTypes().get(16);
     internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_fieldAccessorTable = new

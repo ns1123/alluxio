@@ -118,33 +118,20 @@ message UpdateInodeFileEntry {
   optional bool cacheable = 5;
   // Overwirte the blocks list
   repeated int64 set_blocks = 7;
-<<<<<<< HEAD
   // ALLUXIO CS REPLACE
   // optional int32 replication_max = 8;
   // optional int32 replication_min = 9;
   // optional int64 persist_job_id = 10;
   // optional string temp_ufs_path = 11;
+  // optional string path = 12;
   // ALLUXIO CS WITH
-  // next available id: 1005
+  // next available id: 1006
   optional int32 replication_max = 1001;
   optional int32 replication_min = 1002;
   optional int64 persist_job_id = 1003;
   optional string temp_ufs_path = 1004;
+  optional string path = 1005;
   // ALLUXIO CS END
-  optional string path = 12;
-||||||| merged common ancestors
-  optional int32 replication_max = 8;
-  optional int32 replication_min = 9;
-  optional int64 persist_job_id = 10;
-  optional string temp_ufs_path = 11;
-
-=======
-  optional int32 replication_max = 8;
-  optional int32 replication_min = 9;
-  optional int64 persist_job_id = 10;
-  optional string temp_ufs_path = 11;
-  optional string path = 12;
->>>>>>> upstream-os/master
 }
 
 // next available id: 18
@@ -198,41 +185,27 @@ message InodeFileEntry {
   optional string group = 15;
   optional int32 mode = 16;
   // ALLUXIO CS ADD
-  // next available id: 1007
-  optional bool encrypted = 1006;
+  // next available id: 1008
+  optional bool encrypted = 1007;
   // ALLUXIO CS END
   optional PTtlAction ttlAction = 17 [default = DELETE];
   optional string ufs_fingerprint = 18;
   optional alluxio.proto.shared.AccessControlList acl = 19;
-<<<<<<< HEAD
   // ALLUXIO CS REPLACE
   // optional int32 replication_max = 20;
   // optional int32 replication_min = 21;
   // optional int64 persist_job_id = 22;
   // optional string temp_ufs_path = 23;
   // optional int32 replication_durable = 24;
+  // optional string path = 25;
   // ALLUXIO CS WITH
   optional int32 replication_max = 1001;
   optional int32 replication_min = 1002;
   optional int64 persist_job_id = 1003;
   optional string temp_ufs_path = 1004;
   optional int32 replication_durable = 1005;
+  optional string path = 1006;
   // ALLUXIO CS END
-  optional string path = 25;
-||||||| merged common ancestors
-  optional int32 replication_max = 20;
-  optional int32 replication_min = 21;
-  optional int64 persist_job_id = 22;
-  optional string temp_ufs_path = 23;
-  optional int32 replication_durable = 24;
-=======
-  optional int32 replication_max = 20;
-  optional int32 replication_min = 21;
-  optional int64 persist_job_id = 22;
-  optional string temp_ufs_path = 23;
-  optional int32 replication_durable = 24;
-  optional string path = 25;
->>>>>>> upstream-os/master
 }
 
 // next available id: 3
