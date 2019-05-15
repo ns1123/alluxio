@@ -51,6 +51,12 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
 
   /** The UFS {@link AlluxioURI} used to create this {@link BaseUnderFileSystem}. */
   protected final AlluxioURI mUri;
+  // ALLUXIO CS ADD
+  /** The user to access this {@link UnderFileSystem}. */
+  protected final String mUser;
+  /** The group to access this {@link UnderFileSystem}. */
+  protected final String mGroup;
+  // ALLUXIO CS END
 
   /** UFS Configuration options. */
   protected final UnderFileSystemConfiguration mUfsConf;
@@ -63,6 +69,15 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
    */
   protected BaseUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf) {
     mUri = Preconditions.checkNotNull(uri, "uri");
+    // ALLUXIO CS ADD
+    if (alluxio.util.CommonUtils.isAlluxioServer()) {
+      mUser = alluxio.util.SecurityUtils.getOwnerFromGrpcClient(alluxioConf);
+      mGroup = alluxio.util.SecurityUtils.getGroupFromGrpcClient(alluxioConf);
+    } else {
+      mUser = alluxio.util.SecurityUtils.getOwnerFromLoginModule(alluxioConf);
+      mGroup = alluxio.util.SecurityUtils.getGroupFromLoginModule(alluxioConf);
+    }
+    // ALLUXIO CS END
     mUfsConf = Preconditions.checkNotNull(ufsConf, "ufsConf");
   }
 

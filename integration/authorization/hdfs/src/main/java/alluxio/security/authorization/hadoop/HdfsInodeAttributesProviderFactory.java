@@ -40,12 +40,6 @@ public final class HdfsInodeAttributesProviderFactory implements InodeAttributes
   }
 
   @Override
-  public InodeAttributesProvider create(String path, @Nullable UnderFileSystemConfiguration conf,
-      AlluxioConfiguration alluxioConf) {
-    return new HdfsInodeAttributesProvider(conf);
-  }
-
-  @Override
   public boolean supportsPath(String path, @Nullable UnderFileSystemConfiguration conf) {
     boolean isHdfs = ServerConfiguration.getList(PropertyKey.UNDERFS_HDFS_PREFIXES, ",").stream()
         .anyMatch(prefix -> path.startsWith(prefix));

@@ -54,8 +54,7 @@ public class HdfsInodeAttributesProviderFactoryTest {
     assertFalse(factory.supportsPath("hdfs://localhost/test/path", invalidConf));
     assertFalse(factory.supportsPath("hdfs://localhost/test/path", null));
     assertFalse(factory.supportsPath("s3a://bucket/test/path", conf));
-    InodeAttributesProvider provider = factory.create("hdfs://localhost/test/path", conf,
-        ServerConfiguration.global());
+    InodeAttributesProvider provider = factory.create("hdfs://localhost/test/path", conf);
     assertNotNull(provider);
   }
 }

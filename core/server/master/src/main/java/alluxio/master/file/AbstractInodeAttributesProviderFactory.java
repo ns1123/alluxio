@@ -114,8 +114,7 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
         }
         LOG.debug("Attempt to create InodeAttributesProvider for path {} by factory", path,
             factory);
-        InodeAttributesProvider provider = factory.create(path, ufsConf,
-            ServerConfiguration.global());
+        InodeAttributesProvider provider = factory.create(path, ufsConf);
         provider.start();
         return provider;
       } catch (Throwable e) {
