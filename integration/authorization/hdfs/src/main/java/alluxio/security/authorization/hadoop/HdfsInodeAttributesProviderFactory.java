@@ -11,7 +11,6 @@
 
 package alluxio.security.authorization.hadoop;
 
-import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.master.file.meta.MountTable;
