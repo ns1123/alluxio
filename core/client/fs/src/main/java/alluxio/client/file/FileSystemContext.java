@@ -123,29 +123,16 @@ public final class FileSystemContext implements Closeable {
    */
   private final ConcurrentHashMap<ClientPoolKey, BlockWorkerClientPool>
       mBlockWorkerClientPool = new ConcurrentHashMap<>();
-<<<<<<< HEAD
 
   // ALLUXIO CS ADD
   private alluxio.client.security.EncryptionCache mEncryptionCache =
       new alluxio.client.security.EncryptionCache();
 
   // ALLUXIO CS END
-  /** The shared master inquire client associated with the {@link FileSystemContext}. */
-  @GuardedBy("this")
-  private MasterInquireClient mMasterInquireClient;
-
-||||||| merged common ancestors
-
-  /** The shared master inquire client associated with the {@link FileSystemContext}. */
-  @GuardedBy("this")
-  private MasterInquireClient mMasterInquireClient;
-
-=======
   /**
    * Used in {@link #mBlockWorkerClientPool}.
    */
   private volatile EventLoopGroup mWorkerGroup;
->>>>>>> upstream-os/master
   /**
    * Indicates whether the {@link #mLocalWorker} field has been lazily initialized yet.
    */
@@ -281,28 +268,16 @@ public final class FileSystemContext implements Closeable {
         pool.close();
       }
       mBlockWorkerClientPool.clear();
-<<<<<<< HEAD
-      if (mMetricsEnabled) {
-        MetricsHeartbeatContext.removeHeartbeat(mClientContext);
-      }
-      // ALLUXIO CS ADD
-
-      mEncryptionCache.clear();
-      // ALLUXIO CS END
-
-||||||| merged common ancestors
-      if (mMetricsEnabled) {
-        MetricsHeartbeatContext.removeHeartbeat(mClientContext);
-      }
-
-=======
->>>>>>> upstream-os/master
       mLocalWorkerInitialized = false;
       mLocalWorker = null;
 
       if (mMetricsEnabled) {
         MetricsHeartbeatContext.removeHeartbeat(getClientContext());
       }
+      // ALLUXIO CS ADD
+
+      mEncryptionCache.clear();
+      // ALLUXIO CS END
     } else {
       LOG.warn("Attempted to close FileSystemContext which has already been closed or not "
           + "initialized.");
@@ -499,12 +474,13 @@ public final class FileSystemContext implements Closeable {
       java.util.Set<alluxio.security.authentication.Token> privCredentials =
           new java.util.HashSet<>();
       privCredentials.add(alluxio.security.capability.CapabilityToken.create(channelCapability));
-      Subject capabilitySubject = new Subject(true, mClientContext.getSubject().getPrincipals(),
-          java.util.Collections.emptySet(), privCredentials);
+      Subject capabilitySubject =
+          new Subject(true, mMasterClientContext.getSubject().getPrincipals(),
+              java.util.Collections.emptySet(), privCredentials);
       // Channel building logic knows how to handle subjects with embedded tokens.
       return acquireBlockWorkerClientInternal(workerNetAddress, capabilitySubject);
     } else {
-      return acquireBlockWorkerClientInternal(workerNetAddress, mClientContext.getSubject());
+      return acquireBlockWorkerClientInternal(workerNetAddress, mMasterClientContext.getSubject());
     }
   }
   // ALLUXIO CS END

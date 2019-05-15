@@ -176,12 +176,9 @@ public class BaseFileSystem implements FileSystem {
   public FileOutStream createFile(AlluxioURI path, CreateFilePOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     checkUri(path);
-<<<<<<< HEAD
-    options = FileSystemOptions.createFileDefaults(mFsContext.getPathConf(path))
-        .toBuilder().mergeFrom(options).build();
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    URIStatus status;
-    try {
+    return rpc(client -> {
+      CreateFilePOptions mergedOptions = FileSystemOptions.createFileDefaults(
+          mFsContext.getPathConf(path)).toBuilder().mergeFrom(options).build();
       // ALLUXIO CS ADD
       long requestedBlockSizeBytes = options.getBlockSizeBytes();
       if (!options.hasBlockSizeBytes()) {
@@ -192,91 +189,9 @@ public class BaseFileSystem implements FileSystem {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalBlockLength(
                 alluxio.client.EncryptionMetaFactory.createLayout(mFsContext.getClusterConf()),
                 requestedBlockSizeBytes);
-        options = options.toBuilder().setBlockSizeBytes(physicalBlockSize).build();
+        mergedOptions = mergedOptions.toBuilder().setBlockSizeBytes(physicalBlockSize).build();
       }
       // ALLUXIO CS END
-      status = masterClient.createFile(path, options);
-      LOG.debug("Created file {}, options: {}", path.getPath(), options);
-    } catch (AlreadyExistsException e) {
-      throw new FileAlreadyExistsException(e.getMessage());
-    } catch (InvalidArgumentException e) {
-      throw new InvalidPathException(e.getMessage());
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
-
-    OutStreamOptions outStreamOptions =
-        new OutStreamOptions(options, mFsContext.getPathConf(path));
-    outStreamOptions.setUfsPath(status.getUfsPath());
-    outStreamOptions.setMountId(status.getMountId());
-    // ALLUXIO CS ADD
-    if (status.getCapability() != null) {
-      outStreamOptions.setCapabilityFetcher(
-          new alluxio.client.security.CapabilityFetcher(mFsContext, status.getPath(),
-              status.getCapability()));
-    }
-    outStreamOptions.setEncrypted(status.isEncrypted());
-    if (status.isEncrypted()) {
-      // Encryption meta is always initialized during file creation and write.
-      alluxio.proto.security.EncryptionProto.Meta meta =
-          alluxio.client.EncryptionMetaFactory.create(status.getFileId(),
-              status.getFileId() /* encryption id */, options.getBlockSizeBytes(),
-              mFsContext.getClusterConf());
-      outStreamOptions.setEncryptionMeta(meta);
-      mFsContext.putEncryptionMeta(status.getFileId(), meta);
-    }
-    // ALLUXIO CS END
-    outStreamOptions.setAcl(status.getAcl());
-    try {
-      // ALLUXIO CS ADD
-      if (outStreamOptions.isEncrypted()) {
-        return new CryptoFileOutStream(path, outStreamOptions, mFsContext);
-      }
-      // ALLUXIO CS END
-      return new FileOutStream(path, outStreamOptions, mFsContext);
-    } catch (Exception e) {
-      delete(path);
-      throw e;
-    }
-||||||| merged common ancestors
-    options = FileSystemOptions.createFileDefaults(mFsContext.getPathConf(path))
-        .toBuilder().mergeFrom(options).build();
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    URIStatus status;
-    try {
-      status = masterClient.createFile(path, options);
-      LOG.debug("Created file {}, options: {}", path.getPath(), options);
-    } catch (AlreadyExistsException e) {
-      throw new FileAlreadyExistsException(e.getMessage());
-    } catch (InvalidArgumentException e) {
-      throw new InvalidPathException(e.getMessage());
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
-
-    OutStreamOptions outStreamOptions =
-        new OutStreamOptions(options, mFsContext.getPathConf(path));
-    outStreamOptions.setUfsPath(status.getUfsPath());
-    outStreamOptions.setMountId(status.getMountId());
-    outStreamOptions.setAcl(status.getAcl());
-    try {
-      return new FileOutStream(path, outStreamOptions, mFsContext);
-    } catch (Exception e) {
-      delete(path);
-      throw e;
-    }
-=======
-    return rpc(client -> {
-      CreateFilePOptions mergedOptions = FileSystemOptions.createFileDefaults(
-          mFsContext.getPathConf(path)).toBuilder().mergeFrom(options).build();
       URIStatus status = client.createFile(path, mergedOptions);
       LOG.debug("Created file {}, options: {}", path.getPath(), mergedOptions);
       OutStreamOptions outStreamOptions =
@@ -284,14 +199,33 @@ public class BaseFileSystem implements FileSystem {
       outStreamOptions.setUfsPath(status.getUfsPath());
       outStreamOptions.setMountId(status.getMountId());
       outStreamOptions.setAcl(status.getAcl());
+      // ALLUXIO CS ADD
+      if (status.getCapability() != null) {
+        outStreamOptions.setCapabilityFetcher(new alluxio.client.security.CapabilityFetcher(
+            mFsContext, status.getPath(), status.getCapability()));
+      }
+      outStreamOptions.setEncrypted(status.isEncrypted());
+      if (status.isEncrypted()) {
+        // Encryption meta is always initialized during file creation and write.
+        alluxio.proto.security.EncryptionProto.Meta meta = alluxio.client.EncryptionMetaFactory
+            .create(status.getFileId(), status.getFileId() /* encryption id */,
+                options.getBlockSizeBytes(), mFsContext.getClusterConf());
+        outStreamOptions.setEncryptionMeta(meta);
+        mFsContext.putEncryptionMeta(status.getFileId(), meta);
+      }
+      // ALLUXIO CS END
       try {
+        // ALLUXIO CS ADD
+        if (outStreamOptions.isEncrypted()) {
+          return new CryptoFileOutStream(path, outStreamOptions, mFsContext);
+        }
+        // ALLUXIO CS END
         return new FileOutStream(path, outStreamOptions, mFsContext);
       } catch (Exception e) {
         delete(path);
         throw e;
       }
     });
->>>>>>> upstream-os/master
   }
 
   @Override
@@ -361,55 +295,34 @@ public class BaseFileSystem implements FileSystem {
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier>
       getDelegationToken(String renewer)
       throws IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    try {
+    return rpc(client -> {
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token =
-          masterClient.getDelegationToken(renewer);
+          client.getDelegationToken(renewer);
       LOG.debug("Got delegation token {}, renewer: {}", token, renewer);
       return token;
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
+    });
   }
 
   @Override
   public long renewDelegationToken(
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
       throws IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    try {
-      long expirationTime =
-          masterClient.renewDelegationToken(token);
+    return rpc(client -> {
+      long expirationTime = client.renewDelegationToken(token);
       LOG.debug("Renew delegation token {}, new expiration time: {}", token, expirationTime);
       return expirationTime;
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
+    });
   }
 
   @Override
   public void cancelDelegationToken(
       alluxio.security.authentication.Token<alluxio.security.authentication.DelegationTokenIdentifier> token)
       throws IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    try {
-      masterClient.cancelDelegationToken(token);
+    rpc(client -> {
+      client.cancelDelegationToken(token);
       LOG.debug("Cancel delegation token {}", token);
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
+      return null;
+    });
   }
 
   // ALLUXIO CS END
@@ -466,15 +379,13 @@ public class BaseFileSystem implements FileSystem {
   public URIStatus getStatus(AlluxioURI path, final GetStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-<<<<<<< HEAD
-    options = FileSystemOptions.getStatusDefaults(mFsContext.getPathConf(path))
-        .toBuilder().mergeFrom(options).build();
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    try {
+    return rpc(client -> {
+      GetStatusPOptions mergedOptions = FileSystemOptions.getStatusDefaults(
+          mFsContext.getPathConf(path)).toBuilder().mergeFrom(options).build();
       // ALLUXIO CS REPLACE
-      // return masterClient.getStatus(path, options);
+      // return client.getStatus(path, mergedOptions);
       // ALLUXIO CS WITH
-      URIStatus physicalStatus = getStatusInternal(masterClient, path, options);
+      URIStatus physicalStatus = getStatusInternal(client, path, options);
       if (physicalStatus.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
             mFsContext.getEncryptionMeta(physicalStatus.getFileId());
@@ -483,41 +394,7 @@ public class BaseFileSystem implements FileSystem {
       }
       return physicalStatus;
       // ALLUXIO CS END
-    } catch (NotFoundException e) {
-      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (UnauthenticatedException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
-||||||| merged common ancestors
-    options = FileSystemOptions.getStatusDefaults(mFsContext.getPathConf(path))
-        .toBuilder().mergeFrom(options).build();
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    try {
-      return masterClient.getStatus(path, options);
-    } catch (NotFoundException e) {
-      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (UnauthenticatedException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
-=======
-    return rpc(client -> {
-      GetStatusPOptions mergedOptions = FileSystemOptions.getStatusDefaults(
-          mFsContext.getPathConf(path)).toBuilder().mergeFrom(options).build();
-      return client.getStatus(path, mergedOptions);
     });
->>>>>>> upstream-os/master
   }
   // ALLUXIO CS ADD
 
@@ -542,50 +419,16 @@ public class BaseFileSystem implements FileSystem {
   public List<URIStatus> listStatus(AlluxioURI path, final ListStatusPOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-<<<<<<< HEAD
-    options = FileSystemOptions.listStatusDefaults(mFsContext.getPathConf(path))
-        .toBuilder().mergeFrom(options).build();
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    // TODO(calvin): Fix the exception handling in the master
-    try {
-      // ALLUXIO CS REPLACE
-      // return masterClient.listStatus(path, options);
-      // ALLUXIO CS WITH
-      return listStatusInternal(masterClient, path, options);
-      // ALLUXIO CS END
-    } catch (NotFoundException e) {
-      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
-||||||| merged common ancestors
-    options = FileSystemOptions.listStatusDefaults(mFsContext.getPathConf(path))
-        .toBuilder().mergeFrom(options).build();
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    // TODO(calvin): Fix the exception handling in the master
-    try {
-      return masterClient.listStatus(path, options);
-    } catch (NotFoundException e) {
-      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
-=======
     return rpc(client -> {
       // TODO(calvin): Fix the exception handling in the master
       ListStatusPOptions mergedOptions = FileSystemOptions.listStatusDefaults(
           mFsContext.getPathConf(path)).toBuilder().mergeFrom(options).build();
-      return client.listStatus(path, mergedOptions);
+      // ALLUXIO CS REPLACE
+      // return client.listStatus(path, mergedOptions);
+      // ALLUXIO CS WITH
+      return listStatusInternal(client, path, options);
+      // ALLUXIO CS END
     });
->>>>>>> upstream-os/master
   }
   // ALLUXIO CS ADD
 
@@ -730,34 +573,7 @@ public class BaseFileSystem implements FileSystem {
   public FileInStream openFile(AlluxioURI path, OpenFilePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-<<<<<<< HEAD
-    options = FileSystemOptions.openFileDefaults(mFsContext.getPathConf(path))
-        .toBuilder().mergeFrom(options).build();
-    // ALLUXIO CS REPLACE
-    // URIStatus status = getStatus(path);
-    // ALLUXIO CS WITH
-    FileSystemMasterClient masterClient = mFsContext.acquireMasterClient();
-    URIStatus status;
-    try {
-      status = getStatusInternal(masterClient, path,
-          FileSystemOptions.getStatusDefaults(mFsContext.getPathConf(path)));
-    } catch (NotFoundException e) {
-      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
-    } catch (UnavailableException e) {
-      throw e;
-    } catch (AlluxioStatusException e) {
-      throw e.toAlluxioException();
-    } finally {
-      mFsContext.releaseMasterClient(masterClient);
-    }
-    // ALLUXIO CS END
-||||||| merged common ancestors
-    options = FileSystemOptions.openFileDefaults(mFsContext.getPathConf(path))
-        .toBuilder().mergeFrom(options).build();
     URIStatus status = getStatus(path);
-=======
-    URIStatus status = getStatus(path);
->>>>>>> upstream-os/master
     if (status.isFolder()) {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
@@ -767,7 +583,6 @@ public class BaseFileSystem implements FileSystem {
         mFsContext.getPathConf(path)).toBuilder().mergeFrom(options).build();
     InStreamOptions inStreamOptions = new InStreamOptions(status, mergedOptions,
         mFsContext.getPathConf(path));
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inStreamOptions.setCapabilityFetcher(
@@ -796,10 +611,7 @@ public class BaseFileSystem implements FileSystem {
       }
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     // FileSystemContext reinitialization is blocked during construction and close of FileInStream.
->>>>>>> upstream-os/master
     return new FileInStream(status, inStreamOptions, mFsContext);
   }
 
