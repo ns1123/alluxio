@@ -58,9 +58,9 @@ public class ForkUnderFileSystemTest {
         Whitebox.getInternalState(ufses.get("B").getRight(), "mUnderFileSystem");
     UnderFileSystemConfiguration propA = Whitebox.getInternalState(ufsA, "mUfsConf");
     UnderFileSystemConfiguration propB = Whitebox.getInternalState(ufsB, "mUfsConf");
-    Assert.assertEquals(propA.getMountSpecificConf().size(), 1);
+    Assert.assertEquals(propA.getMountSpecificConf().size(), 5);
     Assert.assertEquals(propA.getMountSpecificConf().get("foo"), "1");
-    Assert.assertEquals(propB.getMountSpecificConf().size(), 1);
+    Assert.assertEquals(propB.getMountSpecificConf().size(), 5);
     Assert.assertEquals(propB.getMountSpecificConf().get("bar"), "2");
   }
 
