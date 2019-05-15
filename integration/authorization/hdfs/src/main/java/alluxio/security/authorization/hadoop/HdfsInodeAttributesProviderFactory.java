@@ -35,6 +35,11 @@ public final class HdfsInodeAttributesProviderFactory implements InodeAttributes
       LoggerFactory.getLogger(HdfsInodeAttributesProviderFactory.class);
 
   @Override
+  public InodeAttributesProvider create(String path, UnderFileSystemConfiguration conf) {
+    return new HdfsInodeAttributesProvider(conf);
+  }
+
+  @Override
   public InodeAttributesProvider create(String path, @Nullable UnderFileSystemConfiguration conf,
       AlluxioConfiguration alluxioConf) {
     return new HdfsInodeAttributesProvider(conf);

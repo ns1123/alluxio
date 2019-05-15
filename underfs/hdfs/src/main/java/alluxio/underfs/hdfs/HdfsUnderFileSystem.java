@@ -101,15 +101,9 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
 
   private final LoadingCache<String, FileSystem> mUserFs;
   private final HdfsAclProvider mHdfsAclProvider;
-<<<<<<< HEAD
-  private UnderFileSystemConfiguration mUfsConf;
   // ALLUXIO CS ADD
   private final boolean mIsHdfsKerberized;
   // ALLUXIO CS END
-||||||| merged common ancestors
-  private UnderFileSystemConfiguration mUfsConf;
-=======
->>>>>>> upstream-os/master
 
   private HdfsActiveSyncProvider mHdfsActiveSyncer;
 
@@ -889,21 +883,9 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
    * @return the underlying HDFS {@link FileSystem} object
    */
   private FileSystem getFs() throws IOException {
-    // ALLUXIO CS ADD
-    boolean isImpersonationEnabled =
-        Boolean.valueOf(mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
-    String user = HDFS_USER;
-    if (isImpersonationEnabled) {
-      user = alluxio.util.SecurityUtils.getOwnerFromGrpcClient(mAlluxioConf);
-    }
-    // ALLUXIO CS END
     try {
       // TODO(gpang): handle different users
-      // ALLUXIO CS REPLACE
-      // return mUserFs.get(HDFS_USER);
-      // ALLUXIO CS WITH
-      return mUserFs.get(user);
-      // ALLUXIO CS END
+      return mUserFs.get(HDFS_USER);
     } catch (ExecutionException e) {
       throw new IOException("Failed get FileSystem for " + mUri, e.getCause());
     }

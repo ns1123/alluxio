@@ -11,6 +11,7 @@
 
 package alluxio.server.fork;
 
+import alluxio.conf.ServerConfiguration;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UfsStatus;
@@ -59,8 +60,9 @@ public class ForkUnderFileSystemInterfaceTest {
     Map<String, String> properties = new HashMap<>();
     properties.put("alluxio-fork.A.ufs", mUfsPathA);
     properties.put("alluxio-fork.B.ufs", mUfsPathB);
-    mUnderFileSystem = UnderFileSystem.Factory.create("alluxio-fork://test",
-        UnderFileSystemConfiguration.defaults().createMountSpecificConf(properties));
+    mUnderFileSystem =
+        UnderFileSystem.Factory.create("alluxio-fork://test", UnderFileSystemConfiguration
+            .defaults(ServerConfiguration.global()).createMountSpecificConf(properties));
   }
 
   @Test

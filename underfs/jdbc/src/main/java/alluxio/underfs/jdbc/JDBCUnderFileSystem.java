@@ -13,7 +13,6 @@ package alluxio.underfs.jdbc;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
-import alluxio.conf.AlluxioConfiguration;
 import alluxio.underfs.ConsistentUnderFileSystem;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
@@ -55,9 +54,8 @@ public final class JDBCUnderFileSystem extends ConsistentUnderFileSystem {
    * @param uri the {@link AlluxioURI} for this UFS
    * @param ufsConf the under file system configuration
    */
-  JDBCUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf,
-      AlluxioConfiguration alluxioConf) {
-    super(uri, ufsConf, alluxioConf);
+  JDBCUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf) {
+    super(uri, ufsConf);
     try {
       // TODO(gene): validate that this works
       JDBCDriverRegistry
