@@ -34,6 +34,7 @@ import alluxio.exception.status.AlreadyExistsException;
 import alluxio.exception.status.FailedPreconditionException;
 import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.NotFoundException;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
@@ -180,8 +181,8 @@ public class BaseFileSystem implements FileSystem {
       CreateFilePOptions mergedOptions = FileSystemOptions.createFileDefaults(
           mFsContext.getPathConf(path)).toBuilder().mergeFrom(options).build();
       // ALLUXIO CS ADD
-      long requestedBlockSizeBytes = options.getBlockSizeBytes();
-      if (!options.hasBlockSizeBytes()) {
+      long requestedBlockSizeBytes = mergedOptions.getBlockSizeBytes();
+      if (!mergedOptions.hasBlockSizeBytes()) {
         requestedBlockSizeBytes =
                 mFsContext.getPathConf(path).getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
       }
@@ -209,7 +210,7 @@ public class BaseFileSystem implements FileSystem {
         // Encryption meta is always initialized during file creation and write.
         alluxio.proto.security.EncryptionProto.Meta meta = alluxio.client.EncryptionMetaFactory
             .create(status.getFileId(), status.getFileId() /* encryption id */,
-                options.getBlockSizeBytes(), mFsContext.getClusterConf());
+                mergedOptions.getBlockSizeBytes(), mFsContext.getClusterConf());
         outStreamOptions.setEncryptionMeta(meta);
         mFsContext.putEncryptionMeta(status.getFileId(), meta);
       }
@@ -385,7 +386,7 @@ public class BaseFileSystem implements FileSystem {
       // ALLUXIO CS REPLACE
       // return client.getStatus(path, mergedOptions);
       // ALLUXIO CS WITH
-      URIStatus physicalStatus = getStatusInternal(client, path, options);
+      URIStatus physicalStatus = getStatusInternal(client, path, mergedOptions);
       if (physicalStatus.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
             mFsContext.getEncryptionMeta(physicalStatus.getFileId());
@@ -426,7 +427,7 @@ public class BaseFileSystem implements FileSystem {
       // ALLUXIO CS REPLACE
       // return client.listStatus(path, mergedOptions);
       // ALLUXIO CS WITH
-      return listStatusInternal(client, path, options);
+      return listStatusInternal(client, path, mergedOptions);
       // ALLUXIO CS END
     });
   }
@@ -573,7 +574,12 @@ public class BaseFileSystem implements FileSystem {
   public FileInStream openFile(AlluxioURI path, OpenFilePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-    URIStatus status = getStatus(path);
+    // ALLUXIO CS REPLACE
+    // URIStatus status = getStatus(path);
+    // ALLUXIO CS WITH
+    URIStatus status = rpc(client -> getStatusInternal(client, path,
+        FileSystemOptions.getStatusDefaults(mFsContext.getPathConf(path))));
+    // ALLUXIO CS END
     if (status.isFolder()) {
       throw new FileDoesNotExistException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
@@ -589,7 +595,7 @@ public class BaseFileSystem implements FileSystem {
           new alluxio.client.security.CapabilityFetcher(mFsContext, status.getPath(),
               status.getCapability()));
     }
-    if (!options.getSkipTransformation()) {
+    if (!mergedOptions.getSkipTransformation()) {
       inStreamOptions.setEncrypted(status.isEncrypted());
       if (status.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta =
@@ -794,6 +800,8 @@ public class BaseFileSystem implements FileSystem {
       // A little sketchy, but this should be the only case that throws FailedPrecondition.
       throw new DirectoryNotEmptyException(e.getMessage());
     } catch (UnavailableException e) {
+      throw e;
+    } catch (UnauthenticatedException e) {
       throw e;
     } catch (AlluxioStatusException e) {
       throw e.toAlluxioException();
