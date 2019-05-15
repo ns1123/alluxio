@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.SyncInfo;
 import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.InstancedConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.collections.Pair;
 import alluxio.retry.CountingRetry;
@@ -883,9 +884,22 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
    * @return the underlying HDFS {@link FileSystem} object
    */
   private FileSystem getFs() throws IOException {
+    // ALLUXIO CS ADD
+    boolean isImpersonationEnabled =
+        Boolean.valueOf(mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
+    String user = HDFS_USER;
+    if (isImpersonationEnabled) {
+      user = alluxio.util.SecurityUtils
+          .getOwnerFromGrpcClient(new InstancedConfiguration(mUfsConf.copyProperties()));
+    }
+    // ALLUXIO CS END
     try {
       // TODO(gpang): handle different users
-      return mUserFs.get(HDFS_USER);
+      // ALLUXIO CS REPLACE
+      // return mUserFs.get(HDFS_USER);
+      // ALLUXIO CS WITH
+      return mUserFs.get(user);
+      // ALLUXIO CS END
     } catch (ExecutionException e) {
       throw new IOException("Failed get FileSystem for " + mUri, e.getCause());
     }
