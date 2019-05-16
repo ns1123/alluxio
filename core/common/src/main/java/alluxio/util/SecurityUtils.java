@@ -106,20 +106,8 @@ public final class SecurityUtils {
    */
   public static String getOwner(UserState userState) {
     try {
-<<<<<<< HEAD
-      return CommonUtils.getPrimaryGroupName(LoginUser.get(conf).getName(), conf);
-    // ALLUXIO CS ADD
-    } catch (UnauthenticatedException e) {
-      return "";
-    // ALLUXIO CS END
-    } catch (IOException | UnsupportedOperationException e) {
-||||||| merged common ancestors
-      return CommonUtils.getPrimaryGroupName(LoginUser.get(conf).getName(), conf);
-    } catch (IOException | UnsupportedOperationException e) {
-=======
       return userState.getUser().getName();
     } catch (UnauthenticatedException | UnsupportedOperationException e) {
->>>>>>> aos/master
       return "";
     }
   }

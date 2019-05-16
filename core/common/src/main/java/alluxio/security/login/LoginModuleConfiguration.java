@@ -56,40 +56,6 @@ public final class LoginModuleConfiguration extends Configuration {
   private static final AppConfigurationEntry ALLUXIO_LOGIN = new AppConfigurationEntry(
       AlluxioLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, EMPTY_JAAS_OPTIONS);
 
-<<<<<<< HEAD
-  // ALLUXIO CS REPLACE
-  // // TODO(dong): add Kerberos_LOGIN module
-  // // private static final AppConfigurationEntry KERBEROS_LOGIN = ...
-  // ALLUXIO CS WITH
-  private static final Map<String, String> KERBEROS_OPTIONS = new HashMap<String, String>() {
-    {
-      if (System.getProperty("java.vendor").contains("IBM")) {
-        put("useDefaultCcache", "true");
-      } else {
-        put("doNotPrompt", "true");
-        put("useTicketCache", "true");
-      }
-      String ticketCache = System.getenv("KRB5CCNAME");
-      if (ticketCache != null) {
-        if (System.getProperty("java.vendor").contains("IBM")) {
-          // The first value searched when "useDefaultCcache" is used.
-          System.setProperty("KRB5CCNAME", ticketCache);
-        } else {
-          put("ticketCache", ticketCache);
-        }
-      }
-      put("renewTGT", "true");
-      // TODO(chaomin): maybe add "isInitiator".
-    }
-  };
-  // ALLUXIO CS END
-
-||||||| merged common ancestors
-  // TODO(dong): add Kerberos_LOGIN module
-  // private static final AppConfigurationEntry KERBEROS_LOGIN = ...
-
-=======
->>>>>>> aos/master
   /**
    * In the {@link AuthType#SIMPLE} mode, JAAS first tries to retrieve the user name set by the
    * application with {@link AppLoginModule}. Upon failure, it uses the OS specific login module to
@@ -99,29 +65,6 @@ public final class LoginModuleConfiguration extends Configuration {
   private static final AppConfigurationEntry[] SIMPLE =
       new AppConfigurationEntry[] {APP_LOGIN, OS_SPECIFIC_LOGIN, ALLUXIO_LOGIN};
 
-<<<<<<< HEAD
-  // ALLUXIO CS REPLACE
-  // // TODO(dong): add Kerberos mode
-  // // private static final AppConfigurationEntry[] KERBEROS = ...
-  // ALLUXIO CS WITH
-  /**
-   * Constructor for Kerberos {@link LoginModuleConfiguration}.
-   *
-   * @param principal Kerberos principal name
-   * @param keytab Kerberos keytab file absolute path
-   */
-  public LoginModuleConfiguration(String principal, String keytab) {
-    mPrincipal = principal;
-    mKeytab = keytab;
-  }
-  // ALLUXIO CS END
-
-||||||| merged common ancestors
-  // TODO(dong): add Kerberos mode
-  // private static final AppConfigurationEntry[] KERBEROS = ...
-
-=======
->>>>>>> aos/master
   /**
    * Constructs a new {@link LoginModuleConfiguration}.
    */
@@ -134,44 +77,6 @@ public final class LoginModuleConfiguration extends Configuration {
         || appName.equalsIgnoreCase(AuthType.CUSTOM.getAuthName())) {
       return SIMPLE;
     } else if (appName.equalsIgnoreCase(AuthType.KERBEROS.getAuthName())) {
-<<<<<<< HEAD
-      // ALLUXIO CS REPLACE
-      // // TODO(dong): return KERBEROS;
-      // throw new UnsupportedOperationException("Kerberos is not supported currently.");
-      // ALLUXIO CS WITH
-      // Kerberos login option 1: login from keytab file if the given principal and keytab files
-      // are valid.
-      Map<String, String> keytabOptions = new HashMap<String, String>();
-      keytabOptions.putAll(KERBEROS_OPTIONS);
-      keytabOptions.put("useKeyTab", "true");
-      keytabOptions.put("useTicketCache", "false");
-      keytabOptions.put("renewTGT", "false");
-      keytabOptions.put("storeKey", "true");
-      keytabOptions.put("keyTab", mKeytab);
-      keytabOptions.put("principal", mPrincipal);
-      AppConfigurationEntry kerberosLoginFromKeytab =
-          new AppConfigurationEntry(alluxio.security.util.KerberosUtils.getKrb5LoginModuleName(),
-              AppConfigurationEntry.LoginModuleControlFlag.OPTIONAL,
-              keytabOptions);
-
-      // Kerberos login option 2: login from Kerberos ticket cache if kinit is run on the machine.
-      // This would happen if the option 1 Keytab login failed.
-      Map<String, String> ticketCacheOptions = new HashMap<String, String>();
-      ticketCacheOptions.putAll(KERBEROS_OPTIONS);
-      ticketCacheOptions.put("useKeyTab", "false");
-      AppConfigurationEntry kerberosLoginFromTicketCache =
-          new AppConfigurationEntry(alluxio.security.util.KerberosUtils.getKrb5LoginModuleName(),
-              AppConfigurationEntry.LoginModuleControlFlag.OPTIONAL,
-              ticketCacheOptions);
-
-      return new AppConfigurationEntry[]{ kerberosLoginFromKeytab, kerberosLoginFromTicketCache };
-      // ALLUXIO CS END
-||||||| merged common ancestors
-      // TODO(dong): return KERBEROS;
-      throw new UnsupportedOperationException("Kerberos is not supported currently.");
-=======
-      throw new UnsupportedOperationException("Kerberos is not supported currently.");
->>>>>>> aos/master
     }
     return null;
   }

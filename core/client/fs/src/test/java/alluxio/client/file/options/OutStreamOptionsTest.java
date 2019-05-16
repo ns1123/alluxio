@@ -92,21 +92,10 @@ public class OutStreamOptionsTest {
     mConf.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
     mConf.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.CACHE_THROUGH.toString());
     mConf.set(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT, Constants.LAST_TIER);
-<<<<<<< HEAD
-    // ALLUXIO CS ADD
-    org.powermock.api.mockito.PowerMockito.mockStatic(alluxio.util.SecurityUtils.class);
-    org.powermock.api.mockito.PowerMockito.when(
-        alluxio.util.SecurityUtils.getOwnerFromLoginModule(mConf)).thenReturn("test_user");
-    org.powermock.api.mockito.PowerMockito.when(
-        alluxio.util.SecurityUtils.getGroupFromLoginModule(mConf)).thenReturn("test_group");
-    // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     mConf.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS, FakeUserGroupsMapping.class.getName());
     Subject subject = new Subject();
     subject.getPrincipals().add(new User("test_user"));
     ClientContext clientContext = ClientContext.create(subject, mConf);
->>>>>>> aos/master
 
     OutStreamOptions options = OutStreamOptions.defaults(clientContext);
 

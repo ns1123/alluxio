@@ -88,17 +88,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileSystem.class);
 
   public static final String FIRST_COM_PATH = "alluxio_dep/";
-<<<<<<< HEAD
-  // ALLUXIO CS ADD
-  //// BLOCK_REPLICATION_CONSTANT is not used in AEE.
-  // ALLUXIO CS END
-  // Always tell Hadoop that we have 3x replication.
-  private static final int BLOCK_REPLICATION_CONSTANT = 3;
-||||||| merged common ancestors
-  // Always tell Hadoop that we have 3x replication.
-  private static final int BLOCK_REPLICATION_CONSTANT = 3;
-=======
->>>>>>> aos/master
 
   protected FileSystem mFileSystem = null;
 
@@ -507,20 +496,8 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
         (alluxioConfiguration != null) ? alluxioConfiguration.copyProperties()
             : ConfigurationUtils.defaults();
     AlluxioConfiguration alluxioConf = mergeConfigurations(uriConfProperties, conf, alluxioProps);
-<<<<<<< HEAD
-    // ALLUXIO CS REPLACE
-    // Subject subject = getHadoopSubject();
-    // ALLUXIO CS WITH
-    // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
-    // to authenticate with master.
-    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
-    Subject subject = getHadoopSubject(alluxioConf);
-    // ALLUXIO CS END
-    if (subject != null) {
-      LOG.debug("Using Hadoop subject: {}", subject);
-    } else {
-      LOG.debug("No Hadoop subject. Using context without subject.");
-    }
+    Subject subject = getHadoopSubject();
+    LOG.debug("Using Hadoop subject: {}", subject);
     // ALLUXIO CS ADD
     try {
       UserGroupInformation user = UserGroupInformation.getCurrentUser();
@@ -540,17 +517,6 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       LOG.warn("unable to populate Alluxio tokens.", e);
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-    Subject subject = getHadoopSubject();
-    if (subject != null) {
-      LOG.debug("Using Hadoop subject: {}", subject);
-    } else {
-      LOG.debug("No Hadoop subject. Using context without subject.");
-    }
-=======
-    Subject subject = getHadoopSubject();
-    LOG.debug("Using Hadoop subject: {}", subject);
->>>>>>> aos/master
 
     LOG.info("Initializing filesystem with connect details {}",
         Factory.getConnectDetails(alluxioConf));
@@ -638,74 +604,10 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
    * @return hadoop UGI's subject, or a fresh subject if the Hadoop UGI does not exist
    * @throws IOException if there is an exception when accessing the subject in Hadoop UGI
    */
-<<<<<<< HEAD
-  @Nullable
-  // ALLUXIO CS REPLACE
-  // private Subject getHadoopSubject() {
-  //   try {
-  //     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-  //     String username = ugi.getShortUserName();
-  //     if (username != null && !username.isEmpty()) {
-  //       User user = new User(ugi.getShortUserName());
-  //       HashSet<Principal> principals = new HashSet<>();
-  //       principals.add(user);
-  //       return new Subject(false, principals, new HashSet<>(), new HashSet<>());
-  //     }
-  //     return null;
-  //   } catch (IOException e) {
-  //     return null;
-  //   }
-  // }
-  // ALLUXIO CS WITH
-  // TODO(zac) Find a way to not use CS REPLACE on the whole method
-  private Subject getHadoopSubject(AlluxioConfiguration conf) {
-||||||| merged common ancestors
-  @Nullable
-  private Subject getHadoopSubject() {
-=======
   private Subject getHadoopSubject() throws IOException {
     Subject subject = null;
     UserGroupInformation ugi = null;
->>>>>>> aos/master
     try {
-<<<<<<< HEAD
-      UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-      String username = ugi.getShortUserName();
-      if (username != null && !username.isEmpty()) {
-        User user = new User(ugi.getShortUserName());
-        Subject subject = null;
-        LOG.debug("Hadoop UGI: {} hasKerberos: {}", ugi, ugi.hasKerberosCredentials());
-        if (ugi.hasKerberosCredentials()
-            && conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
-            alluxio.security.authentication.AuthType.class)
-            == alluxio.security.authentication.AuthType.KERBEROS) {
-          java.security.AccessControlContext context = java.security.AccessController.getContext();
-          subject = Subject.getSubject(context);
-          LOG.debug("Hadoop UGI subject: {}", subject);
-        }
-        if (subject == null) {
-          subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
-        }
-        java.util.Set<Principal> principals = subject.getPrincipals();
-        principals.add(user);
-        return subject;
-      }
-      return null;
-    } catch (IOException e) {
-      return null;
-||||||| merged common ancestors
-      UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-      String username = ugi.getShortUserName();
-      if (username != null && !username.isEmpty()) {
-        User user = new User(ugi.getShortUserName());
-        HashSet<Principal> principals = new HashSet<>();
-        principals.add(user);
-        return new Subject(false, principals, new HashSet<>(), new HashSet<>());
-      }
-      return null;
-    } catch (IOException e) {
-      return null;
-=======
       ugi = UserGroupInformation.getCurrentUser();
       subject = getSubjectFromUGI(ugi);
     } catch (Exception e) {
@@ -718,11 +620,9 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
     if (subject.getPrincipals(CurrentUser.class).isEmpty() && ugi != null) {
       subject.getPrincipals().add(new CurrentUser(ugi.getShortUserName(), mUri.toString()));
->>>>>>> aos/master
     }
     return subject;
   }
-  // ALLUXIO CS END
 
   /**
    * @deprecated in 1.6.0, directly infer the value from {@link PropertyKey#ZOOKEEPER_ENABLED}

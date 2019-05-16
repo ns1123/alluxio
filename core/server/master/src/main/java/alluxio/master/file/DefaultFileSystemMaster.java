@@ -644,19 +644,13 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
           new HeartbeatThread(HeartbeatContext.MASTER_LOST_FILES_DETECTION,
               new LostFileDetector(this, mInodeTree),
               (int) ServerConfiguration.getMs(PropertyKey.MASTER_WORKER_HEARTBEAT_INTERVAL),
-<<<<<<< HEAD
-              ServerConfiguration.global()));
+              ServerConfiguration.global(), mMasterContext.getUserState()));
       // ALLUXIO CS ADD
       if (mAuthProvider != null) {
         mAuthProvider.start();
       }
       mDelegationTokenManager.startThreadPool();
       // ALLUXIO CS END
-||||||| merged common ancestors
-              ServerConfiguration.global()));
-=======
-              ServerConfiguration.global(), mMasterContext.getUserState()));
->>>>>>> aos/master
       getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster,

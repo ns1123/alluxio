@@ -15,18 +15,12 @@ import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.security.authentication.AuthenticatedUserInjector;
 import alluxio.security.authentication.AuthenticationServer;
-<<<<<<< HEAD
 // ALLUXIO CS REPLACE
 // import alluxio.security.authentication.DefaultAuthenticationServer;
 // ALLUXIO CS WITH
 import alluxio.security.authentication.EnterpriseAuthenticationServer;
 // ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.security.authentication.DefaultAuthenticationServer;
-=======
-import alluxio.security.authentication.DefaultAuthenticationServer;
 import alluxio.security.user.UserState;
->>>>>>> aos/master
 import alluxio.util.SecurityUtils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;

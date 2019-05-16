@@ -16,15 +16,9 @@ import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
-<<<<<<< HEAD
-import alluxio.exception.status.UnauthenticatedException;
-||||||| merged common ancestors
-import alluxio.exception.AccessControlException;
-=======
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
-import alluxio.exception.AccessControlException;
->>>>>>> aos/master
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.grpc.SetAttributePOptions;
 import alluxio.security.CurrentUser;
 import alluxio.security.authorization.Mode;
