@@ -73,7 +73,7 @@ message ReadResponse {
 }
 
 // The write request command.
-// next available id: 8
+// next available id: 9
 message WriteRequestCommand {
   optional RequestType type = 1;
   // The block ID or UFS file ID.
@@ -85,9 +85,14 @@ message WriteRequestCommand {
   // Cancel, close and error will be handled by standard gRPC stream APIs.
   optional alluxio.proto.dataserver.CreateUfsFileOptions create_ufs_file_options = 6;
   optional alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   optional alluxio.proto.security.Capability capability = 1000;
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  optional string medium_type = 8;
+>>>>>>> upstream-os/master
 }
 
 // The write request.
@@ -135,7 +140,7 @@ message OpenLocalBlockResponse {
   optional string path = 1;
 }
 
-// next available id: 6
+// next available id: 8
 message CreateLocalBlockRequest {
   optional int64 block_id = 1;
   optional int32 tier = 3;
@@ -143,9 +148,14 @@ message CreateLocalBlockRequest {
   // If set, only reserve space for the block.
   optional bool only_reserve_space = 5;
   optional bool cleanup_on_failure = 6;
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   optional alluxio.proto.security.Capability capability = 1001;
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  optional string medium_type = 7;
+>>>>>>> upstream-os/master
 }
 
 // next available id: 2

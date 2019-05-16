@@ -5,7 +5,7 @@ package alluxio.grpc;
 
 /**
  * <pre>
- * next available id: 6
+ * next available id: 8
  * </pre>
  *
  * Protobuf type {@code alluxio.grpc.block.CreateLocalBlockRequest}
@@ -25,6 +25,7 @@ private static final long serialVersionUID = 0L;
     spaceToReserve_ = 0L;
     onlyReserveSpace_ = false;
     cleanupOnFailure_ = false;
+    mediumType_ = "";
   }
 
   @java.lang.Override
@@ -83,6 +84,7 @@ private static final long serialVersionUID = 0L;
             cleanupOnFailure_ = input.readBool();
             break;
           }
+<<<<<<< HEAD
           case 8010: {
             alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
             if (((bitField0_ & 0x00000020) == 0x00000020)) {
@@ -96,6 +98,15 @@ private static final long serialVersionUID = 0L;
             bitField0_ |= 0x00000020;
             break;
           }
+||||||| merged common ancestors
+=======
+          case 58: {
+            com.google.protobuf.ByteString bs = input.readBytes();
+            bitField0_ |= 0x00000020;
+            mediumType_ = bs;
+            break;
+          }
+>>>>>>> upstream-os/master
         }
       }
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -204,6 +215,7 @@ private static final long serialVersionUID = 0L;
     return cleanupOnFailure_;
   }
 
+<<<<<<< HEAD
   public static final int CAPABILITY_FIELD_NUMBER = 1001;
   private alluxio.proto.security.CapabilityProto.Capability capability_;
   /**
@@ -237,6 +249,51 @@ private static final long serialVersionUID = 0L;
     return capability_ == null ? alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance() : capability_;
   }
 
+||||||| merged common ancestors
+=======
+  public static final int MEDIUM_TYPE_FIELD_NUMBER = 7;
+  private volatile java.lang.Object mediumType_;
+  /**
+   * <code>optional string medium_type = 7;</code>
+   */
+  public boolean hasMediumType() {
+    return ((bitField0_ & 0x00000020) == 0x00000020);
+  }
+  /**
+   * <code>optional string medium_type = 7;</code>
+   */
+  public java.lang.String getMediumType() {
+    java.lang.Object ref = mediumType_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      if (bs.isValidUtf8()) {
+        mediumType_ = s;
+      }
+      return s;
+    }
+  }
+  /**
+   * <code>optional string medium_type = 7;</code>
+   */
+  public com.google.protobuf.ByteString
+      getMediumTypeBytes() {
+    java.lang.Object ref = mediumType_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      mediumType_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+>>>>>>> upstream-os/master
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -264,9 +321,16 @@ private static final long serialVersionUID = 0L;
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
       output.writeBool(6, cleanupOnFailure_);
     }
+<<<<<<< HEAD
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
       output.writeMessage(1001, getCapability());
     }
+||||||| merged common ancestors
+=======
+    if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 7, mediumType_);
+    }
+>>>>>>> upstream-os/master
     unknownFields.writeTo(output);
   }
 
@@ -295,10 +359,17 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeBoolSize(6, cleanupOnFailure_);
     }
+<<<<<<< HEAD
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(1001, getCapability());
     }
+||||||| merged common ancestors
+=======
+    if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, mediumType_);
+    }
+>>>>>>> upstream-os/master
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
     return size;
@@ -340,11 +411,20 @@ private static final long serialVersionUID = 0L;
       result = result && (getCleanupOnFailure()
           == other.getCleanupOnFailure());
     }
+<<<<<<< HEAD
     result = result && (hasCapability() == other.hasCapability());
     if (hasCapability()) {
       result = result && getCapability()
           .equals(other.getCapability());
     }
+||||||| merged common ancestors
+=======
+    result = result && (hasMediumType() == other.hasMediumType());
+    if (hasMediumType()) {
+      result = result && getMediumType()
+          .equals(other.getMediumType());
+    }
+>>>>>>> upstream-os/master
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -380,10 +460,18 @@ private static final long serialVersionUID = 0L;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getCleanupOnFailure());
     }
+<<<<<<< HEAD
     if (hasCapability()) {
       hash = (37 * hash) + CAPABILITY_FIELD_NUMBER;
       hash = (53 * hash) + getCapability().hashCode();
     }
+||||||| merged common ancestors
+=======
+    if (hasMediumType()) {
+      hash = (37 * hash) + MEDIUM_TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + getMediumType().hashCode();
+    }
+>>>>>>> upstream-os/master
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -479,7 +567,7 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
-   * next available id: 6
+   * next available id: 8
    * </pre>
    *
    * Protobuf type {@code alluxio.grpc.block.CreateLocalBlockRequest}
@@ -528,12 +616,18 @@ private static final long serialVersionUID = 0L;
       bitField0_ = (bitField0_ & ~0x00000008);
       cleanupOnFailure_ = false;
       bitField0_ = (bitField0_ & ~0x00000010);
+<<<<<<< HEAD
       if (capabilityBuilder_ == null) {
         capability_ = null;
       } else {
         capabilityBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000020);
+||||||| merged common ancestors
+=======
+      mediumType_ = "";
+      bitField0_ = (bitField0_ & ~0x00000020);
+>>>>>>> upstream-os/master
       return this;
     }
 
@@ -578,6 +672,7 @@ private static final long serialVersionUID = 0L;
         to_bitField0_ |= 0x00000010;
       }
       result.cleanupOnFailure_ = cleanupOnFailure_;
+<<<<<<< HEAD
       if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
         to_bitField0_ |= 0x00000020;
       }
@@ -586,6 +681,13 @@ private static final long serialVersionUID = 0L;
       } else {
         result.capability_ = capabilityBuilder_.build();
       }
+||||||| merged common ancestors
+=======
+      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        to_bitField0_ |= 0x00000020;
+      }
+      result.mediumType_ = mediumType_;
+>>>>>>> upstream-os/master
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -643,9 +745,18 @@ private static final long serialVersionUID = 0L;
       if (other.hasCleanupOnFailure()) {
         setCleanupOnFailure(other.getCleanupOnFailure());
       }
+<<<<<<< HEAD
       if (other.hasCapability()) {
         mergeCapability(other.getCapability());
       }
+||||||| merged common ancestors
+=======
+      if (other.hasMediumType()) {
+        bitField0_ |= 0x00000020;
+        mediumType_ = other.mediumType_;
+        onChanged();
+      }
+>>>>>>> upstream-os/master
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
       return this;
@@ -849,6 +960,7 @@ private static final long serialVersionUID = 0L;
       onChanged();
       return this;
     }
+<<<<<<< HEAD
 
     private alluxio.proto.security.CapabilityProto.Capability capability_ = null;
     private com.google.protobuf.SingleFieldBuilderV3<
@@ -1003,6 +1115,85 @@ private static final long serialVersionUID = 0L;
       }
       return capabilityBuilder_;
     }
+||||||| merged common ancestors
+=======
+
+    private java.lang.Object mediumType_ = "";
+    /**
+     * <code>optional string medium_type = 7;</code>
+     */
+    public boolean hasMediumType() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional string medium_type = 7;</code>
+     */
+    public java.lang.String getMediumType() {
+      java.lang.Object ref = mediumType_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          mediumType_ = s;
+        }
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>optional string medium_type = 7;</code>
+     */
+    public com.google.protobuf.ByteString
+        getMediumTypeBytes() {
+      java.lang.Object ref = mediumType_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        mediumType_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>optional string medium_type = 7;</code>
+     */
+    public Builder setMediumType(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+      mediumType_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional string medium_type = 7;</code>
+     */
+    public Builder clearMediumType() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      mediumType_ = getDefaultInstance().getMediumType();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional string medium_type = 7;</code>
+     */
+    public Builder setMediumTypeBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+      mediumType_ = value;
+      onChanged();
+      return this;
+    }
+>>>>>>> upstream-os/master
     public final Builder setUnknownFields(
         final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);

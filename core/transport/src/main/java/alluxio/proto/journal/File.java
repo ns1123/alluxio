@@ -7986,10 +7986,29 @@ public final class File {
      */
     com.google.protobuf.ByteString
         getUfsFingerprintBytes();
+
+    /**
+     * <code>repeated string medium_type = 16;</code>
+     */
+    java.util.List<java.lang.String>
+        getMediumTypeList();
+    /**
+     * <code>repeated string medium_type = 16;</code>
+     */
+    int getMediumTypeCount();
+    /**
+     * <code>repeated string medium_type = 16;</code>
+     */
+    java.lang.String getMediumType(int index);
+    /**
+     * <code>repeated string medium_type = 16;</code>
+     */
+    com.google.protobuf.ByteString
+        getMediumTypeBytes(int index);
   }
   /**
    * <pre>
-   * next available id: 16
+   * next available id: 17
    * </pre>
    *
    * Protobuf type {@code alluxio.proto.journal.UpdateInodeEntry}
@@ -8018,6 +8037,7 @@ public final class File {
       ttl_ = 0L;
       ttlAction_ = 0;
       ufsFingerprint_ = "";
+      mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
     @java.lang.Override
@@ -8145,6 +8165,15 @@ public final class File {
               ufsFingerprint_ = bs;
               break;
             }
+            case 130: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x00008000) == 0x00008000)) {
+                mediumType_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00008000;
+              }
+              mediumType_.add(bs);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -8153,6 +8182,9 @@ public final class File {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00008000) == 0x00008000)) {
+          mediumType_ = mediumType_.getUnmodifiableView();
+        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -8537,6 +8569,35 @@ public final class File {
       }
     }
 
+    public static final int MEDIUM_TYPE_FIELD_NUMBER = 16;
+    private com.google.protobuf.LazyStringList mediumType_;
+    /**
+     * <code>repeated string medium_type = 16;</code>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getMediumTypeList() {
+      return mediumType_;
+    }
+    /**
+     * <code>repeated string medium_type = 16;</code>
+     */
+    public int getMediumTypeCount() {
+      return mediumType_.size();
+    }
+    /**
+     * <code>repeated string medium_type = 16;</code>
+     */
+    public java.lang.String getMediumType(int index) {
+      return mediumType_.get(index);
+    }
+    /**
+     * <code>repeated string medium_type = 16;</code>
+     */
+    public com.google.protobuf.ByteString
+        getMediumTypeBytes(int index) {
+      return mediumType_.getByteString(index);
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -8593,6 +8654,9 @@ public final class File {
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 15, ufsFingerprint_);
+      }
+      for (int i = 0; i < mediumType_.size(); i++) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 16, mediumType_.getRaw(i));
       }
       unknownFields.writeTo(output);
     }
@@ -8656,6 +8720,14 @@ public final class File {
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(15, ufsFingerprint_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < mediumType_.size(); i++) {
+          dataSize += computeStringSizeNoTag(mediumType_.getRaw(i));
+        }
+        size += dataSize;
+        size += 2 * getMediumTypeList().size();
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -8747,6 +8819,8 @@ public final class File {
         result = result && getUfsFingerprint()
             .equals(other.getUfsFingerprint());
       }
+      result = result && getMediumTypeList()
+          .equals(other.getMediumTypeList());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -8824,6 +8898,10 @@ public final class File {
       if (hasUfsFingerprint()) {
         hash = (37 * hash) + UFS_FINGERPRINT_FIELD_NUMBER;
         hash = (53 * hash) + getUfsFingerprint().hashCode();
+      }
+      if (getMediumTypeCount() > 0) {
+        hash = (37 * hash) + MEDIUM_TYPE_FIELD_NUMBER;
+        hash = (53 * hash) + getMediumTypeList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -8920,7 +8998,7 @@ public final class File {
     }
     /**
      * <pre>
-     * next available id: 16
+     * next available id: 17
      * </pre>
      *
      * Protobuf type {@code alluxio.proto.journal.UpdateInodeEntry}
@@ -8993,6 +9071,8 @@ public final class File {
         bitField0_ = (bitField0_ & ~0x00002000);
         ufsFingerprint_ = "";
         bitField0_ = (bitField0_ & ~0x00004000);
+        mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00008000);
         return this;
       }
 
@@ -9081,6 +9161,11 @@ public final class File {
           to_bitField0_ |= 0x00004000;
         }
         result.ufsFingerprint_ = ufsFingerprint_;
+        if (((bitField0_ & 0x00008000) == 0x00008000)) {
+          mediumType_ = mediumType_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00008000);
+        }
+        result.mediumType_ = mediumType_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -9176,6 +9261,16 @@ public final class File {
         if (other.hasUfsFingerprint()) {
           bitField0_ |= 0x00004000;
           ufsFingerprint_ = other.ufsFingerprint_;
+          onChanged();
+        }
+        if (!other.mediumType_.isEmpty()) {
+          if (mediumType_.isEmpty()) {
+            mediumType_ = other.mediumType_;
+            bitField0_ = (bitField0_ & ~0x00008000);
+          } else {
+            ensureMediumTypeIsMutable();
+            mediumType_.addAll(other.mediumType_);
+          }
           onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
@@ -9992,6 +10087,99 @@ public final class File {
   }
   bitField0_ |= 0x00004000;
         ufsFingerprint_ = value;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureMediumTypeIsMutable() {
+        if (!((bitField0_ & 0x00008000) == 0x00008000)) {
+          mediumType_ = new com.google.protobuf.LazyStringArrayList(mediumType_);
+          bitField0_ |= 0x00008000;
+         }
+      }
+      /**
+       * <code>repeated string medium_type = 16;</code>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getMediumTypeList() {
+        return mediumType_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string medium_type = 16;</code>
+       */
+      public int getMediumTypeCount() {
+        return mediumType_.size();
+      }
+      /**
+       * <code>repeated string medium_type = 16;</code>
+       */
+      public java.lang.String getMediumType(int index) {
+        return mediumType_.get(index);
+      }
+      /**
+       * <code>repeated string medium_type = 16;</code>
+       */
+      public com.google.protobuf.ByteString
+          getMediumTypeBytes(int index) {
+        return mediumType_.getByteString(index);
+      }
+      /**
+       * <code>repeated string medium_type = 16;</code>
+       */
+      public Builder setMediumType(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureMediumTypeIsMutable();
+        mediumType_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 16;</code>
+       */
+      public Builder addMediumType(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureMediumTypeIsMutable();
+        mediumType_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 16;</code>
+       */
+      public Builder addAllMediumType(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureMediumTypeIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, mediumType_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 16;</code>
+       */
+      public Builder clearMediumType() {
+        mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00008000);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 16;</code>
+       */
+      public Builder addMediumTypeBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureMediumTypeIsMutable();
+        mediumType_.add(value);
         onChanged();
         return this;
       }
@@ -12871,10 +13059,29 @@ public final class File {
      */
     com.google.protobuf.ByteString
         getPathBytes();
+
+    /**
+     * <code>repeated string medium_type = 18;</code>
+     */
+    java.util.List<java.lang.String>
+        getMediumTypeList();
+    /**
+     * <code>repeated string medium_type = 18;</code>
+     */
+    int getMediumTypeCount();
+    /**
+     * <code>repeated string medium_type = 18;</code>
+     */
+    java.lang.String getMediumType(int index);
+    /**
+     * <code>repeated string medium_type = 18;</code>
+     */
+    com.google.protobuf.ByteString
+        getMediumTypeBytes(int index);
   }
   /**
    * <pre>
-   * next available id: 18
+   * next available id: 19
    * </pre>
    *
    * Protobuf type {@code alluxio.proto.journal.InodeDirectoryEntry}
@@ -12904,6 +13111,7 @@ public final class File {
       ttl_ = 0L;
       ttlAction_ = 0;
       path_ = "";
+      mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
     @java.lang.Override
@@ -13049,6 +13257,15 @@ public final class File {
               path_ = bs;
               break;
             }
+            case 146: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x00020000) == 0x00020000)) {
+                mediumType_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00020000;
+              }
+              mediumType_.add(bs);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -13057,6 +13274,9 @@ public final class File {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00020000) == 0x00020000)) {
+          mediumType_ = mediumType_.getUnmodifiableView();
+        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -13477,6 +13697,35 @@ public final class File {
       }
     }
 
+    public static final int MEDIUM_TYPE_FIELD_NUMBER = 18;
+    private com.google.protobuf.LazyStringList mediumType_;
+    /**
+     * <code>repeated string medium_type = 18;</code>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getMediumTypeList() {
+      return mediumType_;
+    }
+    /**
+     * <code>repeated string medium_type = 18;</code>
+     */
+    public int getMediumTypeCount() {
+      return mediumType_.size();
+    }
+    /**
+     * <code>repeated string medium_type = 18;</code>
+     */
+    public java.lang.String getMediumType(int index) {
+      return mediumType_.get(index);
+    }
+    /**
+     * <code>repeated string medium_type = 18;</code>
+     */
+    public com.google.protobuf.ByteString
+        getMediumTypeBytes(int index) {
+      return mediumType_.getByteString(index);
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -13539,6 +13788,9 @@ public final class File {
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 17, path_);
+      }
+      for (int i = 0; i < mediumType_.size(); i++) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 18, mediumType_.getRaw(i));
       }
       unknownFields.writeTo(output);
     }
@@ -13610,6 +13862,14 @@ public final class File {
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(17, path_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < mediumType_.size(); i++) {
+          dataSize += computeStringSizeNoTag(mediumType_.getRaw(i));
+        }
+        size += dataSize;
+        size += 2 * getMediumTypeList().size();
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -13711,6 +13971,8 @@ public final class File {
         result = result && getPath()
             .equals(other.getPath());
       }
+      result = result && getMediumTypeList()
+          .equals(other.getMediumTypeList());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -13797,6 +14059,10 @@ public final class File {
       if (hasPath()) {
         hash = (37 * hash) + PATH_FIELD_NUMBER;
         hash = (53 * hash) + getPath().hashCode();
+      }
+      if (getMediumTypeCount() > 0) {
+        hash = (37 * hash) + MEDIUM_TYPE_FIELD_NUMBER;
+        hash = (53 * hash) + getMediumTypeList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -13893,7 +14159,7 @@ public final class File {
     }
     /**
      * <pre>
-     * next available id: 18
+     * next available id: 19
      * </pre>
      *
      * Protobuf type {@code alluxio.proto.journal.InodeDirectoryEntry}
@@ -13975,6 +14241,8 @@ public final class File {
         bitField0_ = (bitField0_ & ~0x00008000);
         path_ = "";
         bitField0_ = (bitField0_ & ~0x00010000);
+        mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00020000);
         return this;
       }
 
@@ -14075,6 +14343,11 @@ public final class File {
           to_bitField0_ |= 0x00010000;
         }
         result.path_ = path_;
+        if (((bitField0_ & 0x00020000) == 0x00020000)) {
+          mediumType_ = mediumType_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00020000);
+        }
+        result.mediumType_ = mediumType_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -14176,6 +14449,16 @@ public final class File {
         if (other.hasPath()) {
           bitField0_ |= 0x00010000;
           path_ = other.path_;
+          onChanged();
+        }
+        if (!other.mediumType_.isEmpty()) {
+          if (mediumType_.isEmpty()) {
+            mediumType_ = other.mediumType_;
+            bitField0_ = (bitField0_ & ~0x00020000);
+          } else {
+            ensureMediumTypeIsMutable();
+            mediumType_.addAll(other.mediumType_);
+          }
           onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
@@ -15145,6 +15428,99 @@ public final class File {
         onChanged();
         return this;
       }
+
+      private com.google.protobuf.LazyStringList mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureMediumTypeIsMutable() {
+        if (!((bitField0_ & 0x00020000) == 0x00020000)) {
+          mediumType_ = new com.google.protobuf.LazyStringArrayList(mediumType_);
+          bitField0_ |= 0x00020000;
+         }
+      }
+      /**
+       * <code>repeated string medium_type = 18;</code>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getMediumTypeList() {
+        return mediumType_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string medium_type = 18;</code>
+       */
+      public int getMediumTypeCount() {
+        return mediumType_.size();
+      }
+      /**
+       * <code>repeated string medium_type = 18;</code>
+       */
+      public java.lang.String getMediumType(int index) {
+        return mediumType_.get(index);
+      }
+      /**
+       * <code>repeated string medium_type = 18;</code>
+       */
+      public com.google.protobuf.ByteString
+          getMediumTypeBytes(int index) {
+        return mediumType_.getByteString(index);
+      }
+      /**
+       * <code>repeated string medium_type = 18;</code>
+       */
+      public Builder setMediumType(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureMediumTypeIsMutable();
+        mediumType_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 18;</code>
+       */
+      public Builder addMediumType(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureMediumTypeIsMutable();
+        mediumType_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 18;</code>
+       */
+      public Builder addAllMediumType(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureMediumTypeIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, mediumType_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 18;</code>
+       */
+      public Builder clearMediumType() {
+        mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00020000);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 18;</code>
+       */
+      public Builder addMediumTypeBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureMediumTypeIsMutable();
+        mediumType_.add(value);
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
@@ -16101,10 +16477,38 @@ public final class File {
      */
     com.google.protobuf.ByteString
         getPathBytes();
+
+    /**
+     * <code>repeated string medium_type = 26;</code>
+     */
+    java.util.List<java.lang.String>
+        getMediumTypeList();
+    /**
+     * <code>repeated string medium_type = 26;</code>
+     */
+    int getMediumTypeCount();
+    /**
+     * <code>repeated string medium_type = 26;</code>
+     */
+    java.lang.String getMediumType(int index);
+    /**
+     * <code>repeated string medium_type = 26;</code>
+     */
+    com.google.protobuf.ByteString
+        getMediumTypeBytes(int index);
+
+    /**
+     * <code>optional int64 should_persist_time = 27;</code>
+     */
+    boolean hasShouldPersistTime();
+    /**
+     * <code>optional int64 should_persist_time = 27;</code>
+     */
+    long getShouldPersistTime();
   }
   /**
    * <pre>
-   * next available id: 26
+   * next available id: 28
    * </pre>
    *
    * Protobuf type {@code alluxio.proto.journal.InodeFileEntry}
@@ -16144,6 +16548,8 @@ public final class File {
       tempUfsPath_ = "";
       replicationDurable_ = 0;
       path_ = "";
+      mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      shouldPersistTime_ = 0L;
     }
 
     @java.lang.Override
@@ -16344,6 +16750,20 @@ public final class File {
               encrypted_ = input.readBool();
               break;
             }
+            case 210: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x02000000) == 0x02000000)) {
+                mediumType_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x02000000;
+              }
+              mediumType_.add(bs);
+              break;
+            }
+            case 216: {
+              bitField0_ |= 0x01000000;
+              shouldPersistTime_ = input.readInt64();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -16354,6 +16774,9 @@ public final class File {
       } finally {
         if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
           blocks_ = java.util.Collections.unmodifiableList(blocks_);
+        }
+        if (((mutable_bitField0_ & 0x02000000) == 0x02000000)) {
+          mediumType_ = mediumType_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -17015,6 +17438,50 @@ public final class File {
       }
     }
 
+    public static final int MEDIUM_TYPE_FIELD_NUMBER = 26;
+    private com.google.protobuf.LazyStringList mediumType_;
+    /**
+     * <code>repeated string medium_type = 26;</code>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getMediumTypeList() {
+      return mediumType_;
+    }
+    /**
+     * <code>repeated string medium_type = 26;</code>
+     */
+    public int getMediumTypeCount() {
+      return mediumType_.size();
+    }
+    /**
+     * <code>repeated string medium_type = 26;</code>
+     */
+    public java.lang.String getMediumType(int index) {
+      return mediumType_.get(index);
+    }
+    /**
+     * <code>repeated string medium_type = 26;</code>
+     */
+    public com.google.protobuf.ByteString
+        getMediumTypeBytes(int index) {
+      return mediumType_.getByteString(index);
+    }
+
+    public static final int SHOULD_PERSIST_TIME_FIELD_NUMBER = 27;
+    private long shouldPersistTime_;
+    /**
+     * <code>optional int64 should_persist_time = 27;</code>
+     */
+    public boolean hasShouldPersistTime() {
+      return ((bitField0_ & 0x01000000) == 0x01000000);
+    }
+    /**
+     * <code>optional int64 should_persist_time = 27;</code>
+     */
+    public long getShouldPersistTime() {
+      return shouldPersistTime_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -17104,6 +17571,12 @@ public final class File {
       }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
         output.writeBool(1006, encrypted_);
+      }
+      for (int i = 0; i < mediumType_.size(); i++) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 26, mediumType_.getRaw(i));
+      }
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+        output.writeInt64(27, shouldPersistTime_);
       }
       unknownFields.writeTo(output);
     }
@@ -17214,6 +17687,18 @@ public final class File {
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(1006, encrypted_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < mediumType_.size(); i++) {
+          dataSize += computeStringSizeNoTag(mediumType_.getRaw(i));
+        }
+        size += dataSize;
+        size += 2 * getMediumTypeList().size();
+      }
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(27, shouldPersistTime_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -17357,6 +17842,13 @@ public final class File {
         result = result && getPath()
             .equals(other.getPath());
       }
+      result = result && getMediumTypeList()
+          .equals(other.getMediumTypeList());
+      result = result && (hasShouldPersistTime() == other.hasShouldPersistTime());
+      if (hasShouldPersistTime()) {
+        result = result && (getShouldPersistTime()
+            == other.getShouldPersistTime());
+      }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -17484,6 +17976,15 @@ public final class File {
         hash = (37 * hash) + PATH_FIELD_NUMBER;
         hash = (53 * hash) + getPath().hashCode();
       }
+      if (getMediumTypeCount() > 0) {
+        hash = (37 * hash) + MEDIUM_TYPE_FIELD_NUMBER;
+        hash = (53 * hash) + getMediumTypeList().hashCode();
+      }
+      if (hasShouldPersistTime()) {
+        hash = (37 * hash) + SHOULD_PERSIST_TIME_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getShouldPersistTime());
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -17579,7 +18080,7 @@ public final class File {
     }
     /**
      * <pre>
-     * next available id: 26
+     * next available id: 28
      * </pre>
      *
      * Protobuf type {@code alluxio.proto.journal.InodeFileEntry}
@@ -17672,8 +18173,16 @@ public final class File {
         bitField0_ = (bitField0_ & ~0x00800000);
         replicationDurable_ = 0;
         bitField0_ = (bitField0_ & ~0x01000000);
+<<<<<<< HEAD
         path_ = "";
         bitField0_ = (bitField0_ & ~0x02000000);
+||||||| merged common ancestors
+=======
+        mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x02000000);
+        shouldPersistTime_ = 0L;
+        bitField0_ = (bitField0_ & ~0x04000000);
+>>>>>>> upstream-os/master
         return this;
       }
 
@@ -17807,6 +18316,15 @@ public final class File {
           to_bitField0_ |= 0x01000000;
         }
         result.path_ = path_;
+        if (((bitField0_ & 0x02000000) == 0x02000000)) {
+          mediumType_ = mediumType_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x02000000);
+        }
+        result.mediumType_ = mediumType_;
+        if (((from_bitField0_ & 0x04000000) == 0x04000000)) {
+          to_bitField0_ |= 0x01000000;
+        }
+        result.shouldPersistTime_ = shouldPersistTime_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -17947,6 +18465,19 @@ public final class File {
           bitField0_ |= 0x02000000;
           path_ = other.path_;
           onChanged();
+        }
+        if (!other.mediumType_.isEmpty()) {
+          if (mediumType_.isEmpty()) {
+            mediumType_ = other.mediumType_;
+            bitField0_ = (bitField0_ & ~0x02000000);
+          } else {
+            ensureMediumTypeIsMutable();
+            mediumType_.addAll(other.mediumType_);
+          }
+          onChanged();
+        }
+        if (other.hasShouldPersistTime()) {
+          setShouldPersistTime(other.getShouldPersistTime());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -19336,6 +19867,131 @@ public final class File {
   }
   bitField0_ |= 0x02000000;
         path_ = value;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureMediumTypeIsMutable() {
+        if (!((bitField0_ & 0x02000000) == 0x02000000)) {
+          mediumType_ = new com.google.protobuf.LazyStringArrayList(mediumType_);
+          bitField0_ |= 0x02000000;
+         }
+      }
+      /**
+       * <code>repeated string medium_type = 26;</code>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getMediumTypeList() {
+        return mediumType_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string medium_type = 26;</code>
+       */
+      public int getMediumTypeCount() {
+        return mediumType_.size();
+      }
+      /**
+       * <code>repeated string medium_type = 26;</code>
+       */
+      public java.lang.String getMediumType(int index) {
+        return mediumType_.get(index);
+      }
+      /**
+       * <code>repeated string medium_type = 26;</code>
+       */
+      public com.google.protobuf.ByteString
+          getMediumTypeBytes(int index) {
+        return mediumType_.getByteString(index);
+      }
+      /**
+       * <code>repeated string medium_type = 26;</code>
+       */
+      public Builder setMediumType(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureMediumTypeIsMutable();
+        mediumType_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 26;</code>
+       */
+      public Builder addMediumType(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureMediumTypeIsMutable();
+        mediumType_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 26;</code>
+       */
+      public Builder addAllMediumType(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureMediumTypeIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, mediumType_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 26;</code>
+       */
+      public Builder clearMediumType() {
+        mediumType_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x02000000);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string medium_type = 26;</code>
+       */
+      public Builder addMediumTypeBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureMediumTypeIsMutable();
+        mediumType_.add(value);
+        onChanged();
+        return this;
+      }
+
+      private long shouldPersistTime_ ;
+      /**
+       * <code>optional int64 should_persist_time = 27;</code>
+       */
+      public boolean hasShouldPersistTime() {
+        return ((bitField0_ & 0x04000000) == 0x04000000);
+      }
+      /**
+       * <code>optional int64 should_persist_time = 27;</code>
+       */
+      public long getShouldPersistTime() {
+        return shouldPersistTime_;
+      }
+      /**
+       * <code>optional int64 should_persist_time = 27;</code>
+       */
+      public Builder setShouldPersistTime(long value) {
+        bitField0_ |= 0x04000000;
+        shouldPersistTime_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 should_persist_time = 27;</code>
+       */
+      public Builder clearShouldPersistTime() {
+        bitField0_ = (bitField0_ & ~0x04000000);
+        shouldPersistTime_ = 0L;
         onChanged();
         return this;
       }
@@ -30589,6 +31245,7 @@ public final class File {
     java.lang.String[] descriptorData = {
       "\n\030proto/journal/file.proto\022\025alluxio.prot" +
       "o.journal\032\021grpc/common.proto\032\026proto/shar" +
+<<<<<<< HEAD
       "ed/acl.proto\032+proto/security/delegation_" +
       "token_proto.proto\"-\n\017StringPairEntry\022\013\n\003" +
       "key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"6\n\023ActiveSyncTx" +
@@ -30703,6 +31360,211 @@ public final class File {
       "IFY\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016REM" +
       "OVE_DEFAULT\020\004*7\n\007UfsMode\022\r\n\tNO_ACCESS\020\000\022" +
       "\r\n\tREAD_ONLY\020\001\022\016\n\nREAD_WRITE\020\002"
+||||||| merged common ancestors
+      "ed/acl.proto\"-\n\017StringPairEntry\022\013\n\003key\030\001" +
+      " \001(\t\022\r\n\005value\030\002 \001(\t\"6\n\023ActiveSyncTxIdEnt" +
+      "ry\022\020\n\010mount_id\030\001 \001(\003\022\r\n\005tx_id\030\002 \001(\003\"=\n\021A" +
+      "ddSyncPointEntry\022\026\n\016syncpoint_path\030\001 \001(\t" +
+      "\022\020\n\010mount_id\030\002 \001(\003\"@\n\024RemoveSyncPointEnt" +
+      "ry\022\026\n\016syncpoint_path\030\001 \001(\t\022\020\n\010mount_id\030\002" +
+      " \001(\003\"\254\001\n\022AddMountPointEntry\022\024\n\014alluxio_p" +
+      "ath\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022\020\n\010readOnly\030" +
+      "\003 \001(\010\022:\n\nproperties\030\004 \003(\0132&.alluxio.prot" +
+      "o.journal.StringPairEntry\022\016\n\006shared\030\005 \001(" +
+      "\010\022\020\n\010mount_id\030\006 \001(\003\"+\n\030AsyncPersistReque" +
+      "stEntry\022\017\n\007file_id\030\001 \001(\003\"o\n\021CompleteFile" +
+      "Entry\022\021\n\tblock_ids\030\001 \003(\003\022\n\n\002id\030\002 \001(\003\022\016\n\006" +
+      "length\030\003 \001(\003\022\022\n\nop_time_ms\030\004 \001(\003\022\027\n\017ufs_" +
+      "fingerprint\030\005 \001(\t\"g\n\017DeleteFileEntry\022\n\n\002" +
+      "id\030\001 \001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\nop_time_m" +
+      "s\030\003 \001(\003\022\023\n\013alluxioOnly\030\004 \001(\010\022\014\n\004path\030\005 \001" +
+      "(\t\"-\n\025DeleteMountPointEntry\022\024\n\014alluxio_p" +
+      "ath\030\001 \001(\t\"\033\n\rNewBlockEntry\022\n\n\002id\030\001 \001(\003\"\222" +
+      "\003\n\020UpdateInodeEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
+      "t_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_" +
+      "state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_" +
+      "time_ms\030\006 \001(\003\022!\n\031last_modification_time_" +
+      "ms\030\007 \001(\003\022#\n\033overwrite_modification_time\030" +
+      "\010 \001(\010\022\r\n\005owner\030\t \001(\t\022\r\n\005group\030\n \001(\t\022\014\n\004m" +
+      "ode\030\013 \001(\005\022\013\n\003ttl\030\014 \001(\003\022<\n\tttlAction\030\r \001(" +
+      "\0162!.alluxio.proto.journal.PTtlAction:\006DE" +
+      "LETE\0224\n\003acl\030\016 \001(\0132\'.alluxio.proto.shared" +
+      ".AccessControlList\022\027\n\017ufs_fingerprint\030\017 " +
+      "\001(\t\"\231\001\n\031UpdateInodeDirectoryEntry\022\n\n\002id\030" +
+      "\001 \001(\003\022\023\n\013mount_point\030\002 \001(\010\022\036\n\026direct_chi" +
+      "ldren_loaded\030\003 \001(\010\022;\n\ndefaultAcl\030\004 \001(\0132\'" +
+      ".alluxio.proto.shared.AccessControlList\"" +
+      "\365\001\n\024UpdateInodeFileEntry\022\n\n\002id\030\001 \001(\003\022\030\n\020" +
+      "block_size_bytes\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\021" +
+      "\n\tcompleted\030\004 \001(\010\022\021\n\tcacheable\030\005 \001(\010\022\022\n\n" +
+      "set_blocks\030\007 \003(\003\022\027\n\017replication_max\030\010 \001(" +
+      "\005\022\027\n\017replication_min\030\t \001(\005\022\026\n\016persist_jo" +
+      "b_id\030\n \001(\003\022\025\n\rtemp_ufs_path\030\013 \001(\t\022\014\n\004pat" +
+      "h\030\014 \001(\t\"\327\003\n\023InodeDirectoryEntry\022\n\n\002id\030\001 " +
+      "\001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021" +
+      "persistence_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022" +
+      "\030\n\020creation_time_ms\030\006 \001(\003\022!\n\031last_modifi" +
+      "cation_time_ms\030\007 \001(\003\022\r\n\005owner\030\010 \001(\t\022\r\n\005g" +
+      "roup\030\t \001(\t\022\014\n\004mode\030\n \001(\005\022\023\n\013mount_point\030" +
+      "\013 \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\022\013\n" +
+      "\003ttl\030\r \001(\003\022<\n\tttlAction\030\016 \001(\0162!.alluxio." +
+      "proto.journal.PTtlAction:\006DELETE\0224\n\003acl\030" +
+      "\017 \001(\0132\'.alluxio.proto.shared.AccessContr" +
+      "olList\022;\n\ndefaultAcl\030\020 \001(\0132\'.alluxio.pro" +
+      "to.shared.AccessControlList\022\014\n\004path\030\021 \001(" +
+      "\t\"O\n\036InodeDirectoryIdGeneratorEntry\022\024\n\014c" +
+      "ontainer_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001" +
+      "(\003\"\327\004\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tpar" +
+      "ent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistenc" +
+      "e_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creatio" +
+      "n_time_ms\030\006 \001(\003\022!\n\031last_modification_tim" +
+      "e_ms\030\007 \001(\003\022\030\n\020block_size_bytes\030\010 \001(\003\022\016\n\006" +
+      "length\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcache" +
+      "able\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022" +
+      "\r\n\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 " +
+      "\001(\005\022<\n\tttlAction\030\021 \001(\0162!.alluxio.proto.j" +
+      "ournal.PTtlAction:\006DELETE\022\027\n\017ufs_fingerp" +
+      "rint\030\022 \001(\t\0224\n\003acl\030\023 \001(\0132\'.alluxio.proto." +
+      "shared.AccessControlList\022\027\n\017replication_" +
+      "max\030\024 \001(\005\022\027\n\017replication_min\030\025 \001(\005\022\026\n\016pe" +
+      "rsist_job_id\030\026 \001(\003\022\025\n\rtemp_ufs_path\030\027 \001(" +
+      "\t\022\033\n\023replication_durable\030\030 \001(\005\022\014\n\004path\030\031" +
+      " \001(\t\"O\n\036InodeLastModificationTimeEntry\022\n" +
+      "\n\002id\030\001 \001(\003\022!\n\031last_modification_time_ms\030" +
+      "\002 \001(\003\"#\n\025PersistDirectoryEntry\022\n\n\002id\030\001 \001" +
+      "(\003\"B\n\020PersistFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006le" +
+      "ngth\030\002 \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025Reini" +
+      "tializeFileEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_" +
+      "size_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlActi" +
+      "on\030\004 \001(\0162!.alluxio.proto.journal.PTtlAct" +
+      "ion:\006DELETE\"\210\001\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022" +
+      "\020\n\010dst_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\022\025\n" +
+      "\rnew_parent_id\030\004 \001(\003\022\020\n\010new_name\030\005 \001(\t\022\014" +
+      "\n\004path\030\006 \001(\t\022\020\n\010new_path\030\007 \001(\t\"\247\001\n\013SetAc" +
+      "lEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\0224" +
+      "\n\006action\030\003 \001(\0162$.alluxio.proto.journal.P" +
+      "SetAclAction\022/\n\007entries\030\004 \003(\0132\036.alluxio." +
+      "proto.shared.AclEntry\022\021\n\trecursive\030\005 \001(\010" +
+      "\"\311\002\n\021SetAttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop" +
+      "_time_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 " +
+      "\001(\003\022\021\n\tpersisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n" +
+      "\005group\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlA" +
+      "ction\030\t \001(\0162!.alluxio.proto.journal.PTtl" +
+      "Action:\006DELETE\022\027\n\017ufs_fingerprint\030\n \001(\t\022" +
+      "\024\n\014persistJobId\030\013 \001(\003\022\023\n\013tempUfsPath\030\014 \001" +
+      "(\t\022\027\n\017replication_max\030\r \001(\005\022\027\n\017replicati" +
+      "on_min\030\016 \001(\005\"b\n\022UpdateUfsModeEntry\022\017\n\007uf" +
+      "sPath\030\001 \001(\t\022;\n\007ufsMode\030\002 \001(\0162\036.alluxio.p" +
+      "roto.journal.UfsMode:\nREAD_WRITE*\"\n\nPTtl" +
+      "Action\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001*X\n\rPSetAclA" +
+      "ction\022\013\n\007REPLACE\020\000\022\n\n\006MODIFY\020\001\022\n\n\006REMOVE" +
+      "\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016REMOVE_DEFAULT\020\004*7" +
+      "\n\007UfsMode\022\r\n\tNO_ACCESS\020\000\022\r\n\tREAD_ONLY\020\001\022" +
+      "\016\n\nREAD_WRITE\020\002"
+=======
+      "ed/acl.proto\"-\n\017StringPairEntry\022\013\n\003key\030\001" +
+      " \001(\t\022\r\n\005value\030\002 \001(\t\"6\n\023ActiveSyncTxIdEnt" +
+      "ry\022\020\n\010mount_id\030\001 \001(\003\022\r\n\005tx_id\030\002 \001(\003\"=\n\021A" +
+      "ddSyncPointEntry\022\026\n\016syncpoint_path\030\001 \001(\t" +
+      "\022\020\n\010mount_id\030\002 \001(\003\"@\n\024RemoveSyncPointEnt" +
+      "ry\022\026\n\016syncpoint_path\030\001 \001(\t\022\020\n\010mount_id\030\002" +
+      " \001(\003\"\254\001\n\022AddMountPointEntry\022\024\n\014alluxio_p" +
+      "ath\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022\020\n\010readOnly\030" +
+      "\003 \001(\010\022:\n\nproperties\030\004 \003(\0132&.alluxio.prot" +
+      "o.journal.StringPairEntry\022\016\n\006shared\030\005 \001(" +
+      "\010\022\020\n\010mount_id\030\006 \001(\003\"+\n\030AsyncPersistReque" +
+      "stEntry\022\017\n\007file_id\030\001 \001(\003\"o\n\021CompleteFile" +
+      "Entry\022\021\n\tblock_ids\030\001 \003(\003\022\n\n\002id\030\002 \001(\003\022\016\n\006" +
+      "length\030\003 \001(\003\022\022\n\nop_time_ms\030\004 \001(\003\022\027\n\017ufs_" +
+      "fingerprint\030\005 \001(\t\"g\n\017DeleteFileEntry\022\n\n\002" +
+      "id\030\001 \001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\nop_time_m" +
+      "s\030\003 \001(\003\022\023\n\013alluxioOnly\030\004 \001(\010\022\014\n\004path\030\005 \001" +
+      "(\t\"-\n\025DeleteMountPointEntry\022\024\n\014alluxio_p" +
+      "ath\030\001 \001(\t\"\033\n\rNewBlockEntry\022\n\n\002id\030\001 \001(\003\"\247" +
+      "\003\n\020UpdateInodeEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
+      "t_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_" +
+      "state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_" +
+      "time_ms\030\006 \001(\003\022!\n\031last_modification_time_" +
+      "ms\030\007 \001(\003\022#\n\033overwrite_modification_time\030" +
+      "\010 \001(\010\022\r\n\005owner\030\t \001(\t\022\r\n\005group\030\n \001(\t\022\014\n\004m" +
+      "ode\030\013 \001(\005\022\013\n\003ttl\030\014 \001(\003\022<\n\tttlAction\030\r \001(" +
+      "\0162!.alluxio.proto.journal.PTtlAction:\006DE" +
+      "LETE\0224\n\003acl\030\016 \001(\0132\'.alluxio.proto.shared" +
+      ".AccessControlList\022\027\n\017ufs_fingerprint\030\017 " +
+      "\001(\t\022\023\n\013medium_type\030\020 \003(\t\"\231\001\n\031UpdateInode" +
+      "DirectoryEntry\022\n\n\002id\030\001 \001(\003\022\023\n\013mount_poin" +
+      "t\030\002 \001(\010\022\036\n\026direct_children_loaded\030\003 \001(\010\022" +
+      ";\n\ndefaultAcl\030\004 \001(\0132\'.alluxio.proto.shar" +
+      "ed.AccessControlList\"\365\001\n\024UpdateInodeFile" +
+      "Entry\022\n\n\002id\030\001 \001(\003\022\030\n\020block_size_bytes\030\002 " +
+      "\001(\003\022\016\n\006length\030\003 \001(\003\022\021\n\tcompleted\030\004 \001(\010\022\021" +
+      "\n\tcacheable\030\005 \001(\010\022\022\n\nset_blocks\030\007 \003(\003\022\027\n" +
+      "\017replication_max\030\010 \001(\005\022\027\n\017replication_mi" +
+      "n\030\t \001(\005\022\026\n\016persist_job_id\030\n \001(\003\022\025\n\rtemp_" +
+      "ufs_path\030\013 \001(\t\022\014\n\004path\030\014 \001(\t\"\354\003\n\023InodeDi" +
+      "rectoryEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 " +
+      "\001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_state\030\004" +
+      " \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_ms" +
+      "\030\006 \001(\003\022!\n\031last_modification_time_ms\030\007 \001(" +
+      "\003\022\r\n\005owner\030\010 \001(\t\022\r\n\005group\030\t \001(\t\022\014\n\004mode\030" +
+      "\n \001(\005\022\023\n\013mount_point\030\013 \001(\010\022\036\n\026direct_chi" +
+      "ldren_loaded\030\014 \001(\010\022\013\n\003ttl\030\r \001(\003\022<\n\tttlAc" +
+      "tion\030\016 \001(\0162!.alluxio.proto.journal.PTtlA" +
+      "ction:\006DELETE\0224\n\003acl\030\017 \001(\0132\'.alluxio.pro" +
+      "to.shared.AccessControlList\022;\n\ndefaultAc" +
+      "l\030\020 \001(\0132\'.alluxio.proto.shared.AccessCon" +
+      "trolList\022\014\n\004path\030\021 \001(\t\022\023\n\013medium_type\030\022 " +
+      "\003(\t\"O\n\036InodeDirectoryIdGeneratorEntry\022\024\n" +
+      "\014container_id\030\001 \001(\003\022\027\n\017sequence_number\030\002" +
+      " \001(\003\"\211\005\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tp" +
+      "arent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persiste" +
+      "nce_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creat" +
+      "ion_time_ms\030\006 \001(\003\022!\n\031last_modification_t" +
+      "ime_ms\030\007 \001(\003\022\030\n\020block_size_bytes\030\010 \001(\003\022\016" +
+      "\n\006length\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcac" +
+      "heable\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(" +
+      "\003\022\r\n\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030" +
+      "\020 \001(\005\022<\n\tttlAction\030\021 \001(\0162!.alluxio.proto" +
+      ".journal.PTtlAction:\006DELETE\022\027\n\017ufs_finge" +
+      "rprint\030\022 \001(\t\0224\n\003acl\030\023 \001(\0132\'.alluxio.prot" +
+      "o.shared.AccessControlList\022\027\n\017replicatio" +
+      "n_max\030\024 \001(\005\022\027\n\017replication_min\030\025 \001(\005\022\026\n\016" +
+      "persist_job_id\030\026 \001(\003\022\025\n\rtemp_ufs_path\030\027 " +
+      "\001(\t\022\033\n\023replication_durable\030\030 \001(\005\022\014\n\004path" +
+      "\030\031 \001(\t\022\023\n\013medium_type\030\032 \003(\t\022\033\n\023should_pe" +
+      "rsist_time\030\033 \001(\003\"O\n\036InodeLastModificatio" +
+      "nTimeEntry\022\n\n\002id\030\001 \001(\003\022!\n\031last_modificat" +
+      "ion_time_ms\030\002 \001(\003\"#\n\025PersistDirectoryEnt" +
+      "ry\022\n\n\002id\030\001 \001(\003\"B\n\020PersistFileEntry\022\n\n\002id" +
+      "\030\001 \001(\003\022\016\n\006length\030\002 \001(\003\022\022\n\nop_time_ms\030\003 \001" +
+      "(\003\"\212\001\n\025ReinitializeFileEntry\022\014\n\004path\030\001 \001" +
+      "(\t\022\030\n\020block_size_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(" +
+      "\003\022<\n\tttlAction\030\004 \001(\0162!.alluxio.proto.jou" +
+      "rnal.PTtlAction:\006DELETE\"\210\001\n\013RenameEntry\022" +
+      "\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(\t\022\022\n\nop_time" +
+      "_ms\030\003 \001(\003\022\025\n\rnew_parent_id\030\004 \001(\003\022\020\n\010new_" +
+      "name\030\005 \001(\t\022\014\n\004path\030\006 \001(\t\022\020\n\010new_path\030\007 \001" +
+      "(\t\"\247\001\n\013SetAclEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_tim" +
+      "e_ms\030\002 \001(\003\0224\n\006action\030\003 \001(\0162$.alluxio.pro" +
+      "to.journal.PSetAclAction\022/\n\007entries\030\004 \003(" +
+      "\0132\036.alluxio.proto.shared.AclEntry\022\021\n\trec" +
+      "ursive\030\005 \001(\010\"\311\002\n\021SetAttributeEntry\022\n\n\002id" +
+      "\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001" +
+      "(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersisted\030\005 \001(\010\022\r\n\005ow" +
+      "ner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022\n\npermission\030\010" +
+      " \001(\005\022<\n\tttlAction\030\t \001(\0162!.alluxio.proto." +
+      "journal.PTtlAction:\006DELETE\022\027\n\017ufs_finger" +
+      "print\030\n \001(\t\022\024\n\014persistJobId\030\013 \001(\003\022\023\n\013tem" +
+      "pUfsPath\030\014 \001(\t\022\027\n\017replication_max\030\r \001(\005\022" +
+      "\027\n\017replication_min\030\016 \001(\005\"b\n\022UpdateUfsMod" +
+      "eEntry\022\017\n\007ufsPath\030\001 \001(\t\022;\n\007ufsMode\030\002 \001(\016" +
+      "2\036.alluxio.proto.journal.UfsMode:\nREAD_W" +
+      "RITE*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001" +
+      "*X\n\rPSetAclAction\022\013\n\007REPLACE\020\000\022\n\n\006MODIFY" +
+      "\020\001\022\n\n\006REMOVE\020\002\022\016\n\nREMOVE_ALL\020\003\022\022\n\016REMOVE" +
+      "_DEFAULT\020\004*7\n\007UfsMode\022\r\n\tNO_ACCESS\020\000\022\r\n\t" +
+      "READ_ONLY\020\001\022\016\n\nREAD_WRITE\020\002"
+>>>>>>> upstream-os/master
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -30784,7 +31646,7 @@ public final class File {
     internal_static_alluxio_proto_journal_UpdateInodeEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_alluxio_proto_journal_UpdateInodeEntry_descriptor,
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "OverwriteModificationTime", "Owner", "Group", "Mode", "Ttl", "TtlAction", "Acl", "UfsFingerprint", });
+        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "OverwriteModificationTime", "Owner", "Group", "Mode", "Ttl", "TtlAction", "Acl", "UfsFingerprint", "MediumType", });
     internal_static_alluxio_proto_journal_UpdateInodeDirectoryEntry_descriptor =
       getDescriptor().getMessageTypes().get(11);
     internal_static_alluxio_proto_journal_UpdateInodeDirectoryEntry_fieldAccessorTable = new
@@ -30802,7 +31664,7 @@ public final class File {
     internal_static_alluxio_proto_journal_InodeDirectoryEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_alluxio_proto_journal_InodeDirectoryEntry_descriptor,
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "Owner", "Group", "Mode", "MountPoint", "DirectChildrenLoaded", "Ttl", "TtlAction", "Acl", "DefaultAcl", "Path", });
+        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "Owner", "Group", "Mode", "MountPoint", "DirectChildrenLoaded", "Ttl", "TtlAction", "Acl", "DefaultAcl", "Path", "MediumType", });
     internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_descriptor =
       getDescriptor().getMessageTypes().get(14);
     internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_fieldAccessorTable = new
@@ -30814,7 +31676,13 @@ public final class File {
     internal_static_alluxio_proto_journal_InodeFileEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_alluxio_proto_journal_InodeFileEntry_descriptor,
+<<<<<<< HEAD
         new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "Encrypted", "TtlAction", "UfsFingerprint", "Acl", "ReplicationMax", "ReplicationMin", "PersistJobId", "TempUfsPath", "ReplicationDurable", "Path", });
+||||||| merged common ancestors
+        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "TtlAction", "UfsFingerprint", "Acl", "ReplicationMax", "ReplicationMin", "PersistJobId", "TempUfsPath", "ReplicationDurable", "Path", });
+=======
+        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "TtlAction", "UfsFingerprint", "Acl", "ReplicationMax", "ReplicationMin", "PersistJobId", "TempUfsPath", "ReplicationDurable", "Path", "MediumType", "ShouldPersistTime", });
+>>>>>>> upstream-os/master
     internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_descriptor =
       getDescriptor().getMessageTypes().get(16);
     internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_fieldAccessorTable = new
