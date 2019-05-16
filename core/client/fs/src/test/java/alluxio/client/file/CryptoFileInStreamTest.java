@@ -362,7 +362,7 @@ public final class CryptoFileInStreamTest {
   }
 
   @Test
-  public void missingLocationPolicy() {
+  public void missingLocationPolicy() throws IOException {
     try {
       mTestStream = new CryptoFileInStream(mStatus, new InStreamOptions(mStatus, mConf), mContext);
     } catch (NullPointerException e) {

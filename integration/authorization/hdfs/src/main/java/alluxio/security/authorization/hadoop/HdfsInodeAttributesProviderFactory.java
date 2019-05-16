@@ -11,7 +11,6 @@
 
 package alluxio.security.authorization.hadoop;
 
-import alluxio.conf.AlluxioConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.master.file.meta.MountTable;
@@ -35,8 +34,7 @@ public final class HdfsInodeAttributesProviderFactory implements InodeAttributes
       LoggerFactory.getLogger(HdfsInodeAttributesProviderFactory.class);
 
   @Override
-  public InodeAttributesProvider create(String path, @Nullable UnderFileSystemConfiguration conf,
-      AlluxioConfiguration alluxioConf) {
+  public InodeAttributesProvider create(String path, UnderFileSystemConfiguration conf) {
     return new HdfsInodeAttributesProvider(conf);
   }
 

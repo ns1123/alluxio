@@ -114,9 +114,8 @@ public final class ExtensionInodeAttributesProviderTest {
   private AccessControlEnforcer mExternalEnforcer;
   private InodeAttributesProvider mMasterProvider;
   private AccessControlEnforcer mMasterEnforcer;
-  private final UnderFileSystem mTestUfs =
-      new LocalUnderFileSystemFactory().create("/", UnderFileSystemConfiguration.defaults(
-          ServerConfiguration.global()), ServerConfiguration.global());
+  private final UnderFileSystem mTestUfs = new LocalUnderFileSystemFactory().create("/",
+      UnderFileSystemConfiguration.defaults(ServerConfiguration.global()));
   private InodeAttributesProvider mRootUfsProvider;
   private AccessControlEnforcer mRootUfsEnforcer;
   private InodeAttributesProvider mNestedUfsProvider;

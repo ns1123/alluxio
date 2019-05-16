@@ -479,7 +479,18 @@ public final class LoginUser {
         != AuthType.KERBEROS) {
       return null;
     }
-    return getClientUser(conf).getSubject();
+    // TODO(gene) Fix as part of security login refactoring.
+    // return getClientUser(conf).getSubject();
+    alluxio.conf.InstancedConfiguration updatedConf = new alluxio.conf.InstancedConfiguration(conf);
+    if (conf.isSet(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL)) {
+      updatedConf.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
+          conf.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL));
+    }
+    if (conf.isSet(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE)) {
+      updatedConf.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
+          conf.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE));
+    }
+    return login(updatedConf).getSubject();
   }
 
   /**

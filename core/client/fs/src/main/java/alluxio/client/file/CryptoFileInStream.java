@@ -48,8 +48,8 @@ public final class CryptoFileInStream extends FileInStream {
    * @param context file system context
    * @return the created {@link CryptoFileInStream} instance
    */
-  public static CryptoFileInStream create(
-      URIStatus status, InStreamOptions options, FileSystemContext context) {
+  public static CryptoFileInStream create(URIStatus status, InStreamOptions options,
+      FileSystemContext context) throws IOException {
     return new CryptoFileInStream(status, options, context);
   }
 
@@ -61,7 +61,7 @@ public final class CryptoFileInStream extends FileInStream {
    * @param context file system context
    */
   protected CryptoFileInStream(
-      URIStatus status, InStreamOptions options, FileSystemContext context) {
+      URIStatus status, InStreamOptions options, FileSystemContext context) throws IOException {
     super(status, options, context);
     mMeta = options.getEncryptionMeta();
     mLogicalFileLength = LayoutUtils.toLogicalFileLength(mMeta, status.getLength());

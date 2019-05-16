@@ -16,6 +16,7 @@ import alluxio.Constants;
 import alluxio.SyncInfo;
 import alluxio.collections.Pair;
 import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.InstancedConfiguration;
 import alluxio.security.authorization.AccessControlList;
 import alluxio.security.authorization.AclEntry;
 import alluxio.security.authorization.DefaultAccessControlList;
@@ -62,19 +63,16 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
   /** UFS Configuration options. */
   protected final UnderFileSystemConfiguration mUfsConf;
 
-  protected final AlluxioConfiguration mAlluxioConf;
-
   /**
    * Constructs an {@link BaseUnderFileSystem}.
    *
    * @param uri the {@link AlluxioURI} used to create this ufs
    * @param ufsConf UFS configuration
-   * @param alluxioConf Alluxio configuration
    */
-  protected BaseUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf,
-      AlluxioConfiguration alluxioConf) {
+  protected BaseUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf) {
     mUri = Preconditions.checkNotNull(uri, "uri");
     // ALLUXIO CS ADD
+    AlluxioConfiguration alluxioConf = new InstancedConfiguration(ufsConf.copyProperties());
     if (alluxio.util.CommonUtils.isAlluxioServer()) {
       mUser = alluxio.util.SecurityUtils.getOwnerFromGrpcClient(alluxioConf);
       mGroup = alluxio.util.SecurityUtils.getGroupFromGrpcClient(alluxioConf);
@@ -84,7 +82,6 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
     }
     // ALLUXIO CS END
     mUfsConf = Preconditions.checkNotNull(ufsConf, "ufsConf");
-    mAlluxioConf = Preconditions.checkNotNull(alluxioConf, "alluxioConf");
   }
 
   @Override

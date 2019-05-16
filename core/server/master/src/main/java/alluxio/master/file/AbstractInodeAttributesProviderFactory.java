@@ -86,8 +86,7 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
    * @return the provider
    */
   public InodeAttributesProvider create(String path, UnderFileSystemConfiguration ufsConf) {
-    List<InodeAttributesProviderFactory> factories =
-        mExtensionFactory.findAll(path, ufsConf, ServerConfiguration.global());
+    List<InodeAttributesProviderFactory> factories = mExtensionFactory.findAll(path, ufsConf);
     if (factories.isEmpty()) {
       throw new IllegalArgumentException(
           String.format("No InodeAttributesProviderFactory found for: %s", path));
@@ -115,8 +114,7 @@ public class AbstractInodeAttributesProviderFactory implements UfsServiceFactory
         }
         LOG.debug("Attempt to create InodeAttributesProvider for path {} by factory", path,
             factory);
-        InodeAttributesProvider provider = factory.create(path, ufsConf,
-            ServerConfiguration.global());
+        InodeAttributesProvider provider = factory.create(path, ufsConf);
         provider.start();
         return provider;
       } catch (Throwable e) {

@@ -35,13 +35,15 @@ public class HdfsInodeAttributesProviderFactoryTest {
   public void factory() {
     HdfsInodeAttributesProviderFactory factory =
         new HdfsInodeAttributesProviderFactory();
-    UnderFileSystemConfiguration conf = UnderFileSystemConfiguration.defaults()
+    UnderFileSystemConfiguration conf =
+        UnderFileSystemConfiguration.defaults(ServerConfiguration.global())
         .createMountSpecificConf(ImmutableMap.of(
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME.getName(),
             AuthorizationPluginConstants.AUTH_VERSION,
             DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY,
-            DummyHdfsProvider.class.getName()));
-    UnderFileSystemConfiguration invalidConf = UnderFileSystemConfiguration.defaults()
+                DummyHdfsProvider.class.getName()));
+    UnderFileSystemConfiguration invalidConf =
+        UnderFileSystemConfiguration.defaults(ServerConfiguration.global())
         .createMountSpecificConf(ImmutableMap.of(
             PropertyKey.UNDERFS_SECURITY_AUTHORIZATION_PLUGIN_NAME.getName(),
             "invalid-1.0",
@@ -52,8 +54,7 @@ public class HdfsInodeAttributesProviderFactoryTest {
     assertFalse(factory.supportsPath("hdfs://localhost/test/path", invalidConf));
     assertFalse(factory.supportsPath("hdfs://localhost/test/path", null));
     assertFalse(factory.supportsPath("s3a://bucket/test/path", conf));
-    InodeAttributesProvider provider = factory.create("hdfs://localhost/test/path", conf,
-        ServerConfiguration.global());
+    InodeAttributesProvider provider = factory.create("hdfs://localhost/test/path", conf);
     assertNotNull(provider);
   }
 }
