@@ -34,12 +34,6 @@ import javax.security.auth.login.Configuration;
  */
 @ThreadSafe
 public final class LoginModuleConfiguration extends Configuration {
-  // ALLUXIO CS ADD
-  /** The Kerberos principal in string format for login. */
-  private String mPrincipal;
-  /** The Kerberos Keytab file path containing the principal credentials. */
-  private String mKeytab;
-  // ALLUXIO CS END
 
   private static final Map<String, String> EMPTY_JAAS_OPTIONS = new HashMap<>();
 
@@ -77,6 +71,7 @@ public final class LoginModuleConfiguration extends Configuration {
         || appName.equalsIgnoreCase(AuthType.CUSTOM.getAuthName())) {
       return SIMPLE;
     } else if (appName.equalsIgnoreCase(AuthType.KERBEROS.getAuthName())) {
+      throw new UnsupportedOperationException("Kerberos is not supported currently.");
     }
     return null;
   }

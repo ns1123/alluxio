@@ -21,6 +21,7 @@ import alluxio.retry.TimeoutRetry;
 import alluxio.security.MasterKey;
 import alluxio.security.authentication.MasterKeyManager;
 import alluxio.security.capability.SecretKeyWriter;
+import alluxio.security.user.ServerUserState;
 import alluxio.util.IdUtils;
 import alluxio.wire.WorkerInfo;
 
@@ -141,8 +142,9 @@ public class CapabilityKeyManager extends MasterKeyManager {
     MasterKey key = mNewKey == null ? mMasterKey : mNewKey;
     try {
       LOG.debug("Sending key with id {} to worker {}", key.getKeyId(), worker.getAddress());
-      SecretKeyWriter.writeCapabilityKey(new InetSocketAddress(worker.getAddress().getHost(),
-          worker.getAddress().getSecureRpcPort()), key, ServerConfiguration.global());
+      SecretKeyWriter.writeCapabilityKey(ServerUserState.global(),
+          new InetSocketAddress(worker.getAddress().getHost(),
+              worker.getAddress().getSecureRpcPort()), key, ServerConfiguration.global());
     } catch (IOException e) {
       LOG.debug("Retrying to send key with id {} to worker {}, previously failed with: {}",
           key.getKeyId(), worker.getAddress(), e.getMessage());

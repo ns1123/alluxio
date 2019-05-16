@@ -75,7 +75,8 @@ public final class GrpcServerBuilder {
         // ALLUXIO CS REPLACE
         // mAuthenticationServer = new DefaultAuthenticationServer(hostName, mConfiguration);
         // ALLUXIO CS WITH
-        mAuthenticationServer = new EnterpriseAuthenticationServer(hostName, mConfiguration);
+        mAuthenticationServer =
+            new EnterpriseAuthenticationServer(hostName, mConfiguration, mUserState);
         // ALLUXIO CS END
       }
       addService(new GrpcService(mAuthenticationServer).disableAuthentication());

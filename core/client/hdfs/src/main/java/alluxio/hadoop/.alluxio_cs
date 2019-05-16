@@ -1,3 +1,2 @@
 AlluxioDelegationTokenIdentifier.java
 AlluxioDelegationTokenRenewer.java
-HadoopKerberosLoginProvider.java

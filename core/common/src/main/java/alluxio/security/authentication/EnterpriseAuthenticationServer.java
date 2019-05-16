@@ -14,8 +14,8 @@ package alluxio.security.authentication;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.grpc.ChannelAuthenticationScheme;
-import alluxio.security.LoginUser;
 import alluxio.security.authentication.kerberos.SaslServerHandlerKerberos;
+import alluxio.security.user.UserState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,15 +28,22 @@ import javax.security.sasl.SaslException;
 public class EnterpriseAuthenticationServer extends DefaultAuthenticationServer {
   private static final Logger LOG = LoggerFactory.getLogger(EnterpriseAuthenticationServer.class);
 
+  // TODO(gpang): Can we move this class to core/server/common, so it can use ServerUserState?
+  // The user state for the server identity
+  private final UserState mServerUserState;
+
   /**
    * Creates an authentication server for worker process that supports Enterprise authentication
    * schemes.
    *
    * @param hostName host name of the server
    * @param conf Alluxio configuration
+   * @param serverUserState the user state for the server
    */
-  public EnterpriseAuthenticationServer(String hostName, AlluxioConfiguration conf) {
+  public EnterpriseAuthenticationServer(String hostName, AlluxioConfiguration conf,
+      UserState serverUserState) {
     super(hostName, conf);
+    mServerUserState = serverUserState;
   }
 
   @Override
@@ -44,8 +51,8 @@ public class EnterpriseAuthenticationServer extends DefaultAuthenticationServer 
       throws SaslException, UnauthenticatedException {
     switch (authScheme) {
       case KERBEROS:
-        return new SaslServerHandlerKerberos(mHostName,
-            LoginUser.getServerLoginSubject(mConfiguration), mConfiguration);
+        return new SaslServerHandlerKerberos(mHostName, mServerUserState.getSubject(),
+            mConfiguration);
       default:
         return super.createSaslHandler(authScheme);
     }

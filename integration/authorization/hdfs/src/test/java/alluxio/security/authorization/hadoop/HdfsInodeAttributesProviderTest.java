@@ -35,9 +35,11 @@ import alluxio.master.file.ExtensionInodeAttributesProviderTest;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeAttributes;
 import alluxio.master.file.meta.InodeView;
-import alluxio.security.LoginUser;
+import alluxio.security.User;
 import alluxio.security.authorization.Mode;
+import alluxio.security.user.UserState;
 import alluxio.underfs.UnderFileSystemConfiguration;
+import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.collect.ImmutableMap;
@@ -63,6 +65,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import javax.security.auth.Subject;
 
 /**
  * Unit tests for {@link HdfsInodeAttributesProvider}.
@@ -267,7 +271,7 @@ public final class HdfsInodeAttributesProviderTest {
 
     mEnforcer.checkPermission(user, groups, bits, path, inodes, attributes, doCheckOwner);
 
-    String fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
+    String fsOwner = getUser().getName();
     String supergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.getFsAction(bits.toString());
     int ancestorIndex = inodes.size() - 2;
@@ -285,7 +289,7 @@ public final class HdfsInodeAttributesProviderTest {
     String path = "/folder/file";
     List<InodeView> inodes = createInodesForPath(path, 3);
     List<InodeAttributes> attributes = createInodeAttributessForPath(path, 3);
-    String fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
+    String fsOwner = getUser().getName();
     String supergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.getFsAction(bits.toString());
     int ancestorIndex = inodes.size() - 2;
@@ -306,7 +310,7 @@ public final class HdfsInodeAttributesProviderTest {
     List<String> groups = Collections.singletonList("test_group");
     String path = "/folder/file";
     List<InodeView> inodes = createInodesForPath(path, 3);
-    String fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
+    String fsOwner = getUser().getName();
     String supergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.READ;
     INodeAttributeProvider.AccessControlEnforcer fallbackEnforcer =
@@ -325,7 +329,7 @@ public final class HdfsInodeAttributesProviderTest {
     List<String> groups = Collections.singletonList("test_group");
     String path = "/folder/file";
     List<InodeView> inodes = createInodesForPath(path, 3);
-    String fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
+    String fsOwner = getUser().getName();
     String supergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.READ;
     INodeAttributeProvider.AccessControlEnforcer fallbackEnforcer =
@@ -344,7 +348,7 @@ public final class HdfsInodeAttributesProviderTest {
     List<String> groups = Collections.singletonList("test_group");
     String path = "/folder/file";
     List<InodeView> inodes = createInodesForPath(path, 3);
-    String fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
+    String fsOwner = getUser().getName();
     String supergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.READ;
     INodeAttributeProvider.AccessControlEnforcer fallbackEnforcer =
@@ -372,7 +376,7 @@ public final class HdfsInodeAttributesProviderTest {
 
     mEnforcer.checkPermission(user, groups, bits, path, inodes, attributes, doCheckOwner);
 
-    String fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
+    String fsOwner = getUser().getName();
     String supergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.getFsAction(bits.toString());
     int ancestorIndex = inodes.size() - 1;
@@ -388,7 +392,7 @@ public final class HdfsInodeAttributesProviderTest {
     List<String> groups = Collections.singletonList("test_group");
     String path = "/folder/file";
     List<InodeView> inodes = createInodesForPath(path, 2);
-    String fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
+    String fsOwner = getUser().getName();
     String supergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = FsAction.READ;
     INodeAttributeProvider.AccessControlEnforcer fallbackEnforcer =
@@ -494,7 +498,7 @@ public final class HdfsInodeAttributesProviderTest {
 
     mEnforcer.checkPermission(user, groups, bits, path, inodes, attributes, doCheckOwner);
 
-    String fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
+    String fsOwner = getUser().getName();
     String supergroup =
         ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
     FsAction access = null;
@@ -526,5 +530,11 @@ public final class HdfsInodeAttributesProviderTest {
     verify(mDefaultEnforcer).checkPermission(eq(user), eq(groups), eq(bits), eq(path),
         ExtensionInodeAttributesProviderTest.matchInodeList(path),
         ExtensionInodeAttributesProviderTest.matchAttributesList(path), eq(doCheckOwner));
+  }
+
+  public User getUser() throws Exception {
+    UserState subjectState = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.MASTER);
+    return subjectState.getUser();
   }
 }

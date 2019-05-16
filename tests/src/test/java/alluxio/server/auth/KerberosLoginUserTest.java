@@ -14,13 +14,14 @@ package alluxio.server.auth;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.exception.status.UnauthenticatedException;
-import alluxio.hadoop.HadoopKerberosLoginProvider;
-import alluxio.security.LoginUser;
-import alluxio.security.LoginUserTestUtils;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.security.user.HadoopDelegationTokenUserState;
+import alluxio.security.user.HadoopKerberosUserState;
+import alluxio.security.user.UserState;
 import alluxio.testutils.BaseIntegrationTest;
+import alluxio.util.CommonUtils;
 
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -29,13 +30,15 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -63,6 +66,10 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
+    // Add the Hadoop user state factories.
+    UserState.FACTORIES.add(0, new HadoopKerberosUserState.Factory());
+    UserState.FACTORIES.add(0, new HadoopDelegationTokenUserState.Factory());
+
     sWorkDir = FOLDER.getRoot();
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
@@ -76,8 +83,6 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
     sBarKeytab = new File(sWorkDir, "bar.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
     sKdc.createPrincipal(sBarKeytab, "bar/host");
-
-    LoginUserTestUtils.resetLoginUser();
   }
 
   @AfterClass
@@ -90,15 +95,8 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
   @After
   public void after() {
     ServerConfiguration.reset();
-    LoginUserTestUtils.resetLoginUser();
-    LoginUser.setExternalLoginProvider(null);
   }
 
-  /**
-   * Tests the {@link LoginUser} with valid Kerberos principal and keytab.
-   */
-  @Ignore("This won't work post-configuration singleton removal. LoginUser changes will "
-      + "remove/modify this test soon")
   @Test
   public void kerberosLoginUserTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
@@ -107,7 +105,9 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sFooPrincipal);
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sFooKeytab.getPath());
 
-    User loginUser = LoginUser.get(ServerConfiguration.global());
+    UserState s = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.CLIENT);
+    User loginUser = s.getUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());
@@ -115,91 +115,89 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
         loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
   }
 
-  /**
-   * Tests the {@link LoginUser} with valid Kerberos principal and keytab from Hadoop APIs.
-   */
   @Test
   public void kerberosLoginUserWithHadoopTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
     org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
     SecurityUtil.setAuthenticationMethod(
         UserGroupInformation.AuthenticationMethod.KERBEROS, hadoopConf);
     UserGroupInformation.setConfiguration(hadoopConf);
     UserGroupInformation.loginUserFromKeytab(sFooPrincipal, sFooKeytab.getPath());
 
-    User loginUser = LoginUser.getClientUser(ServerConfiguration.global());
+    Subject subject =
+        UserGroupInformation.getLoginUser().doAs((PrivilegedExceptionAction<Subject>) () -> {
+          AccessControlContext context = AccessController.getContext();
+          return Subject.getSubject(context);
+        });
+    Assert.assertNotNull(subject);
+
+    UserState userState = UserState.Factory
+        .create(ServerConfiguration.global(), subject, CommonUtils.ProcessType.CLIENT);
+    User loginUser = userState.getUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());
     Assert.assertEquals("[foo/host@EXAMPLE.COM]",
-        loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+        userState.getSubject().getPrincipals(KerberosPrincipal.class).toString());
   }
 
-  /**
-   * Tests the {@link LoginUser} with invalid keytab file.
-   */
   @Test
   public void kerberosLoginUserWithInvalidKeytabTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, sFooPrincipal);
-    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
         sFooKeytab.getPath() + ".invalid");
+    UserState s = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.CLIENT);
     mThrown.expect(UnauthenticatedException.class);
-    LoginUser.get(ServerConfiguration.global());
+    s.getUser();
   }
 
-  /**
-   * Tests the {@link LoginUser} with non-exsiting principal.
-   */
   @Test
   public void kerberosLoginUserWithNonexistingPrincipalTest() throws Exception {
     String nonexistPrincipal = "nonexist/host@EXAMPLE.COM";
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, nonexistPrincipal);
-    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, sFooKeytab.getPath());
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, nonexistPrincipal);
+    ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sFooKeytab.getPath());
+    UserState s = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.CLIENT);
     mThrown.expect(UnauthenticatedException.class);
-    LoginUser.get(ServerConfiguration.global());
+    s.getUser();
   }
 
-  /**
-   * Tests the {@link LoginUser} with missing Kerberos required constants.
-   */
   @Test
   public void kerberosLoginUserWithMissingConstantsTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
 
     // Login should fail without principal or keytab file present.
+    UserState s = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.CLIENT);
     mThrown.expect(UnauthenticatedException.class);
-    LoginUser.get(ServerConfiguration.global());
+    s.getUser();
   }
 
-  /**
-   * Tests for {@link LoginUser#getClientUser(alluxio.conf.AlluxioConfiguration)} in SIMPLE auth mode.
-   */
   @Test
   public void simpleGetClientTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
     ServerConfiguration.set(PropertyKey.SECURITY_LOGIN_USERNAME, "foo");
 
-    User loginUser = LoginUser.getClientUser(ServerConfiguration.global());
+    UserState userState = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.CLIENT);
+    User loginUser = userState.getUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());
   }
 
-  /**
-   * Tests for {@link LoginUser#getClientUser(alluxio.conf.AlluxioConfiguration)}in KERBEROS auth mode.
-   */
-  @Ignore("This won't work post-configuration singleton removal. LoginUser changes will "
-      + "remove/modify this test soon")
   @Test
   public void kerberosGetClientTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sFooKeytab.getPath());
 
-    User loginUser = LoginUser.getClientUser(ServerConfiguration.global());
+    UserState userState = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.CLIENT);
+    User loginUser = userState.getUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());
@@ -207,57 +205,47 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
         loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
   }
 
-  /**
-   * Tests for {@link LoginUser#getServerUser(alluxio.conf.AlluxioConfiguration)} in SIMPLE auth mode.
-   */
   @Test
   public void simpleGetServerTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
     ServerConfiguration.set(PropertyKey.SECURITY_LOGIN_USERNAME, "bar");
 
-    User loginUser = LoginUser.getServerUser(ServerConfiguration.global());
+    UserState userState = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.MASTER);
+    User loginUser = userState.getUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("bar", loginUser.getName());
   }
 
-  /**
-   * Tests for {@link LoginUser#getClientUser(alluxio.conf.AlluxioConfiguration)}in KERBEROS with
-   * wrong config.
-   */
   @Test
   public void kerberosGetClientWithWrongConfigTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sBarKeytab.getPath());
 
+    UserState userState = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.CLIENT);
     mThrown.expect(UnauthenticatedException.class);
-    LoginUser.getClientUser(ServerConfiguration.global());
+    userState.getUser();
   }
 
-  /**
-   * Tests for {@link LoginUser#getServerUser(alluxio.conf.AlluxioConfiguration)} in KERBEROS auth mode.
-   */
-  @Ignore("This won't work post-configuration singleton removal. LoginUser changes will "
-      + "remove/modify this test soon")
   @Test
   public void kerberosGetServerTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sBarPrincipal);
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sBarKeytab.getPath());
 
-    User loginUser = LoginUser.getServerUser(ServerConfiguration.global());
+    UserState userState = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.MASTER);
+    User loginUser = userState.getUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("bar", loginUser.getName());
     Assert.assertEquals("[bar/host@EXAMPLE.COM]",
-        loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+        userState.getSubject().getPrincipals(KerberosPrincipal.class).toString());
   }
 
-  /**
-   * Tests for {@link LoginUser#getServerUser(alluxio.conf.AlluxioConfiguration)} in KERBEROS
-   * with wrong config.
-   */
   @Test
   public void kerberosGetServerWithWrongConfigTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
@@ -265,57 +253,38 @@ public final class KerberosLoginUserTest extends BaseIntegrationTest {
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sFooKeytab.getPath());
 
     mThrown.expect(UnauthenticatedException.class);
-    LoginUser.getServerUser(ServerConfiguration.global());
+    UserState userState = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.MASTER);
+    userState.getUser();
   }
 
-  /**
-   * Tests for {@link LoginUser#getClientLoginSubject(alluxio.conf.AlluxioConfiguration)} in KERBEROS mode.
-   */
-  @Ignore("This won't work post-configuration singleton removal. LoginUser changes will "
-      + "remove/modify this test soon")
   @Test
   public void kerberosGetClientLoginSubjectTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sFooKeytab.getPath());
 
-    Subject subject = LoginUser.getClientLoginSubject(ServerConfiguration.global());
+    UserState userState = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.CLIENT);
+    Subject subject = userState.getSubject();
 
     Assert.assertNotNull(subject);
     Assert.assertEquals("[foo/host@EXAMPLE.COM]",
         subject.getPrincipals(KerberosPrincipal.class).toString());
   }
 
-  /**
-   * Tests for {@link LoginUser#getServerLoginSubject(alluxio.conf.AlluxioConfiguration)}.
-   */
-  @Ignore("This won't work post-configuration singleton removal. LoginUser changes will "
-      + "remove/modify this test soon")
   @Test
   public void kerberosGetServerLoginSubjectTest() throws Exception {
     ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sBarPrincipal);
     ServerConfiguration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sBarKeytab.getPath());
 
-    Subject subject = LoginUser.getServerLoginSubject(ServerConfiguration.global());
+    UserState userState = UserState.Factory
+        .create(ServerConfiguration.global(), new Subject(), CommonUtils.ProcessType.MASTER);
+    Subject subject = userState.getSubject();
 
     Assert.assertNotNull(subject);
     Assert.assertEquals("[bar/host@EXAMPLE.COM]",
         subject.getPrincipals(KerberosPrincipal.class).toString());
-  }
-
-  /**
-   * Tests for {@link LoginUser#getClientLoginSubject(alluxio.conf.AlluxioConfiguration)} and
-   * {@link LoginUser#getServerLoginSubject(alluxio.conf.AlluxioConfiguration)} in SIMPLE mode.
-   */
-  @Test
-  public void simpleGetLoginSubjectTest() throws Exception {
-    ServerConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-
-    Subject subject = LoginUser.getClientLoginSubject(ServerConfiguration.global());
-    Assert.assertNull(subject);
-
-    subject = LoginUser.getServerLoginSubject(ServerConfiguration.global());
-    Assert.assertNull(subject);
   }
 }

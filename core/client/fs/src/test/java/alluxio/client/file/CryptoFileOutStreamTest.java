@@ -17,9 +17,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
+import alluxio.ClientContext;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
-import alluxio.LoginUserRule;
 import alluxio.client.LayoutUtils;
 import alluxio.client.WriteType;
 import alluxio.client.block.AlluxioBlockStore;
@@ -43,7 +43,6 @@ import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
@@ -68,9 +67,6 @@ import java.util.Map;
 public final class CryptoFileOutStreamTest {
   private InstancedConfiguration mConf = ConfigurationTestUtils.defaults();
 
-  @Rule
-  public LoginUserRule mLoginUser = new LoginUserRule("Test", mConf);
-
   private static final AlluxioURI FILE_NAME = new AlluxioURI("/encrypted_file");
 
   private FileSystemContext mFileSystemContext;
@@ -84,6 +80,7 @@ public final class CryptoFileOutStreamTest {
 
   private EncryptionProto.Meta mMeta;
   private long mBlockLength;
+  private ClientContext mClientContext;
 
   /**
    * Sets up the different contexts and clients before a test runs.
@@ -94,6 +91,8 @@ public final class CryptoFileOutStreamTest {
     mConf.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "256KB");
     GroupMappingServiceTestUtils.resetCache();
     ClientTestUtils.setSmallBufferSizes(mConf);
+
+    mClientContext = ClientContext.create(mConf);
 
     mMeta = EncryptionMetaTestUtils.create(mConf);
     mBlockLength = mMeta.getPhysicalBlockSize();
@@ -110,6 +109,7 @@ public final class CryptoFileOutStreamTest {
     when(mFileSystemMasterClient.getStatus(any(AlluxioURI.class), any(GetStatusPOptions.class)))
         .thenReturn(new URIStatus(new FileInfo()));
     when(mFileSystemContext.getClusterConf()).thenReturn(mConf);
+    when(mFileSystemContext.getClientContext()).thenReturn(mClientContext);
 
     // Return sequentially increasing numbers for new block ids
     when(mFileSystemMasterClient.getNewBlockIdForFile(FILE_NAME))
@@ -151,7 +151,7 @@ public final class CryptoFileOutStreamTest {
             any(WorkerNetAddress.class), any(OutStreamOptions.class))).thenReturn(
         mUnderStorageOutputStream);
 
-    OutStreamOptions options = OutStreamOptions.defaults(mConf)
+    OutStreamOptions options = OutStreamOptions.defaults(mFileSystemContext.getClientContext())
         .setBlockSizeBytes(mMeta.getPhysicalBlockSize())
         .setWriteType(WriteType.CACHE_THROUGH).setUfsPath(FILE_NAME.getPath())
         .setEncrypted(true).setEncryptionMeta(mMeta);

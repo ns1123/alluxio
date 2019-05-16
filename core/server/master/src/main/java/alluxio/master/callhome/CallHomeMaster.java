@@ -119,7 +119,8 @@ public final class CallHomeMaster extends AbstractMaster implements NoopJournale
     LOG.info("Starting {}", getName());
     mCallHomeService = getExecutorService().submit(
         new HeartbeatThread(HeartbeatContext.MASTER_CALL_HOME, new CallHomeExecutor(mMasterProcess),
-            Long.parseLong(CallHomeConstants.CALL_HOME_PERIOD_MS), ServerConfiguration.global()));
+            Long.parseLong(CallHomeConstants.CALL_HOME_PERIOD_MS), ServerConfiguration.global(),
+            mMasterContext.getUserState()));
     LOG.info("{} is started", getName());
   }
 

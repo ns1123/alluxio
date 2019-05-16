@@ -19,11 +19,8 @@ import alluxio.exception.status.UnauthenticatedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.hadoop.AlluxioDelegationTokenIdentifier;
 import alluxio.hadoop.FileSystem;
-import alluxio.hadoop.HadoopKerberosLoginProvider;
 import alluxio.master.LocalAlluxioCluster;
 import alluxio.master.MasterClientContext;
-import alluxio.security.LoginUser;
-import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.testutils.BaseIntegrationTest;
@@ -38,10 +35,8 @@ import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -112,16 +107,6 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     if (sKdc != null) {
       sKdc.stop();
     }
-  }
-
-  @Before
-  public void before() throws Exception {
-    LoginUserTestUtils.resetLoginUser();
-  }
-
-  @After
-  public void after() throws Exception {
-    LoginUserTestUtils.resetLoginUser();
   }
 
   /**
@@ -241,13 +226,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       hdfs.addDelegationTokens("yarn", creds);
 
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      LoginUser.reset();
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
@@ -293,13 +276,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       invalidCreds.addToken(token.getService(),
           new Token<AlluxioDelegationTokenIdentifier>(token.getIdentifier(), "foo".getBytes(),
               token.getKind(), token.getService()));
-      LoginUser.reset();
       tokenUGI.addCredentials(invalidCreds);
 
       // accesses master using delegation token
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
@@ -349,13 +330,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       Assert.assertTrue(expireTime2 > expireTime1);
 
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      LoginUser.reset();
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
@@ -399,13 +378,11 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
           tokens[0].getKind());
 
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
-      LoginUser.reset();
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
@@ -462,7 +439,6 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       // obtains delegation token
       hdfs.addDelegationTokens("yarn", creds);
 
-      LoginUser.reset();
       tokenUGI.addCredentials(creds);
 
       // restart masters
@@ -473,7 +449,6 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       // accesses master using delegation token
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
@@ -515,7 +490,6 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
       tokens[0].renew(hdfsConf);
 
-      LoginUser.reset();
       tokenUGI.addCredentials(creds);
 
       // restart masters
@@ -526,7 +500,6 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       // accesses master using delegation token
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();
@@ -568,7 +541,6 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
 
       tokens[0].cancel(hdfsConf);
 
-      LoginUser.reset();
       tokenUGI.addCredentials(creds);
 
       // restart masters
@@ -579,7 +551,6 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
       // accesses master using delegation token
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // gets a new client
       sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().clearClients();

@@ -19,6 +19,7 @@ import alluxio.security.authentication.DelegationTokenManager;
 import alluxio.security.authentication.EnterpriseAuthenticationServer;
 import alluxio.security.authentication.SaslServerHandler;
 import alluxio.security.authentication.SaslServerHandlerDelegationToken;
+import alluxio.security.user.ServerUserState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class MasterAuthenticationServer extends EnterpriseAuthenticationServer {
    */
   public MasterAuthenticationServer(String hostName, DelegationTokenManager tokenManager,
       AlluxioConfiguration conf) {
-    super(hostName, conf);
+    super(hostName, conf, ServerUserState.global());
     mDelegationTokenManager = tokenManager;
   }
 

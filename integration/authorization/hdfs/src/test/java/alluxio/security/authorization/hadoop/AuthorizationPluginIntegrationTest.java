@@ -18,7 +18,6 @@ import alluxio.AlluxioURI;
 import alluxio.AuthenticatedUserRule;
 import alluxio.ConfigurationRule;
 import alluxio.Constants;
-import alluxio.LoginUserRule;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.conf.Source;
@@ -41,6 +40,7 @@ import alluxio.master.journal.JournalTestUtils;
 import alluxio.master.metrics.MetricsMaster;
 import alluxio.master.metrics.MetricsMasterFactory;
 import alluxio.security.GroupMappingServiceTestUtils;
+import alluxio.security.user.TestUserState;
 import alluxio.util.io.FileUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.WorkerNetAddress;
@@ -86,9 +86,6 @@ public final class AuthorizationPluginIntegrationTest {
   @Rule
   public AuthenticatedUserRule mAuthenticatedUser = new AuthenticatedUserRule(TEST_USER,
       ServerConfiguration.global());
-
-  @Rule
-  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER, ServerConfiguration.global());
 
   @Rule
   public ConfigurationRule mConfigurationRule = new ConfigurationRule(new HashMap() {
@@ -176,7 +173,8 @@ public final class AuthorizationPluginIntegrationTest {
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
     mJournalSystem = JournalTestUtils.createJournalSystem(mJournalFolder);
-    CoreMasterContext masterContext = MasterTestUtils.testMasterContext(mJournalSystem);
+    CoreMasterContext masterContext = MasterTestUtils.testMasterContext(mJournalSystem,
+        new TestUserState(TEST_USER, ServerConfiguration.global()));
     new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, masterContext);
     mMetricsMaster = new MetricsMasterFactory().create(mRegistry, masterContext);
     mRegistry.add(MetricsMaster.class, mMetricsMaster);

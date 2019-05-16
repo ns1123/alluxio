@@ -245,7 +245,7 @@ public abstract class AbstractClient implements Client {
           // If there has been a failure in opening GrpcChannel, it's possible because
           // the authentication credential has expired. Relogin. This is a no-op for
           // authTypes other than KERBEROS.
-          alluxio.security.LoginUser.relogin(mContext.getClusterConf());
+          mContext.getUserState().relogin();
         }
         // ALLUXIO CS END
       }

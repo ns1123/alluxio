@@ -109,7 +109,7 @@ public final class DiagnosticMaster extends AbstractMaster implements NoopJourna
     LOG.info("Starting {}", getName());
     mDiagnosticService = getExecutorService().submit(
         new HeartbeatThread(HeartbeatContext.MASTER_DIAGNOSTIC, new DiagnosticExecutor(mMasterProcess),
-            mIntervalMs, ServerConfiguration.global()));
+            mIntervalMs, ServerConfiguration.global(), mMasterContext.getUserState()));
     LOG.info("{} is started", getName());
   }
 

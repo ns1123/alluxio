@@ -26,10 +26,10 @@ import alluxio.master.file.meta.InodeView;
 import alluxio.master.file.meta.MutableInode;
 import alluxio.proto.journal.Journal;
 import alluxio.proto.meta.InodeMeta;
-import alluxio.security.LoginUser;
 import alluxio.security.authorization.AuthorizationPluginConstants;
 import alluxio.security.authorization.DefaultAccessControlList;
 import alluxio.security.authorization.Mode;
+import alluxio.security.user.ServerUserState;
 import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.FileInfo;
@@ -220,7 +220,7 @@ public class HdfsInodeAttributesProvider implements InodeAttributesProvider {
         throws alluxio.exception.AccessControlException {
       String fsOwner;
       try {
-        fsOwner = LoginUser.getServerUser(ServerConfiguration.global()).getName();
+        fsOwner = ServerUserState.global().getUser().getName();
       } catch (UnauthenticatedException e) {
         throw new IllegalStateException("Failed to obtain login user.", e);
       }

@@ -39,6 +39,10 @@ public interface UserState {
    */
   @SuppressFBWarnings(value = "MS_OOI_PKGPROTECT")
   ArrayList<UserStateFactory> FACTORIES = new ArrayList<>(Arrays.asList(
+      // ALLUXIO CS ADD
+      new JaasKerberosUserState.Factory(),
+      new NativeKerberosUserState.Factory(),
+      // ALLUXIO CS END
       new SimpleUserState.Factory(),
       new NoopUserState.Factory()
   ));

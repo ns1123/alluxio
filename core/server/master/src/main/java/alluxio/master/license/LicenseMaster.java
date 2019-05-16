@@ -144,7 +144,7 @@ public class LicenseMaster extends AbstractMaster {
         new HeartbeatThread(HeartbeatContext.MASTER_LICENSE_CHECK,
             new LicenseCheckExecutor(mBlockMaster, this),
             Long.parseLong(LicenseConstants.LICENSE_CHECK_PERIOD_MS),
-            ServerConfiguration.global()));
+            ServerConfiguration.global(), mMasterContext.getUserState()));
     LOG.info("{} is started", getName());
   }
 

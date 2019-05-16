@@ -15,6 +15,7 @@ import alluxio.conf.ServerConfiguration;
 import alluxio.grpc.GrpcServer;
 import alluxio.grpc.GrpcServerBuilder;
 import alluxio.grpc.GrpcService;
+import alluxio.security.user.ServerUserState;
 import alluxio.util.network.SSLUtils;
 import alluxio.worker.WorkerProcess;
 
@@ -57,7 +58,8 @@ public final class SecureRpcServer {
   }
 
   private GrpcServerBuilder createServerBuilder(String hostName, SocketAddress bindAddress) {
-    return GrpcServerBuilder.forAddress(hostName, bindAddress, ServerConfiguration.global())
+    return GrpcServerBuilder.forAddress(hostName, bindAddress, ServerConfiguration.global(),
+        ServerUserState.global())
         .sslContext(SSLUtils.getSelfSignedServerSslContext());
   }
 

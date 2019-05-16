@@ -151,7 +151,6 @@ public final class LocalAlluxioClusterResource implements TestRule {
     mLocalAlluxioCluster.initConfiguration();
     // ALLUXIO CS ADD
     alluxio.security.authentication.AuthenticatedClientUser.remove();
-    alluxio.security.LoginUserTestUtils.resetLoginUser();
     // ALLUXIO CS END
     // Overwrite the test configuration with test specific parameters
     for (Entry<PropertyKey, String> entry : mConfiguration.entrySet()) {

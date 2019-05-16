@@ -20,6 +20,7 @@ import alluxio.grpc.SecureRpcMasterServiceGrpc;
 import alluxio.grpc.WriteSecretKeyPRequest;
 import alluxio.proto.security.Key;
 import alluxio.security.MasterKey;
+import alluxio.security.user.UserState;
 import alluxio.util.network.SSLUtils;
 import alluxio.util.proto.ProtoUtils;
 
@@ -35,14 +36,16 @@ public class SecretKeyWriter {
   /**
    * Writes a new capability key to a given address.
    *
+   * @param serverUserState the user state for the server
    * @param address target host address
    * @param capabilityKey the capability key
    * @param conf Alluxio configuration
    * @throws AlluxioStatusException
    */
-  public static synchronized void writeCapabilityKey(InetSocketAddress address,
+  public static synchronized void writeCapabilityKey(UserState serverUserState,
+      InetSocketAddress address,
       MasterKey capabilityKey, AlluxioConfiguration conf) throws AlluxioStatusException {
-    GrpcChannel secureChannel = buildSecureChannel(address, conf);
+    GrpcChannel secureChannel = buildSecureChannel(serverUserState, address, conf);
     try {
       // Create a gRPC stub for contacting the host via secured channel.
       SecureRpcMasterServiceGrpc.SecureRpcMasterServiceBlockingStub client =
@@ -65,10 +68,11 @@ public class SecretKeyWriter {
     }
   }
 
-  private static GrpcChannel buildSecureChannel(InetSocketAddress address,
-      AlluxioConfiguration conf) throws AlluxioStatusException {
+  private static GrpcChannel buildSecureChannel(UserState serverUserState,
+      InetSocketAddress address, AlluxioConfiguration conf) throws AlluxioStatusException {
     // Create a gRPC channel with Ssl context.
     return GrpcChannelBuilder.newBuilder(new GrpcServerAddress(address), conf)
+        .setSubject(serverUserState.getSubject())
         .sslContext(SSLUtils.getSelfSignedClientSslContext()).build();
   }
 }

@@ -22,10 +22,7 @@ import alluxio.exception.status.UnavailableException;
 import alluxio.hadoop.AlluxioDelegationTokenIdentifier;
 import alluxio.hadoop.FileSystem;
 import alluxio.hadoop.HadoopClientTestUtils;
-import alluxio.hadoop.HadoopKerberosLoginProvider;
 import alluxio.master.MultiMasterLocalAlluxioCluster;
-import alluxio.security.LoginUser;
-import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.testutils.BaseIntegrationTest;
@@ -123,13 +120,10 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
   @After
   public final void after() throws Exception {
     mMultiMasterLocalAlluxioCluster.stop();
-
-    LoginUserTestUtils.resetLoginUser();
   }
 
   @Before
   public final void before() throws Exception {
-    LoginUserTestUtils.resetLoginUser();
     mMultiMasterLocalAlluxioCluster =
         new MultiMasterLocalAlluxioCluster(MASTERS);
     mMultiMasterLocalAlluxioCluster.initConfiguration();
@@ -171,13 +165,11 @@ public class DelegationTokenFaultToleranceIntegrationTest extends BaseIntegratio
 
       tokens[0].renew(hdfsConf);
 
-      LoginUser.reset();
       tokenUGI.addCredentials(creds);
 
       // accesses master using delegation token
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
       ServerConfiguration.unset(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-      LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
 
       // kills leaders one by one and uses delegation token after each fail over
       for (int kills = 0; kills < MASTERS - 1; kills++) {
