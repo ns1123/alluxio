@@ -33,7 +33,7 @@ import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.SetAttributePOptions;
 import alluxio.master.MasterInquireClient.Factory;
-import alluxio.security.User;
+import alluxio.security.CurrentUser;
 import alluxio.security.authorization.Mode;
 import alluxio.uri.Authority;
 import alluxio.uri.MultiMasterAuthority;
@@ -62,7 +62,9 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.security.Principal;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -86,11 +88,17 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileSystem.class);
 
   public static final String FIRST_COM_PATH = "alluxio_dep/";
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   //// BLOCK_REPLICATION_CONSTANT is not used in AEE.
   // ALLUXIO CS END
   // Always tell Hadoop that we have 3x replication.
   private static final int BLOCK_REPLICATION_CONSTANT = 3;
+||||||| merged common ancestors
+  // Always tell Hadoop that we have 3x replication.
+  private static final int BLOCK_REPLICATION_CONSTANT = 3;
+=======
+>>>>>>> aos/master
 
   protected FileSystem mFileSystem = null;
 
@@ -499,6 +507,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
         (alluxioConfiguration != null) ? alluxioConfiguration.copyProperties()
             : ConfigurationUtils.defaults();
     AlluxioConfiguration alluxioConf = mergeConfigurations(uriConfProperties, conf, alluxioProps);
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // Subject subject = getHadoopSubject();
     // ALLUXIO CS WITH
@@ -531,6 +540,17 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       LOG.warn("unable to populate Alluxio tokens.", e);
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+    Subject subject = getHadoopSubject();
+    if (subject != null) {
+      LOG.debug("Using Hadoop subject: {}", subject);
+    } else {
+      LOG.debug("No Hadoop subject. Using context without subject.");
+    }
+=======
+    Subject subject = getHadoopSubject();
+    LOG.debug("Using Hadoop subject: {}", subject);
+>>>>>>> aos/master
 
     LOG.info("Initializing filesystem with connect details {}",
         Factory.getConnectDetails(alluxioConf));
@@ -606,9 +626,19 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   }
   // ALLUXIO CS END
 
+  private Subject getSubjectFromUGI(UserGroupInformation ugi)
+      throws IOException, InterruptedException {
+    return ugi.doAs((PrivilegedExceptionAction<Subject>) () -> {
+      AccessControlContext context = AccessController.getContext();
+      return Subject.getSubject(context);
+    });
+  }
+
   /**
-   * @return the hadoop subject if exists, null if not exist
+   * @return hadoop UGI's subject, or a fresh subject if the Hadoop UGI does not exist
+   * @throws IOException if there is an exception when accessing the subject in Hadoop UGI
    */
+<<<<<<< HEAD
   @Nullable
   // ALLUXIO CS REPLACE
   // private Subject getHadoopSubject() {
@@ -629,7 +659,16 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   // ALLUXIO CS WITH
   // TODO(zac) Find a way to not use CS REPLACE on the whole method
   private Subject getHadoopSubject(AlluxioConfiguration conf) {
+||||||| merged common ancestors
+  @Nullable
+  private Subject getHadoopSubject() {
+=======
+  private Subject getHadoopSubject() throws IOException {
+    Subject subject = null;
+    UserGroupInformation ugi = null;
+>>>>>>> aos/master
     try {
+<<<<<<< HEAD
       UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
       String username = ugi.getShortUserName();
       if (username != null && !username.isEmpty()) {
@@ -654,7 +693,34 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       return null;
     } catch (IOException e) {
       return null;
+||||||| merged common ancestors
+      UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+      String username = ugi.getShortUserName();
+      if (username != null && !username.isEmpty()) {
+        User user = new User(ugi.getShortUserName());
+        HashSet<Principal> principals = new HashSet<>();
+        principals.add(user);
+        return new Subject(false, principals, new HashSet<>(), new HashSet<>());
+      }
+      return null;
+    } catch (IOException e) {
+      return null;
+=======
+      ugi = UserGroupInformation.getCurrentUser();
+      subject = getSubjectFromUGI(ugi);
+    } catch (Exception e) {
+      throw new IOException(
+          String.format("Failed to get Hadoop subject for the Alluxio client. ugi: %s", ugi), e);
     }
+    if (subject == null) {
+      LOG.warn("Hadoop subject does not exist. Creating a fresh subject for Alluxio client");
+      subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
+    }
+    if (subject.getPrincipals(CurrentUser.class).isEmpty() && ugi != null) {
+      subject.getPrincipals().add(new CurrentUser(ugi.getShortUserName(), mUri.toString()));
+>>>>>>> aos/master
+    }
+    return subject;
   }
   // ALLUXIO CS END
 

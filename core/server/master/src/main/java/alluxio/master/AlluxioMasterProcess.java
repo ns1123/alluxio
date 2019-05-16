@@ -25,6 +25,7 @@ import alluxio.master.journal.raft.RaftJournalSystem;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.metrics.sink.PrometheusMetricsServlet;
+import alluxio.security.user.ServerUserState;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.util.CommonUtils.ProcessType;
@@ -297,6 +298,7 @@ public class AlluxioMasterProcess extends MasterProcess {
     try {
       stopRejectingRpcServer();
       LOG.info("Starting gRPC server on address {}", mRpcBindAddress);
+<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(
       //     mRpcConnectAddress.getHostName(), mRpcBindAddress, ServerConfiguration.global());
@@ -307,6 +309,14 @@ public class AlluxioMasterProcess extends MasterProcess {
                   mDelegationTokenManager, ServerConfiguration.global()),
               ServerConfiguration.global());
       // ALLUXIO CS END
+||||||| merged common ancestors
+      GrpcServerBuilder serverBuilder = GrpcServerBuilder.forAddress(
+          mRpcConnectAddress.getHostName(), mRpcBindAddress, ServerConfiguration.global());
+=======
+      GrpcServerBuilder serverBuilder = GrpcServerBuilder
+          .forAddress(mRpcConnectAddress.getHostName(), mRpcBindAddress,
+              ServerConfiguration.global(), ServerUserState.global());
+>>>>>>> aos/master
 
       mRPCExecutor = new ForkJoinPool(
           ServerConfiguration.getInt(PropertyKey.MASTER_EXECUTOR_PARALLELISM),
