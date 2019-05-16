@@ -105,7 +105,20 @@ public interface WriteRequestCommandOrBuilder extends
    * <code>optional .alluxio.proto.dataserver.CreateUfsBlockOptions create_ufs_block_options = 7;</code>
    */
   alluxio.proto.dataserver.Protocol.CreateUfsBlockOptionsOrBuilder getCreateUfsBlockOptionsOrBuilder();
-<<<<<<< HEAD
+
+  /**
+   * <code>optional string medium_type = 8;</code>
+   */
+  boolean hasMediumType();
+  /**
+   * <code>optional string medium_type = 8;</code>
+   */
+  java.lang.String getMediumType();
+  /**
+   * <code>optional string medium_type = 8;</code>
+   */
+  com.google.protobuf.ByteString
+      getMediumTypeBytes();
 
   /**
    * <pre>
@@ -131,21 +144,4 @@ public interface WriteRequestCommandOrBuilder extends
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
    */
   alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
-||||||| merged common ancestors
-=======
-
-  /**
-   * <code>optional string medium_type = 8;</code>
-   */
-  boolean hasMediumType();
-  /**
-   * <code>optional string medium_type = 8;</code>
-   */
-  java.lang.String getMediumType();
-  /**
-   * <code>optional string medium_type = 8;</code>
-   */
-  com.google.protobuf.ByteString
-      getMediumTypeBytes();
->>>>>>> upstream-os/master
 }

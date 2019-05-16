@@ -1105,7 +1105,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
-  public boolean supportsFlush() {
+  public boolean supportsFlush() throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
     for (Pair<String, UnderFileSystem> entry : mUnderFileSystems.values()) {
       result.set(result.get() && entry.getValue().supportsFlush());

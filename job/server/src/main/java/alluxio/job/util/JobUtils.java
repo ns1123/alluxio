@@ -148,7 +148,6 @@ public final class JobUtils {
         LocalFirstPolicy.class.getCanonicalName(), conf));
 
     OutStreamOptions outOptions = OutStreamOptions.defaults(conf);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       inOptions.setCapabilityFetcher(
@@ -159,10 +158,7 @@ public final class JobUtils {
               status.getCapability()));
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     outOptions.setMediumType(medium);
->>>>>>> upstream-os/master
     // Set write location policy always to local first for loading blocks for job tasks
     outOptions.setLocationPolicy(BlockLocationPolicy.Factory.create(
         LocalFirstPolicy.class.getCanonicalName(), conf));

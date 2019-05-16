@@ -59,7 +59,20 @@ public interface CreateLocalBlockRequestOrBuilder extends
    * <code>optional bool cleanup_on_failure = 6;</code>
    */
   boolean getCleanupOnFailure();
-<<<<<<< HEAD
+
+  /**
+   * <code>optional string medium_type = 7;</code>
+   */
+  boolean hasMediumType();
+  /**
+   * <code>optional string medium_type = 7;</code>
+   */
+  java.lang.String getMediumType();
+  /**
+   * <code>optional string medium_type = 7;</code>
+   */
+  com.google.protobuf.ByteString
+      getMediumTypeBytes();
 
   /**
    * <pre>
@@ -85,21 +98,4 @@ public interface CreateLocalBlockRequestOrBuilder extends
    * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
    */
   alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
-||||||| merged common ancestors
-=======
-
-  /**
-   * <code>optional string medium_type = 7;</code>
-   */
-  boolean hasMediumType();
-  /**
-   * <code>optional string medium_type = 7;</code>
-   */
-  java.lang.String getMediumType();
-  /**
-   * <code>optional string medium_type = 7;</code>
-   */
-  com.google.protobuf.ByteString
-      getMediumTypeBytes();
->>>>>>> upstream-os/master
 }

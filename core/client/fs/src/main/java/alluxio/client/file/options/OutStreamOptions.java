@@ -133,14 +133,11 @@ public final class OutStreamOptions {
     mReplicationDurable = alluxioConf.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = alluxioConf.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = alluxioConf.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
-<<<<<<< HEAD
+    mMediumType = "";
     // ALLUXIO CS ADD
     mEncrypted = false;
     mEncryptionMeta = null;
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-    mMediumType = "";
   }
 
   /**
@@ -148,7 +145,6 @@ public final class OutStreamOptions {
    */
   public String getMediumType() {
     return mMediumType;
->>>>>>> upstream-os/master
   }
 
   /**
