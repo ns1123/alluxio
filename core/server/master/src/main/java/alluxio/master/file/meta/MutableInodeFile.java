@@ -30,6 +30,7 @@ import alluxio.wire.FileInfo;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -47,6 +48,7 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
   private boolean mCompleted;
   private long mLength;
   private long mPersistJobId;
+  private long mShouldPersistTime;
   private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
@@ -69,6 +71,7 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
     mCompleted = false;
     mLength = 0;
     mPersistJobId = Constants.PERSISTENCE_INVALID_JOB_ID;
+    mShouldPersistTime = 0;
     mReplicationDurable = 0;
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
@@ -97,6 +100,7 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
     ret.setCacheable(isCacheable());
     ret.setFolder(isDirectory());
     ret.setPinned(isPinned());
+    ret.setMediumTypes(getMediumTypes());
     ret.setCompleted(isCompleted());
     ret.setPersisted(isPersisted());
     ret.setBlockIds(getBlockIds());
@@ -171,6 +175,11 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
   @Override
   public long getPersistJobId() {
     return mPersistJobId;
+  }
+
+  @Override
+  public long getShouldPersistTime() {
+    return mShouldPersistTime;
   }
 
   @Override
@@ -271,6 +280,15 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
   }
 
   /**
+   * @param shouldPersistTime the time that this file should start persisting
+   * @return the updated object
+   */
+  public MutableInodeFile setShouldPersistTime(long shouldPersistTime) {
+    mShouldPersistTime = shouldPersistTime;
+    return getThis();
+  }
+
+  /**
    * @param replicationDurable the durable number of block replication
    * @return the updated object
    */
@@ -366,6 +384,7 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
         .add("cacheable", mCacheable)
         .add("completed", mCompleted)
         .add("persistJobId", mPersistJobId)
+        .add("persistenceWaitTime", mShouldPersistTime)
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
@@ -394,6 +413,7 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
         .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
         .setPinned(entry.getPinned())
         .setPersistJobId(entry.getPersistJobId())
+        .setShouldPersistTime(entry.getShouldPersistTime())
         .setReplicationDurable(entry.getReplicationDurable())
         .setReplicationMax(entry.getReplicationMax())
         .setReplicationMin(entry.getReplicationMin())
@@ -413,6 +433,8 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
       acl.setMode(mode);
       ret.mAcl = acl;
     }
+
+    ret.setMediumTypes(new HashSet<>(entry.getMediumTypeList()));
     return ret;
   }
 
@@ -451,7 +473,10 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
         .setEncrypted(context.isEncrypted())
         // ALLUXIO CS END
         .setPersistenceState(context.isPersisted() ? PersistenceState.PERSISTED
-            : PersistenceState.NOT_PERSISTED);
+            : PersistenceState.NOT_PERSISTED)
+        .setShouldPersistTime(options.getPersistenceWaitTime() == Constants.NO_AUTO_PERSIST
+            ? Constants.NO_AUTO_PERSIST :
+            System.currentTimeMillis() + options.getPersistenceWaitTime());
   }
 
   @Override
@@ -478,6 +503,7 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
         .setTtlAction(ProtobufUtils.toProtobuf(getTtlAction()))
         .setUfsFingerprint(getUfsFingerprint())
         .setAcl(ProtoUtils.toProto(mAcl))
+        .addAllMediumType(getMediumTypes())
         .build();
     return JournalEntry.newBuilder().setInodeFile(inodeFile).build();
   }
@@ -529,6 +555,8 @@ public final class MutableInodeFile extends MutableInode<MutableInodeFile>
         .setReplicationMax(inode.getReplicationMax())
         .setReplicationMin(inode.getReplicationMin())
         .setPersistJobId(inode.getPersistJobId())
-        .setTempUfsPath(inode.getPersistJobTempUfsPath());
+        .setShouldPersistTime(inode.getShouldPersistTime())
+        .setTempUfsPath(inode.getPersistJobTempUfsPath())
+        .setMediumTypes(new HashSet<>(inode.getMediumTypeList()));
   }
 }

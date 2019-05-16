@@ -174,6 +174,7 @@ public class BlockWorkerTest {
     long sessionId = mRandom.nextLong();
     long usedBytes = mRandom.nextLong();
     String tierAlias = "MEM";
+    String mediumType = "MEM";
     HashMap<String, Long> usedBytesOnTiers = new HashMap<>();
     usedBytesOnTiers.put(tierAlias, usedBytes);
     BlockMeta blockMeta = PowerMockito.mock(BlockMeta.class);
@@ -184,14 +185,16 @@ public class BlockWorkerTest {
     when(mBlockStore.getBlockMeta(sessionId, blockId, lockId)).thenReturn(blockMeta);
     when(mBlockStore.getBlockStoreMeta()).thenReturn(blockStoreMeta);
     when(mBlockStore.getBlockStoreMetaFull()).thenReturn(blockStoreMeta);
+
     when(blockMeta.getBlockLocation()).thenReturn(blockStoreLocation);
     when(blockStoreLocation.tierAlias()).thenReturn(tierAlias);
+    when(blockStoreLocation.mediumType()).thenReturn(mediumType);
     when(blockMeta.getBlockSize()).thenReturn(length);
     when(blockStoreMeta.getUsedBytesOnTiers()).thenReturn(usedBytesOnTiers);
 
     mBlockWorker.commitBlock(sessionId, blockId);
-    verify(mBlockMasterClient).commitBlock(anyLong(), eq(usedBytes), eq(tierAlias), eq(blockId),
-        eq(length));
+    verify(mBlockMasterClient).commitBlock(anyLong(), eq(usedBytes), eq(tierAlias), eq(mediumType),
+        eq(blockId), eq(length));
     verify(mBlockStore).unlockBlock(lockId);
   }
 
@@ -226,7 +229,7 @@ public class BlockWorkerTest {
   }
 
   /**
-   * Tests the {@link BlockWorker#createBlock(long, long, String, long)} method.
+   * Tests the {@link BlockWorker#createBlock(long, long, String, String, long)} method.
    */
   @Test
   public void createBlock() throws Exception {
@@ -243,12 +246,12 @@ public class BlockWorkerTest {
     assertEquals(
         PathUtils.concatPath("/tmp", ".tmp_blocks", sessionId % 1024,
             String.format("%x-%x", sessionId, blockId)),
-        mBlockWorker.createBlock(sessionId, blockId, tierAlias, initialBytes));
+        mBlockWorker.createBlock(sessionId, blockId, tierAlias, "", initialBytes));
   }
 
   /**
-   * Tests the {@link BlockWorker#createBlock(long, long, String, long)} method with a tier other
-   * than MEM.
+   * Tests the {@link BlockWorker#createBlock(long, long, String, String,  long)} method with
+   * a tier other than MEM.
    */
   @Test
   public void createBlockLowerTier() throws Exception {
@@ -265,11 +268,11 @@ public class BlockWorkerTest {
     assertEquals(
         PathUtils.concatPath("/tmp", ".tmp_blocks", sessionId % 1024,
             String.format("%x-%x", sessionId, blockId)),
-        mBlockWorker.createBlock(sessionId, blockId, tierAlias, initialBytes));
+        mBlockWorker.createBlock(sessionId, blockId, tierAlias, "", initialBytes));
   }
 
   /**
-   * Tests the {@link BlockWorker#createBlockRemote(long, long, String, long)} method.
+   * Tests the {@link BlockWorker#createBlockRemote(long, long, String, String, long)} method.
    */
   @Test
   public void createBlockRemote() throws Exception {
@@ -286,7 +289,7 @@ public class BlockWorkerTest {
     assertEquals(
         PathUtils.concatPath("/tmp", ".tmp_blocks", sessionId % 1024,
             String.format("%x-%x", sessionId, blockId)),
-        mBlockWorker.createBlock(sessionId, blockId, tierAlias, initialBytes));
+        mBlockWorker.createBlock(sessionId, blockId, tierAlias, "", initialBytes));
   }
 
   /**
