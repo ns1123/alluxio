@@ -15,7 +15,6 @@ import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.SyncInfo;
 import alluxio.conf.AlluxioConfiguration;
-import alluxio.conf.InstancedConfiguration;
 import alluxio.conf.PropertyKey;
 import alluxio.collections.Pair;
 import alluxio.retry.CountingRetry;
@@ -889,8 +888,8 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
         Boolean.valueOf(mUfsConf.get(PropertyKey.SECURITY_UNDERFS_HDFS_IMPERSONATION_ENABLED));
     String user = HDFS_USER;
     if (isImpersonationEnabled) {
-      user = alluxio.util.SecurityUtils
-          .getOwnerFromGrpcClient(new InstancedConfiguration(mUfsConf.copyProperties()));
+      user = alluxio.util.SecurityUtils.getOwnerFromGrpcClient(
+          new alluxio.conf.InstancedConfiguration(mUfsConf.copyProperties()));
     }
     // ALLUXIO CS END
     try {
