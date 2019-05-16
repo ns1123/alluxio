@@ -12,13 +12,13 @@
 package alluxio.security.authentication;
 
 import alluxio.conf.InstancedConfiguration;
+import alluxio.conf.PropertyKey;
 import alluxio.grpc.GrpcChannelBuilder;
 import alluxio.grpc.GrpcServer;
 import alluxio.grpc.GrpcServerAddress;
 import alluxio.grpc.GrpcServerBuilder;
-import alluxio.conf.PropertyKey;
-import alluxio.security.LoginUserTestUtils;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.security.user.UserState;
 import alluxio.util.ConfigurationUtils;
 import alluxio.util.ShellUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -78,7 +78,6 @@ public class GrpcKerberosSecurityTest {
     String hostName = NetworkAddressUtils.getLocalHostName(
         (int) mConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS));
 
-    LoginUserTestUtils.resetLoginUser();
     // Set server-side and client-side Kerberos configuration for Netty authentication.
     mConfiguration.set(PropertyKey.TEST_MODE, "true");
     mConfiguration.set(PropertyKey.MASTER_HOSTNAME, hostName);
@@ -136,8 +135,10 @@ public class GrpcKerberosSecurityTest {
     GrpcServer server = createServer(AuthType.KERBEROS);
     server.start();
 
+    UserState us = UserState.Factory.create(mConfiguration);
     GrpcChannelBuilder channelBuilder =
-        GrpcChannelBuilder.newBuilder(getServerConnectAddress(server), mConfiguration);
+        GrpcChannelBuilder.newBuilder(getServerConnectAddress(server), mConfiguration)
+            .setSubject(us.getSubject());
     channelBuilder.build();
     server.shutdown();
   }
@@ -153,8 +154,9 @@ public class GrpcKerberosSecurityTest {
     mConfiguration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, authType.name());
     InetSocketAddress bindAddress = new InetSocketAddress(NetworkAddressUtils.getLocalHostName(
         (int) mConfiguration.getMs(PropertyKey.NETWORK_HOST_RESOLUTION_TIMEOUT_MS)), 0);
+    UserState us = UserState.Factory.create(mConfiguration);
     GrpcServerBuilder serverBuilder =
-        GrpcServerBuilder.forAddress("localhost", bindAddress, mConfiguration);
+        GrpcServerBuilder.forAddress("localhost", bindAddress, mConfiguration, us);
     return serverBuilder.build();
   }
 

@@ -20,7 +20,6 @@ import alluxio.exception.status.PermissionDeniedException;
 import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.WritePType;
-import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authorization.Mode;
 import alluxio.security.minikdc.MiniKdc;
@@ -31,10 +30,8 @@ import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -79,16 +76,6 @@ public final class DataAuthorizationKerberosNegativeIntegrationTest extends Base
     if (sKdc != null) {
       sKdc.stop();
     }
-  }
-
-  @Before
-  public void before() throws Exception {
-    LoginUserTestUtils.resetLoginUser();
-  }
-
-  @After
-  public void after() throws Exception {
-    LoginUserTestUtils.resetLoginUser();
   }
 
   @Test

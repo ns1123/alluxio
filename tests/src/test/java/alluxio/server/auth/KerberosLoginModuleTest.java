@@ -12,7 +12,7 @@
 package alluxio.server.auth;
 
 import alluxio.conf.ServerConfiguration;
-import alluxio.security.LoginUserTestUtils;
+import alluxio.security.login.KerberosLoginConfiguration;
 import alluxio.security.login.LoginModuleConfiguration;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.testutils.BaseIntegrationTest;
@@ -32,6 +32,7 @@ import java.util.HashSet;
 
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -82,7 +83,6 @@ public final class KerberosLoginModuleTest extends BaseIntegrationTest {
 
   public void after() throws Exception {
     ServerConfiguration.reset();
-    LoginUserTestUtils.resetLoginUser();
   }
 
   /**
@@ -93,7 +93,7 @@ public final class KerberosLoginModuleTest extends BaseIntegrationTest {
     Subject subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(sFooPrincipal)),
         new HashSet<>(), new HashSet<>());
     // Create Kerberos login configuration with principal and keytab file.
-    LoginModuleConfiguration loginConf = new LoginModuleConfiguration(
+    Configuration loginConf = new KerberosLoginConfiguration(
         sFooPrincipal, sFooKeytab.getPath());
 
     // Kerberos login.
@@ -121,7 +121,7 @@ public final class KerberosLoginModuleTest extends BaseIntegrationTest {
   public void kerberosLoginWithWrongPrincipalTest() throws Exception {
     Subject subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(sFooPrincipal)),
         new HashSet<>(), new HashSet<>());
-    LoginModuleConfiguration loginConf = new LoginModuleConfiguration(
+    Configuration loginConf = new KerberosLoginConfiguration(
         sFooPrincipal, sBarKeytab.getPath());
     // Kerberos login should fail.
     LoginContext loginContext = new LoginContext("kerberos", subject, null, loginConf);
@@ -136,7 +136,7 @@ public final class KerberosLoginModuleTest extends BaseIntegrationTest {
   public void kerberosLoginWithInvalidConfTest() throws Exception {
     Subject subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(sFooPrincipal)),
         new HashSet<>(), new HashSet<>());
-    LoginModuleConfiguration loginConf = new LoginModuleConfiguration(
+    Configuration loginConf = new KerberosLoginConfiguration(
         sFooPrincipal, sFooKeytab.getPath() + ".invalid");
     // Kerberos login should fail.
     LoginContext loginContext = new LoginContext("kerberos", subject, null, loginConf);
@@ -153,7 +153,7 @@ public final class KerberosLoginModuleTest extends BaseIntegrationTest {
     String nonexistPrincipal = "nonexist/host@EXAMPLE.COM";
     Subject subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(nonexistPrincipal)),
         new HashSet<>(), new HashSet<>());
-    LoginModuleConfiguration loginConf = new LoginModuleConfiguration(
+    Configuration loginConf = new KerberosLoginConfiguration(
         nonexistPrincipal, sFooKeytab.getPath());
     // Kerberos login should fail.
     LoginContext loginContext = new LoginContext("kerberos", subject, null, loginConf);
@@ -170,7 +170,7 @@ public final class KerberosLoginModuleTest extends BaseIntegrationTest {
         new HashSet<>(), new HashSet<>());
 
     // Create login configuration with no Kerberos principal and keytab file.
-    LoginModuleConfiguration loginConf = new LoginModuleConfiguration();
+    Configuration loginConf = new KerberosLoginConfiguration();
     // Kerberos login should fail.
     LoginContext loginContext = new LoginContext("kerberos", subject, null, loginConf);
     mThrown.expect(LoginException.class);

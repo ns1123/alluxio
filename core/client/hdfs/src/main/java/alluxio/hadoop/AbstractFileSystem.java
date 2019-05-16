@@ -33,7 +33,7 @@ import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.SetAttributePOptions;
 import alluxio.master.MasterInquireClient.Factory;
-import alluxio.security.User;
+import alluxio.security.CurrentUser;
 import alluxio.security.authorization.Mode;
 import alluxio.uri.Authority;
 import alluxio.uri.MultiMasterAuthority;
@@ -62,7 +62,9 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.security.Principal;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -83,14 +85,18 @@ import javax.security.auth.Subject;
  */
 @NotThreadSafe
 abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
+  // ALLUXIO CS ADD
+  // Add the Hadoop UserState factories to the front of the list, to prioritize the Hadoop subject.
+  static {
+    alluxio.security.user.UserState.FACTORIES
+        .add(0, new alluxio.security.user.HadoopKerberosUserState.Factory());
+    alluxio.security.user.UserState.FACTORIES
+        .add(0, new alluxio.security.user.HadoopDelegationTokenUserState.Factory());
+  }
+  // ALLUXIO CS END
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileSystem.class);
 
   public static final String FIRST_COM_PATH = "alluxio_dep/";
-  // ALLUXIO CS ADD
-  //// BLOCK_REPLICATION_CONSTANT is not used in AEE.
-  // ALLUXIO CS END
-  // Always tell Hadoop that we have 3x replication.
-  private static final int BLOCK_REPLICATION_CONSTANT = 3;
 
   protected FileSystem mFileSystem = null;
 
@@ -499,36 +505,25 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
         (alluxioConfiguration != null) ? alluxioConfiguration.copyProperties()
             : ConfigurationUtils.defaults();
     AlluxioConfiguration alluxioConf = mergeConfigurations(uriConfProperties, conf, alluxioProps);
-    // ALLUXIO CS REPLACE
-    // Subject subject = getHadoopSubject();
-    // ALLUXIO CS WITH
-    // Before connecting, initialize the context with Hadoop subject so that it has valid credentials
-    // to authenticate with master.
-    alluxio.security.LoginUser.setExternalLoginProvider(new HadoopKerberosLoginProvider());
-    Subject subject = getHadoopSubject(alluxioConf);
-    // ALLUXIO CS END
-    if (subject != null) {
-      LOG.debug("Using Hadoop subject: {}", subject);
-    } else {
-      LOG.debug("No Hadoop subject. Using context without subject.");
-    }
+    Subject subject = getHadoopSubject();
+    LOG.debug("Using Hadoop subject: {}", subject);
     // ALLUXIO CS ADD
     try {
       UserGroupInformation user = UserGroupInformation.getCurrentUser();
       if (!user.getTokens().isEmpty()) {
-        String tokenService = buildTokenService(mUri, alluxioConf);
+        String tokenService = alluxio.security.TokenUtils.buildTokenService(mUri, alluxioConf);
         List<String> masters = alluxio.master.MasterInquireClient.Factory.create(alluxioConf)
             .getMasterRpcAddresses().stream().map(addr -> HostAndPort
                 .fromParts(addr.getAddress().getHostAddress(), addr.getPort()).toString())
             .collect(toList());
         LOG.debug("Checking Alluxio delegation token for {} on service {}", subject, tokenService);
-        if (!HadoopKerberosLoginProvider.populateAlluxioTokens(user, subject, tokenService, masters,
-            alluxioConf)) {
+        if (!alluxio.security.TokenUtils
+            .populateAlluxioTokens(user, subject, tokenService, masters, alluxioConf)) {
           LOG.warn("Failed to update subject with delegation tokens");
         }
       }
     } catch (IOException e) {
-      LOG.warn("unable to populate Alluxio tokens.", e);
+      LOG.warn("Unable to populate Alluxio tokens", e);
     }
     // ALLUXIO CS END
 
@@ -592,71 +587,53 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
     return alluxioConfProperties;
   }
-  // ALLUXIO CS ADD
 
-  private String buildTokenService(URI uri, AlluxioConfiguration conf) {
-    if (conf.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)
-        || ConfigurationUtils.getMasterRpcAddresses(conf).size() > 1) {
-      // builds token service name for logic alluxio service uri (HA)
-      return uri.toString();
-    }
-
-    // builds token service name for single master address.
-    return org.apache.hadoop.security.SecurityUtil.buildTokenService(uri).toString();
+  private Subject getSubjectFromUGI(UserGroupInformation ugi)
+      throws IOException, InterruptedException {
+    return ugi.doAs((PrivilegedExceptionAction<Subject>) () -> {
+      AccessControlContext context = AccessController.getContext();
+      return Subject.getSubject(context);
+    });
   }
-  // ALLUXIO CS END
 
   /**
-   * @return the hadoop subject if exists, null if not exist
+   * @return hadoop UGI's subject, or a fresh subject if the Hadoop UGI does not exist
+   * @throws IOException if there is an exception when accessing the subject in Hadoop UGI
    */
-  @Nullable
-  // ALLUXIO CS REPLACE
-  // private Subject getHadoopSubject() {
-  //   try {
-  //     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-  //     String username = ugi.getShortUserName();
-  //     if (username != null && !username.isEmpty()) {
-  //       User user = new User(ugi.getShortUserName());
-  //       HashSet<Principal> principals = new HashSet<>();
-  //       principals.add(user);
-  //       return new Subject(false, principals, new HashSet<>(), new HashSet<>());
-  //     }
-  //     return null;
-  //   } catch (IOException e) {
-  //     return null;
-  //   }
-  // }
-  // ALLUXIO CS WITH
-  // TODO(zac) Find a way to not use CS REPLACE on the whole method
-  private Subject getHadoopSubject(AlluxioConfiguration conf) {
+  private Subject getHadoopSubject() throws IOException {
+    Subject subject = null;
+    UserGroupInformation ugi = null;
     try {
-      UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-      String username = ugi.getShortUserName();
-      if (username != null && !username.isEmpty()) {
-        User user = new User(ugi.getShortUserName());
-        Subject subject = null;
-        LOG.debug("Hadoop UGI: {} hasKerberos: {}", ugi, ugi.hasKerberosCredentials());
-        if (ugi.hasKerberosCredentials()
-            && conf.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
-            alluxio.security.authentication.AuthType.class)
-            == alluxio.security.authentication.AuthType.KERBEROS) {
-          java.security.AccessControlContext context = java.security.AccessController.getContext();
-          subject = Subject.getSubject(context);
-          LOG.debug("Hadoop UGI subject: {}", subject);
+      ugi = UserGroupInformation.getCurrentUser();
+      subject = getSubjectFromUGI(ugi);
+      // ALLUXIO CS ADD
+      // Check for delegation token first. Delegation tokens are always stored in current user.
+      if (!alluxio.security.TokenUtils.hasAlluxioTokens(ugi)) {
+        // Check login user for Kerberos credentials. If Hadoop is authenticated using Kerberos,
+        // the credentials are stored in login user.
+        ugi = UserGroupInformation.getLoginUser();
+        // TODO(gpang): do we need to check for credentials, or can we always take the subject?
+        if (ugi != null && ugi.hasKerberosCredentials()) {
+          subject = getSubjectFromUGI(ugi);
+        } else {
+          // set the subject to null, since no subject was retrieved from hadoop.
+          subject = null;
         }
-        if (subject == null) {
-          subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
-        }
-        java.util.Set<Principal> principals = subject.getPrincipals();
-        principals.add(user);
-        return subject;
       }
-      return null;
-    } catch (IOException e) {
-      return null;
+      // ALLUXIO CS END
+    } catch (Exception e) {
+      throw new IOException(
+          String.format("Failed to get Hadoop subject for the Alluxio client. ugi: %s", ugi), e);
     }
+    if (subject == null) {
+      LOG.warn("Hadoop subject does not exist. Creating a fresh subject for Alluxio client");
+      subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
+    }
+    if (subject.getPrincipals(CurrentUser.class).isEmpty() && ugi != null) {
+      subject.getPrincipals().add(new CurrentUser(ugi.getShortUserName(), mUri.toString()));
+    }
+    return subject;
   }
-  // ALLUXIO CS END
 
   /**
    * @deprecated in 1.6.0, directly infer the value from {@link PropertyKey#ZOOKEEPER_ENABLED}
@@ -800,7 +777,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
   // ALLUXIO CS ADD
   @Override
   public String getCanonicalServiceName() {
-    return buildTokenService(getUri(), mFileSystem.getConf());
+    return alluxio.security.TokenUtils.buildTokenService(getUri(), mFileSystem.getConf());
   }
 
   @Override
@@ -826,8 +803,8 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     LOG.debug("getDelegationToken, got Alluxio token {}", token.toString());
     // converts Alluxio token to HDFS token
     AlluxioDelegationTokenIdentifier id = new AlluxioDelegationTokenIdentifier(token.getId());
-    org.apache.hadoop.io.Text tokenService =
-        new org.apache.hadoop.io.Text(buildTokenService(mUri, mFileSystem.getConf()));
+    org.apache.hadoop.io.Text tokenService = new org.apache.hadoop.io.Text(
+        alluxio.security.TokenUtils.buildTokenService(mUri, mFileSystem.getConf()));
     org.apache.hadoop.security.token.Token<AlluxioDelegationTokenIdentifier> hadoopToken =
         new org.apache.hadoop.security.token.Token<>(id.getBytes(), token.getPassword(),
             id.getKind(), tokenService);

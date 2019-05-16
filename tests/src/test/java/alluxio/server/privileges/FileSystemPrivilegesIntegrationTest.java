@@ -13,8 +13,8 @@ package alluxio.server.privileges;
 
 import alluxio.AlluxioURI;
 import alluxio.ClientContext;
-import alluxio.LoginUserRule;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemTestUtils;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
@@ -28,6 +28,8 @@ import alluxio.grpc.WritePType;
 import alluxio.master.MasterClientContext;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
+import alluxio.security.user.TestUserState;
+import alluxio.security.user.UserState;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.wire.Privilege;
@@ -36,9 +38,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.RuleChain;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +59,7 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
+  @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
           .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
@@ -66,135 +67,107 @@ public final class FileSystemPrivilegesIntegrationTest extends BaseIntegrationTe
               FileSystemPrivilegesIntegrationTest.TestGroupsMapping.class.getName())
           .build();
 
-  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER, ServerConfiguration.global());
-
-  // LocalAlluxioClusterResource resets the login user, so the login user rule must be used inside
-  // the cluster rule.
-  @Rule
-  public RuleChain mRules = RuleChain.outerRule(mLocalAlluxioClusterResource).around(mLoginUser);
-
-  private PrivilegeMasterClient mPrivilegeClient;
-  private FileSystem mFileSystem;
-
   @Before
   public void before() throws Exception {
-    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientContext.newBuilder(
-        ClientContext.create(ServerConfiguration.global())).build());
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      refreshFileSystemClient();
-      FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE,
-          CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
-              .setWriteType(WritePType.CACHE_THROUGH).build(),
-          10);
-    }
-    refreshFileSystemClient();
+    FileSystem client = getFileSystemClient(SUPER_USER);
+    FileSystemTestUtils.createByteFile(client, TEST_FILE,
+        CreateFilePOptions.newBuilder().setMode(Mode.createFullAccess().toProto())
+            .setWriteType(WritePType.CACHE_THROUGH).build(), 10);
   }
 
   @Test
   public void freeWithPrivilege() throws Exception {
-    // Become superuser to modify privileges.
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.FREE),
-          GrantPrivilegesOptions.defaults());
-    }
-    mFileSystem.free(TEST_FILE);
+    grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.FREE));
+    FileSystem client = getFileSystemClient(TEST_USER);
+    client.free(TEST_FILE);
   }
 
   @Test
   public void freeWithoutPrivilege() throws Exception {
+    FileSystem client = getFileSystemClient(TEST_USER);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.FREE));
-    mFileSystem.free(TEST_FILE);
+    client.free(TEST_FILE);
   }
 
   @Test
   public void pinWithPrivilege() throws Exception {
-    // Become superuser to modify privileges.
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN),
-          GrantPrivilegesOptions.defaults());
-    }
-    mFileSystem.setAttribute(TEST_FILE,
-        SetAttributePOptions.newBuilder().setPinned(true).build());
+    grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN));
+    FileSystem client = getFileSystemClient(TEST_USER);
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(true).build());
   }
 
   @Test
   public void pinWithoutPrivilege() throws Exception {
+    FileSystem client = getFileSystemClient(TEST_USER);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.PIN));
-    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(true).build());
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(true).build());
   }
 
   @Test
   public void unpinWithPrivilege() throws Exception {
-    // Become superuser to modify privileges and pin.
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN),
-          GrantPrivilegesOptions.defaults());
-      refreshFileSystemClient();
-      mFileSystem.setAttribute(TEST_FILE,
-          SetAttributePOptions.newBuilder().setPinned(true).build());
-    }
-    refreshFileSystemClient();
-    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(false).build());
+    grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN));
+
+    // Become superuser to pin.
+    FileSystem client = getFileSystemClient(SUPER_USER);
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(true).build());
+
+    client = getFileSystemClient(TEST_USER);
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(false).build());
   }
 
   @Test
   public void unpinWithoutPrivilege() throws Exception {
     // Become superuser to pin.
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      refreshFileSystemClient();
-      mFileSystem.setAttribute(TEST_FILE,
-          SetAttributePOptions.newBuilder().setPinned(true).build());
-    }
-    refreshFileSystemClient();
+    FileSystem client = getFileSystemClient(SUPER_USER);
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(true).build());
+
+    client = getFileSystemClient(TEST_USER);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.PIN));
-    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(false).build());
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setPinned(false).build());
   }
 
   @Test
   public void setReplicationWithPrivilege() throws Exception {
-    // Become superuser to modify privileges.
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.REPLICATION),
-          GrantPrivilegesOptions.defaults());
-    }
-    mFileSystem.setAttribute(TEST_FILE,
-        SetAttributePOptions.newBuilder().setReplicationMin(1).build());
+    grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.REPLICATION));
+    FileSystem client = getFileSystemClient(TEST_USER);
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setReplicationMin(1).build());
   }
 
   @Test
   public void setReplicationWithoutPrivilege() throws Exception {
+    FileSystem client = getFileSystemClient(TEST_USER);
     mThrown.expectMessage(
         ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.REPLICATION));
-    mFileSystem.setAttribute(TEST_FILE,
-        SetAttributePOptions.newBuilder().setReplicationMin(1).build());
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder().setReplicationMin(1).build());
   }
 
   @Test
   public void setTtlWithPrivilege() throws Exception {
-    // Become superuser to modify privileges.
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.TTL),
-          GrantPrivilegesOptions.defaults());
-    }
-    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder()
+    grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.TTL));
+    FileSystem client = getFileSystemClient(TEST_USER);
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder()
         .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder().setTtl(1)).build());
   }
 
   @Test
   public void setTtlWithoutPrivilege() throws Exception {
+    FileSystem client = getFileSystemClient(TEST_USER);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.TTL));
-    mFileSystem.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder()
+    client.setAttribute(TEST_FILE, SetAttributePOptions.newBuilder()
         .setCommonOptions(FileSystemMasterCommonPOptions.newBuilder().setTtl(1)).build());
   }
 
-  /**
-   * Updates {@link #mFileSystem} to a new filesystem client capable of acting as the current login
-   * user. This is necessary whenever the login user changes and a filesystem client is needed for
-   * the new user.
-   */
-  private void refreshFileSystemClient() throws Exception {
-    // Need to reset the pool in case we have a cached client for a different login user.
-    mFileSystem = mLocalAlluxioClusterResource.get().getClient();
+  private void grantPrivileges(String group, List<Privilege> privileges) throws Exception {
+    UserState s = new TestUserState(SUPER_USER, ServerConfiguration.global());
+    PrivilegeMasterClient client = PrivilegeMasterClient.Factory.create(MasterClientContext
+        .newBuilder(ClientContext.create(s.getSubject(), ServerConfiguration.global())).build());
+    client.grantPrivileges(group, privileges, GrantPrivilegesOptions.defaults());
+  }
+
+  private FileSystem getFileSystemClient(String user) throws Exception {
+    UserState s = new TestUserState(user, ServerConfiguration.global());
+    return mLocalAlluxioClusterResource.get()
+        .getClient(FileSystemContext.create(s.getSubject(), ServerConfiguration.global()));
   }
 
   /**

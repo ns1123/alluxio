@@ -14,11 +14,11 @@ package alluxio.security.authentication.kerberos;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.grpc.ChannelAuthenticationScheme;
-import alluxio.security.LoginUser;
 import alluxio.security.authentication.SaslClientHandler;
 import alluxio.security.authentication.AuthenticationUserUtils;
 import alluxio.security.util.KerberosUtils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
 import java.security.PrivilegedActionException;
@@ -49,11 +49,7 @@ public class SaslClientHandlerKerberos implements SaslClientHandler {
    */
   public SaslClientHandlerKerberos(Subject subject, String serverName,
       AlluxioConfiguration conf) throws UnauthenticatedException {
-    // Get the login user if given subject is null.
-    if (subject == null) {
-      subject = LoginUser.getClientLoginSubject(conf);
-    }
-    mSubject = subject;
+    mSubject = Preconditions.checkNotNull(subject, "subject");
 
     // Find instance name.
     String unifiedInstanceName = KerberosUtils.maybeGetKerberosUnifiedInstanceName(conf);

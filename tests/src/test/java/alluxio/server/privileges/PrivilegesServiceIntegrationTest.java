@@ -16,7 +16,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.ClientContext;
-import alluxio.LoginUserRule;
 import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.GetGroupPrivilegesOptions;
 import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
@@ -27,6 +26,8 @@ import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.master.MasterClientContext;
 import alluxio.security.group.GroupMappingService;
+import alluxio.security.user.TestUserState;
+import alluxio.security.user.UserState;
 import alluxio.testutils.BaseIntegrationTest;
 import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.wire.Privilege;
@@ -35,9 +36,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.RuleChain;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +60,7 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
+  @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
       .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
@@ -68,144 +68,124 @@ public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest 
           PrivilegesServiceIntegrationTest.TestGroupsMapping.class.getName())
       .build();
 
-  public LoginUserRule mLoginUser = new LoginUserRule(TEST_USER, ServerConfiguration.global());
-
-  // LocalAlluxioClusterResource resets the login user, so the login user rule must be used inside
-  // the cluster rule.
-  @Rule
-  public RuleChain mRules = RuleChain.outerRule(mLocalAlluxioClusterResource).around(mLoginUser);
-
-  private PrivilegeMasterClient mPrivilegeClient;
   private String mSupergroup;
 
   @Before
   public void before() throws Exception {
     mSupergroup = ServerConfiguration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      refreshPrivilegeClient();
-      mPrivilegeClient.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.FREE, Privilege.TTL),
-          GrantPrivilegesOptions.defaults());
-    }
-    refreshPrivilegeClient();
+    PrivilegeMasterClient client = getPrivilegeClient(SUPER_USER);
+    client.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.FREE, Privilege.TTL),
+        GrantPrivilegesOptions.defaults());
   }
 
   @Test
   public void superUserHasAllPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      refreshPrivilegeClient();
-      List<Privilege> superUserPrivileges =
-          mPrivilegeClient.getUserPrivileges(SUPER_USER, GetUserPrivilegesOptions.defaults());
-      assertEquals(new HashSet<>(Arrays.asList(Privilege.values())),
-          new HashSet<>(superUserPrivileges));
-    }
+    PrivilegeMasterClient client = getPrivilegeClient(SUPER_USER);
+    List<Privilege> superUserPrivileges =
+        client.getUserPrivileges(SUPER_USER, GetUserPrivilegesOptions.defaults());
+    assertEquals(new HashSet<>(Arrays.asList(Privilege.values())),
+        new HashSet<>(superUserPrivileges));
   }
 
   @Test
   public void superGroupHasAllPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      refreshPrivilegeClient();
-      List<Privilege> superUserPrivileges =
-          mPrivilegeClient.getGroupPrivileges(mSupergroup, GetGroupPrivilegesOptions.defaults());
-      assertEquals(new HashSet<>(Arrays.asList(Privilege.values())),
-          new HashSet<>(superUserPrivileges));
-    }
+    PrivilegeMasterClient client = getPrivilegeClient(SUPER_USER);
+    List<Privilege> superUserPrivileges =
+        client.getGroupPrivileges(mSupergroup, GetGroupPrivilegesOptions.defaults());
+    assertEquals(new HashSet<>(Arrays.asList(Privilege.values())),
+        new HashSet<>(superUserPrivileges));
   }
 
   @Test
   public void superUserCanGetAllPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      refreshPrivilegeClient();
-      Map<String, List<Privilege>> allPrivileges = mPrivilegeClient
-          .getGroupToPrivilegesMapping(GetGroupToPrivilegesMappingOptions.defaults());
-      assertEquals(1, allPrivileges.keySet().size());
-      List<Privilege> testGroupPrivileges = allPrivileges.get(TEST_GROUP);
-      assertEquals(2, testGroupPrivileges.size());
-    }
+    PrivilegeMasterClient client = getPrivilegeClient(SUPER_USER);
+    Map<String, List<Privilege>> allPrivileges =
+        client.getGroupToPrivilegesMapping(GetGroupToPrivilegesMappingOptions.defaults());
+    assertEquals(1, allPrivileges.keySet().size());
+    List<Privilege> testGroupPrivileges = allPrivileges.get(TEST_GROUP);
+    assertEquals(2, testGroupPrivileges.size());
   }
 
   @Test
   public void testUserCannotGetAllPrivileges() throws Exception {
+    PrivilegeMasterClient client = getPrivilegeClient(TEST_USER);
     mThrown.expectMessage("Only members of the supergroup 'supergroup' can list all privileges");
-    mPrivilegeClient.getGroupToPrivilegesMapping(GetGroupToPrivilegesMappingOptions.defaults());
+    client.getGroupToPrivilegesMapping(GetGroupToPrivilegesMappingOptions.defaults());
   }
 
   @Test
   public void superUserCanGetAnyGroupPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      refreshPrivilegeClient();
-      List<Privilege> testGroupPrivileges =
-          mPrivilegeClient.getGroupPrivileges(TEST_GROUP, GetGroupPrivilegesOptions.defaults());
-      assertEquals(2, testGroupPrivileges.size());
-    }
+    PrivilegeMasterClient client = getPrivilegeClient(SUPER_USER);
+    List<Privilege> testGroupPrivileges =
+        client.getGroupPrivileges(TEST_GROUP, GetGroupPrivilegesOptions.defaults());
+    assertEquals(2, testGroupPrivileges.size());
   }
 
   @Test
   public void testUserCannotGetSupergroupPrivileges() throws Exception {
+    PrivilegeMasterClient client = getPrivilegeClient(TEST_USER);
     mThrown.expectMessage(
         "Only members of group 'supergroup' and members of the supergroup 'supergroup' can list"
             + " privileges for group 'supergroup'");
-    mPrivilegeClient.getGroupPrivileges(mSupergroup, GetGroupPrivilegesOptions.defaults());
+    client.getGroupPrivileges(mSupergroup, GetGroupPrivilegesOptions.defaults());
   }
 
   @Test
   public void testUserCanGetOwnPrivileges() throws Exception {
+    PrivilegeMasterClient client = getPrivilegeClient(TEST_USER);
     List<Privilege> testUserPrivileges =
-        mPrivilegeClient.getUserPrivileges(TEST_USER, GetUserPrivilegesOptions.defaults());
+        client.getUserPrivileges(TEST_USER, GetUserPrivilegesOptions.defaults());
     assertEquals(2, testUserPrivileges.size());
   }
 
   @Test
   public void testUserCannotGetSuperuserPrivileges() throws Exception {
+    PrivilegeMasterClient client = getPrivilegeClient(TEST_USER);
     mThrown.expectMessage(
         "Only user 'superuser' and members of the supergroup 'supergroup' can list privileges for"
             + " user 'superuser'");
-    mPrivilegeClient.getUserPrivileges(SUPER_USER, GetUserPrivilegesOptions.defaults());
+    client.getUserPrivileges(SUPER_USER, GetUserPrivilegesOptions.defaults());
   }
 
   @Test
   public void testUserCannotGrantPrivileges() throws Exception {
+    PrivilegeMasterClient client = getPrivilegeClient(TEST_USER);
     mThrown.expectMessage("Only members of the supergroup 'supergroup' can grant privileges");
-    mPrivilegeClient.grantPrivileges(TEST_USER, Arrays.asList(Privilege.PIN),
+    client.grantPrivileges(TEST_USER, Arrays.asList(Privilege.PIN),
         GrantPrivilegesOptions.defaults());
   }
 
   @Test
   public void testUserCannotRevokePrivileges() throws Exception {
+    PrivilegeMasterClient client = getPrivilegeClient(TEST_USER);
     mThrown.expectMessage("Only members of the supergroup 'supergroup' can revoke privileges");
-    mPrivilegeClient.revokePrivileges(TEST_USER, Arrays.asList(Privilege.FREE),
+    client.revokePrivileges(TEST_USER, Arrays.asList(Privilege.FREE),
         RevokePrivilegesOptions.defaults());
   }
 
   @Test
   public void superUserCanGrantPrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      refreshPrivilegeClient();
-      List<Privilege> newPrivileges = mPrivilegeClient.grantPrivileges(TEST_GROUP,
-          Arrays.asList(Privilege.PIN), GrantPrivilegesOptions.defaults());
-      assertEquals(3, newPrivileges.size());
-      assertTrue(newPrivileges.contains(Privilege.PIN));
-    }
+    PrivilegeMasterClient client = getPrivilegeClient(SUPER_USER);
+    List<Privilege> newPrivileges = client.grantPrivileges(TEST_GROUP, Arrays.asList(Privilege.PIN),
+        GrantPrivilegesOptions.defaults());
+    assertEquals(3, newPrivileges.size());
+    assertTrue(newPrivileges.contains(Privilege.PIN));
   }
 
   @Test
   public void superUserCanRevokePrivileges() throws Exception {
-    try (Closeable u = new LoginUserRule(SUPER_USER, ServerConfiguration.global()).toResource()) {
-      refreshPrivilegeClient();
-      List<Privilege> newPrivileges = mPrivilegeClient.revokePrivileges(TEST_GROUP,
-          Arrays.asList(Privilege.FREE), RevokePrivilegesOptions.defaults());
-      assertEquals(1, newPrivileges.size());
-      assertFalse(newPrivileges.contains(Privilege.FREE));
-    }
+    PrivilegeMasterClient client = getPrivilegeClient(SUPER_USER);
+    List<Privilege> newPrivileges = client
+        .revokePrivileges(TEST_GROUP, Arrays.asList(Privilege.FREE),
+            RevokePrivilegesOptions.defaults());
+    assertEquals(1, newPrivileges.size());
+    assertFalse(newPrivileges.contains(Privilege.FREE));
   }
 
-  /**
-   * Updates {@link #mPrivilegeClient} to a new privilege client capable of acting as the current
-   * login user. This is necessary whenever the login user changes and a privilege client is needed
-   * for the new user.
-   */
-  private void refreshPrivilegeClient() throws Exception {
-    mPrivilegeClient = PrivilegeMasterClient.Factory.create(MasterClientContext
-            .newBuilder(ClientContext.create(ServerConfiguration.global())).build());
+  private PrivilegeMasterClient getPrivilegeClient(String user) throws Exception {
+    UserState s = new TestUserState(user, ServerConfiguration.global());
+    return PrivilegeMasterClient.Factory.create(MasterClientContext
+        .newBuilder(ClientContext.create(s.getSubject(), ServerConfiguration.global())).build());
   }
 
   /**

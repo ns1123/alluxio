@@ -20,6 +20,7 @@ import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.security.authentication.AuthenticationServer;
 import alluxio.security.authentication.EnterpriseAuthenticationServer;
 import alluxio.security.authentication.SaslServerHandler;
+import alluxio.security.user.ServerUserState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class WorkerAuthenticationServer extends EnterpriseAuthenticationServer {
    */
   public WorkerAuthenticationServer(String hostName, CapabilityCache capabilityCache,
       AlluxioConfiguration conf) {
-    super(hostName, conf);
+    super(hostName, conf, ServerUserState.global());
     mCapabilityCache = capabilityCache;
   }
 

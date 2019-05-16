@@ -253,8 +253,8 @@ public class ChannelAuthenticator {
           }
         // ALLUXIO CS ADD
         case KERBEROS:
-          return new alluxio.security.authentication.kerberos.SaslClientHandlerKerberos(null,
-              serverAddress.getHostName(), mConfiguration);
+          return new alluxio.security.authentication.kerberos.SaslClientHandlerKerberos(
+              mParentSubject, serverAddress.getHostName(), mConfiguration);
         case DELEGATION_TOKEN:
           com.google.common.base.Preconditions.checkArgument(
               serverAddress.getSocketAddress() instanceof java.net.InetSocketAddress,

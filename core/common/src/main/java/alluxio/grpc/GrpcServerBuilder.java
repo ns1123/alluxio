@@ -20,8 +20,10 @@ import alluxio.security.authentication.AuthenticationServer;
 // ALLUXIO CS WITH
 import alluxio.security.authentication.EnterpriseAuthenticationServer;
 // ALLUXIO CS END
+import alluxio.security.user.UserState;
 import alluxio.util.SecurityUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
@@ -52,12 +54,16 @@ public final class GrpcServerBuilder {
   /** Alluxio configuration.  */
   private AlluxioConfiguration mConfiguration;
 
+  @SuppressFBWarnings(value = "URF_UNREAD_FIELD")
+  private UserState mUserState;
+
   private GrpcServerBuilder(String hostName, SocketAddress address,
-      AuthenticationServer authenticationServer, AlluxioConfiguration conf) {
+      AuthenticationServer authenticationServer, AlluxioConfiguration conf, UserState userState) {
     mAuthenticationServer = authenticationServer;
     mNettyServerBuilder = NettyServerBuilder.forAddress(address);
     mServices = new HashSet<>();
     mConfiguration = conf;
+    mUserState = userState;
 
     // ALLUXIO CS ADD
     if (conf.getBoolean(alluxio.conf.PropertyKey.NETWORK_TLS_ENABLED)) {
@@ -69,7 +75,8 @@ public final class GrpcServerBuilder {
         // ALLUXIO CS REPLACE
         // mAuthenticationServer = new DefaultAuthenticationServer(hostName, mConfiguration);
         // ALLUXIO CS WITH
-        mAuthenticationServer = new EnterpriseAuthenticationServer(hostName, mConfiguration);
+        mAuthenticationServer =
+            new EnterpriseAuthenticationServer(hostName, mConfiguration, mUserState);
         // ALLUXIO CS END
       }
       addService(new GrpcService(mAuthenticationServer).disableAuthentication());
@@ -82,11 +89,12 @@ public final class GrpcServerBuilder {
    * @param hostName the host name
    * @param address the address
    * @param conf Alluxio configuration
+   * @param userState the user state
    * @return a new instance of {@link GrpcServerBuilder}
    */
   public static GrpcServerBuilder forAddress(String hostName, SocketAddress address,
-      AlluxioConfiguration conf) {
-    return new GrpcServerBuilder(hostName, address, null, conf);
+      AlluxioConfiguration conf, UserState userState) {
+    return new GrpcServerBuilder(hostName, address, null, conf, userState);
   }
 
   /**
@@ -96,11 +104,13 @@ public final class GrpcServerBuilder {
    * @param address the address
    * @param authenticationServer the authentication server to use
    * @param conf the Alluxio configuration
+   * @param userState the user state
    * @return a new instance of {@link GrpcServerBuilder}
    */
   public static GrpcServerBuilder forAddress(String hostName, SocketAddress address,
-      AuthenticationServer authenticationServer, AlluxioConfiguration conf) {
-    return new GrpcServerBuilder(hostName, address, authenticationServer, conf);
+      AuthenticationServer authenticationServer, AlluxioConfiguration conf,
+      UserState userState) {
+    return new GrpcServerBuilder(hostName, address, authenticationServer, conf, userState);
   }
 
   /**
