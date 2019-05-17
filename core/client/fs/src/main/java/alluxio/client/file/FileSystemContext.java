@@ -123,12 +123,12 @@ public final class FileSystemContext implements Closeable {
    */
   private final ConcurrentHashMap<ClientPoolKey, BlockWorkerClientPool>
       mBlockWorkerClientPool = new ConcurrentHashMap<>();
-
   // ALLUXIO CS ADD
+
   private alluxio.client.security.EncryptionCache mEncryptionCache =
       new alluxio.client.security.EncryptionCache();
-
   // ALLUXIO CS END
+
   /**
    * Used in {@link #mBlockWorkerClientPool}.
    */
