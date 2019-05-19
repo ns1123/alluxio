@@ -274,26 +274,6 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 	mkdir(filepath.Join(dstPath, "underFSStorage"))
 	mkdir(filepath.Join(dstPath, "integration/docker/conf"))
 
-<<<<<<< HEAD
-	// ALLUXIO CS REMOVE
-	// // Add links for previous jar locations for backwards compatibility
-	// for _, jar := range []string{"client", "server"} {
-	// 	oldLocation := filepath.Join(dstPath, fmt.Sprintf("assembly/%v/target/alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, jar, version))
-	// 	mkdir(filepath.Dir(oldLocation))
-	// 	symlink(fmt.Sprintf("../../alluxio-%v-%v.jar", jar, version), oldLocation)
-	// }
-	// mkdir(filepath.Join(dstPath, "assembly/server/target"))
-	// ALLUXIO CS END
-||||||| merged common ancestors
-	// Add links for previous jar locations for backwards compatibility
-	for _, jar := range []string{"client", "server"} {
-		oldLocation := filepath.Join(dstPath, fmt.Sprintf("assembly/%v/target/alluxio-assembly-%v-%v-jar-with-dependencies.jar", jar, jar, version))
-		mkdir(filepath.Dir(oldLocation))
-		symlink(fmt.Sprintf("../../alluxio-%v-%v.jar", jar, version), oldLocation)
-	}
-	mkdir(filepath.Join(dstPath, "assembly/server/target"))
-=======
->>>>>>> upstream-os/master
 	mkdir(filepath.Join(dstPath, "lib"))
 	addModules(srcPath, dstPath, "underfs", ufsModulesFlag, version, ufsModules)
 	// ALLUXIO CS ADD
