@@ -126,3 +126,8 @@ message WorkerNetAddress {
   optional int32 secureRpcPort = 1001;
   // ALLUXIO CS END
 }
+
+message BlockStoreLocationProto {
+  optional string tierAlias = 1;
+  optional string mediumType = 2;
+}

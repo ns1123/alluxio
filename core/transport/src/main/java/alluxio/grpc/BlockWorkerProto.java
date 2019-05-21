@@ -94,6 +94,16 @@ public final class BlockWorkerProto {
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_alluxio_grpc_block_RemoveBlockResponse_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_grpc_block_MoveBlockRequest_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_alluxio_grpc_block_MoveBlockRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_grpc_block_MoveBlockResponse_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_alluxio_grpc_block_MoveBlockResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -104,66 +114,71 @@ public final class BlockWorkerProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\027grpc/block_worker.proto\022\022alluxio.grpc." +
-      "block\032\037proto/dataserver/protocol.proto\032%" +
-      "proto/security/capability_proto.proto\"\016\n" +
-      "\014CheckRequest\"\017\n\rCheckResponse\"\025\n\005Chunk\022" +
-      "\014\n\004data\030\001 \001(\014\"\205\002\n\013ReadRequest\022\020\n\010block_i" +
-      "d\030\001 \001(\003\022\016\n\006offset\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022" +
-      "\017\n\007promote\030\004 \001(\010\022\022\n\nchunk_size\030\005 \001(\003\022M\n\026" +
-      "open_ufs_block_options\030\006 \001(\0132-.alluxio.p" +
-      "roto.dataserver.OpenUfsBlockOptions\022\027\n\017o" +
-      "ffset_received\030\007 \001(\003\0227\n\ncapability\030\350\007 \001(" +
-      "\0132\".alluxio.proto.security.Capability\"8\n" +
-      "\014ReadResponse\022(\n\005chunk\030\001 \001(\0132\031.alluxio.g" +
-      "rpc.block.Chunk\"\357\002\n\023WriteRequestCommand\022" +
-      "-\n\004type\030\001 \001(\0162\037.alluxio.grpc.block.Reque" +
-      "stType\022\n\n\002id\030\002 \001(\003\022\016\n\006offset\030\003 \001(\003\022\014\n\004ti" +
-      "er\030\004 \001(\005\022\r\n\005flush\030\005 \001(\010\022O\n\027create_ufs_fi" +
-      "le_options\030\006 \001(\0132..alluxio.proto.dataser" +
-      "ver.CreateUfsFileOptions\022Q\n\030create_ufs_b" +
-      "lock_options\030\007 \001(\0132/.alluxio.proto.datas" +
-      "erver.CreateUfsBlockOptions\022\023\n\013medium_ty" +
-      "pe\030\010 \001(\t\0227\n\ncapability\030\350\007 \001(\0132\".alluxio." +
-      "proto.security.Capability\"\177\n\014WriteReques" +
-      "t\022:\n\007command\030\001 \001(\0132\'.alluxio.grpc.block." +
-      "WriteRequestCommandH\000\022*\n\005chunk\030\002 \001(\0132\031.a" +
-      "lluxio.grpc.block.ChunkH\000B\007\n\005value\"\037\n\rWr" +
-      "iteResponse\022\016\n\006offset\030\001 \001(\003\"\256\001\n\021AsyncCac" +
-      "heRequest\022\020\n\010block_id\030\001 \001(\003\022\023\n\013source_ho" +
-      "st\030\002 \001(\t\022\023\n\013source_port\030\003 \001(\005\022M\n\026open_uf" +
-      "s_block_options\030\004 \001(\0132-.alluxio.proto.da" +
-      "taserver.OpenUfsBlockOptions\022\016\n\006length\030\005" +
-      " \001(\003\"\024\n\022AsyncCacheResponse\"s\n\025OpenLocalB" +
-      "lockRequest\022\020\n\010block_id\030\001 \001(\003\022\017\n\007promote" +
-      "\030\002 \001(\010\0227\n\ncapability\030\351\007 \001(\0132\".alluxio.pr" +
-      "oto.security.Capability\"&\n\026OpenLocalBloc" +
-      "kResponse\022\014\n\004path\030\001 \001(\t\"\331\001\n\027CreateLocalB" +
-      "lockRequest\022\020\n\010block_id\030\001 \001(\003\022\014\n\004tier\030\003 " +
-      "\001(\005\022\030\n\020space_to_reserve\030\004 \001(\003\022\032\n\022only_re" +
-      "serve_space\030\005 \001(\010\022\032\n\022cleanup_on_failure\030" +
-      "\006 \001(\010\022\023\n\013medium_type\030\007 \001(\t\0227\n\ncapability" +
-      "\030\351\007 \001(\0132\".alluxio.proto.security.Capabil" +
-      "ity\"(\n\030CreateLocalBlockResponse\022\014\n\004path\030" +
-      "\001 \001(\t\"&\n\022RemoveBlockRequest\022\020\n\010block_id\030" +
-      "\001 \001(\003\"\025\n\023RemoveBlockResponse*F\n\013RequestT" +
-      "ype\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\026\n\022" +
-      "UFS_FALLBACK_BLOCK\020\0022\325\004\n\013BlockWorker\022R\n\t" +
-      "ReadBlock\022\037.alluxio.grpc.block.ReadReque" +
-      "st\032 .alluxio.grpc.block.ReadResponse(\0010\001" +
-      "\022U\n\nWriteBlock\022 .alluxio.grpc.block.Writ" +
-      "eRequest\032!.alluxio.grpc.block.WriteRespo" +
-      "nse(\0010\001\022k\n\016OpenLocalBlock\022).alluxio.grpc" +
-      ".block.OpenLocalBlockRequest\032*.alluxio.g" +
-      "rpc.block.OpenLocalBlockResponse(\0010\001\022q\n\020" +
-      "CreateLocalBlock\022+.alluxio.grpc.block.Cr" +
-      "eateLocalBlockRequest\032,.alluxio.grpc.blo" +
-      "ck.CreateLocalBlockResponse(\0010\001\022[\n\nAsync" +
-      "Cache\022%.alluxio.grpc.block.AsyncCacheReq" +
-      "uest\032&.alluxio.grpc.block.AsyncCacheResp" +
-      "onse\022^\n\013RemoveBlock\022&.alluxio.grpc.block" +
-      ".RemoveBlockRequest\032\'.alluxio.grpc.block" +
-      ".RemoveBlockResponseB\"\n\014alluxio.grpcB\020Bl" +
-      "ockWorkerProtoP\001"
+      "block\032%proto/security/capability_proto.p" +
+      "roto\032\037proto/dataserver/protocol.proto\032\021g" +
+      "rpc/common.proto\"\016\n\014CheckRequest\"\017\n\rChec" +
+      "kResponse\"\025\n\005Chunk\022\014\n\004data\030\001 \001(\014\"\205\002\n\013Rea" +
+      "dRequest\022\020\n\010block_id\030\001 \001(\003\022\016\n\006offset\030\002 \001" +
+      "(\003\022\016\n\006length\030\003 \001(\003\022\017\n\007promote\030\004 \001(\010\022\022\n\nc" +
+      "hunk_size\030\005 \001(\003\022M\n\026open_ufs_block_option" +
+      "s\030\006 \001(\0132-.alluxio.proto.dataserver.OpenU" +
+      "fsBlockOptions\022\027\n\017offset_received\030\007 \001(\003\022" +
+      "7\n\ncapability\030\350\007 \001(\0132\".alluxio.proto.sec" +
+      "urity.Capability\"8\n\014ReadResponse\022(\n\005chun" +
+      "k\030\001 \001(\0132\031.alluxio.grpc.block.Chunk\"\357\002\n\023W" +
+      "riteRequestCommand\022-\n\004type\030\001 \001(\0162\037.allux" +
+      "io.grpc.block.RequestType\022\n\n\002id\030\002 \001(\003\022\016\n" +
+      "\006offset\030\003 \001(\003\022\014\n\004tier\030\004 \001(\005\022\r\n\005flush\030\005 \001" +
+      "(\010\022O\n\027create_ufs_file_options\030\006 \001(\0132..al" +
+      "luxio.proto.dataserver.CreateUfsFileOpti" +
+      "ons\022Q\n\030create_ufs_block_options\030\007 \001(\0132/." +
+      "alluxio.proto.dataserver.CreateUfsBlockO" +
+      "ptions\022\023\n\013medium_type\030\010 \001(\t\0227\n\ncapabilit" +
+      "y\030\350\007 \001(\0132\".alluxio.proto.security.Capabi" +
+      "lity\"\177\n\014WriteRequest\022:\n\007command\030\001 \001(\0132\'." +
+      "alluxio.grpc.block.WriteRequestCommandH\000" +
+      "\022*\n\005chunk\030\002 \001(\0132\031.alluxio.grpc.block.Chu" +
+      "nkH\000B\007\n\005value\"\037\n\rWriteResponse\022\016\n\006offset" +
+      "\030\001 \001(\003\"\256\001\n\021AsyncCacheRequest\022\020\n\010block_id" +
+      "\030\001 \001(\003\022\023\n\013source_host\030\002 \001(\t\022\023\n\013source_po" +
+      "rt\030\003 \001(\005\022M\n\026open_ufs_block_options\030\004 \001(\013" +
+      "2-.alluxio.proto.dataserver.OpenUfsBlock" +
+      "Options\022\016\n\006length\030\005 \001(\003\"\024\n\022AsyncCacheRes" +
+      "ponse\"s\n\025OpenLocalBlockRequest\022\020\n\010block_" +
+      "id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\0227\n\ncapability\030" +
+      "\351\007 \001(\0132\".alluxio.proto.security.Capabili" +
+      "ty\"&\n\026OpenLocalBlockResponse\022\014\n\004path\030\001 \001" +
+      "(\t\"\331\001\n\027CreateLocalBlockRequest\022\020\n\010block_" +
+      "id\030\001 \001(\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020space_to_reser" +
+      "ve\030\004 \001(\003\022\032\n\022only_reserve_space\030\005 \001(\010\022\032\n\022" +
+      "cleanup_on_failure\030\006 \001(\010\022\023\n\013medium_type\030" +
+      "\007 \001(\t\0227\n\ncapability\030\351\007 \001(\0132\".alluxio.pro" +
+      "to.security.Capability\"(\n\030CreateLocalBlo" +
+      "ckResponse\022\014\n\004path\030\001 \001(\t\"&\n\022RemoveBlockR" +
+      "equest\022\020\n\010block_id\030\001 \001(\003\"\025\n\023RemoveBlockR" +
+      "esponse\"9\n\020MoveBlockRequest\022\020\n\010block_id\030" +
+      "\001 \001(\003\022\023\n\013medium_type\030\002 \001(\t\"\023\n\021MoveBlockR" +
+      "esponse*F\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020" +
+      "\000\022\014\n\010UFS_FILE\020\001\022\026\n\022UFS_FALLBACK_BLOCK\020\0022" +
+      "\257\005\n\013BlockWorker\022R\n\tReadBlock\022\037.alluxio.g" +
+      "rpc.block.ReadRequest\032 .alluxio.grpc.blo" +
+      "ck.ReadResponse(\0010\001\022U\n\nWriteBlock\022 .allu" +
+      "xio.grpc.block.WriteRequest\032!.alluxio.gr" +
+      "pc.block.WriteResponse(\0010\001\022k\n\016OpenLocalB" +
+      "lock\022).alluxio.grpc.block.OpenLocalBlock" +
+      "Request\032*.alluxio.grpc.block.OpenLocalBl" +
+      "ockResponse(\0010\001\022q\n\020CreateLocalBlock\022+.al" +
+      "luxio.grpc.block.CreateLocalBlockRequest" +
+      "\032,.alluxio.grpc.block.CreateLocalBlockRe" +
+      "sponse(\0010\001\022[\n\nAsyncCache\022%.alluxio.grpc." +
+      "block.AsyncCacheRequest\032&.alluxio.grpc.b" +
+      "lock.AsyncCacheResponse\022^\n\013RemoveBlock\022&" +
+      ".alluxio.grpc.block.RemoveBlockRequest\032\'" +
+      ".alluxio.grpc.block.RemoveBlockResponse\022" +
+      "X\n\tMoveBlock\022$.alluxio.grpc.block.MoveBl" +
+      "ockRequest\032%.alluxio.grpc.block.MoveBloc" +
+      "kResponseB\"\n\014alluxio.grpcB\020BlockWorkerPr" +
+      "otoP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -176,8 +191,9 @@ public final class BlockWorkerProto {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          alluxio.proto.dataserver.Protocol.getDescriptor(),
           alluxio.proto.security.CapabilityProto.getDescriptor(),
+          alluxio.proto.dataserver.Protocol.getDescriptor(),
+          alluxio.grpc.CommonProto.getDescriptor(),
         }, assigner);
     internal_static_alluxio_grpc_block_CheckRequest_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -275,8 +291,21 @@ public final class BlockWorkerProto {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_alluxio_grpc_block_RemoveBlockResponse_descriptor,
         new java.lang.String[] { });
-    alluxio.proto.dataserver.Protocol.getDescriptor();
+    internal_static_alluxio_grpc_block_MoveBlockRequest_descriptor =
+      getDescriptor().getMessageTypes().get(16);
+    internal_static_alluxio_grpc_block_MoveBlockRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_alluxio_grpc_block_MoveBlockRequest_descriptor,
+        new java.lang.String[] { "BlockId", "MediumType", });
+    internal_static_alluxio_grpc_block_MoveBlockResponse_descriptor =
+      getDescriptor().getMessageTypes().get(17);
+    internal_static_alluxio_grpc_block_MoveBlockResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_alluxio_grpc_block_MoveBlockResponse_descriptor,
+        new java.lang.String[] { });
     alluxio.proto.security.CapabilityProto.getDescriptor();
+    alluxio.proto.dataserver.Protocol.getDescriptor();
+    alluxio.grpc.CommonProto.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

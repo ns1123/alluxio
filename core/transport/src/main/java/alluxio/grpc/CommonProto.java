@@ -69,6 +69,11 @@ public final class CommonProto {
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_alluxio_grpc_WorkerNetAddress_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_grpc_BlockStoreLocationProto_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_alluxio_grpc_BlockStoreLocationProto_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -105,15 +110,17 @@ public final class CommonProto {
       "\n\010dataPort\030\003 \001(\005\022\017\n\007webPort\030\004 \001(\005\022\030\n\020dom" +
       "ainSocketPath\030\005 \001(\t\0224\n\016tieredIdentity\030\006 " +
       "\001(\0132\034.alluxio.grpc.TieredIdentity\022\026\n\rsec" +
-      "ureRpcPort\030\351\007 \001(\005*p\n\004Bits\022\010\n\004NONE\020\001\022\013\n\007E" +
-      "XECUTE\020\002\022\t\n\005WRITE\020\003\022\021\n\rWRITE_EXECUTE\020\004\022\010" +
-      "\n\004READ\020\005\022\020\n\014READ_EXECUTE\020\006\022\016\n\nREAD_WRITE" +
-      "\020\007\022\007\n\003ALL\020\010*:\n\nMetricType\022\t\n\005GAUGE\020\000\022\013\n\007" +
-      "COUNTER\020\001\022\t\n\005METER\020\002\022\t\n\005TIMER\020\003*X\n\013Comma" +
-      "ndType\022\013\n\007Unknown\020\000\022\013\n\007Nothing\020\001\022\014\n\010Regi" +
-      "ster\020\002\022\010\n\004Free\020\003\022\n\n\006Delete\020\004\022\013\n\007Persist\020" +
-      "\005*!\n\tTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001B\035\n\014" +
-      "alluxio.grpcB\013CommonProtoP\001"
+      "ureRpcPort\030\351\007 \001(\005\"@\n\027BlockStoreLocationP" +
+      "roto\022\021\n\ttierAlias\030\001 \001(\t\022\022\n\nmediumType\030\002 " +
+      "\001(\t*p\n\004Bits\022\010\n\004NONE\020\001\022\013\n\007EXECUTE\020\002\022\t\n\005WR" +
+      "ITE\020\003\022\021\n\rWRITE_EXECUTE\020\004\022\010\n\004READ\020\005\022\020\n\014RE" +
+      "AD_EXECUTE\020\006\022\016\n\nREAD_WRITE\020\007\022\007\n\003ALL\020\010*:\n" +
+      "\nMetricType\022\t\n\005GAUGE\020\000\022\013\n\007COUNTER\020\001\022\t\n\005M" +
+      "ETER\020\002\022\t\n\005TIMER\020\003*X\n\013CommandType\022\013\n\007Unkn" +
+      "own\020\000\022\013\n\007Nothing\020\001\022\014\n\010Register\020\002\022\010\n\004Free" +
+      "\020\003\022\n\n\006Delete\020\004\022\013\n\007Persist\020\005*!\n\tTtlAction" +
+      "\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001B\035\n\014alluxio.grpcB\013" +
+      "CommonProtoP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -193,6 +200,12 @@ public final class CommonProto {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_alluxio_grpc_WorkerNetAddress_descriptor,
         new java.lang.String[] { "Host", "RpcPort", "DataPort", "WebPort", "DomainSocketPath", "TieredIdentity", "SecureRpcPort", });
+    internal_static_alluxio_grpc_BlockStoreLocationProto_descriptor =
+      getDescriptor().getMessageTypes().get(10);
+    internal_static_alluxio_grpc_BlockStoreLocationProto_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_alluxio_grpc_BlockStoreLocationProto_descriptor,
+        new java.lang.String[] { "TierAlias", "MediumType", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
