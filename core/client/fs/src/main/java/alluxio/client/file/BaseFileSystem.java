@@ -575,66 +575,6 @@ public class BaseFileSystem implements FileSystem {
   public FileInStream openFile(AlluxioURI path, OpenFilePOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException {
     checkUri(path);
-<<<<<<< HEAD
-    // ALLUXIO CS REPLACE
-    // URIStatus status = getStatus(path);
-    // ALLUXIO CS WITH
-    URIStatus status = rpc(client -> getStatusInternal(client, path,
-        FileSystemOptions.getStatusDefaults(mFsContext.getPathConf(path))));
-    // ALLUXIO CS END
-    if (status.isFolder()) {
-      throw new FileDoesNotExistException(
-          ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
-    }
-    // getStatus should have loaded path level configs.
-    OpenFilePOptions mergedOptions = FileSystemOptions.openFileDefaults(
-        mFsContext.getPathConf(path)).toBuilder().mergeFrom(options).build();
-    InStreamOptions inStreamOptions = new InStreamOptions(status, mergedOptions,
-        mFsContext.getPathConf(path));
-    // ALLUXIO CS ADD
-    if (status.getCapability() != null) {
-      inStreamOptions.setCapabilityFetcher(
-          new alluxio.client.security.CapabilityFetcher(mFsContext, status.getPath(),
-              status.getCapability()));
-    }
-    if (!mergedOptions.getSkipTransformation()) {
-      inStreamOptions.setEncrypted(status.isEncrypted());
-      if (status.isEncrypted()) {
-        alluxio.proto.security.EncryptionProto.Meta meta =
-            mFsContext.getEncryptionMeta(status.getFileId());
-        if (meta == null || !meta.hasCryptoKey()) {
-          // Retry getting the crypto key if the cached meta does not have a valid crypto key.
-          meta = getEncryptionMetaFromFooter(status);
-          if (meta == null || !meta.hasCryptoKey()) {
-            throw new IOException(
-                "Can not open an encrypted file because the client can not get the crypto key.");
-          }
-          // Update the meta in cache with the new crypto key set.
-          mFsContext.putEncryptionMeta(status.getFileId(), meta);
-        }
-        inStreamOptions.setEncryptionMeta(meta);
-      }
-      if (inStreamOptions.isEncrypted()) {
-        return CryptoFileInStream.create(status, inStreamOptions, mFsContext);
-      }
-    }
-    // ALLUXIO CS END
-    // FileSystemContext reinitialization is blocked during construction and close of FileInStream.
-    return new FileInStream(status, inStreamOptions, mFsContext);
-||||||| merged common ancestors
-    URIStatus status = getStatus(path);
-    if (status.isFolder()) {
-      throw new FileDoesNotExistException(
-          ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
-    }
-    // getStatus should have loaded path level configs.
-    OpenFilePOptions mergedOptions = FileSystemOptions.openFileDefaults(
-        mFsContext.getPathConf(path)).toBuilder().mergeFrom(options).build();
-    InStreamOptions inStreamOptions = new InStreamOptions(status, mergedOptions,
-        mFsContext.getPathConf(path));
-    // FileSystemContext reinitialization is blocked during construction and close of FileInStream.
-    return new FileInStream(status, inStreamOptions, mFsContext);
-=======
     return rpc(client -> {
       AlluxioConfiguration conf = mFsContext.getPathConf(path);
       URIStatus status = client.getStatus(path, FileSystemOptions.getStatusDefaults(conf));
@@ -645,9 +585,36 @@ public class BaseFileSystem implements FileSystem {
       OpenFilePOptions mergedOptions = FileSystemOptions.openFileDefaults(conf)
           .toBuilder().mergeFrom(options).build();
       InStreamOptions inStreamOptions = new InStreamOptions(status, mergedOptions, conf);
+      // ALLUXIO CS ADD
+      if (status.getCapability() != null) {
+        inStreamOptions.setCapabilityFetcher(
+            new alluxio.client.security.CapabilityFetcher(mFsContext, status.getPath(),
+                status.getCapability()));
+      }
+      if (!mergedOptions.getSkipTransformation()) {
+        inStreamOptions.setEncrypted(status.isEncrypted());
+        if (status.isEncrypted()) {
+          alluxio.proto.security.EncryptionProto.Meta meta =
+              mFsContext.getEncryptionMeta(status.getFileId());
+          if (meta == null || !meta.hasCryptoKey()) {
+            // Retry getting the crypto key if the cached meta does not have a valid crypto key.
+            meta = getEncryptionMetaFromFooter(status);
+            if (meta == null || !meta.hasCryptoKey()) {
+              throw new IOException(
+                  "Can not open an encrypted file because the client can not get the crypto key.");
+            }
+            // Update the meta in cache with the new crypto key set.
+            mFsContext.putEncryptionMeta(status.getFileId(), meta);
+          }
+          inStreamOptions.setEncryptionMeta(meta);
+        }
+        if (inStreamOptions.isEncrypted()) {
+          return CryptoFileInStream.create(status, inStreamOptions, mFsContext);
+        }
+      }
+      // ALLUXIO CS END
       return new FileInStream(status, inStreamOptions, mFsContext);
     });
->>>>>>> aos/master
   }
 
   @Override

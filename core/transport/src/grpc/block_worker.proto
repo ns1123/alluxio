@@ -6,15 +6,11 @@ option java_outer_classname = "BlockWorkerProto";
 
 package alluxio.grpc.block;
 
-import "proto/dataserver/protocol.proto";
-<<<<<<< HEAD
 // ALLUXIO CS ADD
 import "proto/security/capability_proto.proto";
 // ALLUXIO CS END
-||||||| merged common ancestors
-=======
+import "proto/dataserver/protocol.proto";
 import "grpc/common.proto";
->>>>>>> aos/master
 
 // The block worker service
 service BlockWorker {
