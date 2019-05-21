@@ -7,9 +7,14 @@ option java_outer_classname = "BlockWorkerProto";
 package alluxio.grpc.block;
 
 import "proto/dataserver/protocol.proto";
+<<<<<<< HEAD
 // ALLUXIO CS ADD
 import "proto/security/capability_proto.proto";
 // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+import "grpc/common.proto";
+>>>>>>> aos/master
 
 // The block worker service
 service BlockWorker {
@@ -24,6 +29,7 @@ service BlockWorker {
 
   rpc AsyncCache (AsyncCacheRequest) returns (AsyncCacheResponse);
   rpc RemoveBlock (RemoveBlockRequest) returns (RemoveBlockResponse);
+  rpc MoveBlock (MoveBlockRequest) returns (MoveBlockResponse);
 }
 
 // The check request
@@ -161,3 +167,10 @@ message RemoveBlockRequest {
 }
 
 message RemoveBlockResponse {}
+
+message MoveBlockRequest {
+  optional int64 block_id = 1;
+  optional string medium_type = 2;
+}
+
+message MoveBlockResponse {}
