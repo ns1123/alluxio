@@ -2289,17 +2289,11 @@ public final class FileSystemMasterClientServiceGrpc {
   private static final int METHODID_START_SYNC = 17;
   private static final int METHODID_STOP_SYNC = 18;
   private static final int METHODID_UNMOUNT = 19;
-<<<<<<< HEAD
-  private static final int METHODID_UPDATE_UFS_MODE = 20;
-  private static final int METHODID_GET_DELEGATION_TOKEN = 21;
-  private static final int METHODID_RENEW_DELEGATION_TOKEN = 22;
-  private static final int METHODID_CANCEL_DELEGATION_TOKEN = 23;
-||||||| merged common ancestors
-  private static final int METHODID_UPDATE_UFS_MODE = 20;
-=======
   private static final int METHODID_UPDATE_MOUNT = 20;
   private static final int METHODID_UPDATE_UFS_MODE = 21;
->>>>>>> OPENSOURCE/branch-2.0
+  private static final int METHODID_GET_DELEGATION_TOKEN = 22;
+  private static final int METHODID_RENEW_DELEGATION_TOKEN = 23;
+  private static final int METHODID_CANCEL_DELEGATION_TOKEN = 24;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
