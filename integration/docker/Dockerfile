@@ -12,17 +12,11 @@
 
 FROM openjdk:8-jdk-alpine
 
-<<<<<<< HEAD
 # ALLUXIO CS REPLACE
-# ARG ALLUXIO_TARBALL=http://downloads.alluxio.io/downloads/files/1.8.1/alluxio-1.8.1-bin.tar.gz
+# ARG ALLUXIO_TARBALL=http://downloads.alluxio.io/downloads/files/2.0.0/alluxio-2.0.0-RC1-bin.tar.gz
 # ALLUXIO CS WITH
-ARG ALLUXIO_TARBALL=alluxio-enterprise-1.8.1.tar.gz
+ARG ALLUXIO_TARBALL=alluxio-enterprise-2.0.0-RC1.tar.gz
 # ALLUXIO CS END
-||||||| merged common ancestors
-ARG ALLUXIO_TARBALL=http://downloads.alluxio.io/downloads/files/1.8.1/alluxio-1.8.1-bin.tar.gz
-=======
-ARG ALLUXIO_TARBALL=http://downloads.alluxio.io/downloads/files/2.0.0/alluxio-2.0.0-RC1-bin.tar.gz
->>>>>>> OPENSOURCE/branch-2.0
 
 RUN apk add --update bash libc6-compat && \
     rm -rf /var/cache/apk/*
