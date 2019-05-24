@@ -361,6 +361,13 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
+  public void updateMount(AlluxioURI alluxioPath, MountContext context)
+      throws FileAlreadyExistsException, FileDoesNotExistException,
+      InvalidPathException, IOException, AccessControlException {
+    mFileSystemMaster.updateMount(alluxioPath, context);
+  }
+
+  @Override
   public void setAcl(AlluxioURI path, SetAclAction action,
       List<AclEntry> entries, SetAclContext context)
       throws FileDoesNotExistException, AccessControlException, InvalidPathException, IOException {
