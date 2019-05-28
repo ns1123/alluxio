@@ -153,14 +153,14 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
     // UserGroupInformation.setConfiguration(hdfsConf) will trigger service loading.
     // Stash the classloader to prevent service loading throwing exception due to
     // classloader mismatch.
-    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+    ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       Thread.currentThread().setContextClassLoader(hdfsConf.getClassLoader());
       // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
       // group service.
       UserGroupInformation.setConfiguration(hdfsConf);
     } finally {
-      Thread.currentThread().setContextClassLoader(previousClassLoader);
+      Thread.currentThread().setContextClassLoader(currentClassLoader);
     }
     // ALLUXIO CS ADD
 
@@ -197,29 +197,43 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
     mUserFs = CacheBuilder.newBuilder().build(new CacheLoader<String, FileSystem>() {
       @Override
       public FileSystem load(String userKey) throws Exception {
-        // ALLUXIO CS REPLACE
-        // return path.getFileSystem(hdfsConf);
-        // ALLUXIO CS WITH
-        if (!HDFS_USER.equals(userKey)) {
-          // Impersonate this user
-          org.apache.hadoop.security.UserGroupInformation proxyUgi =
-              org.apache.hadoop.security.UserGroupInformation.createProxyUser(userKey,
-                  org.apache.hadoop.security.UserGroupInformation.getLoginUser());
-          LOG.info("Connecting to hdfs(impersonation): {} proxyUgi: {} user: {}", ufsPrefix,
-              proxyUgi, userKey);
-          return HdfsSecurityUtils.runAs(proxyUgi, () -> {
-            Path path = new Path(ufsPrefix);
-            return path.getFileSystem(ufsHdfsConf);
-          });
-        } else {
-          LOG.info("Connecting to hdfs: {} ugi: {}", ufsPrefix,
-              org.apache.hadoop.security.UserGroupInformation.getLoginUser());
-          return HdfsSecurityUtils.runAsCurrentUser(() -> {
-            Path path = new Path(ufsPrefix);
-            return path.getFileSystem(ufsHdfsConf);
-          });
+        // When running {@link UnderFileSystemContractTest} with hdfs path,
+        // the org.apache.hadoop.fs.FileSystem is loaded by {@link ExtensionClassLoader},
+        // but the org.apache.hadoop.fs.LocalFileSystem is loaded by {@link AppClassLoader}.
+        // When an interface and associated implementation are each loaded
+        // by two separate class loaders, an instance of the class from one loader cannot
+        // be recognized as implementing the interface from the other loader.
+        ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+          // Set the class loader to ensure FileSystem implementations are
+          // loaded by the same class loader to avoid ServerConfigurationError
+          Thread.currentThread().setContextClassLoader(currentClassLoader);
+          // ALLUXIO CS REPLACE
+          // return path.getFileSystem(hdfsConf);
+          // ALLUXIO CS WITH
+          if (!HDFS_USER.equals(userKey)) {
+            // Impersonate this user
+            org.apache.hadoop.security.UserGroupInformation proxyUgi =
+                org.apache.hadoop.security.UserGroupInformation.createProxyUser(userKey,
+                    org.apache.hadoop.security.UserGroupInformation.getLoginUser());
+            LOG.info("Connecting to hdfs(impersonation): {} proxyUgi: {} user: {}", ufsPrefix,
+                proxyUgi, userKey);
+            return HdfsSecurityUtils.runAs(proxyUgi, () -> {
+              Path path = new Path(ufsPrefix);
+              return path.getFileSystem(ufsHdfsConf);
+            });
+          } else {
+            LOG.info("Connecting to hdfs: {} ugi: {}", ufsPrefix,
+                org.apache.hadoop.security.UserGroupInformation.getLoginUser());
+            return HdfsSecurityUtils.runAsCurrentUser(() -> {
+              Path path = new Path(ufsPrefix);
+              return path.getFileSystem(ufsHdfsConf);
+            });
+          }
+          // ALLUXIO CS END
+        } finally {
+          Thread.currentThread().setContextClassLoader(previousClassLoader);
         }
-        // ALLUXIO CS END
       }
     });
 
