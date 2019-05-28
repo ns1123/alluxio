@@ -75,7 +75,6 @@ public final class ProtoUtils {
           alluxio.proto.journal.Job.TaskInfo.Builder builder, byte[] bytes) {
     return builder.setResult(com.google.protobuf.ByteString.copyFrom(bytes));
   }
-  
   // ALLUXIO CS ADD
 
   /**
