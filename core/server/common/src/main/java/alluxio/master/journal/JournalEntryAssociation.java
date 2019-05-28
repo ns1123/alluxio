@@ -63,10 +63,6 @@ public final class JournalEntryAssociation {
     if (entry.hasPrivilegeUpdate()) {
       return Constants.PRIVILEGE_MASTER_NAME;
     }
-    if (entry.hasFinishJob()
-        || entry.hasStartJob()) {
-      return Constants.JOB_MASTER_NAME;
-    }
     if (entry.hasGetDelegationToken()
         || entry.hasRemoveDelegationToken()
         || entry.hasRenewDelegationToken()

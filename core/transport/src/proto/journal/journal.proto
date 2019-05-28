@@ -7,7 +7,6 @@ import "proto/journal/block.proto";
 import "proto/journal/file.proto";
 import "proto/journal/meta.proto";
 // ALLUXIO CS ADD
-import "proto/journal/job.proto";
 import "proto/journal/license.proto";
 import "proto/journal/privilege.proto";
 // ALLUXIO CS END
@@ -24,13 +23,12 @@ import "proto/journal/privilege.proto";
 message JournalEntry {
   // ALLUXIO CS ADD
   // next available id: 1010
-  optional FinishJobEntry finish_job = 1002;
+  reserved 1002, 1003;
   optional GetDelegationTokenEntry get_delegation_token = 1006;
   optional LicenseCheckEntry license_check = 1001;
   optional PrivilegeUpdateEntry privilege_update = 1004;
   optional RemoveDelegationTokenEntry remove_delegation_token = 1008;
   optional RenewDelegationTokenEntry renew_delegation_token = 1009;
-  optional StartJobEntry start_job = 1003;
   optional UpdateMasterKeyEntry update_master_key = 1007;
   // ALLUXIO CS END
   optional int64 sequence_number = 1;

@@ -389,8 +389,7 @@ start_monitor() {
       run="false"
     fi
   elif [[ "${action}" == "logserver" || "${action}" == "safe" ]]; then
-    echo -e "Error: Invalid Monitor ACTION: ${action}" >&2
-    exit 1
+    run="false"
   fi
   if [[ -z "${run}" ]]; then
     ${LAUNCHER} "${BIN}/alluxio-monitor.sh" "${action}" "${nodes}"
@@ -516,6 +515,11 @@ main() {
       start_proxies
       ;;
     local)
+      ALLUXIO_MASTER_JAVA_OPTS+=" -Dalluxio.master.hostname=localhost"
+      ALLUXIO_WORKER_JAVA_OPTS+=" -Dalluxio.master.hostname=localhost"
+      ALLUXIO_PROXY_JAVA_OPTS+=" -Dalluxio.master.hostname=localhost"
+      ALLUXIO_JOB_MASTER_JAVA_OPTS+=" -Dalluxio.master.hostname=localhost"
+      ALLUXIO_JOB_WORKER_JAVA_OPTS+=" -Dalluxio.master.hostname=localhost"
       start_master "${FORMAT}"
       ALLUXIO_MASTER_SECONDARY=true
       # We only start a secondary master when using a UFS journal.

@@ -62,7 +62,6 @@ spec:
         app: alluxio-master
     spec:
       hostNetwork: true
-      hostPID: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: alluxio-master
@@ -75,7 +74,7 @@ spec:
               cpu: "1"
               memory: "1024M"
           command: ["/entrypoint.sh"]
-          args: ["master"]
+          args: ["master-only", "--no-format"]
           envFrom:
           - configMapRef:
               name: alluxio-config
@@ -84,6 +83,24 @@ spec:
             name: rpc
           - containerPort: 19999
             name: web
+          volumeMounts:
+            - name: alluxio-journal
+              mountPath: /journal
+        - name: alluxio-job-master
+          image: alluxio/alluxio:latest
+          resources:
+            requests:
+              cpu: "0.5"
+              memory: "512M"
+            limits:
+              cpu: "1"
+              memory: "1024M"
+          command: ["/entrypoint.sh"]
+          args: ["job-master"]
+          envFrom:
+          - configMapRef:
+              name: alluxio-config
+          ports:
           - containerPort: 20001
             name: job-rpc
           - containerPort: 20002
