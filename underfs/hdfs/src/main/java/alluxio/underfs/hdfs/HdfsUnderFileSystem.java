@@ -197,31 +197,6 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
     mUserFs = CacheBuilder.newBuilder().build(new CacheLoader<String, FileSystem>() {
       @Override
       public FileSystem load(String userKey) throws Exception {
-<<<<<<< HEAD
-        // ALLUXIO CS REPLACE
-        // return path.getFileSystem(hdfsConf);
-        // ALLUXIO CS WITH
-        if (!HDFS_USER.equals(userKey)) {
-          // Impersonate this user
-          org.apache.hadoop.security.UserGroupInformation proxyUgi =
-              org.apache.hadoop.security.UserGroupInformation.createProxyUser(userKey,
-                  org.apache.hadoop.security.UserGroupInformation.getLoginUser());
-          LOG.info("Connecting to hdfs(impersonation): {} proxyUgi: {} user: {}", ufsPrefix,
-              proxyUgi, userKey);
-          return HdfsSecurityUtils.runAs(proxyUgi, () -> {
-            Path path = new Path(ufsPrefix);
-            return path.getFileSystem(ufsHdfsConf);
-          });
-        } else {
-          LOG.info("Connecting to hdfs: {} ugi: {}", ufsPrefix,
-              org.apache.hadoop.security.UserGroupInformation.getLoginUser());
-          return HdfsSecurityUtils.runAsCurrentUser(() -> {
-            Path path = new Path(ufsPrefix);
-            return path.getFileSystem(ufsHdfsConf);
-          });
-        }
-        // ALLUXIO CS END
-=======
         // When running {@link UnderFileSystemContractTest} with hdfs path,
         // the org.apache.hadoop.fs.FileSystem is loaded by {@link ExtensionClassLoader},
         // but the org.apache.hadoop.fs.LocalFileSystem is loaded by {@link AppClassLoader}.
@@ -233,11 +208,32 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
           // Set the class loader to ensure FileSystem implementations are
           // loaded by the same class loader to avoid ServerConfigurationError
           Thread.currentThread().setContextClassLoader(currentClassLoader);
-          return path.getFileSystem(hdfsConf);
+          // ALLUXIO CS REPLACE
+          // return path.getFileSystem(hdfsConf);
+          // ALLUXIO CS WITH
+          if (!HDFS_USER.equals(userKey)) {
+            // Impersonate this user
+            org.apache.hadoop.security.UserGroupInformation proxyUgi =
+                org.apache.hadoop.security.UserGroupInformation.createProxyUser(userKey,
+                    org.apache.hadoop.security.UserGroupInformation.getLoginUser());
+            LOG.info("Connecting to hdfs(impersonation): {} proxyUgi: {} user: {}", ufsPrefix,
+                proxyUgi, userKey);
+            return HdfsSecurityUtils.runAs(proxyUgi, () -> {
+              Path path = new Path(ufsPrefix);
+              return path.getFileSystem(ufsHdfsConf);
+            });
+          } else {
+            LOG.info("Connecting to hdfs: {} ugi: {}", ufsPrefix,
+                org.apache.hadoop.security.UserGroupInformation.getLoginUser());
+            return HdfsSecurityUtils.runAsCurrentUser(() -> {
+              Path path = new Path(ufsPrefix);
+              return path.getFileSystem(ufsHdfsConf);
+            });
+          }
+          // ALLUXIO CS END
         } finally {
           Thread.currentThread().setContextClassLoader(previousClassLoader);
         }
->>>>>>> OPENSOURCE/branch-2.0
       }
     });
 
