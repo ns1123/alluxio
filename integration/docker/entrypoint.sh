@@ -18,10 +18,14 @@ function printUsage {
   echo "Usage: COMMAND [COMMAND_OPTIONS]"
   echo
   echo "COMMAND is one of:"
-  echo -e " master [--no-format]    \t Start Alluxio master. If --no-format is specified, do not format"
-  echo -e " worker [--no-format]    \t Start Alluxio worker. If --no-format is specified, do not format"
-  echo -e " proxy                   \t Start Alluxio proxy"
-  echo -e " fuse                    \t Start Alluxio fuse"
+  echo -e " master [--no-format]         \t Start Alluxio master. If --no-format is specified, do not format"
+  echo -e " master-only [--no-format]    \t Start Alluxio master w/o job master. If --no-format is specified, do not format"
+  echo -e " worker [--no-format]         \t Start Alluxio worker. If --no-format is specified, do not format"
+  echo -e " worker-only [--no-format]    \t Start Alluxio worker w/o job worker. If --no-format is specified, do not format"
+  echo -e " job-master                   \t Start Alluxio job master"
+  echo -e " job-worker                   \t Start Alluxio job worker"
+  echo -e " proxy                        \t Start Alluxio proxy"
+  echo -e " fuse                         \t Start Alluxio fuse"
 }
 
 if [[ $# -lt 1 ]]; then
@@ -75,35 +79,61 @@ function writeConf {
 
 writeConf
 
+<<<<<<< HEAD
 # ALLUXIO CS ADD
 if [[ -n "${ALLUXIO_LICENSE_BASE64}" ]]; then
   echo "${ALLUXIO_LICENSE_BASE64}" | base64 -d > license.json
 fi
 # ALLUXIO CS END
+||||||| merged common ancestors
+=======
+function formatMasterIfSpecified {
+  if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
+    printUsage
+    exit 1
+  fi
+  if [[ ${options} != ${NO_FORMAT} ]]; then
+    bin/alluxio formatMaster
+  fi
+}
+
+function formatWorkerIfSpecified {
+  if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
+    printUsage
+    exit 1
+  fi
+  if [[ ${options} != ${NO_FORMAT} ]]; then
+    bin/alluxio formatWorker
+  fi
+}
+
+>>>>>>> os/branch-2.0
 case ${service,,} in
   master)
-    if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
-      printUsage
-      exit 1
-    fi
-    if [[ ${options} != ${NO_FORMAT} ]]; then
-      bin/alluxio formatMaster
-    fi
+    formatMasterIfSpecified
     integration/docker/bin/alluxio-job-master.sh &
     integration/docker/bin/alluxio-master.sh &
     wait -n
     ;;
+  master-only)
+    formatMasterIfSpecified
+    integration/docker/bin/alluxio-master.sh
+    ;;
+  job-master)
+    integration/docker/bin/alluxio-job-master.sh
+    ;;
   worker)
-    if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
-      printUsage
-      exit 1
-    fi
-    if [[ ${options} != ${NO_FORMAT} ]]; then
-      bin/alluxio formatWorker
-    fi
+    formatWorkerIfSpecified
     integration/docker/bin/alluxio-job-worker.sh &
     integration/docker/bin/alluxio-worker.sh &
     wait -n
+    ;;
+  worker-only)
+    formatWorkerIfSpecified
+    integration/docker/bin/alluxio-worker.sh
+    ;;
+  job-worker)
+    integration/docker/bin/alluxio-job-worker.sh
     ;;
   proxy)
     integration/docker/bin/alluxio-proxy.sh
