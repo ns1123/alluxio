@@ -79,14 +79,12 @@ function writeConf {
 
 writeConf
 
-<<<<<<< HEAD
 # ALLUXIO CS ADD
 if [[ -n "${ALLUXIO_LICENSE_BASE64}" ]]; then
   echo "${ALLUXIO_LICENSE_BASE64}" | base64 -d > license.json
 fi
+
 # ALLUXIO CS END
-||||||| merged common ancestors
-=======
 function formatMasterIfSpecified {
   if [[ -n ${options} && ${options} != ${NO_FORMAT} ]]; then
     printUsage
@@ -107,7 +105,6 @@ function formatWorkerIfSpecified {
   fi
 }
 
->>>>>>> os/branch-2.0
 case ${service,,} in
   master)
     formatMasterIfSpecified
