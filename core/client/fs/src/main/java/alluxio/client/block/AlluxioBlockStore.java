@@ -124,7 +124,7 @@ public final class AlluxioBlockStore {
       // ALLUXIO CS WITH
       mWorkerInfoList = getAllWorkers().stream()
           // Filter out workers in different strict tiers.
-          .filter(w -> TieredIdentityUtils
+          .filter(w -> alluxio.util.TieredIdentityUtils
               .strictTiersMatch(w.getNetAddress().getTieredIdentity().getTiers(), mTieredIdentity,
                   mContext.getClusterConf()))
           .collect(toList());
