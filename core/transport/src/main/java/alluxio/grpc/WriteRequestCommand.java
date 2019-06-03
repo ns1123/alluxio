@@ -124,10 +124,14 @@ private static final long serialVersionUID = 0L;
             mediumType_ = bs;
             break;
           }
-<<<<<<< HEAD
+          case 72: {
+            bitField0_ |= 0x00000100;
+            pinOnCreate_ = input.readBool();
+            break;
+          }
           case 8002: {
             alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
-            if (((bitField0_ & 0x00000100) == 0x00000100)) {
+            if (((bitField0_ & 0x00000200) == 0x00000200)) {
               subBuilder = capability_.toBuilder();
             }
             capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
@@ -135,17 +139,9 @@ private static final long serialVersionUID = 0L;
               subBuilder.mergeFrom(capability_);
               capability_ = subBuilder.buildPartial();
             }
-            bitField0_ |= 0x00000100;
+            bitField0_ |= 0x00000200;
             break;
           }
-||||||| merged common ancestors
-=======
-          case 72: {
-            bitField0_ |= 0x00000100;
-            pinOnCreate_ = input.readBool();
-            break;
-          }
->>>>>>> aos/branch-2.0
         }
       }
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -359,7 +355,21 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-<<<<<<< HEAD
+  public static final int PIN_ON_CREATE_FIELD_NUMBER = 9;
+  private boolean pinOnCreate_;
+  /**
+   * <code>optional bool pin_on_create = 9;</code>
+   */
+  public boolean hasPinOnCreate() {
+    return ((bitField0_ & 0x00000100) == 0x00000100);
+  }
+  /**
+   * <code>optional bool pin_on_create = 9;</code>
+   */
+  public boolean getPinOnCreate() {
+    return pinOnCreate_;
+  }
+
   public static final int CAPABILITY_FIELD_NUMBER = 1000;
   private alluxio.proto.security.CapabilityProto.Capability capability_;
   /**
@@ -370,7 +380,7 @@ private static final long serialVersionUID = 0L;
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
    */
   public boolean hasCapability() {
-    return ((bitField0_ & 0x00000100) == 0x00000100);
+    return ((bitField0_ & 0x00000200) == 0x00000200);
   }
   /**
    * <pre>
@@ -393,24 +403,6 @@ private static final long serialVersionUID = 0L;
     return capability_ == null ? alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance() : capability_;
   }
 
-||||||| merged common ancestors
-=======
-  public static final int PIN_ON_CREATE_FIELD_NUMBER = 9;
-  private boolean pinOnCreate_;
-  /**
-   * <code>optional bool pin_on_create = 9;</code>
-   */
-  public boolean hasPinOnCreate() {
-    return ((bitField0_ & 0x00000100) == 0x00000100);
-  }
-  /**
-   * <code>optional bool pin_on_create = 9;</code>
-   */
-  public boolean getPinOnCreate() {
-    return pinOnCreate_;
-  }
-
->>>>>>> aos/branch-2.0
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -447,16 +439,12 @@ private static final long serialVersionUID = 0L;
     if (((bitField0_ & 0x00000080) == 0x00000080)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 8, mediumType_);
     }
-<<<<<<< HEAD
-    if (((bitField0_ & 0x00000100) == 0x00000100)) {
-      output.writeMessage(1000, getCapability());
-    }
-||||||| merged common ancestors
-=======
     if (((bitField0_ & 0x00000100) == 0x00000100)) {
       output.writeBool(9, pinOnCreate_);
     }
->>>>>>> aos/branch-2.0
+    if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      output.writeMessage(1000, getCapability());
+    }
     unknownFields.writeTo(output);
   }
 
@@ -496,18 +484,14 @@ private static final long serialVersionUID = 0L;
     if (((bitField0_ & 0x00000080) == 0x00000080)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, mediumType_);
     }
-<<<<<<< HEAD
-    if (((bitField0_ & 0x00000100) == 0x00000100)) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(1000, getCapability());
-    }
-||||||| merged common ancestors
-=======
     if (((bitField0_ & 0x00000100) == 0x00000100)) {
       size += com.google.protobuf.CodedOutputStream
         .computeBoolSize(9, pinOnCreate_);
     }
->>>>>>> aos/branch-2.0
+    if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(1000, getCapability());
+    }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
     return size;
@@ -563,20 +547,16 @@ private static final long serialVersionUID = 0L;
       result = result && getMediumType()
           .equals(other.getMediumType());
     }
-<<<<<<< HEAD
-    result = result && (hasCapability() == other.hasCapability());
-    if (hasCapability()) {
-      result = result && getCapability()
-          .equals(other.getCapability());
-    }
-||||||| merged common ancestors
-=======
     result = result && (hasPinOnCreate() == other.hasPinOnCreate());
     if (hasPinOnCreate()) {
       result = result && (getPinOnCreate()
           == other.getPinOnCreate());
     }
->>>>>>> aos/branch-2.0
+    result = result && (hasCapability() == other.hasCapability());
+    if (hasCapability()) {
+      result = result && getCapability()
+          .equals(other.getCapability());
+    }
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -623,19 +603,15 @@ private static final long serialVersionUID = 0L;
       hash = (37 * hash) + MEDIUM_TYPE_FIELD_NUMBER;
       hash = (53 * hash) + getMediumType().hashCode();
     }
-<<<<<<< HEAD
-    if (hasCapability()) {
-      hash = (37 * hash) + CAPABILITY_FIELD_NUMBER;
-      hash = (53 * hash) + getCapability().hashCode();
-    }
-||||||| merged common ancestors
-=======
     if (hasPinOnCreate()) {
       hash = (37 * hash) + PIN_ON_CREATE_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getPinOnCreate());
     }
->>>>>>> aos/branch-2.0
+    if (hasCapability()) {
+      hash = (37 * hash) + CAPABILITY_FIELD_NUMBER;
+      hash = (53 * hash) + getCapability().hashCode();
+    }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -797,18 +773,14 @@ private static final long serialVersionUID = 0L;
       bitField0_ = (bitField0_ & ~0x00000040);
       mediumType_ = "";
       bitField0_ = (bitField0_ & ~0x00000080);
-<<<<<<< HEAD
+      pinOnCreate_ = false;
+      bitField0_ = (bitField0_ & ~0x00000100);
       if (capabilityBuilder_ == null) {
         capability_ = null;
       } else {
         capabilityBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000100);
-||||||| merged common ancestors
-=======
-      pinOnCreate_ = false;
-      bitField0_ = (bitField0_ & ~0x00000100);
->>>>>>> aos/branch-2.0
+      bitField0_ = (bitField0_ & ~0x00000200);
       return this;
     }
 
@@ -873,22 +845,18 @@ private static final long serialVersionUID = 0L;
         to_bitField0_ |= 0x00000080;
       }
       result.mediumType_ = mediumType_;
-<<<<<<< HEAD
       if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
         to_bitField0_ |= 0x00000100;
+      }
+      result.pinOnCreate_ = pinOnCreate_;
+      if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+        to_bitField0_ |= 0x00000200;
       }
       if (capabilityBuilder_ == null) {
         result.capability_ = capability_;
       } else {
         result.capability_ = capabilityBuilder_.build();
       }
-||||||| merged common ancestors
-=======
-      if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
-        to_bitField0_ |= 0x00000100;
-      }
-      result.pinOnCreate_ = pinOnCreate_;
->>>>>>> aos/branch-2.0
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -957,16 +925,12 @@ private static final long serialVersionUID = 0L;
         mediumType_ = other.mediumType_;
         onChanged();
       }
-<<<<<<< HEAD
-      if (other.hasCapability()) {
-        mergeCapability(other.getCapability());
-      }
-||||||| merged common ancestors
-=======
       if (other.hasPinOnCreate()) {
         setPinOnCreate(other.getPinOnCreate());
       }
->>>>>>> aos/branch-2.0
+      if (other.hasCapability()) {
+        mergeCapability(other.getCapability());
+      }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
       return this;
@@ -1538,7 +1502,38 @@ private static final long serialVersionUID = 0L;
       onChanged();
       return this;
     }
-<<<<<<< HEAD
+
+    private boolean pinOnCreate_ ;
+    /**
+     * <code>optional bool pin_on_create = 9;</code>
+     */
+    public boolean hasPinOnCreate() {
+      return ((bitField0_ & 0x00000100) == 0x00000100);
+    }
+    /**
+     * <code>optional bool pin_on_create = 9;</code>
+     */
+    public boolean getPinOnCreate() {
+      return pinOnCreate_;
+    }
+    /**
+     * <code>optional bool pin_on_create = 9;</code>
+     */
+    public Builder setPinOnCreate(boolean value) {
+      bitField0_ |= 0x00000100;
+      pinOnCreate_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional bool pin_on_create = 9;</code>
+     */
+    public Builder clearPinOnCreate() {
+      bitField0_ = (bitField0_ & ~0x00000100);
+      pinOnCreate_ = false;
+      onChanged();
+      return this;
+    }
 
     private alluxio.proto.security.CapabilityProto.Capability capability_ = null;
     private com.google.protobuf.SingleFieldBuilderV3<
@@ -1551,7 +1546,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      */
     public boolean hasCapability() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
      * <pre>
@@ -1584,7 +1579,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000100;
+      bitField0_ |= 0x00000200;
       return this;
     }
     /**
@@ -1602,7 +1597,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000100;
+      bitField0_ |= 0x00000200;
       return this;
     }
     /**
@@ -1614,7 +1609,7 @@ private static final long serialVersionUID = 0L;
      */
     public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
       if (capabilityBuilder_ == null) {
-        if (((bitField0_ & 0x00000100) == 0x00000100) &&
+        if (((bitField0_ & 0x00000200) == 0x00000200) &&
             capability_ != null &&
             capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
           capability_ =
@@ -1626,7 +1621,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000100;
+      bitField0_ |= 0x00000200;
       return this;
     }
     /**
@@ -1643,7 +1638,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000100);
+      bitField0_ = (bitField0_ & ~0x00000200);
       return this;
     }
     /**
@@ -1654,7 +1649,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
      */
     public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
-      bitField0_ |= 0x00000100;
+      bitField0_ |= 0x00000200;
       onChanged();
       return getCapabilityFieldBuilder().getBuilder();
     }
@@ -1693,41 +1688,6 @@ private static final long serialVersionUID = 0L;
       }
       return capabilityBuilder_;
     }
-||||||| merged common ancestors
-=======
-
-    private boolean pinOnCreate_ ;
-    /**
-     * <code>optional bool pin_on_create = 9;</code>
-     */
-    public boolean hasPinOnCreate() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
-    }
-    /**
-     * <code>optional bool pin_on_create = 9;</code>
-     */
-    public boolean getPinOnCreate() {
-      return pinOnCreate_;
-    }
-    /**
-     * <code>optional bool pin_on_create = 9;</code>
-     */
-    public Builder setPinOnCreate(boolean value) {
-      bitField0_ |= 0x00000100;
-      pinOnCreate_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>optional bool pin_on_create = 9;</code>
-     */
-    public Builder clearPinOnCreate() {
-      bitField0_ = (bitField0_ & ~0x00000100);
-      pinOnCreate_ = false;
-      onChanged();
-      return this;
-    }
->>>>>>> aos/branch-2.0
     public final Builder setUnknownFields(
         final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
