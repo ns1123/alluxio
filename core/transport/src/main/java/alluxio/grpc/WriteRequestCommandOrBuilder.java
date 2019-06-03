@@ -119,6 +119,7 @@ public interface WriteRequestCommandOrBuilder extends
    */
   com.google.protobuf.ByteString
       getMediumTypeBytes();
+<<<<<<< HEAD
 
   /**
    * <pre>
@@ -144,4 +145,16 @@ public interface WriteRequestCommandOrBuilder extends
    * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
    */
   alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
+||||||| merged common ancestors
+=======
+
+  /**
+   * <code>optional bool pin_on_create = 9;</code>
+   */
+  boolean hasPinOnCreate();
+  /**
+   * <code>optional bool pin_on_create = 9;</code>
+   */
+  boolean getPinOnCreate();
+>>>>>>> aos/branch-2.0
 }

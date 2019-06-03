@@ -73,6 +73,7 @@ public interface CreateLocalBlockRequestOrBuilder extends
    */
   com.google.protobuf.ByteString
       getMediumTypeBytes();
+<<<<<<< HEAD
 
   /**
    * <pre>
@@ -98,4 +99,16 @@ public interface CreateLocalBlockRequestOrBuilder extends
    * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
    */
   alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
+||||||| merged common ancestors
+=======
+
+  /**
+   * <code>optional bool pin_on_create = 8;</code>
+   */
+  boolean hasPinOnCreate();
+  /**
+   * <code>optional bool pin_on_create = 8;</code>
+   */
+  boolean getPinOnCreate();
+>>>>>>> aos/branch-2.0
 }
