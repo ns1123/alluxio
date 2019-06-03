@@ -121,6 +121,15 @@ public interface WriteRequestCommandOrBuilder extends
       getMediumTypeBytes();
 
   /**
+   * <code>optional bool pin_on_create = 9;</code>
+   */
+  boolean hasPinOnCreate();
+  /**
+   * <code>optional bool pin_on_create = 9;</code>
+   */
+  boolean getPinOnCreate();
+
+  /**
    * <pre>
    * ALLUXIO CS ADD
    * </pre>

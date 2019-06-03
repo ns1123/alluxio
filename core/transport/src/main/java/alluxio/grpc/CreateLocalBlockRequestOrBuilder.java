@@ -75,6 +75,15 @@ public interface CreateLocalBlockRequestOrBuilder extends
       getMediumTypeBytes();
 
   /**
+   * <code>optional bool pin_on_create = 8;</code>
+   */
+  boolean hasPinOnCreate();
+  /**
+   * <code>optional bool pin_on_create = 8;</code>
+   */
+  boolean getPinOnCreate();
+
+  /**
    * <pre>
    * ALLUXIO CS ADD
    * </pre>

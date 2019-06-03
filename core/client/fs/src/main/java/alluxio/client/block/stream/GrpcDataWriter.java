@@ -11,6 +11,7 @@
 
 package alluxio.client.block.stream;
 
+import alluxio.client.WriteType;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.conf.AlluxioConfiguration;
@@ -170,6 +171,8 @@ public final class GrpcDataWriter implements DataWriter {
           .setFallback(alreadyFallback).build();
       builder.setCreateUfsBlockOptions(ufsBlockOptions);
     }
+    // check if we need to pin block on create
+    builder.setPinOnCreate(options.getWriteType() == WriteType.ASYNC_THROUGH);
     // ALLUXIO CS ADD
     if (options.getCapabilityFetcher() != null) {
       builder.setCapability(options.getCapabilityFetcher().getCapability().toProto());

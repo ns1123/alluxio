@@ -5,7 +5,7 @@ package alluxio.grpc;
 
 /**
  * <pre>
- * next available id: 8
+ * next available id: 9
  * </pre>
  *
  * Protobuf type {@code alluxio.grpc.block.CreateLocalBlockRequest}
@@ -26,6 +26,7 @@ private static final long serialVersionUID = 0L;
     onlyReserveSpace_ = false;
     cleanupOnFailure_ = false;
     mediumType_ = "";
+    pinOnCreate_ = false;
   }
 
   @java.lang.Override
@@ -90,9 +91,14 @@ private static final long serialVersionUID = 0L;
             mediumType_ = bs;
             break;
           }
+          case 64: {
+            bitField0_ |= 0x00000040;
+            pinOnCreate_ = input.readBool();
+            break;
+          }
           case 8010: {
             alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
-            if (((bitField0_ & 0x00000040) == 0x00000040)) {
+            if (((bitField0_ & 0x00000080) == 0x00000080)) {
               subBuilder = capability_.toBuilder();
             }
             capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
@@ -100,7 +106,7 @@ private static final long serialVersionUID = 0L;
               subBuilder.mergeFrom(capability_);
               capability_ = subBuilder.buildPartial();
             }
-            bitField0_ |= 0x00000040;
+            bitField0_ |= 0x00000080;
             break;
           }
         }
@@ -253,6 +259,21 @@ private static final long serialVersionUID = 0L;
     }
   }
 
+  public static final int PIN_ON_CREATE_FIELD_NUMBER = 8;
+  private boolean pinOnCreate_;
+  /**
+   * <code>optional bool pin_on_create = 8;</code>
+   */
+  public boolean hasPinOnCreate() {
+    return ((bitField0_ & 0x00000040) == 0x00000040);
+  }
+  /**
+   * <code>optional bool pin_on_create = 8;</code>
+   */
+  public boolean getPinOnCreate() {
+    return pinOnCreate_;
+  }
+
   public static final int CAPABILITY_FIELD_NUMBER = 1001;
   private alluxio.proto.security.CapabilityProto.Capability capability_;
   /**
@@ -263,7 +284,7 @@ private static final long serialVersionUID = 0L;
    * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
    */
   public boolean hasCapability() {
-    return ((bitField0_ & 0x00000040) == 0x00000040);
+    return ((bitField0_ & 0x00000080) == 0x00000080);
   }
   /**
    * <pre>
@@ -317,6 +338,9 @@ private static final long serialVersionUID = 0L;
       com.google.protobuf.GeneratedMessageV3.writeString(output, 7, mediumType_);
     }
     if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      output.writeBool(8, pinOnCreate_);
+    }
+    if (((bitField0_ & 0x00000080) == 0x00000080)) {
       output.writeMessage(1001, getCapability());
     }
     unknownFields.writeTo(output);
@@ -351,6 +375,10 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, mediumType_);
     }
     if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(8, pinOnCreate_);
+    }
+    if (((bitField0_ & 0x00000080) == 0x00000080)) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(1001, getCapability());
     }
@@ -400,6 +428,11 @@ private static final long serialVersionUID = 0L;
       result = result && getMediumType()
           .equals(other.getMediumType());
     }
+    result = result && (hasPinOnCreate() == other.hasPinOnCreate());
+    if (hasPinOnCreate()) {
+      result = result && (getPinOnCreate()
+          == other.getPinOnCreate());
+    }
     result = result && (hasCapability() == other.hasCapability());
     if (hasCapability()) {
       result = result && getCapability()
@@ -443,6 +476,11 @@ private static final long serialVersionUID = 0L;
     if (hasMediumType()) {
       hash = (37 * hash) + MEDIUM_TYPE_FIELD_NUMBER;
       hash = (53 * hash) + getMediumType().hashCode();
+    }
+    if (hasPinOnCreate()) {
+      hash = (37 * hash) + PIN_ON_CREATE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getPinOnCreate());
     }
     if (hasCapability()) {
       hash = (37 * hash) + CAPABILITY_FIELD_NUMBER;
@@ -543,7 +581,7 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
-   * next available id: 8
+   * next available id: 9
    * </pre>
    *
    * Protobuf type {@code alluxio.grpc.block.CreateLocalBlockRequest}
@@ -594,12 +632,14 @@ private static final long serialVersionUID = 0L;
       bitField0_ = (bitField0_ & ~0x00000010);
       mediumType_ = "";
       bitField0_ = (bitField0_ & ~0x00000020);
+      pinOnCreate_ = false;
+      bitField0_ = (bitField0_ & ~0x00000040);
       if (capabilityBuilder_ == null) {
         capability_ = null;
       } else {
         capabilityBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000040);
+      bitField0_ = (bitField0_ & ~0x00000080);
       return this;
     }
 
@@ -650,6 +690,10 @@ private static final long serialVersionUID = 0L;
       result.mediumType_ = mediumType_;
       if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
         to_bitField0_ |= 0x00000040;
+      }
+      result.pinOnCreate_ = pinOnCreate_;
+      if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        to_bitField0_ |= 0x00000080;
       }
       if (capabilityBuilder_ == null) {
         result.capability_ = capability_;
@@ -717,6 +761,9 @@ private static final long serialVersionUID = 0L;
         bitField0_ |= 0x00000020;
         mediumType_ = other.mediumType_;
         onChanged();
+      }
+      if (other.hasPinOnCreate()) {
+        setPinOnCreate(other.getPinOnCreate());
       }
       if (other.hasCapability()) {
         mergeCapability(other.getCapability());
@@ -1001,6 +1048,38 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
+    private boolean pinOnCreate_ ;
+    /**
+     * <code>optional bool pin_on_create = 8;</code>
+     */
+    public boolean hasPinOnCreate() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional bool pin_on_create = 8;</code>
+     */
+    public boolean getPinOnCreate() {
+      return pinOnCreate_;
+    }
+    /**
+     * <code>optional bool pin_on_create = 8;</code>
+     */
+    public Builder setPinOnCreate(boolean value) {
+      bitField0_ |= 0x00000040;
+      pinOnCreate_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional bool pin_on_create = 8;</code>
+     */
+    public Builder clearPinOnCreate() {
+      bitField0_ = (bitField0_ & ~0x00000040);
+      pinOnCreate_ = false;
+      onChanged();
+      return this;
+    }
+
     private alluxio.proto.security.CapabilityProto.Capability capability_ = null;
     private com.google.protobuf.SingleFieldBuilderV3<
         alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
@@ -1012,7 +1091,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      */
     public boolean hasCapability() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
      * <pre>
@@ -1045,7 +1124,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       return this;
     }
     /**
@@ -1063,7 +1142,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       return this;
     }
     /**
@@ -1075,7 +1154,7 @@ private static final long serialVersionUID = 0L;
      */
     public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
       if (capabilityBuilder_ == null) {
-        if (((bitField0_ & 0x00000040) == 0x00000040) &&
+        if (((bitField0_ & 0x00000080) == 0x00000080) &&
             capability_ != null &&
             capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
           capability_ =
@@ -1087,7 +1166,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       return this;
     }
     /**
@@ -1104,7 +1183,7 @@ private static final long serialVersionUID = 0L;
       } else {
         capabilityBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000040);
+      bitField0_ = (bitField0_ & ~0x00000080);
       return this;
     }
     /**
@@ -1115,7 +1194,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      */
     public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       onChanged();
       return getCapabilityFieldBuilder().getBuilder();
     }
