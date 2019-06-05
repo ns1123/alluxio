@@ -12,7 +12,6 @@
 package alluxio.worker.security;
 
 import alluxio.security.authentication.AuthenticatedUserInfo;
-import alluxio.security.authentication.AuthenticationServer;
 import alluxio.security.authentication.SaslServerHandler;
 import alluxio.security.authentication.token.TokenUtils;
 
@@ -20,7 +19,6 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 import java.util.HashMap;
-import java.util.UUID;
 
 /**
  * {@link SaslServerHandler} implementation for Capability scheme.
@@ -50,8 +48,8 @@ public class SaslServerHandlerCapabilityToken implements SaslServerHandler {
   }
 
   @Override
-  public void authenticationCompleted(UUID channelId, AuthenticationServer authenticationServer) {
-    authenticationServer.registerChannel(channelId, mUserInfo, mSaslServer);
+  public AuthenticatedUserInfo getAuthenticatedUserInfo() {
+    return mUserInfo;
   }
 
   @Override

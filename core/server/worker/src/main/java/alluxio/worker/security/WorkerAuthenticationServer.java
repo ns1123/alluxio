@@ -20,6 +20,7 @@ import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.security.authentication.AuthenticationServer;
 import alluxio.security.authentication.EnterpriseAuthenticationServer;
 import alluxio.security.authentication.SaslServerHandler;
+import alluxio.security.authentication.SaslStreamServerDriver;
 import alluxio.security.user.ServerUserState;
 
 import org.slf4j.Logger;
@@ -53,21 +54,23 @@ public class WorkerAuthenticationServer extends EnterpriseAuthenticationServer {
 
   @Override
   public void registerChannel(UUID channelId, AuthenticatedUserInfo userInfo,
-      SaslServer saslServer) {
-    super.registerChannel(channelId, userInfo, saslServer);
+      SaslStreamServerDriver saslDriver, SaslServer saslServer) {
+    super.registerChannel(channelId, userInfo, saslDriver, saslServer);
     mCapabilityCache.incrementUserConnectionCount(userInfo.getAuthorizedUserName());
   }
 
   @Override
-  public void unregisterChannel(UUID channelId) {
+  public boolean unregisterChannel(UUID channelId) {
+    boolean result;
     try {
       mCapabilityCache
           .decrementUserConnectionCount(getUserInfoForChannel(channelId).getAuthorizedUserName());
     } catch (UnauthenticatedException e) {
       // Parent implementation will catch it.
     } finally {
-      super.unregisterChannel(channelId);
+      result = super.unregisterChannel(channelId);
     }
+    return result;
   }
 
   @Override

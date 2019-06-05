@@ -565,6 +565,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
+  public static final PropertyKey UNDERFS_GCS_DEFAULT_MODE =
+      new Builder(Name.UNDERFS_GCS_DEFAULT_MODE)
+          .setDefaultValue("0700")
+          .setDescription("Mode (in octal notation) for GCS objects if mode cannot be discovered.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.SERVER)
+          .build();
   public static final PropertyKey UNDERFS_GCS_DIRECTORY_SUFFIX =
       new Builder(Name.UNDERFS_GCS_DIRECTORY_SUFFIX)
           .setDefaultValue("/")
@@ -1401,22 +1408,32 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDescription("The hostname of Alluxio master.")
           .setScope(Scope.ALL)
           .build();
-  public static final PropertyKey MASTER_LOCKCACHE_INITSIZE =
-      new Builder(Name.MASTER_LOCKCACHE_INITSIZE)
+  public static final PropertyKey MASTER_LOCK_POOL_INITSIZE =
+      new Builder(Name.MASTER_LOCK_POOL_INITSIZE)
           .setDefaultValue(1000)
-          .setDescription("Initial inodelock cache size")
+          .setDescription("Initial lock pool size")
           .setScope(Scope.MASTER)
           .build();
-  public static final PropertyKey MASTER_LOCKCACHE_MAXSIZE =
-      new Builder(Name.MASTER_LOCKCACHE_MAXSIZE)
-          .setDefaultValue(100000)
-          .setDescription("Maximum inodelock cache size")
+  public static final PropertyKey MASTER_LOCK_POOL_LOW_WATERMARK =
+      new Builder(Name.MASTER_LOCK_POOL_LOW_WATERMARK)
+          .setDefaultValue(500000)
+          .setDescription("Low watermark of lock pool size. "
+              + "When the size grows over the high watermark, a background thread will try to "
+              + "evict unused locks until the size reaches the low watermark.")
           .setScope(Scope.MASTER)
           .build();
-  public static final PropertyKey MASTER_LOCKCACHE_CONCURRENCY_LEVEL =
-      new Builder(Name.MASTER_LOCKCACHE_CONCURRENCY_LEVEL)
+  public static final PropertyKey MASTER_LOCK_POOL_HIGH_WATERMARK =
+      new Builder(Name.MASTER_LOCK_POOL_HIGH_WATERMARK)
+          .setDefaultValue(1000000)
+          .setDescription("High watermark of lock pool size. "
+              + "When the size grows over the high watermark, a background thread starts evicting "
+              + "unused locks from the pool.")
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey MASTER_LOCK_POOL_CONCURRENCY_LEVEL =
+      new Builder(Name.MASTER_LOCK_POOL_CONCURRENCY_LEVEL)
           .setDefaultValue(100)
-          .setDescription("Maximum concurrency level for the inodelock cache")
+          .setDescription("Maximum concurrency level for the lock pool")
           .setScope(Scope.MASTER)
           .build();
   public static final PropertyKey MASTER_JOURNAL_FLUSH_BATCH_TIME_MS =
@@ -3253,7 +3270,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey AUTHENTICATION_INACTIVE_CHANNEL_REAUTHENTICATE_PERIOD =
       new Builder(Name.AUTHENTICATION_INACTIVE_CHANNEL_REAUTHENTICATE_PERIOD)
-          .setDefaultValue("60min")
+          .setDefaultValue("3day")
           .setDescription("Interval for which client channels that have been inactive "
                   + "will be regarded as unauthenticated. Such channels will reauthenticate with "
                   + "their target master upon being used for new RPCs.")
@@ -3948,6 +3965,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String UNDERFS_EVENTUAL_CONSISTENCY_RETRY_MAX_SLEEP_MS =
         "alluxio.underfs.eventual.consistency.retry.max.sleep";
     public static final String UNDERFS_LISTING_LENGTH = "alluxio.underfs.listing.length";
+    public static final String UNDERFS_GCS_DEFAULT_MODE = "alluxio.underfs.gcs.default.mode";
     public static final String UNDERFS_GCS_DIRECTORY_SUFFIX =
         "alluxio.underfs.gcs.directory.suffix";
     public static final String UNDERFS_GCS_OWNER_ID_TO_USERNAME_MAPPING =
@@ -4083,12 +4101,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_HEARTBEAT_TIMEOUT =
         "alluxio.master.heartbeat.timeout";
     public static final String MASTER_HOSTNAME = "alluxio.master.hostname";
-    public static final String MASTER_LOCKCACHE_INITSIZE =
-        "alluxio.master.lockcache.initsize";
-    public static final String MASTER_LOCKCACHE_MAXSIZE =
-        "alluxio.master.lockcache.maxsize";
-    public static final String MASTER_LOCKCACHE_CONCURRENCY_LEVEL =
-        "alluxio.master.lockcache.concurrency.level";
+    public static final String MASTER_LOCK_POOL_INITSIZE =
+        "alluxio.master.lock.pool.initsize";
+    public static final String MASTER_LOCK_POOL_LOW_WATERMARK =
+        "alluxio.master.lock.pool.low.watermark";
+    public static final String MASTER_LOCK_POOL_HIGH_WATERMARK =
+        "alluxio.master.lock.pool.high.watermark";
+    public static final String MASTER_LOCK_POOL_CONCURRENCY_LEVEL =
+        "alluxio.master.lock.pool.concurrency.level";
     public static final String MASTER_JOURNAL_FLUSH_BATCH_TIME_MS =
         "alluxio.master.journal.flush.batch.time";
     public static final String MASTER_JOURNAL_FLUSH_TIMEOUT_MS =

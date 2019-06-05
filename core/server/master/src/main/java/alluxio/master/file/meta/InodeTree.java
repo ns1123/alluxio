@@ -145,7 +145,7 @@ public class InodeTree implements DelegatingJournaled {
      *
      * path to lock: /a/b/c
      * existing inodes: /a/b/c
-     * result: Read locks on [a, a->b, b], Write locks on [b->c]
+     * result: Read locks on [a, a->b, b], Write locks on [b->c, c]
      *
      * path to lock: /a/b/c
      * existing inodes: /a
@@ -157,26 +157,6 @@ public class InodeTree implements DelegatingJournaled {
      * @return whether the lock pattern is one of the write-type patterns
      */
     public boolean isWrite() {
-      return this == WRITE_INODE || this == WRITE_EDGE;
-    }
-
-    /**
-     * If the full path exists, the last edge is the edge leading to the last inode.
-     * Otherwise, it is the edge leaving the last existing inode.
-     *
-     * Examples
-     *
-     * path to lock: /a/b/c
-     * existing inodes: /a/b/c
-     * last edge: b->c
-     *
-     * path to lock: /a/b/c
-     * existing inodes: /a
-     * last edge: a->b
-     *
-     * @return whether the last edge should be write locked
-     */
-    public boolean writeLockLastEdge() {
       return this == WRITE_INODE || this == WRITE_EDGE;
     }
   }

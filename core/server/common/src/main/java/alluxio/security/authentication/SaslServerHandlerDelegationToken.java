@@ -17,7 +17,6 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 import java.util.HashMap;
-import java.util.UUID;
 
 /**
  * {@link SaslServerHandler} implementation for DelegationToken scheme.
@@ -44,8 +43,8 @@ public class SaslServerHandlerDelegationToken implements SaslServerHandler {
   }
 
   @Override
-  public void authenticationCompleted(UUID channelId, AuthenticationServer authenticationServer) {
-    authenticationServer.registerChannel(channelId, mUserInfo, mSaslServer);
+  public AuthenticatedUserInfo getAuthenticatedUserInfo() {
+    return mUserInfo;
   }
 
   @Override
