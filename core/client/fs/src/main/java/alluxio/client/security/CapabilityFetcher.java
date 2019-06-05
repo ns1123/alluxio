@@ -13,12 +13,12 @@ package alluxio.client.security;
 
 import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.FileSystemContextReinitializer.ReinitBlockerResource;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.URIStatus;
 import alluxio.exception.AlluxioException;
 import alluxio.grpc.GetStatusPOptions;
 import alluxio.resource.CloseableResource;
-import alluxio.resource.CountResource;
 import alluxio.security.capability.Capability;
 
 import com.google.common.base.MoreObjects;
@@ -62,7 +62,7 @@ public class CapabilityFetcher {
    * @throws AlluxioException if there is any Alluxio related failure
    */
   public Capability update() throws IOException, AlluxioException {
-    try (CountResource r = mFileSystemContext.acquireResourceToBlockReinit();
+    try (ReinitBlockerResource r = mFileSystemContext.blockReinit();
          CloseableResource<FileSystemMasterClient> client =
             mFileSystemContext.acquireMasterClientResource()) {
       URIStatus status = client.get().getStatus(mPath, GetStatusPOptions.getDefaultInstance());
