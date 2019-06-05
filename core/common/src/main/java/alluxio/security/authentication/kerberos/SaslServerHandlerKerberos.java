@@ -13,7 +13,6 @@ package alluxio.security.authentication.kerberos;
 
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.security.authentication.AuthenticatedUserInfo;
-import alluxio.security.authentication.AuthenticationServer;
 import alluxio.security.authentication.SaslServerHandler;
 import alluxio.security.util.KerberosUtils;
 
@@ -26,7 +25,6 @@ import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.UUID;
 
 /**
  * {@link SaslServerHandler} implementation for Kerberos scheme.
@@ -68,8 +66,8 @@ public class SaslServerHandlerKerberos implements SaslServerHandler {
   }
 
   @Override
-  public void authenticationCompleted(UUID channelId, AuthenticationServer authenticationServer) {
-    authenticationServer.registerChannel(channelId, mUserInfo, mSaslServer);
+  public AuthenticatedUserInfo getAuthenticatedUserInfo() {
+    return mUserInfo;
   }
 
   @Override
