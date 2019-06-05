@@ -828,6 +828,7 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
         throw new FileDoesNotExistException(e.getMessage(), e);
       }
     }
+    fileInfo.setXAttr(inode.getXAttr());
     MountTable.Resolution resolution;
     try {
       resolution = mMountTable.resolve(uri);
