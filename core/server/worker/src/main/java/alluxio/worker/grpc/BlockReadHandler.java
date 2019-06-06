@@ -155,18 +155,6 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
           try {
             BlockReader reader =
                 mWorker.readBlockRemote(request.getSessionId(), request.getId(), lockId);
-<<<<<<< HEAD
-            String counterName = WorkerMetrics.BYTES_READ_ALLUXIO;
-            // ALLUXIO CS ADD
-            if (mUserInfo.getAuthorizedUserName() != null) {
-              counterName = Metric.getMetricNameWithTags(WorkerMetrics.BYTES_READ_ALLUXIO,
-                  WorkerMetrics.TAG_USER, mUserInfo.getAuthorizedUserName());
-            }
-            // ALLUXIO CS END
-||||||| merged common ancestors
-            String counterName = WorkerMetrics.BYTES_READ_ALLUXIO;
-=======
->>>>>>> OPENSOURCE/branch-2.0
             context.setBlockReader(reader);
             mWorker.accessBlock(request.getSessionId(), request.getId());
             ((FileChannel) reader.getChannel()).position(request.getStart());
@@ -255,13 +243,28 @@ public final class BlockReadHandler extends AbstractReadHandler<BlockReadRequest
   @Override
   protected BlockReadRequestContext createRequestContext(alluxio.grpc.ReadRequest request) {
     BlockReadRequestContext context = new BlockReadRequestContext(request);
+    // ALLUXIO CS REPLACE
+    // if (mDomainSocketEnabled) {
+    //   context.setCounter(MetricsSystem.counter(WorkerMetrics.BYTES_READ_DOMAIN));
+    //   context.setMeter(MetricsSystem.meter(WorkerMetrics.BYTES_READ_DOMAIN_THROUGHPUT));
+    // } else {
+    //   context.setCounter(MetricsSystem.counter(WorkerMetrics.BYTES_READ_ALLUXIO));
+    //   context.setMeter(MetricsSystem.meter(WorkerMetrics.BYTES_READ_ALLUXIO_THROUGHPUT));
+    // }
+    // ALLUXIO CS WITH
+    String counterName = WorkerMetrics.BYTES_READ_ALLUXIO;
+    String meterName = WorkerMetrics.BYTES_READ_ALLUXIO_THROUGHPUT;
     if (mDomainSocketEnabled) {
-      context.setCounter(MetricsSystem.counter(WorkerMetrics.BYTES_READ_DOMAIN));
-      context.setMeter(MetricsSystem.meter(WorkerMetrics.BYTES_READ_DOMAIN_THROUGHPUT));
-    } else {
-      context.setCounter(MetricsSystem.counter(WorkerMetrics.BYTES_READ_ALLUXIO));
-      context.setMeter(MetricsSystem.meter(WorkerMetrics.BYTES_READ_ALLUXIO_THROUGHPUT));
+      counterName = WorkerMetrics.BYTES_READ_DOMAIN;
+      meterName = WorkerMetrics.BYTES_READ_DOMAIN_THROUGHPUT;
     }
+    if (mUserInfo.getAuthorizedUserName() != null) {
+      counterName = Metric.getMetricNameWithTags(counterName,
+          WorkerMetrics.TAG_USER, mUserInfo.getAuthorizedUserName());
+    }
+    context.setCounter(MetricsSystem.counter(counterName));
+    context.setMeter(MetricsSystem.meter(meterName));
+    // ALLUXIO CS END
     return context;
   }
 
