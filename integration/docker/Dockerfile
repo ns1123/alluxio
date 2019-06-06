@@ -13,9 +13,9 @@
 FROM openjdk:8-jdk-alpine
 
 # ALLUXIO CS REPLACE
-# ARG ALLUXIO_TARBALL=http://downloads.alluxio.io/downloads/files/2.0.0/alluxio-2.0.0-RC2-bin.tar.gz
+# ARG ALLUXIO_TARBALL=http://downloads.alluxio.io/downloads/files/2.0.0/alluxio-2.0.0-RC3-bin.tar.gz
 # ALLUXIO CS WITH
-ARG ALLUXIO_TARBALL=alluxio-enterprise-2.0.0-RC2.tar.gz
+ARG ALLUXIO_TARBALL=alluxio-enterprise-2.0.0-RC3.tar.gz
 # ALLUXIO CS END
 
 RUN apk add --update bash libc6-compat && \
