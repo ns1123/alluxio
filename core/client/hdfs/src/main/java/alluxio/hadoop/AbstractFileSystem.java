@@ -611,10 +611,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       if (!alluxio.security.TokenUtils.hasAlluxioTokens(ugi)) {
         // Check login user for Kerberos credentials. If Hadoop is authenticated using Kerberos,
         // the credentials are stored in login user.
-        ugi = UserGroupInformation.getLoginUser();
+        // Do not overwrite "ugi" since shortname should be retrieved from "current user".
+        UserGroupInformation loginUgi = UserGroupInformation.getLoginUser();
         // TODO(gpang): do we need to check for credentials, or can we always take the subject?
-        if (ugi != null && ugi.hasKerberosCredentials()) {
-          subject = getSubjectFromUGI(ugi);
+        if (loginUgi != null && loginUgi.hasKerberosCredentials()) {
+          subject = getSubjectFromUGI(loginUgi);
         } else {
           // set the subject to null, since no subject was retrieved from hadoop.
           subject = null;
