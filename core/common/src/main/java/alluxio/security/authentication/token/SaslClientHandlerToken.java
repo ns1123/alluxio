@@ -18,6 +18,9 @@ import alluxio.security.authentication.SaslClientHandler;
 import alluxio.security.authentication.Token;
 import alluxio.security.capability.CapabilityToken;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 
 import javax.security.auth.callback.CallbackHandler;
@@ -29,6 +32,8 @@ import javax.security.sasl.SaslException;
  * Creates {@link SaslClientHandler} instance for Delegation/Capability Tokens.
  */
 public class SaslClientHandlerToken implements SaslClientHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(SaslClientHandlerToken.class);
+
   /** Underlying SaslClient. */
   private final SaslClient mSaslClient;
 
@@ -72,6 +77,17 @@ public class SaslClientHandlerToken implements SaslClientHandler {
           TokenUtils.TOKEN_PROTOCOL_NAME, serverName, new HashMap<String, String>(), cbHandler);
     } catch (SaslException se) {
       throw new UnauthenticatedException(se);
+    }
+  }
+
+  @Override
+  public void close() {
+    if (mSaslClient != null) {
+      try {
+        mSaslClient.dispose();
+      } catch (SaslException exc) {
+        LOG.debug("Failed to close SaslClient.", exc);
+      }
     }
   }
 

@@ -20,6 +20,8 @@ import alluxio.security.util.KerberosUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -33,6 +35,7 @@ import javax.security.sasl.SaslException;
  * Creates {@link SaslClientHandler} instance for Kerberos.
  */
 public class SaslClientHandlerKerberos implements SaslClientHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(SaslClientHandlerKerberos.class);
 
   /** Underlying SaslClient. */
   private final SaslClient mSaslClient;
@@ -74,6 +77,17 @@ public class SaslClientHandlerKerberos implements SaslClientHandler {
     } catch (PrivilegedActionException pe) {
       Throwables.propagateIfPossible(pe.getCause(), UnauthenticatedException.class);
       throw new RuntimeException(pe.getCause());
+    }
+  }
+
+  @Override
+  public void close() {
+    if (mSaslClient != null) {
+      try {
+        mSaslClient.dispose();
+      } catch (SaslException exc) {
+        LOG.debug("Failed to close SaslClient.", exc);
+      }
     }
   }
 

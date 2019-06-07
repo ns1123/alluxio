@@ -13,15 +13,21 @@ package alluxio.security.authentication;
 
 import alluxio.security.authentication.token.TokenUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
  * {@link SaslServerHandler} implementation for DelegationToken scheme.
  */
 public class SaslServerHandlerDelegationToken implements SaslServerHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(SaslServerHandlerDelegationToken.class);
+
   /** Underlying {@code SaslServer}. */
   private final SaslServer mSaslServer;
 
@@ -45,6 +51,17 @@ public class SaslServerHandlerDelegationToken implements SaslServerHandler {
   @Override
   public AuthenticatedUserInfo getAuthenticatedUserInfo() {
     return mUserInfo;
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (mSaslServer != null) {
+      try {
+        mSaslServer.dispose();
+      } catch (SaslException exc) {
+        LOG.debug("Failed to close SaslClient.", exc);
+      }
+    }
   }
 
   @Override

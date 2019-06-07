@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.sasl.SaslException;
-import javax.security.sasl.SaslServer;
 import java.util.UUID;
 
 /**
@@ -54,8 +53,8 @@ public class WorkerAuthenticationServer extends EnterpriseAuthenticationServer {
 
   @Override
   public void registerChannel(UUID channelId, AuthenticatedUserInfo userInfo,
-      SaslStreamServerDriver saslDriver, SaslServer saslServer) {
-    super.registerChannel(channelId, userInfo, saslDriver, saslServer);
+      SaslStreamServerDriver saslDriver) {
+    super.registerChannel(channelId, userInfo, saslDriver);
     mCapabilityCache.incrementUserConnectionCount(userInfo.getAuthorizedUserName());
   }
 
