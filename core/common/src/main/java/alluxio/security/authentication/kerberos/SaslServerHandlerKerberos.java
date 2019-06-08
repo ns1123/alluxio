@@ -17,12 +17,15 @@ import alluxio.security.authentication.SaslServerHandler;
 import alluxio.security.util.KerberosUtils;
 
 import com.google.common.base.Throwables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
+import java.io.IOException;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
@@ -30,6 +33,7 @@ import java.security.PrivilegedExceptionAction;
  * {@link SaslServerHandler} implementation for Kerberos scheme.
  */
 public class SaslServerHandlerKerberos implements SaslServerHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(SaslServerHandlerKerberos.class);
   /** Underlying {@code SaslServer}. */
   private final SaslServer mSaslServer;
 
@@ -68,6 +72,17 @@ public class SaslServerHandlerKerberos implements SaslServerHandler {
   @Override
   public AuthenticatedUserInfo getAuthenticatedUserInfo() {
     return mUserInfo;
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (mSaslServer != null) {
+      try {
+        mSaslServer.dispose();
+      } catch (SaslException exc) {
+        LOG.debug("Failed to close SaslClient.", exc);
+      }
+    }
   }
 
   @Override

@@ -15,15 +15,21 @@ import alluxio.security.authentication.AuthenticatedUserInfo;
 import alluxio.security.authentication.SaslServerHandler;
 import alluxio.security.authentication.token.TokenUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
  * {@link SaslServerHandler} implementation for Capability scheme.
  */
 public class SaslServerHandlerCapabilityToken implements SaslServerHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(SaslServerHandlerCapabilityToken.class);
+
   /** Underlying {@code SaslServer}. */
   private final SaslServer mSaslServer;
   /** Underlying capability cache. */
@@ -50,6 +56,17 @@ public class SaslServerHandlerCapabilityToken implements SaslServerHandler {
   @Override
   public AuthenticatedUserInfo getAuthenticatedUserInfo() {
     return mUserInfo;
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (mSaslServer != null) {
+      try {
+        mSaslServer.dispose();
+      } catch (SaslException exc) {
+        LOG.debug("Failed to close SaslClient.", exc);
+      }
+    }
   }
 
   @Override
