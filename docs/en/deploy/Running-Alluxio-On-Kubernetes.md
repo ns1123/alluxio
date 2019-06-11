@@ -26,12 +26,15 @@ This tutorial walks through a basic Alluxio setup on Kubernetes.
 
 ### Clone the Alluxio repo
 
+Clone the Alluxio Github repository and checkout the branch corresponding to the version being used.
+The kubernetes specifications required to deploy Alluxio can be found under `integration/kubernetes`.
+
 ```bash
 git clone https://github.com/Alluxio/alluxio.git
+git checkout v{{site.ALLUXIO_RELEASED_VERSION}}
 cd integration/kubernetes
 ```
 
-The kubernetes specifications required to deploy Alluxio can be found under `integration/kubernetes`.
 
 ### Provision a Persistent Volume
 
@@ -164,6 +167,22 @@ across multiple containers.
 
 ## Troubleshooting
 
+### Enable Debug Logging
+
+To change the log level for Alluxio servers (master and workers), use the CLI command `logLevel` as
+follows:
+
+- Access the Alluxio CLI from the master pod.
+```bash
+kubectl exec -ti alluxio-master-0 /bin/bash
+```
+
+- From the master pod, execute the following:
+```bash
+cd /opt/alluxio
+./bin/alluxio logLevel --level DEBUG --logName alluxio
+```
+
 ### Short-circuit Access
 
 Short-circuit access enables clients to perform read and write operations directly against the
@@ -183,11 +202,12 @@ alluxio.worker.data.server.domain.socket.as.uuid=true
 alluxio.worker.data.server.domain.socket.address=/opt/domain
 ```
 
-To verify short-circuit reads and writes monitor the metrics displayed in the metrics tab of the web
-UI as `Domain Socket Alluxio Read` and `Domain Socket Alluxio Write`. These metrics are also exposed
-as `cluster.BytesReadDomain` and `cluster.BytesWrittenDomain`:
-- under the [metrics json]({{ '/en/operation/Metrics-System.html' | relativize_url }})
-- and, the [fsadmin metrics CLI]({{ '/en/operation/Admin-CLI.html' | relativize_url }})
+To verify short-circuit reads and writes monitor the metrics displayed under
+1. the metrics tab of the web UI as `Domain Socket Alluxio Read` and `Domain Socket Alluxio Write`
+1. or, the [metrics json]({{ '/en/operation/Metrics-System.html' | relativize_url }}) as
+`cluster.BytesReadDomain` and `cluster.BytesWrittenDomain`
+1. or, the [fsadmin metrics CLI]({{ '/en/operation/Admin-CLI.html' | relativize_url }}) as
+`Short-circuit Read (Domain Socket)` and `Alluxio Write (Domain Socket)`
 
 ### POSIX API
 
