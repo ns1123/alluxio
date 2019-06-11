@@ -212,6 +212,38 @@ public class LockPool<K> {
     return Optional.of(new RefCountLockResource(innerLock, false, resource.mRefCount));
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Attempts to take a lock on the given key for a certain time.
+   *
+   * @param key the key to lock
+   * @param mode lockMode to acquire
+   * @param time the maximum time to wait for the lock
+   * @param unit the time unit of the time argument
+   * @return either empty or a lock resource which must be closed to unlock the key
+   * @throws InterruptedException if the thread is interrupted while waiting to acquire the lock
+   */
+  public Optional<LockResource> tryGet(K key, LockMode mode, long time,
+      java.util.concurrent.TimeUnit unit) throws InterruptedException {
+    Resource resource = getResource(key);
+    ReentrantReadWriteLock lock = resource.mLock;
+    Lock innerLock;
+    switch (mode) {
+      case READ:
+        innerLock = lock.readLock();
+        break;
+      case WRITE:
+        innerLock = lock.writeLock();
+        break;
+      default:
+        throw new IllegalStateException("Unknown lock mode: " + mode);
+    }
+    if (!innerLock.tryLock(time, unit)) {
+      return Optional.empty();
+    }
+    return Optional.of(new RefCountLockResource(innerLock, false, resource.mRefCount));
+  }
+  // ALLUXIO CS END
   /**
    * Get the raw readwrite lock from the pool.
    *

@@ -60,6 +60,10 @@ public final class JournalEntryAssociation {
     if (entry.hasLicenseCheck()) {
       return Constants.LICENSE_MASTER_NAME;
     }
+    if (entry.hasPolicyDefinition()
+        || entry.hasPolicyRemove()) {
+      return Constants.POLICY_MASTER_NAME;
+    }
     if (entry.hasPrivilegeUpdate()) {
       return Constants.PRIVILEGE_MASTER_NAME;
     }

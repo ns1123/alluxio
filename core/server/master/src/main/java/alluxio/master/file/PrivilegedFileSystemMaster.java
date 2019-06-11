@@ -243,6 +243,18 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
     return mFileSystemMaster.listStatus(path, context);
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public void scan(java.util.function.BiConsumer<String, alluxio.master.file.meta.InodeView> fn) {
+    mFileSystemMaster.scan(fn);
+  }
+
+  @Override
+  public void exec(long inodeId, alluxio.master.file.meta.InodeTree.LockPattern lockPattern,
+      alluxio.function.ThrowableConsumer<ExecContext> fn) throws Exception {
+    mFileSystemMaster.exec(inodeId, lockPattern, fn);
+  }
+  // ALLUXIO CS END
   @Override
   public FileSystemMasterView getFileSystemMasterView() {
     return mFileSystemMaster.getFileSystemMasterView();

@@ -74,6 +74,16 @@ public abstract class UfsStatus {
     mLastModifiedTimeMs = status.mLastModifiedTimeMs;
     mXAttr = status.mXAttr == null ? null : new HashMap<>(status.mXAttr);
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Creates a copy of the current UfsStatus with the given extended attributes.
+   *
+   * @param xAttr the extended attributes to add to the status
+   * @return a copy of the object with the given attributes
+   */
+  public abstract UfsStatus withXAttr(Map<String, byte[]> xAttr);
+  // ALLUXIO CS END
 
   /**
    * Create a copy of {@link UfsStatus}.

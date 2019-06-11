@@ -186,7 +186,7 @@ func buildModules(srcPath, name, ufsType, moduleFlag, version string, modules ma
 		// if ufsType == "hdfs" {
 		// ALLUXIO CS WITH
 		if name == "underfs" && ufsType == "hdfs" {
-		// ALLUXIO CS END	
+		// ALLUXIO CS END
 			srcJar = fmt.Sprintf("alluxio-%v-%v-%v-%v.jar", name, ufsType, versionMvnArg, version)
 		} else {
 			srcJar = fmt.Sprintf("alluxio-%v-%v-%v.jar", name, ufsType, version)
@@ -202,6 +202,7 @@ func addAdditionalFiles(srcPath, dstPath string, hadoopVersion version, version 
 		// ALLUXIO CS ADD
 		fmt.Sprintf("lib/alluxio-underfs-fork-%v.jar", version),
 		fmt.Sprintf("lib/alluxio-underfs-jdbc-%v.jar", version),
+		fmt.Sprintf("lib/alluxio-underfs-union-%v.jar", version),
 		// ALLUXIO CS END
 		"integration/docker/bin/alluxio-job-worker.sh",
 		"integration/docker/bin/alluxio-job-master.sh",

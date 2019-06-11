@@ -72,6 +72,13 @@ public class UfsDirectoryStatus extends UfsStatus {
   public UfsDirectoryStatus(UfsDirectoryStatus status) {
     super(status);
   }
+  // ALLUXIO CS ADD
+
+  @Override
+  public UfsDirectoryStatus withXAttr(Map<String, byte[]> xAttr) {
+    return new UfsDirectoryStatus(mName, mOwner, mGroup, mMode, mLastModifiedTimeMs, xAttr);
+  }
+  // ALLUXIO CS END
 
   @Override
   public UfsDirectoryStatus copy() {

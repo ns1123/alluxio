@@ -159,6 +159,22 @@ public class InodeLockManager {
     return mInodeLocks.tryGet(inodeId, mode);
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Attempts to acquire an inode lock for a certain time.
+   *
+   * @param inodeId the inode id to try locking
+   * @param mode the mode to lock in
+   * @param time the time to wait for acquiring the lock
+   * @param unit the time unit of the time parameter
+   * @return either an empty optional, or a lock resource which must be closed to release the lock
+   * @throws InterruptedException if interrupted during waiting to acquire the lock
+   */
+  public Optional<LockResource> tryLockInode(Long inodeId, LockMode mode, long time,
+      java.util.concurrent.TimeUnit unit) throws InterruptedException {
+    return mInodeLocks.tryGet(inodeId, mode, time, unit);
+  }
+  // ALLUXIO CS END
   /**
    * Acquires an edge lock.
    *

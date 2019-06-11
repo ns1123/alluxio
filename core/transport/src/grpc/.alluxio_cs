@@ -1,2 +1,3 @@
+policy_master.proto
 privilege_master.proto
 secure_rpc_server.proto

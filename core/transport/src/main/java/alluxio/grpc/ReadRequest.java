@@ -319,6 +319,12 @@ private static final long serialVersionUID = 0L;
     if (isInitialized == 1) return true;
     if (isInitialized == 0) return false;
 
+    if (hasOpenUfsBlockOptions()) {
+      if (!getOpenUfsBlockOptions().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
     memoizedIsInitialized = 1;
     return true;
   }
@@ -790,6 +796,11 @@ private static final long serialVersionUID = 0L;
     }
 
     public final boolean isInitialized() {
+      if (hasOpenUfsBlockOptions()) {
+        if (!getOpenUfsBlockOptions().isInitialized()) {
+          return false;
+        }
+      }
       return true;
     }
 

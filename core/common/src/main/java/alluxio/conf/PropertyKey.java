@@ -3699,6 +3699,69 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       .setScope(Scope.MASTER)
       .build();
 
+  //
+  // Policy Engine
+  //
+  public static final PropertyKey POLICY_ACTION_COMMIT_THREADS =
+      new Builder(Name.POLICY_ACTION_COMMIT_THREADS)
+          .setDescription("Number of threads in the executor service for committing actions")
+          .setDefaultValue("4")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_ACTION_EXECUTION_THREADS =
+      new Builder(Name.POLICY_ACTION_EXECUTION_THREADS)
+          .setDescription("Number of threads in the executor service for executing actions")
+          .setDefaultValue("4")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_ACTION_SCHEDULER_HEARTBEAT_INTERVAL =
+      new Builder(Name.POLICY_ACTION_SCHEDULER_HEARTBEAT_INTERVAL)
+          .setDescription("The interval between two policy engine action scheduler heartbeats.")
+          .setDefaultValue("10s")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_ACTION_SCHEDULER_RUNNING_ACTIONS_MAX =
+      new Builder(Name.POLICY_ACTION_SCHEDULER_RUNNING_ACTIONS_MAX)
+          .setDescription("Max number of running actions allowed by policy engine"
+              + " action scheduler.")
+          .setDefaultValue("65536")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_ACTION_SCHEDULER_THREADS =
+      new Builder(Name.POLICY_ACTION_SCHEDULER_THREADS)
+          .setDescription("Number of threads in executor pool for policy engine action scheduler.")
+          .setDefaultValue("8")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_INCREMENTAL_INCOMPLETE_FILES_MAX =
+      new Builder(Name.POLICY_INCREMENTAL_INCOMPLETE_FILES_MAX)
+          .setDescription("The maximum number of incomplete file journal entries tracked by"
+              + " policy engine.")
+          .setDefaultValue("65536")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_SCAN_INITIAL_DELAY =
+      new Builder(Name.POLICY_SCAN_INITIAL_DELAY)
+          .setDescription("The initial delay for the policy engine scan after the primary master"
+              + " starts.")
+          .setDefaultValue("5m")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_SCAN_INTERVAL =
+      new Builder(Name.POLICY_SCAN_INTERVAL)
+          .setDescription("The interval between two policy engine scan events.")
+          .setDefaultValue("24h")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+
   public static final java.util.Set<PropertyKey> IMMUTABLE_KEYS;
 
   static {
@@ -4696,6 +4759,26 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     //
     public static final String DIAGNOSTIC_LOG_INTERVAL_MS = "alluxio.master.diagnostic.log.interval.ms";
     public static final String DIAGNOSTIC_LOG_LEVEL = "alluxio.master.diagnostic.log.level";
+
+    //
+    // Policy Engine
+    //
+    public static final String POLICY_ACTION_COMMIT_THREADS =
+        "alluxio.policy.action.commit.threads";
+    public static final String POLICY_ACTION_EXECUTION_THREADS =
+        "alluxio.policy.action.execution.threads";
+    public static final String POLICY_ACTION_SCHEDULER_HEARTBEAT_INTERVAL =
+        "alluxio.policy.action.scheduler.heartbeat.interval";
+    public static final String POLICY_ACTION_SCHEDULER_RUNNING_ACTIONS_MAX =
+        "alluxio.policy.action.scheduler.running.actions.max";
+    public static final String POLICY_ACTION_SCHEDULER_THREADS =
+        "alluxio.policy.action.scheduler.threads";
+    public static final String POLICY_INCREMENTAL_INCOMPLETE_FILES_MAX =
+        "alluxio.policy.incremental.incomplete.files.max";
+    public static final String POLICY_SCAN_INITIAL_DELAY =
+        "alluxio.policy.scan.initial.delay";
+    public static final String POLICY_SCAN_INTERVAL =
+        "alluxio.policy.scan.interval";
     // ALLUXIO CS END
 
     //

@@ -1,0 +1,61 @@
+syntax = "proto2";
+
+option java_multiple_files = true;
+option java_package = "alluxio.grpc";
+option java_outer_classname = "PolicyMasterProto";
+
+package alluxio.grpc.policy;
+
+// next available id: 8
+message PolicyInfo {
+  optional int64 id = 1;
+  optional string name = 2;
+  optional string path = 3;
+  optional int64 created_at = 4;
+  optional string scope = 5;
+  optional string condition = 6;
+  optional string action = 7;
+}
+
+message ListPolicyPResponse {
+  repeated PolicyInfo policy = 1;
+}
+message ListPolicyPOptions {}
+message ListPolicyPRequest {
+  optional ListPolicyPOptions options = 1;
+}
+
+message AddPolicyPResponse {}
+message AddPolicyPOptions {}
+message AddPolicyPRequest {
+  optional string alluxioPath = 1;
+  optional string definition = 2;
+  optional AddPolicyPOptions options = 3;
+}
+
+message RemovePolicyPResponse {}
+message RemovePolicyPOptions {}
+message RemovePolicyPRequest {
+  optional string policyName = 1;
+  optional RemovePolicyPOptions options = 2;
+}
+
+/**
+ * This interface contains policy master service endpoints for Alluxio clients.
+ */
+service PolicyMasterClientService {
+  /**
+   * Returns the list of policies
+   */
+  rpc ListPolicy(ListPolicyPRequest) returns (ListPolicyPResponse);
+
+  /**
+   * Adds a new policy definition
+   */
+  rpc AddPolicy(AddPolicyPRequest) returns (AddPolicyPResponse);
+
+  /**
+   * Removes a policy definition
+   */
+  rpc RemovePolicy(RemovePolicyPRequest) returns (RemovePolicyPResponse);
+}

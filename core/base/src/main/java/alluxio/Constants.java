@@ -71,6 +71,7 @@ public final class Constants {
   // ALLUXIO CS ADD
   public static final String HEADER_JDBC = "jdbc:";
   public static final String HEADER_MAPRFS = "maprfs://";
+  public static final String HEADER_UNION = "union://";
   // ALLUXIO CS END
   // Google Cloud Storage header convention is "gs://".
   // See https://cloud.google.com/storage/docs/cloud-console
@@ -214,6 +215,11 @@ public final class Constants {
 
   // Diagnostic
   public static final String DIAGNOSTIC_MASTER_NAME = "DiagnosticMaster";
+
+  // Policy Master
+  public static final String POLICY_MASTER_NAME = "PolicyMaster";
+  public static final String POLICY_MASTER_CLIENT_SERVICE_NAME = "PolicyMasterClient";
+  public static final long POLICY_MASTER_CLIENT_SERVICE_VERSION = 1;
 
   // Privilege checking
   public static final String PRIVILEGE_MASTER_NAME = "PrivilegeMaster";

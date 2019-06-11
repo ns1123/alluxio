@@ -8,6 +8,7 @@ import "proto/journal/file.proto";
 import "proto/journal/meta.proto";
 // ALLUXIO CS ADD
 import "proto/journal/license.proto";
+import "proto/journal/policy.proto";
 import "proto/journal/privilege.proto";
 // ALLUXIO CS END
 
@@ -22,10 +23,12 @@ import "proto/journal/privilege.proto";
 // next available id: 42
 message JournalEntry {
   // ALLUXIO CS ADD
-  // next available id: 1010
+  // next available id: 1012
   reserved 1002, 1003;
   optional GetDelegationTokenEntry get_delegation_token = 1006;
   optional LicenseCheckEntry license_check = 1001;
+  optional PolicyDefinitionEntry policy_definition = 1010;
+  optional PolicyRemoveEntry policy_remove = 1011;
   optional PrivilegeUpdateEntry privilege_update = 1004;
   optional RemoveDelegationTokenEntry remove_delegation_token = 1008;
   optional RenewDelegationTokenEntry renew_delegation_token = 1009;

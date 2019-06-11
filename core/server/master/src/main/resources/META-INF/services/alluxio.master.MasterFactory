@@ -17,6 +17,7 @@ alluxio.master.metrics.MetricsMasterFactory
 alluxio.master.callhome.CallHomeMasterFactory
 alluxio.master.diagnostic.DiagnosticMasterFactory
 alluxio.master.license.LicenseMasterFactory
+alluxio.master.policy.PolicyMasterFactory
 alluxio.master.privilege.PrivilegeMasterFactory
 # ALLUXIO CS END
 # ALLUXIO CS MODIFIED

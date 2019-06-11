@@ -20,10 +20,11 @@ message OpenUfsBlockOptions {
   // The client does not need to set this. This is set by the worker.
   optional string user = 7;
   // If set to true, the block is possibly stored as a UFS block.
-  // ALLUXIO CS REPLACE
-  // optional bool block_in_ufs_tier = 8;
-  // ALLUXIO CS WITH
-  optional bool block_in_ufs_tier = 1000;
+  optional bool block_in_ufs_tier = 8;
+
+  // ALLUXIO CS ADD
+  // Next available id: 1001
+  repeated UfsHint hints = 1000;
   // ALLUXIO CS END
 }
 
@@ -58,3 +59,9 @@ message Response {
   optional string message = 2;
 }
 
+// ALLUXIO CS ADD
+message UfsHint {
+  required int32 priority = 1000;
+  required string persistence_state = 1001;
+}
+// ALLUXIO CS END

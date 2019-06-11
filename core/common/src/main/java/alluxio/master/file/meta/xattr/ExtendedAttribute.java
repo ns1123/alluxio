@@ -23,6 +23,10 @@ import java.io.IOException;
  * @param <T> The type of object to encode/decode
  */
 public interface ExtendedAttribute<T> {
+  // ALLUXIO CS ADD
+
+  PersistenceStateAttribute PERSISTENCE_STATE = new PersistenceStateAttribute();
+  // ALLUXIO CS END
 
   /**
    * @return the full attribute with namespace and identifier

@@ -225,6 +225,12 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
 
   /** The number of threads to use in the {@link #mPersistCheckerPool}. */
   private static final int PERSIST_CHECKER_POOL_THREADS = 128;
+  // ALLUXIO CS ADD
+  /** Time (millisecond) to wait for tryLock in {@link #scan}. */
+  private static final long SCAN_TRY_LOCK_WAIT_TIME_MS = 100;
+  private static final alluxio.master.metastore.ReadOption SKIP_CACHE =
+      alluxio.master.metastore.ReadOption.newBuilder().setSkipCache(true).build();
+  // ALLUXIO CS END
 
   /**
    * Locking in DefaultFileSystemMaster
@@ -3768,6 +3774,79 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       fileInfo.setCapability(
           new alluxio.security.capability.Capability(
               mBlockMaster.getCapabilityKeyManager().getMasterKey(), content));
+    }
+  }
+
+  @Override
+  public void scan(java.util.function.BiConsumer<String, alluxio.master.file.meta.InodeView> fn) {
+    scanInternal(new AlluxioURI(InodeTree.ROOT_PATH), mInodeTree.getRoot().getId(), fn);
+  }
+
+  /**
+   * Scans the whole subtree from an inode and runs a closure when visiting each inode.
+   *
+   * When visiting an inode, an inode read lock is try-locked for a certain time until timeout,
+   * if the lock is acquired, it's released immediately after running the closure.
+   *
+   * Since no edge lock or write lock is acquired or kept during scanning, structural changes to
+   * the inode tree might happen concurrently, this means the inode and path might have been deleted
+   * or removed concurrently during scanning.
+   *
+   * This method will check whether the inode still exists before trying to get a read lock for the
+   * inode, if not, this method is a no-op.
+   *
+   * @param path the full path from inode tree root to the current inode (including)
+   * @param inodeId the current inode's ID
+   * @param fn the closure to be executed for each inode
+   */
+  private void scanInternal(AlluxioURI path, long inodeId,
+      java.util.function.BiConsumer<String, alluxio.master.file.meta.InodeView> fn) {
+    // Skip caching in InodeStore while scanning to avoid thrashing the cache.
+    Optional<Inode> inodeOpt = mInodeStore.get(inodeId, SKIP_CACHE);
+    if (!inodeOpt.isPresent()) {
+      // inode might have been concurrently deleted, fail fast.
+      return;
+    }
+    Inode inode = inodeOpt.get();
+    Optional<LockResource> lock;
+    try {
+      // Try to hold the read lock on the inode to make sure information in the inode itself
+      // will not be modified concurrently.
+      lock = mInodeLockManager.tryLockInode(inodeId, alluxio.concurrent.LockMode.READ,
+          SCAN_TRY_LOCK_WAIT_TIME_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return;
+    }
+    if (!lock.isPresent()) {
+      LOG.debug("Failed to acquire read lock for inode {}", inodeId);
+      return;
+    }
+    // Release the lock as soon as the closure finishes running.
+    try (LockResource l = lock.get()) {
+      if (!inode.getName().equals(path.getName())) {
+        // inode might have been concurrently renamed, fail fast.
+        return;
+      }
+      // Path to inode might be deleted or renamed before or after running this closure.
+      fn.accept(path.getPath(), inode);
+    }
+    if (inode.isFile()) {
+      return;
+    }
+    for (Inode child : mInodeStore.getChildren(inodeId, SKIP_CACHE)) {
+      // Weak consistency: the children may be deleted, renamed, or modified in other ways
+      // concurrently.
+      scanInternal(path.join(child.getName()), child.getId(), fn);
+    }
+  }
+
+  @Override
+  public void exec(long inodeId, LockPattern lockPattern,
+      alluxio.function.ThrowableConsumer<ExecContext> fn) throws Exception {
+    try (JournalContext journalContext = createJournalContext();
+         LockedInodePath inodePath = mInodeTree.lockFullInodePath(inodeId, lockPattern)) {
+      fn.accept(new ExecContext(journalContext, inodePath, mInodeTree, mMountTable));
     }
   }
   // ALLUXIO CS END

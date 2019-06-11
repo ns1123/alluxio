@@ -62,6 +62,7 @@ public enum PreconditionMessage {
       + "min replication must be smaller or equal than max replication"),
   // ALLUXIO CS ADD
   ERR_USER_NOT_SET("User (%s) is not set."),
+  UNEXPECTED_ACTION_STATUS("Action(%s) is in status %s, but expected status is %s"),
   // ALLUXIO CS END
   INVALID_PROPERTY("Invalid property: %s"),
   INVALID_USER_FILE_BUFFER_BYTES("Invalid value of %s: %s"),

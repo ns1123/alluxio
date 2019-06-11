@@ -130,25 +130,68 @@ public final class Protocol {
     /**
      * <pre>
      * If set to true, the block is possibly stored as a UFS block.
-     * ALLUXIO CS REPLACE
-     * optional bool block_in_ufs_tier = 8;
-     * ALLUXIO CS WITH
      * </pre>
      *
-     * <code>optional bool block_in_ufs_tier = 1000;</code>
+     * <code>optional bool block_in_ufs_tier = 8;</code>
      */
     boolean hasBlockInUfsTier();
     /**
      * <pre>
      * If set to true, the block is possibly stored as a UFS block.
-     * ALLUXIO CS REPLACE
-     * optional bool block_in_ufs_tier = 8;
-     * ALLUXIO CS WITH
      * </pre>
      *
-     * <code>optional bool block_in_ufs_tier = 1000;</code>
+     * <code>optional bool block_in_ufs_tier = 8;</code>
      */
     boolean getBlockInUfsTier();
+
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    java.util.List<alluxio.proto.dataserver.Protocol.UfsHint> 
+        getHintsList();
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    alluxio.proto.dataserver.Protocol.UfsHint getHints(int index);
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    int getHintsCount();
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    java.util.List<? extends alluxio.proto.dataserver.Protocol.UfsHintOrBuilder> 
+        getHintsOrBuilderList();
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    alluxio.proto.dataserver.Protocol.UfsHintOrBuilder getHintsOrBuilder(
+        int index);
   }
   /**
    * <pre>
@@ -176,6 +219,7 @@ public final class Protocol {
       noCache_ = false;
       user_ = "";
       blockInUfsTier_ = false;
+      hints_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -246,9 +290,18 @@ public final class Protocol {
               user_ = bs;
               break;
             }
-            case 8000: {
+            case 64: {
               bitField0_ |= 0x00000080;
               blockInUfsTier_ = input.readBool();
+              break;
+            }
+            case 8002: {
+              if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
+                hints_ = new java.util.ArrayList<alluxio.proto.dataserver.Protocol.UfsHint>();
+                mutable_bitField0_ |= 0x00000100;
+              }
+              hints_.add(
+                  input.readMessage(alluxio.proto.dataserver.Protocol.UfsHint.PARSER, extensionRegistry));
               break;
             }
           }
@@ -259,6 +312,9 @@ public final class Protocol {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
+          hints_ = java.util.Collections.unmodifiableList(hints_);
+        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -471,17 +527,14 @@ public final class Protocol {
       }
     }
 
-    public static final int BLOCK_IN_UFS_TIER_FIELD_NUMBER = 1000;
+    public static final int BLOCK_IN_UFS_TIER_FIELD_NUMBER = 8;
     private boolean blockInUfsTier_;
     /**
      * <pre>
      * If set to true, the block is possibly stored as a UFS block.
-     * ALLUXIO CS REPLACE
-     * optional bool block_in_ufs_tier = 8;
-     * ALLUXIO CS WITH
      * </pre>
      *
-     * <code>optional bool block_in_ufs_tier = 1000;</code>
+     * <code>optional bool block_in_ufs_tier = 8;</code>
      */
     public boolean hasBlockInUfsTier() {
       return ((bitField0_ & 0x00000080) == 0x00000080);
@@ -489,15 +542,72 @@ public final class Protocol {
     /**
      * <pre>
      * If set to true, the block is possibly stored as a UFS block.
-     * ALLUXIO CS REPLACE
-     * optional bool block_in_ufs_tier = 8;
-     * ALLUXIO CS WITH
      * </pre>
      *
-     * <code>optional bool block_in_ufs_tier = 1000;</code>
+     * <code>optional bool block_in_ufs_tier = 8;</code>
      */
     public boolean getBlockInUfsTier() {
       return blockInUfsTier_;
+    }
+
+    public static final int HINTS_FIELD_NUMBER = 1000;
+    private java.util.List<alluxio.proto.dataserver.Protocol.UfsHint> hints_;
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    public java.util.List<alluxio.proto.dataserver.Protocol.UfsHint> getHintsList() {
+      return hints_;
+    }
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    public java.util.List<? extends alluxio.proto.dataserver.Protocol.UfsHintOrBuilder> 
+        getHintsOrBuilderList() {
+      return hints_;
+    }
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    public int getHintsCount() {
+      return hints_.size();
+    }
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    public alluxio.proto.dataserver.Protocol.UfsHint getHints(int index) {
+      return hints_.get(index);
+    }
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * Next available id: 1001
+     * </pre>
+     *
+     * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+     */
+    public alluxio.proto.dataserver.Protocol.UfsHintOrBuilder getHintsOrBuilder(
+        int index) {
+      return hints_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -506,6 +616,12 @@ public final class Protocol {
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
+      for (int i = 0; i < getHintsCount(); i++) {
+        if (!getHints(i).isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -534,7 +650,10 @@ public final class Protocol {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 7, user_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeBool(1000, blockInUfsTier_);
+        output.writeBool(8, blockInUfsTier_);
+      }
+      for (int i = 0; i < hints_.size(); i++) {
+        output.writeMessage(1000, hints_.get(i));
       }
       unknownFields.writeTo(output);
     }
@@ -572,7 +691,11 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(1000, blockInUfsTier_);
+          .computeBoolSize(8, blockInUfsTier_);
+      }
+      for (int i = 0; i < hints_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1000, hints_.get(i));
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -630,6 +753,8 @@ public final class Protocol {
         result = result && (getBlockInUfsTier()
             == other.getBlockInUfsTier());
       }
+      result = result && getHintsList()
+          .equals(other.getHintsList());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -677,6 +802,10 @@ public final class Protocol {
         hash = (37 * hash) + BLOCK_IN_UFS_TIER_FIELD_NUMBER;
         hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
             getBlockInUfsTier());
+      }
+      if (getHintsCount() > 0) {
+        hash = (37 * hash) + HINTS_FIELD_NUMBER;
+        hash = (53 * hash) + getHintsList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -808,6 +937,7 @@ public final class Protocol {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
+          getHintsFieldBuilder();
         }
       }
       public Builder clear() {
@@ -828,6 +958,12 @@ public final class Protocol {
         bitField0_ = (bitField0_ & ~0x00000040);
         blockInUfsTier_ = false;
         bitField0_ = (bitField0_ & ~0x00000080);
+        if (hintsBuilder_ == null) {
+          hints_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000100);
+        } else {
+          hintsBuilder_.clear();
+        }
         return this;
       }
 
@@ -884,6 +1020,15 @@ public final class Protocol {
           to_bitField0_ |= 0x00000080;
         }
         result.blockInUfsTier_ = blockInUfsTier_;
+        if (hintsBuilder_ == null) {
+          if (((bitField0_ & 0x00000100) == 0x00000100)) {
+            hints_ = java.util.Collections.unmodifiableList(hints_);
+            bitField0_ = (bitField0_ & ~0x00000100);
+          }
+          result.hints_ = hints_;
+        } else {
+          result.hints_ = hintsBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -954,12 +1099,43 @@ public final class Protocol {
         if (other.hasBlockInUfsTier()) {
           setBlockInUfsTier(other.getBlockInUfsTier());
         }
+        if (hintsBuilder_ == null) {
+          if (!other.hints_.isEmpty()) {
+            if (hints_.isEmpty()) {
+              hints_ = other.hints_;
+              bitField0_ = (bitField0_ & ~0x00000100);
+            } else {
+              ensureHintsIsMutable();
+              hints_.addAll(other.hints_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.hints_.isEmpty()) {
+            if (hintsBuilder_.isEmpty()) {
+              hintsBuilder_.dispose();
+              hintsBuilder_ = null;
+              hints_ = other.hints_;
+              bitField0_ = (bitField0_ & ~0x00000100);
+              hintsBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getHintsFieldBuilder() : null;
+            } else {
+              hintsBuilder_.addAllMessages(other.hints_);
+            }
+          }
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
+        for (int i = 0; i < getHintsCount(); i++) {
+          if (!getHints(i).isInitialized()) {
+            return false;
+          }
+        }
         return true;
       }
 
@@ -1370,12 +1546,9 @@ public final class Protocol {
       /**
        * <pre>
        * If set to true, the block is possibly stored as a UFS block.
-       * ALLUXIO CS REPLACE
-       * optional bool block_in_ufs_tier = 8;
-       * ALLUXIO CS WITH
        * </pre>
        *
-       * <code>optional bool block_in_ufs_tier = 1000;</code>
+       * <code>optional bool block_in_ufs_tier = 8;</code>
        */
       public boolean hasBlockInUfsTier() {
         return ((bitField0_ & 0x00000080) == 0x00000080);
@@ -1383,12 +1556,9 @@ public final class Protocol {
       /**
        * <pre>
        * If set to true, the block is possibly stored as a UFS block.
-       * ALLUXIO CS REPLACE
-       * optional bool block_in_ufs_tier = 8;
-       * ALLUXIO CS WITH
        * </pre>
        *
-       * <code>optional bool block_in_ufs_tier = 1000;</code>
+       * <code>optional bool block_in_ufs_tier = 8;</code>
        */
       public boolean getBlockInUfsTier() {
         return blockInUfsTier_;
@@ -1396,12 +1566,9 @@ public final class Protocol {
       /**
        * <pre>
        * If set to true, the block is possibly stored as a UFS block.
-       * ALLUXIO CS REPLACE
-       * optional bool block_in_ufs_tier = 8;
-       * ALLUXIO CS WITH
        * </pre>
        *
-       * <code>optional bool block_in_ufs_tier = 1000;</code>
+       * <code>optional bool block_in_ufs_tier = 8;</code>
        */
       public Builder setBlockInUfsTier(boolean value) {
         bitField0_ |= 0x00000080;
@@ -1412,18 +1579,345 @@ public final class Protocol {
       /**
        * <pre>
        * If set to true, the block is possibly stored as a UFS block.
-       * ALLUXIO CS REPLACE
-       * optional bool block_in_ufs_tier = 8;
-       * ALLUXIO CS WITH
        * </pre>
        *
-       * <code>optional bool block_in_ufs_tier = 1000;</code>
+       * <code>optional bool block_in_ufs_tier = 8;</code>
        */
       public Builder clearBlockInUfsTier() {
         bitField0_ = (bitField0_ & ~0x00000080);
         blockInUfsTier_ = false;
         onChanged();
         return this;
+      }
+
+      private java.util.List<alluxio.proto.dataserver.Protocol.UfsHint> hints_ =
+        java.util.Collections.emptyList();
+      private void ensureHintsIsMutable() {
+        if (!((bitField0_ & 0x00000100) == 0x00000100)) {
+          hints_ = new java.util.ArrayList<alluxio.proto.dataserver.Protocol.UfsHint>(hints_);
+          bitField0_ |= 0x00000100;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          alluxio.proto.dataserver.Protocol.UfsHint, alluxio.proto.dataserver.Protocol.UfsHint.Builder, alluxio.proto.dataserver.Protocol.UfsHintOrBuilder> hintsBuilder_;
+
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public java.util.List<alluxio.proto.dataserver.Protocol.UfsHint> getHintsList() {
+        if (hintsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(hints_);
+        } else {
+          return hintsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public int getHintsCount() {
+        if (hintsBuilder_ == null) {
+          return hints_.size();
+        } else {
+          return hintsBuilder_.getCount();
+        }
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public alluxio.proto.dataserver.Protocol.UfsHint getHints(int index) {
+        if (hintsBuilder_ == null) {
+          return hints_.get(index);
+        } else {
+          return hintsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public Builder setHints(
+          int index, alluxio.proto.dataserver.Protocol.UfsHint value) {
+        if (hintsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHintsIsMutable();
+          hints_.set(index, value);
+          onChanged();
+        } else {
+          hintsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public Builder setHints(
+          int index, alluxio.proto.dataserver.Protocol.UfsHint.Builder builderForValue) {
+        if (hintsBuilder_ == null) {
+          ensureHintsIsMutable();
+          hints_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          hintsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public Builder addHints(alluxio.proto.dataserver.Protocol.UfsHint value) {
+        if (hintsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHintsIsMutable();
+          hints_.add(value);
+          onChanged();
+        } else {
+          hintsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public Builder addHints(
+          int index, alluxio.proto.dataserver.Protocol.UfsHint value) {
+        if (hintsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHintsIsMutable();
+          hints_.add(index, value);
+          onChanged();
+        } else {
+          hintsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public Builder addHints(
+          alluxio.proto.dataserver.Protocol.UfsHint.Builder builderForValue) {
+        if (hintsBuilder_ == null) {
+          ensureHintsIsMutable();
+          hints_.add(builderForValue.build());
+          onChanged();
+        } else {
+          hintsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public Builder addHints(
+          int index, alluxio.proto.dataserver.Protocol.UfsHint.Builder builderForValue) {
+        if (hintsBuilder_ == null) {
+          ensureHintsIsMutable();
+          hints_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          hintsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public Builder addAllHints(
+          java.lang.Iterable<? extends alluxio.proto.dataserver.Protocol.UfsHint> values) {
+        if (hintsBuilder_ == null) {
+          ensureHintsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, hints_);
+          onChanged();
+        } else {
+          hintsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public Builder clearHints() {
+        if (hintsBuilder_ == null) {
+          hints_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000100);
+          onChanged();
+        } else {
+          hintsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public Builder removeHints(int index) {
+        if (hintsBuilder_ == null) {
+          ensureHintsIsMutable();
+          hints_.remove(index);
+          onChanged();
+        } else {
+          hintsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public alluxio.proto.dataserver.Protocol.UfsHint.Builder getHintsBuilder(
+          int index) {
+        return getHintsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public alluxio.proto.dataserver.Protocol.UfsHintOrBuilder getHintsOrBuilder(
+          int index) {
+        if (hintsBuilder_ == null) {
+          return hints_.get(index);  } else {
+          return hintsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public java.util.List<? extends alluxio.proto.dataserver.Protocol.UfsHintOrBuilder> 
+           getHintsOrBuilderList() {
+        if (hintsBuilder_ != null) {
+          return hintsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(hints_);
+        }
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public alluxio.proto.dataserver.Protocol.UfsHint.Builder addHintsBuilder() {
+        return getHintsFieldBuilder().addBuilder(
+            alluxio.proto.dataserver.Protocol.UfsHint.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public alluxio.proto.dataserver.Protocol.UfsHint.Builder addHintsBuilder(
+          int index) {
+        return getHintsFieldBuilder().addBuilder(
+            index, alluxio.proto.dataserver.Protocol.UfsHint.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * ALLUXIO CS ADD
+       * Next available id: 1001
+       * </pre>
+       *
+       * <code>repeated .alluxio.proto.dataserver.UfsHint hints = 1000;</code>
+       */
+      public java.util.List<alluxio.proto.dataserver.Protocol.UfsHint.Builder> 
+           getHintsBuilderList() {
+        return getHintsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          alluxio.proto.dataserver.Protocol.UfsHint, alluxio.proto.dataserver.Protocol.UfsHint.Builder, alluxio.proto.dataserver.Protocol.UfsHintOrBuilder> 
+          getHintsFieldBuilder() {
+        if (hintsBuilder_ == null) {
+          hintsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              alluxio.proto.dataserver.Protocol.UfsHint, alluxio.proto.dataserver.Protocol.UfsHint.Builder, alluxio.proto.dataserver.Protocol.UfsHintOrBuilder>(
+                  hints_,
+                  ((bitField0_ & 0x00000100) == 0x00000100),
+                  getParentForChildren(),
+                  isClean());
+          hints_ = null;
+        }
+        return hintsBuilder_;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -4190,6 +4684,673 @@ public final class Protocol {
 
   }
 
+  public interface UfsHintOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:alluxio.proto.dataserver.UfsHint)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>required int32 priority = 1000;</code>
+     */
+    boolean hasPriority();
+    /**
+     * <code>required int32 priority = 1000;</code>
+     */
+    int getPriority();
+
+    /**
+     * <code>required string persistence_state = 1001;</code>
+     */
+    boolean hasPersistenceState();
+    /**
+     * <code>required string persistence_state = 1001;</code>
+     */
+    java.lang.String getPersistenceState();
+    /**
+     * <code>required string persistence_state = 1001;</code>
+     */
+    com.google.protobuf.ByteString
+        getPersistenceStateBytes();
+  }
+  /**
+   * <pre>
+   * ALLUXIO CS ADD
+   * </pre>
+   *
+   * Protobuf type {@code alluxio.proto.dataserver.UfsHint}
+   */
+  public  static final class UfsHint extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:alluxio.proto.dataserver.UfsHint)
+      UfsHintOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use UfsHint.newBuilder() to construct.
+    private UfsHint(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private UfsHint() {
+      priority_ = 0;
+      persistenceState_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private UfsHint(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8000: {
+              bitField0_ |= 0x00000001;
+              priority_ = input.readInt32();
+              break;
+            }
+            case 8010: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              persistenceState_ = bs;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_UfsHint_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_UfsHint_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.dataserver.Protocol.UfsHint.class, alluxio.proto.dataserver.Protocol.UfsHint.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int PRIORITY_FIELD_NUMBER = 1000;
+    private int priority_;
+    /**
+     * <code>required int32 priority = 1000;</code>
+     */
+    public boolean hasPriority() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required int32 priority = 1000;</code>
+     */
+    public int getPriority() {
+      return priority_;
+    }
+
+    public static final int PERSISTENCE_STATE_FIELD_NUMBER = 1001;
+    private volatile java.lang.Object persistenceState_;
+    /**
+     * <code>required string persistence_state = 1001;</code>
+     */
+    public boolean hasPersistenceState() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required string persistence_state = 1001;</code>
+     */
+    public java.lang.String getPersistenceState() {
+      java.lang.Object ref = persistenceState_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          persistenceState_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string persistence_state = 1001;</code>
+     */
+    public com.google.protobuf.ByteString
+        getPersistenceStateBytes() {
+      java.lang.Object ref = persistenceState_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        persistenceState_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      if (!hasPriority()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasPersistenceState()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(1000, priority_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1001, persistenceState_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1000, priority_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1001, persistenceState_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof alluxio.proto.dataserver.Protocol.UfsHint)) {
+        return super.equals(obj);
+      }
+      alluxio.proto.dataserver.Protocol.UfsHint other = (alluxio.proto.dataserver.Protocol.UfsHint) obj;
+
+      boolean result = true;
+      result = result && (hasPriority() == other.hasPriority());
+      if (hasPriority()) {
+        result = result && (getPriority()
+            == other.getPriority());
+      }
+      result = result && (hasPersistenceState() == other.hasPersistenceState());
+      if (hasPersistenceState()) {
+        result = result && getPersistenceState()
+            .equals(other.getPersistenceState());
+      }
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasPriority()) {
+        hash = (37 * hash) + PRIORITY_FIELD_NUMBER;
+        hash = (53 * hash) + getPriority();
+      }
+      if (hasPersistenceState()) {
+        hash = (37 * hash) + PERSISTENCE_STATE_FIELD_NUMBER;
+        hash = (53 * hash) + getPersistenceState().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static alluxio.proto.dataserver.Protocol.UfsHint parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(alluxio.proto.dataserver.Protocol.UfsHint prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     *
+     * Protobuf type {@code alluxio.proto.dataserver.UfsHint}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:alluxio.proto.dataserver.UfsHint)
+        alluxio.proto.dataserver.Protocol.UfsHintOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_UfsHint_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_UfsHint_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.dataserver.Protocol.UfsHint.class, alluxio.proto.dataserver.Protocol.UfsHint.Builder.class);
+      }
+
+      // Construct using alluxio.proto.dataserver.Protocol.UfsHint.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        priority_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        persistenceState_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_UfsHint_descriptor;
+      }
+
+      public alluxio.proto.dataserver.Protocol.UfsHint getDefaultInstanceForType() {
+        return alluxio.proto.dataserver.Protocol.UfsHint.getDefaultInstance();
+      }
+
+      public alluxio.proto.dataserver.Protocol.UfsHint build() {
+        alluxio.proto.dataserver.Protocol.UfsHint result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.dataserver.Protocol.UfsHint buildPartial() {
+        alluxio.proto.dataserver.Protocol.UfsHint result = new alluxio.proto.dataserver.Protocol.UfsHint(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.priority_ = priority_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.persistenceState_ = persistenceState_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.dataserver.Protocol.UfsHint) {
+          return mergeFrom((alluxio.proto.dataserver.Protocol.UfsHint)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.dataserver.Protocol.UfsHint other) {
+        if (other == alluxio.proto.dataserver.Protocol.UfsHint.getDefaultInstance()) return this;
+        if (other.hasPriority()) {
+          setPriority(other.getPriority());
+        }
+        if (other.hasPersistenceState()) {
+          bitField0_ |= 0x00000002;
+          persistenceState_ = other.persistenceState_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasPriority()) {
+          return false;
+        }
+        if (!hasPersistenceState()) {
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.dataserver.Protocol.UfsHint parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.dataserver.Protocol.UfsHint) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private int priority_ ;
+      /**
+       * <code>required int32 priority = 1000;</code>
+       */
+      public boolean hasPriority() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required int32 priority = 1000;</code>
+       */
+      public int getPriority() {
+        return priority_;
+      }
+      /**
+       * <code>required int32 priority = 1000;</code>
+       */
+      public Builder setPriority(int value) {
+        bitField0_ |= 0x00000001;
+        priority_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 priority = 1000;</code>
+       */
+      public Builder clearPriority() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        priority_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object persistenceState_ = "";
+      /**
+       * <code>required string persistence_state = 1001;</code>
+       */
+      public boolean hasPersistenceState() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required string persistence_state = 1001;</code>
+       */
+      public java.lang.String getPersistenceState() {
+        java.lang.Object ref = persistenceState_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            persistenceState_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string persistence_state = 1001;</code>
+       */
+      public com.google.protobuf.ByteString
+          getPersistenceStateBytes() {
+        java.lang.Object ref = persistenceState_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          persistenceState_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string persistence_state = 1001;</code>
+       */
+      public Builder setPersistenceState(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        persistenceState_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string persistence_state = 1001;</code>
+       */
+      public Builder clearPersistenceState() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        persistenceState_ = getDefaultInstance().getPersistenceState();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string persistence_state = 1001;</code>
+       */
+      public Builder setPersistenceStateBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        persistenceState_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.UfsHint)
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.UfsHint)
+    private static final alluxio.proto.dataserver.Protocol.UfsHint DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new alluxio.proto.dataserver.Protocol.UfsHint();
+    }
+
+    public static alluxio.proto.dataserver.Protocol.UfsHint getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<UfsHint>
+        PARSER = new com.google.protobuf.AbstractParser<UfsHint>() {
+      public UfsHint parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new UfsHint(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<UfsHint> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<UfsHint> getParserForType() {
+      return PARSER;
+    }
+
+    public alluxio.proto.dataserver.Protocol.UfsHint getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_dataserver_OpenUfsBlockOptions_descriptor;
   private static final 
@@ -4210,6 +5371,11 @@ public final class Protocol {
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_alluxio_proto_dataserver_Response_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_proto_dataserver_UfsHint_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_alluxio_proto_dataserver_UfsHint_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -4221,20 +5387,23 @@ public final class Protocol {
     java.lang.String[] descriptorData = {
       "\n\037proto/dataserver/protocol.proto\022\030allux" +
       "io.proto.dataserver\032\035proto/dataserver/st" +
-      "atus.proto\032\026proto/shared/acl.proto\"\277\001\n\023O" +
+      "atus.proto\032\026proto/shared/acl.proto\"\361\001\n\023O" +
       "penUfsBlockOptions\022\020\n\010ufs_path\030\001 \001(\t\022\026\n\016" +
       "offset_in_file\030\002 \001(\003\022\022\n\nblock_size\030\003 \001(\003" +
       "\022\035\n\025maxUfsReadConcurrency\030\004 \001(\005\022\017\n\007mount" +
       "Id\030\005 \001(\003\022\020\n\010no_cache\030\006 \001(\010\022\014\n\004user\030\007 \001(\t" +
-      "\022\032\n\021block_in_ufs_tier\030\350\007 \001(\010\"\234\001\n\024CreateU" +
-      "fsFileOptions\022\020\n\010ufs_path\030\001 \001(\t\022\r\n\005owner" +
-      "\030\002 \001(\t\022\r\n\005group\030\003 \001(\t\022\014\n\004mode\030\004 \001(\005\022\020\n\010m" +
-      "ount_id\030\005 \001(\003\0224\n\003acl\030\006 \001(\0132\'.alluxio.pro" +
-      "to.shared.AccessControlList\"Y\n\025CreateUfs" +
-      "BlockOptions\022\034\n\024bytes_in_block_store\030\001 \001" +
-      "(\003\022\020\n\010mount_id\030\002 \001(\003\022\020\n\010fallback\030\003 \001(\010\"J" +
-      "\n\010Response\022-\n\006status\030\001 \001(\0162\035.alluxio.pro" +
-      "to.status.PStatus\022\017\n\007message\030\002 \001(\t"
+      "\022\031\n\021block_in_ufs_tier\030\010 \001(\010\0221\n\005hints\030\350\007 " +
+      "\003(\0132!.alluxio.proto.dataserver.UfsHint\"\234" +
+      "\001\n\024CreateUfsFileOptions\022\020\n\010ufs_path\030\001 \001(" +
+      "\t\022\r\n\005owner\030\002 \001(\t\022\r\n\005group\030\003 \001(\t\022\014\n\004mode\030" +
+      "\004 \001(\005\022\020\n\010mount_id\030\005 \001(\003\0224\n\003acl\030\006 \001(\0132\'.a" +
+      "lluxio.proto.shared.AccessControlList\"Y\n" +
+      "\025CreateUfsBlockOptions\022\034\n\024bytes_in_block" +
+      "_store\030\001 \001(\003\022\020\n\010mount_id\030\002 \001(\003\022\020\n\010fallba" +
+      "ck\030\003 \001(\010\"J\n\010Response\022-\n\006status\030\001 \001(\0162\035.a" +
+      "lluxio.proto.status.PStatus\022\017\n\007message\030\002" +
+      " \001(\t\"8\n\007UfsHint\022\021\n\010priority\030\350\007 \002(\005\022\032\n\021pe" +
+      "rsistence_state\030\351\007 \002(\t"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4255,7 +5424,7 @@ public final class Protocol {
     internal_static_alluxio_proto_dataserver_OpenUfsBlockOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_alluxio_proto_dataserver_OpenUfsBlockOptions_descriptor,
-        new java.lang.String[] { "UfsPath", "OffsetInFile", "BlockSize", "MaxUfsReadConcurrency", "MountId", "NoCache", "User", "BlockInUfsTier", });
+        new java.lang.String[] { "UfsPath", "OffsetInFile", "BlockSize", "MaxUfsReadConcurrency", "MountId", "NoCache", "User", "BlockInUfsTier", "Hints", });
     internal_static_alluxio_proto_dataserver_CreateUfsFileOptions_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_alluxio_proto_dataserver_CreateUfsFileOptions_fieldAccessorTable = new
@@ -4274,6 +5443,12 @@ public final class Protocol {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_alluxio_proto_dataserver_Response_descriptor,
         new java.lang.String[] { "Status", "Message", });
+    internal_static_alluxio_proto_dataserver_UfsHint_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_alluxio_proto_dataserver_UfsHint_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_alluxio_proto_dataserver_UfsHint_descriptor,
+        new java.lang.String[] { "Priority", "PersistenceState", });
     alluxio.proto.status.Status.getDescriptor();
     alluxio.proto.shared.Acl.getDescriptor();
   }

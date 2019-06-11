@@ -60,6 +60,14 @@ public class UfsFileStatus extends UfsStatus {
       String owner, String group, short mode) {
     this(name, contentHash, contentLength, lastModifiedTimeMs, owner, group, mode, null);
   }
+  // ALLUXIO CS ADD
+
+  @Override
+  public UfsFileStatus withXAttr(Map<String, byte[]> xAttr) {
+    return new UfsFileStatus(mName, mContentHash, mContentLength,
+        mLastModifiedTimeMs, mOwner, mGroup, mMode, xAttr);
+  }
+  // ALLUXIO CS END
 
   /**
    * Creates a new instance of {@link UfsFileStatus} as a copy.

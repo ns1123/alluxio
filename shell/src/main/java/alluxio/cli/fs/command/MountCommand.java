@@ -60,6 +60,17 @@ public final class MountCommand extends AbstractFileSystemCommand {
           .valueSeparator('=')
           .desc("options associated with this mount point")
           .build();
+  // ALLUXIO CS ADD
+  private static final Option POLICY_OPTION =
+      Option.builder()
+          .longOpt("policy")
+          .required(false)
+          .hasArg(true)
+          .numberOfArgs(1)
+          .argName("policy definition")
+          .desc("the policy definition for this mount point")
+          .build();
+  // ALLUXIO CS END
 
   /**
    * @param fsContext the filesystem of Alluxio
@@ -76,6 +87,9 @@ public final class MountCommand extends AbstractFileSystemCommand {
   @Override
   public Options getOptions() {
     return new Options().addOption(READONLY_OPTION).addOption(SHARED_OPTION)
+        // ALLUXIO CS ADD
+        .addOption(POLICY_OPTION)
+        // ALLUXIO CS END
         .addOption(OPTION_OPTION);
   }
 
@@ -103,12 +117,30 @@ public final class MountCommand extends AbstractFileSystemCommand {
     }
     mFileSystem.mount(alluxioPath, ufsPath, optionsBuilder.build());
     System.out.println("Mounted " + ufsPath + " at " + alluxioPath);
+    // ALLUXIO CS ADD
+    if (cl.hasOption(POLICY_OPTION.getLongOpt())) {
+      System.out.println("Adding policy...");
+      alluxio.client.policy.PolicyMasterClient policyClient =
+          alluxio.client.policy.PolicyMasterClient.Factory.create(
+              alluxio.master.MasterClientContext.newBuilder(mFsContext.getClientContext()).build());
+
+      String definition = cl.getOptionValue(POLICY_OPTION.getLongOpt());
+      policyClient.addPolicy(alluxioPath.getPath(), definition,
+          alluxio.grpc.AddPolicyPOptions.getDefaultInstance());
+      System.out.println("Added policy");
+    }
+    // ALLUXIO CS END
     return 0;
   }
 
   @Override
   public String getUsage() {
-    return "mount [--readonly] [--shared] [--option <key=val>] <alluxioPath> <ufsURI>";
+    // ALLUXIO CS REPLACE
+    // return "mount [--readonly] [--shared] [--option <key=val>] <alluxioPath> <ufsURI>";
+    // ALLUXIO CS WITH
+    return "mount [--readonly] [--shared] [--option <key=val>] [--policy <definition>] "
+        + "<alluxioPath> <ufsURI>";
+    // ALLUXIO CS END
   }
 
   @Override

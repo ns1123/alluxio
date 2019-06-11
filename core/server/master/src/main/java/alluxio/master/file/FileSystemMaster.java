@@ -140,6 +140,39 @@ public interface FileSystemMaster extends Master {
       throws AccessControlException, FileDoesNotExistException, InvalidPathException,
       UnavailableException, IOException;
 
+  // ALLUXIO CS ADD
+  /**
+   * Runs a closure for every inode while scanning the whole inode tree.
+   *
+   * Consistency guarantee:
+   * 1. When the closure is running for an inode, the inode state should not be modified
+   * concurrently, so the inode state is consistent.
+   * 2. While scanning the inode tree, new inodes might be concurrently created, the newly created
+   * inodes may or may not be visited.
+   * 3. Before or after visiting an inode, the inode or parents of the inode might be deleted or
+   * renamed concurrently, the path and inode provided to the closure might be outdated and
+   * inconsistent: for example, the path might no longer correspond to the inode.
+   *
+   * Security: no permission checking.
+   *
+   * UFS Sync: will not load metadata from UFS on demand.
+   *
+   * @param fn the closure to be run for every inode during scanning, the first parameter is the
+   *    path to the inode, the second parameter is the inode
+   */
+  void scan(java.util.function.BiConsumer<String, alluxio.master.file.meta.InodeView> fn);
+
+  /**
+   * Executes a closure while being surrounded by a journal context and locking the path from root
+   * to the given inode.
+   *
+   * @param inodeId the inode ID
+   * @param lockPattern the lock pattern to be used to lock the path from root to the inode
+   * @param fn the closure
+   */
+  void exec(long inodeId, alluxio.master.file.meta.InodeTree.LockPattern lockPattern,
+      alluxio.function.ThrowableConsumer<ExecContext> fn) throws Exception;
+  // ALLUXIO CS END
   /**
    * @return a read-only view of the file system master
    */

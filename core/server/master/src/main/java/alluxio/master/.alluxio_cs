@@ -1,6 +1,7 @@
 callhome/
 diagnostic/
 license/
+policy/
 privilege/
 security/
 MasterAuthenticationServer.java

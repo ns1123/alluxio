@@ -1159,6 +1159,48 @@ public final class FileSystemMasterTest {
     assertEquals(files + files + 2 + 2 + 2, infos.size());
   }
 
+  // ALLUXIO CS ADD
+  @Test
+  public void scan() throws Exception {
+    final int files = 10;
+
+    // Test files in root directory.
+    for (int i = 0; i < files; i++) {
+      createFileWithSingleBlock(ROOT_URI.join("file" + String.format("%05d", i)));
+    }
+    // Test files in nested directory.
+    for (int i = 0; i < files; i++) {
+      createFileWithSingleBlock(NESTED_URI.join("file" + String.format("%05d", i)));
+    }
+    // Test files in another nested directory.
+    for (int i = 0; i < files; i++) {
+      createFileWithSingleBlock(NESTED_DIR_URI.join("file" + String.format("%05d", i)));
+    }
+
+    List<String> paths = new ArrayList<>();
+    mFileSystemMaster.scan((path, inode) -> paths.add(path));
+    // 10 files in each directory, 4 inodes for directories:
+    // ['/', '/nested', '/nested/test', '/nested/test/dir'].
+    assertEquals(files + files + files + 4, paths.size());
+
+    for (int i = 0; i < files; i++) {
+      assertTrue(
+          paths.contains(ROOT_URI.join("file" + String.format("%05d", i)).toString()));
+    }
+    for (int i = 0; i < files; i++) {
+      assertTrue(
+          paths.contains(NESTED_URI.join("file" + String.format("%05d", i)).toString()));
+    }
+    for (int i = 0; i < files; i++) {
+      assertTrue(
+          paths.contains(NESTED_DIR_URI.join("file" + String.format("%05d", i)).toString()));
+    }
+    assertTrue(paths.contains(ROOT_URI.toString()));
+    assertTrue(paths.contains(NESTED_URI.getParent().toString()));
+    assertTrue(paths.contains(NESTED_URI.toString()));
+    assertTrue(paths.contains(NESTED_DIR_URI.toString()));
+  }
+  // ALLUXIO CS END
   @Test
   public void getFileBlockInfoList() throws Exception {
     createFileWithSingleBlock(ROOT_FILE_URI);
