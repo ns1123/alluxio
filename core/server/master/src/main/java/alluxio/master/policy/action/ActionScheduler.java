@@ -74,17 +74,11 @@ public final class ActionScheduler implements Journaled {
   private static final int ACTION_COMMIT_THREAD_POOL_SIZE =
       ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_COMMIT_THREADS);
 
-  private final JobMasterClientPool mJobMasterClientPool =
-      new JobMasterClientPool(JobMasterClientContext.newBuilder(ClientContext.create(
-          ServerConfiguration.global())).build());
-  private final ExecutorService mActionExecutionService = Executors.newFixedThreadPool(
-      ACTION_EXECUTION_THREAD_POOL_SIZE,
-      ThreadFactoryUtils.build("action-execution-service-%d", true));
-  private final ExecutorService mActionCommitService = Executors.newFixedThreadPool(
-      ACTION_COMMIT_THREAD_POOL_SIZE,
-      ThreadFactoryUtils.build("action-commit-service-%d", true));
+  private JobMasterClientPool mJobMasterClientPool;
+  private ExecutorService mActionExecutionService;
+  private ExecutorService mActionCommitService;
+  private ActionExecutionContext mActionExecutionContext;
   private final FileSystemMaster mFileSystemMaster;
-  private final ActionExecutionContext mActionExecutionContext;
   private final PolicyEvaluator mPolicyEvaluator;
   private final MasterContext mMasterContext;
   private final ScheduledExecutorService mActionExecutor;
@@ -123,8 +117,6 @@ public final class ActionScheduler implements Journaled {
     mScheduledTasks = new ConcurrentHashMap<>();
     mExecutingActions = new ConcurrentHashSet<>();
     mMasterContext = masterContext;
-    mActionExecutionContext = new ActionExecutionContext(mFileSystemMaster, mActionExecutionService,
-        mJobMasterClientPool);
   }
 
   @Override
@@ -265,18 +257,43 @@ public final class ActionScheduler implements Journaled {
    */
   public void start(boolean shouldExecute, ExecutorService heartbeatExecutor) {
     mShouldExecute = shouldExecute;
+    if (!shouldExecute) {
+      return;
+    }
     heartbeatExecutor.submit(new HeartbeatThread(
         HeartbeatContext.MASTER_POLICY_ACTION_SCHEDULER,
         new ActionSchedulerHeartbeatExecutor(),
         ACTION_SCHEDULER_HEARTBEAT_INTERVAL_MS,
         ServerConfiguration.global(), mMasterContext.getUserState()));
+    mJobMasterClientPool =
+        new JobMasterClientPool(JobMasterClientContext.newBuilder(ClientContext.create(
+            ServerConfiguration.global())).build());
+    mActionExecutionService = Executors.newFixedThreadPool(
+        ACTION_EXECUTION_THREAD_POOL_SIZE,
+        ThreadFactoryUtils.build("action-execution-service-%d", true));
+    mActionCommitService = Executors.newFixedThreadPool(
+        ACTION_COMMIT_THREAD_POOL_SIZE,
+        ThreadFactoryUtils.build("action-commit-service-%d", true));
+    mActionExecutionContext = new ActionExecutionContext(mFileSystemMaster, mActionExecutionService,
+        mJobMasterClientPool);
   }
 
   /**
    * Stops the scheduler.
    */
   public void stop() {
+    if (!mShouldExecute) {
+      return;
+    }
     // heartbeat thread is stopped by the owner of the heartbeatExecutor
+    mActionExecutionService.shutdown();
+    mActionCommitService.shutdown();
+
+    try {
+      mJobMasterClientPool.close();
+    } catch (IOException e) {
+      LOG.warn("Failed to close job master client pool while shutting down.", e);
+    }
     mShouldExecute = false;
   }
 
@@ -423,16 +440,6 @@ public final class ActionScheduler implements Journaled {
 
     @Override
     public void close() {
-      mActionExecutionService.shutdown();
-      mActionCommitService.shutdown();
-      mActionExecutor.shutdown();
-
-      try {
-        mJobMasterClientPool.close();
-      } catch (IOException e) {
-        LOG.warn("Failed to close job master client pool while shutting down.", e);
-      }
-
       mExecutingActions.forEach((action) -> {
         try {
           action.close();
@@ -441,6 +448,7 @@ public final class ActionScheduler implements Journaled {
               "Failed to stop action {} while shutting down.", action, e);
         }
       });
+      mExecutingActions.clear();
     }
   }
 }

@@ -241,14 +241,7 @@ public final class PolicyMaster extends AbstractMaster {
   @VisibleForTesting
   @Nullable
   public PolicyDefinition getPolicy(String name) {
-    // TODO(feng): deprecate this method after we have a public API for querying policy
-    for (Iterator<PolicyDefinition> iterator = mPolicyStore.getPolicies(); iterator.hasNext();) {
-      PolicyDefinition policy = iterator.next();
-      if (name.equals(policy.getName())) {
-        return policy;
-      }
-    }
-    return null;
+    return mPolicyStore.getPolicy(name);
   }
 
   /**
