@@ -93,6 +93,13 @@ public final class UnionUnderFileSystemUtils {
         throw new AggregateException(exceptions);
       }
     }
+    // If the continueFunc is still true, both invokes didn't satisfy the function. Throw and
+    // propagate any errors
+    if (continueFunc.get()) {
+      exceptions.add(new IOException("both sets of invocation inputs did not result in "
+          + "the continuation function being satisfied"));
+      throw new AggregateException(exceptions);
+    }
   }
 
   /**

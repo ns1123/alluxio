@@ -17,8 +17,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -36,12 +40,16 @@ public class UnionUnderFileInputStream extends InputStream {
   private final OpenOptions mOptions;
   /** An input stream for an underlying UFS. */
   private InputStream mStream;
-  /** The first set of UFSes to attempt reading from. */
-  private final Collection<UfsKey> mHintedUfs;
-  /** The set of UFSes to fallback on reading if the {@link #mHintedUfs} don't work. */
-  private final Collection<UfsKey> mFallbackUfs;
+
   /** The path to open in the underlying UFS. */
   private final String mPath;
+
+  /**
+   * The set of UFSes to attempt to read from.
+   *
+   * Ordering of this list determines the order in which the read is attempted.
+   */
+  private final Collection<UfsKey> mUfses;
 
   /**
    * Creates of new instance of {@link UnionUnderFileInputStream}.
@@ -56,8 +64,12 @@ public class UnionUnderFileInputStream extends InputStream {
     mPath = path;
     mOptions = options;
     mStream = null;
-    mHintedUfs = hintedUfs;
-    mFallbackUfs = fallbackUfs;
+    mUfses = new ArrayList<>(hintedUfs.size() + fallbackUfs.size());
+
+    // addAll preserved ordering of the iterator from the collection
+    // add hints to try before the fallbacks.
+    mUfses.addAll(hintedUfs);
+    mUfses.addAll(fallbackUfs);
   }
 
   @Override
@@ -113,25 +125,20 @@ public class UnionUnderFileInputStream extends InputStream {
     }
 
     AtomicReference<InputStream> ref = new AtomicReference<>(null);
-    // First try based on the hint
+    UncheckedIOConsumer<UfsKey> setStream =
+        ufsKey -> ref.set(ufsKey.getUfs().open(mPath, mOptions));
+    Supplier<Boolean> continueIfTrue = () -> ref.get() == null;
+
     // If error, an IOException is thrown, ref won't be set
-    UnionUnderFileSystemUtils.invokeSequentially((ufsKey) -> {
-      ref.set(ufsKey.getUfs().open(mPath, mOptions));
-    }, () -> ref.get() != null, mHintedUfs);
-    // if using the hint doesn't succeed, then try the rest
-
-    if (ref.get() != null) {
-      mStream = ref.get();
-      return;
-    }
-
-    UnionUnderFileSystemUtils.invokeSequentially((ufsKey) -> {
-      ref.set(ufsKey.getUfs().open(mPath, mOptions));
-    }, () -> ref.get() != null, mFallbackUfs);
+    List<IOException> errs =
+        UnionUnderFileSystemUtils.invokeSequentially(setStream, continueIfTrue, mUfses);
 
     // Nothing succeeded, throw an exception
     if (ref.get() == null) {
-      throw new IOException(String.format("Failed to open stream to file at %s", mPath));
+      String err = errs.stream().map(IOException::toString).collect(Collectors.joining("\n"));
+      err = String.format("Union InputStream failed to open file at %s%n%s", mPath, err);
+      LOG.warn(err);
+      throw new IOException(err);
     } else {
       mStream = ref.get();
     }

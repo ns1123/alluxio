@@ -224,7 +224,8 @@ public class UnionUnderFileSystem implements UnderFileSystem {
     }
 
     mUfses = new IndexedSet<>(PRIORITY_IDX, ALIAS_IDX);
-    mCreateUfses = new HashSet<>(createCollection.size());
+    mCreateUfses = createCollection == null
+        ? Collections.emptySet() : new HashSet<>(createCollection.size());
     mExecutorService = Executors.newCachedThreadPool();
 
     // Lastly, add to the set indexes
@@ -563,11 +564,16 @@ public class UnionUnderFileSystem implements UnderFileSystem {
 
   @Override
   public String getFingerprint(String path) {
-    String output;
+    String output = Constants.INVALID_UFS_FINGERPRINT;
     try {
-      output = getHighestReadOpFromHint(path, ufsKey -> ufsKey.getUfs().getFingerprint(path));
-      if (output == null) {
-        output = Constants.INVALID_UFS_FINGERPRINT;
+      ConcurrentSkipListMap<UfsKey, String> results =
+          getReadOpFromHint(path, ufsKey -> ufsKey.getUfs().getFingerprint(path));
+      // In a sorted map, result collection is ordered w.r.t. keys
+      for (String s : results.values()) {
+        output = s;
+        if (!output.equals(Constants.INVALID_UFS_FINGERPRINT)) {
+          break;
+        }
       }
     } catch (IOException e) {
       LOG.debug("Couldn't obtain UFS fingerprint: {}", e.getMessage());
@@ -650,11 +656,7 @@ public class UnionUnderFileSystem implements UnderFileSystem {
   public UfsStatus[] listStatus(final String path) throws IOException {
     ConcurrentSkipListMap<UfsKey, UfsStatus[]> results =
         getReadOpFromHint(path, ufsKey -> ufsKey.getUfs().listStatus(path));
-    UfsStatus[] statuses = UnionUnderFileSystemUtils.mergeListStatusXAttr(results);
-    if (statuses == null) {
-      throw new IOException(String.format("Failed to listStatus at %s", path));
-    }
-    return statuses;
+    return UnionUnderFileSystemUtils.mergeListStatusXAttr(results);
   }
 
   @Override
@@ -662,11 +664,7 @@ public class UnionUnderFileSystem implements UnderFileSystem {
       throws IOException {
     ConcurrentSkipListMap<UfsKey, UfsStatus[]> results =
         getReadOpFromHint(path, ufsKey -> ufsKey.getUfs().listStatus(path, options));
-    UfsStatus[] statuses = UnionUnderFileSystemUtils.mergeListStatusXAttr(results);
-    if (statuses == null) {
-      throw new IOException(String.format("Failed to listStatus with options at %s", path));
-    }
-    return statuses;
+    return UnionUnderFileSystemUtils.mergeListStatusXAttr(results);
   }
 
   @Override
