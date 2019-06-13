@@ -9,7 +9,4 @@
 # See the NOTICE file distributed with this work for information regarding copyright ownership.
 #
 
-# ALLUXIO CS ADD
 alluxio.master.policy.action.data.DataActionDefinition$Factory
-# ALLUXIO CS END
-# ALLUXIO CS MODIFIED
