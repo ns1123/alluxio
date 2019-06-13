@@ -61,8 +61,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -464,17 +464,40 @@ public class UnionUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean exists(final String path) throws IOException {
     Pair<Collection<UfsKey>, Collection<UfsKey>> inputs = getUfsInputs(path, splitWithHint());
-    AtomicBoolean exists = new AtomicBoolean(false);
-    UnionUnderFileSystemUtils.splitInvoke(
-        UnionUnderFileSystemUtils::invokeSome,
-        mExecutorService, (ufsKey) -> {
-          if (ufsKey.getUfs().exists(path)) {
-            exists.set(true);
-          }
-        },
-        // If the exists is already set to true don't continue
-        () -> !exists.get(),
-        inputs);
+    // Use atomic reference instead because if null, we'll know if
+    // all calls to the underlying UFS failed. Using just an atomic boolean
+    // doesn't give all of the necessary information
+    AtomicReference<Boolean> exists = new AtomicReference<>(null);
+    List<IOException> errs = new ArrayList<>(2);
+    UncheckedIOConsumer<UfsKey> ufsFunc = ufsKey -> {
+      boolean res = ufsKey.getUfs().exists(path);
+      exists.compareAndSet(null, res); // Set if it hasn't been set yet
+      exists.compareAndSet(false, res); // Overwrite with res if false
+    };
+    try {
+      UnionUnderFileSystemUtils.invokeSome(
+          mExecutorService, ufsFunc, inputs.getLeft());
+    } catch (IOException e) {
+      errs.add(e);
+    }
+
+    // exists is true, we can return early
+    if (exists.get() != null && exists.get()) {
+      return exists.get();
+    }
+
+    try {
+      UnionUnderFileSystemUtils.invokeSome(
+          mExecutorService, ufsFunc, inputs.getRight());
+    } catch (IOException e) {
+      errs.add(e);
+    }
+
+    // still null here, all UFS calls failed.
+    // Otherwise, return the current status
+    if (exists.get() == null) {
+      throw new AggregateException(errs);
+    }
     return exists.get();
   }
 
@@ -488,7 +511,8 @@ public class UnionUnderFileSystem implements UnderFileSystem {
   public long getBlockSizeByte(final String path) throws IOException {
     return Optional.ofNullable(
         getHighestReadOpFromHint(path,
-            ufsKey -> ufsKey.getUfs().getBlockSizeByte(path))).orElse(-1L);
+            ufsKey -> ufsKey.getUfs().getBlockSizeByte(path)))
+        .orElseThrow(() -> new IOException("Failed to get block size from all UFSes in the union"));
   }
 
   @Override
