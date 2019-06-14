@@ -33,7 +33,12 @@ import alluxio.grpc.OpenFilePOptions;
 import alluxio.grpc.ReadPType;
 import alluxio.grpc.SetAttributePOptions;
 import alluxio.grpc.WritePType;
+import alluxio.master.file.FileSystemMaster;
+import alluxio.master.file.meta.InodeTree.LockPattern;
+import alluxio.master.file.meta.MountTable;
+import alluxio.resource.CloseableResource;
 import alluxio.testutils.LocalAlluxioClusterResource;
+import alluxio.underfs.UnderFileSystem;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
@@ -49,6 +54,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class UnionUnderFileSystemIntegrationTest {
   @Rule
@@ -62,12 +68,47 @@ public class UnionUnderFileSystemIntegrationTest {
   private String mUfsPathA;
   private String mUfsPathB;
   private FileSystem mFileSystem;
+  private FileSystemMaster mFileSystemMaster;
 
   @Before
   public void before() throws Exception {
     mUfsPathA = mUfsFolderA.getRoot().getAbsolutePath();
     mUfsPathB = mUfsFolderB.getRoot().getAbsolutePath();
     mFileSystem = FileSystem.Factory.create(ServerConfiguration.global());
+    mFileSystemMaster = mLocalAlluxioClusterResource.get().getLocalAlluxioMaster()
+        .getMasterProcess().getMaster(FileSystemMaster.class);
+  }
+
+  @Test
+  public void exists() throws Exception {
+    String mountPoint = "/union";
+    allUfsMount(mountPoint);
+    URIStatus mountStatus = mFileSystem.getStatus(new AlluxioURI(mountPoint));
+
+    AtomicReference<MountTable.Resolution> resolution = new AtomicReference<>();
+    mFileSystemMaster.exec(mountStatus.getFileId(), LockPattern.READ, ctx ->
+        resolution.set(ctx.getMountInfo()));
+    try (CloseableResource<UnderFileSystem> ufsResource = resolution.get().acquireUfsResource()) {
+      assertFalse(ufsResource.get().exists("union:///not-exist"));
+      assertFalse(ufsResource.get().exists("union://A/not-exist"));
+      assertFalse(ufsResource.get().exists("union://B/not-exist"));
+    }
+
+    FileSystemTestUtils
+        .createByteFile(mFileSystem, new AlluxioURI("/union/exist"),
+            CreateFilePOptions.newBuilder()
+                .setWriteType(WritePType.THROUGH)
+                .setRecursive(true)
+                .build(),
+            1000);
+
+    mFileSystemMaster.exec(mountStatus.getFileId(), LockPattern.READ, ctx ->
+        resolution.set(ctx.getMountInfo()));
+    try (CloseableResource<UnderFileSystem> ufsResource = resolution.get().acquireUfsResource()) {
+      assertTrue(ufsResource.get().exists("union:///exist"));
+      assertTrue(ufsResource.get().exists("union://A/exist"));
+      assertTrue(ufsResource.get().exists("union://B/exist"));
+    }
   }
 
   @Test
@@ -89,11 +130,11 @@ public class UnionUnderFileSystemIntegrationTest {
                 .setRecursive(true)
                 .build(),
             1000);
-    assertTrue(exists(PathUtils.concatPath(mUfsPathA, filename)));
-    assertTrue(exists(PathUtils.concatPath(mUfsPathB, filename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathA, filename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathB, filename)));
     freeFile(fullPath);
-    assertTrue(exists(PathUtils.concatPath(mUfsPathA, filename)));
-    assertTrue(exists(PathUtils.concatPath(mUfsPathB, filename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathA, filename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathB, filename)));
     readFile(fullPath, 1000);
   }
 
@@ -110,13 +151,13 @@ public class UnionUnderFileSystemIntegrationTest {
                 .setRecursive(true)
                 .build(),
             1000);
-    assertFalse(exists(PathUtils.concatPath(mUfsPathA, filename)));
-    assertTrue(exists(PathUtils.concatPath(mUfsPathB, filename)));
+    assertFalse(localUfsExists(PathUtils.concatPath(mUfsPathA, filename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathB, filename)));
     mFileSystem.free(new AlluxioURI(fullPath));
     URIStatus s = mFileSystem.getStatus(new AlluxioURI(fullPath));
     assertEquals(0, s.getInAlluxioPercentage());
-    assertFalse(exists(PathUtils.concatPath(mUfsPathA, filename)));
-    assertTrue(exists(PathUtils.concatPath(mUfsPathB, filename)));
+    assertFalse(localUfsExists(PathUtils.concatPath(mUfsPathA, filename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathB, filename)));
     readFile(fullPath, 1000);
   }
 
@@ -145,7 +186,7 @@ public class UnionUnderFileSystemIntegrationTest {
     testDualFileLifeCycle("/mnt/union2");
   }
 
-  private boolean exists(String path) {
+  private boolean localUfsExists(String path) {
     File f = new File(path);
     return f.exists();
   }
@@ -192,28 +233,28 @@ public class UnionUnderFileSystemIntegrationTest {
     String filename = "test-file";
     AlluxioURI uri = new AlluxioURI(PathUtils.concatPath(basePath, filename));
     // Initially the file should not exist in either UFS.
-    assertFalse(exists(PathUtils.concatPath(mUfsPathA, filename)));
-    assertFalse(exists(PathUtils.concatPath(mUfsPathB, filename)));
+    assertFalse(localUfsExists(PathUtils.concatPath(mUfsPathA, filename)));
+    assertFalse(localUfsExists(PathUtils.concatPath(mUfsPathB, filename)));
     assertFalse(mFileSystem.exists(uri));
     // Create it with CACHE_THROUGH and check it exists in both UFSes.
     touch(uri);
-    assertTrue(exists(PathUtils.concatPath(mUfsPathA, filename)));
-    assertTrue(exists(PathUtils.concatPath(mUfsPathB, filename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathA, filename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathB, filename)));
     assertTrue(mFileSystem.exists(uri));
     // Rename it and check it is renamed in both UFSes.
     String newFilename = "test-file-new";
     AlluxioURI newUri = new AlluxioURI(PathUtils.concatPath(basePath, newFilename));
     mFileSystem.rename(uri, newUri);
-    assertTrue(exists(PathUtils.concatPath(mUfsPathA, newFilename)));
-    assertTrue(exists(PathUtils.concatPath(mUfsPathB, newFilename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathA, newFilename)));
+    assertTrue(localUfsExists(PathUtils.concatPath(mUfsPathB, newFilename)));
     assertTrue(mFileSystem.exists(newUri));
-    assertFalse(exists(PathUtils.concatPath(mUfsPathA, filename)));
-    assertFalse(exists(PathUtils.concatPath(mUfsPathB, filename)));
+    assertFalse(localUfsExists(PathUtils.concatPath(mUfsPathA, filename)));
+    assertFalse(localUfsExists(PathUtils.concatPath(mUfsPathB, filename)));
     assertFalse(mFileSystem.exists(uri));
     // Delete it and check it is deleted in both UFSes.
     mFileSystem.delete(newUri);
-    assertFalse(exists(PathUtils.concatPath(mUfsPathA, newFilename)));
-    assertFalse(exists(PathUtils.concatPath(mUfsPathB, newFilename)));
+    assertFalse(localUfsExists(PathUtils.concatPath(mUfsPathA, newFilename)));
+    assertFalse(localUfsExists(PathUtils.concatPath(mUfsPathB, newFilename)));
     assertFalse(mFileSystem.exists(newUri));
   }
 
@@ -257,12 +298,12 @@ public class UnionUnderFileSystemIntegrationTest {
             createOpts.setReplicationMax(3).build(),
             fileSize);
     // Make sure it exists in alluxio and UFS
-    ufsPaths.forEach((ufs) -> assertTrue(exists(PathUtils.concatPath(ufs, filepath))));
+    ufsPaths.forEach((ufs) -> assertTrue(localUfsExists(PathUtils.concatPath(ufs, filepath))));
     assertTrue(mFileSystem.exists(uriPath));
 
     // Free file
     freeFile(fullPath);
-    ufsPaths.forEach((ufs) -> assertTrue(exists(PathUtils.concatPath(ufs, filepath))));
+    ufsPaths.forEach((ufs) -> assertTrue(localUfsExists(PathUtils.concatPath(ufs, filepath))));
 
     // Make sure we can list status on the file, and that replication is set from the create
     List<URIStatus> stats = mFileSystem.listStatus(uriPath,
@@ -297,8 +338,8 @@ public class UnionUnderFileSystemIntegrationTest {
     mFileSystem.rename(uriPath, newPath);
     assertFalse(mFileSystem.exists(uriPath));
     assertTrue(mFileSystem.exists(newPath));
-    ufsPaths.forEach((ufs) -> assertFalse(exists(PathUtils.concatPath(ufs, filepath))));
-    ufsPaths.forEach((ufs) -> assertTrue(exists(PathUtils.concatPath(ufs, newName))));
+    ufsPaths.forEach((ufs) -> assertFalse(localUfsExists(PathUtils.concatPath(ufs, filepath))));
+    ufsPaths.forEach((ufs) -> assertTrue(localUfsExists(PathUtils.concatPath(ufs, newName))));
 
     // Read from file
     readFile(newPath.toString(), fileSize);
@@ -307,15 +348,15 @@ public class UnionUnderFileSystemIntegrationTest {
     mFileSystem.rename(newPath, uriPath);
     assertTrue(mFileSystem.exists(uriPath));
     assertFalse(mFileSystem.exists(newPath));
-    ufsPaths.forEach((ufs) -> assertTrue(exists(PathUtils.concatPath(ufs, filepath))));
-    ufsPaths.forEach((ufs) -> assertFalse(exists(PathUtils.concatPath(ufs, newName))));
+    ufsPaths.forEach((ufs) -> assertTrue(localUfsExists(PathUtils.concatPath(ufs, filepath))));
+    ufsPaths.forEach((ufs) -> assertFalse(localUfsExists(PathUtils.concatPath(ufs, newName))));
 
     // Read file again
     readFile(fullPath, fileSize);
 
     mFileSystem.delete(uriPath, DeletePOptions.newBuilder().setAlluxioOnly(false).build());
     assertFalse(mFileSystem.exists(uriPath));
-    ufsPaths.forEach((ufs) -> assertFalse(exists(PathUtils.concatPath(ufs, filepath))));
+    ufsPaths.forEach((ufs) -> assertFalse(localUfsExists(PathUtils.concatPath(ufs, filepath))));
 
     //
     // Directory lifecycle
@@ -327,7 +368,7 @@ public class UnionUnderFileSystemIntegrationTest {
     assertTrue(mFileSystem.exists(dirUri));
     assertEquals(0, mFileSystem.getStatus(dirUri).getInAlluxioPercentage());
     assertTrue(mFileSystem.getStatus(dirUri).isFolder());
-    ufsPaths.forEach((ufs) -> assertTrue(exists(PathUtils.concatPath(ufs, directoryPath))));
+    ufsPaths.forEach((ufs) -> assertTrue(localUfsExists(PathUtils.concatPath(ufs, directoryPath))));
 
     // Pin the dir (opposite from current state)
     mFileSystem.setAttribute(dirUri, SetAttributePOptions.newBuilder()
@@ -349,8 +390,8 @@ public class UnionUnderFileSystemIntegrationTest {
     mFileSystem.rename(dirUri, newDir);
     assertFalse(mFileSystem.exists(dirUri));
     assertTrue(mFileSystem.exists(newDir));
-    ufsPaths.forEach((ufs) -> assertFalse(exists(PathUtils.concatPath(ufs, directoryPath))));
-    ufsPaths.forEach((ufs) -> assertTrue(exists(PathUtils.concatPath(ufs, renamedDir))));
+    ufsPaths.forEach((ufs) -> assertFalse(localUfsExists(PathUtils.concatPath(ufs, directoryPath))));
+    ufsPaths.forEach((ufs) -> assertTrue(localUfsExists(PathUtils.concatPath(ufs, renamedDir))));
 
     assertTrue(mFileSystem.getStatus(newDir).isFolder());
 
@@ -358,12 +399,12 @@ public class UnionUnderFileSystemIntegrationTest {
     mFileSystem.rename(newDir, dirUri);
     assertTrue(mFileSystem.exists(dirUri));
     assertFalse(mFileSystem.exists(newDir));
-    ufsPaths.forEach((ufs) -> assertTrue(exists(PathUtils.concatPath(ufs, directoryPath))));
-    ufsPaths.forEach((ufs) -> assertFalse(exists(PathUtils.concatPath(ufs, renamedDir))));
+    ufsPaths.forEach((ufs) -> assertTrue(localUfsExists(PathUtils.concatPath(ufs, directoryPath))));
+    ufsPaths.forEach((ufs) -> assertFalse(localUfsExists(PathUtils.concatPath(ufs, renamedDir))));
 
     mFileSystem.delete(dirUri, DeletePOptions.newBuilder().setAlluxioOnly(false).build());
     assertFalse(mFileSystem.exists(dirUri));
-    ufsPaths.forEach((ufs) -> assertFalse(exists(PathUtils.concatPath(ufs, directoryPath))));
+    ufsPaths.forEach((ufs) -> assertFalse(localUfsExists(PathUtils.concatPath(ufs, directoryPath))));
   }
 
   private void readFile(String path, int size) throws Exception {

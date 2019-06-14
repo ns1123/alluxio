@@ -36,6 +36,7 @@ import alluxio.util.ThreadFactoryUtils;
 import alluxio.wire.FileInfo;
 import alluxio.worker.job.JobMasterClientContext;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -295,6 +296,14 @@ public final class ActionScheduler implements Journaled {
       LOG.warn("Failed to close job master client pool while shutting down.", e);
     }
     mShouldExecute = false;
+  }
+
+  /**
+   * @return the number of actions being executed
+   */
+  @VisibleForTesting
+  public int getExecutingActionsSize() {
+    return mExecutingActions.size();
   }
 
   private class FileInfoInodeState implements InodeState {
