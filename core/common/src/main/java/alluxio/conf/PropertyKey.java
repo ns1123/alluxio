@@ -1506,7 +1506,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey MASTER_JOURNAL_TYPE =
       new Builder(Name.MASTER_JOURNAL_TYPE)
-          .setDefaultValue("EMBEDDED")
+          // ALLUXIO CS REPLACE
+          // .setDefaultValue("EMBEDDED")
+          // ALLUXIO CS WITH
+          .setDefaultValue("UFS")
+          // ALLUXIO CS END
           .setDescription("The type of journal to use. Valid options are UFS (store journal in "
               + "UFS), EMBEDDED (use a journal embedded in the masters), and NOOP (do not use a "
               + "journal)")
