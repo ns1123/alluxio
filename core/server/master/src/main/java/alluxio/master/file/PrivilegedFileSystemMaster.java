@@ -117,6 +117,11 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
+  public void close() throws IOException {
+    mFileSystemMaster.close();
+  }
+
+  @Override
   public String getName() {
     return Constants.FILE_SYSTEM_MASTER_NAME;
   }
