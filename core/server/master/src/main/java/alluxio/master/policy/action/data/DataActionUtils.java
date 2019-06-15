@@ -107,7 +107,12 @@ public final class DataActionUtils {
    */
   public static String createUnionSubUfsUri(AlluxioURI unionUfsUri, String subUfs) {
     try {
-      return new URI(unionUfsUri.getScheme(), subUfs, unionUfsUri.getPath(), null, null).toString();
+      String authority = "";
+      if (unionUfsUri.getAuthority() != null) {
+        authority = unionUfsUri.getAuthority().toString();
+      }
+      return new URI(unionUfsUri.getScheme(), String.format("%s(%s)", authority, subUfs),
+          unionUfsUri.getPath(), null, null).toString();
     } catch (URISyntaxException e) {
       throw new IllegalArgumentException(e);
     }

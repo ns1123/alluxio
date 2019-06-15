@@ -25,18 +25,10 @@ public abstract class AbstractActionExecution implements ActionExecution {
   protected volatile Exception mException;
 
   @Override
-  public void preCommit() {
+  public ActionStatus commit() {
     Preconditions.checkState(mStatus == ActionStatus.PREPARED,
         PreconditionMessage.UNEXPECTED_ACTION_STATUS.toString(),
         getClass().getName(), mStatus, ActionStatus.PREPARED);
-    mStatus = ActionStatus.PRE_COMMITTED;
-  }
-
-  @Override
-  public ActionStatus commit() {
-    Preconditions.checkState(mStatus == ActionStatus.PRE_COMMITTED,
-        PreconditionMessage.UNEXPECTED_ACTION_STATUS.toString(),
-        getClass().getName(), mStatus, ActionStatus.PRE_COMMITTED);
     return mStatus;
   }
 

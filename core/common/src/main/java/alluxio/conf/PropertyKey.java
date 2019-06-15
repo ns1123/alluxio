@@ -1166,7 +1166,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey MASTER_BACKUP_DIRECTORY =
       new Builder(Name.MASTER_BACKUP_DIRECTORY)
-          .setDefaultValue("/alluxio_backups")
+          .setDefaultValue(String.format("${%s}/alluxio_backups", Name.WORK_DIR))
           .setDescription("Default directory for writing master metadata backups. This path is "
               + "an absolute path of the root UFS. For example, if the root ufs "
               + "directory is hdfs://host:port/alluxio/data, the default backup directory will be "
@@ -1506,7 +1506,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey MASTER_JOURNAL_TYPE =
       new Builder(Name.MASTER_JOURNAL_TYPE)
-          .setDefaultValue("EMBEDDED")
+          // ALLUXIO CS REPLACE
+          // .setDefaultValue("EMBEDDED")
+          // ALLUXIO CS WITH
+          .setDefaultValue("UFS")
+          // ALLUXIO CS END
           .setDescription("The type of journal to use. Valid options are UFS (store journal in "
               + "UFS), EMBEDDED (use a journal embedded in the masters), and NOOP (do not use a "
               + "journal)")
@@ -2901,7 +2905,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
               + "`MUST_CACHE` (write will only go to Alluxio and must be stored in Alluxio), "
               + "`CACHE_THROUGH` (try to cache, write to UnderFS synchronously), `THROUGH` "
               + "(no cache, write to UnderFS synchronously), `ASYNC_THROUGH` (write to cache, "
-              + "write to UnderFS synchronously, replicated %s times in Alluxio before data is "
+              + "write to UnderFS asynchronously, replicated %s times in Alluxio before data is "
               + "persisted.", USER_FILE_REPLICATION_DURABLE))
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)

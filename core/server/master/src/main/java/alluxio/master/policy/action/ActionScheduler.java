@@ -36,6 +36,7 @@ import alluxio.util.ThreadFactoryUtils;
 import alluxio.wire.FileInfo;
 import alluxio.worker.job.JobMasterClientContext;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -74,17 +75,18 @@ public final class ActionScheduler implements Journaled {
   private static final int ACTION_COMMIT_THREAD_POOL_SIZE =
       ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_COMMIT_THREADS);
 
-  private JobMasterClientPool mJobMasterClientPool;
-  private ExecutorService mActionExecutionService;
-  private ExecutorService mActionCommitService;
-  private ActionExecutionContext mActionExecutionContext;
   private final FileSystemMaster mFileSystemMaster;
   private final PolicyEvaluator mPolicyEvaluator;
   private final MasterContext mMasterContext;
   private final ScheduledExecutorService mActionExecutor;
+  private final ConcurrentHashMap<InodeKey, List<ScheduledFuture>> mScheduledTasks;
+  private final ConcurrentHashSet<ActionExecution> mExecutingActions;
+  private final ConcurrentHashSet<ActionExecution> mCommittingActions;
 
-  private ConcurrentHashMap<InodeKey, List<ScheduledFuture>> mScheduledTasks;
-  private ConcurrentHashSet<ActionExecution> mExecutingActions;
+  private JobMasterClientPool mJobMasterClientPool;
+  private ExecutorService mActionExecutionService;
+  private ExecutorService mActionCommitService;
+  private ActionExecutionContext mActionExecutionContext;
   private volatile boolean mShouldExecute;
 
   /**
@@ -116,6 +118,7 @@ public final class ActionScheduler implements Journaled {
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
     mScheduledTasks = new ConcurrentHashMap<>();
     mExecutingActions = new ConcurrentHashSet<>();
+    mCommittingActions = new ConcurrentHashSet<>();
     mMasterContext = masterContext;
   }
 
@@ -297,6 +300,14 @@ public final class ActionScheduler implements Journaled {
     mShouldExecute = false;
   }
 
+  /**
+   * @return the number of actions being executed
+   */
+  @VisibleForTesting
+  public int getExecutingActionsSize() {
+    return mExecutingActions.size();
+  }
+
   private class FileInfoInodeState implements InodeState {
     private final FileInfo mFileInfo;
 
@@ -401,12 +412,14 @@ public final class ActionScheduler implements Journaled {
         }
         switch (status) {
           case PREPARED:
-            LOG.debug("Action {} is prepared, committing it asynchronously", action);
-            action.preCommit();
-            mActionCommitService.submit(action::commit);
+            if (mCommittingActions.addIfAbsent(action)) {
+              LOG.debug("Action {} is prepared, committing it asynchronously", action);
+              mActionCommitService.submit(action::commit);
+            }
             break;
           case COMMITTED:
             LOG.debug("Action {} is committed", action);
+            mCommittingActions.remove(action);
             iterator.remove();
             break;
           case FAILED:
@@ -416,6 +429,7 @@ public final class ActionScheduler implements Journaled {
             } catch (IOException e) {
               LOG.error("Failed to close action {}: {}", action, e);
             }
+            mCommittingActions.remove(action);
             iterator.remove();
             break;
           default:

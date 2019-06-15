@@ -184,7 +184,7 @@ public class UnionUnderFileSystemTest {
   }
 
   @Test
-  public void testAliasParsing() throws Exception {
+  public void parseAliasNoAuthority() throws Exception {
     UnionUnderFileSystem ufs = createFromDefaultOptions();
 
     // No authority = default return
@@ -196,17 +196,55 @@ public class UnionUnderFileSystemTest {
     assertEquals(Collections.emptyList(), c1);
 
     // Test each alias
-    c1 = ufs.getUfsInputs("union://A/path/to/file", Collections.emptyList());
+    c1 = ufs.getUfsInputs("union://(A)/path/to/file", Collections.emptyList());
     assertEquals(1, c1.size());
     c1.forEach((ufsKey) -> assertEquals("A", ufsKey.getAlias()));
 
-    c1 = ufs.getUfsInputs("union://B/path/to/file", Collections.emptyList());
+    c1 = ufs.getUfsInputs("union://(B)/path/to/file", Collections.emptyList());
     assertEquals(1, c1.size());
     c1.forEach((ufsKey) -> assertEquals("B", ufsKey.getAlias()));
 
-    c1 = ufs.getUfsInputs("union://C/path/to/file", Collections.emptyList());
+    c1 = ufs.getUfsInputs("union://(C)/path/to/file", Collections.emptyList());
     assertEquals(1, c1.size());
     c1.forEach((ufsKey) -> assertEquals("C", ufsKey.getAlias()));
+
+    // empty alias
+    c1 = ufs.getUfsInputs("union://()/path/to/file", Collections.emptyList());
+    assertEquals(Collections.emptyList(), c1);
+  }
+
+  @Test
+  public void parseAlias() throws Exception {
+    UnionUnderFileSystem ufs = createFromDefaultOptions();
+
+    // No alias in authority = default return
+    Collection<UfsKey> c1 =
+        ufs.getUfsInputs("union://authority/path/to/file", Collections.emptyList());
+    assertEquals(Collections.emptyList(), c1);
+
+    // Test each alias
+    c1 = ufs.getUfsInputs("union://authority(A)/path/to/file", Collections.emptyList());
+    assertEquals(1, c1.size());
+    c1.forEach((ufsKey) -> assertEquals("A", ufsKey.getAlias()));
+
+    c1 = ufs.getUfsInputs("union://authority(B)/path/to/file", Collections.emptyList());
+    assertEquals(1, c1.size());
+    c1.forEach((ufsKey) -> assertEquals("B", ufsKey.getAlias()));
+
+    c1 = ufs.getUfsInputs("union://authority(C)/path/to/file", Collections.emptyList());
+    assertEquals(1, c1.size());
+    c1.forEach((ufsKey) -> assertEquals("C", ufsKey.getAlias()));
+
+    // empty alias
+    c1 = ufs.getUfsInputs("union://authority()/path/to/file", Collections.emptyList());
+    assertEquals(Collections.emptyList(), c1);
+
+    try {
+      ufs.getUfsInputs("union://badAuth(/path/", Collections.emptyList());
+      fail("expected to fail with a bad authority string");
+    } catch (IOException e) {
+      // expected
+    }
   }
 
   @Test
@@ -223,7 +261,7 @@ public class UnionUnderFileSystemTest {
     mThrown.expect(IOException.class);
     mThrown.expectMessage("No alias");
     UnionUnderFileSystem ufs = createFromDefaultOptions();
-    Collection<UfsKey> a = ufs.getUfsInputs("union://BadAlias/path/to/file",
+    Collection<UfsKey> a = ufs.getUfsInputs("union://(BadAlias)/path/to/file",
         Collections.emptyList());
     System.out.println(a);
   }
@@ -324,7 +362,7 @@ public class UnionUnderFileSystemTest {
 
     when(ufsFunc.apply(mocks.get("B"), "mock://B/file")).thenReturn(returnObj);
 
-    ufsFunc.apply(ufs, "union://B/file");
+    ufsFunc.apply(ufs, "union://(B)/file");
 
     ufsFunc.apply(verify(mocks.get("B")), "mock://B/file");
     ufsFunc.apply(verify(mocks.get("A"), never()), any());
@@ -332,7 +370,7 @@ public class UnionUnderFileSystemTest {
 
     // Test when an invalid alias is passed
     try {
-      ufsFunc.apply(ufs, "union://D/file");
+      ufsFunc.apply(ufs, "union://(D)/file");
       fail("Exception should be thrown on invalid UFS union alias");
     } catch (IOException e) {
       // Expect this exception
@@ -380,7 +418,7 @@ public class UnionUnderFileSystemTest {
 
     when(ufsFunc.apply(mocks.get("A"), "mock://A/file")).thenReturn(returnObj);
 
-    ufsFunc.apply(ufs, "union://A/file");
+    ufsFunc.apply(ufs, "union://(A)/file");
 
     ufsFunc.apply(verify(mocks.get("A")), "mock://A/file");
     ufsFunc.apply(verify(mocks.get("B"), never()), any());

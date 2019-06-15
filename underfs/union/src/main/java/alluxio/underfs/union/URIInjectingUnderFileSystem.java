@@ -87,7 +87,7 @@ public class URIInjectingUnderFileSystem implements UnderFileSystem {
   @Override
   public OutputStream createNonexistingFile(final String path, CreateOptions options)
       throws IOException {
-    return mDelegate.createNonexistingFile(convertPath(path));
+    return mDelegate.createNonexistingFile(convertPath(path), options);
   }
 
   @Override
