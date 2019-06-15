@@ -15,7 +15,7 @@ package alluxio.master.policy.action;
  * The execution status of an action.
  *
  * The transitions are:
- * NOT_STARTED -> IN_PROGRESS -> PREPARED -> PRE_COMMITTED -> (COMMITTED | FAILED)
+ * NOT_STARTED -> IN_PROGRESS -> PREPARED -> (COMMITTED | FAILED)
  *
  * COMMITTED and FAILED are the final states.
  */
@@ -23,7 +23,6 @@ public enum ActionStatus {
   NOT_STARTED,
   IN_PROGRESS,
   PREPARED,
-  PRE_COMMITTED,
   // The end states
   COMMITTED,
   FAILED,

@@ -317,7 +317,19 @@ public final class PolicyMaster extends AbstractMaster {
     }
   }
 
-  private void scanInodes() {
+  /**
+   * @return the action scheduler
+   */
+  @VisibleForTesting
+  public ActionScheduler getActionScheduler() {
+    return mActionScheduler;
+  }
+
+  /**
+   * Scans the inode tree to schedule actions for inodes that satisfy defined policies.
+   */
+  @VisibleForTesting
+  public void scanInodes() {
     mFileSystemMaster.scan((path, inodeView) -> {
       InodeState inode = new InodeViewInodeState(inodeView);
       Interval interval = Interval.before(System.currentTimeMillis() + ACTION_SCHEDULE_AHEAD_TIME);
