@@ -21,7 +21,6 @@ import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.meta.xattr.ExtendedAttribute;
 import alluxio.master.policy.action.AbstractActionExecution;
-import alluxio.master.policy.action.ActionExecution;
 import alluxio.master.policy.action.ActionExecutionContext;
 import alluxio.master.policy.action.ActionStatus;
 import alluxio.master.policy.action.JobServiceActionExecution;
@@ -150,12 +149,6 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
       mStatus = ActionStatus.PREPARED;
     }
     return mStatus;
-  }
-
-  @Override
-  public void preCommit() {
-    mActions.stream().forEach(ActionExecution::preCommit);
-    super.preCommit();
   }
 
   @Override

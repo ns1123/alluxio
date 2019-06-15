@@ -155,13 +155,6 @@ public class DataActionExecution extends AbstractActionExecution {
   }
 
   @Override
-  public void preCommit() {
-    Stream.concat(mStoreActions.stream(), mRemoveActions.stream())
-        .forEach(ActionExecution::preCommit);
-    super.preCommit();
-  }
-
-  @Override
   public ActionStatus commit() {
     super.commit();
     mStatus = commit(mStoreActions);

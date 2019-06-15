@@ -49,15 +49,8 @@ public interface ActionExecution extends Closeable {
   ActionStatus update() throws IOException;
 
   /**
-   * Should be called before {@link #commit()}.
-   * The current action status must be {@link ActionStatus#PREPARED}.
-   * Status should be updated to {@link ActionStatus#PRE_COMMITTED}.
-   */
-  void preCommit();
-
-  /**
    * Commits the action.
-   * The current action status must be {@link ActionStatus#PRE_COMMITTED}.
+   * The current action status must be {@link ActionStatus#PREPARED}.
    * This call blocks until the status {@link ActionStatus#isTerminal()}.
    *
    * @return one of the terminal status
