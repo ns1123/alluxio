@@ -41,7 +41,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -60,7 +62,8 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
   private final InodeState mInode;
   private final Set<String> mSubUfses;
   private final Set<TempUfsStoreActionExecution> mActions;
-  private final Set<String> mTempUfsPaths;
+  /** Maps the temporary ufs path to its sub ufs name. */
+  private final Map<String, String> mTempUfsPaths;
 
   /**
    * @param ctx the context
@@ -73,7 +76,7 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
     mInode = inode;
     mSubUfses = subUfs;
     mActions = Collections.synchronizedSet(new HashSet<>(mSubUfses.size()));
-    mTempUfsPaths = Collections.synchronizedSet(new HashSet<>(mSubUfses.size()));
+    mTempUfsPaths = new HashMap<>(subUfs.size());
   }
 
   @Override
@@ -92,7 +95,8 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
     AlluxioURI ufsUri = new AlluxioURI(fileInfo.getUfsPath());
     if (mSubUfses.isEmpty()) {
       // Store to one UFS.
-      mTempUfsPaths.add(PathUtils.temporaryFileName(System.currentTimeMillis(), ufsUri.toString()));
+      mTempUfsPaths
+          .put(PathUtils.temporaryFileName(System.currentTimeMillis(), ufsUri.toString()), "");
     } else {
       // Store to a group of sub UFSes.
       if (ufsUri.getScheme() == null || !DataActionUtils.isUnionUfs(ufsUri)) {
@@ -100,13 +104,14 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
       }
       for (String subUfs : mSubUfses) {
         String subUfsUri = DataActionUtils.createUnionSubUfsUri(ufsUri, subUfs);
-        mTempUfsPaths.add(PathUtils.temporaryFileName(System.currentTimeMillis(), subUfsUri));
+        mTempUfsPaths
+            .put(PathUtils.temporaryFileName(System.currentTimeMillis(), subUfsUri), subUfs);
       }
     }
 
     // Create and start the jobs.
     synchronized (mTempUfsPaths) {
-      for (String tempUfsPath : mTempUfsPaths) {
+      for (String tempUfsPath : mTempUfsPaths.keySet()) {
         TempUfsStoreActionExecution action = new TempUfsStoreActionExecution(
             mContext.getJobMasterClientPool(), fileInfo.getPath(), fileInfo.getMountId(),
             tempUfsPath);
@@ -152,7 +157,7 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
   }
 
   @Override
-  public synchronized ActionStatus commit() {
+  public ActionStatus commit() {
     super.commit();
     // Skip committing the TempUfsStore actions, since those commits always succeed.
 
@@ -165,7 +170,7 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
           UnderFileSystem ufs = ufsResource.get();
           AlluxioURI ufsUri = resolution.getUri();
           synchronized (mTempUfsPaths) {
-            for (String tempUfsPath : mTempUfsPaths) {
+            for (Map.Entry<String, String> entry : mTempUfsPaths.entrySet()) {
               // Rename temporary paths to the latest path in UFS.
               //
               // For example, when persisting starts, Alluxio path is /a, so temporary path is like
@@ -177,6 +182,8 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
               // ufsUri is union:///a,
               // tempUfsPath is union://ufs1/tmp,
               // then tempUfsPath should be renamed to union://ufs1/a.
+              String tempUfsPath = entry.getKey();
+              String subUfsName = entry.getValue();
               URI tempUri = new URI(tempUfsPath);
               URI targetUri =
                   new URI(tempUri.getScheme(), tempUri.getAuthority(), ufsUri.getPath(), null,
@@ -222,7 +229,7 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
                     UpdateInodeEntry.newBuilder().setId(mInode.getId());
                 builder.putAllXAttr(CommonUtils.convertToByteString(inode.getXAttr()));
                 builder
-                    .putXAttr(ExtendedAttribute.PERSISTENCE_STATE.forId(targetUri.getAuthority()),
+                    .putXAttr(ExtendedAttribute.PERSISTENCE_STATE.forId(subUfsName),
                         ByteString.copyFrom(ExtendedAttribute.PERSISTENCE_STATE
                             .encode(PersistenceState.PERSISTED)));
                 context.updateInode(builder.build());

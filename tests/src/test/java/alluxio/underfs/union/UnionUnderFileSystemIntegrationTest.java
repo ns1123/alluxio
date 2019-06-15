@@ -43,7 +43,6 @@ import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -178,10 +177,9 @@ public class UnionUnderFileSystemIntegrationTest {
 
   // Can't mount multiple unions
   @Test
-  @Ignore
   public void multiMount() throws Exception {
-    allUfsMount("/mnt/union1");
-    allUfsMount("/mnt/union2");
+    allUfsMount("/mnt/union1", "union://ufs1/");
+    allUfsMount("/mnt/union2", "union://ufs2/");
     testDualFileLifeCycle("/mnt/union1");
     testDualFileLifeCycle("/mnt/union2");
   }
@@ -191,13 +189,14 @@ public class UnionUnderFileSystemIntegrationTest {
     return f.exists();
   }
 
-  private void mountUnion(String alluxioPath, Map<String, String> properties) throws Exception {
+  private void mountUnion(String alluxioPath, String unionUri, Map<String, String> properties)
+      throws Exception {
     String parent = PathUtils.getParent(alluxioPath);
     if (!mFileSystem.exists(new AlluxioURI(parent))) {
       mFileSystem.createDirectory(new AlluxioURI(parent),
           CreateDirectoryPOptions.newBuilder().setRecursive(true).build());
     }
-    mFileSystem.mount(new AlluxioURI(alluxioPath), new AlluxioURI("union:///"),
+    mFileSystem.mount(new AlluxioURI(alluxioPath), new AlluxioURI(unionUri),
         MountPOptions.newBuilder().putAllProperties(properties).build());
   }
 
@@ -207,12 +206,22 @@ public class UnionUnderFileSystemIntegrationTest {
    * @param path path to mount at
    */
   private void allUfsMount(String path) throws Exception {
+    allUfsMount(path, "union:///");
+  }
+
+  /**
+   * creates a mount that reads from UFS A first, then UFS B. Writes to both.
+   *
+   * @param path path to mount at
+   * @param unionUri the union uri to mount
+   */
+  private void allUfsMount(String path, String unionUri) throws Exception {
     Map<String, String> props = new HashMap<>();
     props.put("alluxio-union.A.uri", mUfsPathA);
     props.put("alluxio-union.B.uri", mUfsPathB);
     props.put("alluxio-union.priority.read", "A,B");
     props.put("alluxio-union.collection.create", "A,B");
-    mountUnion(path, props);
+    mountUnion(path, unionUri, props);
   }
 
   /**
@@ -226,7 +235,7 @@ public class UnionUnderFileSystemIntegrationTest {
     props.put("alluxio-union.B.uri", mUfsPathB);
     props.put("alluxio-union.priority.read", "A,B");
     props.put("alluxio-union.collection.create", "B");
-    mountUnion(path, props);
+    mountUnion(path, "union:///", props);
   }
 
   private void testDualFileLifeCycle(String basePath) throws Exception {

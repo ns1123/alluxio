@@ -121,6 +121,9 @@ public class UnionUnderFileSystem implements UnderFileSystem {
   private static final Set<String> IGNORE_EXCEPTIONS =
       Sets.newHashSet(FileNotFoundException.class.getName(), NoSuchFileException.class.getName());
 
+  private static final Pattern AUTHORITY_ALIAS_RE =
+      Pattern.compile("^(?<authority>[^\\(]*)(\\((?<alias>.*)\\))?$");
+
   static final IndexDefinition<UfsKey, String> ALIAS_IDX =
       new IndexDefinition<UfsKey, String>(true) {
     @Override
@@ -1019,6 +1022,15 @@ public class UnionUnderFileSystem implements UnderFileSystem {
 
     // If no authority is passed, authority is null
     String ufsAlias = uri.getAuthority();
+    Matcher matcher = AUTHORITY_ALIAS_RE.matcher(ufsAlias);
+    if (!matcher.matches()) {
+      throw new IOException(
+          String.format("Authority is not of the form \"<authority>(<alias>)\": %s", ufsAlias));
+    }
+    ufsAlias = matcher.group("alias");
+    if (ufsAlias == null || ufsAlias.isEmpty()) {
+      return defaultInputs;
+    }
     UfsKey k = mUfses.getFirstByField(ALIAS_IDX, ufsAlias);
     if (k == null) {
       throw new IOException(String.format("No alias %s found in union namespace", ufsAlias));
