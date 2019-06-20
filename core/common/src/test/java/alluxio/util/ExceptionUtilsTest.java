@@ -41,4 +41,16 @@ public final class ExceptionUtilsTest {
     assertTrue(ExceptionUtils.containsInterruptedException(t3));
     assertFalse(ExceptionUtils.containsInterruptedException(t4));
   }
+  // ALLUXIO CS ADD
+
+  @Test
+  public void getChainedExceptionMessages() {
+    Throwable t1 = new IOException("1");
+    Throwable t2 = new IOException("2", t1);
+    Throwable t3 = new IOException("3", t2);
+    Throwable last = new IOException("4", t3);
+    org.junit.Assert.assertEquals("4: 3: 2: 1",
+        ExceptionUtils.getChainedExceptionMessages(last));
+  }
+  // ALLUXIO CS END
 }

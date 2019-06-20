@@ -12,7 +12,6 @@
 package alluxio.master.policy.action.data;
 
 import alluxio.AlluxioURI;
-import alluxio.client.job.JobMasterClientPool;
 import alluxio.job.JobConfig;
 import alluxio.job.persist.PersistConfig;
 import alluxio.master.file.meta.Inode;
@@ -27,14 +26,11 @@ import alluxio.master.policy.action.JobServiceActionExecution;
 import alluxio.master.policy.meta.InodeState;
 import alluxio.metrics.MasterMetrics;
 import alluxio.metrics.MetricsSystem;
-import alluxio.proto.journal.File.UpdateInodeEntry;
 import alluxio.resource.CloseableResource;
 import alluxio.underfs.UnderFileSystem;
-import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.FileInfo;
 
-import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,32 +51,32 @@ import javax.annotation.concurrent.ThreadSafe;
  * in one union UFS.
  */
 @ThreadSafe
-public final class UfsStoreActionExecution extends AbstractActionExecution {
-  private static final Logger LOG = LoggerFactory.getLogger(UfsStoreActionExecution.class);
+public final class UfsFileStoreActionExecution extends AbstractActionExecution {
+  private static final Logger LOG = LoggerFactory.getLogger(UfsFileStoreActionExecution.class);
 
-  private final ActionExecutionContext mContext;
-  private final InodeState mInode;
   private final Set<String> mSubUfses;
   private final Set<TempUfsStoreActionExecution> mActions;
   /** Maps the temporary ufs path to its sub ufs name. */
   private final Map<String, String> mTempUfsPaths;
 
   /**
-   * @param ctx the context
-   * @param inode the inode state
-   * @param subUfs the list of sub UFS modifiers when storing to a group of sub UFSes in one union
+   * @param ctx the execution context
+   * @param path the Alluxio path
+   * @param inode the inode
+   * @param subUfses the list of sub UFS modifiers when storing to a group of sub UFSes in one union
    *    UFS or empty when storing to one UFS
    */
-  public UfsStoreActionExecution(ActionExecutionContext ctx, InodeState inode, Set<String> subUfs) {
-    mContext = ctx;
-    mInode = inode;
-    mSubUfses = subUfs;
+  public UfsFileStoreActionExecution(ActionExecutionContext ctx, String path, InodeState inode,
+      Set<String> subUfses) {
+    super(ctx, path, inode);
+    mSubUfses = subUfses;
     mActions = Collections.synchronizedSet(new HashSet<>(mSubUfses.size()));
-    mTempUfsPaths = new HashMap<>(subUfs.size());
+    mTempUfsPaths = Collections.synchronizedMap(new HashMap<>(mSubUfses.size()));
   }
 
   @Override
-  public synchronized ActionStatus start() {
+  public ActionStatus start() {
+    super.start();
     FileInfo fileInfo;
     try {
       fileInfo = mContext.getFileSystemMaster().getFileInfo(mInode.getId());
@@ -95,26 +91,39 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
     AlluxioURI ufsUri = new AlluxioURI(fileInfo.getUfsPath());
     if (mSubUfses.isEmpty()) {
       // Store to one UFS.
-      mTempUfsPaths
-          .put(PathUtils.temporaryFileName(System.currentTimeMillis(), ufsUri.toString()), "");
+      if (!fileInfo.isPersisted()) {
+        mTempUfsPaths
+            .put(PathUtils.temporaryFileName(System.currentTimeMillis(), ufsUri.toString()), "");
+      }
     } else {
       // Store to a group of sub UFSes.
       if (ufsUri.getScheme() == null || !DataActionUtils.isUnionUfs(ufsUri)) {
         throw new IllegalStateException(String.format("%s is not union UFS", ufsUri.toString()));
       }
+      Map<String, byte[]> xattr = fileInfo.getXAttr();
       for (String subUfs : mSubUfses) {
+        if (xattr != null) {
+          String key = ExtendedAttribute.PERSISTENCE_STATE.forId(subUfs);
+          if (xattr.containsKey(key) && ExtendedAttribute.PERSISTENCE_STATE.decode(xattr.get(key))
+              .equals(PersistenceState.PERSISTED)) {
+            continue;
+          }
+        }
         String subUfsUri = DataActionUtils.createUnionSubUfsUri(ufsUri, subUfs);
         mTempUfsPaths
             .put(PathUtils.temporaryFileName(System.currentTimeMillis(), subUfsUri), subUfs);
       }
     }
-
+    if (mTempUfsPaths.isEmpty()) {
+      // File is already persisted, this action is a noop.
+      mStatus = ActionStatus.COMMITTED;
+      return mStatus;
+    }
     // Create and start the jobs.
     synchronized (mTempUfsPaths) {
       for (String tempUfsPath : mTempUfsPaths.keySet()) {
-        TempUfsStoreActionExecution action = new TempUfsStoreActionExecution(
-            mContext.getJobMasterClientPool(), fileInfo.getPath(), fileInfo.getMountId(),
-            tempUfsPath);
+        TempUfsStoreActionExecution action = new TempUfsStoreActionExecution(mContext,
+            fileInfo.getPath(), mInode, fileInfo.getMountId(), tempUfsPath);
         if (action.start() == ActionStatus.FAILED) {
           mStatus = ActionStatus.FAILED;
           mException = action.getException();
@@ -123,7 +132,6 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
         mActions.add(action);
       }
     }
-
     mStatus = ActionStatus.IN_PROGRESS;
     return mStatus;
   }
@@ -166,6 +174,7 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
         Inode inode = context.getInode();
         MountTable.Resolution resolution = context.getMountInfo();
 
+        Set<String> persistedSubUfses = new HashSet<>(mSubUfses.size());
         try (CloseableResource<UnderFileSystem> ufsResource = resolution.acquireUfsResource()) {
           UnderFileSystem ufs = ufsResource.get();
           AlluxioURI ufsUri = resolution.getUri();
@@ -208,8 +217,9 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
                 }
                 ufs.setOwner(targetPath, inode.getOwner(), inode.getGroup());
                 ufs.setMode(targetPath, inode.getMode());
+                persistedSubUfses.add(subUfsName);
               } catch (IOException e) {
-                LOG.error(String.format("Failed to rename %s to %s", tempUfsPath, targetPath), e);
+                LOG.error("Failed to rename {} to {}", tempUfsPath, targetPath, e);
                 // Best effort to clean up the temporary file.
                 try {
                   if (!ufs.deleteExistingFile(tempUfsPath)) {
@@ -217,45 +227,36 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
                         tempUfsPath));
                   }
                 } catch (IOException e1) {
-                  LOG.error(String.format("Failed to delete temporary file %s", tempUfsPath), e1);
+                  LOG.error("Failed to delete temporary file {}", tempUfsPath, e1);
                   e.addSuppressed(e1);
                 }
                 throw e;
               }
-
-              if (!mSubUfses.isEmpty()) {
-                // Update and journal persistence state of the sub ufs.
-                UpdateInodeEntry.Builder builder =
-                    UpdateInodeEntry.newBuilder().setId(mInode.getId());
-                builder.putAllXAttr(CommonUtils.convertToByteString(inode.getXAttr()));
-                builder
-                    .putXAttr(ExtendedAttribute.PERSISTENCE_STATE.forId(subUfsName),
-                        ByteString.copyFrom(ExtendedAttribute.PERSISTENCE_STATE
-                            .encode(PersistenceState.PERSISTED)));
-                context.updateInode(builder.build());
-              }
             }
           }
-        }
-
-        // Update and journal persistence state of the inode and its ancestors.
-        if (!inode.isPersisted()) {
-          context.propagatePersisted();
-          MetricsSystem.counter(MasterMetrics.FILES_PERSISTED).inc();
+        } finally {
+          if (!persistedSubUfses.isEmpty()) {
+            if (!inode.isPersisted()) {
+              MetricsSystem.counter(MasterMetrics.FILES_PERSISTED).inc();
+            }
+            persistedSubUfses.remove("");
+            context.propagatePersisted(persistedSubUfses);
+          }
         }
       });
 
       mStatus = ActionStatus.COMMITTED;
     } catch (Exception e) {
       mStatus = ActionStatus.FAILED;
-      mException = new ExecutionException(String.format("UFS:STORE for inode %d failed to commit",
-          mInode.getId()), e);
+      mException = new ExecutionException(
+          String.format("UFS:STORE for file(path=%s, id=%d) failed to commit",
+              mPath, mInode.getId()), e);
     }
     return mStatus;
   }
 
   @Override
-  public synchronized void close() throws IOException {
+  public void close() throws IOException {
     if (mStatus == ActionStatus.PREPARED || mStatus == ActionStatus.COMMITTED) {
       // The jobs must have finished.
       return;
@@ -270,29 +271,27 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
   }
 
   @Override
-  public String toString() {
-    return mSubUfses.stream().map(subUfs -> String.format("UFS[%s]:STORE on Inode(id=%d)", subUfs,
-        mInode.getId())).collect(Collectors.joining(", "));
+  public String getDescription() {
+    return mSubUfses.isEmpty() ? "UFS:STORE" : mSubUfses.stream().map(subUfs ->
+        String.format("UFS[%s]:STORE", subUfs, mInode.getId())).collect(Collectors.joining(", "));
   }
 
   /**
    * An action to persist an Alluxio path to a temporary UFS path through job service.
    */
   private final class TempUfsStoreActionExecution extends JobServiceActionExecution {
-    private final String mAlluxioPath;
     private final long mMountId;
     private final String mTempUfsPath;
 
     /**
-     * @param clientPool the client pool
-     * @param alluxioPath the alluxio path
+     * @param ctx the execution context
+     * @param path the alluxio path
      * @param mountId the mount ID for the alluxio path
      * @param tempUfsPath the temporary UFS path to persist the alluxio path to
      */
-    public TempUfsStoreActionExecution(JobMasterClientPool clientPool, String alluxioPath,
+    public TempUfsStoreActionExecution(ActionExecutionContext ctx, String path, InodeState inode,
         long mountId, String tempUfsPath) {
-      super(clientPool);
-      mAlluxioPath = alluxioPath;
+      super(ctx, path, inode);
       mMountId = mountId;
       mTempUfsPath = tempUfsPath;
     }
@@ -304,13 +303,12 @@ public final class UfsStoreActionExecution extends AbstractActionExecution {
 
     @Override
     protected JobConfig createJobConfig() {
-      return new PersistConfig(mAlluxioPath, mMountId, false, mTempUfsPath);
+      return new PersistConfig(mPath, mMountId, false, mTempUfsPath);
     }
 
     @Override
-    public String toString() {
-      return String.format("UFS:STORE(Alluxio file: %s, temporary UFS path: %s)", mAlluxioPath,
-          mTempUfsPath);
+    public String getDescription() {
+      return String.format("UFS:STORE(temporary UFS path: %s)", mTempUfsPath);
     }
   }
 }

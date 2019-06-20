@@ -54,9 +54,6 @@ public class DataActionExecution extends AbstractActionExecution {
   private static final Logger LOG = LoggerFactory.getLogger(DataActionExecution.class);
 
   private final DataActionDefinition mDefinition;
-  private final ActionExecutionContext mContext;
-  private final String mPath;
-  private final InodeState mInode;
   private final List<ActionExecution> mStoreActions = new ArrayList<>(2);
   private final List<ActionExecution> mRemoveActions = new ArrayList<>(2);
   private final int mNumActions;
@@ -72,40 +69,33 @@ public class DataActionExecution extends AbstractActionExecution {
    */
   public DataActionExecution(ActionExecutionContext ctx, String path, InodeState inode,
       DataActionDefinition definition) {
+    super(ctx, path, inode);
     LOG.debug("Constructing DataActionExecution for path {} with inode ID {}", path, inode.getId());
     mDefinition = definition;
-    mContext = ctx;
-    mPath = path;
-    mInode = inode;
     if (definition.hasAlluxioStore()) {
-      if (mInode.isDirectory()) {
-        // TODO(gpang): implement
-      } else {
-        mStoreActions.add(new AlluxioStoreActionExecution(mContext, mPath));
+      if (mInode.isFile()) {
+        mStoreActions.add(new AlluxioStoreActionExecution(mContext, mPath, mInode));
       }
+      // ALLUXIO:STORE on a directory is a noop.
     }
     if (definition.hasAlluxioRemove()) {
-      if (mInode.isDirectory()) {
-        // TODO(gpang): implement
-      } else {
-        mRemoveActions.add(new AlluxioRemoveActionExecution(mContext, mPath));
+      if (mInode.isFile()) {
+        mRemoveActions.add(new AlluxioRemoveActionExecution(mContext, mPath, mInode));
       }
+      // ALLUXIO:REMOVE on a directory is a noop.
     }
     if (definition.hasUfsStore()) {
       if (mInode.isDirectory()) {
-        // TODO(gpang): implement
+        mStoreActions.add(new UfsDirStoreActionExecution(mContext, mPath, mInode,
+            definition.getUfsStoreLocationModifiers()));
       } else {
-        mStoreActions.add(new UfsStoreActionExecution(mContext, mInode,
+        mStoreActions.add(new UfsFileStoreActionExecution(mContext, mPath, mInode,
             definition.getUfsStoreLocationModifiers()));
       }
     }
     if (definition.hasUfsRemove()) {
-      if (mInode.isDirectory()) {
-        // TODO(gpang): implement
-      } else {
-        mRemoveActions.add(new UfsRemoveActionExecution(mContext, mInode,
-            definition.getUfsRemoveLocationModifiers()));
-      }
+      mRemoveActions.add(new UfsRemoveActionExecution(mContext, mPath, mInode,
+          definition.getUfsRemoveLocationModifiers()));
     }
     Stream.concat(mStoreActions.stream(), mRemoveActions.stream()).forEach(mCloser::register);
     mNumActions = mStoreActions.size() + mRemoveActions.size();
@@ -116,7 +106,8 @@ public class DataActionExecution extends AbstractActionExecution {
   }
 
   @Override
-  public synchronized ActionStatus start() {
+  public ActionStatus start() {
+    super.start();
     for (ActionExecution action : Iterables.concat(mStoreActions, mRemoveActions)) {
       if (action.start() == ActionStatus.FAILED) {
         mStatus = ActionStatus.FAILED;
@@ -129,7 +120,7 @@ public class DataActionExecution extends AbstractActionExecution {
   }
 
   @Override
-  public synchronized ActionStatus update() throws IOException {
+  public ActionStatus update() throws IOException {
     if (mStatus != ActionStatus.IN_PROGRESS) {
       return mStatus;
     }
@@ -195,15 +186,15 @@ public class DataActionExecution extends AbstractActionExecution {
   }
 
   @Override
-  public synchronized void close() throws IOException {
+  public void close() throws IOException {
     mCloser.close();
   }
 
   @Override
-  public String toString() {
+  public String getDescription() {
     return "DATA("
         + Stream.concat(mStoreActions.stream(), mRemoveActions.stream())
-        .map(Object::toString)
+        .map(ActionExecution::getDescription)
         .collect(Collectors.joining(", "))
         + ")";
   }

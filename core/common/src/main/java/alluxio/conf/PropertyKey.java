@@ -2899,7 +2899,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_FILE_WRITE_TYPE_DEFAULT =
       new Builder(Name.USER_FILE_WRITE_TYPE_DEFAULT)
-          .setDefaultValue("ASYNC_THROUGH")
+          // ALLUXIO CS REPLACE
+          // .setDefaultValue("ASYNC_THROUGH")
+          // ALLUXIO CS WITH
+          .setDefaultValue("MUST_CACHE")
+          // ALLUXIO CS END
       .setDescription(
           String.format("Default write type when creating Alluxio files. Valid " + "options are "
               + "`MUST_CACHE` (write will only go to Alluxio and must be stored in Alluxio), "

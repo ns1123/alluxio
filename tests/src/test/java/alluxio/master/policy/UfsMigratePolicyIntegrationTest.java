@@ -12,7 +12,6 @@
 package alluxio.master.policy;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
@@ -20,12 +19,16 @@ import alluxio.Constants;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.policy.PolicyMasterClient;
 import alluxio.grpc.AddPolicyPOptions;
+import alluxio.grpc.CreateDirectoryPOptions;
 import alluxio.grpc.CreateFilePOptions;
 import alluxio.grpc.DeletePOptions;
 import alluxio.grpc.ListPolicyPOptions;
 import alluxio.grpc.MountPOptions;
 import alluxio.grpc.PolicyInfo;
 import alluxio.grpc.WritePType;
+import alluxio.heartbeat.HeartbeatContext;
+import alluxio.heartbeat.HeartbeatScheduler;
+import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.job.JobIntegrationTest;
 import alluxio.master.MasterClientContext;
 import alluxio.master.file.FileSystemMaster;
@@ -38,13 +41,18 @@ import alluxio.wire.MountPointInfo;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Integration tests for the ufsMigrate policy in policy engine.
@@ -71,7 +79,9 @@ public class UfsMigratePolicyIntegrationTest extends JobIntegrationTest {
   private static final String UFS_MIGRATE_SHORTCUT = String.format(
       "ufsMigrate(%ds, UFS[a]:REMOVE, UFS[b]:STORE)", UFS_MIGRATE_WAIT_TIME_SECONDS);
   private static final String UFS_MIGRATE_ACTION = "DATA(UFS[a]:REMOVE, UFS[b]:STORE)";
-  private static final CreateFilePOptions WRITE_THROUGH = CreateFilePOptions.newBuilder()
+  private static final CreateDirectoryPOptions DIR_WRITE_THROUGH = CreateDirectoryPOptions
+      .newBuilder().setWriteType(WritePType.THROUGH).build();
+  private static final CreateFilePOptions FILE_WRITE_THROUGH = CreateFilePOptions.newBuilder()
       .setWriteType(WritePType.THROUGH).build();
   private static final byte[] TEST_BYTES = "hello".getBytes();
 
@@ -80,6 +90,10 @@ public class UfsMigratePolicyIntegrationTest extends JobIntegrationTest {
   private PolicyMasterClient mPolicyClient;
   private File mSubUfsA;
   private File mSubUfsB;
+
+  @ClassRule
+  public static ManuallyScheduleHeartbeat sManuallySchedule = new ManuallyScheduleHeartbeat(
+      HeartbeatContext.MASTER_POLICY_ACTION_SCHEDULER);
 
   @Rule
   public final TemporaryFolder mTempFolder = new TemporaryFolder();
@@ -115,6 +129,13 @@ public class UfsMigratePolicyIntegrationTest extends JobIntegrationTest {
     PolicyInfo policy = policies.get(0);
     assertEquals(MOUNT_POINT.getPath(), policy.getPath());
     assertEquals(UFS_MIGRATE_ACTION, policy.getAction());
+  }
+
+  /**
+   * Triggers the policy by scan.
+   */
+  private void triggerPolicy() {
+    mPolicyMaster.scanInodes();
   }
 
   @Before
@@ -157,8 +178,7 @@ public class UfsMigratePolicyIntegrationTest extends JobIntegrationTest {
         mountPointInfo.getProperties().get(UNION_CREATE_COLLECTION_KEY));
 
     // Check file info.
-    long fileId = mFileSystem.getStatus(MOUNT_POINT).getFileId();
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(fileId);
+    FileInfo fileInfo = getFileInfo(MOUNT_POINT);
     assertEquals(UNION_UFS.toString(), fileInfo.getUfsPath());
     assertEquals(PersistenceState.PERSISTED, getPersistenceState(fileInfo, UFS_A_XATTR_KEY));
     assertEquals(PersistenceState.PERSISTED, getPersistenceState(fileInfo, UFS_B_XATTR_KEY));
@@ -171,93 +191,197 @@ public class UfsMigratePolicyIntegrationTest extends JobIntegrationTest {
   @Test
   public void ufsMigrateFile() throws Exception {
     // Check the mount point's persistence state.
-    long fileId = mFileSystem.getStatus(MOUNT_POINT).getFileId();
-    FileInfo fileInfo = mFileSystemMaster.getFileInfo(fileId);
+    FileInfo fileInfo = getFileInfo(MOUNT_POINT);
     assertTrue(MOUNT_POINT + " should be persisted", fileInfo.isPersisted());
-
     // Check the mount point's persistence state for sub UFS a.
     assertEquals(PersistenceState.PERSISTED, getPersistenceState(fileInfo, UFS_A_XATTR_KEY));
-
     // Check the mount point's persistence state for sub UFS b.
     assertEquals(PersistenceState.PERSISTED, getPersistenceState(fileInfo, UFS_B_XATTR_KEY));
 
-    // Create a file in the mount point with THROUGH.
     AlluxioURI file = MOUNT_POINT.join("file");
-    try (FileOutStream out = mFileSystem.createFile(file, WRITE_THROUGH)) {
-      out.write(TEST_BYTES);
+    createFile(file);
+    testUfsMigratePath(file);
+  }
+
+  /**
+   * Tests the policy to migrate one directory from one sub UFS to another sub UFS under a union
+   * UFS mount point.
+   */
+  @Test
+  public void ufsMigrateDirectory() throws Exception {
+    AlluxioURI dir = MOUNT_POINT.join("dir");
+    createDirectory(dir);
+    testUfsMigratePath(dir);
+  }
+
+  /**
+   * Tests that a nested directory with files can be migrated from one sub UFS to another one under
+   * a union UFS mount point.
+   */
+  @Test
+  public void ufsMigrateNestedDirectory() throws Exception {
+    // Directory structure:
+    // /union/file
+    // /union/dir
+    // /union/dir/file
+    // /union/dir/empty-dir
+    AlluxioURI[] uris = new AlluxioURI[] {
+        MOUNT_POINT.join("file"),
+        MOUNT_POINT.join("dir"),
+        MOUNT_POINT.join("dir/file"),
+        MOUNT_POINT.join("dir/empty-dir")
+    };
+    createFile(uris[0]);
+    createDirectory(uris[1]);
+    createFile(uris[2]);
+    createDirectory(uris[3]);
+
+    // Check persistence state.
+    for (AlluxioURI uri : uris) {
+      FileInfo info = getFileInfo(uri);
+      assertTrue(info.isPersisted());
+      assertEquals(PersistenceState.PERSISTED, getPersistenceState(info, UFS_A_XATTR_KEY));
+      assertEquals(PersistenceState.NOT_PERSISTED, getPersistenceState(info, UFS_B_XATTR_KEY));
     }
 
-    // Check that the file exists in sub UFS a.
-    File[] files = mSubUfsA.listFiles();
-    assertEquals(1, files.length);
-    assertEquals(mSubUfsA.getPath() + "/" + file.getName(), files[0].getPath());
+    createPolicy();
+    triggerPolicy();
+    waitForUfsMigration(5, mFileSystem.getStatus(uris[uris.length - 1])
+        .getCreationTimeMs());
 
-    // Check that the file does not exist in sub UFS b.
-    files = mSubUfsB.listFiles();
-    assertEquals(0, files.length);
+    // All files and empty directories should have been removed from sub UFS A.
+    // /union/dir might be removed if /union/dir/file and /union/dir/empty-dir are removed first.
+    File[] aPaths = mSubUfsA.listFiles();
+    if (aPaths.length > 0) {
+      assertTrue("Only /union/dir might exist", aPaths.length == 1);
+      assertEquals(mSubUfsA.getAbsolutePath() + "/dir", aPaths[0].getAbsolutePath());
+    }
 
-    // Check the file's persistence state.
-    fileId = mFileSystem.getStatus(file).getFileId();
-    fileInfo = mFileSystemMaster.getFileInfo(fileId);
-    assertTrue(file + " should be persisted", fileInfo.isPersisted());
+    // All files and directories should have been migrated to sub UFS B.
+    Set<Path> bPaths = Files.walk(mSubUfsB.toPath()).collect(Collectors.toSet());
+    assertEquals(5, bPaths.size());
+    assertTrue(bPaths.contains(mSubUfsB.toPath()));
+    assertTrue(bPaths.contains(mSubUfsB.toPath().resolve("file")));
+    assertTrue(bPaths.contains(mSubUfsB.toPath().resolve("dir")));
+    assertTrue(bPaths.contains(mSubUfsB.toPath().resolve("dir/file")));
+    assertTrue(bPaths.contains(mSubUfsB.toPath().resolve("dir/empty-dir")));
 
+    if (aPaths.length > 0) {
+      // /union/dir should be removed.
+      triggerPolicy();
+      waitForUfsMigration(2, mFileSystem.getStatus(MOUNT_POINT.join("dir")).getCreationTimeMs());
+      assertEquals(0, mSubUfsA.listFiles().length);
+    }
+
+    // Check persistence state.
+    for (AlluxioURI uri : uris) {
+      FileInfo info = getFileInfo(uri);
+      assertTrue(info.isPersisted());
+      assertEquals(PersistenceState.NOT_PERSISTED, getPersistenceState(info, UFS_A_XATTR_KEY));
+      assertEquals(PersistenceState.PERSISTED, getPersistenceState(info, UFS_B_XATTR_KEY));
+    }
+  }
+
+  private FileInfo getFileInfo(AlluxioURI path) throws Exception {
+    long fileId = mFileSystem.getStatus(path).getFileId();
+    return mFileSystemMaster.getFileInfo(fileId);
+  }
+
+  private void createFile(AlluxioURI path) throws Exception {
+    try (FileOutStream out = mFileSystem.createFile(path, FILE_WRITE_THROUGH)) {
+      out.write(TEST_BYTES);
+    }
     // After deleting the inode from Alluxio, getStatus will reload metadata from UFS,
     // then xattr will appear in inode.
     // Since we don't set xattr in completeFile, without this hack, xattr will be empty in fileInfo.
-    mFileSystem.delete(file, DeletePOptions.newBuilder().setAlluxioOnly(true).build());
-    fileId = mFileSystem.getStatus(file).getFileId();
-    fileInfo = mFileSystemMaster.getFileInfo(fileId);
+    mFileSystem.delete(path, DeletePOptions.newBuilder().setAlluxioOnly(true).build());
+    getFileInfo(path);
+  }
 
-    // Check the file's persistence state for sub UFS a.
-    assertEquals(PersistenceState.PERSISTED, getPersistenceState(fileInfo, UFS_A_XATTR_KEY));
+  private void createDirectory(AlluxioURI path) throws Exception {
+    mFileSystem.createDirectory(path, DIR_WRITE_THROUGH);
+    // Similar reasoning as createFile.
+    mFileSystem.delete(path, DeletePOptions.newBuilder().setAlluxioOnly(true).build());
+    getFileInfo(path);
+  }
 
-    // Check the file's persistence state for sub UFS b.
-    assertFalse("There should be no xattr for sub UFS b for file " + file,
-        fileInfo.getXAttr().containsKey(UFS_B_XATTR_KEY));
+  /**
+   * @param numActions the expected number of actions
+   * @param creationTimeMs creation time (in milliseconds) for the inode that is expected to be
+   *    executed last
+   */
+  private void waitForUfsMigration(int numActions, long creationTimeMs) throws Exception {
+    // Wait until inode scan triggers the ufs migration action.
+    CommonUtils.waitFor("UFS migration to start",
+        () -> mPolicyMaster.getActionScheduler().getExecutingActionsSize() == numActions,
+        WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS).setInterval(1));
+
+    long sincePathCreationTimeMs = System.currentTimeMillis() - creationTimeMs;
+    assertTrue(String.format("UFS migration is started after the path exists for %d milliseconds, "
+        + "expect to be >= %d seconds", sincePathCreationTimeMs, UFS_MIGRATE_WAIT_TIME_SECONDS),
+        sincePathCreationTimeMs >= UFS_MIGRATE_WAIT_TIME_SECONDS * Constants.SECOND_MS);
+
+    // Wait for the ufs migration action to finish (commit).
+    CommonUtils.waitFor("UFS migration to finish", () -> {
+      try {
+        HeartbeatScheduler.execute(HeartbeatContext.MASTER_POLICY_ACTION_SCHEDULER);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+      return mPolicyMaster.getActionScheduler().getExecutingActionsSize() == 0;
+    }, WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS).setInterval(1));
+  }
+
+  private void testUfsMigratePath(AlluxioURI path) throws Exception {
+    // Check that the path exists in sub UFS a.
+    File[] paths = mSubUfsA.listFiles();
+    assertEquals(1, paths.length);
+    assertEquals(mSubUfsA.getPath() + "/" + path.getName(), paths[0].getPath());
+
+    // Check that the path does not exist in sub UFS b.
+    paths = mSubUfsB.listFiles();
+    assertEquals(0, paths.length);
+
+    // Check the path's persistence state.
+    FileInfo pathInfo = getFileInfo(path);
+    assertTrue(path + " should be persisted", pathInfo.isPersisted());
+
+    // Check the path's persistence state for sub UFS a.
+    assertEquals(PersistenceState.PERSISTED, getPersistenceState(pathInfo, UFS_A_XATTR_KEY));
+
+    // Check the path's persistence state for sub UFS b.
+    assertEquals(PersistenceState.NOT_PERSISTED, getPersistenceState(pathInfo, UFS_B_XATTR_KEY));
 
     createPolicy();
     checkPolicy();
-    mPolicyMaster.scanInodes();
+    triggerPolicy();
+    waitForUfsMigration(2, pathInfo.getCreationTimeMs());
 
-    // Wait until inode scan triggers the ufs migration action.
-    CommonUtils.waitFor(String.format("UFS migration to be started for file %s", file.getPath()),
-        () -> mJobMaster.list().size() == 1,
-        WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS));
-    long sinceFileCreationTimeMs = System.currentTimeMillis() - fileInfo.getCreationTimeMs();
-    assertTrue(String.format("UFS migration is started after the file exists for %d seconds",
-        UFS_MIGRATE_WAIT_TIME_SECONDS),
-        sinceFileCreationTimeMs >= UFS_MIGRATE_WAIT_TIME_SECONDS * Constants.SECOND_MS);
+    // Check that the path does not exist in sub UFS a.
+    paths = mSubUfsA.listFiles();
+    assertEquals(0, paths.length);
 
-    // Wait until the persist job succeeds.
-    long jobId = mJobMaster.list().get(0);
-    waitForJobToFinish(jobId);
+    // Check that the path exists in sub UFS b.
+    paths = mSubUfsB.listFiles();
+    assertEquals(1, paths.length);
+    assertEquals(mSubUfsB.getPath() + "/" + path.getName(), paths[0].getPath());
 
-    // Wait for the ufs migration action to finish (commit).
-    CommonUtils.waitFor(String.format("UFS migration for file %s to finish", file.getPath()),
-        () -> mPolicyMaster.getActionScheduler().getExecutingActionsSize() == 0,
-        WaitForOptions.defaults().setTimeoutMs(30 * Constants.SECOND_MS));
+    // Check the path's persistence state.
+    pathInfo = getFileInfo(path);
+    assertTrue(path + " should be persisted", pathInfo.isPersisted());
 
-    // Check that the file does not exist in sub UFS a.
-    files = mSubUfsA.listFiles();
-    assertEquals(0, files.length);
+    // Check the path's persistence state for sub UFS a.
+    assertEquals(PersistenceState.NOT_PERSISTED, getPersistenceState(pathInfo, UFS_A_XATTR_KEY));
 
-    // Check that the file exists in sub UFS b.
-    files = mSubUfsB.listFiles();
-    assertEquals(1, files.length);
-    assertEquals(mSubUfsB.getPath() + "/" + file.getName(), files[0].getPath());
-
-    // Check the file's persistence state.
-    fileInfo = mFileSystemMaster.getFileInfo(fileId);
-    assertTrue(file + " should be persisted", fileInfo.isPersisted());
-
-    // Check the file's persistence state for sub UFS a.
-    assertEquals(PersistenceState.NOT_PERSISTED, getPersistenceState(fileInfo, UFS_A_XATTR_KEY));
-
-    // Check the file's persistence state for sub UFS b.
-    assertEquals(PersistenceState.PERSISTED, getPersistenceState(fileInfo, UFS_B_XATTR_KEY));
+    // Check the path's persistence state for sub UFS b.
+    assertEquals(PersistenceState.PERSISTED, getPersistenceState(pathInfo, UFS_B_XATTR_KEY));
   }
 
   private PersistenceState getPersistenceState(FileInfo fileInfo, String xAttrKey) {
-    return ExtendedAttribute.PERSISTENCE_STATE.decode(fileInfo.getXAttr().get(xAttrKey));
+    Map<String, byte[]> xattr = fileInfo.getXAttr();
+    if (xattr == null || !xattr.containsKey(xAttrKey)) {
+      return PersistenceState.NOT_PERSISTED;
+    }
+    return ExtendedAttribute.PERSISTENCE_STATE.decode(xattr.get(xAttrKey));
   }
 }

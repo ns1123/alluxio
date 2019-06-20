@@ -15,6 +15,7 @@ import alluxio.job.JobConfig;
 import alluxio.job.load.LoadConfig;
 import alluxio.master.policy.action.ActionExecutionContext;
 import alluxio.master.policy.action.JobServiceActionExecution;
+import alluxio.master.policy.meta.InodeState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,15 +29,14 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class AlluxioStoreActionExecution extends JobServiceActionExecution {
   private static final Logger LOG = LoggerFactory.getLogger(AlluxioStoreActionExecution.class);
 
-  private final String mPath;
-
   /**
-   * @param ctx the context
-   * @param path the Alluxio path to load the data to
+   * @param ctx the execution context
+   * @param path the Alluxio path
+   * @param inode the inode
    */
-  public AlluxioStoreActionExecution(ActionExecutionContext ctx, String path) {
-    super(ctx.getJobMasterClientPool());
-    mPath = path;
+  public AlluxioStoreActionExecution(ActionExecutionContext ctx, String path,
+      InodeState inode) {
+    super(ctx, path, inode);
   }
 
   @Override
@@ -50,7 +50,7 @@ public final class AlluxioStoreActionExecution extends JobServiceActionExecution
   }
 
   @Override
-  public String toString() {
-    return "ALLUXIO:STORE on path " + mPath;
+  public String getDescription() {
+    return "ALLUXIO:STORE";
   }
 }
