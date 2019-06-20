@@ -355,6 +355,11 @@ public final class ActionScheduler implements Journaled {
     public boolean isPersisted() {
       return mFileInfo.isPersisted();
     }
+
+    @Override
+    public boolean isMountPoint() {
+      return mFileInfo.isMountPoint();
+    }
   }
 
   private class InodeKey {

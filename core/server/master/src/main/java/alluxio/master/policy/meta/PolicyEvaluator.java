@@ -49,9 +49,6 @@ public final class PolicyEvaluator {
    * @return the list of schedulable actions applicable for the given path and state
    */
   public List<SchedulableAction> getActions(Interval interval, String path, InodeState state) {
-    if (!state.isFile()) {
-      return Collections.emptyList();
-    }
     List<SchedulableAction> actions = Collections.emptyList();
     Iterator<PolicyDefinition> it = mPolicyStore.getPolicies();
     while (it.hasNext()) {
@@ -76,9 +73,6 @@ public final class PolicyEvaluator {
    * @return whether the conditions for the action are all satisfied
    */
   public boolean isActionReady(String path, InodeState state, SchedulableAction action) {
-    if (!state.isFile()) {
-      return false;
-    }
     PolicyKey policyKey = action.getPolicyKey();
     PolicyDefinition policy = mPolicyStore.getPolicy(policyKey);
     if (policy == null) {

@@ -37,6 +37,22 @@ public final class ExceptionUtils {
   public static boolean isInterrupted(Throwable t) {
     return t instanceof InterruptedException || t instanceof InterruptedIOException;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @param t the throwable
+   * @return the throwable's error message and all its parent causes' error messages
+   */
+  public static String getChainedExceptionMessages(Throwable t) {
+    StringBuilder sb = new StringBuilder(t.getMessage());
+    while (t.getCause() != null) {
+      sb.append(": ");
+      sb.append(t.getCause().getMessage());
+      t = t.getCause();
+    }
+    return sb.toString();
+  }
+  // ALLUXIO CS END
 
   private ExceptionUtils() {} // Utils class
 }

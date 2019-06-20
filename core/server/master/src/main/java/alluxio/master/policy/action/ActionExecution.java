@@ -30,6 +30,8 @@ public interface ActionExecution extends Closeable {
    * If the action is started successfully, the returned status might be
    * {@link ActionStatus#IN_PROGRESS}, or {@link ActionStatus#PREPARED}.
    *
+   * Start should not block for a long time.
+   *
    * @return the action status
    */
   ActionStatus start();
@@ -43,6 +45,8 @@ public interface ActionExecution extends Closeable {
    * After {@link #commit()}, this method should return {@link ActionStatus#COMMITTED} or
    * {@link ActionStatus#FAILED} deterministically.
    *
+   * Start should not block for a long time.
+   *
    * @return the current action status
    * @throws IOException when failed to get status update, this does not mean the action fails
    */
@@ -53,6 +57,8 @@ public interface ActionExecution extends Closeable {
    * The current action status must be {@link ActionStatus#PREPARED}.
    * This call blocks until the status {@link ActionStatus#isTerminal()}.
    *
+   * Commit can be blocked, it's executed asynchronous in {@link ActionScheduler}.
+   *
    * @return one of the terminal status
    * @throws IllegalStateException when the current status is not {@link ActionStatus#PREPARED}
    */
@@ -62,4 +68,14 @@ public interface ActionExecution extends Closeable {
    * @return the exception of the action since {@link #start()} or null if there is no exception
    */
   Exception getException();
+
+  /**
+   * Returns the generic description of the action.
+   * For example, for ALLUXIO:REMOVE, it won't describe the concrete details of the specific action
+   * instance, for example, which file or directory is it removing. For the detailed description
+   * of the action, use {@link #toString()}.
+   *
+   * @return the generic description
+   */
+  String getDescription();
 }

@@ -35,6 +35,7 @@ import alluxio.master.MasterRegistry;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.contexts.GetStatusContext;
 import alluxio.master.file.meta.Inode;
+import alluxio.master.file.meta.InodeDirectoryView;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.journal.JournalContext;
 import alluxio.master.journal.JournalEntryIterable;
@@ -393,6 +394,11 @@ public final class PolicyMaster extends AbstractMaster {
     @Override
     public boolean isPersisted() {
       return mInode.isPersisted();
+    }
+
+    @Override
+    public boolean isMountPoint() {
+      return mInode.isDirectory() && ((InodeDirectoryView) mInode).isMountPoint();
     }
   }
 }
