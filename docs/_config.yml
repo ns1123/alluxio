@@ -16,17 +16,11 @@ ALLUXIO_MAJOR_VERSION: 2.0
 ALLUXIO_VERSION_STRING: 2.0.0-RC4
 # We must inline the version string (e.g., "1.4.0-SNAPSHOT") rather than using the macro of Alluxio version.
 # Otherwise the macro name remains in the output.
-<<<<<<< HEAD
 # ALLUXIO CS REPLACE
-# ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-2.0.0-RC3-client.jar
+# ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-2.0.0-RC4-client.jar
 # ALLUXIO CS WITH
-ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-enterprise-2.0.0-RC3-client.jar
+ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-enterprise-2.0.0-RC4-client.jar
 # ALLUXIO CS END
-||||||| merged common ancestors
-ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-2.0.0-RC3-client.jar
-=======
-ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-2.0.0-RC4-client.jar
->>>>>>> OPENSOURCE/branch-2.0
 
 # These attach the pages of different languages with different 'lang' attributes
 defaults:
