@@ -399,13 +399,7 @@ public class UnionUnderFileSystem implements UnderFileSystem {
 
   @Override
   public boolean deleteDirectory(final String path) throws IOException {
-    Collection<UfsKey> inputs = getUfsInputs(path, mUfses);
-    AtomicInteger success = new AtomicInteger(0);
-    UnionUnderFileSystemUtils.invokeAll(mExecutorService, (ufsKey) -> {
-      ufsKey.getUfs().deleteDirectory(path);
-      success.incrementAndGet();
-    }, inputs);
-    return success.get() == mUfses.size();
+    return deleteDirectory(path, DeleteOptions.defaults());
   }
 
   @Override
@@ -414,21 +408,16 @@ public class UnionUnderFileSystem implements UnderFileSystem {
     Collection<UfsKey> inputs = getUfsInputs(path, mUfses);
     AtomicInteger success = new AtomicInteger(0);
     UnionUnderFileSystemUtils.invokeAll(mExecutorService, (ufsKey) -> {
-      ufsKey.getUfs().deleteDirectory(path, options);
-      success.incrementAndGet();
+      if (ufsKey.getUfs().deleteDirectory(path, options)) {
+        success.incrementAndGet();
+      }
     }, inputs);
     return success.get() == inputs.size();
   }
 
   @Override
   public boolean deleteExistingDirectory(final String path) throws IOException {
-    Collection<UfsKey> inputs = getUfsInputs(path, mUfses);
-    AtomicInteger success = new AtomicInteger(0);
-    UnionUnderFileSystemUtils.invokeAll(mExecutorService, (ufsKey) -> {
-      ufsKey.getUfs().deleteExistingDirectory(path);
-      success.incrementAndGet();
-    }, inputs);
-    return success.get() == inputs.size();
+    return deleteExistingDirectory(path, DeleteOptions.defaults());
   }
 
   @Override
@@ -436,8 +425,9 @@ public class UnionUnderFileSystem implements UnderFileSystem {
     Collection<UfsKey> inputs = getUfsInputs(path, mUfses);
     AtomicInteger success = new AtomicInteger(0);
     UnionUnderFileSystemUtils.invokeAll(mExecutorService, (ufsKey) -> {
-      ufsKey.getUfs().deleteExistingDirectory(path, options);
-      success.incrementAndGet();
+      if (ufsKey.getUfs().deleteExistingDirectory(path, options)) {
+        success.incrementAndGet();
+      }
     }, inputs);
     return success.get() == inputs.size();
   }
@@ -447,8 +437,9 @@ public class UnionUnderFileSystem implements UnderFileSystem {
     Collection<UfsKey> inputs = getUfsInputs(path, mUfses);
     AtomicInteger success = new AtomicInteger(0);
     UnionUnderFileSystemUtils.invokeAll(mExecutorService, (ufsKey) -> {
-      ufsKey.getUfs().deleteFile(path);
-      success.incrementAndGet();
+      if (ufsKey.getUfs().deleteFile(path)) {
+        success.incrementAndGet();
+      }
     }, inputs);
     return success.get() == inputs.size();
   }
@@ -458,8 +449,9 @@ public class UnionUnderFileSystem implements UnderFileSystem {
     Collection<UfsKey> inputs = getUfsInputs(path, mUfses);
     AtomicInteger success = new AtomicInteger(0);
     UnionUnderFileSystemUtils.invokeAll(mExecutorService, (ufsKey) -> {
-      ufsKey.getUfs().deleteExistingFile(path);
-      success.incrementAndGet();
+      if (ufsKey.getUfs().deleteExistingFile(path)) {
+        success.incrementAndGet();
+      }
     }, inputs);
     return success.get() == inputs.size();
   }

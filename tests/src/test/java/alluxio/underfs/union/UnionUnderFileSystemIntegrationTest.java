@@ -39,6 +39,7 @@ import alluxio.master.file.meta.MountTable;
 import alluxio.resource.CloseableResource;
 import alluxio.testutils.LocalAlluxioClusterResource;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.options.DeleteOptions;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
@@ -56,6 +57,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class UnionUnderFileSystemIntegrationTest {
+  private static final CreateDirectoryPOptions CREATE_DIR_THROUGH = CreateDirectoryPOptions
+      .newBuilder().setWriteType(WritePType.THROUGH).build();
+
   @Rule
   public TemporaryFolder mUfsFolderA = new TemporaryFolder();
   @Rule
@@ -89,8 +93,8 @@ public class UnionUnderFileSystemIntegrationTest {
         resolution.set(ctx.getMountInfo()));
     try (CloseableResource<UnderFileSystem> ufsResource = resolution.get().acquireUfsResource()) {
       assertFalse(ufsResource.get().exists("union:///not-exist"));
-      assertFalse(ufsResource.get().exists("union://A/not-exist"));
-      assertFalse(ufsResource.get().exists("union://B/not-exist"));
+      assertFalse(ufsResource.get().exists("union://(A)/not-exist"));
+      assertFalse(ufsResource.get().exists("union://(B)/not-exist"));
     }
 
     FileSystemTestUtils
@@ -105,8 +109,8 @@ public class UnionUnderFileSystemIntegrationTest {
         resolution.set(ctx.getMountInfo()));
     try (CloseableResource<UnderFileSystem> ufsResource = resolution.get().acquireUfsResource()) {
       assertTrue(ufsResource.get().exists("union:///exist"));
-      assertTrue(ufsResource.get().exists("union://A/exist"));
-      assertTrue(ufsResource.get().exists("union://B/exist"));
+      assertTrue(ufsResource.get().exists("union://(A)/exist"));
+      assertTrue(ufsResource.get().exists("union://(B)/exist"));
     }
   }
 
@@ -182,6 +186,72 @@ public class UnionUnderFileSystemIntegrationTest {
     allUfsMount("/mnt/union2", "union://ufs2/");
     testDualFileLifeCycle("/mnt/union1");
     testDualFileLifeCycle("/mnt/union2");
+  }
+
+  @Test
+  public void deleteNonEmptyDirectory() throws Exception {
+    String mountPoint = "/union";
+    allUfsMount(mountPoint);
+    mFileSystem.createDirectory(new AlluxioURI("/union/non-empty-dir"), CREATE_DIR_THROUGH);
+    mFileSystem.createDirectory(new AlluxioURI("/union/non-empty-dir/dir"), CREATE_DIR_THROUGH);
+    URIStatus mountStatus = mFileSystem.getStatus(new AlluxioURI(mountPoint));
+
+    AtomicReference<MountTable.Resolution> resolution = new AtomicReference<>();
+    mFileSystemMaster.exec(mountStatus.getFileId(), LockPattern.READ, ctx ->
+        resolution.set(ctx.getMountInfo()));
+    try (CloseableResource<UnderFileSystem> ufsResource = resolution.get().acquireUfsResource()) {
+      UnderFileSystem ufs = ufsResource.get();
+
+      assertFalse("Cannot delete non-empty directory",
+          ufs.deleteExistingDirectory("union://(A)/non-empty-dir"));
+      assertFalse("Cannot delete non-empty directory",
+          ufs.deleteDirectory("union://(A)/non-empty-dir"));
+
+      assertTrue("Can delete non-empty directory recursively",
+          ufs.deleteExistingDirectory("union://(A)/non-empty-dir",
+              DeleteOptions.defaults().setRecursive(true)));
+      assertTrue("Can delete non-empty directory recursively",
+          ufs.deleteDirectory("union://(B)/non-empty-dir",
+              DeleteOptions.defaults().setRecursive(true)));
+    }
+  }
+
+  @Test
+  public void deleteNonExistentDirectory() throws Exception {
+    String mountPoint = "/union";
+    allUfsMount(mountPoint);
+    URIStatus mountStatus = mFileSystem.getStatus(new AlluxioURI(mountPoint));
+
+    AtomicReference<MountTable.Resolution> resolution = new AtomicReference<>();
+    mFileSystemMaster.exec(mountStatus.getFileId(), LockPattern.READ, ctx ->
+        resolution.set(ctx.getMountInfo()));
+    try (CloseableResource<UnderFileSystem> ufsResource = resolution.get().acquireUfsResource()) {
+      UnderFileSystem ufs = ufsResource.get();
+
+      assertFalse("Cannot delete non-existent directory",
+          ufs.deleteExistingDirectory("union://(A)/non-existent-dir"));
+      assertFalse("Cannot delete non-existent directory",
+          ufs.deleteDirectory("union://(A)/non-existent-dir"));
+    }
+  }
+
+  @Test
+  public void deleteNonExistentFile() throws Exception {
+    String mountPoint = "/union";
+    allUfsMount(mountPoint);
+    URIStatus mountStatus = mFileSystem.getStatus(new AlluxioURI(mountPoint));
+
+    AtomicReference<MountTable.Resolution> resolution = new AtomicReference<>();
+    mFileSystemMaster.exec(mountStatus.getFileId(), LockPattern.READ, ctx ->
+        resolution.set(ctx.getMountInfo()));
+    try (CloseableResource<UnderFileSystem> ufsResource = resolution.get().acquireUfsResource()) {
+      UnderFileSystem ufs = ufsResource.get();
+
+      assertFalse("Cannot delete non-existent file",
+          ufs.deleteExistingFile("union://(A)/non-existent-file"));
+      assertFalse("Cannot delete non-existent file",
+          ufs.deleteFile("union://(A)/non-existent-file"));
+    }
   }
 
   private boolean localUfsExists(String path) {
