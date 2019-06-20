@@ -12,9 +12,9 @@
 package alluxio.master.policy.action;
 
 import alluxio.client.job.JobMasterClient;
-import alluxio.client.job.JobMasterClientPool;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
+import alluxio.master.policy.meta.InodeState;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -28,15 +28,15 @@ public abstract class JobServiceActionExecution extends AbstractActionExecution 
   private static final long INVALID_JOB_ID = -1;
   private static final ObjectMapper JSON_ENCODER = new ObjectMapper();
 
-  private final JobMasterClientPool mClientPool;
-
   private volatile long mJobId = INVALID_JOB_ID;
 
   /**
-   * @param pool the job master client pool
+   * @param ctx the execution context
+   * @param path the Alluxio path
+   * @param inode the inode
    */
-  public JobServiceActionExecution(JobMasterClientPool pool) {
-    mClientPool = pool;
+  public JobServiceActionExecution(ActionExecutionContext ctx, String path, InodeState inode) {
+    super(ctx, path, inode);
   }
 
   /**
@@ -51,7 +51,8 @@ public abstract class JobServiceActionExecution extends AbstractActionExecution 
 
   @Override
   public synchronized ActionStatus start() {
-    JobMasterClient client = mClientPool.acquire();
+    super.start();
+    JobMasterClient client = mContext.getJobMasterClientPool().acquire();
     try {
       mJobId = client.run(createJobConfig());
       mStatus = ActionStatus.IN_PROGRESS;
@@ -59,7 +60,7 @@ public abstract class JobServiceActionExecution extends AbstractActionExecution 
       mStatus = ActionStatus.FAILED;
       mException = e;
     } finally {
-      mClientPool.release(client);
+      mContext.getJobMasterClientPool().release(client);
     }
     return mStatus;
   }
@@ -70,21 +71,23 @@ public abstract class JobServiceActionExecution extends AbstractActionExecution 
       return mStatus;
     }
     JobInfo jobInfo;
-    JobMasterClient client = mClientPool.acquire();
+    JobMasterClient client = mContext.getJobMasterClientPool().acquire();
     try {
       jobInfo = client.getStatus(mJobId);
       getLogger().debug("Job info: {}", jobInfo);
     } finally {
-      mClientPool.release(client);
+      mContext.getJobMasterClientPool().release(client);
     }
     switch (jobInfo.getStatus()) {
       case CANCELED:
         // fall through.
       case FAILED:
         mStatus = ActionStatus.FAILED;
-        mException = new IOException(String.format("Job (id=%d, configuration=%s) failed: %s",
+        String err = String.format("Job (id=%d, configuration=%s) failed: %s",
             jobInfo.getJobId(), JSON_ENCODER.writeValueAsString(jobInfo.getJobConfig()),
-            jobInfo.getErrorMessage()));
+            jobInfo.getErrorMessage());
+        getLogger().error(err);
+        mException = new IOException(err);
         break;
       case COMPLETED:
         mStatus = ActionStatus.PREPARED;
@@ -109,11 +112,11 @@ public abstract class JobServiceActionExecution extends AbstractActionExecution 
       // The job must have succeeded, failed, or been cancelled.
       return;
     }
-    JobMasterClient client = mClientPool.acquire();
+    JobMasterClient client = mContext.getJobMasterClientPool().acquire();
     try {
       client.cancel(mJobId);
     } finally {
-      mClientPool.release(client);
+      mContext.getJobMasterClientPool().release(client);
     }
   }
 }

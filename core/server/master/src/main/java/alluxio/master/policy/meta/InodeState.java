@@ -59,4 +59,9 @@ public interface InodeState {
    * @return true if the file has persisted, false otherwise
    */
   boolean isPersisted();
+
+  /**
+   * @return whether the inode is a mount point
+   */
+  boolean isMountPoint();
 }

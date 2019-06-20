@@ -12,8 +12,9 @@
 package alluxio.master.policy.action.data;
 
 import alluxio.AlluxioURI;
-import alluxio.grpc.FreePOptions;
 import alluxio.master.policy.action.ActionExecutionContext;
+import alluxio.master.policy.action.CommitActionExecution;
+import alluxio.master.policy.meta.InodeState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,21 +25,17 @@ import javax.annotation.concurrent.ThreadSafe;
  * The action to free a file from Alluxio.
  */
 @ThreadSafe
-public final class AlluxioRemoveActionExecution extends RemoveActionExecution {
+public final class AlluxioRemoveActionExecution extends CommitActionExecution {
   private static final Logger LOG = LoggerFactory.getLogger(AlluxioRemoveActionExecution.class);
-  private static final FreePOptions FREE_OPTIONS = FreePOptions.newBuilder().setRecursive(true)
-      .build();
-
-  private final ActionExecutionContext mContext;
-  private final String mPath;
 
   /**
-   * @param ctx the context
-   * @param path the Alluxio path to free data from
+   * @param ctx the execution context
+   * @param path the Alluxio path
+   * @param inode the inode
    */
-  public AlluxioRemoveActionExecution(ActionExecutionContext ctx, String path) {
-    mContext = ctx;
-    mPath = path;
+  public AlluxioRemoveActionExecution(ActionExecutionContext ctx, String path,
+      InodeState inode) {
+    super(ctx, path, inode);
   }
 
   @Override
@@ -47,12 +44,12 @@ public final class AlluxioRemoveActionExecution extends RemoveActionExecution {
   }
 
   @Override
-  protected void remove() throws Exception {
-    mContext.getFileSystem().free(new AlluxioURI(mPath), FREE_OPTIONS);
+  protected void doCommit() throws Exception {
+    mContext.getFileSystem().free(new AlluxioURI(mPath));
   }
 
   @Override
-  public String toString() {
-    return "ALLUXIO:REMOVE on path "  + mPath;
+  public String getDescription() {
+    return "ALLUXIO:REMOVE";
   }
 }

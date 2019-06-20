@@ -104,7 +104,11 @@ public class DataState implements Condition {
           && (!persisted || (k != null && decoded == PersistenceState.NOT_PERSISTED))) {
         return IntervalSet.NEVER;
       } else if (o.getOperation() == REMOVE
-          && (persisted && (k == null || decoded == PersistenceState.PERSISTED))) {
+          && (persisted && (k == null || val == null || decoded == PersistenceState.PERSISTED))) {
+        // When creating a path in union UFS, persistence state in xattr won't be updated
+        // immediately. So if xattr does not contain persistence state for this sub UFS, we cannot
+        // determine that the path is not persisted, always schedule the action in this case,
+        // otherwise, in UFS migrate, directories might not be able to be removed.
         return IntervalSet.NEVER;
       }
     }

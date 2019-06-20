@@ -126,7 +126,7 @@ public final class PolicyJournalSink implements JournalSink {
               inodeEntry.getCreationTimeMs(), inodeEntry.getLastModificationTimeMs(),
               CommonUtils.convertFromByteString(inodeEntry.getXAttrMap()), false,
               PersistenceState
-                  .valueOf(inodeEntry.getPersistenceState()) == PersistenceState.PERSISTED);
+                  .valueOf(inodeEntry.getPersistenceState()) == PersistenceState.PERSISTED, false);
         }
       }
       if (entry.hasInodeDirectory()) {
@@ -137,7 +137,8 @@ public final class PolicyJournalSink implements JournalSink {
             inodeEntry.getCreationTimeMs(), inodeEntry.getLastModificationTimeMs(),
             CommonUtils.convertFromByteString(inodeEntry.getXAttrMap()), true,
             PersistenceState
-                .valueOf(inodeEntry.getPersistenceState()) == PersistenceState.PERSISTED);
+                .valueOf(inodeEntry.getPersistenceState()) == PersistenceState.PERSISTED,
+            inodeEntry.getMountPoint());
       }
       if (entry.hasRename()) {
         // TODO(feng): add code to handle path creation in rename event
@@ -162,18 +163,19 @@ public final class PolicyJournalSink implements JournalSink {
     }
   }
 
-  private class JournalEntryInodeState implements InodeState {
-    long mCreationTimeMs;
-    long mId;
-    long mLastModificationTimeMs;
-    String mName;
-    Map<String, byte[]> mXattr;
-    boolean mDirectory;
-    boolean mPersisted;
+  private static final class JournalEntryInodeState implements InodeState {
+    private final long mCreationTimeMs;
+    private final long mId;
+    private final long mLastModificationTimeMs;
+    private final String mName;
+    private final Map<String, byte[]> mXattr;
+    private final boolean mDirectory;
+    private final boolean mPersisted;
+    private final boolean mIsMountPoint;
 
     public JournalEntryInodeState(long id, String name, long creationTimeMs,
         long lastModificationTimeMs, Map<String, byte[]> xattr, boolean isDirectory,
-        boolean isPersisted) {
+        boolean isPersisted, boolean isMountPoint) {
       mId = id;
       mName = name;
       mCreationTimeMs = creationTimeMs;
@@ -181,6 +183,7 @@ public final class PolicyJournalSink implements JournalSink {
       mXattr = xattr;
       mDirectory = isDirectory;
       mPersisted = isPersisted;
+      mIsMountPoint = isMountPoint;
     }
 
     @Override
@@ -222,6 +225,11 @@ public final class PolicyJournalSink implements JournalSink {
     @Override
     public boolean isPersisted() {
       return mPersisted;
+    }
+
+    @Override
+    public boolean isMountPoint() {
+      return mIsMountPoint;
     }
   }
 }
