@@ -13,10 +13,10 @@ This document describes the following security related features in Alluxio.
 
 1. [User Authentication](#authentication): 
 Alluxio filesystem will differentiate users accessing the service
-when the authentication mode is `SIMPLE` (i.e., `alluxio.security.authentication.type=SIMPLE`).
+when the authentication mode is `SIMPLE`.
 <!-- ALLUXIO CS REPLACE -->
 <!-- Alluxio also supports `NOSASL` mode which ignores authentication. -->
-<!-- Having authentication mode to be `SIMPLE` is required for authorization. -->
+<!-- Authentication mode `SIMPLE` is required to enable authorization. -->
 <!-- ALLUXIO CS WITH -->
 Alluxio also supports `NOSASL` and `KERBEROS` as authentication mechanisms.
 Having authentication mode to be `SIMPLE`, or `KERBEROS` is required for authorization.
@@ -32,9 +32,9 @@ is more flexible and allows administrators to manage any user or group's permiss
 system object.
 1. [Client-Side Hadoop Impersonation](#client-side-hadoop-impersonation): Alluxio supports
 client-side Hadoop impersonation so the Alluxio client can access Alluxio on the behalf of the
-Hadoop user. This can be useful if the Alluxio client is part of an exising Hadoop service.
-1. [Auditing](#auditing): If `alluxio.master.audit.logging.enabled=true`, Alluxio file system
-maintains an audit log for user accesses to file metadata.
+Hadoop user. This can be useful if the Alluxio client is part of an existing Hadoop service.
+1. [Auditing](#auditing): If enabled, the Alluxio filesystem
+writes an audit log for all user accesses.
 <!-- ALLUXIO CS ADD -->
 1. [Encryption](#encryption): Alluxio supports end-to-end data encryption, and TLS for network communication.
 <!-- ALLUXIO CS END -->
@@ -541,7 +541,7 @@ See [Configuration settings]({{ '/en/basic/Configuration-Settings.html' | relati
 
 <!-- ALLUXIO CS REPLACE -->
 <!-- Service level encryption is not supported yet. -->
-<!-- Users can encrypt sensitive data at the application level or enable encryption features in the -->
+<!-- Users can encrypt sensitive data at the application level or enable encryption features in the  -->
 <!-- respective under file system, such as HDFS transparent encryption or Linux disk encryption. -->
 <!-- ALLUXIO CS WITH -->
 Alluxio supports encryption of the network communication between services with TLS, and supports end-to-end data encryption.
