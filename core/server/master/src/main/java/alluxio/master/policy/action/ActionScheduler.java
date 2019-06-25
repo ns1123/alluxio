@@ -51,10 +51,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -71,22 +72,18 @@ public final class ActionScheduler implements Journaled {
       ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_SCHEDULER_THREADS);
   private static final int ACTION_SCHEDULER_MAX_RUNNING_ACTIONS =
       ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_SCHEDULER_RUNNING_ACTIONS_MAX);
-  private static final int ACTION_EXECUTION_THREAD_POOL_SIZE =
-      ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_EXECUTION_THREADS);
-  private static final int ACTION_COMMIT_THREAD_POOL_SIZE =
-      ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_COMMIT_THREADS);
 
   private final FileSystemMaster mFileSystemMaster;
   private final PolicyEvaluator mPolicyEvaluator;
   private final MasterContext mMasterContext;
-  private final ScheduledExecutorService mActionExecutor;
+  private final ScheduledExecutorService mActionSchedulingExecutor;
   private final ConcurrentHashMap<InodeKey, List<ScheduledFuture>> mScheduledTasks;
   private final ConcurrentHashMap<InodeKey, ActionExecution> mExecutingActions;
   private final ConcurrentHashSet<ActionExecution> mCommittingActions;
 
   private JobMasterClientPool mJobMasterClientPool;
-  private ExecutorService mActionExecutionService;
-  private ExecutorService mActionCommitService;
+  private ExecutorService mActionExecutionExecutor;
+  private ExecutorService mActionCommitExecutor;
   private ActionExecutionContext mActionExecutionContext;
   private volatile boolean mShouldExecute;
 
@@ -107,14 +104,14 @@ public final class ActionScheduler implements Journaled {
   /**
    * Creates a new instance of {@link ActionScheduler} using the given executor.
    *
-   * @param actionExecutor the executor used for scheduling actions
+   * @param executor the executor used for scheduling actions
    * @param policyEvaluator the policy evaluator to use
    * @param fileSystemMaster the filesystem master
    * @param masterContext the context for master
    */
   public ActionScheduler(PolicyEvaluator policyEvaluator, FileSystemMaster fileSystemMaster,
-      MasterContext masterContext, ScheduledExecutorService actionExecutor) {
-    mActionExecutor = Preconditions.checkNotNull(actionExecutor);
+      MasterContext masterContext, ScheduledExecutorService executor) {
+    mActionSchedulingExecutor = Preconditions.checkNotNull(executor);
     mPolicyEvaluator = Preconditions.checkNotNull(policyEvaluator);
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
     mScheduledTasks = new ConcurrentHashMap<>();
@@ -179,7 +176,7 @@ public final class ActionScheduler implements Journaled {
   }
 
   private void scheduleAction(InodeKey inodeKey, SchedulableAction action, long delayMs) {
-    ScheduledFuture<?> future = mActionExecutor.schedule(
+    ScheduledFuture<?> future = mActionSchedulingExecutor.schedule(
         () -> executeAction(inodeKey, action), delayMs, TimeUnit.MILLISECONDS);
     mScheduledTasks.compute(
         inodeKey, (key, tasks) -> {
@@ -281,13 +278,32 @@ public final class ActionScheduler implements Journaled {
     mJobMasterClientPool =
         new JobMasterClientPool(JobMasterClientContext.newBuilder(ClientContext.create(
             ServerConfiguration.global())).build());
-    mActionExecutionService = Executors.newFixedThreadPool(
-        ACTION_EXECUTION_THREAD_POOL_SIZE,
-        ThreadFactoryUtils.build("action-execution-service-%d", true));
-    mActionCommitService = Executors.newFixedThreadPool(
-        ACTION_COMMIT_THREAD_POOL_SIZE,
-        ThreadFactoryUtils.build("action-commit-service-%d", true));
-    mActionExecutionContext = new ActionExecutionContext(mFileSystemMaster, mActionExecutionService,
+
+    int threads = ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_EXECUTION_EXECUTOR_THREADS);
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(
+        threads, threads,
+        ServerConfiguration.getDuration(PropertyKey.POLICY_ACTION_EXECUTION_EXECUTOR_KEEPALIVE)
+            .toMillis(),
+        TimeUnit.MILLISECONDS,
+        new LinkedBlockingQueue<>(),
+        ThreadFactoryUtils.build("action-execution-executor-%d", true));
+    // Number of threads would be in range of [0, core threads].
+    executor.allowCoreThreadTimeOut(true);
+    mActionExecutionExecutor = executor;
+
+    threads = ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_COMMIT_EXECUTOR_THREADS);
+    executor = new ThreadPoolExecutor(
+        threads, threads,
+        ServerConfiguration.getDuration(PropertyKey.POLICY_ACTION_COMMIT_EXECUTOR_KEEPALIVE)
+            .toMillis(),
+        TimeUnit.MILLISECONDS,
+        new LinkedBlockingQueue<>(),
+        ThreadFactoryUtils.build("action-commit-executor-%d", true));
+    // Number of threads would be in range of [0, core threads].
+    executor.allowCoreThreadTimeOut(true);
+    mActionCommitExecutor = executor;
+
+    mActionExecutionContext = new ActionExecutionContext(mFileSystemMaster, mActionExecutionExecutor,
         mJobMasterClientPool);
   }
 
@@ -299,8 +315,8 @@ public final class ActionScheduler implements Journaled {
       return;
     }
     // heartbeat thread is stopped by the owner of the heartbeatExecutor
-    mActionExecutionService.shutdown();
-    mActionCommitService.shutdown();
+    mActionExecutionExecutor.shutdown();
+    mActionCommitExecutor.shutdown();
 
     try {
       mJobMasterClientPool.close();
@@ -429,7 +445,7 @@ public final class ActionScheduler implements Journaled {
           case PREPARED:
             if (mCommittingActions.addIfAbsent(action)) {
               LOG.debug("Action {} is prepared, committing it asynchronously", action);
-              mActionCommitService.submit(action::commit);
+              mActionCommitExecutor.submit(action::commit);
             }
             break;
           case COMMITTED:

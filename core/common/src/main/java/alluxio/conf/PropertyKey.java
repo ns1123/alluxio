@@ -3755,17 +3755,35 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   //
   // Policy Engine
   //
-  public static final PropertyKey POLICY_ACTION_COMMIT_THREADS =
-      new Builder(Name.POLICY_ACTION_COMMIT_THREADS)
-          .setDescription("Number of threads in the executor service for committing actions")
-          .setDefaultValue("4")
+  public static final PropertyKey POLICY_ACTION_COMMIT_EXECUTOR_THREADS =
+      new Builder(Name.POLICY_ACTION_COMMIT_EXECUTOR_THREADS)
+          .setDescription("Number of threads for committing actions in policy engine.")
+          .setDefaultSupplier(() -> 8 * Runtime.getRuntime().availableProcessors(),
+              "8 * {number of CPUs}")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
-  public static final PropertyKey POLICY_ACTION_EXECUTION_THREADS =
-      new Builder(Name.POLICY_ACTION_EXECUTION_THREADS)
-          .setDescription("Number of threads in the executor service for executing actions")
-          .setDefaultValue("4")
+  public static final PropertyKey POLICY_ACTION_COMMIT_EXECUTOR_KEEPALIVE =
+      new Builder(Name.POLICY_ACTION_COMMIT_EXECUTOR_KEEPALIVE)
+          .setDescription("Maximum wait time for idle non-core threads before being terminated"
+              + " for committing actions in policy engine.")
+          .setDefaultValue("1min")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_ACTION_EXECUTION_EXECUTOR_THREADS =
+      new Builder(Name.POLICY_ACTION_EXECUTION_EXECUTOR_THREADS)
+          .setDescription("Number of threads for executing actions in policy engine.")
+          .setDefaultSupplier(() -> 16 * Runtime.getRuntime().availableProcessors(),
+              "16 * {number of CPUs}")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_ACTION_EXECUTION_EXECUTOR_KEEPALIVE =
+      new Builder(Name.POLICY_ACTION_EXECUTION_EXECUTOR_KEEPALIVE)
+          .setDescription("Maximum wait time for idle threads for executing actions in policy"
+              + " engine to be terminated.")
+          .setDefaultValue("1min")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
@@ -4817,10 +4835,14 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     //
     // Policy Engine
     //
-    public static final String POLICY_ACTION_COMMIT_THREADS =
-        "alluxio.policy.action.commit.threads";
-    public static final String POLICY_ACTION_EXECUTION_THREADS =
-        "alluxio.policy.action.execution.threads";
+    public static final String POLICY_ACTION_COMMIT_EXECUTOR_THREADS =
+        "alluxio.policy.action.commit.executor.threads";
+    public static final String POLICY_ACTION_COMMIT_EXECUTOR_KEEPALIVE =
+        "alluxio.policy.action.commit.executor.keepalive";
+    public static final String POLICY_ACTION_EXECUTION_EXECUTOR_THREADS =
+        "alluxio.policy.action.execution.executor.threads";
+    public static final String POLICY_ACTION_EXECUTION_EXECUTOR_KEEPALIVE =
+        "alluxio.policy.action.execution.executor.keepalive";
     public static final String POLICY_ACTION_SCHEDULER_HEARTBEAT_INTERVAL =
         "alluxio.policy.action.scheduler.heartbeat.interval";
     public static final String POLICY_ACTION_SCHEDULER_RUNNING_ACTIONS_MAX =
