@@ -291,12 +291,16 @@ public final class PolicyMaster extends AbstractMaster {
 
       // TODO(gpang): get rid of id, because (name, created time) should be primary key.
 
+      String normalizedPath = AlluxioURI.normalizePath(alluxioPath);
       try (JournalContext journalContext = createJournalContext()) {
-        mPolicyStore.add(journalContext,
-            new PolicyDefinition(CommonUtils.getCurrentMs(), "ufsMigrate-" + alluxioPath,
-                alluxioPath, PolicyScope.RECURSIVE, new LogicalAnd(
+        if (!mPolicyStore.add(journalContext,
+            new PolicyDefinition(CommonUtils.getCurrentMs(), "ufsMigrate-" + normalizedPath,
+                normalizedPath, PolicyScope.RECURSIVE, new LogicalAnd(
                 Arrays.asList(new OlderThan(parts[0]), new LogicalNot(new DataState(ops)))),
-                new DataActionDefinition(ops), CommonUtils.getCurrentMs()));
+                new DataActionDefinition(ops), CommonUtils.getCurrentMs()))) {
+          throw new InvalidArgumentException(
+              "Policy already exists: " + "ufsMigrate-" + normalizedPath);
+        }
       }
     } else {
       throw new InvalidArgumentException(

@@ -190,16 +190,84 @@ public class ActionSchedulerTest {
 
     assertEquals(1, action.getActionExecutions().size());
     verify(action.getActionExecutions().get(0)).start();
+    assertEquals(1, mActionScheduler.getExecutingActionsSize());
+    // complete the first action
+    when(action.getActionExecutions().get(0).update()).thenReturn(ActionStatus.COMMITTED);
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_POLICY_ACTION_SCHEDULER);
 
     mActionExecutor.jumpAndExecute(2L, TimeUnit.SECONDS);
 
     assertEquals(2, action.getActionExecutions().size());
     verify(action.getActionExecutions().get(1)).start();
+    assertEquals(1, mActionScheduler.getExecutingActionsSize());
+    // complete the second action
+    when(action.getActionExecutions().get(1).update()).thenReturn(ActionStatus.COMMITTED);
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_POLICY_ACTION_SCHEDULER);
 
     mActionExecutor.jumpAndExecute(10L, TimeUnit.SECONDS);
 
     assertEquals(3, action.getActionExecutions().size());
     verify(action.getActionExecutions().get(2)).start();
+    assertEquals(1, mActionScheduler.getExecutingActionsSize());
+
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_POLICY_ACTION_SCHEDULER);
+    for (ActionExecution task : action.getActionExecutions()) {
+      verify(action.getActionExecutions().get(0)).update();
+    }
+  }
+
+  @Test
+  public void scheduleActionsMultipleIntervalsSequential() throws Exception {
+    TestActionDefinition action = new TestActionDefinition();
+    List<SchedulableAction> actions = ImmutableList.of(
+        new SchedulableAction(new IntervalSet(
+            ImmutableList.of(
+                Interval.after(System.currentTimeMillis()),
+                Interval.after(System.currentTimeMillis() + 2 * Constants.SECOND_MS),
+                Interval.after(System.currentTimeMillis() + 10 * Constants.SECOND_MS)
+            )), action, new PolicyKey(0, ""))
+    );
+    int inodeId = 1;
+    String path = "/a/b";
+    when(mFileSystemMaster.getFileInfo(inodeId)).thenReturn(
+        new FileInfo()
+            .setFileId(inodeId)
+            .setPath(path)
+    );
+    when(mEvaluator.isActionReady(eq(path), any(InodeState.class), any(SchedulableAction.class)))
+        .thenReturn(true);
+
+    mActionScheduler.scheduleActions(path, inodeId, actions);
+
+    assertEquals(0, action.getActionExecutions().size());
+
+    mActionExecutor.jumpAndExecute(1L, TimeUnit.SECONDS);
+
+    assertEquals(1, action.getActionExecutions().size());
+    verify(action.getActionExecutions().get(0)).start();
+    assertEquals(1, mActionScheduler.getExecutingActionsSize());
+
+    mActionExecutor.jumpAndExecute(2L, TimeUnit.SECONDS);
+
+    // second execution is not invoked before first one finishes
+    assertEquals(1, action.getActionExecutions().size());
+    // complete the first action
+    when(action.getActionExecutions().get(0).update()).thenReturn(ActionStatus.COMMITTED);
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_POLICY_ACTION_SCHEDULER);
+
+    mActionExecutor.jumpAndExecute(2L, TimeUnit.MINUTES);
+    assertEquals(2, action.getActionExecutions().size());
+    verify(action.getActionExecutions().get(1)).start();
+    assertEquals(1, mActionScheduler.getExecutingActionsSize());
+
+    // complete the second action
+    when(action.getActionExecutions().get(1).update()).thenReturn(ActionStatus.COMMITTED);
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_POLICY_ACTION_SCHEDULER);
+    mActionExecutor.jumpAndExecute(2L, TimeUnit.MINUTES);
+
+    assertEquals(3, action.getActionExecutions().size());
+    verify(action.getActionExecutions().get(2)).start();
+    assertEquals(1, mActionScheduler.getExecutingActionsSize());
 
     HeartbeatScheduler.execute(HeartbeatContext.MASTER_POLICY_ACTION_SCHEDULER);
     for (ActionExecution task : action.getActionExecutions()) {
