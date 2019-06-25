@@ -1321,7 +1321,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   public static final PropertyKey MASTER_GRPC_SERVER_SHUTDOWN_TIMEOUT =
       new Builder(Name.MASTER_GRPC_SERVER_SHUTDOWN_TIMEOUT)
@@ -1331,15 +1330,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setScope(Scope.MASTER)
           .build();
   // ALLUXIO CS END
-  public static final PropertyKey MASTER_MASTER_HEARTBEAT_INTERVAL =
-      new Builder(Name.MASTER_MASTER_HEARTBEAT_INTERVAL)
-||||||| merged common ancestors
-  public static final PropertyKey MASTER_MASTER_HEARTBEAT_INTERVAL =
-      new Builder(Name.MASTER_MASTER_HEARTBEAT_INTERVAL)
-=======
   public static final PropertyKey MASTER_STANDBY_HEARTBEAT_INTERVAL =
       new Builder(Name.MASTER_STANDBY_HEARTBEAT_INTERVAL)
->>>>>>> os/branch-2.0
           .setDefaultValue("2min")
           .setDescription("The heartbeat interval between Alluxio primary master and standby "
               + "masters.")
@@ -4265,20 +4257,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.master.file.async.persist.handler";
     // ALLUXIO CS END
     public static final String MASTER_FORMAT_FILE_PREFIX = "alluxio.master.format.file.prefix";
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     public static final String MASTER_GRPC_SERVER_SHUTDOWN_TIMEOUT =
             "alluxio.master.grpc.server.shutdown.timeout";
     // ALLUXIO CS END
-    public static final String MASTER_MASTER_HEARTBEAT_INTERVAL =
-        "alluxio.master.master.heartbeat.interval";
-||||||| merged common ancestors
-    public static final String MASTER_MASTER_HEARTBEAT_INTERVAL =
-        "alluxio.master.master.heartbeat.interval";
-=======
     public static final String MASTER_STANDBY_HEARTBEAT_INTERVAL =
         "alluxio.master.standby.heartbeat.interval";
->>>>>>> os/branch-2.0
     public static final String MASTER_WORKER_HEARTBEAT_INTERVAL =
         "alluxio.master.worker.heartbeat.interval";
     public static final String MASTER_HEARTBEAT_TIMEOUT =
@@ -4521,18 +4505,12 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String WORKER_BLOCK_MASTER_CLIENT_POOL_SIZE =
         "alluxio.worker.block.master.client.pool.size";
     public static final String WORKER_PRINCIPAL = "alluxio.worker.principal";
-<<<<<<< HEAD
-    public static final String WORKER_RPC_PORT = "alluxio.worker.port";
+    public static final String WORKER_RPC_PORT = "alluxio.worker.rpc.port";
     // ALLUXIO CS ADD
     public static final String WORKER_SECURE_RPC_BIND_HOST = "alluxio.worker.secure.rpc.bind.host";
     public static final String WORKER_SECURE_RPC_HOSTNAME = "alluxio.worker.secure.rpc.hostname";
     public static final String WORKER_SECURE_RPC_PORT = "alluxio.worker.secure.rpc.port";
     // ALLUXIO CS END
-||||||| merged common ancestors
-    public static final String WORKER_RPC_PORT = "alluxio.worker.port";
-=======
-    public static final String WORKER_RPC_PORT = "alluxio.worker.rpc.port";
->>>>>>> os/branch-2.0
     public static final String WORKER_SESSION_TIMEOUT_MS = "alluxio.worker.session.timeout";
     public static final String WORKER_STORAGE_CHECKER_ENABLED =
         "alluxio.worker.storage.checker.enabled";
@@ -4644,7 +4622,6 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String USER_FILE_WRITE_TYPE_DEFAULT = "alluxio.user.file.writetype.default";
     public static final String USER_FILE_WRITE_TIER_DEFAULT =
         "alluxio.user.file.write.tier.default";
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     public static final String USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
         "alluxio.encryption.chunk.footer.size.bytes";
@@ -4654,10 +4631,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.encryption.chunk.size.bytes";
     public static final String USER_HEARTBEAT_INTERVAL_MS = "alluxio.user.heartbeat.interval";
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     public static final String USER_HOSTNAME = "alluxio.user.hostname";
->>>>>>> os/branch-2.0
     public static final String USER_LOCAL_READER_CHUNK_SIZE_BYTES =
         "alluxio.user.local.reader.chunk.size.bytes";
     public static final String USER_LOCAL_WRITER_CHUNK_SIZE_BYTES =
