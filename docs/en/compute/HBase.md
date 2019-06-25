@@ -142,7 +142,11 @@ for more details.
 ### Add additional Alluxio site properties to HBase
 
 If there are any Alluxio site properties you want to specify for HBase, add those to `hbase-site.xml`. For example,
-change `alluxio.user.file.writetype.default` from default `ASYNC_THROUGH` to `CACHE_THROUGH`:
+<!-- ALLUXIO CS REPLACE -->
+<!-- change `alluxio.user.file.writetype.default` from default `ASYNC_THROUGH` to `CACHE_THROUGH`: -->
+<!-- ALLUXIO CS WITH -->
+change `alluxio.user.file.writetype.default` from default `MUST_CACHE` to `CACHE_THROUGH`:
+<!-- ALLUXIO CS END -->
 
 ```xml
 <property>
