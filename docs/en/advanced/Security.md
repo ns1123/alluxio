@@ -14,8 +14,13 @@ This document describes the following security related features in Alluxio.
 1. [User Authentication](#authentication): 
 Alluxio filesystem will differentiate users accessing the service
 when the authentication mode is `SIMPLE`.
-Alluxio also supports `NOSASL` mode which ignores authentication.
-Authentication mode `SIMPLE` is required to enable authorization.
+<!-- ALLUXIO CS REPLACE -->
+<!-- Alluxio also supports `NOSASL` mode which ignores authentication. -->
+<!-- Authentication mode `SIMPLE` is required to enable authorization. -->
+<!-- ALLUXIO CS WITH -->
+Alluxio also supports `NOSASL` and `KERBEROS` as authentication mechanisms.
+Having authentication mode to be `SIMPLE`, or `KERBEROS` is required for authorization.
+<!-- ALLUXIO CS END -->
 1. [User Authorization](#authorization): 
 Alluxio filesystem will grant or deny user access based on the requesting user and
 the POSIX permissions model of the files or directories to access,
@@ -30,6 +35,9 @@ client-side Hadoop impersonation so the Alluxio client can access Alluxio on the
 Hadoop user. This can be useful if the Alluxio client is part of an existing Hadoop service.
 1. [Auditing](#auditing): If enabled, the Alluxio filesystem
 writes an audit log for all user accesses.
+<!-- ALLUXIO CS ADD -->
+1. [Encryption](#encryption): Alluxio supports end-to-end data encryption, and TLS for network communication.
+<!-- ALLUXIO CS END -->
 
 See [Security specific configuration]({{ '/en/reference/Properties-List.html' | relativize_url }}#security-configuration)
 for different security properties.
@@ -67,6 +75,99 @@ The specified class must implement the interface `alluxio.security.authenticatio
 
 This mode is currently experimental and should only be used in tests.
 
+<!-- ALLUXIO CS ADD -->
+### KERBEROS
+
+Authentication is enabled and enforced via Kerberos. Kerberos is an authentication protocol that
+provides strong and mutual authentication between clients and servers.
+
+The typical Kerberos principal format used for services is `"primary/instance@REALM.COM"`.
+It is required to prepare the Kerberos principals as Alluxio service principal names (SPN). The
+primary part of the Kerberos service principal must match with the service name defined in the
+following Alluxio configuration property:
+
+```
+alluxio.security.kerberos.service.name=<alluxio-service-name>
+```
+
+It is recommended to use hostname-associated instance name of Alluxio service principals, such as:
+`<alluxio-service-name>/<hostname>@REALM.COM`. This way each Alluxio server node has a unique
+service principal. Note that the `<hostname>` in each principal must match the server (either master
+or worker) hostname.
+
+On the other hand, Alluxio also supports cluster-wide unified instance name, like
+`<alluxio-service-name>/<alluxio-cluster-name>@REALM.COM`, so that all the Alluxio servers
+share the same principal. To use this feature, please set
+`alluxio.security.kerberos.unified.instance.name=<alluxio-cluster-name>`.
+
+Alluxio Enterprise Edition supports two ways to setup Kerberos authentication:
+
+1. Java Kerberos
+2. MIT native Kerberos (through JGSS)
+
+#### Java Kerberos
+
+Please refer to [Kerberos security setup](Kerberos-Security-Setup.html) instructions to set
+set up Alluxio with Java Kerberos enabled.
+
+Alluxio system administrators are responsible for specifying the Alluxio servers Kerberos
+credentials, with principal name and keytab file. Alluxio clients need valid Kerberos credentials
+(either keytab files or local ticket cache) to access a Kerberos-enabled Alluxio cluster.
+
+When KERBEROS authentication is enabled, the login user for different component is obtained as follows:
+
+1. For Alluxio servers, the login user is represented by the server-side Kerberos principal in
+`alluxio.security.kerberos.server.principal`.
+A corresponding keytab file must be specified in `alluxio.security.kerberos.server.keytab.file`.
+The Alluxio user shown in Alluxio namespace is the short
+name of the Kerberos principal, which excludes the hostname and realm part.
+
+2. For Alluxio clients, the login user is represented by the client-side Kerberos principal in
+`alluxio.security.kerberos.client.principal`.  There are two ways for the Alluxio clients to login via Kerberos.
+One is specify a keytab file in `alluxio.security.kerberos.client.keytab.file`.
+The other way is to do `kinit` Kerberos login for the `alluxio.security.kerberos.client.principal` name on
+the client machine. Alluxio client first checks whether there is a valid `alluxio.security.kerberos.client.keytab.file`.
+If there is no valid keytab file which can login successfully, Alluxio client will fall back to find
+the login info in the ticket cache. If none of those Kerberos credentials exist, Alluxio client will throw a
+login failure, and ask the user to provide the keytab file, or login via `kinit`.
+
+#### MIT Kerberos
+
+Please refer to [MIT Kerberos security setup](Native-Kerberos-Security-Setup.html) for detailed
+instructions to setup Alluxio with MIT native Kerberos.
+
+The default Java GSS implementation relies on JAAS KerberosLoginModule for initial credential
+acquisition. In contrast, when native platform Kerberos integration is enabled, the
+initial credential acquisition should happen prior to calling JGSS APIs, e.g. through kinit.
+When enabled, Java GSS would look for native GSS library using the operating system specific name,
+e.g. Solaris: libgss.so vs Linux: libgssapi.so. If the desired GSS library has a different name
+or is not located under a directory for system libraries, then its full path should be specified
+using the system property `sun.security.jgss.lib`.
+
+#### Connecting with Secure-HDFS
+
+Note that in Alluxio Enterprise edition the way to configure Alluxio with secure-HDFS is different from
+that in Alluxio enterprise edition. `alluxio.master.keytab.file`, `alluxio.master.principal`,
+`alluxio.worker.keytab.file` and `alluxio.worker.principal` are deprecated. Please use
+`alluxio.security.underfs.hdfs.kerberos.client.keytab.file` and
+`alluxio.security.underfs.hdfs.kerberos.client.principal` instead. Note that Alluxio can use a different
+principal other than Alluxio server principal to access secure HDFS. If
+`alluxio.security.underfs.hdfs.kerberos.client.principal` is not specified, then Alluxio falls back to
+using `alluxio.security.kerberos.server.principal`.
+
+If you want to setup a Kerberos-enabled Alluxio cluster on top of Kerberos-enabled HDFS, please
+refer to "Kerberos-enabled Alluxio integration with Secure-HDFS" in [Kerberos setup guide](Kerberos-Security-Setup.html)
+or [MIT Kerberos security setup](Native-Kerberos-Security-Setup.html) for more details.
+
+#### Auth-to-local configuration
+Alluxio supports configurable translation from Kerberos principal name to operating system user,
+via MIT Kerberos [auth_to_local](https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html)
+conf. To make it easier to configure together with HDFS, the syntax
+is the same as Hadoop [auth_to_local](https://www.cloudera.com/documentation/enterprise/5-3-x/topics/cdh_sg_kerbprin_to_sn.html).
+Please use the `alluxio.security.kerberos.auth.to.local` configuration property to set it up.
+By default the value is `DEFAULT`.
+
+<!-- ALLUXIO CS END -->
 ## Authorization
 
 The Alluxio filesystem implements a permissions model similar to the POSIX permissions model.
@@ -124,6 +225,66 @@ The super user is the operating system user executing the Alluxio master process
 The `alluxio.security.authorization.permission.supergroup` property defines a super group.
 Any additional operating system users belong to this operating system group are also super users.
 
+<!-- ALLUXIO CS ADD -->
+#### LDAP
+
+If your organization use OpenLDAP or Active Directory to manage identities,
+it is recommended to sync LDAP users and groups to machines' operating system running Alluxio.
+Alternatively, Alluxio also supports direct connection to OpenLDAP or Active Directory for group mapping service.
+To use the Alluxio integration with OpenLDAP or Active Directory, set the following properties in `alluxio-site.properties`.
+
+<table class="table table-striped">
+<tr><th>Property Name</th><th>Default</th><th>Meaning</th></tr>
+{% for item in site.data.table.ldap-configuration-EE %}
+  <tr>
+    <td class="td-property">{{ item.propertyName }}</td>
+    <td class="td-default">{{ item.defaultValue }}</td>
+    <td class="td-meaning">{{ site.data.table.en.ldap-configuration-EE[item.propertyName] }}</td>
+  </tr>
+{% endfor %}
+</table>
+
+Example configuration for an LDAP server without SSL:
+
+```properties
+alluxio.security.group.mapping.class=alluxio.security.group.provider.LdapGroupsMapping
+alluxio.security.group.mapping.ldap.url=ldap://example.com:389
+alluxio.security.group.mapping.ldap.base=cn=Users,dc=example,dc=com
+alluxio.security.group.mapping.ldap.bind.user=cn=alluxio,cn=Users,dc=example,dc=com
+alluxio.security.group.mapping.ldap.bind.password=secret
+```
+
+Example configuration for an LDAP server with SSL:
+
+```properties
+alluxio.security.group.mapping.class=alluxio.security.group.provider.LdapGroupsMapping
+alluxio.security.group.mapping.ldap.url=ldaps://example.com:636
+alluxio.security.group.mapping.ldap.ssl=true
+alluxio.security.group.mapping.ldap.ssl.keystore=/path/to/ldap.jks
+alluxio.security.group.mapping.ldap.ssl.keystore.password=secret
+alluxio.security.group.mapping.ldap.base=cn=Users,dc=example,dc=com
+alluxio.security.group.mapping.ldap.bind.user=cn=alluxio,cn=Users,dc=example,dc=com
+alluxio.security.group.mapping.ldap.bind.password=secret
+```
+
+If you have your own way of managing the SSL keystore, configure the properties
+related to LDAP SSL keystore according to your setup.
+
+Otherwise, here is an example for generate the SSL keystore:
+
+```bash
+# get the LDAP server's certificate by
+$ echo  | openssl s_client -connect example.com:636 2>/dev/null | openssl x509 > /tmp/ldap.crt
+
+# add the certificate to Java's trusted keystore by
+$ sudo keytool -import -noprompt -trustcacerts -alias ldap -file /tmp/ldap.crt -keystore ${JAVA_HOME}/jre/lib/security/cacerts
+
+# generate the keystore in JKS format, in the prompt, specify password as the value for property
+# "alluxio.security.group.mapping.ldap.ssl.keystore.password", answer "yes" to the question of whether to trust the certificate
+$ keytool -import -keystore /path/to/ldap.jks -file /tmp/ldap.crt
+```
+
+<!-- ALLUXIO CS END -->
 ### Initialized directory and file permissions
 
 When a file is created, it is initially assigned fully opened permissions of `666` by default.
@@ -295,6 +456,29 @@ If the property is set to `_HDFS_USER_`, the Alluxio client will connect to Allu
 Alluxio client user, but impersonate as the Hadoop client user when using the Hadoop compatible
 client.
 
+<!-- ALLUXIO CS ADD -->
+### Data Path Authorization
+
+In Alluxio Enterprise Edition, the access control on data transfer path (Client-Workers) is further enforced by
+an enhanced distributed authorization mechanism. Alluxio worker is able to check whether the client user has the
+right privilege to access the requested block, even though workers do not know about the file permission info.
+
+This data path authorization feature is disabled by default. It can be turned on with the following configuration
+`alluxio.security.authorization.capability.enabled`. When capability feature is enabled, Alluxio master verifies
+the permission and grants a signed capability to the client. The capability is a token which grants the bearer
+specified access rights. The capability is verified by Alluxio workers to see whether the granted permission matches
+with the client’s access request. A capability is only valid for a short amount of time, which can be configured
+via Alluxio server configuration `alluxio.security.authorization.capability.lifetime.ms` (default to 1 hour).
+
+Capabilities are generated using a scheme where the Master and all Workers share a secret key, called CapabilityKey.
+Only Master and Workers know the key, no third party can forge the capabilities. The capability key is generated and
+rotated by Alluxio master periodically. To avoid bulk capability invalidation errors, during key rotation the old key
+is still valid for a short time period to allow graceful key expiration. The workers will accept old capabilities for
+a certain time period (by default 25% of the key life time) after receiving a new version of capability key.
+Capability key life time can be configured via Alluxio server configuration
+`alluxio.security.authorization.capability.key.lifetime.ms` (default to 1 day).
+
+<!-- ALLUXIO CS END -->
 ### Exceptions
 
 The most common impersonation error applications may see is something like
@@ -355,9 +539,210 @@ See [Configuration settings]({{ '/en/basic/Configuration-Settings.html' | relati
 
 ## Encryption
 
-Service level encryption is not supported yet.
-Users can encrypt sensitive data at the application level or enable encryption features in the 
-respective under file system, such as HDFS transparent encryption or Linux disk encryption.
+<!-- ALLUXIO CS REPLACE -->
+<!-- Service level encryption is not supported yet. -->
+<!-- Users can encrypt sensitive data at the application level or enable encryption features in the  -->
+<!-- respective under file system, such as HDFS transparent encryption or Linux disk encryption. -->
+<!-- ALLUXIO CS WITH -->
+Alluxio supports encryption of the network communication between services with TLS, and supports end-to-end data encryption.
+
+### TLS Encryption for Network Communication
+For Alluxio network communication (rpcs, data transfers), Alluxio supports TLS encryption. In order
+to configure Alluxio to use TLS encryption, keystores and truststores must be created for Alluxio.
+A keystore is used by the server side of the TLS connection, and the truststore is used by the
+client side of the TLS connection.
+
+#### Keystore
+Alluxio servers (masters and workers) require a keystore in order to enable TLS. The keystore
+typically stores the key and certificate for the server. This keystore file must be readable by the
+OS user which launches the Alluxio server processes.
+
+An example, self-signed keystore can be created like:
+
+```bash
+$ keytool -genkeypair -alias key -keyalg RSA -keysize 2048 -dname "cn=localhost, ou=Department, o=Company, l=City, st=State, c=US" -keystore /alluxio/keystore.jks -keypass keypass -storepass storepass
+```
+
+This will generate a keystore file to `/alluxio/keystore.jks`, with a key password of `keypass` and the keystore password as `storepass`.
+
+#### Truststore
+All clients of a TLS connection must have access to a truststore to trust all the certificates of
+the servers. Clients include Alluxio clients, as well as Alluxio workers (since Alluxio workers
+create client connections to the Alluxio master). The truststore stores the trusted certificates,
+and must be readable by the process initiating the client connection (clients, workers).
+
+An example truststore (based on the previous keystore) can be created like:
+
+```bash
+$ keytool -export -alias key -keystore /alluxio/keystore.jks -storepass storepass -rfc -file selfsigned.cer
+$ keytool -import -alias key -noprompt -file selfsigned.cer -keystore /alluxio/truststore.jks -storepass trustpass
+```
+
+The first command extracts the certificate from the previously created keystore (using the keystore
+password `storepass`). Then, the second command creates a truststore file using that extracted
+certificate, and saves the truststore to `/alluxio/truststore.jks`, with a truststore pasword of
+`trustpass`.
+
+#### Configuring Alluxio servers and clients
+Once the keystores and truststores are created for all the machines involved, Alluxio needs to be
+configured to understand how to access those files.
+
+On Alluxio servers (masters and workers), you must add these properties to
+`alluxio-site.properties`:
+
+```properties
+# enables TLS
+alluxio.network.tls.enabled=true
+# keystore properties for the server side of connections
+alluxio.network.tls.keystore.path=/alluxio/keystore.jks
+alluxio.network.tls.keystore.password=storepass
+alluxio.network.tls.keystore.key.password=keypass
+# truststore properties for the client side of connections (worker to master)
+alluxio.network.tls.truststore.path=/alluxio/truststore.jks
+alluxio.network.tls.truststore.password=trustpass
+```
+
+Once the servers are configured, additional Alluxio clients need to be configured with the
+client side properties:
+
+```properties
+# enables TLS
+alluxio.network.tls.enabled=true
+# truststore properties for the client side of connections (worker to master)
+alluxio.network.tls.truststore.path=/alluxio/truststore.jks
+alluxio.network.tls.truststore.password=trustpass
+```
+
+Setting these configuration properties will be dependent on the specific application or computation
+framework you are using.
+
+Once the servers and clients are configured, all network communication will be encrypted with TLS.
+
+### End-to-End Data Encryption
+Alluxio Enterprise Edition supports transparent end-to-end data encryption. Once configured, data will be
+written to the Alluxio cluster encrypted and be read decrypted, without requiring
+changes in application code. Data can only be encrypted and decrypted by the client, and the client
+is responsible to get the crypto keys from an external Key Management Service (KMS).
+Alluxio servers and admins are not able to access the crypto keys, thus can not make sense of the data
+stored in Alluxio servers and under storage.
+
+Alluxio end-to-end encryption achieves both data at-rest encryption and data in-flight encryption.
+The end-to-end encryption is not applicable to Alluxio metadata.
+
+Alluxio data encryption brings the following benefits:
+
+1. Data Protection at Rest: malicious users can not make sense of the encrypted data residing on RAM/SSD/HDD.
+2. Security on All Under Storages: applications can use various under storages via Alluxio,
+with no worry about under storage encryption.
+3. Secure Transmit over Network: eavesdroppers can not make sense of the encrypted data in flight.
+4. Data Integrity: if encrypted data is manipulated, users can easily notice that it has been tampered with.
+
+Here is an overview of a file write and read with encryption:
+
+Alluxio is the single access point to all the encrypted data. Alluxio client is responsible for
+encrypting the data, and writes the encrypted data to an Alluxio worker, which optionally (depending on the write type)
+writes the encrypted data to UFS. When Alluxio client reads the data from an Alluxio worker,
+it decrypts the data and then serves the decrypted data back to the application.
+
+#### Key Management Service
+
+Alluxio assumes there is an external Key Management Service (KMS) in the enterprise organization, and
+integrates with it. Alluxio Enterprise Edition supports
+[Hadoop KMS](https://hadoop.apache.org/docs/r2.8.0/hadoop-kms/index.html) out-of-box. Alluxio is
+not responsible for encryption key maintenance and lifecycle management. Data is considered as deleted if
+the secret key is deleted.
+
+Please [contact](https://www.alluxio.com/) the Alluxio team for customized integration with other KMS types.
+
+##### Hadoop KMS
+
+An example configuration in `alluxio-site.properties` for using Hadoop KMS is below:
+
+```properties
+alluxio.security.kms.provider=HADOOP
+alluxio.security.kms.endpoint=kms://http@localhost:16000/kms
+```
+
+If the Hadoop KMS is SSL enabled, import the kMS's certificate to your Java truststore by
+
+```bash
+$ openssl s_client -showcerts -connect host:port </dev/null 2>/dev/null | openssl x509 -outform PEM > /tmp/cert
+$ keytool -import -noprompt -trustcacerts -alias localhost -file /tmp/cert -keystore ${JAVA_HOME}/jre/lib/security/cacerts
+```
+
+and set the `alluxio.security.kms.endpoint` to something like `kms://https@localhost:16000/kms`.
+
+If the Hadoop KMS is Kerberos enabled, you need to specify the Kerberos principal and keytab file
+for authenticating to the KMS by
+
+```properties
+alluxio.security.kms.kerberos.enabled=true
+alluxio.security.kerberos.client.principal=<kms client principal>
+alluxio.security.kerberos.client.keytab.file=<path to the kms client principal’s keytab file>
+```
+
+#### Cipher type and mode
+
+By default, Alluxio Enterprise Edition uses the Advanced Encryption Standard (AES) algorithm
+in Galois/Counter Mode (GCM), known as [AES-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode).
+Alluxio supports both 128-bit and 256-bit secret keys, which is determined by the secret key length provided
+by the KMS. Alluxio uses symmetric encryption, where the same secret key is used to perform both
+encryption and decryption.
+
+AES-GCM is an authenticated encryption algorithm designed to provide both data authenticity (integrity)
+and confidentiality. Authentication tags are produced during GCM encryption and must be supplied
+during decryption. Alluxio stores the authentication tags within the ciphertext data and
+records some encryption metadata (such as encryption id and encryption layout) in the footer
+of the encrypted file. Therefore, the encrypted file size will be slightly larger than the plaintext
+size. Alluxio clients are not aware of this space overhead because the logical plaintext sizes are
+always shown to the Alluxio clients. Alluxio administrators will see slightly bigger files and blocks
+on Alluxio server side.
+
+#### Setup
+
+By default, encryption is disabled in Alluxio Enterprise Edition.
+
+To enable encryption in an Alluxio cluster, simply add the following configuration properties.
+
+```
+alluxio.security.encryption.enabled=true
+alluxio.security.encryption.openssl.enabled=true
+```
+
+It is highly recommended to use the integration with [OpenSSL](https://www.openssl.org/) crypto library
+for better encryption performance. The Alluxio Enterprise Edition comes with the pre-compiled JNI library
+that connects with the OpenSSL library. [OpenSSL](https://www.openssl.org/) libcrypto is a
+prerequisite to use Alluxio encryption with OpenSSL enabled. On unix servers, installing `openssl`
+or `openssl-devel` will install the required OpenSSL packages. The Alluxio Enterprise Edition's pre-compiled JNI library
+is compiled with OpenSSL 1.1. If you need to integrate with other versions of OpenSSL, please [contact us](mailto: support@alluxio.com).
+
+Note that the pre-compiled JNI library is located at `${ALLUXIO_HOME}/lib/native/`. If you encountered
+the following error indicating the required `.so` not found, please make sure the `${ALLUXIO_HOME}`
+or `alluxio.home` is set properly.
+
+```
+java.lang.NoClassDefFoundError: Could not initialize class alluxio.client.security.OpenSSLCipher
+    ......
+
+Caused by: java.lang.UnsatisfiedLinkError: Can't load library: /opt/alluxio/lib/native/liballuxio.so
+```
+
+For testing purpose, Alluxio provides a dummy KMS which provides a fixed *testing-only* encryption key.
+In order to connect Alluxio with a Key Management Service, please set the `alluxio.security.kms.provider`
+and `alluxio.security.kms.endpoint`. Please refer to the example setup page for Alluxio with Hadoop KMS.
+
+#### Encryption with UFS
+
+Data is encrypted and decrypted in Alluxio clients, so only ciphertext will be persisted to the under
+storage systems. If the under storage system supports encryption, it is recommended to disable UFS
+encryption to avoid unnecessary double encryption. It is also recommended to setup an encrypted
+Alluxio cluster without any pre-existing unencrypted files, because files in one Alluxio cluster
+should be either all encrypted or all non-encrypted. In other words, the under storage system
+is mounted to Alluxio as an empty UFS, and all UFS I/O happens through Alluxio.
+
+Alluxio encryption supports re-mounting the UFS. Data encrypted by Alluxio and persisted in UFS
+can be read and decrypted when UFS is unmounted and mounted back or across Alluxio restarts.
+<!-- ALLUXIO CS END -->
 
 ## Deployment
 

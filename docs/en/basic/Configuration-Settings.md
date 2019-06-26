@@ -132,8 +132,13 @@ or worker settings (e.g., `alluxio.worker.*`)
 in `${ALLUXIO_HOME}/conf/alluxio-site.properties` on all the masters,
 which will be distributed and become cluster-wide default values when clients and workers connect.
 
-For example, the property `alluxio.user.file.writetype.default` defaults to `ASYNC_THROUGH`, which
-first writes to Alluxio and then asynchronously writes to the UFS.
+<!-- ALLUXIO CS REPLACE -->
+<!-- For example, the property `alluxio.user.file.writetype.default` defaults to `ASYNC_THROUGH`, which -->
+<!-- first writes to Alluxio and then asynchronously writes to the UFS. -->
+<!-- ALLUXIO CS WITH -->
+For example, the property `alluxio.user.file.writetype.default` defaults to `MUST_CACHE`,
+which only writes to Alluxio space.
+<!-- ALLUXIO CS END -->
 In an Alluxio cluster where data persistence is preferred and all jobs need to write to both the UFS
 and Alluxio, the administrator can add `alluxio.user.file.writetype.default=CACHE_THROUGH` in each
 master's `alluxio-site.properties` file.
@@ -190,9 +195,11 @@ To check the value of a specific configuration property and the source of its va
 users can run the following command:
 
 ```bash
-./bin/alluxio getConf alluxio.worker.port
+./bin/alluxio getConf alluxio.worker.rpc.port
+```
+```
 29998
-./bin/alluxio getConf --source alluxio.worker.port
+./bin/alluxio getConf --source alluxio.worker.rpc.port
 DEFAULT
 ```
 

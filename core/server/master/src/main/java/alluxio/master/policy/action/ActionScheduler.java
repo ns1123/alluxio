@@ -33,6 +33,7 @@ import alluxio.master.policy.meta.interval.Interval;
 import alluxio.proto.journal.Journal;
 import alluxio.util.LogUtils;
 import alluxio.util.ThreadFactoryUtils;
+import alluxio.util.ThreadUtils;
 import alluxio.wire.FileInfo;
 import alluxio.worker.job.JobMasterClientContext;
 
@@ -51,11 +52,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
 
@@ -70,22 +73,20 @@ public final class ActionScheduler implements Journaled {
       ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_SCHEDULER_THREADS);
   private static final int ACTION_SCHEDULER_MAX_RUNNING_ACTIONS =
       ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_SCHEDULER_RUNNING_ACTIONS_MAX);
-  private static final int ACTION_EXECUTION_THREAD_POOL_SIZE =
-      ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_EXECUTION_THREADS);
-  private static final int ACTION_COMMIT_THREAD_POOL_SIZE =
-      ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_COMMIT_THREADS);
+  private static final long POLICY_EXECUTOR_SHUTDOWN_TIMEOUT =
+      ServerConfiguration.getMs(PropertyKey.POLICY_EXECUTOR_SHUTDOWN_TIMEOUT);
 
   private final FileSystemMaster mFileSystemMaster;
   private final PolicyEvaluator mPolicyEvaluator;
   private final MasterContext mMasterContext;
-  private final ScheduledExecutorService mActionExecutor;
+  private final ScheduledExecutorService mActionSchedulingExecutor;
   private final ConcurrentHashMap<InodeKey, List<ScheduledFuture>> mScheduledTasks;
-  private final ConcurrentHashSet<ActionExecution> mExecutingActions;
+  private final ConcurrentHashMap<InodeKey, ActionExecution> mExecutingActions;
   private final ConcurrentHashSet<ActionExecution> mCommittingActions;
 
   private JobMasterClientPool mJobMasterClientPool;
-  private ExecutorService mActionExecutionService;
-  private ExecutorService mActionCommitService;
+  private ExecutorService mActionExecutionExecutor;
+  private ExecutorService mActionCommitExecutor;
   private ActionExecutionContext mActionExecutionContext;
   private volatile boolean mShouldExecute;
 
@@ -106,18 +107,18 @@ public final class ActionScheduler implements Journaled {
   /**
    * Creates a new instance of {@link ActionScheduler} using the given executor.
    *
-   * @param actionExecutor the executor used for scheduling actions
+   * @param executor the executor used for scheduling actions
    * @param policyEvaluator the policy evaluator to use
    * @param fileSystemMaster the filesystem master
    * @param masterContext the context for master
    */
   public ActionScheduler(PolicyEvaluator policyEvaluator, FileSystemMaster fileSystemMaster,
-      MasterContext masterContext, ScheduledExecutorService actionExecutor) {
-    mActionExecutor = Preconditions.checkNotNull(actionExecutor);
+      MasterContext masterContext, ScheduledExecutorService executor) {
+    mActionSchedulingExecutor = Preconditions.checkNotNull(executor);
     mPolicyEvaluator = Preconditions.checkNotNull(policyEvaluator);
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
     mScheduledTasks = new ConcurrentHashMap<>();
-    mExecutingActions = new ConcurrentHashSet<>();
+    mExecutingActions = new ConcurrentHashMap<>();
     mCommittingActions = new ConcurrentHashSet<>();
     mMasterContext = masterContext;
   }
@@ -170,17 +171,18 @@ public final class ActionScheduler implements Journaled {
         // find the earliest time this action can be scheduled
         Interval schedulableInterval = interval.intersect(afterNow);
         if (schedulableInterval.isValid()) {
-          scheduleAction(path, inodeId, action, schedulableInterval.getStartMs() - currentTimeMs);
+          scheduleAction(new InodeKey(path, inodeId), action,
+              schedulableInterval.getStartMs() - currentTimeMs);
         }
       }
     }
   }
 
-  private void scheduleAction(String path, long inodeId, SchedulableAction action, long delayMs) {
-    ScheduledFuture<?> future = mActionExecutor.schedule(
-        () -> executeAction(path, inodeId, action), delayMs, TimeUnit.MILLISECONDS);
+  private void scheduleAction(InodeKey inodeKey, SchedulableAction action, long delayMs) {
+    ScheduledFuture<?> future = mActionSchedulingExecutor.schedule(
+        () -> executeAction(inodeKey, action), delayMs, TimeUnit.MILLISECONDS);
     mScheduledTasks.compute(
-        new InodeKey(path, inodeId), (key, tasks) -> {
+        inodeKey, (key, tasks) -> {
           if (tasks == null) {
             tasks = new ArrayList<>(1);
           }
@@ -202,7 +204,7 @@ public final class ActionScheduler implements Journaled {
     }
   }
 
-  private void executeAction(String path, long inodeId, SchedulableAction action) {
+  private void executeAction(InodeKey inodeKey, SchedulableAction action) {
     if (!mShouldExecute) {
       // TODO(feng): we might miss some actions during leadership transition, which will be
       //  rescheduled by fixed interval policy scanner. Consider reschedule execution when
@@ -212,28 +214,36 @@ public final class ActionScheduler implements Journaled {
     if (mExecutingActions.size() > ACTION_SCHEDULER_MAX_RUNNING_ACTIONS) {
       // TODO(feng): this will wake up the scheduler thread pool frequently, consider
       //  adding a queue to offload the reschedule work to heartbeat thread
-      scheduleAction(path, inodeId, action, Constants.MINUTE_MS);
+      scheduleAction(inodeKey, action, Constants.MINUTE_MS);
       return;
     }
+    String path = inodeKey.getPath();
     FileInfo file;
     try {
-      file = mFileSystemMaster.getFileInfo(inodeId);
+      file = mFileSystemMaster.getFileInfo(inodeKey.getInodeId());
     } catch (AccessControlException | IOException | FileDoesNotExistException e) {
       LOG.debug("Unable to get file info for path {} while executing action: {}", path,
           e.getMessage());
       return;
     }
-    if (!path.equals(file.getPath())) {
+    if (!inodeKey.getPath().equals(file.getPath())) {
       LOG.debug("Unable to execute action for {} because file is renamed.", path);
       return;
     }
     InodeState inodeState = new FileInfoInodeState(file);
     if (mPolicyEvaluator.isActionReady(path, inodeState, action)) {
-      ActionExecution execution = action.getActionDefinition()
-          .createExecution(mActionExecutionContext, path, inodeState);
-      if (execution.start() != ActionStatus.FAILED) {
-        mExecutingActions.add(execution);
-      } else {
+      AtomicBoolean createdNewExecution = new AtomicBoolean(false);
+      ActionExecution execution = mExecutingActions.computeIfAbsent(inodeKey, (key) -> {
+        createdNewExecution.set(true);
+        return action.getActionDefinition()
+            .createExecution(mActionExecutionContext, path, inodeState);
+      });
+      if (!createdNewExecution.get()) {
+        scheduleAction(inodeKey, action, Constants.MINUTE_MS);
+        return;
+      }
+      if (execution.start() == ActionStatus.FAILED) {
+        // action is removed by heartbeat, so rely on that to avoid race condition
         String actionDescription = action.getActionDefinition().serialize();
         LOG.error(String.format("Failed to start action %s for path %s",
             actionDescription, path), execution.getException());
@@ -271,13 +281,32 @@ public final class ActionScheduler implements Journaled {
     mJobMasterClientPool =
         new JobMasterClientPool(JobMasterClientContext.newBuilder(ClientContext.create(
             ServerConfiguration.global())).build());
-    mActionExecutionService = Executors.newFixedThreadPool(
-        ACTION_EXECUTION_THREAD_POOL_SIZE,
-        ThreadFactoryUtils.build("action-execution-service-%d", true));
-    mActionCommitService = Executors.newFixedThreadPool(
-        ACTION_COMMIT_THREAD_POOL_SIZE,
-        ThreadFactoryUtils.build("action-commit-service-%d", true));
-    mActionExecutionContext = new ActionExecutionContext(mFileSystemMaster, mActionExecutionService,
+
+    int threads = ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_EXECUTION_EXECUTOR_THREADS);
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(
+        threads, threads,
+        ServerConfiguration.getDuration(PropertyKey.POLICY_ACTION_EXECUTION_EXECUTOR_KEEPALIVE)
+            .toMillis(),
+        TimeUnit.MILLISECONDS,
+        new LinkedBlockingQueue<>(),
+        ThreadFactoryUtils.build("action-execution-executor-%d", true));
+    // Number of threads would be in range of [0, core threads].
+    executor.allowCoreThreadTimeOut(true);
+    mActionExecutionExecutor = executor;
+
+    threads = ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_COMMIT_EXECUTOR_THREADS);
+    executor = new ThreadPoolExecutor(
+        threads, threads,
+        ServerConfiguration.getDuration(PropertyKey.POLICY_ACTION_COMMIT_EXECUTOR_KEEPALIVE)
+            .toMillis(),
+        TimeUnit.MILLISECONDS,
+        new LinkedBlockingQueue<>(),
+        ThreadFactoryUtils.build("action-commit-executor-%d", true));
+    // Number of threads would be in range of [0, core threads].
+    executor.allowCoreThreadTimeOut(true);
+    mActionCommitExecutor = executor;
+
+    mActionExecutionContext = new ActionExecutionContext(mFileSystemMaster, mActionExecutionExecutor,
         mJobMasterClientPool);
   }
 
@@ -289,8 +318,10 @@ public final class ActionScheduler implements Journaled {
       return;
     }
     // heartbeat thread is stopped by the owner of the heartbeatExecutor
-    mActionExecutionService.shutdown();
-    mActionCommitService.shutdown();
+    ThreadUtils.shutdownAndAwaitTermination(mActionExecutionExecutor,
+        POLICY_EXECUTOR_SHUTDOWN_TIMEOUT);
+    ThreadUtils.shutdownAndAwaitTermination(mActionCommitExecutor,
+        POLICY_EXECUTOR_SHUTDOWN_TIMEOUT);
 
     try {
       mJobMasterClientPool.close();
@@ -406,7 +437,7 @@ public final class ActionScheduler implements Journaled {
     }
 
     private void updateExecutingActions() {
-      for (Iterator<ActionExecution> iterator = mExecutingActions.iterator(); iterator.hasNext();) {
+      for (Iterator<ActionExecution> iterator = mExecutingActions.values().iterator(); iterator.hasNext();) {
         ActionExecution action = iterator.next();
         ActionStatus status;
         try {
@@ -419,7 +450,7 @@ public final class ActionScheduler implements Journaled {
           case PREPARED:
             if (mCommittingActions.addIfAbsent(action)) {
               LOG.debug("Action {} is prepared, committing it asynchronously", action);
-              mActionCommitService.submit(action::commit);
+              mActionCommitExecutor.submit(action::commit);
             }
             break;
           case COMMITTED:
@@ -459,7 +490,7 @@ public final class ActionScheduler implements Journaled {
 
     @Override
     public void close() {
-      mExecutingActions.forEach((action) -> {
+      mExecutingActions.values().forEach((action) -> {
         try {
           action.close();
         } catch (IOException e) {
