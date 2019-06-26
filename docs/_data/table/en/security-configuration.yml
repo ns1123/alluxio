@@ -1,20 +1,102 @@
 alluxio.security.authentication.custom.provider.class:
   'The class to provide customized authentication implementation, when alluxio.security.authentication.type is set to CUSTOM. It must implement the interface ''alluxio.security.authentication.AuthenticationProvider''.'
+alluxio.security.authentication.delegation.token.key.lifetime.ms:
+  'Lifetime of a delegation token secret key.'
+alluxio.security.authentication.delegation.token.lifetime.ms:
+  'Maximum lifetime of a delegation token.'
+alluxio.security.authentication.delegation.token.renew.interval.ms:
+  'Time before which a delegation token must be renewed.'
 alluxio.security.authentication.type:
   'The authentication mode. Currently three modes are supported: NOSASL, SIMPLE, CUSTOM. The default value SIMPLE indicates that a simple authentication is enabled. Server trusts whoever the client claims to be.'
+alluxio.security.authorization.capability.enabled:
+  'N/A'
+alluxio.security.authorization.capability.key.lifetime.ms:
+  'N/A'
+alluxio.security.authorization.capability.lifetime.ms:
+  'N/A'
 alluxio.security.authorization.permission.enabled:
   'Whether to enable access control based on file permission.'
 alluxio.security.authorization.permission.supergroup:
   'The super group of Alluxio file system. All users in this group have super permission.'
 alluxio.security.authorization.permission.umask:
   'The umask of creating file and directory. The initial creation permission is 777, and the difference between directory and file is 111. So for default umask value 022, the created directory has permission 755 and file has permission 644.'
+alluxio.security.authorization.plugin.name:
+  'Plugin for master authorization.'
+alluxio.security.authorization.plugin.paths:
+  'Classpath for master authorization plugin, separated by colons.'
+alluxio.security.authorization.plugins.enabled:
+  'Enable plugins for authorization.'
+alluxio.security.encryption.enabled:
+  'N/A'
+alluxio.security.encryption.openssl.enabled:
+  'N/A'
 alluxio.security.group.mapping.cache.timeout:
   'Time for cached group mapping to expire.'
 alluxio.security.group.mapping.class:
   'The class to provide user-to-groups mapping service. Master could get the various group memberships of a given user.  It must implement the interface ''alluxio.security.group.GroupMappingService''. The default implementation execute the ''groups'' shell command to fetch the group memberships of a given user.'
+alluxio.security.group.mapping.ldap.attr.group.name:
+  'N/A'
+alluxio.security.group.mapping.ldap.attr.member:
+  'N/A'
+alluxio.security.group.mapping.ldap.base:
+  'N/A'
+alluxio.security.group.mapping.ldap.bind.password:
+  'N/A'
+alluxio.security.group.mapping.ldap.bind.password.file:
+  'N/A'
+alluxio.security.group.mapping.ldap.bind.user:
+  'N/A'
+alluxio.security.group.mapping.ldap.search.filter.group:
+  'N/A'
+alluxio.security.group.mapping.ldap.search.filter.user:
+  'N/A'
+alluxio.security.group.mapping.ldap.search.timeout:
+  'N/A'
+alluxio.security.group.mapping.ldap.ssl:
+  'N/A'
+alluxio.security.group.mapping.ldap.ssl.keystore:
+  'N/A'
+alluxio.security.group.mapping.ldap.ssl.keystore.password:
+  'N/A'
+alluxio.security.group.mapping.ldap.ssl.keystore.password.file:
+  'N/A'
+alluxio.security.group.mapping.ldap.url:
+  'N/A'
+alluxio.security.kerberos.auth.to.local:
+  'N/A'
+alluxio.security.kerberos.client.keytab.file:
+  'N/A'
+alluxio.security.kerberos.client.principal:
+  'N/A'
+alluxio.security.kerberos.login.keytab.file:
+  'N/A'
+alluxio.security.kerberos.login.principal:
+  'N/A'
+alluxio.security.kerberos.server.keytab.file:
+  'N/A'
+alluxio.security.kerberos.server.principal:
+  'N/A'
+alluxio.security.kerberos.service.name:
+  'N/A'
+alluxio.security.kerberos.unified.instance.name:
+  'N/A'
+alluxio.security.kms.endpoint:
+  'N/A'
+alluxio.security.kms.kerberos.enabled:
+  'N/A'
+alluxio.security.kms.provider:
+  'N/A'
 alluxio.security.login.impersonation.username:
   'When alluxio.security.authentication.type is set to SIMPLE or CUSTOM, user application uses this property to indicate the IMPERSONATED user requesting Alluxio service. If it is not set explicitly, or set to _NONE_, impersonation will not be used. A special value of ''_HDFS_USER_'' can be specified to impersonate the hadoop client user.'
 alluxio.security.login.username:
   'When alluxio.security.authentication.type is set to SIMPLE or CUSTOM, user application uses this property to indicate the user requesting Alluxio service. If it is not set explicitly, the OS login user will be used.'
+alluxio.security.privileges.enabled:
+  'N/A'
 alluxio.security.stale.channel.purge.interval:
   'Interval for which client channels that have been inactive will be regarded as unauthenticated. Such channels will reauthenticate with their target master upon being used for new RPCs.'
+alluxio.security.underfs.hdfs.impersonation.enabled:
+  'N/A'
+alluxio.security.underfs.hdfs.kerberos.client.keytab.file:
+  'N/A'
+alluxio.security.underfs.hdfs.kerberos.client.principal:
+  'N/A'

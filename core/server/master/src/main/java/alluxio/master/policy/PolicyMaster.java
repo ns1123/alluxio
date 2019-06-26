@@ -59,6 +59,7 @@ import alluxio.proto.journal.Journal;
 import alluxio.util.CommonUtils;
 import alluxio.util.StreamUtils;
 import alluxio.util.ThreadFactoryUtils;
+import alluxio.util.ThreadUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -95,6 +96,8 @@ public final class PolicyMaster extends AbstractMaster {
       ServerConfiguration.getMs(PropertyKey.POLICY_SCAN_INTERVAL);
   private static final long POLICY_SCAN_INITIAL_DELAY =
       ServerConfiguration.getMs(PropertyKey.POLICY_SCAN_INITIAL_DELAY);
+  private static final long POLICY_EXECUTOR_SHUTDOWN_TIMEOUT =
+      ServerConfiguration.getMs(PropertyKey.POLICY_EXECUTOR_SHUTDOWN_TIMEOUT);
   private static final long ACTION_SCHEDULE_AHEAD_TIME = POLICY_SCAN_INTERVAL * 2;
   private static final Pattern SHORTCUT_RE =
       Pattern.compile("^(?<shortcut>\\w+)\\((?<body>.*)\\)$");
@@ -114,8 +117,7 @@ public final class PolicyMaster extends AbstractMaster {
   private final PolicyJournalSink mPolicyJournalSink;
 
   /** The scheduler for periodic inode scanning. */
-  private final ScheduledExecutorService mScanExecutor = Executors.newSingleThreadScheduledExecutor(
-      ThreadFactoryUtils.build("PolicyMaster-InodeScan-%d", true));
+  private ScheduledExecutorService mScanExecutor;
 
   /**
    * Creates a new instance of {@link PolicyMaster}.
@@ -185,6 +187,8 @@ public final class PolicyMaster extends AbstractMaster {
     }
     LOG.info("Starting {}", getName());
 
+    mScanExecutor = Executors.newSingleThreadScheduledExecutor(
+        ThreadFactoryUtils.build("PolicyMaster-InodeScan-%d", true));
     mScanExecutor.scheduleAtFixedRate(this::scanInodes,
         POLICY_SCAN_INITIAL_DELAY, POLICY_SCAN_INTERVAL, TimeUnit.MILLISECONDS);
 
@@ -194,6 +198,9 @@ public final class PolicyMaster extends AbstractMaster {
   @Override
   public void stop() throws IOException {
     mActionScheduler.stop();
+    if (mScanExecutor != null) {
+      ThreadUtils.shutdownAndAwaitTermination(mScanExecutor, POLICY_EXECUTOR_SHUTDOWN_TIMEOUT);
+    }
     super.stop();
   }
 
@@ -291,12 +298,16 @@ public final class PolicyMaster extends AbstractMaster {
 
       // TODO(gpang): get rid of id, because (name, created time) should be primary key.
 
+      String normalizedPath = AlluxioURI.normalizePath(alluxioPath);
       try (JournalContext journalContext = createJournalContext()) {
-        mPolicyStore.add(journalContext,
-            new PolicyDefinition(CommonUtils.getCurrentMs(), "ufsMigrate-" + alluxioPath,
-                alluxioPath, PolicyScope.RECURSIVE, new LogicalAnd(
+        if (!mPolicyStore.add(journalContext,
+            new PolicyDefinition(CommonUtils.getCurrentMs(), "ufsMigrate-" + normalizedPath,
+                normalizedPath, PolicyScope.RECURSIVE, new LogicalAnd(
                 Arrays.asList(new OlderThan(parts[0]), new LogicalNot(new DataState(ops)))),
-                new DataActionDefinition(ops), CommonUtils.getCurrentMs()));
+                new DataActionDefinition(ops), CommonUtils.getCurrentMs()))) {
+          throw new InvalidArgumentException(
+              "Policy already exists: " + "ufsMigrate-" + normalizedPath);
+        }
       }
     } else {
       throw new InvalidArgumentException(

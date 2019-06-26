@@ -182,7 +182,11 @@ please refer to [HA mode client configuration parameters]({{ '/en/deploy/Running
 #### Example: change default Alluxio write type
 
 For example, change
-`alluxio.user.file.writetype.default` from default `ASYNC_THROUGH` to `CACHE_THROUGH`.
+<!-- ALLUXIO CS REPLACE -->
+<!-- `alluxio.user.file.writetype.default` from default `ASYNC_THROUGH` to `CACHE_THROUGH`. -->
+<!-- ALLUXIO CS WITH -->
+`alluxio.user.file.writetype.default` from default `MUST_CACHE` to `CACHE_THROUGH`.
+<!-- ALLUXIO CS END -->
 
 One can specify the property in `alluxio-site.properties` and distribute this file to the classpath
 of each Hive node:
@@ -214,8 +218,8 @@ async cache on Alluxio workers.
 
 ### Avoid Presto timeout reading large files
 
-It is recommended to increase `alluxio.user.network.netty.timeout` to a bigger value (e.g.
-`10min`) to avoid the timeout
+It is recommended to increase `alluxio.user.network.data.timeout` to a bigger value (e.g
+`10min`) to avoid a timeout
  failure when reading large files from remote worker.
 
 ## Troubleshooting

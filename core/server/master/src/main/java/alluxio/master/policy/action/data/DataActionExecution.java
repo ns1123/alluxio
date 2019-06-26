@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -161,25 +159,15 @@ public class DataActionExecution extends AbstractActionExecution {
   }
 
   private ActionStatus commit(List<ActionExecution> actions) {
-    List<Future<ActionStatus>> futures = new ArrayList<>();
+    // TODO(cc): Committing actions asynchronously in mContext.getExecutionService might cause
+    // deadlock because sub actions might execute async actions in that thread pool too,
+    // the sub actions might starve, then the parent tasks will block.
+    // Currently, no need to async execute because there is only one UFS action to commit.
     for (ActionExecution action : actions) {
-      futures.add(mContext.getExecutorService().submit(action::commit));
-    }
-    for (int i = 0; i < futures.size(); i++) {
-      try {
-        if (futures.get(i).get() == ActionStatus.FAILED) {
-          mStatus = ActionStatus.FAILED;
-          mException = actions.get(i).getException();
-          break;
-        }
-      } catch (InterruptedException e) {
-        LOG.warn("Thread interrupted while committing", e);
-        Thread.currentThread().interrupt();
-        return ActionStatus.FAILED;
-      } catch (ExecutionException e) {
-        LOG.warn("Commit should not throw exception. path: {} inode id: {} e: {}", mPath,
-            mInode.getId(), e.getMessage());
-        throw new RuntimeException(e);
+      if (action.commit() == ActionStatus.FAILED) {
+        mStatus = ActionStatus.FAILED;
+        mException = action.getException();
+        break;
       }
     }
     return mStatus;

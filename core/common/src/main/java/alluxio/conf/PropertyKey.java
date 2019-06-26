@@ -1330,10 +1330,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setScope(Scope.MASTER)
           .build();
   // ALLUXIO CS END
-  public static final PropertyKey MASTER_MASTER_HEARTBEAT_INTERVAL =
-      new Builder(Name.MASTER_MASTER_HEARTBEAT_INTERVAL)
+  public static final PropertyKey MASTER_STANDBY_HEARTBEAT_INTERVAL =
+      new Builder(Name.MASTER_STANDBY_HEARTBEAT_INTERVAL)
           .setDefaultValue("2min")
-          .setDescription("The interval between Alluxio masters' heartbeats.")
+          .setDescription("The heartbeat interval between Alluxio primary master and standby "
+              + "masters.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.MASTER)
           .build();
@@ -1677,8 +1678,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       .build();
   public static final PropertyKey MASTER_RPC_PORT =
       new Builder(Name.MASTER_RPC_PORT)
+          .setAlias("alluxio.master.port")
           .setDefaultValue(19998)
-          .setDescription("The port that Alluxio master node runs on.")
+          .setDescription("The port for Alluxio master's RPC service.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.ALL)
           .build();
@@ -2318,8 +2320,9 @@ public final class PropertyKey implements Comparable<PropertyKey> {
       .build();
   public static final PropertyKey WORKER_RPC_PORT =
       new Builder(Name.WORKER_RPC_PORT)
+          .setAlias("alluxio.worker.port")
           .setDefaultValue(29999)
-          .setDescription("The port Alluxio's worker node runs on.")
+          .setDescription("The port for Alluxio worker's RPC service.")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.WORKER)
           .build();
@@ -2810,8 +2813,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
           .build();
-  public static final PropertyKey USER_FILE_COPY_FROM_LOCAL_BLOCK_LOCATION_POLICY =
-      new Builder(Name.USER_FILE_COPY_FROM_LOCAL_BLOCK_LOCATION_POLICY)
+  public static final PropertyKey USER_FILE_COPYFROMLOCAL_BLOCK_LOCATION_POLICY =
+      new Builder(Name.USER_FILE_COPYFROMLOCAL_BLOCK_LOCATION_POLICY)
           .setDefaultValue("alluxio.client.block.policy.RoundRobinPolicy")
           .setDescription("The default location policy for choosing workers for writing a "
               + "file's blocks using copyFromLocal command.")
@@ -2957,6 +2960,11 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
           .setScope(Scope.CLIENT)
           .build();
+  public static final PropertyKey USER_HOSTNAME = new Builder(Name.USER_HOSTNAME)
+      .setDescription("The hostname to use for an Alluxio client.")
+      .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+      .setScope(Scope.CLIENT)
+      .build();
   public static final PropertyKey USER_FILE_WRITE_TIER_DEFAULT =
       new Builder(Name.USER_FILE_WRITE_TIER_DEFAULT)
           .setDefaultValue(Constants.FIRST_TIER)
@@ -3007,7 +3015,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey USER_METRICS_HEARTBEAT_INTERVAL_MS =
       new Builder(Name.USER_METRICS_HEARTBEAT_INTERVAL_MS)
-          .setAlias("alluxio.user.heartbeat.interval.ms")
+          .setAlias("alluxio.user.metrics.heartbeat.interval.ms")
           .setDefaultValue("3sec")
           .setDescription("The time period of client master heartbeat to "
               + "send the client-side metrics.")
@@ -3755,17 +3763,35 @@ public final class PropertyKey implements Comparable<PropertyKey> {
   //
   // Policy Engine
   //
-  public static final PropertyKey POLICY_ACTION_COMMIT_THREADS =
-      new Builder(Name.POLICY_ACTION_COMMIT_THREADS)
-          .setDescription("Number of threads in the executor service for committing actions")
-          .setDefaultValue("4")
+  public static final PropertyKey POLICY_ACTION_COMMIT_EXECUTOR_THREADS =
+      new Builder(Name.POLICY_ACTION_COMMIT_EXECUTOR_THREADS)
+          .setDescription("Number of threads for committing actions in policy engine.")
+          .setDefaultSupplier(() -> 8 * Runtime.getRuntime().availableProcessors(),
+              "8 * {number of CPUs}")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
-  public static final PropertyKey POLICY_ACTION_EXECUTION_THREADS =
-      new Builder(Name.POLICY_ACTION_EXECUTION_THREADS)
-          .setDescription("Number of threads in the executor service for executing actions")
-          .setDefaultValue("4")
+  public static final PropertyKey POLICY_ACTION_COMMIT_EXECUTOR_KEEPALIVE =
+      new Builder(Name.POLICY_ACTION_COMMIT_EXECUTOR_KEEPALIVE)
+          .setDescription("Maximum wait time for idle non-core threads before being terminated"
+              + " for committing actions in policy engine.")
+          .setDefaultValue("1min")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_ACTION_EXECUTION_EXECUTOR_THREADS =
+      new Builder(Name.POLICY_ACTION_EXECUTION_EXECUTOR_THREADS)
+          .setDescription("Number of threads for executing actions in policy engine.")
+          .setDefaultSupplier(() -> 16 * Runtime.getRuntime().availableProcessors(),
+              "16 * {number of CPUs}")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
+          .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_ACTION_EXECUTION_EXECUTOR_KEEPALIVE =
+      new Builder(Name.POLICY_ACTION_EXECUTION_EXECUTOR_KEEPALIVE)
+          .setDescription("Maximum wait time for idle threads for executing actions in policy"
+              + " engine to be terminated.")
+          .setDefaultValue("1min")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
@@ -3790,6 +3816,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setDefaultValue("8")
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
+          .build();
+  public static final PropertyKey POLICY_EXECUTOR_SHUTDOWN_TIMEOUT =
+      new Builder(Name.POLICY_EXECUTOR_SHUTDOWN_TIMEOUT)
+          .setDefaultValue("5sec")
+          .setDescription("Maximum time to wait for policy engine executors to shutdown.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.SERVER)
           .build();
   public static final PropertyKey POLICY_INCREMENTAL_INCOMPLETE_FILES_MAX =
       new Builder(Name.POLICY_INCREMENTAL_INCOMPLETE_FILES_MAX)
@@ -3873,7 +3906,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey JOB_MASTER_RPC_PORT =
       new Builder(Name.JOB_MASTER_RPC_PORT)
-          .setDescription("The RPC port that the job master uses.")
+          .setDescription("The port for Alluxio job master's RPC service.")
           .setDefaultValue(20001)
           .build();
   public static final PropertyKey JOB_MASTER_WEB_BIND_HOST =
@@ -3909,7 +3942,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .build();
   public static final PropertyKey JOB_WORKER_RPC_PORT =
       new Builder(Name.JOB_WORKER_RPC_PORT)
-          .setDescription("The port the job worker uses to send RPCs")
+          .setDescription("The port for Alluxio job worker's RPC service.")
           .setDefaultValue(30001)
           .build();
   public static final PropertyKey JOB_WORKER_WEB_BIND_HOST =
@@ -4235,8 +4268,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_GRPC_SERVER_SHUTDOWN_TIMEOUT =
             "alluxio.master.grpc.server.shutdown.timeout";
     // ALLUXIO CS END
-    public static final String MASTER_MASTER_HEARTBEAT_INTERVAL =
-        "alluxio.master.master.heartbeat.interval";
+    public static final String MASTER_STANDBY_HEARTBEAT_INTERVAL =
+        "alluxio.master.standby.heartbeat.interval";
     public static final String MASTER_WORKER_HEARTBEAT_INTERVAL =
         "alluxio.master.worker.heartbeat.interval";
     public static final String MASTER_HEARTBEAT_TIMEOUT =
@@ -4325,7 +4358,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String MASTER_PRINCIPAL = "alluxio.master.principal";
     public static final String MASTER_REPLICATION_CHECK_INTERVAL_MS =
         "alluxio.master.replication.check.interval";
-    public static final String MASTER_RPC_PORT = "alluxio.master.port";
+    public static final String MASTER_RPC_PORT = "alluxio.master.rpc.port";
     public static final String MASTER_RPC_EXECUTOR_PARALLELISM =
         "alluxio.master.rpc.executor.parallelism";
     public static final String MASTER_RPC_EXECUTOR_MIN_RUNNABLE =
@@ -4479,7 +4512,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String WORKER_BLOCK_MASTER_CLIENT_POOL_SIZE =
         "alluxio.worker.block.master.client.pool.size";
     public static final String WORKER_PRINCIPAL = "alluxio.worker.principal";
-    public static final String WORKER_RPC_PORT = "alluxio.worker.port";
+    public static final String WORKER_RPC_PORT = "alluxio.worker.rpc.port";
     // ALLUXIO CS ADD
     public static final String WORKER_SECURE_RPC_BIND_HOST = "alluxio.worker.secure.rpc.bind.host";
     public static final String WORKER_SECURE_RPC_HOSTNAME = "alluxio.worker.secure.rpc.hostname";
@@ -4566,7 +4599,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     public static final String USER_CONF_SYNC_INTERVAL = "alluxio.user.conf.sync.interval";
     public static final String USER_DATE_FORMAT_PATTERN = "alluxio.user.date.format.pattern";
     public static final String USER_FILE_BUFFER_BYTES = "alluxio.user.file.buffer.bytes";
-    public static final String USER_FILE_COPY_FROM_LOCAL_BLOCK_LOCATION_POLICY =
+    public static final String USER_FILE_COPYFROMLOCAL_BLOCK_LOCATION_POLICY =
         "alluxio.user.file.copyfromlocal.block.location.policy.class";
     public static final String USER_FILE_DELETE_UNCHECKED =
         "alluxio.user.file.delete.unchecked";
@@ -4605,6 +4638,7 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.encryption.chunk.size.bytes";
     public static final String USER_HEARTBEAT_INTERVAL_MS = "alluxio.user.heartbeat.interval";
     // ALLUXIO CS END
+    public static final String USER_HOSTNAME = "alluxio.user.hostname";
     public static final String USER_LOCAL_READER_CHUNK_SIZE_BYTES =
         "alluxio.user.local.reader.chunk.size.bytes";
     public static final String USER_LOCAL_WRITER_CHUNK_SIZE_BYTES =
@@ -4817,16 +4851,22 @@ public final class PropertyKey implements Comparable<PropertyKey> {
     //
     // Policy Engine
     //
-    public static final String POLICY_ACTION_COMMIT_THREADS =
-        "alluxio.policy.action.commit.threads";
-    public static final String POLICY_ACTION_EXECUTION_THREADS =
-        "alluxio.policy.action.execution.threads";
+    public static final String POLICY_ACTION_COMMIT_EXECUTOR_THREADS =
+        "alluxio.policy.action.commit.executor.threads";
+    public static final String POLICY_ACTION_COMMIT_EXECUTOR_KEEPALIVE =
+        "alluxio.policy.action.commit.executor.keepalive";
+    public static final String POLICY_ACTION_EXECUTION_EXECUTOR_THREADS =
+        "alluxio.policy.action.execution.executor.threads";
+    public static final String POLICY_ACTION_EXECUTION_EXECUTOR_KEEPALIVE =
+        "alluxio.policy.action.execution.executor.keepalive";
     public static final String POLICY_ACTION_SCHEDULER_HEARTBEAT_INTERVAL =
         "alluxio.policy.action.scheduler.heartbeat.interval";
     public static final String POLICY_ACTION_SCHEDULER_RUNNING_ACTIONS_MAX =
         "alluxio.policy.action.scheduler.running.actions.max";
     public static final String POLICY_ACTION_SCHEDULER_THREADS =
         "alluxio.policy.action.scheduler.threads";
+    public static final String POLICY_EXECUTOR_SHUTDOWN_TIMEOUT =
+        "alluxio.policy.executor.shutdown.timeout";
     public static final String POLICY_INCREMENTAL_INCOMPLETE_FILES_MAX =
         "alluxio.policy.incremental.incomplete.files.max";
     public static final String POLICY_SCAN_INITIAL_DELAY =

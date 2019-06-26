@@ -12,6 +12,7 @@
 package alluxio.master.policy.action.data;
 
 import alluxio.AlluxioURI;
+import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.master.file.meta.InodeTree.LockPattern;
 import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.meta.PersistenceState;
@@ -113,7 +114,8 @@ public final class UfsRemoveActionExecution extends CommitActionExecution {
               LOG.debug("Path {} does not exist in UFS", pathToRemove);
             } else {
               Preconditions.checkState(mInode.isDirectory());
-              throw new IOException(String.format("Directory %s is not empty", pathToRemove));
+              throw new DirectoryNotEmptyException(String.format("Directory %s is not empty",
+                  pathToRemove));
             }
             return null;
           });
@@ -134,8 +136,12 @@ public final class UfsRemoveActionExecution extends CommitActionExecution {
         exceptions.add(new IOException(err, e));
         Thread.currentThread().interrupt();
       } catch (ExecutionException e) {
-        String err = String.format("Failed to remove %s", pathsToRemove.get(i));
-        exceptions.add(new IOException(err, e.getCause()));
+        if (e.getCause() instanceof DirectoryNotEmptyException) {
+          LOG.debug("Failed to remove directory {}", pathsToRemove.get(i), e.getCause());
+        } else {
+          String err = String.format("Failed to remove %s", pathsToRemove.get(i));
+          exceptions.add(new IOException(err, e.getCause()));
+        }
       }
     }
 
