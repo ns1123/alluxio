@@ -33,6 +33,7 @@ import alluxio.master.policy.meta.interval.Interval;
 import alluxio.proto.journal.Journal;
 import alluxio.util.LogUtils;
 import alluxio.util.ThreadFactoryUtils;
+import alluxio.util.ThreadUtils;
 import alluxio.wire.FileInfo;
 import alluxio.worker.job.JobMasterClientContext;
 
@@ -72,6 +73,8 @@ public final class ActionScheduler implements Journaled {
       ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_SCHEDULER_THREADS);
   private static final int ACTION_SCHEDULER_MAX_RUNNING_ACTIONS =
       ServerConfiguration.getInt(PropertyKey.POLICY_ACTION_SCHEDULER_RUNNING_ACTIONS_MAX);
+  private static final long POLICY_EXECUTOR_SHUTDOWN_TIMEOUT =
+      ServerConfiguration.getMs(PropertyKey.POLICY_EXECUTOR_SHUTDOWN_TIMEOUT);
 
   private final FileSystemMaster mFileSystemMaster;
   private final PolicyEvaluator mPolicyEvaluator;
@@ -315,8 +318,10 @@ public final class ActionScheduler implements Journaled {
       return;
     }
     // heartbeat thread is stopped by the owner of the heartbeatExecutor
-    mActionExecutionExecutor.shutdown();
-    mActionCommitExecutor.shutdown();
+    ThreadUtils.shutdownAndAwaitTermination(mActionExecutionExecutor,
+        POLICY_EXECUTOR_SHUTDOWN_TIMEOUT);
+    ThreadUtils.shutdownAndAwaitTermination(mActionCommitExecutor,
+        POLICY_EXECUTOR_SHUTDOWN_TIMEOUT);
 
     try {
       mJobMasterClientPool.close();

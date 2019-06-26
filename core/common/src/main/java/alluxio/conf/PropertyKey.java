@@ -3817,6 +3817,13 @@ public final class PropertyKey implements Comparable<PropertyKey> {
           .setConsistencyCheckLevel(ConsistencyCheckLevel.ENFORCE)
           .setScope(Scope.MASTER)
           .build();
+  public static final PropertyKey POLICY_EXECUTOR_SHUTDOWN_TIMEOUT =
+      new Builder(Name.POLICY_EXECUTOR_SHUTDOWN_TIMEOUT)
+          .setDefaultValue("5sec")
+          .setDescription("Maximum time to wait for policy engine executors to shutdown.")
+          .setConsistencyCheckLevel(ConsistencyCheckLevel.WARN)
+          .setScope(Scope.SERVER)
+          .build();
   public static final PropertyKey POLICY_INCREMENTAL_INCOMPLETE_FILES_MAX =
       new Builder(Name.POLICY_INCREMENTAL_INCOMPLETE_FILES_MAX)
           .setDescription("The maximum number of incomplete file journal entries tracked by"
@@ -4858,6 +4865,8 @@ public final class PropertyKey implements Comparable<PropertyKey> {
         "alluxio.policy.action.scheduler.running.actions.max";
     public static final String POLICY_ACTION_SCHEDULER_THREADS =
         "alluxio.policy.action.scheduler.threads";
+    public static final String POLICY_EXECUTOR_SHUTDOWN_TIMEOUT =
+        "alluxio.policy.executor.shutdown.timeout";
     public static final String POLICY_INCREMENTAL_INCOMPLETE_FILES_MAX =
         "alluxio.policy.incremental.incomplete.files.max";
     public static final String POLICY_SCAN_INITIAL_DELAY =
