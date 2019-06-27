@@ -113,10 +113,10 @@ spec:
             name: job-rpc
           - containerPort: 20002
             name: job-web
+# ALLUXIO CS ADD
           volumeMounts:
             - name: alluxio-journal
               mountPath: /journal
-# ALLUXIO CS ADD
             - name: secret-volume
               mountPath: /secrets
 # ALLUXIO CS END
