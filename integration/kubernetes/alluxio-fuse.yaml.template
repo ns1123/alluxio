@@ -25,11 +25,17 @@ spec:
     spec:
       containers:
         - name: alluxio-fuse
+<<<<<<< HEAD
 # ALLUXIO CS REPLACE
 #          image: alluxio/alluxio-fuse:2.0.0-RC5
 # ALLUXIO CS WITH
           image: alluxio/alluxio-enterprise-fuse:2.0.0-RC5
 # ALLUXIO CS END
+||||||| merged common ancestors
+          image: alluxio/alluxio-fuse:2.0.0-RC5
+=======
+          image: alluxio/alluxio-fuse:2.0.1-SNAPSHOT
+>>>>>>> os/branch-2.0
           resources:
             requests:
               cpu: "0.5"

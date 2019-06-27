@@ -65,11 +65,17 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: alluxio-master
+<<<<<<< HEAD
 # ALLUXIO CS REPLACE
 #          image: alluxio/alluxio:2.0.0-RC5
 # ALLUXIO CS WITH
           image: alluxio/alluxio-enterprise:2.0.0-RC5
 # ALLUXIO CS END
+||||||| merged common ancestors
+          image: alluxio/alluxio:2.0.0-RC5
+=======
+          image: alluxio/alluxio:2.0.1-SNAPSHOT
+>>>>>>> os/branch-2.0
           resources:
             requests:
               cpu: "0.5"
@@ -91,11 +97,17 @@ spec:
             - name: alluxio-journal
               mountPath: /journal
         - name: alluxio-job-master
+<<<<<<< HEAD
 # ALLUXIO CS REPLACE
 #          image: alluxio/alluxio:2.0.0-RC5
 # ALLUXIO CS WITH
           image: alluxio/alluxio-enterprise:2.0.0-RC5
 # ALLUXIO CS END
+||||||| merged common ancestors
+          image: alluxio/alluxio:2.0.0-RC5
+=======
+          image: alluxio/alluxio:2.0.1-SNAPSHOT
+>>>>>>> os/branch-2.0
           resources:
             requests:
               cpu: "0.5"
