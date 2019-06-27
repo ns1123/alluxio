@@ -17,24 +17,46 @@ on Kubernetes using the specification included in the Alluxio Docker image.
 - A Kubernetes cluster (version >= 1.8). Alluxio workers will use `emptyDir` volumes with a
 restricted size using the `sizeLimit` parameter. This is an alpha feature in Kubernetes 1.8.
 Please ensure the feature is enabled.
-- An Alluxio Docker image [alluxio/alluxio](https://hub.docker.com/r/alluxio/alluxio/). If using a
-private Docker registry, refer to the Kubernetes [documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/).
+<!-- ALLUXIO CS REPLACE -->
+<!-- - An Alluxio Docker image [alluxio/alluxio](https://hub.docker.com/r/alluxio/alluxio/). If using a -->
+<!-- private Docker registry, refer to the Kubernetes [documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/). -->
+<!-- ALLUXIO CS WITH -->
+- An Alluxio Docker image `alluxio/alluxio-enterprise`.
+<!-- ALLUXIO CS END -->
 
 ## Basic Setup
 
 This tutorial walks through a basic Alluxio setup on Kubernetes.
+<!-- ALLUXIO CS ADD -->
+Load the Alluxio Docker image from the tar and host in a private docker registry. Refer to the
+Kubernetes [documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/).
 
+```bash
+docker load --input alluxio-enterprise-{{site.ALLUXIO_VERSION_STRING}}-docker.tar 
+```
+
+<!-- ALLUXIO CS END -->
 ### Extract Kubernetes Specs
 
 Extract the Kubernetes specifications required to deploy Alluxio from the Docker image.
 
+<!-- ALLUXIO CS REPLACE -->
+<!-- ```bash -->
+<!-- id=$(docker create alluxio/alluxio:{{site.ALLUXIO_VERSION_STRING}}) -->
+<!-- <docker cp $id:/opt/alluxio/integration/kubernetes/ - > kubernetes.tar -->
+<!-- docker rm -v $id 1>/dev/null -->
+<!-- tar -xvf kubernetes.tar -->
+<!-- cd kubernetes -->
+<!-- ``` -->
+<!-- ALLUXIO CS WITH -->
 ```bash
-id=$(docker create alluxio/alluxio:{{site.ALLUXIO_VERSION_STRING}})
+id=$(docker create alluxio/alluxio-enterprise:{{site.ALLUXIO_VERSION_STRING}})
 docker cp $id:/opt/alluxio/integration/kubernetes/ - > kubernetes.tar
 docker rm -v $id 1>/dev/null
 tar -xvf kubernetes.tar
 cd kubernetes
 ```
+<!-- ALLUXIO CS END -->
 
 ### Provision a Persistent Volume
 
@@ -93,7 +115,14 @@ cp alluxio-worker.yaml.template alluxio-worker.yaml
 ```
 Note: Please make sure that the version of the Kubernetes specification matches the version of the
 Alluxio Docker image being used.
+<!-- ALLUXIO CS ADD -->
 
+The Alluxio master container uses a [Kubernetes secret](https://kubernetes.io/docs/concepts/configuration/secret/)
+to store the base64-encoded {{site.EDITION}} license string. Modify the master template to specify the license.
+```bash
+$ cat /path/to/license.json | base64 |  tr -d "\n" # Add output to alluxio-master.yaml as the value for key 'license.json'
+```
+<!-- ALLUXIO CS END -->
 Once all the pre-requisites and configuration have been setup, deploy Alluxio.
 ```bash
 kubectl create -f alluxio-master.yaml
