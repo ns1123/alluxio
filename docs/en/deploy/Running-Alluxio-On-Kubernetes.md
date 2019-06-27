@@ -28,14 +28,15 @@ Please ensure the feature is enabled.
 
 This tutorial walks through a basic Alluxio setup on Kubernetes.
 <!-- ALLUXIO CS ADD -->
+
 Load the Alluxio Docker image from the tar and host in a private docker registry. Refer to the
 Kubernetes [documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/).
 
 ```bash
 docker load --input alluxio-enterprise-{{site.ALLUXIO_VERSION_STRING}}-docker.tar 
 ```
-
 <!-- ALLUXIO CS END -->
+
 ### Extract Kubernetes Specs
 
 Extract the Kubernetes specifications required to deploy Alluxio from the Docker image.
@@ -43,7 +44,7 @@ Extract the Kubernetes specifications required to deploy Alluxio from the Docker
 <!-- ALLUXIO CS REPLACE -->
 <!-- ```bash -->
 <!-- id=$(docker create alluxio/alluxio:{{site.ALLUXIO_VERSION_STRING}}) -->
-<!-- <docker cp $id:/opt/alluxio/integration/kubernetes/ - > kubernetes.tar -->
+<!-- docker cp $id:/opt/alluxio/integration/kubernetes/ - > kubernetes.tar -->
 <!-- docker rm -v $id 1>/dev/null -->
 <!-- tar -xvf kubernetes.tar -->
 <!-- cd kubernetes -->
@@ -123,6 +124,7 @@ to store the base64-encoded {{site.EDITION}} license string. Modify the master t
 $ cat /path/to/license.json | base64 |  tr -d "\n" # Add output to alluxio-master.yaml as the value for key 'license.json'
 ```
 <!-- ALLUXIO CS END -->
+
 Once all the pre-requisites and configuration have been setup, deploy Alluxio.
 ```bash
 kubectl create -f alluxio-master.yaml
