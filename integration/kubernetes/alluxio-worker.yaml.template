@@ -28,9 +28,9 @@ spec:
       containers:
         - name: alluxio-worker
 # ALLUXIO CS REPLACE
-#          image: alluxio/alluxio:2.0.0-RC5
+#           image: alluxio/alluxio:2.0.1-SNAPSHOT
 # ALLUXIO CS WITH
-          image: alluxio/alluxio-enterprise:2.0.0-RC5
+          image: alluxio/alluxio-enterprise:2.0.1-SNAPSHOT
 # ALLUXIO CS END
           resources:
             requests:
@@ -65,9 +65,9 @@ spec:
               mountPath: /opt/domain
         - name: alluxio-job-worker
 # ALLUXIO CS REPLACE
-#          image: alluxio/alluxio:2.0.0-RC5
+#           image: alluxio/alluxio:2.0.1-SNAPSHOT
 # ALLUXIO CS WITH
-          image: alluxio/alluxio-enterprise:2.0.0-RC5
+          image: alluxio/alluxio-enterprise:2.0.1-SNAPSHOT
 # ALLUXIO CS END
           resources:
             requests:

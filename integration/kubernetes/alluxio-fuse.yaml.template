@@ -26,9 +26,9 @@ spec:
       containers:
         - name: alluxio-fuse
 # ALLUXIO CS REPLACE
-#          image: alluxio/alluxio-fuse:2.0.0-RC5
+#           image: alluxio/alluxio-fuse:2.0.1-SNAPSHOT
 # ALLUXIO CS WITH
-          image: alluxio/alluxio-enterprise-fuse:2.0.0-RC5
+          image: alluxio/alluxio-enterprise-fuse:2.0.1-SNAPSHOT
 # ALLUXIO CS END
           resources:
             requests:
