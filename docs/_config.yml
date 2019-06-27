@@ -22,6 +22,19 @@ ALLUXIO_VERSION_STRING: 2.0.1-SNAPSHOT
 ALLUXIO_CLIENT_JAR_PATH: /<PATH_TO_ALLUXIO>/client/alluxio-enterprise-2.0.1-SNAPSHOT-client.jar
 # ALLUXIO CS END
 
+# ALLUXIO CS ADD
+exclude: [
+  cn,
+  en/contributor,
+  en/deploy/Running-Alluxio-On-Mesos.md,
+  en/deploy/Running-Alluxio-On-Vagrant.md,
+  en/deploy/Running-Alluxio-On-Yarn.md,
+  en/ufs/MapR-FS.md,
+  en/ufs/Ufs-Extension-API.md,
+  en/ufs/Ufs-Extensions.md
+]
+
+# ALLUXIO CS END
 # These attach the pages of different languages with different 'lang' attributes
 defaults:
   -
@@ -49,7 +62,9 @@ categoryList:
   - Operations
   - Advanced
   - Client APIs
-  - Contributor Resources
+# ALLUXIO CS REMOVE
+#  - Contributor Resources
+# ALLUXIO CS END
   - Reference
 
 # Each language has a particular version of category names
