@@ -18,7 +18,10 @@ import alluxio.clock.SystemClock;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.exception.AccessControlException;
+import alluxio.exception.ExceptionMessage;
+import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
+import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.grpc.AddPolicyPOptions;
@@ -36,6 +39,7 @@ import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.contexts.GetStatusContext;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectoryView;
+import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.InodeView;
 import alluxio.master.journal.JournalContext;
 import alluxio.master.journal.JournalEntryIterable;
@@ -56,7 +60,11 @@ import alluxio.master.policy.meta.PolicyScope;
 import alluxio.master.policy.meta.PolicyStore;
 import alluxio.master.policy.meta.interval.Interval;
 import alluxio.proto.journal.Journal;
+import alluxio.retry.CountingRetry;
+import alluxio.retry.RetryPolicy;
+import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
+import alluxio.util.IdUtils;
 import alluxio.util.StreamUtils;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.ThreadUtils;
@@ -80,6 +88,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -101,6 +110,7 @@ public final class PolicyMaster extends AbstractMaster {
   private static final long ACTION_SCHEDULE_AHEAD_TIME = POLICY_SCAN_INTERVAL * 2;
   private static final Pattern SHORTCUT_RE =
       Pattern.compile("^(?<shortcut>\\w+)\\((?<body>.*)\\)$");
+  private static final int MAX_RETRY = 5;
 
   /** The file system master to enforce policies on. */
   private final FileSystemMaster mFileSystemMaster;
@@ -252,6 +262,36 @@ public final class PolicyMaster extends AbstractMaster {
     return mPolicyStore.getPolicy(name);
   }
 
+  private void checkPermission(String alluxioPath, Mode.Bits bits)
+      throws AlluxioStatusException, AccessControlException, FileDoesNotExistException {
+    AtomicBoolean permissionChecked = new AtomicBoolean(false);
+    AlluxioURI uri = new AlluxioURI(alluxioPath);
+    RetryPolicy retry = new CountingRetry(MAX_RETRY);
+    while (retry.attempt() && !permissionChecked.get()) {
+      long fileId = mFileSystemMaster.getFileId(uri);
+      if (fileId == IdUtils.INVALID_FILE_ID) {
+        throw new FileDoesNotExistException(
+            ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(alluxioPath));
+      }
+      try {
+        mFileSystemMaster.exec(fileId, InodeTree.LockPattern.READ, (context) -> {
+          if (context.getUri().equals(uri)) {
+            context.checkPermission(bits);
+            permissionChecked.set(true);
+          }
+        });
+      } catch (AccessControlException e) {
+        throw e;
+      } catch (Exception e) {
+        throw AlluxioStatusException.fromThrowable(e);
+      }
+    }
+    if (!permissionChecked.get()) {
+      throw new UnavailableException(String.format(
+          "Unable to lock the file with %d retries. Please try again later.", MAX_RETRY));
+    }
+  }
+
   /**
    * Adds a policy.
    *
@@ -260,13 +300,15 @@ public final class PolicyMaster extends AbstractMaster {
    * @param options the options
    */
   public void addPolicy(String alluxioPath, String definition, AddPolicyPOptions options)
-      throws InvalidPathException, InvalidArgumentException, UnavailableException {
+      throws InvalidPathException, AlluxioStatusException,
+      AccessControlException, FileDoesNotExistException {
     if (alluxioPath == null || alluxioPath.isEmpty()) {
       throw new InvalidPathException("Alluxio path cannot be empty");
     }
     if (definition == null || definition.isEmpty()) {
       throw new InvalidArgumentException("Policy definition cannot be empty");
     }
+    checkPermission(alluxioPath, Mode.Bits.WRITE);
     definition = definition.trim();
 
     Matcher matcher = SHORTCUT_RE.matcher(definition.toLowerCase());
@@ -322,8 +364,17 @@ public final class PolicyMaster extends AbstractMaster {
    * @param options the options
    */
   public void removePolicy(String policyName, RemovePolicyPOptions options)
-      throws UnavailableException {
-    // TODO(gpang): check for write permissions on the inode. Requires new FSM api.
+      throws AlluxioStatusException, AccessControlException {
+    PolicyDefinition policy = mPolicyStore.getPolicy(policyName);
+    if (policy == null) {
+      throw new InvalidArgumentException(String.format("Policy %s does not exist.", policyName));
+    }
+    try {
+      checkPermission(policy.getPath(), Mode.Bits.WRITE);
+    } catch (FileDoesNotExistException e) {
+      // TODO(feng): Remove corresponding policy when file/dir is removed.
+      // For now, ignore the exception and allow anyone to remove a policy bound to non-exist path.
+    }
     try (JournalContext journalContext = createJournalContext()) {
       mPolicyStore.remove(journalContext, policyName);
     }

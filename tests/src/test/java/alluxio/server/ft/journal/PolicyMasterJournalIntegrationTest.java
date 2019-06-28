@@ -64,9 +64,13 @@ public class PolicyMasterJournalIntegrationTest {
         mCluster.getLocalAlluxioMaster().getMasterProcess().getMaster(PolicyMaster.class);
     AlluxioURI file = new AlluxioURI("/test");
     FileSystemTestUtils.createByteFile(fs, file, WritePType.MUST_CACHE, 10);
-    policyMaster.addPolicy(file.getPath(),
-        "ufsMigrate(1d, UFS[A]:STORE, UFS[B]:REMOVE)",
-        AddPolicyPOptions.getDefaultInstance());
+    URIStatus status = fs.getStatus(file);
+    try (AuthenticatedClientUserResource r = new AuthenticatedClientUserResource(status.getOwner(),
+        ServerConfiguration.global())) {
+      policyMaster.addPolicy(file.getPath(),
+          "ufsMigrate(1d, UFS[A]:STORE, UFS[B]:REMOVE)",
+          AddPolicyPOptions.getDefaultInstance());
+    }
     mCluster.stopMasters();
     mCluster.startMasters();
     AlluxioMasterProcess masterProcess = mCluster.getLocalAlluxioMaster().getMasterProcess();

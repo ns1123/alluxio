@@ -12,6 +12,7 @@
 package alluxio.master.file;
 
 import alluxio.AlluxioURI;
+import alluxio.exception.AccessControlException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
 import alluxio.master.file.meta.Inode;
@@ -23,6 +24,7 @@ import alluxio.master.file.meta.xattr.ExtendedAttribute;
 import alluxio.master.journal.JournalContext;
 import alluxio.proto.journal.File.UpdateInodeEntry;
 import alluxio.proto.journal.File.UpdateInodeFileEntry;
+import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 
 import com.google.protobuf.ByteString;
@@ -40,21 +42,25 @@ public final class ExecContext {
   private final LockedInodePath mInodePath;
   private final InodeTree mInodeTree;
   private final MountTable mMountTable;
+  private final PermissionChecker mPermissionChecker;
 
   /**
    * @param journalContext the journal context
    * @param inodePath the locked inode path
    * @param inodeTree the inode tree
    * @param mountTable the mount table
+   * @param permissionChecker the permission checker
    */
   public ExecContext(JournalContext journalContext,
       LockedInodePath inodePath,
       InodeTree inodeTree,
-      MountTable mountTable) {
+      MountTable mountTable,
+      PermissionChecker permissionChecker) {
     mJournalContext = journalContext;
     mInodePath = inodePath;
     mInodeTree = inodeTree;
     mMountTable = mountTable;
+    mPermissionChecker = permissionChecker;
   }
 
   /**
@@ -111,6 +117,16 @@ public final class ExecContext {
    */
   public void updateInode(UpdateInodeEntry entry) {
     mInodeTree.updateInode(mJournalContext, entry);
+  }
+
+  /**
+   * Checks permission for current path.
+   *
+   * @param bits the permission bit to check
+   * @throws AccessControlException
+   */
+  public void checkPermission(Mode.Bits bits) throws AccessControlException {
+    mPermissionChecker.checkPermission(bits, mInodePath);
   }
 
   /**
