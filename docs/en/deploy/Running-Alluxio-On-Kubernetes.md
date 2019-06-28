@@ -192,9 +192,14 @@ kubectl create -f alluxio-fuse.yaml
 Note:
 - The container running the Alluxio FUSE daemon must have the `securityContext.privileged=true` with
 SYS_ADMIN capabilities. Application containers that require Alluxio access do not need this privilege.
-- A different Docker image [alluxio/alluxio-fuse](https://hub.docker.com/r/alluxio/alluxio-fuse/) based
-on `ubuntu` instead of `alpine` is needed to run the FUSE daemon. Application containers can run on
-any Docker image.
+<!-- ALLUXIO CS REPLACE -->
+<!-- - A different Docker image [alluxio/alluxio-fuse](https://hub.docker.com/r/alluxio/alluxio-fuse/) based -->
+<!-- on `ubuntu` instead of `alpine` is needed to run the FUSE daemon. Application containers can run on -->
+<!-- any Docker image. -->
+<!-- ALLUXIO CS WITH -->
+- A different Docker image `alluxio/alluxio-enterprise-fuse` based on `ubuntu` instead of `alpine` is
+needed to run the FUSE daemon. Application containers can run on any Docker image.
+<!-- ALLUXIO CS END -->
 
 Verify that a container can simply mount the Alluxio FileSystem without any custom binaries or
 capabilities using a `hostPath` mount of location `/alluxio-fuse`:
