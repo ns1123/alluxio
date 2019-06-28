@@ -246,15 +246,39 @@ Verify that the metadata for content not created through Alluxio is loaded into 
 ... # should contain /demo/hello
 ```
 
-Create a file under the mounted directory and verify the file is created in the underlying file system with the same name:
+<!-- ALLUXIO CS REPLACE -->
+<!-- Create a file under the mounted directory and verify the file is created in the underlying file system with the same name: -->
+<!-- -->
+<!-- ```bash -->
+<!-- ./bin/alluxio fs touch /demo/hello2 -->
+<!-- /demo/hello2 has been created -->
+<!-- ls /tmp/alluxio-demo -->
+<!-- hello hello2 -->
+<!-- ``` -->
+<!-- -->
+<!-- ALLUXIO CS WITH -->
+Create a file under the mounted directory and verify the file is not yet persisted to the underlying file system:
 
 ```bash
 ./bin/alluxio fs touch /demo/hello2
 /demo/hello2 has been created
 ls /tmp/alluxio-demo
+hello
+```
+
+<!-- ALLUXIO CS END -->
+<!-- ALLUXIO CS ADD -->
+Verify that after manually persisting the file, it is created in the underlying file system with the same name:
+
+```bash
+./bin/alluxio fs persist /demo/hello2
+Found 1 files to persist.
+(1/1) Successfully persisted file: /demo/hello2
+ls /tmp/alluxio-demo
 hello hello2
 ```
 
+<!-- ALLUXIO CS END -->
 Rename a file in Alluxio and verify the corresponding file is also renamed in the underlying file system:
 
 ```bash
