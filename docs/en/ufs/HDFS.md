@@ -15,40 +15,44 @@ as Alluxio's under storage system.
 
 ## Prerequisites
 
-To run an Alluxio cluster on a set of machines, you must deploy Alluxio server binaries to each of
-these machines. You can either
-[download the precompiled binaries directly](http://www.alluxio.io/download)
-with the correct Hadoop version (recommended), or
-[compile the binaries from Alluxio source code]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }})
-(for advanced users).
-
-Note that, when building Alluxio from source code, by default Alluxio server binaries is built to
-work with Apache Hadoop HDFS of version `2.2.0`. To work with Hadoop distributions of other
-versions, one needs to specify the correct Hadoop profile and run the following in your Alluxio
-directory:
-
-```bash
-mvn install -P<YOUR_HADOOP_PROFILE> -D<HADOOP_VERSION> -DskipTests
-```
-
-Alluxio provides predefined build profiles including `hadoop-1`, `hadoop-2` (enabled by default),
-`hadoop-3` for the major Hadoop versions 1.x, 2.x and 3.x. If you want to build Alluxio with a specific
-Hadoop release version, you can also specify the version in the command. For example,
-
-```bash
-# Build Alluxio for the Apache Hadoop version Hadoop 2.7.1
-mvn install -Phadoop-2 -Dhadoop.version=2.7.1 -DskipTests
-# Build Alluxio for the Apache Hadoop version Hadoop 2.7.1
-mvn install -Phadoop-3 -Dhadoop.version=3.0.0 -DskipTests
-```
-
-Please visit the
-[Building Alluxio Master Branch]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}#hadoop-distribution-support)
-page for more information about support for other distributions.
-
-If everything succeeds, you should see
-`alluxio-assembly-server-{{site.ALLUXIO_RELEASED_VERSION}}-jar-with-dependencies.jar` created in
-the `${ALLUXIO_HOME}/assembly/server/target` directory.
+<!-- ALLUXIO CS REPLACE -->
+<!-- To run an Alluxio cluster on a set of machines, you must deploy Alluxio server binaries to each of -->
+<!-- these machines. You can either -->
+<!-- [download the precompiled binaries directly](http://www.alluxio.io/download) -->
+<!-- with the correct Hadoop version (recommended), or -->
+<!-- [compile the binaries from Alluxio source code]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}) -->
+<!-- (for advanced users). -->
+<!--  -->
+<!-- Note that, when building Alluxio from source code, by default Alluxio server binaries is built to -->
+<!-- work with Apache Hadoop HDFS of version `2.2.0`. To work with Hadoop distributions of other -->
+<!-- versions, one needs to specify the correct Hadoop profile and run the following in your Alluxio -->
+<!-- directory: -->
+<!--  -->
+<!-- ```bash -->
+<!-- mvn install -P<YOUR_HADOOP_PROFILE> -D<HADOOP_VERSION> -DskipTests -->
+<!-- ``` -->
+<!--  -->
+<!-- Alluxio provides predefined build profiles including `hadoop-1`, `hadoop-2` (enabled by default), -->
+<!-- `hadoop-3` for the major Hadoop versions 1.x, 2.x and 3.x. If you want to build Alluxio with a specific -->
+<!-- Hadoop release version, you can also specify the version in the command. For example, -->
+<!--  -->
+<!-- ```bash -->
+<!-- # Build Alluxio for the Apache Hadoop version Hadoop 2.7.1 -->
+<!-- mvn install -Phadoop-2 -Dhadoop.version=2.7.1 -DskipTests -->
+<!-- # Build Alluxio for the Apache Hadoop version Hadoop 2.7.1 -->
+<!-- mvn install -Phadoop-3 -Dhadoop.version=3.0.0 -DskipTests -->
+<!-- ``` -->
+<!--  -->
+<!-- Please visit the -->
+<!-- [Building Alluxio Master Branch]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}#hadoop-distribution-support) -->
+<!-- page for more information about support for other distributions. -->
+<!--  -->
+<!-- If everything succeeds, you should see -->
+<!-- `alluxio-assembly-server-{{site.ALLUXIO_RELEASED_VERSION}}-jar-with-dependencies.jar` created in -->
+<!-- the `${ALLUXIO_HOME}/assembly/server/target` directory. -->
+<!-- ALLUXIO CS WITH -->
+Alluxio must be pre-deployed on the cluster.
+<!-- ALLUXIO CS END -->
 
 ## Basic Setup
 
