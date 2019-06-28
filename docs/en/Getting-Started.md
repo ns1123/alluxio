@@ -39,7 +39,7 @@ Download Alluxio from [this page](https://www.alluxio.io/download). Select the
 Unpack the downloaded file with the following commands.
 
 <!-- ALLUXIO CS REPLACE -->
-<!-- ```bash  -->
+<!-- ```bash -->
 <!-- tar -xzf alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-bin.tar.gz -->
 <!-- cd alluxio-{{site.ALLUXIO_RELEASED_VERSION}} -->
 <!-- ``` -->
@@ -50,7 +50,11 @@ cd alluxio-enterprise-{{site.ALLUXIO_RELEASED_VERSION}}
 ```
 <!-- ALLUXIO CS END -->
 
+<!-- ALLUXIO CS REPLACE -->
+<!-- This creates a directory `alluxio-{{site.ALLUXIO_RELEASED_VERSION}}` with all of the Alluxio -->
+<!-- ALLUXIO CS WITH -->
 This creates a directory `alluxio-enterprise-{{site.ALLUXIO_RELEASED_VERSION}}` with all of the Alluxio
+<!-- ALLUXIO CS END -->
 source files and Java binaries. Through this tutorial, the path of this directory will be referred
 to as `${ALLUXIO_HOME}`.
 

@@ -56,6 +56,7 @@ Load the docker image from the given tar.
 docker load --input alluxio-enterprise-{{site.ALLUXIO_VERSION_STRING}}-docker.tar
 ```
 <!-- ALLUXIO CS END -->
+
 ## Launch Alluxio
 
 The `--shm-size=1G` argument will allocate a `1G` tmpfs for the worker to store Alluxio data.
@@ -97,6 +98,7 @@ docker run -d \
            alluxio/alluxio-enterprise:{{site.ALLUXIO_VERSION_STRING}} worker
 ```
 <!-- ALLUXIO CS END -->
+
 ## Verify the Cluster
 
 To verify that the services came up, check `docker ps`. You should see something like
@@ -268,6 +270,7 @@ Load the docker image from the given tar.
 docker load --input alluxio-enterprise-fuse-{{site.ALLUXIO_VERSION_STRING}}-docker.tar
 ```
 <!-- ALLUXIO CS END -->
+
 Launch the container with [SYS_ADMIN](http://man7.org/linux/man-pages/man7/capabilities.7.html)
 capability. This runs the FUSE daemon on a client node that needs to access Alluxio using the POSIX
 API with a mount accessible at `/alluxio-fuse`.
@@ -289,6 +292,7 @@ docker run -e \
            alluxio-enterprise-fuse:{{site.ALLUXIO_VERSION_STRING}} fuse
 ```
 <!-- ALLUXIO CS END -->
+
 
 ## Troubleshooting
 
