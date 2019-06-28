@@ -248,6 +248,10 @@ alluxio.master.mount.table.root.option.alluxio.underfs.version=1.2
 Alluxio v{{site.ALLUXIO_RELEASED_VERSION}} supports the following versions of HDFS as a valid argument of mount option `alluxio.underfs.version`:
 
 - Apache Hadoop: 1.0, 1.2, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1
+<!-- ALLUXIO CS ADD -->
+- CDH: cdh-4.1, cdh-5.4, cdh-5.6, cdh-5.8, cdh-5.11, cdh-5.12, cdh-5.13, cdh-5.14, cdh-5.15, cdh-5.16
+- HDP: hdp-2.0, hdp-2.1, hdp-2.2, hdp-2.3, hdp-2.4, hdp-2.5, hdp-2.6, hdp-3.0,  hdp-3.1
+<!-- ALLUXIO CS END -->
 
 ### Use Hadoop Native Library
 
