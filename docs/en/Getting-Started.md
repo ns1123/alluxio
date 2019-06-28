@@ -38,12 +38,19 @@ Download Alluxio from [this page](https://www.alluxio.io/download). Select the
 {{site.ALLUXIO_RELEASED_VERSION}} release followed by the distribution built for default Hadoop.
 Unpack the downloaded file with the following commands.
 
+<!-- ALLUXIO CS REPLACE -->
+<!-- ```bash  -->
+<!-- tar -xzf alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-bin.tar.gz -->
+<!-- cd alluxio-{{site.ALLUXIO_RELEASED_VERSION}} -->
+<!-- ``` -->
+<!-- ALLUXIO CS WITH -->
 ```bash
-tar -xzf alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-bin.tar.gz
-cd alluxio-{{site.ALLUXIO_RELEASED_VERSION}}
+tar -xzf alluxio-enterprise-{{site.ALLUXIO_RELEASED_VERSION}}-bin.tar.gz
+cd alluxio-enterprise-{{site.ALLUXIO_RELEASED_VERSION}}
 ```
+<!-- ALLUXIO CS END -->
 
-This creates a directory `alluxio-{{site.ALLUXIO_RELEASED_VERSION}}` with all of the Alluxio
+This creates a directory `alluxio-enterprise-{{site.ALLUXIO_RELEASED_VERSION}}` with all of the Alluxio
 source files and Java binaries. Through this tutorial, the path of this directory will be referred
 to as `${ALLUXIO_HOME}`.
 
@@ -329,8 +336,10 @@ Alluxio can be deployed in many different environments.
 * [Alluxio on Local Machine]({{ '/en/deploy/Running-Alluxio-Locally.html' | relativize_url }})
 * [Alluxio Standalone on a Cluster]({{ '/en/deploy/Running-Alluxio-On-a-Cluster.html' | relativize_url }})
 * [Alluxio on Docker]({{ '/en/deploy/Running-Alluxio-On-Docker.html' | relativize_url }})
-* [Alluxio with Mesos on EC2]({{ '/en/deploy/Running-Alluxio-On-Mesos.html' | relativize_url }})
-* [Alluxio On YARN]({{ '/en/deploy/Running-Alluxio-On-Yarn.html' | relativize_url }})
+<!-- ALLUXIO CS REMOVE -->
+<!-- * [Alluxio with Mesos on EC2]({{ '/en/deploy/Running-Alluxio-On-Mesos.html' | relativize_url }}) -->
+<!-- * [Alluxio On YARN]({{ '/en/deploy/Running-Alluxio-On-Yarn.html' | relativize_url }}) -->
+<!-- ALLUXIO CS END -->
 
 ### Under Storage Systems
 
@@ -343,7 +352,9 @@ Various under storage systems can be accessed through Alluxio.
 * [Alluxio with Ceph]({{ '/en/ufs/Ceph.html' | relativize_url }})
 * [Alluxio with Swift]({{ '/en/ufs/Swift.html' | relativize_url }})
 * [Alluxio with GlusterFS]({{ '/en/ufs/GlusterFS.html' | relativize_url }})
-* [Alluxio with MapR-FS]({{ '/en/ufs/MapR-FS.html' | relativize_url }})
+<!-- ALLUXIO CS REMOVE -->
+<!-- * [Alluxio with MapR-FS]({{ '/en/ufs/MapR-FS.html' | relativize_url }}) -->
+<!-- ALLUXIO CS END -->
 * [Alluxio with HDFS]({{ '/en/ufs/HDFS.html' | relativize_url }})
 * [Alluxio with OSS]({{ '/en/ufs/OSS.html' | relativize_url }})
 * [Alluxio with NFS]({{ '/en/ufs/NFS.html' | relativize_url }})
