@@ -37,8 +37,8 @@ pipeline {
                 image = "alluxio/alluxio-enterprise:${params.tag}"
                 aeeTarball = "aee.tar.gz"
                 finalTarball = "alluxio-enterprise-${params.tag}-docker.tar"
-                fuseImage = "alluxio/alluxio-enterprise-fuse:${params.version}"
-                fuseFinalTarball = "alluxio-enterprise-${params.tag}-docker.tar"
+                fuseImage = "alluxio/alluxio-enterprise-fuse:${params.tag}"
+                fuseFinalTarball = "alluxio-enterprise-fuse-${params.tag}-docker.tar"
 
                 // delete any existing artifacts
                 sh 'rm -f *.tar.gz'
