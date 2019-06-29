@@ -109,20 +109,34 @@ which explains how to deploy Alluxio and run examples in a local environment.
 
 Released versions of Alluxio are available from the [Project Downloads Page](https://alluxio.io/download).
 Each release comes with prebuilt binaries compatible with various Hadoop versions.
-[Building From Master Branch Documentation]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }})
-explains how to build the project from source code. Questions can be directed to our
-[User Mailing List](https://groups.google.com/forum/?fromgroups#!forum/alluxio-users)
-(users who can not access the Google Group may use its [mirror](http://alluxio-users.85194.x6.nabble.com/))
-or our [Community Slack Channel](https://alluxio.io/slack).
+<!-- ALLUXIO CS REMOVE -->
+<!-- [Building From Master Branch Documentation]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}) -->
+<!-- explains how to build the project from source code. Questions can be directed to our -->
+<!-- [User Mailing List](https://groups.google.com/forum/?fromgroups#!forum/alluxio-users) -->
+<!-- (users who can not access the Google Group may use its [mirror](http://alluxio-users.85194.x6.nabble.com/)) -->
+<!-- or our [Community Slack Channel](https://alluxio.io/slack). -->
+<!-- ALLUXIO CS END -->
 
-[Downloads](https://alluxio.org/download/)
+<!-- ALLUXIO CS REPLACE -->
+<!-- [Downloads](https://alluxio.org/download/) -->
+<!-- ALLUXIO CS WITH -->
+[Downloads](https://alluxio.io/download/)
+<!-- ALLUXIO CS END -->
 | [User Guide]({{ '/en/Getting-Started.html' | relativize_url }})
-| [Developer Guide]({{ '/en/contributor/Contributor-Getting-Started.html' | relativize_url }})
+<!-- ALLUXIO CS REMOVE -->
+<!-- | [Developer Guide]({{ '/en/contributor/Contributor-Getting-Started.html' | relativize_url }}) -->
+<!-- ALLUXIO CS END -->
 | [Meetup Group](https://www.meetup.com/Alluxio/)
-| [Issue Tracking](https://github.com/Alluxio/alluxio/issues)
+<!-- ALLUXIO CS REMOVE -->
+<!-- | [Issue Tracking](https://github.com/Alluxio/alluxio/issues) -->
+<!-- ALLUXIO CS END -->
 | [Community Slack Channel](https://slackin.alluxio.io)
-| [User Mailing List](https://groups.google.com/forum/?fromgroups#!forum/alluxio-users)
+<!-- ALLUXIO CS REMOVE -->
+<!-- | [User Mailing List](https://groups.google.com/forum/?fromgroups#!forum/alluxio-users) -->
+<!-- ALLUXIO CS END -->
 | [Videos](https://www.youtube.com/channel/UCpibQsajhwqYPLYhke4RigA)
-| [Github](https://github.com/alluxio/alluxio/)
+<!-- ALLUXIO CS REMOVE -->
+<!-- | [Github](https://github.com/alluxio/alluxio/) -->
+<!-- ALLUXIO CS END -->
 | [Releases](https://www.alluxio.org/download/releases)
 

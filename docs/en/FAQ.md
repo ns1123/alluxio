@@ -39,16 +39,20 @@ under storage instead of the Alluxio cache.
 ## Should I deploy Alluxio as a stand-alone system or through an orchestration framework?
 
 It is recommended to deploy Alluxio as a stand-alone system. Orchestration frameworks supported include:
-- [YARN]({{ '/en/deploy/Running-Alluxio-On-Yarn.html' | relativize_url }})
+<!-- ALLUXIO CS REMOVE -->
+<!-- - [YARN]({{ '/en/deploy/Running-Alluxio-On-Yarn.html' | relativize_url }}) -->
+<!-- ALLUXIO CS END -->
 - [Mesos]({{ '/en/deploy/Running-Alluxio-On-Mesos.html' | relativize_url }})
 - [Kubernetes]({{ '/en/deploy/Running-Alluxio-On-Kubernetes.html' | relativize_url }})
 
 ## Which programming language does Alluxio support?
 
-Alluxio is primarily developed in Java and exposes Java-like File APIs for other applications to
-interact with. Alluxio supports other language bindings including
-[Python]({{ '/en/api/FS-API.html' | relativize_url }}#python) and
-[Golang]({{ '/en/api/FS-API.html' | relativize_url }}#go).
+<!-- ALLUXIO CS REMOVE -->
+<!-- Alluxio is primarily developed in Java and exposes Java-like File APIs for other applications to -->
+<!-- interact with. Alluxio supports other language bindings including -->
+<!-- [Python]({{ '/en/api/FS-API.html' | relativize_url }}#python) and -->
+<!-- [Golang]({{ '/en/api/FS-API.html' | relativize_url }}#go). -->
+<!-- ALLUXIO CS END -->
 
 Alluxio can be run as a FUSE mount exposing a [POSIX API]({{ '/en/api/POSIX-API.html' | relativize_url }}).
 This enables any program which normally accesses a local file system to access data from Alluxio without
@@ -73,12 +77,14 @@ Yes. See instructions about
 
 No, rebalancing of data blocks in Alluxio is not currently supported.
 
-## How can I add support for other under store systems?
+<!-- ALLUXIO CS REMOVE -->
+<!-- ## How can I add support for other under store systems? -->
+<!--  -->
+<!-- Support for other under storages is in progress by many contributors. See the -->
+<!-- [documentation]({{ '/en/ufs/Ufs-Extensions.html' | relativize_url }}) for adding other under storage -->
+<!-- systems. -->
 
-Support for other under storages is in progress by many contributors. See the
-[documentation]({{ '/en/ufs/Ufs-Extensions.html' | relativize_url }}) for adding other under storage
-systems.
-
+<!-- ALLUXIO CS END -->
 ## Does Alluxio require HDFS?
 
 No, Alluxio can run on many under storage systems such as Amazon S3 or Swift in addition to HDFS.
@@ -95,21 +101,23 @@ Join the meetup group for Alluxio at
 [http://www.meetup.com/Alluxio/](http://www.meetup.com/Alluxio/).
 Other Alluxio events can be found [here](https://www.alluxio.io/events/).
 
-## Where can I report issues or propose new features?
-
-[Github Issues](https://github.com/alluxio/alluxio/issues) is used to track feature
-development and issues.
-To report an issue or propose a feature, post on the Github issue.
-
-## Where can I get more help?
-
-For any questions related to installation, contribution or feedback, please
-join our [Alluxio community Slack Channel](https://www.alluxio.io/slack) or
-send an email to the
-[Alluxio User Mailing List](https://groups.google.com/forum/?fromgroups#!forum/alluxio-users).
-We look forward to seeing you there.
-
-## How can I contribute to Alluxio?
-
-Thank you for your interest in contributing. Please read
-[our contributor guide]({{ '/en/contributor/Contributor-Getting-Started.html' | relativize_url }}).
+<!-- ALLUXIO CS REMOVE -->
+<!-- ## Where can I report issues or propose new features? -->
+<!--  -->
+<!-- [Github Issues](https://github.com/alluxio/alluxio/issues) is used to track feature -->
+<!-- development and issues. -->
+<!-- To report an issue or propose a feature, post on the Github issue. -->
+<!--  -->
+<!-- ## Where can I get more help? -->
+<!--  -->
+<!-- For any questions related to installation, contribution or feedback, please -->
+<!-- join our [Alluxio community Slack Channel](https://www.alluxio.io/slack) or -->
+<!-- send an email to the -->
+<!-- [Alluxio User Mailing List](https://groups.google.com/forum/?fromgroups#!forum/alluxio-users). -->
+<!-- We look forward to seeing you there. -->
+<!--  -->
+<!-- ## How can I contribute to Alluxio? -->
+<!--  -->
+<!-- Thank you for your interest in contributing. Please read -->
+<!-- [our contributor guide]({{ '/en/contributor/Contributor-Getting-Started.html' | relativize_url }}). -->
+<!-- ALLUXIO CS END -->

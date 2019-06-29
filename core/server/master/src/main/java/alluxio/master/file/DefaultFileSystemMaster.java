@@ -3864,7 +3864,8 @@ public final class DefaultFileSystemMaster extends CoreMaster implements FileSys
       alluxio.function.ThrowableConsumer<ExecContext> fn) throws Exception {
     try (JournalContext journalContext = createJournalContext();
          LockedInodePath inodePath = mInodeTree.lockFullInodePath(inodeId, lockPattern)) {
-      fn.accept(new ExecContext(journalContext, inodePath, mInodeTree, mMountTable));
+      fn.accept(
+          new ExecContext(journalContext, inodePath, mInodeTree, mMountTable, mPermissionChecker));
     }
   }
   // ALLUXIO CS END

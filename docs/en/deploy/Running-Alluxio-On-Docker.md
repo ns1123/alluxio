@@ -7,9 +7,11 @@ priority: 3
 ---
 
 Docker can be used to simplify the deployment and management of Alluxio servers.
-Using the [alluxio/alluxio](https://hub.docker.com/r/alluxio/alluxio/) Docker
-image available on Dockerhub, you can go from
-zero to a running Alluxio cluster with a couple of `docker run` commands.
+<!-- ALLUXIO CS REMOVE -->
+<!-- Using the [alluxio/alluxio](https://hub.docker.com/r/alluxio/alluxio/) Docker -->
+<!-- image available on Dockerhub, you can go from -->
+<!-- zero to a running Alluxio cluster with a couple of `docker run` commands. -->
+<!-- ALLUXIO CS END -->
 This document provides a tutorial for running Dockerized Alluxio on a single node.
 We'll also discuss more advanced topics and how to troubleshoot.
 
@@ -46,11 +48,38 @@ Create a network for connecting Alluxio containers, and create a volume for stor
 docker network create alluxio_nw
 docker volume create ufs
 ```
+<!-- ALLUXIO CS ADD -->
+## Load the Docker Image
+
+Load the docker image from the given tar.
+```bash
+docker load --input alluxio-enterprise-{{site.ALLUXIO_VERSION_STRING}}-docker.tar
+```
+<!-- ALLUXIO CS END -->
 
 ## Launch Alluxio
 
 The `--shm-size=1G` argument will allocate a `1G` tmpfs for the worker to store Alluxio data.
 
+<!-- ALLUXIO CS REPLACE -->
+<!-- ```bash -->
+<!-- # Launch the Alluxio master -->
+<!-- docker run -d \ -->
+<!--            -p 19999:19999 \ -->
+<!--            --net=alluxio_nw \ -->
+<!--            --name=alluxio-master \ -->
+<!--            -v ufs:/opt/alluxio/underFSStorage \ -->
+<!--            alluxio/alluxio master -->
+<!-- # Launch the Alluxio worker -->
+<!-- docker run -d \ -->
+<!--            --net=alluxio_nw \ -->
+<!--            --name=alluxio-worker \ -->
+<!--            --shm-size=1G \ -->
+<!--            -v ufs:/opt/alluxio/underFSStorage \ -->
+<!--            -e ALLUXIO_JAVA_OPTS="-Dalluxio.worker.memory.size=1G -Dalluxio.master.hostname=alluxio-master" \ -->
+<!--            alluxio/alluxio worker -->
+<!-- ``` -->
+<!-- ALLUXIO CS WITH -->
 ```bash
 # Launch the Alluxio master
 docker run -d \
@@ -58,7 +87,7 @@ docker run -d \
            --net=alluxio_nw \
            --name=alluxio-master \
            -v ufs:/opt/alluxio/underFSStorage \
-           alluxio/alluxio master
+           alluxio/alluxio-enterprise:{{site.ALLUXIO_VERSION_STRING}} master
 # Launch the Alluxio worker
 docker run -d \
            --net=alluxio_nw \
@@ -66,18 +95,28 @@ docker run -d \
            --shm-size=1G \
            -v ufs:/opt/alluxio/underFSStorage \
            -e ALLUXIO_JAVA_OPTS="-Dalluxio.worker.memory.size=1G -Dalluxio.master.hostname=alluxio-master" \
-           alluxio/alluxio worker
+           alluxio/alluxio-enterprise:{{site.ALLUXIO_VERSION_STRING}} worker
 ```
+<!-- ALLUXIO CS END -->
 
 ## Verify the Cluster
 
 To verify that the services came up, check `docker ps`. You should see something like
+<!-- ALLUXIO CS REPLACE -->
+<!-- ```bash -->
+<!-- docker ps -->
+<!-- CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                      NAMES -->
+<!-- 1fef7c714d25        alluxio/alluxio     "/entrypoint.sh work…"   39 seconds ago      Up 38 seconds                                  alluxio-worker -->
+<!-- 27f92f702ac2        alluxio/alluxio     "/entrypoint.sh mast…"   44 seconds ago      Up 43 seconds       0.0.0.0:19999->19999/tcp   alluxio-master -->
+<!-- ``` -->
+<!-- ALLUXIO CS WITH -->
 ```bash
 docker ps
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                      NAMES
-1fef7c714d25        alluxio/alluxio     "/entrypoint.sh work…"   39 seconds ago      Up 38 seconds                                  alluxio-worker
-27f92f702ac2        alluxio/alluxio     "/entrypoint.sh mast…"   44 seconds ago      Up 43 seconds       0.0.0.0:19999->19999/tcp   alluxio-master
+CONTAINER ID        IMAGE                                                           COMMAND                  CREATED             STATUS              PORTS                      NAMES
+1fef7c714d25        alluxio/alluxio-enterprise:{{site.ALLUXIO_VERSION_STRING}}                       "/entrypoint.sh work…"   39 seconds ago      Up 38 seconds                                  alluxio-worker
+27f92f702ac2        alluxio/alluxio-enterprise:{{site.ALLUXIO_VERSION_STRING}}                       "/entrypoint.sh mast…"   44 seconds ago      Up 43 seconds       0.0.0.0:19999->19999/tcp   alluxio-master
 ```
+<!-- ALLUXIO CS END -->
 
 If you don't see the containers, run `docker logs` on their container ids to see what happened.
 The container ids were printed by the `docker run` command, and can also be found in `docker ps -a`.
@@ -220,20 +259,39 @@ a fresh state.
 
 ### Enable POSIX API access
 
-Using the [alluxio/alluxio-fuse](https://hub.docker.com/r/alluxio/alluxio-fuse/), you can enable
-access to Alluxio using the POSIX API.
+<!-- ALLUXIO CS REPLACE -->
+<!-- Using the [alluxio/alluxio-fuse](https://hub.docker.com/r/alluxio/alluxio-fuse/), you can enable -->
+<!-- access to Alluxio using the POSIX API. -->
+<!-- ALLUXIO CS WITH -->
+Using the image `alluxio/alluxio-enterprise-fuse`, you can enable access to Alluxio using the POSIX API.
+
+Load the docker image from the given tar.
+```bash
+docker load --input alluxio-enterprise-fuse-{{site.ALLUXIO_VERSION_STRING}}-docker.tar
+```
+<!-- ALLUXIO CS END -->
 
 Launch the container with [SYS_ADMIN](http://man7.org/linux/man-pages/man7/capabilities.7.html)
 capability. This runs the FUSE daemon on a client node that needs to access Alluxio using the POSIX
 API with a mount accessible at `/alluxio-fuse`.
 
+<!-- ALLUXIO CS REPLACE -->
+<!-- ```bash -->
+<!-- docker run -e \ -->
+<!--            ... -->
+<!--            --cap-add SYS_ADMIN -->
+<!--            --device /dev/fuse -->
+<!--            alluxio-fuse fuse -->
+<!-- ``` -->
+<!-- ALLUXIO CS WITH -->
 ```bash
 docker run -e \
            ...
            --cap-add SYS_ADMIN
            --device /dev/fuse
-           alluxio-fuse fuse
+           alluxio-enterprise-fuse:{{site.ALLUXIO_VERSION_STRING}} fuse
 ```
+<!-- ALLUXIO CS END -->
 
 
 ## Troubleshooting

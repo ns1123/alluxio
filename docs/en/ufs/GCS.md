@@ -14,9 +14,13 @@ as the under storage system.
 
 ## Prerequisites
 
-The Alluxio binaries must be on your machine. You can either
-[compile Alluxio]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}), or
-[download the binaries locally]({{ '/en/deploy/Running-Alluxio-Locally.html' | relativize_url }}).
+<!-- ALLUXIO CS REPLACE -->
+<!-- The Alluxio binaries must be on your machine. You can either -->
+<!-- [compile Alluxio]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}), or -->
+<!-- [download the binaries locally]({{ '/en/deploy/Running-Alluxio-Locally.html' | relativize_url }}). -->
+<!-- ALLUXIO CS WITH -->
+[Download binaries locally]({{ '/en/deploy/Running-Alluxio-Locally.html' | relativize_url }}).
+<!-- ALLUXIO CS END -->
 
 In preparation for using GCS with Alluxio, create a bucket (or use an existing bucket). You
 should also note the directory you want to use in that bucket, either by creating a new directory in

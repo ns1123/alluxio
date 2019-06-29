@@ -165,6 +165,51 @@ And the following command returns the log level of the class `alluxio.heartbeat.
 ```bash
 alluxio logLevel --logName=alluxio.heartbeat.HeartbeatContext --target=workers
 ```
+<!-- ALLUXIO CS ADD -->
+
+# privileges (enterprise only)
+
+The `privileges` command allows an Alluxio cluster administrator to grant, revoke, or deny privileges to a group of 
+users within an Alluxio cluster. See the
+[privileges model documentation for more information]({{ 'en/advanced/Privileges.html' | relativize_url }}).
+
+Note that to enable privileges you'll need to set `alluxio.security.privileges.enabled=true` in the Alluxio master's
+`alluxio-site.properties`.
+
+The basic set of privileges is
+
+- `FREE`
+- `PIN`
+- `REPLICATION`
+- `TTL`
+
+Examples: 
+
+Show privileges for all groups
+
+```bash
+./bin/alluxio privileges --help # Shows the help text
+./bin/alluxio privileges list # lists privileges for all groups
+```
+
+Revoke all privileges
+
+```bash
+./bin/alluxio privileges revoke -group <user_group> -privileges all # Afterwards, users in this group have no privileges
+./bin/alluxio privileges list -group <user_group> # lists all privileges for <user_group>
+```
+
+Grant a single privilege
+
+```bash
+./bin/alluxio privileges grant -group <user_group> -privileges replication # Afterwards, users in this group can set replication
+./bin/alluxio privileges list -group <user_group> # lists all privileges for <user_group>
+```
+
+See  [privileges model documentation]({{ 'en/advanced/Privileges.html' | relativize_url }}) for a more comprehensive set
+of usages of Alluxio privileges.
+
+<!-- ALLUXIO CS END -->
 
 ### runTests
 

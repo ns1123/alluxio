@@ -65,7 +65,11 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: alluxio-master
-          image: alluxio/alluxio:2.0.0-RC5
+# ALLUXIO CS REPLACE
+#           image: alluxio/alluxio:2.0.1-SNAPSHOT
+# ALLUXIO CS WITH
+          image: alluxio/alluxio-enterprise:2.0.1-SNAPSHOT
+# ALLUXIO CS END
           resources:
             requests:
               cpu: "0.5"
@@ -87,7 +91,11 @@ spec:
             - name: alluxio-journal
               mountPath: /journal
         - name: alluxio-job-master
-          image: alluxio/alluxio:2.0.0-RC5
+# ALLUXIO CS REPLACE
+#           image: alluxio/alluxio:2.0.1-SNAPSHOT
+# ALLUXIO CS WITH
+          image: alluxio/alluxio-enterprise:2.0.1-SNAPSHOT
+# ALLUXIO CS END
           resources:
             requests:
               cpu: "0.5"
@@ -105,10 +113,10 @@ spec:
             name: job-rpc
           - containerPort: 20002
             name: job-web
+# ALLUXIO CS ADD
           volumeMounts:
             - name: alluxio-journal
               mountPath: /journal
-# ALLUXIO CS ADD
             - name: secret-volume
               mountPath: /secrets
 # ALLUXIO CS END
