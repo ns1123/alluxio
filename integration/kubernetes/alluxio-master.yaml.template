@@ -66,9 +66,9 @@ spec:
       containers:
         - name: alluxio-master
 # ALLUXIO CS REPLACE
-#           image: alluxio/alluxio:2.0.0-1.0-RC3
+#           image: alluxio/alluxio:2.0.0-1.0
 # ALLUXIO CS WITH
-          image: alluxio/alluxio-enterprise:2.0.0-1.0-RC3
+          image: alluxio/alluxio-enterprise:2.0.0-1.0
 # ALLUXIO CS END
           resources:
             requests:
@@ -92,9 +92,9 @@ spec:
               mountPath: /journal
         - name: alluxio-job-master
 # ALLUXIO CS REPLACE
-#           image: alluxio/alluxio:2.0.0-1.0-RC3
+#           image: alluxio/alluxio:2.0.0-1.0
 # ALLUXIO CS WITH
-          image: alluxio/alluxio-enterprise:2.0.0-1.0-RC3
+          image: alluxio/alluxio-enterprise:2.0.0-1.0
 # ALLUXIO CS END
           resources:
             requests:
