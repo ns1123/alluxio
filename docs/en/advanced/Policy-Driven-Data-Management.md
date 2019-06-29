@@ -48,12 +48,12 @@ In the command above:
 
 - `alluxio-union.<UFS_ALIAS>.uri` specifies a URI of a sub under storage system(sub-UFS) to be mounted. `<UFS_ALIAS>`
  should be replaced with an alias representing the sub-UFS. Users can specify multiple UFSs to be mounted with
- different aliases. For example, `alluxio-union.HDFS.uri=hdfs://local_hdfs/user_a/` tells the union UFS to mount a
- sub-UFS at `hdfs://local_hdfs/user_a/` with the alias `HDFS`. 
+ different aliases. For example, `alluxio-union.hdfs.uri=hdfs://local_hdfs/user_a/` tells the union UFS to mount a
+ sub-UFS at `hdfs://local_hdfs/user_a/` with the alias `hdfs`. The alias must be in lower case.
 - `alluxio-union.<UFS_ALIAS>.option.<KEY>` specifies an optional UFS option for a specific sub-UFS. `<UFS_ALIAS>`
  denotes an alias of sub-UFS defined by `alluxio-union.<UFS_ALIAS>.uri`, `<KEY>` denotes the option key to be set
- to the target sub-UFS. For example, `alluxio-union.S3.option.aws.accessKeyId=MYKEYID` sets `aws.accessKeyId` option
- for sub-UFS `S3` to value `MYKEYID`.
+ to the target sub-UFS. For example, `alluxio-union.s3.option.aws.accessKeyId=MYKEYID` sets `aws.accessKeyId` option
+ for sub-UFS `s3` to value `MYKEYID`.
 - `alluxio-union.priority.read` specifies an ordered list of UFS aliases to set the read priority of sub-UFSes.
  When a file is read from a union UFS, it will be attempted on sub-UFSes in the same order as the aliases in this list.
  The first sub-UFS with the file available for reading will be used. All sub-UFS aliases must appear in this list.
@@ -67,20 +67,20 @@ For example, the following command can be used to mount an HDFS directory and an
 
 ```bash
 ./bin/alluxio fs mount \
-   --option alluxio-union.HDFS.uri=hdfs://local_hdfs/user_a/ \
-   --option alluxio-union.HDFS.option.alluxio.underfs.hdfs.configuration=/opt/hdfs/core-site.xml:/opt/hdfs/hdfs-site.xml \
-   --option alluxio-union.S3.uri=s3://mybucket/ \ 
-   --option alluxio-union.S3.option.aws.accessKeyId=MYKEYID \
-   --option alluxio-union.S3.option.aws.secretKey=MYSECRETKEY \
-   --option alluxio-union.priority.read=HDFS,S3 \
-   --option alluxio-union.collection.create=S3  \
+   --option alluxio-union.hdfs.uri=hdfs://local_hdfs/user_a/ \
+   --option alluxio-union.hdfs.option.alluxio.underfs.hdfs.configuration=/opt/hdfs/core-site.xml:/opt/hdfs/hdfs-site.xml \
+   --option alluxio-union.s3.uri=s3://mybucket/ \ 
+   --option alluxio-union.s3.option.aws.accessKeyId=MYKEYID \
+   --option alluxio-union.s3.option.aws.secretKey=MYSECRETKEY \
+   --option alluxio-union.priority.read=hdfs,s3 \
+   --option alluxio-union.collection.create=s3  \
    /union union://union_ufs_1/
 ```
 
 ## Reading and Writing Data on Union UFS
 
 Data on a union UFS can be accessed just like any other UFS. Files that exist in any of the sub-UFSes will show up in the
-mount point. For example, if sub-UFS A contains a file at path `/a/b` and another one at `/c`, and sub-UFS B contains
+mount point. For example, if sub-UFS `a` contains a file at path `/a/b` and another one at `/c`, and sub-UFS `b` contains
 a file at path `/a/d` and and a file at `/c`, then the union UFS will expose a directory structure as follows:
 
 ```
@@ -92,8 +92,8 @@ a file at path `/a/d` and and a file at `/c`, then the union UFS will expose a d
 ```
 
 When file data is read from a union UFS, it will be read from the sub-UFS of the highest priority which contains the file.
-In the above example, if sub-UFS A has the highest priority, then reading data from `/c` will end up
-reading from sub-UFS A. Reading data from `/a/d` will end up reading from sub-UFS B since only B has the file.
+In the above example, if sub-UFS `a` has the highest priority, then reading data from `/c` will end up
+reading from sub-UFS `a`. Reading data from `/a/d` will end up reading from sub-UFS `b` since only `b` has the file.
 
 When file data is written to a union UFS, it will be written to all sub-UFSes specified in the
 `alluxio-union.collection.create` property. A write request will complete after the file is completed on all target
@@ -112,7 +112,7 @@ In the command above:
 - `<PATH>` specifies an Alluxio path where the policy will apply.
 - `<OLDER_THAN_TIME_PERIOD>` specifies a time period that the policy will be executed if the target file is older than it.
   Use `s`, `m`, `h`, `d` to indicate time unit seconds, minutes, hours, and days.
-  For example, `ufsMigrate(30m, UFS[A]:STORE)` sets a policy to execute after a file is older than 30 minutes.
+  For example, `ufsMigrate(30m, UFS[a]:STORE)` sets a policy to execute after a file is older than 30 minutes.
 - `<LOCATION>:<OPERATION>` specifies a file operation to be executed.
   - `<LOCATION>` specifies the target storage of the operation. Use `UFS[<UFS_ALIAS>]` to refer to a sub-UFS.
   - `<OPERATION>` specifies how the data is affected on this storage location. It can be either `STORE` to indicate the
@@ -121,15 +121,15 @@ In the command above:
 For example, if we have a union UFS mount point at Alluxio mount point `/union/` with the following options:
 
 ```properties
-alluxio-union.HDFS.uri=hdfs://local_hdfs/user_a/
-alluxio-union.S3.uri=s3://mybucket/
+alluxio-union.hdfs.uri=hdfs://local_hdfs/user_a/
+alluxio-union.s3.uri=s3://mybucket/
 ```
 
 the command below will add a policy to move files under the Alluxio path `/union/mydir` from the corresponding 
 HDFS path `hdfs://local_hdfs/user_a/mydir` to the S3 path `s3://mybucket/mydir` once they are older than 2 days:
 
 ```bash
-./bin/alluxio fs policy add /union/mydir "ufsMigrate(2d, UFS[HDFS]:REMOVE, UFS[S3]:STORE)"
+./bin/alluxio fs policy add /union/mydir "ufsMigrate(2d, UFS[hdfs]:REMOVE, UFS[s3]:STORE)"
 ```
 
 After a policy is added, it will be executed in the background after all its requirements are met. Users can always access
@@ -138,11 +138,11 @@ a mount point using the `--policy <POLICY_DESCRIPTION>` option in `alluxio fs mo
 
 ```bash
 ./bin/alluxio fs mount \
-  --option alluxio-union.A.uri=/tmp/ufs1/ \
-  --option alluxio-union.B.uri=/tmp/ufs2/ \
-  --option alluxio-union.priority.read=A,B \
-  --option alluxio-union.collection.create=A \
-  --policy "ufsMigrate(2d, UFS[A]:REMOVE, UFS[B]:STORE)"
+  --option alluxio-union.a.uri=/tmp/ufs1/ \
+  --option alluxio-union.b.uri=/tmp/ufs2/ \
+  --option alluxio-union.priority.read=a,b \
+  --option alluxio-union.collection.create=a \
+  --policy "ufsMigrate(2d, UFS[a]:REMOVE, UFS[b]:STORE)"
   /union/ union://test/
 ```
 will mount a union UFS and add a policy to migrate files inside the mount point at `/union/`.
@@ -203,17 +203,17 @@ Mount the union UFS with the local sub-UFSes using the following command:
 
 ```bash
 ./bin/alluxio fs mount \
-  --option alluxio-union.A.uri=/tmp/ufs1/ \
-  --option alluxio-union.B.uri=/tmp/ufs2/ \
-  --option alluxio-union.priority.read=A,B \
-  --option alluxio-union.collection.create=A \
+  --option alluxio-union.a.uri=/tmp/ufs1/ \
+  --option alluxio-union.b.uri=/tmp/ufs2/ \
+  --option alluxio-union.priority.read=a,b \
+  --option alluxio-union.collection.create=a \
   /union/ union://test/
 ```
 
-Setup a policy to move from UFS A to UFS B:
+Setup a policy to move from UFS `a` to UFS `b``:
 
 ```bash
-./bin/alluxio fs policy add /union/ "ufsMigrate(1m, UFS[A]:REMOVE, UFS[B]:STORE)" 
+./bin/alluxio fs policy add /union/ "ufsMigrate(1m, UFS[a]:REMOVE, UFS[b]:STORE)" 
 ```
 
 To test the mounted union UFS, run the following command to copy a new file to the mount point:
