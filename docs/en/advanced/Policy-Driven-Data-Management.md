@@ -1,9 +1,8 @@
 ---
 layout: global
 title: Policy-Driven Data Management
-nickname: Union UFS
+nickname: Policy-Driven Data Management
 group: Advanced
-priority: 99
 ---
 
 * Table of Contents
