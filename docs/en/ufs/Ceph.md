@@ -17,9 +17,13 @@ using [Rados Gateway](http://docs.ceph.com/docs/master/radosgw/):
 
 ## Prerequisites
 
-The Alluxio binaries must be on your machine. You can either
-[compile Alluxio]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}), or
-[download the binaries locally]({{ '/en/deploy/Running-Alluxio-Locally.html' | relativize_url }}).
+<!-- ALLUXIO CS REPLACE -->
+<!-- The Alluxio binaries must be on your machine. You can either -->
+<!-- [compile Alluxio]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}), or -->
+<!-- [download the binaries locally]({{ '/en/deploy/Running-Alluxio-Locally.html' | relativize_url }}). -->
+<!-- ALLUXIO CS WITH -->
+The Alluxio binaries must be on your machine.
+<!-- ALLUXIO CS END -->
 
 ## Basic Setup
 

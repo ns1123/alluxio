@@ -1,7 +1,7 @@
 ---
 layout: global
 title: Alluxio on DC/OS
-nickname: Alluxio on DC/OS
+nickname: DC/OS
 group: Deploying Alluxio
 priority: 5
 ---

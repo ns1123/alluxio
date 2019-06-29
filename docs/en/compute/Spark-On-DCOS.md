@@ -1,9 +1,9 @@
 ---
 layout: global
 title: Running Spark on Alluxio in DC/OS
-nickname: Apache Spark on DC/OS
+nickname: Spark on DC/OS
 group: Data Applications
-priority: 7
+priority: 8
 ---
 
 * Table of contents

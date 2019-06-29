@@ -17,9 +17,13 @@ If you need to get your own NFS installation up and running, we recommend taking
 
 ## Initial Setup
 
-The Alluxio binaries must be on your machine. You can either
-[compile Alluxio]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}), or
-[download the binaries locally]({{ '/en/deploy/Running-Alluxio-Locally.html' | relativize_url }}).
+<!-- ALLUXIO CS REPLACE -->
+<!-- The Alluxio binaries must be on your machine. You can either -->
+<!-- [compile Alluxio]({{ '/en/contributor/Building-Alluxio-From-Source.html' | relativize_url }}), or -->
+<!-- [download the binaries locally]({{ '/en/deploy/Running-Alluxio-Locally.html' | relativize_url }}). -->
+<!-- ALLUXIO CS WITH -->
+[Download binaries locally]({{ '/en/deploy/Running-Alluxio-Locally.html' | relativize_url }}).
+<!-- ALLUXIO CS END -->
 
 ## Configuring Alluxio
 

@@ -16,8 +16,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
+import alluxio.AuthenticatedClientUserResource;
 import alluxio.Constants;
 import alluxio.client.file.FileSystemTestUtils;
+import alluxio.client.file.URIStatus;
 import alluxio.conf.PropertyKey;
 import alluxio.conf.ServerConfiguration;
 import alluxio.exception.status.UnauthenticatedException;
@@ -85,9 +87,13 @@ public class PolicyMasterFaultToleranceIntegrationTest extends BaseIntegrationTe
           .getMasterProcess().getMaster(PolicyMaster.class);
       AlluxioURI file = new AlluxioURI("/test");
       FileSystemTestUtils.createByteFile(fs, file, WritePType.MUST_CACHE, 10);
-      policyMaster.addPolicy(file.getPath(),
-          "ufsMigrate(20m, UFS[A]:STORE, UFS[B]:REMOVE)",
-          AddPolicyPOptions.getDefaultInstance());
+      URIStatus status = fs.getStatus(file);
+      try (AuthenticatedClientUserResource r = new AuthenticatedClientUserResource(status.getOwner(),
+          ServerConfiguration.global())) {
+        policyMaster.addPolicy(file.getPath(),
+            "ufsMigrate(20m, UFS[A]:STORE, UFS[B]:REMOVE)",
+            AddPolicyPOptions.getDefaultInstance());
+      }
       Set<PolicyMaster> deadMasters = new HashSet<>();
       // kills leaders one by one and verify policy can be listed
       for (int kills = 0; kills < MASTERS - 1; kills++) {

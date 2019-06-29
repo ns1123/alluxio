@@ -156,6 +156,9 @@ The minimal configuration to set up a HA cluster is to give the embedded journal
 Alluxio's internal leader election will determine the leader master. The default embedded journal port is `19200`.
 
 ```
+<!-- ALLUXIO CS ADD -->
+alluxio.master.journal.type=EMBEDDED
+<!-- ALLUXIO CS END -->
 alluxio.master.embedded.journal.addresses=master_hostname_1:19200,master_hostname_2:19200,master_hostname_3:19200
 ```
 
@@ -189,9 +192,11 @@ The configuration parameters which must be set are:
   - The HA masters use ZooKeeper for leader election, and the workers use ZooKeeper to discover the leader master.
   - Multiple ZooKeeper addresses can be specified by delimiting with commas
   - Examples: `alluxio.zookeeper.address=1.2.3.4:2181`, `alluxio.zookeeper.address=zk1:2181,zk2:2181,zk3:2181`
-- `alluxio.master.journal.type=UFS`
-  - This uses UFS as the journal place. Note that Zookeeper cannot work 
-  with journal type `EMBEDDED` (use a journal embedded in the masters).
+<!-- ALLUXIO CS REMOVE -->
+<!-- - `alluxio.master.journal.type=UFS` -->
+<!--   - This uses UFS as the journal place. Note that Zookeeper cannot work -->
+<!--   with journal type `EMBEDDED` (use a journal embedded in the masters). -->
+<!-- ALLUXIO CS END -->
 - `alluxio.master.journal.folder=<JOURNAL_URI>`
   - This is set to the URI of the shared journal location for the Alluxio leader master to write the journal to,
   and for standby masters to replay journal entries from. This shared shared storage system must be

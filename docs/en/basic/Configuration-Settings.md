@@ -66,6 +66,19 @@ See
 Presto can be configured to use customized Alluxio client-side properties for the entire service.
 See
 [examples]({{ '/en/compute/Presto.html' | relativize_url }}#customize-alluxio-user-properties).
+<!-- ALLUXIO CS ADD -->
+
+### CDH (Enterprise-only)
+
+CDH can be configured to use customized Alluxio client-side properties for the entire service.
+See [examples]({{ '/en/compute/CDH.html' | relativize_url }}).
+
+### HDP (Enterprise-only)
+
+HDP can be configured to use customized Alluxio client-side properties for the entire service.
+See [examples]({{ '/en/compute/HDP.html' | relativize_url }}).
+
+<!-- ALLUXIO CS END -->
 
 ## Configure an Alluxio Cluster
 
