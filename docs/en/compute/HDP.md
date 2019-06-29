@@ -22,12 +22,30 @@ To run HDP MapReduce applications with Alluxio, some additional configuration is
 ### Configuring core-site.xml
 
 You need to add the following properties to `core-site.xml`. The ZooKeeper properties are only required for a cluster
-using HA mode. Similarly, embedded properties are only required for an HA cluster using Embedded Journal.
+using HA mode. Similarly, embedded journal properties are only required for an HA cluster using Embedded Journal.
 
-  * `fs.alluxio.impl=alluxio.hadoop.FileSystem`
-  * `alluxio.zookeeper.enabled=true`
-  * `alluxio.zookeeper.address=zknode1:2181,zknode2:2181,zknode3:2181`
-  * `alluxio.master.embedded.journal.addresses=alluxiomaster1:19200,alluxiomaster2:19200,alluxiomaster3:19200`
+```xml
+<property>
+  <name>fs.alluxio.impl</name>
+  <value>alluxio.hadoop.FileSystem</value>
+</property>
+<property>
+  <name>alluxio.zookeeper.enabled</name>
+  <value>true</value>
+</property>
+<property>
+  <name>alluxio.zookeeper.enabled</name>
+  <value>true</value>
+</property>
+<property>
+  <name>alluxio.zookeeper.address</name>
+  <value>zknode1:2181,zknode2:2181,zknode3:2181</value>
+</property>
+<property>
+  <name>alluxio.master.embedded.journal.addresses</name>
+  <value>alluxiomaster1:19200,alluxiomaster2:19200,alluxiomaster3:19200</value>
+</property>
+```
 
 You can add configuration properties to `core-site.xml` file with Ambari. In the "HDFS" section of
 Ambari, the "Advanced" tab of the "Configs" tab has the "Custom core-site" section. In this section,
@@ -51,8 +69,8 @@ After the properties are added, the "Custom core-site" section should have the f
 
 ![HDPCoreSiteParams]({{ '/img/screenshot_hdp_compute_core_site_params.png' | relativize_url }})
 
-Then save the configuration, and Ambari will notify you that you should restart the affected
-components. Please restart the affected components.
+Save the configuration, and Ambari will notify you that you should restart the affected
+components. Accept this option to update the new properties.
 
 ### Configuring HADOOP_CLASSPATH
 
@@ -119,8 +137,7 @@ After you save the configuration, restart the affected components.
 
 ### Running Sample MapReduce Application
 
-Here is an example of running a simple MapReduce application. Note that if Alluxio is running in fault tolerant
-mode, the URI scheme would need to be `alluxio-ft://` instead of `alluxio://`. In the following example,
+Here is an example of running a simple MapReduce application. In the following example,
 replace `MASTER_HOSTNAME` with your actual Alluxio master hostname.
 
 ```bash
@@ -173,7 +190,7 @@ Before restarting HBase running on Alluxio, please create a `/tmp` directory and
 
 You need to add the following properties to `hbase-site.xml`.
 
-```
+```xml
 <property>
   <name>hbase.rootdir</name>
   <value>alluxio://HOSTNAME:PORT/hbase/data</value>
@@ -195,8 +212,6 @@ the parameter "Custom hbase-site". Click on "Add Property ..." and add the follo
 
 ```
 fs.alluxio.impl=alluxio.hadoop.FileSystem
-fs.alluxio-ft.impl=alluxio.hadoop.FaultTolerantFileSystem
-fs.AbstractFileSystem.alluxio.impl=alluxio.hadoop.AlluxioFileSystem
 ```
 
 It should look something like this:
@@ -205,7 +220,8 @@ It should look something like this:
 Then save the configuration, and Ambari will notify you that you should restart the affected
 components. Please restart the affected components.
 
-### Add additional Alluxio site properties in HBase
+### Add additional Alluxio Properties for HBase
+
 If there are any Alluxio site properties you want to specify for HBase, add those to `hbase-site.xml`
 similarly as setting the properties above.
 
@@ -218,7 +234,7 @@ Before running HBase applications, visit HBase Web UI at `http://<hostname>:1601
 is running on Alluxio (check the `HBase Root Directory` attribute).
 And visit Alluxio Web UI at `http://<hostname>:19999`, click `Browse` and you can see the files HBase stores on Alluxio, including data and WALs.
 
-Then, you can follow the sample HBase application on [Running-HBase-on-Alluxio](Running-HBase-on-Alluxio.html)
+Then, you can follow the sample HBase application on [Running-HBase-on-Alluxio]({{ '/en/compute/HBase.html' | relativize_url }}).
 
 ## Running HDP Hive
 
@@ -253,7 +269,7 @@ Note that if `hive.doAs` is disabled, this property is not required.
 ### Create External Table Located in Alluxio
 
 With the `HIVE_AUX_JARS_PATH` set, Hive can create external tables from files stored on Alluxio.
-You can follow the sample Hive application on [Running-Hive-on-Alluxio](Running-Hive-on-Alluxio.html)
+You can follow the sample Hive application on [Running-Hive-on-Alluxio]({{ '/en/compute/Hive.html' | relativize_url }}).
 to create an external table located in Alluxio.
 
 ### (Optional) Use Alluxio as Default Filesystem in HDP Hive
@@ -267,12 +283,6 @@ the parameter "Custom hive-site". Click on "Add Property ..." and add the follow
 
 ```
 fs.defaultFS=alluxio://HOSTNAME:PORT/
-```
-
-Alternatively, to use fault tolerant mode, set Alluxio scheme to be alluxio-ft:
-
-```
-fs.defaultFS=alluxio-ft:///
 ```
 
 It should look something like this:
@@ -294,7 +304,7 @@ components. Please restart the affected components.
 
 ### Running Sample Hive Application
 
-You can follow the sample Hive application on [Running-Hive-on-Alluxio](Running-Hive-on-Alluxio.html)
+You can follow the sample Hive application on [Running-Hive-on-Alluxio]({{ '/en/compute/Hive.html' | relativize_url }}).
 
 ## Running HDP Spark
 

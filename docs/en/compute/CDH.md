@@ -22,24 +22,40 @@ To run CDH MapReduce applications with Alluxio, some additional configuration is
 ### Configuring core-site.xml
 
 You need to add the following properties to `core-site.xml`. The ZooKeeper properties are only required for a cluster
-using HA mode. Similarly, embedded properties are only required for an HA cluster using Embedded Journal.
+using HA mode. Similarly, embedded journal properties are only required for an HA cluster using Embedded Journal.
 
-  * `fs.alluxio.impl=alluxio.hadoop.FileSystem`
-  * `alluxio.zookeeper.enabled=true`
-  * `alluxio.zookeeper.address=zknode1:2181,zknode2:2181,zknode3:2181`
-  * `alluxio.master.embedded.journal.addresses=alluxiomaster1:19200,alluxiomaster2:19200,alluxiomaster3:19200`
+```xml
+<property>
+  <name>fs.alluxio.impl</name>
+  <value>alluxio.hadoop.FileSystem</value>
+</property>
+<property>
+  <name>alluxio.zookeeper.enabled</name>
+  <value>true</value>
+</property>
+<property>
+  <name>alluxio.zookeeper.enabled</name>
+  <value>true</value>
+</property>
+<property>
+  <name>alluxio.zookeeper.address</name>
+  <value>zknode1:2181,zknode2:2181,zknode3:2181</value>
+</property>
+<property>
+  <name>alluxio.master.embedded.journal.addresses</name>
+  <value>alluxiomaster1:19200,alluxiomaster2:19200,alluxiomaster3:19200</value>
+</property>
+```
 
-You can add configuration properties to `core-site.xml` file with the Cloudera Manager. In the "HDFS" component of
-the Cloudera Manager, in the "Configuration" tab, parameters can be searched for. The configuration parameter
-"Cluster-wide Advanced Configuration Snippet (Safety Valve) for core-site.xml" can be modified to add the
-required properties.
-
-The properties can be added as seem below:
+To add configuration properties to `core-site.xml` with Cloudera Manager select the "HDFS" component in
+Cloudera Manager, choose the "Configuration" and search for
+"Cluster-wide Advanced Configuration Snippet (Safety Valve) for core-site.xml". This can be modified to add the
+required properties. Refer to the picture below.
 
 ![CDHCoreSite]({{ '/img/screenshot_cdh_compute_core_site.png' | relativize_url }})
 
-Then save the configuration, and the Cloudera Manager will notify you that you should restart and deploy
-the affected components. Please restart the affected components and deploy the configuration.
+Then, save the configuration, and Cloudera Manager will notify you that you should deploy configurations and restart
+the affected components. Accept these options to continue.
 
 ### Configuring HADOOP_CLASSPATH
 
@@ -111,9 +127,7 @@ After you save the configuration, restart the affected components.
 
 ### Running Sample MapReduce Application
 
-Here is an example of running a simple MapReduce application. Note that if Alluxio is running in fault tolerant
-mode, the URI scheme would need to be `alluxio-ft://` instead of `alluxio://`. In the following example,
-replace `MASTER_HOSTNAME` with your actual Alluxio master hostname.
+In the following example, replace `MASTER_HOSTNAME` with your actual Alluxio master hostname.
 
 ```bash
 $ yarn jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar randomtextwriter -Dmapreduce.randomtextwriter.bytespermap=10000000 alluxio://MASTER_HOSTNAME:19998/testing/randomtext/
@@ -151,7 +165,7 @@ HBASE_CLASSPATH=/path/to/alluxio/client/hadoop/alluxio-{{site.ALLUXIO_RELEASED_V
 It should look something like this:
 ![CDHHbaseEnv]({{ '/img/screenshot_cdh_hbase_env_classpath.png' | relativize_url }})
 
-Then save the configuration. Do not restart HBase until the next steps are completed.
+Save the configuration but do not restart HBase until the next steps are completed.
 
 ### Configuring hbase-site.xml
 
@@ -166,7 +180,7 @@ Before restarting HBase running on Alluxio, please create these directories:
 
 You need to add the following properties to `hbase-site.xml`.
 
-```
+```xml
 <property>
   <name>fs.alluxio.impl</name>
   <value>alluxio.hadoop.FileSystem</value>
@@ -190,7 +204,8 @@ It should look something like this:
 Then save the configuration, and the Cloudera Manager will notify you that you should restart the affected
 components. Please restart the affected components.
 
-### Add additional Alluxio site properties in HBase 
+### Add additional Alluxio Properties for HBase
+
 If there are any Alluxio site properties you want to specify for HBase, add those to `hbase-site.xml`
 similarly as setting the properties above. Please ensure Alluxio additional site properties are added
 on both HBase Service and Client `hbase-site.xml`.
@@ -208,7 +223,7 @@ Before running HBase applications, visit HBase Web UI at `http://<hostname>:6001
 is running on Alluxio (check the `HBase Root Directory` attribute).
 And visit Alluxio Web UI at `http://<hostname>:19999`, click `Browse` and you can see the files HBase stores on Alluxio, including data and WALs.
 
-Then, you can follow the sample HBase application on [Running-HBase-on-Alluxio](Running-HBase-on-Alluxio.html)
+Then, you can follow the sample HBase application on [Running-HBase-on-Alluxio]({{ '/en/compute/HBase.html' | relativize_url }}).
 
 ## Running CDH Hive
 
@@ -220,7 +235,7 @@ In the "Hive" section of the Cloudera Manager, in the "Configuration" tab, searc
 "Gateway Client Environment Advanced Configuration Snippet (Safety Valve) for hive-env.sh". For this
 parameter, add the following line:
 
-```bash
+```
 HIVE_AUX_JARS_PATH=/path/to/alluxio/client/hadoop/alluxio-{{site.ALLUXIO_RELEASED_VERSION}}-hadoop-client.jar:${HIVE_AUX_JARS_PATH}
 ```
 
@@ -236,7 +251,7 @@ components. Please restart the affected components.
 For impersonation, Alluxio will need to be configured to allow the `hive` user to impersonate other users. To do this,
 add the below property to `alluxio-site.properties` on Alluxio Masters and Workers and then restart the Alluxio cluster.
 
-```bash
+```
 alluxio.master.security.impersonation.hive.users=*
 ```
 
@@ -245,7 +260,7 @@ Note that if `hive.doAs` is disabled, this property is not required.
 ### Create External Table Located in Alluxio
 
 With the `HIVE_AUX_JARS_PATH` set, Hive can create external tables from files stored on Alluxio. 
-You can follow the sample Hive application on [Running-Hive-on-Alluxio](Running-Hive-on-Alluxio.html) to create an
+You can follow the sample Hive application on [Running-Hive-on-Alluxio]({{ '/en/compute/Hive.html' | relativize_url }}) to create an
 external table located in Alluxio.
 
 ### (Optional) Use Alluxio as default file system
@@ -282,7 +297,7 @@ components. Please restart the affected components.
 
 ### Running Sample Hive Application
 
-You can follow the sample Hive application on [Running-Hive-on-Alluxio](Running-Hive-on-Alluxio.html)
+You can follow the sample Hive application on [Running-Hive-on-Alluxio]({{ '/en/compute/Hive.html' | relativize_url }}).
 
 ## Running CDH Spark
 
