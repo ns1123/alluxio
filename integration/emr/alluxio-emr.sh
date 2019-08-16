@@ -300,7 +300,7 @@ main() {
 
   # Download files provided by "-f" to /opt/alluxio/conf
   IFS=" " read -ra files_to_be_downloaded <<< "${files_list}"
-  if [ "${#files_to_be_downloaded[@]}" -gt 0 ]; then
+  if [ "${#files_to_be_downloaded[@]}" -gt "0" ]; then
     for file in "${files_to_be_downloaded[@]}"; do
       local filename="$(basename ${file})"
       download_file "${file}"
