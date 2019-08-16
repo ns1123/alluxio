@@ -172,6 +172,8 @@ install_alluxio() {
   sudo chown -R alluxio:alluxio "${ALLUXIO_HOME}"
   rm "${release}"
 
+  # Add ${ALLUXIO_HOME}/bin to PATH for all users
+  echo "export PATH=$PATH:${ALLUXIO_HOME}/bin" | sudo tee /etc/profile.d/alluxio.sh
 }
 
 # Puts a shutdown hook under the EMR defined
