@@ -166,7 +166,7 @@ install_alluxio() {
   # Unpack and inflate the release tar
   # TODO logic for different compression formats, s3 URIs, git URIs, etc.
   sudo cp "${release}" /opt/
-  sudo tar -xvf "/opt/${release}" -C /opt/
+  sudo tar -xpvf "/opt/${release}" -C /opt/
   sudo rm -R "/opt/${release}"
   sudo mv "/opt/${release_unzip}" "${ALLUXIO_HOME}"
   sudo chown -R alluxio:alluxio "${ALLUXIO_HOME}"
