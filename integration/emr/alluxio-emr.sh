@@ -261,8 +261,7 @@ main() {
   fi
 
   # Create user
-  sudo groupadd alluxio -g 600
-  sudo useradd alluxio -u 600 -g 600
+  id -u alluxio &>/dev/null || sudo useradd alluxio
 
   if [[ ! -d "/opt/alluxio" ]]; then
     install_alluxio "${alluxio_tarball}"
